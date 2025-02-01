@@ -26,7 +26,7 @@ namespace tl
         {
             std::map<Tool, std::shared_ptr<IToolWidget> > toolWidgets;
             std::shared_ptr<ui::StackLayout> layout;
-            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
 
         void ToolsWidget::_init(
@@ -57,7 +57,7 @@ namespace tl
                 widget.second->setParent(p.layout);
             }
 
-            p.activeObserver = observer::ValueObserver<int>::create(
+            p.activeObserver = dtk::ValueObserver<int>::create(
                 app->getToolsModel()->observeActiveTool(),
                 [this](int value)
                 {

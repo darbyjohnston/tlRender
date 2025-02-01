@@ -53,11 +53,11 @@ namespace tl
             std::map<QCheckBox*, ui::ThumbnailRequest> thumbnailRequests;
             std::unique_ptr<QTimer> timer;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
+            std::shared_ptr<dtk::ListObserver<int> > layersObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareObserver;
         };
 
         FilesTool::FilesTool(
@@ -179,35 +179,35 @@ namespace tl
             p.timer.reset(new QTimer);
             connect(p.timer.get(), &QTimer::timeout, this, &FilesTool::_thumbnailsUpdate);
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
 
-            p.aObserver = observer::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.aObserver = dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeA(),
                 [this](const std::shared_ptr<play::FilesModelItem>& value)
                 {
                     _aUpdate(value);
                 });
 
-            p.bObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.bObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeB(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _bUpdate(value);
                 });
 
-            p.layersObserver = observer::ListObserver<int>::create(
+            p.layersObserver = dtk::ListObserver<int>::create(
                 app->filesModel()->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
                     _layersUpdate(value);
                 });
 
-            p.compareObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
@@ -255,7 +255,7 @@ namespace tl
                 auto item = p.items[i];
 
                 auto aButton = new QCheckBox;
-                std::string s = string::elide(item->path.get(-1, file::PathType::FileName));
+                std::string s = dtk::elide(item->path.get(-1, file::PathType::FileName));
                 aButton->setText(QString::fromUtf8(s.c_str()));
                 aButton->setCheckable(true);
                 aButton->setChecked(item == a);

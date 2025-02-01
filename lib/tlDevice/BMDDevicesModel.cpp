@@ -39,8 +39,8 @@ namespace tl
             image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
             HDRMode hdrMode = HDRMode::FromFile;
             image::HDRData hdrData;
-            std::shared_ptr<observer::Value<DevicesModelData> > data;
-            std::shared_ptr<observer::ListObserver<DeviceInfo> > deviceInfoObserver;
+            std::shared_ptr<dtk::ObservableValue<DevicesModelData> > data;
+            std::shared_ptr<dtk::ListObserver<DeviceInfo> > deviceInfoObserver;
         };
 
         void DevicesModel::_init(
@@ -48,13 +48,13 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.data = observer::Value<DevicesModelData>::create();
+            p.data = dtk::ObservableValue<DevicesModelData>::create();
 
             _update();
 
             if (auto system = context->getSystem<System>())
             {
-                p.deviceInfoObserver = observer::ListObserver<DeviceInfo>::create(
+                p.deviceInfoObserver = dtk::ListObserver<DeviceInfo>::create(
                     system->observeDeviceInfo(),
                     [this](const std::vector<DeviceInfo>& value)
                     {
@@ -79,7 +79,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IValue<DevicesModelData> > DevicesModel::observeData() const
+        std::shared_ptr<dtk::IObservableValue<DevicesModelData> > DevicesModel::observeData() const
         {
             return _p->data;
         }

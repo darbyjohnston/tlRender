@@ -12,7 +12,6 @@
 #include <tlCore/FileIO.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/Image.h>
-#include <tlCore/OS.h>
 
 #include <QMetaType>
 

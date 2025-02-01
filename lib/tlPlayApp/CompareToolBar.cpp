@@ -23,7 +23,7 @@ namespace tl
             std::map<timeline::CompareMode, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
 
         void CompareToolBar::_init(
@@ -75,7 +75,7 @@ namespace tl
                     }
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {

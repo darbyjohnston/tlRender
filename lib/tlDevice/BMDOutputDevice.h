@@ -43,7 +43,7 @@ namespace tl
             DeviceConfig getConfig() const;
 
             //! Observe the device configuration.
-            std::shared_ptr<observer::IValue<DeviceConfig> > observeConfig() const;
+            std::shared_ptr<dtk::IObservableValue<DeviceConfig> > observeConfig() const;
 
             //! Set the device configuration.
             void setConfig(const DeviceConfig&);
@@ -52,7 +52,7 @@ namespace tl
             bool isEnabled() const;
 
             //! Observe whether the device is enabled.
-            std::shared_ptr<observer::IValue<bool> > observeEnabled() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeEnabled() const;
 
             //! Set whether the device is enabled.
             void setEnabled(bool);
@@ -61,25 +61,25 @@ namespace tl
             bool isActive() const;
 
             //! Observe whether the device is active.
-            std::shared_ptr<observer::IValue<bool> > observeActive() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeActive() const;
 
             //! Get the video size.
             const math::Size2i& getSize() const;
 
             //! Observe the video size.
-            std::shared_ptr<observer::IValue<math::Size2i> > observeSize() const;
+            std::shared_ptr<dtk::IObservableValue<math::Size2i> > observeSize() const;
 
             //! Get the frame rate.
             const FrameRate& getFrameRate() const;
 
             //! Observe the frame rate.
-            std::shared_ptr<observer::IValue<FrameRate> > observeFrameRate() const;
+            std::shared_ptr<dtk::IObservableValue<FrameRate> > observeFrameRate() const;
 
             //! Get the video frame delay.
             int getVideoFrameDelay() const;
 
             //! Observe the video frame delay.
-            std::shared_ptr<observer::IValue<int> > observeVideoFrameDelay() const;
+            std::shared_ptr<dtk::IObservableValue<int> > observeVideoFrameDelay() const;
 
             //! Set the view.
             void setView(

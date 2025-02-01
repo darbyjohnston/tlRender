@@ -174,8 +174,8 @@ namespace tl
         struct IntIncButtons::Private
         {
             std::shared_ptr<IntModel> model;
-            std::shared_ptr<observer::ValueObserver<int> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::IntRange> > rangeObserver;
         };
 
         void IntIncButtons::_init(
@@ -203,14 +203,14 @@ namespace tl
                     _p->model->decrementStep();
                 });
 
-            p.valueObserver = observer::ValueObserver<int>::create(
+            p.valueObserver = dtk::ValueObserver<int>::create(
                 p.model->observeValue(),
                 [this](int)
                 {
                     _modelUpdate();
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::IntRange>::create(
                 p.model->observeRange(),
                 [this](const math::IntRange&)
                 {
@@ -252,8 +252,8 @@ namespace tl
         struct FloatIncButtons::Private
         {
             std::shared_ptr<FloatModel> model;
-            std::shared_ptr<observer::ValueObserver<float> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::FloatRange> > rangeObserver;
         };
 
         void FloatIncButtons::_init(
@@ -281,14 +281,14 @@ namespace tl
                     _p->model->decrementStep();
                 });
 
-            p.valueObserver = observer::ValueObserver<float>::create(
+            p.valueObserver = dtk::ValueObserver<float>::create(
                 p.model->observeValue(),
                 [this](float)
                 {
                     _modelUpdate();
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::FloatRange>::create(
                 p.model->observeRange(),
                 [this](const math::FloatRange&)
                 {
@@ -330,8 +330,8 @@ namespace tl
         struct DoubleIncButtons::Private
         {
             std::shared_ptr<DoubleModel> model;
-            std::shared_ptr<observer::ValueObserver<double> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::DoubleRange> > rangeObserver;
         };
 
         void DoubleIncButtons::_init(
@@ -359,14 +359,14 @@ namespace tl
                     _p->model->decrementStep();
                 });
 
-            p.valueObserver = observer::ValueObserver<double>::create(
+            p.valueObserver = dtk::ValueObserver<double>::create(
                 p.model->observeValue(),
                 [this](double)
                 {
                     _modelUpdate();
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::DoubleRange>::create(
                 p.model->observeRange(),
                 [this](const math::DoubleRange&)
                 {

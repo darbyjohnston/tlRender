@@ -157,12 +157,12 @@ namespace tl
 
         struct Window::Private
         {
-            std::shared_ptr<observer::Value<math::Size2i> > windowSize;
-            std::shared_ptr<observer::Value<bool> > visible;
-            std::shared_ptr<observer::Value<bool> > fullScreen;
-            std::shared_ptr<observer::Value<bool> > floatOnTop;
-            std::shared_ptr<observer::Value<bool> > close;
-            std::shared_ptr<observer::Value<image::PixelType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<math::Size2i> > windowSize;
+            std::shared_ptr<dtk::ObservableValue<bool> > visible;
+            std::shared_ptr<dtk::ObservableValue<bool> > fullScreen;
+            std::shared_ptr<dtk::ObservableValue<bool> > floatOnTop;
+            std::shared_ptr<dtk::ObservableValue<bool> > close;
+            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
 
             std::shared_ptr<gl::GLFWWindow> glfwWindow;
             math::Size2i frameBufferSize;
@@ -185,12 +185,12 @@ namespace tl
             IWindow::_init("tl::ui::Window", context, nullptr);
             TLRENDER_P();
 
-            p.windowSize = observer::Value<math::Size2i>::create(math::Size2i(1920, 1080));
-            p.visible = observer::Value<bool>::create(false);
-            p.fullScreen = observer::Value<bool>::create(false);
-            p.floatOnTop = observer::Value<bool>::create(false);
-            p.close = observer::Value<bool>::create(false);
-            p.colorBuffer = observer::Value<image::PixelType>::create(image::PixelType::RGBA_U8);
+            p.windowSize = dtk::ObservableValue<math::Size2i>::create(math::Size2i(1920, 1080));
+            p.visible = dtk::ObservableValue<bool>::create(false);
+            p.fullScreen = dtk::ObservableValue<bool>::create(false);
+            p.floatOnTop = dtk::ObservableValue<bool>::create(false);
+            p.close = dtk::ObservableValue<bool>::create(false);
+            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(image::PixelType::RGBA_U8);
 
             p.glfwWindow = gl::GLFWWindow::create(
                 name,
@@ -320,7 +320,7 @@ namespace tl
             return _p->windowSize->get();
         }
 
-        std::shared_ptr<observer::IValue<math::Size2i> > Window::observeWindowSize() const
+        std::shared_ptr<dtk::IObservableValue<math::Size2i> > Window::observeWindowSize() const
         {
             return _p->windowSize;
         }
@@ -331,7 +331,7 @@ namespace tl
             setGeometry(math::Box2i(_geometry.x(), _geometry.y(), value.w, value.h));
         }
 
-        std::shared_ptr<observer::IValue<bool> > Window::observeVisible() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Window::observeVisible() const
         {
             return _p->visible;
         }
@@ -346,7 +346,7 @@ namespace tl
             return _p->fullScreen->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > Window::observeFullScreen() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Window::observeFullScreen() const
         {
             return _p->fullScreen;
         }
@@ -363,7 +363,7 @@ namespace tl
             return _p->floatOnTop->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > Window::observeFloatOnTop() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Window::observeFloatOnTop() const
         {
             return _p->floatOnTop;
         }
@@ -375,7 +375,7 @@ namespace tl
             p.floatOnTop->setIfChanged(value);
         }
 
-        std::shared_ptr<observer::IValue<bool> > Window::observeClose() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Window::observeClose() const
         {
             return _p->close;
         }
@@ -385,7 +385,7 @@ namespace tl
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<observer::IValue<image::PixelType> > Window::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<image::PixelType> > Window::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }

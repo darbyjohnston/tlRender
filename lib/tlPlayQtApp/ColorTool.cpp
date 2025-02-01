@@ -39,9 +39,9 @@ namespace tl
             QComboBox* viewComboBox = nullptr;
             QComboBox* lookComboBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
-            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
+            std::shared_ptr<dtk::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
         OCIOWidget::OCIOWidget(App* app, QWidget* parent) :
@@ -122,21 +122,21 @@ namespace tl
                     _p->ocioModel->setLookIndex(index);
                 });
 
-            p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.optionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 p.ocioModel->observeOptions(),
                 [app](const timeline::OCIOOptions& value)
                 {
                     app->colorModel()->setOCIOOptions(value);
                 });
 
-            p.optionsObserver2 = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.optionsObserver2 = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->colorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
                     _p->ocioModel->setOptions(value);
                 });
 
-            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+            p.dataObserver = dtk::ValueObserver<play::OCIOModelData>::create(
                 p.ocioModel->observeData(),
                 [this](const play::OCIOModelData& value)
                 {
@@ -202,7 +202,7 @@ namespace tl
             qtwidget::FileWidget* fileWidget = nullptr;
             QComboBox* orderComboBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutObserver;
         };
 
         LUTWidget::LUTWidget(App* app, QWidget* parent) :
@@ -265,7 +265,7 @@ namespace tl
                     app->colorModel()->setLUTOptions(options);
                 });
 
-            p.lutObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.lutObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
                 app->colorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
@@ -308,7 +308,7 @@ namespace tl
             qtwidget::FloatEditSlider* tintSlider = nullptr;
             QCheckBox* invertCheckBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
         ColorWidget::ColorWidget(App* app, QWidget* parent) :
@@ -434,7 +434,7 @@ namespace tl
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
-            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -487,7 +487,7 @@ namespace tl
             qtwidget::FloatEditSlider* outLowSlider = nullptr;
             qtwidget::FloatEditSlider* outHighSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
         LevelsWidget::LevelsWidget(App* app, QWidget* parent) :
@@ -588,7 +588,7 @@ namespace tl
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
-            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -636,7 +636,7 @@ namespace tl
             qtwidget::FloatEditSlider* kneeLowSlider = nullptr;
             qtwidget::FloatEditSlider* kneeHighSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
         EXRDisplayWidget::EXRDisplayWidget(App* app, QWidget* parent) :
@@ -725,7 +725,7 @@ namespace tl
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
-            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -766,7 +766,7 @@ namespace tl
             QCheckBox* enabledCheckBox = nullptr;
             qtwidget::FloatEditSlider* softClipSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayObserver;
         };
 
         SoftClipWidget::SoftClipWidget(App* app, QWidget* parent) :
@@ -806,7 +806,7 @@ namespace tl
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
-            p.displayObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {

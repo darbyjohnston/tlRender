@@ -23,7 +23,7 @@ namespace tl
 
         struct DrivesModel::Private
         {
-            std::shared_ptr<observer::List<std::string> > drives;
+            std::shared_ptr<dtk::ObservableList<std::string> > drives;
 
             struct Mutex
             {
@@ -41,7 +41,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.drives = observer::List<std::string>::create();
+            p.drives = dtk::ObservableList<std::string>::create();
 
             p.running = true;
             p.thread = std::thread(
@@ -99,7 +99,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IList<std::string> > DrivesModel::observeDrives() const
+        std::shared_ptr<dtk::IObservableList<std::string> > DrivesModel::observeDrives() const
         {
             return _p->drives;
         }

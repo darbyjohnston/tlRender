@@ -15,7 +15,7 @@ namespace tl
     {
         struct SpeedLabel::Private
         {
-            otime::RationalTime value = time::invalidTime;
+            OTIO_NS::RationalTime value = time::invalidTime;
             QLabel* label = nullptr;
         };
 
@@ -42,12 +42,12 @@ namespace tl
         SpeedLabel::~SpeedLabel()
         {}
 
-        const otime::RationalTime& SpeedLabel::value() const
+        const OTIO_NS::RationalTime& SpeedLabel::value() const
         {
             return _p->value;
         }
 
-        void SpeedLabel::setValue(const otime::RationalTime& value)
+        void SpeedLabel::setValue(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             if (value.value() == p.value.value() &&

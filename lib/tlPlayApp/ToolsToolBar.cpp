@@ -21,7 +21,7 @@ namespace tl
             std::shared_ptr<ui::ButtonGroup> buttonGroup;
             std::map<Tool, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
-            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
 
         void ToolsToolBar::_init(
@@ -67,7 +67,7 @@ namespace tl
                     }
                 });
 
-            p.activeObserver = observer::ValueObserver<int>::create(
+            p.activeObserver = dtk::ValueObserver<int>::create(
                 app->getToolsModel()->observeActiveTool(),
                 [this](int value)
                 {

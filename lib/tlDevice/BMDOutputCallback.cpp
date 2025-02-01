@@ -228,14 +228,14 @@ namespace tl
             // Get values.
             timeline::Playback playback = timeline::Playback::Stop;
             double speed = 0.0;
-            otime::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
             float volume = 1.F;
             bool mute = false;
             std::vector<bool> channelMute;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioDataList;
             bool reset = false;
-            otime::RationalTime start = time::invalidTime;
+            OTIO_NS::RationalTime start = time::invalidTime;
             {
                 std::unique_lock<std::mutex> lock(_audioMutex.mutex);
                 playback = _audioMutex.playback;
@@ -286,7 +286,7 @@ namespace tl
                 uint32_t bufferedSampleCount = 0;
                 _dlOutput->GetBufferedAudioSampleFrameCount(&bufferedSampleCount);
                 //std::cout << "bmd buffered samples: " << bufferedSampleCount << std::endl;
-                bufferedSampleCount = otime::RationalTime(bufferedSampleCount, _audioInfo.sampleRate).
+                bufferedSampleCount = OTIO_NS::RationalTime(bufferedSampleCount, _audioInfo.sampleRate).
                     rescaled_to(inputInfo.sampleRate).value();
                 const double speedMult = std::max(currentTime.rate() > 0.0 ? (speed / currentTime.rate()) : 1.0, 1.0);
                 if (bufferedSampleCount < audioBufferCount * 2 * speedMult)
@@ -294,7 +294,7 @@ namespace tl
                     // Find the audio data.
                     int64_t t =
                         start.rescaled_to(inputInfo.sampleRate).value() -
-                        otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                        OTIO_NS::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
                     if (timeline::Playback::Forward == playback)
                     {
                         t += _audioThread.frame;

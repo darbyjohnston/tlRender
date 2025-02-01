@@ -6,7 +6,7 @@
 
 #include <tlUI/IWidget.h>
 
-#include <tlCore/ValueObserver.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {

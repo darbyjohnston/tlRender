@@ -16,7 +16,7 @@ namespace tl
     {
         struct ColorWidget::Private
         {
-            image::Color4f color;
+            dtk::Color4F color;
 
             ColorSwatch* swatch = nullptr;
             std::vector<FloatEditSlider*> sliders;
@@ -54,7 +54,7 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    setColor(image::Color4f(
+                    setColor(dtk::Color4F(
                         value,
                         _p->color.g,
                         _p->color.b,
@@ -65,7 +65,7 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    setColor(image::Color4f(
+                    setColor(dtk::Color4F(
                         _p->color.r,
                         value,
                         _p->color.b,
@@ -76,7 +76,7 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    setColor(image::Color4f(
+                    setColor(dtk::Color4F(
                         _p->color.r,
                         _p->color.g,
                         value,
@@ -87,7 +87,7 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    setColor(image::Color4f(
+                    setColor(dtk::Color4F(
                         _p->color.r,
                         _p->color.g,
                         _p->color.b,
@@ -98,12 +98,12 @@ namespace tl
         ColorWidget::~ColorWidget()
         {}
 
-        const image::Color4f& ColorWidget::color() const
+        const dtk::Color4F& ColorWidget::color() const
         {
             return _p->color;
         }
 
-        void ColorWidget::setColor(const tl::image::Color4f& value)
+        void ColorWidget::setColor(const dtk::Color4F& value)
         {
             TLRENDER_P();
             if (value == p.color)

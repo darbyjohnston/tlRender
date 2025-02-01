@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Color.h>
 
 #include <QWidget> 
 
@@ -24,7 +25,7 @@ namespace tl
             virtual ~ColorSwatch();
 
             //! Get the color.
-            const image::Color4f& color() const;
+            const dtk::Color4F& color() const;
 
             //! Set the size of the swatch.
             void setSwatchSize(int);
@@ -36,11 +37,11 @@ namespace tl
 
         public Q_SLOTS:
             //! Set the color.
-            void setColor(const tl::image::Color4f&);
+            void setColor(const dtk::Color4F&);
 
         Q_SIGNALS:
             //! This signal is emitted when the color is changed.
-            void colorChanged(const tl::image::Color4f&);
+            void colorChanged(const dtk::Color4F&);
 
         protected:
             void paintEvent(QPaintEvent*) override;

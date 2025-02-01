@@ -58,7 +58,7 @@ namespace tl
             image::PixelType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<observer::IValue<image::PixelType> > observeColorBuffer() const;
+            std::shared_ptr<dtk::IObservableValue<image::PixelType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
             void setColorBuffer(image::PixelType);
@@ -82,7 +82,7 @@ namespace tl
             bool hasFrameView() const;
 
             //! Observe whether the view is framed automatically.
-            std::shared_ptr<observer::IValue<bool> > observeFrameView() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeFrameView() const;
 
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
@@ -107,19 +107,19 @@ namespace tl
             double getFPS() const;
 
             //! Observe the frames per second.
-            std::shared_ptr<observer::IValue<double> > observeFPS() const;
+            std::shared_ptr<dtk::IObservableValue<double> > observeFPS() const;
 
             //! Get the number of dropped frames during playback.
             size_t getDroppedFrames() const;
 
             //! Observe the number of dropped frames during playback.
-            std::shared_ptr<observer::IValue<size_t> > observeDroppedFrames() const;
+            std::shared_ptr<dtk::IObservableValue<size_t> > observeDroppedFrames() const;
             
             //! Set the color pickers.
             void setColorPickers(const std::vector<math::Vector2i>&);
 
             //! Observe the color pickers.
-            std::shared_ptr<observer::IList<dtk::Color4F> > observeColorPickers() const;
+            std::shared_ptr<dtk::IObservableList<dtk::Color4F> > observeColorPickers() const;
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;

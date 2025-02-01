@@ -26,11 +26,11 @@ namespace tl
             std::vector<std::shared_ptr<ui::Action> > layersItems;
             std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
-            std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<dtk::ListObserver<int> > layersObserver;
+            std::shared_ptr<dtk::ListObserver<file::Path> > recentObserver;
         };
 
         void FileMenu::_init(
@@ -75,28 +75,28 @@ namespace tl
             addDivider();
             addItem(p.actions["Exit"]);
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
 
-            p.aObserver = observer::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.aObserver = dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeA(),
                 [this](const std::shared_ptr<play::FilesModelItem>& value)
                 {
                     _aUpdate(value);
                 });
 
-            p.aIndexObserver = observer::ValueObserver<int>::create(
+            p.aIndexObserver = dtk::ValueObserver<int>::create(
                 app->getFilesModel()->observeAIndex(),
                 [this](int value)
                 {
                     _aIndexUpdate(value);
                 });
 
-            p.layersObserver = observer::ListObserver<int>::create(
+            p.layersObserver = dtk::ListObserver<int>::create(
                 app->getFilesModel()->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
@@ -105,7 +105,7 @@ namespace tl
 
             if (p.recentFilesModel)
             {
-                p.recentObserver = observer::ListObserver<file::Path>::create(
+                p.recentObserver = dtk::ListObserver<file::Path>::create(
                     p.recentFilesModel->observeRecent(),
                     [this](const std::vector<file::Path>& value)
                     {

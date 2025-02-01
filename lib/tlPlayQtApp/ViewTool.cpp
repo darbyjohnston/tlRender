@@ -28,7 +28,7 @@ namespace tl
             qtwidget::ColorSwatch* color1Swatch = nullptr;
             qtwidget::IntEditSlider* checkersSizeSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
 
         BackgroundWidget::BackgroundWidget(App* app, QWidget* parent) :
@@ -72,7 +72,7 @@ namespace tl
             connect(
                 p.color0Swatch,
                 &qtwidget::ColorSwatch::colorChanged,
-                [app](const image::Color4f& value)
+                [app](const dtk::Color4F& value)
                 {
                     auto options = app->viewportModel()->getBackgroundOptions();
                     options.color0 = value;
@@ -81,7 +81,7 @@ namespace tl
             connect(
                 p.color1Swatch,
                 &qtwidget::ColorSwatch::colorChanged,
-                [app](const image::Color4f& value)
+                [app](const dtk::Color4F& value)
                 {
                     auto options = app->viewportModel()->getBackgroundOptions();
                     options.color1 = value;
@@ -99,7 +99,7 @@ namespace tl
                     app->viewportModel()->setBackgroundOptions(options);
                 });
 
-            p.optionsObservers = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->viewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {

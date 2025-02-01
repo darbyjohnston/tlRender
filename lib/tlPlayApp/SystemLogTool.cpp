@@ -31,7 +31,7 @@ namespace tl
             std::shared_ptr<ui::ToolButton> copyButton;
             std::shared_ptr<ui::ToolButton> clearButton;
             std::shared_ptr<ui::VerticalLayout> layout;
-            std::shared_ptr<tl::observer::ListObserver<tl::log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<tl::log::Item> > logObserver;
         };
 
         void SystemLogTool::_init(
@@ -92,7 +92,7 @@ namespace tl
                     _p->label->setText(std::string());
                 });
 
-            p.logObserver = tl::observer::ListObserver<tl::log::Item>::create(
+            p.logObserver = dtk::ListObserver<tl::log::Item>::create(
                 context->getSystem<tl::log::System>()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {

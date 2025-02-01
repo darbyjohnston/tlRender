@@ -79,7 +79,7 @@ namespace tl
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
 
             //! Observe the timeline player.
-            std::shared_ptr<observer::IValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
+            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 
             //! Get the color model.
             const std::shared_ptr<play::ColorModel>& getColorModel() const;
@@ -100,7 +100,7 @@ namespace tl
             const std::shared_ptr<MainWindow>& getMainWindow() const;
 
             //! Observe whether the secondary window is active.
-            std::shared_ptr<observer::IValue<bool> > observeSecondaryWindow() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeSecondaryWindow() const;
 
             //! Set whether the secondary window is active.
             void setSecondaryWindow(bool);

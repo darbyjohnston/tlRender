@@ -41,7 +41,7 @@ namespace tl
             QDoubleSpinBox* readAheadSpinBox = nullptr;
             QDoubleSpinBox* readBehindSpinBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         CacheSettingsWidget::CacheSettingsWidget(App* app, QWidget* parent) :
@@ -69,7 +69,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -137,7 +137,7 @@ namespace tl
             QSpinBox* maxDigitsSpinBox = nullptr;
             QSpinBox* threadCountSpinBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         FileSequenceSettingsWidget::FileSequenceSettingsWidget(App* app, QWidget* parent) :
@@ -174,7 +174,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -274,7 +274,7 @@ namespace tl
             QCheckBox* yuvToRGBConversionCheckBox = nullptr;
             QSpinBox* threadCountSpinBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         FFmpegSettingsWidget::FFmpegSettingsWidget(App * app, QWidget * parent) :
@@ -300,7 +300,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -358,7 +358,7 @@ namespace tl
             QSpinBox* stageCacheSpinBox = nullptr;
             QSpinBox* diskCacheSpinBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         USDSettingsWidget::USDSettingsWidget(App * app, QWidget * parent) :
@@ -402,7 +402,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -526,7 +526,7 @@ namespace tl
 
             QCheckBox* nativeFileDialogCheckBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         FileBrowserSettingsWidget::FileBrowserSettingsWidget(App * app, QWidget * parent) :
@@ -546,7 +546,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -584,7 +584,7 @@ namespace tl
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         PerformanceSettingsWidget::PerformanceSettingsWidget(App* app, QWidget* parent) :
@@ -615,7 +615,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
@@ -679,7 +679,7 @@ namespace tl
 
             QCheckBox* toolTipsCheckBox = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         MiscSettingsWidget::MiscSettingsWidget(App* app, QWidget* parent) :
@@ -699,7 +699,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {

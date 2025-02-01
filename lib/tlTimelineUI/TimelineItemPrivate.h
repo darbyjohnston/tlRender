@@ -20,8 +20,8 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
-            std::shared_ptr<observer::Value<bool> > scrub;
-            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > timeScrub;
+            std::shared_ptr<dtk::ObservableValue<bool> > scrub;
+            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             int minimumHeight = 0;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
@@ -98,9 +98,9 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
 
             std::shared_ptr<IItem> getAssociated(
                 const std::shared_ptr<IItem>&,

@@ -4,7 +4,7 @@
 
 #include <tlIO/FFmpeg.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 extern "C"
 {
@@ -44,7 +44,7 @@ namespace tl
             p.fileName = path.get();
             if (info.video.empty())
             {
-                throw std::runtime_error(string::Format("{0}: No video").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: No video").arg(p.fileName));
             }
 
             AVCodecID avCodecID = AV_CODEC_ID_MPEG4;
@@ -92,26 +92,26 @@ namespace tl
             int r = avformat_alloc_output_context2(&p.avFormatContext, NULL, NULL, p.fileName.c_str());
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
             const AVCodec* avCodec = avcodec_find_encoder(avCodecID);
             if (!avCodec)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot find encoder").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot find encoder").arg(p.fileName));
             }
             p.avCodecContext = avcodec_alloc_context3(avCodec);
             if (!p.avCodecContext)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate context").arg(p.fileName));
             }
             p.avVideoStream = avformat_new_stream(p.avFormatContext, avCodec);
             if (!p.avVideoStream)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate stream").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate stream").arg(p.fileName));
             }
             if (!avCodec->pix_fmts)
             {
-                throw std::runtime_error(string::Format("{0}: No pixel formats available").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: No pixel formats available").arg(p.fileName));
             }
 
             p.avCodecContext->codec_id = avCodec->id;
@@ -135,13 +135,13 @@ namespace tl
             r = avcodec_open2(p.avCodecContext, avCodec, NULL);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             r = avcodec_parameters_from_context(p.avVideoStream->codecpar, p.avCodecContext);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avVideoStream->time_base = { rational.second, rational.first };
@@ -157,25 +157,25 @@ namespace tl
             r = avio_open(&p.avFormatContext->pb, p.fileName.c_str(), AVIO_FLAG_WRITE);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             r = avformat_write_header(p.avFormatContext, NULL);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avPacket = av_packet_alloc();
             if (!p.avPacket)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate packet").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate packet").arg(p.fileName));
             }
 
             p.avFrame = av_frame_alloc();
             if (!p.avFrame)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(p.fileName));
             }
             p.avFrame->format = p.avVideoStream->codecpar->format;
             p.avFrame->width = p.avVideoStream->codecpar->width;
@@ -183,13 +183,13 @@ namespace tl
             r = av_frame_get_buffer(p.avFrame, 0);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
 
             p.avFrame2 = av_frame_alloc();
             if (!p.avFrame2)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(p.fileName));
             }
             switch (videoInfo.pixelType)
             {
@@ -200,7 +200,7 @@ namespace tl
             case image::PixelType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
             case image::PixelType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
             default:
-                throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
             }
             /*p.swsContext = sws_getContext(
@@ -217,7 +217,7 @@ namespace tl
             p.swsContext = sws_alloc_context();
             if (!p.swsContext)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot allocate context").arg(p.fileName));
             }
             av_opt_set_defaults(p.swsContext);
             r = av_opt_set_int(p.swsContext, "srcw", videoInfo.size.w, AV_OPT_SEARCH_CHILDREN);
@@ -231,7 +231,7 @@ namespace tl
             r = sws_init_context(p.swsContext, nullptr, nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot initialize sws context").arg(p.fileName));
             }
 
             p.opened = true;
@@ -293,7 +293,7 @@ namespace tl
         }
 
         void Write::writeVideo(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const std::shared_ptr<image::Image>& image,
             const io::Options&)
         {
@@ -331,7 +331,7 @@ namespace tl
             case image::PixelType::YUV_422P_U16:
             case image::PixelType::YUV_444P_U16:
                 //! \bug How do we flip YUV data?
-                throw std::runtime_error(string::Format("{0}: Incompatible pixel type").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
             default: break;
             }
@@ -360,7 +360,7 @@ namespace tl
             int r = avcodec_send_frame(p.avCodecContext, frame);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
+                throw std::runtime_error(dtk::Format("{0}: Cannot write frame").arg(p.fileName));
             }
 
             while (r >= 0)
@@ -372,12 +372,12 @@ namespace tl
                 }
                 else if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot write frame").arg(p.fileName));
                 }
                 r = av_interleaved_write_frame(p.avFormatContext, p.avPacket);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot write frame").arg(p.fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot write frame").arg(p.fileName));
                 }
                 av_packet_unref(p.avPacket);
             }

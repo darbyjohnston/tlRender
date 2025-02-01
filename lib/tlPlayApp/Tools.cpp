@@ -96,13 +96,13 @@ namespace tl
 
         struct ToolsModel::Private
         {
-            std::shared_ptr<observer::Value<int> > activeTool;
+            std::shared_ptr<dtk::ObservableValue<int> > activeTool;
         };
 
         void ToolsModel::_init()
         {
             TLRENDER_P();
-            p.activeTool = observer::Value<int>::create(-1);
+            p.activeTool = dtk::ObservableValue<int>::create(-1);
         }
 
         ToolsModel::ToolsModel() :
@@ -124,7 +124,7 @@ namespace tl
             return _p->activeTool->get();
         }
 
-        std::shared_ptr<observer::Value<int> > ToolsModel::observeActiveTool() const
+        std::shared_ptr<dtk::ObservableValue<int> > ToolsModel::observeActiveTool() const
         {
             return _p->activeTool;
         }

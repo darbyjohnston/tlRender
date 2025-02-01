@@ -36,11 +36,11 @@ namespace tl
             std::shared_ptr<ui::GridLayout> layout;
             std::shared_ptr<ui::HorizontalLayout> channelMuteLayout;
 
-            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ListObserver<audio::DeviceID> > devicesObserver;
-            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > deviceObserver;
-            std::shared_ptr<observer::ListObserver<bool> > channelMuteObserver;
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ListObserver<audio::DeviceID> > devicesObserver;
+            std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > deviceObserver;
+            std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void AudioPopup::_init(
@@ -123,14 +123,14 @@ namespace tl
                     }
                 });
 
-            p.volumeObserver = observer::ValueObserver<float>::create(
+            p.volumeObserver = dtk::ValueObserver<float>::create(
                 app->getAudioModel()->observeVolume(),
                 [this](float value)
                 {
                     _p->volumeSlider->setValue(std::roundf(value * 100.F));
                 });
 
-            p.devicesObserver = observer::ListObserver<audio::DeviceID>::create(
+            p.devicesObserver = dtk::ListObserver<audio::DeviceID>::create(
                 app->getAudioModel()->observeDevices(),
                 [this](const std::vector<audio::DeviceID>& devices)
                 {
@@ -146,7 +146,7 @@ namespace tl
                     _p->deviceComboBox->setItems(names);
                 });
 
-            p.deviceObserver = observer::ValueObserver<audio::DeviceID>::create(
+            p.deviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
                 app->getAudioModel()->observeDevice(),
                 [this](const audio::DeviceID& value)
                 {
@@ -159,7 +159,7 @@ namespace tl
                     _p->deviceComboBox->setCurrentIndex(index);
                 });
 
-            p.channelMuteObserver = observer::ListObserver<bool>::create(
+            p.channelMuteObserver = dtk::ListObserver<bool>::create(
                 app->getAudioModel()->observeChannelMute(),
                 [this](const std::vector<bool>& value)
                 {
@@ -167,7 +167,7 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {

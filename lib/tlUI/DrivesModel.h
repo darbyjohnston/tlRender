@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/ListObserver.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/ObservableList.h>
 
 #include <string>
 
@@ -35,7 +37,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Observe the list of drives.
-            std::shared_ptr<observer::IList<std::string> > observeDrives() const;
+            std::shared_ptr<dtk::IObservableList<std::string> > observeDrives() const;
 
         private:
             TLRENDER_PRIVATE();

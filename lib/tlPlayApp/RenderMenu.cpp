@@ -18,8 +18,8 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
         };
 
         void RenderMenu::_init(
@@ -53,7 +53,7 @@ namespace tl
                 p.menus["ColorBuffer"]->addItem(p.actions[ss.str()]);
             }
 
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
@@ -78,7 +78,7 @@ namespace tl
                         timeline::AlphaBlend::Premultiplied == value.alphaBlend);
                 });
 
-            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
                 app->getRenderModel()->observeColorBuffer(),
                 [this, colorBuffers](image::PixelType value)
                 {

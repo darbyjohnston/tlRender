@@ -64,9 +64,7 @@
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/LRUCacheTest.h>
-#include <tlCoreTest/ListObserverTest.h>
 #include <tlCoreTest/LogSystemTest.h>
-#include <tlCoreTest/MapObserverTest.h>
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
@@ -75,7 +73,6 @@
 #include <tlCoreTest/RangeTest.h>
 #include <tlCoreTest/SizeTest.h>
 #include <tlCoreTest/TimeTest.h>
-#include <tlCoreTest/ValueObserverTest.h>
 #include <tlCoreTest/VectorTest.h>
 
 #include <tlTimeline/Init.h>
@@ -102,9 +99,7 @@ void coreTests(
     tests.push_back(core_tests::HDRTest::create(context));
     tests.push_back(core_tests::ImageTest::create(context));
     tests.push_back(core_tests::LRUCacheTest::create(context));
-    tests.push_back(core_tests::ListObserverTest::create(context));
     tests.push_back(core_tests::LogSystemTest::create(context));
-    tests.push_back(core_tests::MapObserverTest::create(context));
     tests.push_back(core_tests::MathTest::create(context));
     tests.push_back(core_tests::MatrixTest::create(context));
     tests.push_back(core_tests::MemoryTest::create(context));
@@ -113,7 +108,6 @@ void coreTests(
     tests.push_back(core_tests::RangeTest::create(context));
     tests.push_back(core_tests::SizeTest::create(context));
     tests.push_back(core_tests::TimeTest::create(context));
-    tests.push_back(core_tests::ValueObserverTest::create(context));
     tests.push_back(core_tests::VectorTest::create(context));
 }
 
@@ -205,7 +199,7 @@ int main(int argc, char* argv[])
     timeline::init(context);
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
-    auto logObserver = observer::ListObserver<log::Item>::create(
+    auto logObserver = dtk::ListObserver<log::Item>::create(
         context->getSystem<log::System>()->observeLog(),
         [](const std::vector<log::Item>& value)
         {
@@ -217,7 +211,7 @@ int main(int argc, char* argv[])
                 std::cout << "[LOG] " << toString(i, options) << std::endl;
             }
         },
-        observer::CallbackAction::Suppress);
+        dtk::ObserverAction::Suppress);
 
     context->tick();
 

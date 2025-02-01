@@ -6,8 +6,8 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 namespace tl
 {

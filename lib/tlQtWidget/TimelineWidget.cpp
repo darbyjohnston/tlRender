@@ -26,10 +26,10 @@ namespace tl
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             QAction* trackEnabledAction = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > scrubObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > timeScrubObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > editableObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > scrubObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
         };
 
         TimelineWidget::TimelineWidget(
@@ -55,30 +55,30 @@ namespace tl
                 SIGNAL(toggled(bool)),
                 SLOT(_trackEnabledCallback(bool)));
 
-            p.editableObserver = observer::ValueObserver<bool>::create(
+            p.editableObserver = dtk::ValueObserver<bool>::create(
                 p.timelineWidget->observeEditable(),
                 [this](bool value)
                 {
                     Q_EMIT editableChanged(value);
                 });
 
-            p.frameViewObserver = observer::ValueObserver<bool>::create(
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 p.timelineWidget->observeFrameView(),
                 [this](bool value)
                 {
                     Q_EMIT frameViewChanged(value);
                 });
 
-            p.scrubObserver = observer::ValueObserver<bool>::create(
+            p.scrubObserver = dtk::ValueObserver<bool>::create(
                 p.timelineWidget->observeScrub(),
                 [this](bool value)
                 {
                     Q_EMIT scrubChanged(value);
                 });
 
-            p.timeScrubObserver = observer::ValueObserver<otime::RationalTime>::create(
+            p.timeScrubObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                 p.timelineWidget->observeTimeScrub(),
-                [this](const otime::RationalTime& value)
+                [this](const OTIO_NS::RationalTime& value)
                 {
                     Q_EMIT timeScrubbed(value);
                 });
@@ -217,7 +217,7 @@ namespace tl
                         const auto& children = otioTimeline->tracks()->children();
                         if (i >= 0 && i < children.size())
                         {
-                            if (auto track = otio::dynamic_retainer_cast<otio::Item>(children[i]))
+                            if (auto track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[i]))
                             {
                                 checked = track->enabled();
                             }
@@ -242,13 +242,13 @@ namespace tl
                 auto children = otioTimeline->tracks()->children();
                 if (p.currentTrack >= 0 && p.currentTrack < children.size())
                 {
-                    if (auto track = otio::dynamic_retainer_cast<otio::Item>(children[p.currentTrack]))
+                    if (auto track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[p.currentTrack]))
                     {
                         if (value != track->enabled())
                         {
                             auto otioTimelineNew = timeline::copy(player->getTimeline()->getTimeline().value);
                             children = otioTimelineNew->tracks()->children();
-                            track = otio::dynamic_retainer_cast<otio::Item>(children[p.currentTrack]);
+                            track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[p.currentTrack]);
                             track->set_enabled(value);
                             player->getTimeline()->setTimeline(otioTimelineNew);
                         }

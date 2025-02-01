@@ -95,7 +95,7 @@ namespace tl
         {
             std::weak_ptr<App> app;
             std::shared_ptr<play::Settings> settings;
-            std::shared_ptr<observer::Value<WindowOptions> > windowOptions;
+            std::shared_ptr<dtk::ObservableValue<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<ui::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
@@ -150,19 +150,19 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> statusLayout;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
-            std::shared_ptr<observer::ValueObserver<double> > speedObserver;
-            std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > speedObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > speedObserver2;
+            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
         };
 
         void MainWindow::_init(
@@ -201,7 +201,7 @@ namespace tl
             p.settings->setDefaultValue("Timeline/Markers",
                 timelineui::DisplayOptions().markers);
 
-            p.windowOptions = observer::Value<WindowOptions>::create(
+            p.windowOptions = dtk::ObservableValue<WindowOptions>::create(
                 p.settings->getValue<WindowOptions>("Window/Options"));
 
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
@@ -564,14 +564,14 @@ namespace tl
                     }
                 });
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
                     _playerUpdate(value);
                 });
 
-            p.speedObserver2 = observer::ValueObserver<double>::create(
+            p.speedObserver2 = dtk::ValueObserver<double>::create(
                 p.speedModel->observeValue(),
                 [this](double value)
                 {
@@ -581,14 +581,14 @@ namespace tl
                     }
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->viewport->setCompareOptions(value);
                 });
 
-            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
@@ -598,7 +598,7 @@ namespace tl
                     _p->timelineWidget->setDisplayOptions(options);
                 });
 
-            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.lutOptionsObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
                 app->getColorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
@@ -608,7 +608,7 @@ namespace tl
                     _p->timelineWidget->setDisplayOptions(options);
                 });
 
-            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
                 app->getRenderModel()->observeColorBuffer(),
                 [this](image::PixelType value)
                 {
@@ -616,28 +616,28 @@ namespace tl
                     _p->viewport->setColorBuffer(value);
                 });
 
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->viewport->setDisplayOptions({ value });
                 });
 
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
                     _p->viewport->setBackgroundOptions(value);
                 });
 
-            p.muteObserver = observer::ValueObserver<bool>::create(
+            p.muteObserver = dtk::ValueObserver<bool>::create(
                 app->getAudioModel()->observeMute(),
                 [this](bool value)
                 {
@@ -721,7 +721,7 @@ namespace tl
             return _p->windowOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<WindowOptions> > MainWindow::observeWindowOptions() const
+        std::shared_ptr<dtk::IObservableValue<WindowOptions> > MainWindow::observeWindowOptions() const
         {
             return _p->windowOptions;
         }
@@ -783,21 +783,21 @@ namespace tl
 
             if (p.player)
             {
-                p.speedObserver = observer::ValueObserver<double>::create(
+                p.speedObserver = dtk::ValueObserver<double>::create(
                     p.player->observeSpeed(),
                     [this](double value)
                     {
                         _p->speedModel->setValue(value);
                     });
 
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
                     });
 
-                p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
+                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
                     [this](const OTIO_NS::RationalTime& value)
                     {

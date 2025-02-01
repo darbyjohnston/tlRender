@@ -46,8 +46,8 @@ namespace tl
 #if defined(TLRENDER_OCIO)
             OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
 #endif // TLRENDER_OCIO
-            std::shared_ptr<observer::Value<timeline::OCIOOptions> > options;
-            std::shared_ptr<observer::Value<OCIOModelData> > data;
+            std::shared_ptr<dtk::ObservableValue<timeline::OCIOOptions> > options;
+            std::shared_ptr<dtk::ObservableValue<OCIOModelData> > data;
         };
 
         void OCIOModel::_init(const std::shared_ptr<system::Context>& context)
@@ -56,8 +56,8 @@ namespace tl
 
             p.context = context;
 
-            p.options = observer::Value<timeline::OCIOOptions>::create();
-            p.data = observer::Value<OCIOModelData>::create();
+            p.options = dtk::ObservableValue<timeline::OCIOOptions>::create();
+            p.data = dtk::ObservableValue<OCIOModelData>::create();
 
 #if defined(TLRENDER_OCIO)
             std::string env;
@@ -103,7 +103,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IValue<timeline::OCIOOptions> > OCIOModel::observeOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::OCIOOptions> > OCIOModel::observeOptions() const
         {
             return _p->options;
         }
@@ -179,7 +179,7 @@ namespace tl
             p.data->setIfChanged(_getData(options));
         }
 
-        std::shared_ptr<observer::IValue<OCIOModelData> > OCIOModel::observeData() const
+        std::shared_ptr<dtk::IObservableValue<OCIOModelData> > OCIOModel::observeData() const
         {
             return _p->data;
         }

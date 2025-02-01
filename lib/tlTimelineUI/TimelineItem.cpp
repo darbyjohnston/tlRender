@@ -52,8 +52,8 @@ namespace tl
 
             p.player = player;
 
-            p.scrub = observer::Value<bool>::create(false);
-            p.timeScrub = observer::Value<OTIO_NS::RationalTime>::create(time::invalidTime);
+            p.scrub = dtk::ObservableValue<bool>::create(false);
+            p.timeScrub = dtk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
 
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(
                 context->getSystem<ui::ThumbnailSystem>()->getCache(),
@@ -174,7 +174,7 @@ namespace tl
             _tracksUpdate();
             _textUpdate();
 
-            p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
+            p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                 p.player->observeCurrentTime(),
                 [this](const OTIO_NS::RationalTime& value)
                 {
@@ -182,7 +182,7 @@ namespace tl
                     _updates |= ui::Update::Draw;
                 });
 
-            p.inOutRangeObserver = observer::ValueObserver<OTIO_NS::TimeRange>::create(
+            p.inOutRangeObserver = dtk::ValueObserver<OTIO_NS::TimeRange>::create(
                 p.player->observeInOutRange(),
                 [this](const OTIO_NS::TimeRange value)
                 {
@@ -190,7 +190,7 @@ namespace tl
                     _updates |= ui::Update::Draw;
                 });
 
-            p.cacheInfoObserver = observer::ValueObserver<timeline::PlayerCacheInfo>::create(
+            p.cacheInfoObserver = dtk::ValueObserver<timeline::PlayerCacheInfo>::create(
                 p.player->observeCacheInfo(),
                 [this](const timeline::PlayerCacheInfo& value)
                 {
@@ -241,12 +241,12 @@ namespace tl
             _p->stopOnScrub = value;
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineItem::observeScrub() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineItem::observeScrub() const
         {
             return _p->scrub;
         }
 
-        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > TimelineItem::observeTimeScrub() const
+        std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > TimelineItem::observeTimeScrub() const
         {
             return _p->timeScrub;
         }

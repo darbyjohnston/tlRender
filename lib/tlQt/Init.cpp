@@ -37,9 +37,9 @@ namespace tl
         {
             ISystem::_init("tl::qt::System", context);
 
-            qRegisterMetaType<otime::RationalTime>("otime::RationalTime");
-            qRegisterMetaType<otime::TimeRange>("otime::TimeRange");
-            qRegisterMetaType<std::vector<otime::TimeRange> >("std::vector<otime::TimeRange>");
+            qRegisterMetaType<OTIO_NS::RationalTime>("OTIO_NS::RationalTime");
+            qRegisterMetaType<OTIO_NS::TimeRange>("OTIO_NS::TimeRange");
+            qRegisterMetaType<std::vector<OTIO_NS::TimeRange> >("std::vector<OTIO_NS::TimeRange>");
 
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
             qRegisterMetaType<audio::DeviceID>("tl::audio::DeviceID");
@@ -81,10 +81,6 @@ namespace tl
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<memory::Endian>();
 #endif // QT_VERSION
-
-            qRegisterMetaType<observer::CallbackAction>("tl::observer::CallbackAction");
-
-            qRegisterMetaType<os::SystemInfo>("tl::os::SystemInfo");
 
             qRegisterMetaType<io::FileType>("tl::io::FileType");
             qRegisterMetaType<io::Info>("tl::io::Info");

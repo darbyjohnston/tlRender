@@ -33,11 +33,11 @@ namespace tl
             std::shared_ptr<ui::FloatEditSlider> overlaySlider;
             std::shared_ptr<ui::GridLayout> widgetLayout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
+            std::shared_ptr<dtk::ListObserver<int> > layersObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareObserver;
         };
 
         void FilesTool::_init(
@@ -169,35 +169,35 @@ namespace tl
                     }
                 });
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
 
-            p.aObserver = observer::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.aObserver = dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeA(),
                 [this](const std::shared_ptr<play::FilesModelItem>& value)
                 {
                     _aUpdate(value);
                 });
 
-            p.bObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.bObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeB(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _bUpdate(value);
                 });
 
-            p.layersObserver = observer::ListObserver<int>::create(
+            p.layersObserver = dtk::ListObserver<int>::create(
                 app->getFilesModel()->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
                     _layersUpdate(value);
                 });
 
-            p.compareObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {

@@ -19,7 +19,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
         };
 
         void FileToolBar::_init(
@@ -80,7 +80,7 @@ namespace tl
                     _p->actions["CloseAll"]->callback();
                 });
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {

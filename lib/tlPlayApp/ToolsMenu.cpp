@@ -15,7 +15,7 @@ namespace tl
         {
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
 
-            std::shared_ptr<observer::ValueObserver<int> > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
 
         void ToolsMenu::_init(
@@ -34,7 +34,7 @@ namespace tl
                 addItem(p.actions[tool]);
             }
 
-            p.activeObserver = observer::ValueObserver<int>::create(
+            p.activeObserver = dtk::ValueObserver<int>::create(
                 app->getToolsModel()->observeActiveTool(),
                 [this](int value)
                 {

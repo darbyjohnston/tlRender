@@ -155,7 +155,7 @@ namespace tl
         struct Style::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::Value<bool> > changed;
+            std::shared_ptr<dtk::ObservableValue<bool> > changed;
         };
 
         void Style::_init(
@@ -166,7 +166,7 @@ namespace tl
             _sizeRoles = defaultSizeRoles();
             _colorRoles = defaultColorRoles();
             _fontRoles = defaultFontRoles();
-            p.changed = observer::Value<bool>::create();
+            p.changed = dtk::ObservableValue<bool>::create();
         }
 
         Style::Style() :
@@ -238,7 +238,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        std::shared_ptr<observer::IValue<bool> > Style::observeChanged() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Style::observeChanged() const
         {
             return _p->changed;
         }

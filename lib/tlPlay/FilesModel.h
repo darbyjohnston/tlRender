@@ -7,8 +7,9 @@
 #include <tlTimeline/CompareOptions.h>
 
 #include <tlCore/Path.h>
-#include <tlCore/ListObserver.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableList.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -49,31 +50,31 @@ namespace tl
             const std::vector<std::shared_ptr<FilesModelItem> >& getFiles() const;
 
             //! Observe the files.
-            std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeFiles() const;
+            std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > observeFiles() const;
 
             //! Get the "A" file.
             const std::shared_ptr<FilesModelItem>& getA() const;
 
             //! Observe the "A" file.
-            std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > observeA() const;
+            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<FilesModelItem> > > observeA() const;
 
             //! Get the "A" file index.
             int getAIndex() const;
 
             //! Observe the "A" file index.
-            std::shared_ptr<observer::IValue<int> > observeAIndex() const;
+            std::shared_ptr<dtk::IObservableValue<int> > observeAIndex() const;
 
             //! Get the "B" files.
             const std::vector<std::shared_ptr<FilesModelItem> >& getB() const;
 
             //! Observe the "B" files.
-            std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeB() const;
+            std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > observeB() const;
 
             //! Get the "B" file indexes.
             const std::vector<int>& getBIndexes() const;
 
             //! Observe the "B" file indexes.
-            std::shared_ptr<observer::IList<int> > observeBIndexes() const;
+            std::shared_ptr<dtk::IObservableList<int> > observeBIndexes() const;
 
             //! Get the active files. The active files are the "A" file and
             //! "B" files.
@@ -81,7 +82,7 @@ namespace tl
 
             //! Observe the active files. The active files are the "A" file
             //! and "B" files.
-            std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > observeActive() const;
+            std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > observeActive() const;
 
             //! Add a file.
             void add(const std::shared_ptr<FilesModelItem>&);
@@ -132,7 +133,7 @@ namespace tl
             void prevB();
 
             //! Observe the layers.
-            std::shared_ptr<observer::IList<int> > observeLayers() const;
+            std::shared_ptr<dtk::IObservableList<int> > observeLayers() const;
 
             //! Set a layer.
             void setLayer(const std::shared_ptr<FilesModelItem>&, int layer);
@@ -147,7 +148,7 @@ namespace tl
             const timeline::CompareOptions& getCompareOptions() const;
 
             //! Observe the compare options.
-            std::shared_ptr<observer::IValue<timeline::CompareOptions> > observeCompareOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
 
             //! Set the compare time mode.
             void setCompareTime(timeline::CompareTimeMode);
@@ -156,7 +157,7 @@ namespace tl
             timeline::CompareTimeMode getCompareTime() const;
 
             //! Observe the compare time mode.
-            std::shared_ptr<observer::IValue<timeline::CompareTimeMode> > observeCompareTime() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::CompareTimeMode> > observeCompareTime() const;
 
             //! Set the compare options.
             void setCompareOptions(const timeline::CompareOptions&);

@@ -22,18 +22,18 @@ namespace tl
         {
             std::shared_ptr<ItemData> itemData;
             std::shared_ptr<timeline::Player> player;
-            std::shared_ptr<observer::Value<bool> > editable;
-            std::shared_ptr<observer::Value<bool> > frameView;
+            std::shared_ptr<dtk::ObservableValue<bool> > editable;
+            std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
-            std::shared_ptr<observer::Value<bool> > scrollToCurrentFrame;
+            std::shared_ptr<dtk::ObservableValue<bool> > scrollToCurrentFrame;
             ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
-            std::shared_ptr<observer::Value<bool> > stopOnScrub;
-            std::shared_ptr<observer::Value<bool> > scrub;
-            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > timeScrub;
+            std::shared_ptr<dtk::ObservableValue<bool> > stopOnScrub;
+            std::shared_ptr<dtk::ObservableValue<bool> > scrub;
+            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
-            std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
-            std::shared_ptr<observer::Value<DisplayOptions> > displayOptions;
+            std::shared_ptr<dtk::ObservableValue<ItemOptions> > itemOptions;
+            std::shared_ptr<dtk::ObservableValue<DisplayOptions> > displayOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
@@ -60,11 +60,11 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > scrubObserver;
-            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > timelineObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > scrubObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
         };
 
         void TimelineWidget::_init(
@@ -81,14 +81,14 @@ namespace tl
             p.itemData = std::make_shared<ItemData>();
             p.itemData->timeUnitsModel = timeUnitsModel;
 
-            p.editable = observer::Value<bool>::create(false);
-            p.frameView = observer::Value<bool>::create(true);
-            p.scrollToCurrentFrame = observer::Value<bool>::create(true);
-            p.stopOnScrub = observer::Value<bool>::create(true);
-            p.scrub = observer::Value<bool>::create(false);
-            p.timeScrub = observer::Value<OTIO_NS::RationalTime>::create(time::invalidTime);
-            p.itemOptions = observer::Value<ItemOptions>::create();
-            p.displayOptions = observer::Value<DisplayOptions>::create();
+            p.editable = dtk::ObservableValue<bool>::create(false);
+            p.frameView = dtk::ObservableValue<bool>::create(true);
+            p.scrollToCurrentFrame = dtk::ObservableValue<bool>::create(true);
+            p.stopOnScrub = dtk::ObservableValue<bool>::create(true);
+            p.scrub = dtk::ObservableValue<bool>::create(false);
+            p.timeScrub = dtk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
+            p.itemOptions = dtk::ObservableValue<ItemOptions>::create();
+            p.displayOptions = dtk::ObservableValue<DisplayOptions>::create();
 
             p.window = gl::GLFWWindow::create(
                 "tl::timelineui::TimelineWidget",
@@ -150,21 +150,21 @@ namespace tl
             {
                 p.timeRange = p.player->getTimeRange();
 
-                p.timelineObserver = observer::ValueObserver<bool>::create(
+                p.timelineObserver = dtk::ValueObserver<bool>::create(
                     p.player->getTimeline()->observeTimelineChanges(),
                     [this](bool)
                     {
                         _timelineUpdate();
                     });
 
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playback = value;
                     });
 
-                p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
+                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
                     [this](const OTIO_NS::RationalTime& value)
                     {
@@ -183,7 +183,7 @@ namespace tl
             return _p->editable->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeEditable() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeEditable() const
         {
             return _p->editable;
         }
@@ -236,7 +236,7 @@ namespace tl
             return _p->frameView->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeFrameView() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeFrameView() const
         {
             return _p->frameView;
         }
@@ -268,7 +268,7 @@ namespace tl
             return _p->scrollToCurrentFrame->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeScrollToCurrentFrame() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrollToCurrentFrame() const
         {
             return _p->scrollToCurrentFrame;
         }
@@ -310,7 +310,7 @@ namespace tl
             return _p->stopOnScrub->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeStopOnScrub() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeStopOnScrub() const
         {
             return _p->stopOnScrub;
         }
@@ -327,12 +327,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineWidget::observeScrub() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrub() const
         {
             return _p->scrub;
         }
 
-        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > TimelineWidget::observeTimeScrub() const
+        std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > TimelineWidget::observeTimeScrub() const
         {
             return _p->timeScrub;
         }
@@ -359,7 +359,7 @@ namespace tl
             return _p->itemOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<ItemOptions> > TimelineWidget::observeItemOptions() const
+        std::shared_ptr<dtk::IObservableValue<ItemOptions> > TimelineWidget::observeItemOptions() const
         {
             return _p->itemOptions;
         }
@@ -381,7 +381,7 @@ namespace tl
             return _p->displayOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<DisplayOptions> > TimelineWidget::observeDisplayOptions() const
+        std::shared_ptr<dtk::IObservableValue<DisplayOptions> > TimelineWidget::observeDisplayOptions() const
         {
             return _p->displayOptions;
         }
@@ -729,7 +729,7 @@ namespace tl
                     p.scrollWidget->setScrollPos(scrollPos);
                     p.scrollWidget->setWidget(p.timelineItem);
 
-                    p.scrubObserver = observer::ValueObserver<bool>::create(
+                    p.scrubObserver = dtk::ValueObserver<bool>::create(
                         p.timelineItem->observeScrub(),
                         [this](bool value)
                         {
@@ -737,7 +737,7 @@ namespace tl
                             _scrollUpdate();
                         });
 
-                    p.timeScrubObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
+                    p.timeScrubObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                         p.timelineItem->observeTimeScrub(),
                         [this](const OTIO_NS::RationalTime& value)
                         {

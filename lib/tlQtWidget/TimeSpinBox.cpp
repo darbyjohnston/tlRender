@@ -17,7 +17,7 @@ namespace tl
     {
         struct TimeSpinBox::Private
         {
-            otime::RationalTime value = time::invalidTime;
+            OTIO_NS::RationalTime value = time::invalidTime;
             timeline::TimeUnits timeUnits = timeline::TimeUnits::Timecode;
             QRegularExpressionValidator* validator = nullptr;
             qt::TimeObject* timeObject = nullptr;
@@ -73,7 +73,7 @@ namespace tl
             updateGeometry();
         }
 
-        const otime::RationalTime& TimeSpinBox::value() const
+        const OTIO_NS::RationalTime& TimeSpinBox::value() const
         {
             return _p->value;
         }
@@ -86,7 +86,7 @@ namespace tl
         void TimeSpinBox::stepBy(int steps)
         {
             TLRENDER_P();
-            p.value += otime::RationalTime(steps, p.value.rate());
+            p.value += OTIO_NS::RationalTime(steps, p.value.rate());
             Q_EMIT valueChanged(p.value);
             _textUpdate();
         }
@@ -96,7 +96,7 @@ namespace tl
             return QValidator::Acceptable;
         }
 
-        void TimeSpinBox::setValue(const otime::RationalTime& value)
+        void TimeSpinBox::setValue(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             if (value.value() == p.value.value() &&
@@ -142,13 +142,13 @@ namespace tl
         void TimeSpinBox::_lineEditCallback()
         {
             TLRENDER_P();
-            otime::ErrorStatus errorStatus;
-            const otime::RationalTime time = timeline::textToTime(
+            opentime::ErrorStatus errorStatus;
+            const OTIO_NS::RationalTime time = timeline::textToTime(
                 lineEdit()->text().toUtf8().data(),
                 p.value.rate(),
                 p.timeUnits,
                 &errorStatus);
-            if (!otime::is_error(errorStatus) && time != p.value)
+            if (!opentime::is_error(errorStatus) && time != p.value)
             {
                 p.value = time;
                 Q_EMIT valueChanged(p.value);

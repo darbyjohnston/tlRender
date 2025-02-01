@@ -7,8 +7,8 @@
 #include <tlIO/OpenEXR.h>
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/FileIO.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/FileIO.h>
 
 #include <sstream>
 
@@ -51,10 +51,10 @@ namespace tl
             {
                 Info info;
                 info.video.push_back(imageInfo);
-                info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                info.videoTime = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
                 info.tags = tags;
                 auto write = plugin->write(path, info, options);
-                write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                write->writeVideo(OTIO_NS::RationalTime(0.0, 24.0), image);
             }
 
             void read(
@@ -81,12 +81,12 @@ namespace tl
                     read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
-                TLRENDER_ASSERT(!ioInfo.video.empty());
-                const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                TLRENDER_ASSERT(videoData.image);
-                TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
+                DTK_ASSERT(!ioInfo.video.empty());
+                const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
+                DTK_ASSERT(videoData.image);
+                DTK_ASSERT(videoData.image->getSize() == image->getSize());
                 //! \todo Compare image data.
-                //TLRENDER_ASSERT(0 == memcmp(
+                //DTK_ASSERT(0 == memcmp(
                 //    videoData.image->getData(),
                 //    image->getData(),
                 //    image->getDataByteCount()));
@@ -96,7 +96,7 @@ namespace tl
                     const auto k = tags.find(j.first);
                     if (k != tags.end())
                     {
-                        TLRENDER_ASSERT(k->second == j.second);
+                        DTK_ASSERT(k->second == j.second);
                     }
                 }
             }
@@ -124,7 +124,7 @@ namespace tl
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory, options);
-                const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
             }
         }
 

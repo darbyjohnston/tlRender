@@ -10,15 +10,15 @@ namespace tl
     {
         struct RecentFilesModel::Private
         {
-            std::shared_ptr<observer::Value<size_t> > recentMax;
-            std::shared_ptr<observer::List<file::Path> > recent;
+            std::shared_ptr<dtk::ObservableValue<size_t> > recentMax;
+            std::shared_ptr<dtk::ObservableList<file::Path> > recent;
         };
 
         void RecentFilesModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
-            p.recentMax = observer::Value<size_t>::create(10);
-            p.recent = observer::List<file::Path>::create();
+            p.recentMax = dtk::ObservableValue<size_t>::create(10);
+            p.recent = dtk::ObservableList<file::Path>::create();
         }
 
         RecentFilesModel::RecentFilesModel() :
@@ -41,7 +41,7 @@ namespace tl
             return _p->recentMax->get();
         }
 
-        std::shared_ptr<observer::IValue<size_t> > RecentFilesModel::observeRecentMax() const
+        std::shared_ptr<dtk::IObservableValue<size_t> > RecentFilesModel::observeRecentMax() const
         {
             return _p->recentMax;
         }
@@ -68,7 +68,7 @@ namespace tl
             return _p->recent->get();
         }
 
-        std::shared_ptr<observer::IList<file::Path> > RecentFilesModel::observeRecent() const
+        std::shared_ptr<dtk::IObservableList<file::Path> > RecentFilesModel::observeRecent() const
         {
             return _p->recent;
         }

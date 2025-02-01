@@ -25,11 +25,7 @@ set(HEADERS
     ImageInline.h
     LRUCache.h
     LRUCacheInline.h
-    ListObserver.h
-    ListObserverInline.h
     LogSystem.h
-    MapObserver.h
-    MapObserverInline.h
     Math.h
     MathInline.h
     Matrix.h
@@ -38,7 +34,6 @@ set(HEADERS
     MemoryInline.h
     Mesh.h
     MeshInline.h
-    Observer.h
     Path.h
     PathInline.h
     Random.h
@@ -51,8 +46,6 @@ set(HEADERS
     TimeInline.h
     Timer.h
     Util.h
-    ValueObserver.h
-    ValueObserverInline.h
     Vector.h
     VectorInline.h)
 

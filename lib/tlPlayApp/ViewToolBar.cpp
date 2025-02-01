@@ -24,7 +24,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
         };
 
         void ViewToolBar::_init(
@@ -76,7 +76,7 @@ namespace tl
                     }
                 });
 
-            p.frameViewObserver = observer::ValueObserver<bool>::create(
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {

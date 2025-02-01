@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Color.h>
 
 #include <QDialog>
 
@@ -20,13 +21,13 @@ namespace tl
 
         public:
             ColorDialog(
-                const image::Color4f& = image::Color4f(),
+                const dtk::Color4F& = dtk::Color4F(),
                 QWidget* parent = nullptr);
 
             virtual ~ColorDialog();
 
             //! Get the color.
-            const image::Color4f& color() const;
+            const dtk::Color4F& color() const;
 
         private:
             TLRENDER_PRIVATE();

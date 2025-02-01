@@ -6,7 +6,9 @@
 
 #include <tlTimeline/OCIOOptions.h>
 
-#include <tlCore/ValueObserver.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -52,7 +54,7 @@ namespace tl
             static std::shared_ptr<OCIOModel> create(const std::shared_ptr<system::Context>&);
 
             //! Observe the options.
-            std::shared_ptr<observer::IValue<timeline::OCIOOptions> > observeOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::OCIOOptions> > observeOptions() const;
 
             //! Set the options.
             void setOptions(const timeline::OCIOOptions&);
@@ -64,7 +66,7 @@ namespace tl
             void setConfig(const std::string& fileName);
 
             //! Observe the model data.
-            std::shared_ptr<observer::IValue<OCIOModelData> > observeData() const;
+            std::shared_ptr<dtk::IObservableValue<OCIOModelData> > observeData() const;
 
             //! Set the input index.
             void setInputIndex(size_t);

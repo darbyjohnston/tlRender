@@ -112,7 +112,7 @@ namespace tl
             void droppedFramesChanged(size_t);
 
             //! This signal is emitted when the color picker is changed.
-            void colorPickerChanged(const tl::image::Color4f&);
+            void colorPickerChanged(const dtk::Color4F&);
 
         private:
             TLRENDER_PRIVATE();

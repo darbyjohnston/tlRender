@@ -21,7 +21,7 @@ namespace tl
         {
             std::shared_ptr<ui::DoubleEditSlider> syncOffsetSlider;
 
-            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
         };
 
         void AudioTool::_init(
@@ -62,7 +62,7 @@ namespace tl
                     }
                 });
 
-            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+            p.syncOffsetObserver = dtk::ValueObserver<double>::create(
                 app->getAudioModel()->observeSyncOffset(),
                 [this](double value)
                 {

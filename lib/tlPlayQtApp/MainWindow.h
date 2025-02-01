@@ -49,7 +49,7 @@ namespace tl
         private Q_SLOTS:
             void _speedCallback(double);
             void _playbackCallback(tl::timeline::Playback);
-            void _currentTimeCallback(const otime::RationalTime&);
+            void _currentTimeCallback(const OTIO_NS::RationalTime&);
             void _volumeCallback(int);
 
         private:

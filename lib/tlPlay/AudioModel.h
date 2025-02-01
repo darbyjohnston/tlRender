@@ -7,8 +7,9 @@
 #include <tlTimeline/CompareOptions.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/ListObserver.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableList.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -45,13 +46,13 @@ namespace tl
             const std::vector<audio::DeviceID>& getDevices();
 
             //! Observe the output devices.
-            std::shared_ptr<observer::IList<audio::DeviceID> > observeDevices() const;
+            std::shared_ptr<dtk::IObservableList<audio::DeviceID> > observeDevices() const;
 
             //! Get the output device.
             const audio::DeviceID& getDevice() const;
 
             //! Observe the output device.
-            std::shared_ptr<observer::IValue<audio::DeviceID> > observeDevice() const;
+            std::shared_ptr<dtk::IObservableValue<audio::DeviceID> > observeDevice() const;
 
             //! Set the output device.
             void setDevice(const audio::DeviceID&);
@@ -60,7 +61,7 @@ namespace tl
             float getVolume() const;
 
             //! Observe the volume.
-            std::shared_ptr<observer::IValue<float> > observeVolume() const;
+            std::shared_ptr<dtk::IObservableValue<float> > observeVolume() const;
 
             //! Set the volume.
             void setVolume(float);
@@ -75,7 +76,7 @@ namespace tl
             bool isMuted() const;
 
             //! Observe the audio mute.
-            std::shared_ptr<observer::IValue<bool> > observeMute() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeMute() const;
 
             //! Set the audio mute.
             void setMute(bool);
@@ -84,7 +85,7 @@ namespace tl
             const std::vector<bool>& getChannelMute() const;
 
             //! Observe the audio channels mute.
-            std::shared_ptr<observer::IList<bool> > observeChannelMute() const;
+            std::shared_ptr<dtk::IObservableList<bool> > observeChannelMute() const;
 
             //! Set the audio channels mute.
             void setChannelMute(const std::vector<bool>&);
@@ -93,7 +94,7 @@ namespace tl
             double getSyncOffset() const;
 
             //! Set the audio sync offset.
-            std::shared_ptr<observer::IValue<double> > observeSyncOffset() const;
+            std::shared_ptr<dtk::IObservableValue<double> > observeSyncOffset() const;
 
             //! Set the audio sync offset.
             void setSyncOffset(double);

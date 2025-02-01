@@ -48,7 +48,7 @@ namespace tl
             bool isEditable() const;
 
             //! Observe whether the timeline is editable.
-            std::shared_ptr<observer::IValue<bool> > observeEditable() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeEditable() const;
 
             //! Set whether the timeline is editable.
             void setEditable(bool);
@@ -73,7 +73,7 @@ namespace tl
             bool hasFrameView() const;
             
             //! Observe whether the view is framed automatically.
-            std::shared_ptr<observer::IValue<bool> > observeFrameView() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeFrameView() const;
 
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
@@ -88,7 +88,7 @@ namespace tl
             bool hasScrollToCurrentFrame() const;
 
             //! Observe whether to automatically scroll to the current frame.
-            std::shared_ptr<observer::IValue<bool> > observeScrollToCurrentFrame() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeScrollToCurrentFrame() const;
 
             //! Set whether to automatically scroll to the current frame.
             void setScrollToCurrentFrame(bool);
@@ -114,16 +114,16 @@ namespace tl
             bool hasStopOnScrub() const;
 
             //! Observe whether to stop playback when scrubbing.
-            std::shared_ptr<observer::IValue<bool> > observeStopOnScrub() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeStopOnScrub() const;
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
             //! Observe whether scrubbing is in progress.
-            std::shared_ptr<observer::IValue<bool> > observeScrub() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             ///@}
 
@@ -145,7 +145,7 @@ namespace tl
             const ItemOptions& getItemOptions() const;
 
             //! Observe the item options.
-            std::shared_ptr<observer::IValue<ItemOptions> > observeItemOptions() const;
+            std::shared_ptr<dtk::IObservableValue<ItemOptions> > observeItemOptions() const;
 
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
@@ -154,7 +154,7 @@ namespace tl
             const DisplayOptions& getDisplayOptions() const;
 
             //! Observe the display options.
-            std::shared_ptr<observer::IValue<DisplayOptions> > observeDisplayOptions() const;
+            std::shared_ptr<dtk::IObservableValue<DisplayOptions> > observeDisplayOptions() const;
 
             //! Set the display options.
             void setDisplayOptions(const DisplayOptions&);

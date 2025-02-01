@@ -12,20 +12,20 @@ namespace tl
     {
         struct IntModel::Private
         {
-            std::shared_ptr<observer::Value<int> > value;
-            std::shared_ptr<observer::Value<math::IntRange> > range;
+            std::shared_ptr<dtk::ObservableValue<int> > value;
+            std::shared_ptr<dtk::ObservableValue<math::IntRange> > range;
             int step = 1;
             int largeStep = 10;
-            std::shared_ptr<observer::Value<bool> > hasDefaultValue;
+            std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
             int defaultValue = 0;
         };
 
         void IntModel::_init(const std::shared_ptr<system::Context>&)
         {
             TLRENDER_P();
-            p.value = observer::Value<int>::create(0);
-            p.range = observer::Value<math::IntRange>::create(math::IntRange(0, 100));
-            p.hasDefaultValue = observer::Value<bool>::create(false);
+            p.value = dtk::ObservableValue<int>::create(0);
+            p.range = dtk::ObservableValue<math::IntRange>::create(math::IntRange(0, 100));
+            p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
         IntModel::IntModel() :
@@ -56,7 +56,7 @@ namespace tl
             _p->value->setIfChanged(tmp);
         }
 
-        std::shared_ptr<observer::IValue<int> > IntModel::observeValue() const
+        std::shared_ptr<dtk::IObservableValue<int> > IntModel::observeValue() const
         {
             return _p->value;
         }
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<math::IntRange> > IntModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<math::IntRange> > IntModel::observeRange() const
         {
             return _p->range;
         }
@@ -129,7 +129,7 @@ namespace tl
             return _p->hasDefaultValue->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > IntModel::observeHasDefaultValue() const
+        std::shared_ptr<dtk::IObservableValue<bool> > IntModel::observeHasDefaultValue() const
         {
             return _p->hasDefaultValue;
         }

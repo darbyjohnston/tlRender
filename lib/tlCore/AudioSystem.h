@@ -6,8 +6,9 @@
 
 #include <tlCore/Audio.h>
 #include <tlCore/ISystem.h>
-#include <tlCore/ListObserver.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableList.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -56,13 +57,13 @@ namespace tl
             const std::vector<DeviceInfo>& getDevices() const;
 
             //! Observe the list of audio devices.
-            std::shared_ptr<observer::IList<DeviceInfo> > observeDevices() const;
+            std::shared_ptr<dtk::IObservableList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio device.
             DeviceInfo getDefaultDevice() const;
 
             //! Observe the default audio device.
-            std::shared_ptr<observer::IValue<DeviceInfo> > observeDefaultDevice() const;
+            std::shared_ptr<dtk::IObservableValue<DeviceInfo> > observeDefaultDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;

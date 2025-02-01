@@ -6,9 +6,9 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
-#include <tlCore/ValueObserver.h>
 
 #include <dtk/core/Color.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -154,7 +154,7 @@ namespace tl
             void setFontRoles(const std::map<FontRole, image::FontInfo>&);
 
             //! Observe style changes.
-            std::shared_ptr<observer::IValue<bool> > observeChanged() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeChanged() const;
 
         private:
             std::map<SizeRole, int> _sizeRoles;

@@ -5,7 +5,8 @@
 #pragma once
 
 #include <tlCore/ICoreSystem.h>
-#include <tlCore/ListObserver.h>
+
+#include <dtk/core/ObservableList.h>
 
 #include <chrono>
 
@@ -68,7 +69,7 @@ namespace tl
                 Type = Type::Message);
 
             //! Observe the log.
-            std::shared_ptr<observer::IList<Item> > observeLog() const;
+            std::shared_ptr<dtk::IObservableList<Item> > observeLog() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;

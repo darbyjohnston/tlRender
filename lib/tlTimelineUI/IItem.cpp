@@ -115,7 +115,7 @@ namespace tl
         struct IItem::Private
         {
             ui::ColorRole selectRole = ui::ColorRole::None;
-            std::shared_ptr<observer::ValueObserver<bool> > timeUnitsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > timeUnitsObserver;
         };
 
         void IItem::_init(
@@ -139,7 +139,7 @@ namespace tl
             _displayOptions = displayOptions;
             _data = data;
 
-            p.timeUnitsObserver = observer::ValueObserver<bool>::create(
+            p.timeUnitsObserver = dtk::ValueObserver<bool>::create(
                 data->timeUnitsModel->observeTimeUnitsChanged(),
                 [this](bool)
                 {

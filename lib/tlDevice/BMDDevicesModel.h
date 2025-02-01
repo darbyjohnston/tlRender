@@ -7,7 +7,8 @@
 #include <tlDevice/BMDData.h>
 
 #include <tlCore/Image.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableValue.h>
 
 #include <memory>
 #include <string>
@@ -57,7 +58,7 @@ namespace tl
                 const std::shared_ptr<system::Context>&);
 
             //! Observe the model data.
-            std::shared_ptr<observer::IValue<DevicesModelData> > observeData() const;
+            std::shared_ptr<dtk::IObservableValue<DevicesModelData> > observeData() const;
 
             //! Set the device index.
             void setDeviceIndex(int);

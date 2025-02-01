@@ -24,8 +24,8 @@ namespace tl
 
             std::function<void(float)> callback;
 
-            std::shared_ptr<observer::ValueObserver<float> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hasDefaultObserver;
         };
 
         void FloatEditSlider::_init(
@@ -65,7 +65,7 @@ namespace tl
                     _p->model->setDefaultValue();
                 });
 
-            p.valueObserver = observer::ValueObserver<float>::create(
+            p.valueObserver = dtk::ValueObserver<float>::create(
                 p.model->observeValue(),
                 [this](float value)
                 {
@@ -76,7 +76,7 @@ namespace tl
                     }
                 });
 
-            p.hasDefaultObserver = observer::ValueObserver<bool>::create(
+            p.hasDefaultObserver = dtk::ValueObserver<bool>::create(
                 p.model->observeHasDefaultValue(),
                 [this](bool value)
                 {

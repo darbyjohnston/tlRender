@@ -37,9 +37,9 @@ namespace tl
             std::shared_ptr<ui::ComboBox> lookComboBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
-            std::shared_ptr<observer::ValueObserver<play::OCIOModelData> > dataObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
+            std::shared_ptr<dtk::ValueObserver<play::OCIOModelData> > dataObserver;
         };
 
         void OCIOWidget::_init(
@@ -100,7 +100,7 @@ namespace tl
             p.lookComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.lookComboBox, 5, 1);
 
-            p.optionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.optionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
@@ -110,7 +110,7 @@ namespace tl
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.optionsObserver2 = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.optionsObserver2 = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 p.ocioModel->observeOptions(),
                 [appWeak](const timeline::OCIOOptions& value)
                 {
@@ -120,7 +120,7 @@ namespace tl
                     }
                 });
 
-            p.dataObserver = observer::ValueObserver<play::OCIOModelData>::create(
+            p.dataObserver = dtk::ValueObserver<play::OCIOModelData>::create(
                 p.ocioModel->observeData(),
                 [this](const play::OCIOModelData& value)
                 {
@@ -206,7 +206,7 @@ namespace tl
             std::shared_ptr<ui::ComboBox> orderComboBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > optionsObservers;
         };
 
         void LUTWidget::_init(
@@ -242,7 +242,7 @@ namespace tl
             p.orderComboBox->setParent(p.layout);
             p.layout->setGridPos(p.orderComboBox, 2, 1);
 
-            p.optionsObservers = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::LUTOptions>::create(
                 app->getColorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
@@ -324,7 +324,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> invertCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
         void ColorWidget::_init(
@@ -382,7 +382,7 @@ namespace tl
             p.invertCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.invertCheckBox, 6, 0);
 
-            p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -523,7 +523,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
         void LevelsWidget::_init(
@@ -574,7 +574,7 @@ namespace tl
             p.sliders["OutHigh"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["OutHigh"], 5, 1);
 
-            p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -694,7 +694,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
         void EXRDisplayWidget::_init(
@@ -741,7 +741,7 @@ namespace tl
             p.sliders["KneeHigh"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["KneeHigh"], 4, 1);
 
-            p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -848,7 +848,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
 
         void SoftClipWidget::_init(
@@ -870,7 +870,7 @@ namespace tl
             p.enabledCheckBox->setParent(p.layout);
             p.sliders["SoftClip"]->setParent(p.layout);
 
-            p.optionsObservers = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {

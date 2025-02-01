@@ -19,7 +19,7 @@ namespace tl
         };
 
         ColorDialog::ColorDialog(
-            const image::Color4f& color,
+            const dtk::Color4F& color,
             QWidget* parent) :
             QDialog(parent),
             _p(new Private)
@@ -53,7 +53,7 @@ namespace tl
         ColorDialog::~ColorDialog()
         {}
 
-        const image::Color4f& ColorDialog::color() const
+        const dtk::Color4F& ColorDialog::color() const
         {
             return _p->colorWidget->color();
         }

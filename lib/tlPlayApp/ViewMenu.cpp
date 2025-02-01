@@ -19,9 +19,9 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
-            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > hudObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
         };
 
         void ViewMenu::_init(
@@ -61,21 +61,21 @@ namespace tl
             addDivider();
             addItem(p.actions["HUD"]);
 
-            p.frameViewObserver = observer::ValueObserver<bool>::create(
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Frame"], value);
                 });
 
-            p.hudObserver = observer::ValueObserver<bool>::create(
+            p.hudObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeHUD(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["HUD"], value);
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {

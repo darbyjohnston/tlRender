@@ -16,7 +16,7 @@ namespace tl
     {
         struct ColorSwatch::Private
         {
-            image::Color4f color;
+            dtk::Color4F color;
             int swatchSize = 20;
             bool editable = false;
         };
@@ -29,7 +29,7 @@ namespace tl
         ColorSwatch::~ColorSwatch()
         {}
 
-        const image::Color4f& ColorSwatch::color() const
+        const dtk::Color4F& ColorSwatch::color() const
         {
             return _p->color;
         }
@@ -54,7 +54,7 @@ namespace tl
             return QSize(p.swatchSize, p.swatchSize);
         }
 
-        void ColorSwatch::setColor(const tl::image::Color4f& value)
+        void ColorSwatch::setColor(const dtk::Color4F& value)
         {
             TLRENDER_P();
             if (value == p.color)

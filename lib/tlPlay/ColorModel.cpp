@@ -11,8 +11,8 @@ namespace tl
         struct ColorModel::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::Value<timeline::OCIOOptions> > ocioOptions;
-            std::shared_ptr<observer::Value<timeline::LUTOptions> > lutOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::OCIOOptions> > ocioOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::LUTOptions> > lutOptions;
         };
 
         void ColorModel::_init(const std::shared_ptr<system::Context>& context)
@@ -21,8 +21,8 @@ namespace tl
 
             p.context = context;
 
-            p.ocioOptions = observer::Value<timeline::OCIOOptions>::create();
-            p.lutOptions = observer::Value<timeline::LUTOptions>::create();
+            p.ocioOptions = dtk::ObservableValue<timeline::OCIOOptions>::create();
+            p.lutOptions = dtk::ObservableValue<timeline::LUTOptions>::create();
         }
 
         ColorModel::ColorModel() :
@@ -44,7 +44,7 @@ namespace tl
             return _p->ocioOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::OCIOOptions> > ColorModel::observeOCIOOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::OCIOOptions> > ColorModel::observeOCIOOptions() const
         {
             return _p->ocioOptions;
         }
@@ -59,7 +59,7 @@ namespace tl
             return _p->lutOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::LUTOptions> > ColorModel::observeLUTOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::LUTOptions> > ColorModel::observeLUTOptions() const
         {
             return _p->lutOptions;
         }

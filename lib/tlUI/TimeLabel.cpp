@@ -40,7 +40,7 @@ namespace tl
             };
             DrawData draw;
 
-            std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeLabel::_init(
@@ -59,7 +59,7 @@ namespace tl
 
             _textUpdate();
 
-            p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
+            p.timeUnitsObserver = dtk::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
                 [this](timeline::TimeUnits)
                 {

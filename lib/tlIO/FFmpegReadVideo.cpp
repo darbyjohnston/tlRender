@@ -4,7 +4,7 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 extern "C"
 {
@@ -29,7 +29,7 @@ namespace tl
                 _avFormatContext = avformat_alloc_context();
                 if (!_avFormatContext)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate format context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate format context").arg(fileName));
                 }
 
                 _avIOBufferData = AVIOBufferData(memory[0].p, memory[0].size);
@@ -44,7 +44,7 @@ namespace tl
                     &avIOBufferSeek);
                 if (!_avIOContext)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate I/O context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate I/O context").arg(fileName));
                 }
 
                 _avFormatContext->pb = _avIOContext;
@@ -57,13 +57,13 @@ namespace tl
                 nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
 
             r = avformat_find_stream_info(_avFormatContext, nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
             }
             for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
             {
@@ -97,34 +97,34 @@ namespace tl
                 auto avVideoCodec = avcodec_find_decoder(avVideoCodecParameters->codec_id);
                 if (!avVideoCodec)
                 {
-                    throw std::runtime_error(string::Format("{0}: No video codec found").arg(fileName));
+                    throw std::runtime_error(dtk::Format("{0}: No video codec found").arg(fileName));
                 }
                 _avCodecParameters[_avStream] = avcodec_parameters_alloc();
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate parameters").arg(fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate parameters").arg(fileName));
                 }
                 r = avcodec_parameters_copy(_avCodecParameters[_avStream], avVideoCodecParameters);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 _avCodecContext[_avStream] = avcodec_alloc_context3(avVideoCodec);
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate context").arg(fileName));
                 }
                 r = avcodec_parameters_to_context(_avCodecContext[_avStream], _avCodecParameters[_avStream]);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
                 _avCodecContext[_avStream]->thread_count = options.threadCount;
                 _avCodecContext[_avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avStream], avVideoCodec, 0);
                 if (r < 0)
                 {
-                    throw std::runtime_error(string::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
                 }
 
                 _info.size.w = _avCodecParameters[_avStream]->width;
@@ -316,31 +316,31 @@ namespace tl
                     const std::string key(tag->key);
                     const std::string value(tag->value);
                     tags[key] = value;
-                    if (string::compare(
+                    if (dtk::compare(
                         key,
                         "timecode",
-                        string::Compare::CaseInsensitive))
+                        dtk::CaseCompare::Insensitive))
                     {
                         timecode = value;
                     }
                 }
 
-                otime::RationalTime startTime(0.0, speed);
+                OTIO_NS::RationalTime startTime(0.0, speed);
                 if (!timecode.empty())
                 {
-                    otime::ErrorStatus errorStatus;
-                    const otime::RationalTime time = otime::RationalTime::from_timecode(
+                    opentime::ErrorStatus errorStatus;
+                    const OTIO_NS::RationalTime time = OTIO_NS::RationalTime::from_timecode(
                         timecode,
                         speed,
                         &errorStatus);
-                    if (!otime::is_error(errorStatus))
+                    if (!opentime::is_error(errorStatus))
                     {
                         startTime = time.floor();
                     }
                 }
-                _timeRange = otime::TimeRange(
+                _timeRange = OTIO_NS::TimeRange(
                     startTime,
-                    otime::RationalTime(sequenceSize, speed));
+                    OTIO_NS::RationalTime(sequenceSize, speed));
 
                 for (const auto& i : tags)
                 {
@@ -440,7 +440,7 @@ namespace tl
             return _info;
         }
 
-        const otime::TimeRange& ReadVideo::getTimeRange() const
+        const OTIO_NS::TimeRange& ReadVideo::getTimeRange() const
         {
             return _timeRange;
         }
@@ -469,7 +469,7 @@ namespace tl
                 _avFrame = av_frame_alloc();
                 if (!_avFrame)
                 {
-                    throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_fileName));
+                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(_fileName));
                 }
 
                 if (!canCopy(_avInputPixelFormat, _avOutputPixelFormat))
@@ -477,7 +477,7 @@ namespace tl
                     _avFrame2 = av_frame_alloc();
                     if (!_avFrame2)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot allocate frame").arg(_fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(_fileName));
                     }
                     //! \bug These fields need to be filled out for
                     //! sws_scale_frame()?
@@ -499,12 +499,12 @@ namespace tl
                         0);
                     if (!_swsContext)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot get context").arg(_fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot get context").arg(_fileName));
                     }*/
                     _swsContext = sws_alloc_context();
                     if (!_swsContext)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot allocate context").arg(_fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot allocate context").arg(_fileName));
                     }
                     av_opt_set_defaults(_swsContext);
                     int r = av_opt_set_int(_swsContext, "srcw", _avCodecParameters[_avStream]->width, AV_OPT_SEARCH_CHILDREN);
@@ -518,7 +518,7 @@ namespace tl
                     r = sws_init_context(_swsContext, nullptr, nullptr);
                     if (r < 0)
                     {
-                        throw std::runtime_error(string::Format("{0}: Cannot initialize sws context").arg(_fileName));
+                        throw std::runtime_error(dtk::Format("{0}: Cannot initialize sws context").arg(_fileName));
                     }
 
                     const int* inTable    = nullptr;
@@ -560,7 +560,7 @@ namespace tl
             }
         }
 
-        void ReadVideo::seek(const otime::RationalTime& time)
+        void ReadVideo::seek(const OTIO_NS::RationalTime& time)
         {
             //std::cout << "video seek: " << time << std::endl;
 
@@ -585,7 +585,7 @@ namespace tl
             _eof = false;
         }
 
-        bool ReadVideo::process(const otime::RationalTime& currentTime)
+        bool ReadVideo::process(const OTIO_NS::RationalTime& currentTime)
         {
             bool out = false;
             if (_avStream != -1 &&
@@ -673,7 +673,7 @@ namespace tl
             return out;
         }
 
-        int ReadVideo::_decode(const otime::RationalTime& currentTime)
+        int ReadVideo::_decode(const OTIO_NS::RationalTime& currentTime)
         {
             int out = 0;
             while (0 == out)
@@ -686,7 +686,7 @@ namespace tl
                 const int64_t timestamp = _avFrame->pts != AV_NOPTS_VALUE ? _avFrame->pts : _avFrame->pkt_dts;
                 //std::cout << "video timestamp: " << timestamp << std::endl;
 
-                const otime::RationalTime time(
+                const OTIO_NS::RationalTime time(
                     _timeRange.start_time().value() +
                     av_rescale_q(
                         timestamp,

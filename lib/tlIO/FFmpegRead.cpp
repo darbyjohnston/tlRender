@@ -4,9 +4,10 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Assert.h>
+#include <dtk/core/Format.h>
 
 extern "C"
 {
@@ -168,10 +169,10 @@ namespace tl
                                     if (auto logSystem = _logSystem.lock())
                                     {
                                         //! \todo How should this be handled?
-                                        const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
+                                        const std::string id = dtk::Format("tl::io::ffmpeg::Read ({0}: {1})").
                                             arg(__FILE__).
                                             arg(__LINE__);
-                                        logSystem->print(id, string::Format("{0}: {1}").
+                                        logSystem->print(id, dtk::Format("{0}: {1}").
                                             arg(_path.get()).
                                             arg(e.what()),
                                             log::Type::Error);
@@ -185,10 +186,10 @@ namespace tl
                     {
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::io::ffmpeg::Read ({0}: {1})").
+                            const std::string id = dtk::Format("tl::io::ffmpeg::Read ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
-                            logSystem->print(id, string::Format("{0}: {1}").
+                            logSystem->print(id, dtk::Format("{0}: {1}").
                                 arg(_path.get()).
                                 arg(e.what()),
                                 log::Type::Error);
@@ -276,7 +277,7 @@ namespace tl
         }
 
         std::future<io::VideoData> Read::readVideo(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             TLRENDER_P();
@@ -305,7 +306,7 @@ namespace tl
         }
 
         std::future<io::AudioData> Read::readAudio(
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
             TLRENDER_P();
@@ -430,7 +431,7 @@ namespace tl
                         _cache->addVideo(cacheKey, data);
                     }
 
-                    p.videoThread.currentTime += otime::RationalTime(1.0, p.info.videoTime.duration().rate());
+                    p.videoThread.currentTime += OTIO_NS::RationalTime(1.0, p.info.videoTime.duration().rate());
                 }
 
                 // Logging.
@@ -442,13 +443,13 @@ namespace tl
                         p.videoThread.logTimer = now;
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::io::ffmpeg::Read {0}").arg(this);
+                            const std::string id = dtk::Format("tl::io::ffmpeg::Read {0}").arg(this);
                             size_t requestsSize = 0;
                             {
                                 std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
                                 requestsSize = p.videoMutex.videoRequests.size();
                             }
-                            logSystem->print(id, string::Format(
+                            logSystem->print(id, dtk::Format(
                                 "\n"
                                 "    Path: {0}\n"
                                 "    Video requests: {1}").
@@ -580,13 +581,13 @@ namespace tl
                         p.audioThread.logTimer = now;
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::io::ffmpeg::Read {0}").arg(this);
+                            const std::string id = dtk::Format("tl::io::ffmpeg::Read {0}").arg(this);
                             size_t requestsSize = 0;
                             {
                                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                                 requestsSize = p.audioMutex.requests.size();
                             }
-                            logSystem->print(id, string::Format(
+                            logSystem->print(id, dtk::Format(
                                 "\n"
                                 "    Path: {0}\n"
                                 "    Audio requests: {1}").

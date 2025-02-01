@@ -59,7 +59,7 @@ namespace tl
         {
             std::chrono::steady_clock::time_point startTime;
 
-            std::shared_ptr<observer::List<Item> > log;
+            std::shared_ptr<dtk::ObservableList<Item> > log;
 
             std::vector<Item> items;
             std::mutex mutex;
@@ -72,7 +72,7 @@ namespace tl
 
             p.startTime = std::chrono::steady_clock::now();
 
-            p.log = observer::List<Item>::create();
+            p.log = dtk::ObservableList<Item>::create();
         }
 
         System::System() :
@@ -105,7 +105,7 @@ namespace tl
             p.items.push_back({ time.count(), prefix, value, type });
         }
 
-        std::shared_ptr<observer::IList<Item> > System::observeLog() const
+        std::shared_ptr<dtk::IObservableList<Item> > System::observeLog() const
         {
             return _p->log;
         }

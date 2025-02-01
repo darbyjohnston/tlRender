@@ -6,7 +6,8 @@
 
 #include <tlCore/FileIO.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <ImfChannelList.h>
 #include <ImfRgbaFile.h>
@@ -58,7 +59,7 @@ namespace tl
             TLRENDER_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+                throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
             }
             char* out = nullptr;
             if (p.p)
@@ -74,7 +75,7 @@ namespace tl
             TLRENDER_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(string::Format("{0}: Error reading file").arg(fileName()));
+                throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
             }
             if (p.p)
             {
@@ -162,9 +163,9 @@ namespace tl
 
                     if (auto logSystem = logSystemWeak.lock())
                     {
-                        const std::string id = string::Format("tl::io::exr::Read {0}").arg(this);
+                        const std::string id = dtk::Format("tl::io::exr::Read {0}").arg(this);
                         std::vector<std::string> s;
-                        s.push_back(string::Format(
+                        s.push_back(dtk::Format(
                             "\n"
                             "    file name: {0}\n"
                             "    display window {1}\n"
@@ -181,7 +182,7 @@ namespace tl
                             ss2 << "    channel " << i.name() << ": " << getLabel(i.channel().type) << ", " << i.channel().xSampling << "x" << i.channel().ySampling;
                             s.push_back(ss2.str());
                         }
-                        logSystem->print(id, string::join(s, '\n'));
+                        logSystem->print(id, dtk::join(s, '\n'));
                     }
 
                     // Get the tags.
@@ -216,7 +217,7 @@ namespace tl
                         }
                         if (image::PixelType::None == info.pixelType)
                         {
-                            throw std::runtime_error(string::Format("{0}: Unsupported image type").arg(fileName));
+                            throw std::runtime_error(dtk::Format("{0}: Unsupported image type").arg(fileName));
                         }
                         info.layout.mirror.y = true;
                     }
@@ -229,7 +230,7 @@ namespace tl
 
                 io::VideoData read(
                     const std::string& fileName,
-                    const otime::RationalTime& time,
+                    const OTIO_NS::RationalTime& time,
                     const io::Options& options)
                 {
                     io::VideoData out;
@@ -384,16 +385,16 @@ namespace tl
             {
                 speed = std::stof(i->second);
             }
-            out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
-                otime::RationalTime(_startFrame, speed),
-                otime::RationalTime(_endFrame, speed));
+            out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                OTIO_NS::RationalTime(_startFrame, speed),
+                OTIO_NS::RationalTime(_endFrame, speed));
             return out;
         }
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
             const file::MemoryRead* memory,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             return File(fileName, memory, _channelGrouping, _logSystem).read(fileName, time, options);

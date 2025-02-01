@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<IncButtons> incButtons;
             std::shared_ptr<HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeEdit::_init(
@@ -78,7 +78,7 @@ namespace tl
                     _commitValue(_p->value + OTIO_NS::RationalTime(-1.0, _p->value.rate()));
                 });
 
-            p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
+            p.timeUnitsObserver = dtk::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
                 [this](timeline::TimeUnits)
                 {

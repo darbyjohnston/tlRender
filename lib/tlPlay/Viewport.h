@@ -32,7 +32,7 @@ namespace tl
             bool hasHUD() const;
 
             //! Observe whether the HUD is enabled.
-            std::shared_ptr<observer::IValue<bool> > observeHUD() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeHUD() const;
 
             //! Set whether the HUD is enabled.
             void setHUD(bool);

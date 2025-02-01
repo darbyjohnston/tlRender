@@ -16,10 +16,10 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
-            std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > floatOnTopObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > secondaryObserver;
-            std::shared_ptr<observer::ValueObserver<WindowOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > floatOnTopObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > secondaryObserver;
+            std::shared_ptr<dtk::ValueObserver<WindowOptions> > optionsObserver;
         };
 
         void WindowMenu::_init(
@@ -72,28 +72,28 @@ namespace tl
             addItem(p.actions["BottomToolBar"]);
             addItem(p.actions["StatusToolBar"]);
 
-            p.fullScreenObserver = observer::ValueObserver<bool>::create(
+            p.fullScreenObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->observeFullScreen(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["FullScreen"], value);
                 });
 
-            p.floatOnTopObserver = observer::ValueObserver<bool>::create(
+            p.floatOnTopObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->observeFloatOnTop(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["FloatOnTop"], value);
                 });
 
-            p.secondaryObserver = observer::ValueObserver<bool>::create(
+            p.secondaryObserver = dtk::ValueObserver<bool>::create(
                 app->observeSecondaryWindow(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Secondary"], value);
                 });
 
-            p.optionsObserver = observer::ValueObserver<WindowOptions>::create(
+            p.optionsObserver = dtk::ValueObserver<WindowOptions>::create(
                 mainWindow->observeWindowOptions(),
                 [this](const WindowOptions& value)
                 {

@@ -78,7 +78,7 @@ namespace tl
             std::vector<std::shared_ptr<Window> > windowsToRemove;
             bool running = true;
 
-            std::map<std::shared_ptr<Window>, std::shared_ptr<observer::ValueObserver<bool> > > closeObservers;
+            std::map<std::shared_ptr<Window>, std::shared_ptr<dtk::ValueObserver<bool> > > closeObservers;
         };
 
         void App::_init(
@@ -199,7 +199,7 @@ namespace tl
             p.clipboardWindow = window;
             p.clipboard->setWindow(window->getGLFWWindow()->getGLFW());
 
-            p.closeObservers[window] = observer::ValueObserver<bool>::create(
+            p.closeObservers[window] = dtk::ValueObserver<bool>::create(
                 window->observeClose(),
                 [this, window](bool value)
                 {

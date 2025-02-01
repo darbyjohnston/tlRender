@@ -19,7 +19,7 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> layout;
             std::shared_ptr<time::Timer> timer;
             std::function<void(void)> clickedCallback;
-            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
         };
 
         void StatusBar::_init(
@@ -43,7 +43,7 @@ namespace tl
 
             p.timer = time::Timer::create(context);
 
-            p.logObserver = observer::ListObserver<log::Item>::create(
+            p.logObserver = dtk::ListObserver<log::Item>::create(
                 context->getLogSystem()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {

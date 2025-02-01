@@ -9,7 +9,8 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/Path.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableValue.h>
 
 #include <opentimelineio/timeline.h>
 
@@ -143,7 +144,7 @@ namespace tl
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& getTimeline() const;
 
             //! Observe timeline changes.
-            std::shared_ptr<observer::IValue<bool> > observeTimelineChanges() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeTimelineChanges() const;
 
             //! Set the timeline.
             void setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&);

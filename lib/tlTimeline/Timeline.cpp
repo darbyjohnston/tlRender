@@ -85,7 +85,7 @@ namespace tl
 
             p.context = context;
             p.otioTimeline = otioTimeline;
-            p.timelineChanges = observer::Value<bool>::create(false);
+            p.timelineChanges = dtk::ObservableValue<bool>::create(false);
             const auto i = otioTimeline->metadata().find("tlRender");
             if (i != otioTimeline->metadata().end())
             {
@@ -210,7 +210,7 @@ namespace tl
             return _p->otioTimeline;
         }
 
-        std::shared_ptr<observer::IValue<bool> > Timeline::observeTimelineChanges() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Timeline::observeTimelineChanges() const
         {
             return _p->timelineChanges;
         }

@@ -46,8 +46,9 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FileLogSystem.h>
 #include <tlCore/Math.h>
-#include <tlCore/StringFormat.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Format.h>
 
 #include <QPointer>
 #include <QScreen>
@@ -94,29 +95,29 @@ namespace tl
 #endif // TLRENDER_BMD
             std::unique_ptr<QTimer> timer;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
-            std::shared_ptr<observer::ValueObserver<size_t> > recentFilesMaxObserver;
-            std::shared_ptr<observer::ListObserver<file::Path> > recentFilesObserver;
-            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
-            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<observer::ListObserver<bool> > channelMuteObserver;
-            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
+            std::shared_ptr<dtk::ListObserver<int> > layersObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<size_t> > recentFilesMaxObserver;
+            std::shared_ptr<dtk::ListObserver<file::Path> > recentFilesObserver;
+            std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > bmdActiveObserver;
-            std::shared_ptr<observer::ValueObserver<math::Size2i> > bmdSizeObserver;
-            std::shared_ptr<observer::ValueObserver<bmd::FrameRate> > bmdFrameRateObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
+            std::shared_ptr<dtk::ValueObserver<math::Size2i> > bmdSizeObserver;
+            std::shared_ptr<dtk::ValueObserver<bmd::FrameRate> > bmdFrameRateObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -480,32 +481,32 @@ namespace tl
         {
             TLRENDER_P();
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 p.settings->observeValues(),
                 [this](const std::string& name)
                 {
                     _settingsUpdate(name);
                 });
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
-            p.activeObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.activeObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeActive(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _activeUpdate(value);
                 });
-            p.layersObserver = observer::ListObserver<int>::create(
+            p.layersObserver = dtk::ListObserver<int>::create(
                 p.filesModel->observeLayers(),
                 [this](const std::vector<int>& value)
                 {
                     _layersUpdate(value);
                 });
-            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
                 p.filesModel->observeCompareTime(),
                 [this](timeline::CompareTimeMode value)
                 {
@@ -515,13 +516,13 @@ namespace tl
                     }
                 });
 
-            p.recentFilesMaxObserver = observer::ValueObserver<size_t>::create(
+            p.recentFilesMaxObserver = dtk::ValueObserver<size_t>::create(
                 p.recentFilesModel->observeRecentMax(),
                 [this](size_t value)
                 {
                     _p->settings->setValue("Files/RecentMax", value);
                 });
-            p.recentFilesObserver = observer::ListObserver<file::Path>::create(
+            p.recentFilesObserver = dtk::ListObserver<file::Path>::create(
                 p.recentFilesModel->observeRecent(),
                 [this](const std::vector<file::Path>& value)
                 {
@@ -533,7 +534,7 @@ namespace tl
                     _p->settings->setValue("Files/Recent", fileNames);
                 });
 
-            p.audioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
+            p.audioDeviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
                 p.audioModel->observeDevice(),
                 [this](const audio::DeviceID& value)
                 {
@@ -542,25 +543,25 @@ namespace tl
                         player->setAudioDevice(value);
                     }
                 });
-            p.volumeObserver = observer::ValueObserver<float>::create(
+            p.volumeObserver = dtk::ValueObserver<float>::create(
                 p.audioModel->observeVolume(),
                 [this](float)
                 {
                     _audioUpdate();
                 });
-            p.muteObserver = observer::ValueObserver<bool>::create(
+            p.muteObserver = dtk::ValueObserver<bool>::create(
                 p.audioModel->observeMute(),
                 [this](bool)
                 {
                     _audioUpdate();
                 });
-            p.channelMuteObserver = observer::ListObserver<bool>::create(
+            p.channelMuteObserver = dtk::ListObserver<bool>::create(
                 p.audioModel->observeChannelMute(),
                 [this](const std::vector<bool>&)
                 {
                     _audioUpdate();
                 });
-            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+            p.syncOffsetObserver = dtk::ValueObserver<double>::create(
                 p.audioModel->observeSyncOffset(),
                 [this](double)
                 {
@@ -568,7 +569,7 @@ namespace tl
                 });
 
 #if defined(TLRENDER_BMD)
-            p.bmdDevicesObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
+            p.bmdDevicesObserver = dtk::ValueObserver<bmd::DevicesModelData>::create(
                 p.bmdDevicesModel->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {
@@ -600,20 +601,20 @@ namespace tl
                     p.settings->setValue("BMD/HDRData", value.hdrData);
                 });
 
-            p.bmdActiveObserver = observer::ValueObserver<bool>::create(
+            p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
                 p.bmdOutputDevice->observeActive(),
                 [this](bool value)
                 {
                     _p->bmdDeviceActive = value;
                     _audioUpdate();
                 });
-            p.bmdSizeObserver = observer::ValueObserver<math::Size2i>::create(
+            p.bmdSizeObserver = dtk::ValueObserver<math::Size2i>::create(
                 p.bmdOutputDevice->observeSize(),
                 [this](const math::Size2i& value)
                 {
                     //std::cout << "output device size: " << value << std::endl;
                 });
-            p.bmdFrameRateObserver = observer::ValueObserver<bmd::FrameRate>::create(
+            p.bmdFrameRateObserver = dtk::ValueObserver<bmd::FrameRate>::create(
                 p.bmdOutputDevice->observeFrameRate(),
                 [this](const bmd::FrameRate& value)
                 {
@@ -623,31 +624,31 @@ namespace tl
                     //    std::endl;
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 p.filesModel->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->bmdOutputDevice->setCompareOptions(value);
                 });
-            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 p.colorModel->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
                     _p->bmdOutputDevice->setOCIOOptions(value);
                 });
-            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.lutOptionsObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
                 p.colorModel->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
                     _p->bmdOutputDevice->setLUTOptions(value);
                 });
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 p.renderModel->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->bmdOutputDevice->setImageOptions({ value });
                 });
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 p.viewportModel->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
@@ -655,7 +656,7 @@ namespace tl
                     tmp.videoLevels = _p->bmdOutputVideoLevels;
                     _p->bmdOutputDevice->setDisplayOptions({ tmp });
                 });
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 p.viewportModel->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
@@ -745,13 +746,13 @@ namespace tl
             TLRENDER_P();
             io::Options out;
 
-            out["SequenceIO/ThreadCount"] = string::Format("{0}").
+            out["SequenceIO/ThreadCount"] = dtk::Format("{0}").
                 arg(p.settings->getValue<int>("SequenceIO/ThreadCount"));
 
 #if defined(TLRENDER_FFMPEG)
-            out["FFmpeg/YUVToRGBConversion"] = string::Format("{0}").
+            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").
                 arg(p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-            out["FFmpeg/ThreadCount"] = string::Format("{0}").
+            out["FFmpeg/ThreadCount"] = dtk::Format("{0}").
                 arg(p.settings->getValue<int>("FFmpeg/ThreadCount"));
 #endif // TLRENDER_FFMPEG
 
@@ -809,7 +810,7 @@ namespace tl
         void App::_settingsUpdate(const std::string& name)
         {
             TLRENDER_P();
-            const auto split = string::split(name, '/');
+            const auto split = dtk::split(name, '/');
             if (!split.empty() || name.empty())
             {
                 auto ioSystem = _context->getSystem<io::System>();
@@ -1042,10 +1043,10 @@ namespace tl
                 p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = otime::RationalTime(
+            cacheOptions.readAhead = OTIO_NS::RationalTime(
                 p.settings->getValue<double>("Cache/ReadAhead"),
                 1.0);
-            cacheOptions.readBehind = otime::RationalTime(
+            cacheOptions.readBehind = OTIO_NS::RationalTime(
                 p.settings->getValue<double>("Cache/ReadBehind"),
                 1.0);
             if (p.player)

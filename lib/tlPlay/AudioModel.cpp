@@ -17,13 +17,13 @@ namespace tl
         struct AudioModel::Private
         {
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::List<audio::DeviceID> > devices;
-            std::shared_ptr<observer::Value<audio::DeviceID> > device;
-            std::shared_ptr<observer::Value<float> > volume;
-            std::shared_ptr<observer::Value<bool> > mute;
-            std::shared_ptr<observer::List<bool> > channelMute;
-            std::shared_ptr<observer::Value<double> > syncOffset;
-            std::shared_ptr<observer::ListObserver<audio::DeviceInfo> > devicesObserver;
+            std::shared_ptr<dtk::ObservableList<audio::DeviceID> > devices;
+            std::shared_ptr<dtk::ObservableValue<audio::DeviceID> > device;
+            std::shared_ptr<dtk::ObservableValue<float> > volume;
+            std::shared_ptr<dtk::ObservableValue<bool> > mute;
+            std::shared_ptr<dtk::ObservableList<bool> > channelMute;
+            std::shared_ptr<dtk::ObservableValue<double> > syncOffset;
+            std::shared_ptr<dtk::ListObserver<audio::DeviceInfo> > devicesObserver;
         };
 
         void AudioModel::_init(
@@ -34,23 +34,23 @@ namespace tl
 
             p.settings = settings;
 
-            p.devices = observer::List<audio::DeviceID>::create();
-            p.device = observer::Value<audio::DeviceID>::create();
+            p.devices = dtk::ObservableList<audio::DeviceID>::create();
+            p.device = dtk::ObservableValue<audio::DeviceID>::create();
 
             p.settings->setDefaultValue("Audio/Volume", 1.F);
-            p.volume = observer::Value<float>::create(
+            p.volume = dtk::ObservableValue<float>::create(
                 p.settings->getValue<float>("Audio/Volume"));
 
             p.settings->setDefaultValue("Audio/Mute", false);
-            p.mute = observer::Value<bool>::create(
+            p.mute = dtk::ObservableValue<bool>::create(
                 p.settings->getValue<bool>("Audio/Mute"));
 
-            p.channelMute = observer::List<bool>::create();
+            p.channelMute = dtk::ObservableList<bool>::create();
 
-            p.syncOffset = observer::Value<double>::create(0.0);
+            p.syncOffset = dtk::ObservableValue<double>::create(0.0);
 
             auto audioSystem = context->getSystem<audio::System>();
-            p.devicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
+            p.devicesObserver = dtk::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [this](const std::vector<audio::DeviceInfo>& devices)
                 {
@@ -84,7 +84,7 @@ namespace tl
             return _p->devices->get();
         }
 
-        std::shared_ptr<observer::IList<audio::DeviceID> > AudioModel::observeDevices() const
+        std::shared_ptr<dtk::IObservableList<audio::DeviceID> > AudioModel::observeDevices() const
         {
             return _p->devices;
         }
@@ -94,7 +94,7 @@ namespace tl
             return _p->device->get();
         }
 
-        std::shared_ptr<observer::IValue<audio::DeviceID> > AudioModel::observeDevice() const
+        std::shared_ptr<dtk::IObservableValue<audio::DeviceID> > AudioModel::observeDevice() const
         {
             return _p->device;
         }
@@ -109,7 +109,7 @@ namespace tl
             return _p->volume->get();
         }
 
-        std::shared_ptr<observer::IValue<float> > AudioModel::observeVolume() const
+        std::shared_ptr<dtk::IObservableValue<float> > AudioModel::observeVolume() const
         {
             return _p->volume;
         }
@@ -136,7 +136,7 @@ namespace tl
             return _p->mute->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > AudioModel::observeMute() const
+        std::shared_ptr<dtk::IObservableValue<bool> > AudioModel::observeMute() const
         {
             return _p->mute;
         }
@@ -152,7 +152,7 @@ namespace tl
             return _p->channelMute->get();
         }
 
-        std::shared_ptr<observer::IList<bool> > AudioModel::observeChannelMute() const
+        std::shared_ptr<dtk::IObservableList<bool> > AudioModel::observeChannelMute() const
         {
             return _p->channelMute;
         }
@@ -167,7 +167,7 @@ namespace tl
             return _p->syncOffset->get();
         }
 
-        std::shared_ptr<observer::IValue<double> > AudioModel::observeSyncOffset() const
+        std::shared_ptr<dtk::IObservableValue<double> > AudioModel::observeSyncOffset() const
         {
             return _p->syncOffset;
         }

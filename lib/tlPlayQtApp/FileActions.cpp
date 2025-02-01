@@ -28,10 +28,10 @@ namespace tl
             QScopedPointer<QMenu> currentMenu;
             QScopedPointer<QMenu> layerMenu;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
-            std::shared_ptr<observer::ListObserver<int> > layersObserver;
-            std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<dtk::ListObserver<int> > layersObserver;
+            std::shared_ptr<dtk::ListObserver<file::Path> > recentObserver;
         };
 
         FileActions::FileActions(App* app, QObject* parent) :
@@ -223,28 +223,28 @@ namespace tl
                     app->filesModel()->setLayer(a, index);
                 });
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
                 {
                     _actionsUpdate();
                 });
 
-            p.aIndexObserver = observer::ValueObserver<int>::create(
+            p.aIndexObserver = dtk::ValueObserver<int>::create(
                 app->filesModel()->observeAIndex(),
                 [this](int)
                 {
                     _actionsUpdate();
                 });
 
-            p.layersObserver = observer::ListObserver<int>::create(
+            p.layersObserver = dtk::ListObserver<int>::create(
                 app->filesModel()->observeLayers(),
                 [this](const std::vector<int>&)
                 {
                     _actionsUpdate();
                 });
 
-            p.recentObserver = observer::ListObserver<file::Path>::create(
+            p.recentObserver = dtk::ListObserver<file::Path>::create(
                 app->recentFilesModel()->observeRecent(),
                 [this](const std::vector<file::Path>& value)
                 {

@@ -8,7 +8,7 @@
 #include <tlTimeline/PlayerOptions.h>
 #include <tlTimeline/Timeline.h>
 
-#include <tlCore/ListObserver.h>
+#include <dtk/core/ObservableList.h>
 
 namespace tl
 {
@@ -140,7 +140,7 @@ namespace tl
             double getSpeed() const;
 
             //! Observe the playback speed.
-            std::shared_ptr<observer::IValue<double> > observeSpeed() const;
+            std::shared_ptr<dtk::IObservableValue<double> > observeSpeed() const;
 
             //! Set the playback speed.
             void setSpeed(double);
@@ -149,7 +149,7 @@ namespace tl
             Playback getPlayback() const;
 
             //! Observe the playback mode.
-            std::shared_ptr<observer::IValue<Playback> > observePlayback() const;
+            std::shared_ptr<dtk::IObservableValue<Playback> > observePlayback() const;
 
             //! Set the playback mode.
             void setPlayback(Playback);
@@ -158,7 +158,7 @@ namespace tl
             Loop getLoop() const;
 
             //! Observe the playback loop mode.
-            std::shared_ptr<observer::IValue<Loop> > observeLoop() const;
+            std::shared_ptr<dtk::IObservableValue<Loop> > observeLoop() const;
 
             //! Set the playback loop mode.
             void setLoop(Loop);
@@ -172,10 +172,10 @@ namespace tl
             OTIO_NS::RationalTime getCurrentTime() const;
 
             //! Observe the current time.
-            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeCurrentTime() const;
+            std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > observeCurrentTime() const;
 
             //! Observe seeking.
-            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeSeek() const;
+            std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > observeSeek() const;
 
             //! Seek to the given time.
             void seek(const OTIO_NS::RationalTime&);
@@ -204,7 +204,7 @@ namespace tl
             OTIO_NS::TimeRange getInOutRange() const;
 
             //! Observe the in/out points range.
-            std::shared_ptr<observer::IValue<OTIO_NS::TimeRange> > observeInOutRange() const;
+            std::shared_ptr<dtk::IObservableValue<OTIO_NS::TimeRange> > observeInOutRange() const;
 
             //! Set the in/out points range.
             void setInOutRange(const OTIO_NS::TimeRange&);
@@ -230,7 +230,7 @@ namespace tl
             const std::vector<std::shared_ptr<Timeline> >& getCompare() const;
 
             //! Observe the timelines for comparison.
-            std::shared_ptr<observer::IList<std::shared_ptr<Timeline> > > observeCompare() const;
+            std::shared_ptr<dtk::IObservableList<std::shared_ptr<Timeline> > > observeCompare() const;
 
             //! Set the timelines for comparison.
             void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
@@ -239,7 +239,7 @@ namespace tl
             CompareTimeMode getCompareTime() const;
 
             //! Observe the comparison time mode.
-            std::shared_ptr<observer::IValue<CompareTimeMode> > observeCompareTime() const;
+            std::shared_ptr<dtk::IObservableValue<CompareTimeMode> > observeCompareTime() const;
 
             //! Set the comparison time mode.
             void setCompareTime(CompareTimeMode);
@@ -253,7 +253,7 @@ namespace tl
             const io::Options& getIOOptions() const;
 
             //! Observe the I/O options.
-            std::shared_ptr<observer::IValue<io::Options> > observeIOOptions() const;
+            std::shared_ptr<dtk::IObservableValue<io::Options> > observeIOOptions() const;
 
             //! Set the I/O options.
             void setIOOptions(const io::Options&);
@@ -267,7 +267,7 @@ namespace tl
             int getVideoLayer() const;
 
             //! Observer the video layer.
-            std::shared_ptr<observer::IValue<int> > observeVideoLayer() const;
+            std::shared_ptr<dtk::IObservableValue<int> > observeVideoLayer() const;
 
             //! Set the video layer.
             void setVideoLayer(int);
@@ -276,7 +276,7 @@ namespace tl
             const std::vector<int>& getCompareVideoLayers() const;
 
             //! Observe the comparison video layers.
-            std::shared_ptr<observer::IList<int> > observeCompareVideoLayers() const;
+            std::shared_ptr<dtk::IObservableList<int> > observeCompareVideoLayers() const;
 
             //! Set the comparison video layers.
             void setCompareVideoLayers(const std::vector<int>&);
@@ -285,7 +285,7 @@ namespace tl
             const std::vector<VideoData>& getCurrentVideo() const;
 
             //! Observe the current video data.
-            std::shared_ptr<observer::IList<VideoData> > observeCurrentVideo() const;
+            std::shared_ptr<dtk::IObservableList<VideoData> > observeCurrentVideo() const;
 
             ///@}
 
@@ -296,7 +296,7 @@ namespace tl
             const audio::DeviceID& getAudioDevice() const;
 
             //! Observe the audio devices.
-            std::shared_ptr<observer::IValue<audio::DeviceID> > observeAudioDevice() const;
+            std::shared_ptr<dtk::IObservableValue<audio::DeviceID> > observeAudioDevice() const;
 
             //! Set the audio device.
             void setAudioDevice(const audio::DeviceID&);
@@ -305,7 +305,7 @@ namespace tl
             float getVolume() const;
 
             //! Observe the audio volume.
-            std::shared_ptr<observer::IValue<float> > observeVolume() const;
+            std::shared_ptr<dtk::IObservableValue<float> > observeVolume() const;
 
             //! Set the audio volume.
             void setVolume(float);
@@ -314,7 +314,7 @@ namespace tl
             bool isMuted() const;
 
             //! Observe the audio mute.
-            std::shared_ptr<observer::IValue<bool> > observeMute() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeMute() const;
 
             //! Set the audio mute.
             void setMute(bool);
@@ -323,7 +323,7 @@ namespace tl
             const std::vector<bool>& getChannelMute() const;
 
             //! Observe the audio channels mute.
-            std::shared_ptr<observer::IList<bool> > observeChannelMute() const;
+            std::shared_ptr<dtk::IObservableList<bool> > observeChannelMute() const;
 
             //! Set the audio channels mute.
             void setChannelMute(const std::vector<bool>&);
@@ -332,7 +332,7 @@ namespace tl
             double getAudioOffset() const;
 
             //! Observe the audio sync offset (in seconds).
-            std::shared_ptr<observer::IValue<double> > observeAudioOffset() const;
+            std::shared_ptr<dtk::IObservableValue<double> > observeAudioOffset() const;
 
             //! Set the audio sync offset (in seconds).
             void setAudioOffset(double);
@@ -341,7 +341,7 @@ namespace tl
             const std::vector<AudioData>& getCurrentAudio() const;
 
             //! Observe the current audio data.
-            std::shared_ptr<observer::IList<AudioData> > observeCurrentAudio() const;
+            std::shared_ptr<dtk::IObservableList<AudioData> > observeCurrentAudio() const;
 
             ///@}
 
@@ -352,13 +352,13 @@ namespace tl
             const PlayerCacheOptions& getCacheOptions() const;
 
             //! Observe the cache options.
-            std::shared_ptr<observer::IValue<PlayerCacheOptions> > observeCacheOptions() const;
+            std::shared_ptr<dtk::IObservableValue<PlayerCacheOptions> > observeCacheOptions() const;
 
             //! Set the cache options.
             void setCacheOptions(const PlayerCacheOptions&);
 
             //! Observe the cache information.
-            std::shared_ptr<observer::IValue<PlayerCacheInfo> > observeCacheInfo() const;
+            std::shared_ptr<dtk::IObservableValue<PlayerCacheInfo> > observeCacheInfo() const;
 
             //! Clear the cache.
             void clearCache();

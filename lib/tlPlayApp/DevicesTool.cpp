@@ -41,7 +41,7 @@ namespace tl
             std::shared_ptr<ui::FloatEditSlider> maxCLLSlider;
             std::shared_ptr<ui::FloatEditSlider> maxFALLSlider;
 
-            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > dataObserver;
+            std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -327,7 +327,7 @@ namespace tl
                     }
                 });
 
-            p.dataObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
+            p.dataObserver = dtk::ValueObserver<bmd::DevicesModelData>::create(
                 app->getBMDDevicesModel()->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {

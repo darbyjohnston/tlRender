@@ -111,7 +111,7 @@ namespace tl
             void scrubChanged(bool);
 
             //! This signal is emitted when the time is scrubbed.
-            void timeScrubbed(const tl::otime::RationalTime&);
+            void timeScrubbed(const OTIO_NS::RationalTime&);
 
         protected:
             void contextMenuEvent(QContextMenuEvent* event) override;

@@ -137,7 +137,7 @@ namespace tl
                         compare.push_back(timeline::Timeline::create(_options.compareFileName, _context));
                     }
                     _player->setCompare(compare);
-                    _videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
+                    _videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
                         _player->observeCurrentVideo(),
                         [this](const std::vector<timeline::VideoData>& value)
                         {

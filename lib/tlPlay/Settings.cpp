@@ -24,7 +24,7 @@ namespace tl
         {
             _context = context;
             _fileName = fileName;
-            _observer = observer::Value<std::string>::create();
+            _observer = dtk::ObservableValue<std::string>::create();
             if (!reset)
             {
                 _read();
@@ -49,7 +49,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IValue<std::string> > Settings::observeValues() const
+        std::shared_ptr<dtk::IObservableValue<std::string> > Settings::observeValues() const
         {
             return _observer;
         }

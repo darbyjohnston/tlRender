@@ -27,22 +27,22 @@ namespace tl
             std::vector<timeline::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::BackgroundOptions backgroundOptions;
-            std::shared_ptr<observer::Value<image::PixelType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
             math::Vector2i viewPos;
             double viewZoom = 1.0;
-            std::shared_ptr<observer::Value<bool> > frameView;
+            std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
             std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
-            std::shared_ptr<observer::Value<double> > fps;
+            std::shared_ptr<dtk::ObservableValue<double> > fps;
             struct FpsData
             {
                 std::chrono::steady_clock::time_point timer;
                 size_t frameCount = 0;
             };
             FpsData fpsData;
-            std::shared_ptr<observer::Value<size_t> > droppedFrames;
+            std::shared_ptr<dtk::ObservableValue<size_t> > droppedFrames;
             struct DroppedFramesData
             {
                 bool init = true;
@@ -50,7 +50,7 @@ namespace tl
             };
             DroppedFramesData droppedFramesData;
             std::vector<math::Vector2i> colorPickers;
-            std::shared_ptr<observer::List<dtk::Color4F> > colorPickerValues;
+            std::shared_ptr<dtk::ObservableList<dtk::Color4F> > colorPickerValues;
 
             bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
@@ -68,8 +68,8 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ListObserver<timeline::VideoData> > videoDataObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<dtk::ListObserver<timeline::VideoData> > videoDataObserver;
         };
 
         void TimelineViewport::_init(
@@ -85,11 +85,11 @@ namespace tl
             _setMouseHover(true);
             _setMousePress(true);
 
-            p.colorBuffer = observer::Value<image::PixelType>::create(image::PixelType::RGBA_U8);
-            p.frameView = observer::Value<bool>::create(true);
-            p.fps = observer::Value<double>::create(0.0);
-            p.droppedFrames = observer::Value<size_t>::create(0);
-            p.colorPickerValues = observer::List<dtk::Color4F>::create();
+            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(image::PixelType::RGBA_U8);
+            p.frameView = dtk::ObservableValue<bool>::create(true);
+            p.fps = dtk::ObservableValue<double>::create(0.0);
+            p.droppedFrames = dtk::ObservableValue<size_t>::create(0);
+            p.colorPickerValues = dtk::ObservableList<dtk::Color4F>::create();
         }
 
         TimelineViewport::TimelineViewport() :
@@ -178,7 +178,7 @@ namespace tl
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<observer::IValue<image::PixelType> > TimelineViewport::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<image::PixelType> > TimelineViewport::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }
@@ -209,7 +209,7 @@ namespace tl
 
             if (p.player)
             {
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
@@ -224,7 +224,7 @@ namespace tl
                         default: break;
                         }
                     });
-                p.videoDataObserver = observer::ListObserver<timeline::VideoData>::create(
+                p.videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
                     p.player->observeCurrentVideo(),
                     [this](const std::vector<timeline::VideoData>& value)
                     {
@@ -294,7 +294,7 @@ namespace tl
             return _p->frameView->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > TimelineViewport::observeFrameView() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineViewport::observeFrameView() const
         {
             return _p->frameView;
         }
@@ -347,7 +347,7 @@ namespace tl
             return _p->fps->get();
         }
 
-        std::shared_ptr<observer::IValue<double> > TimelineViewport::observeFPS() const
+        std::shared_ptr<dtk::IObservableValue<double> > TimelineViewport::observeFPS() const
         {
             return _p->fps;
         }
@@ -357,7 +357,7 @@ namespace tl
             return _p->droppedFrames->get();
         }
 
-        std::shared_ptr<observer::IValue<size_t> > TimelineViewport::observeDroppedFrames() const
+        std::shared_ptr<dtk::IObservableValue<size_t> > TimelineViewport::observeDroppedFrames() const
         {
             return _p->droppedFrames;
         }
@@ -371,7 +371,7 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        std::shared_ptr<observer::IList<dtk::Color4F> > TimelineViewport::observeColorPickers() const
+        std::shared_ptr<dtk::IObservableList<dtk::Color4F> > TimelineViewport::observeColorPickers() const
         {
             return _p->colorPickerValues;
         }

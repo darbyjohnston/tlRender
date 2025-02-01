@@ -55,8 +55,8 @@ namespace tl
         {
             bool init = false;
             std::vector<std::string> drivers;
-            std::shared_ptr<observer::List<DeviceInfo> > devices;
-            std::shared_ptr<observer::Value<DeviceInfo> > defaultDevice;
+            std::shared_ptr<dtk::ObservableList<DeviceInfo> > devices;
+            std::shared_ptr<dtk::ObservableValue<DeviceInfo> > defaultDevice;
 
             struct Mutex
             {
@@ -115,8 +115,8 @@ namespace tl
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceInfo defaultDevice = _getDefaultDevice();
 
-            p.devices = observer::List<DeviceInfo>::create(devices);
-            p.defaultDevice = observer::Value<DeviceInfo>::create(defaultDevice);
+            p.devices = dtk::ObservableList<DeviceInfo>::create(devices);
+            p.defaultDevice = dtk::ObservableValue<DeviceInfo>::create(defaultDevice);
 
             p.mutex.devices = devices;
             p.mutex.defaultDevice = defaultDevice;
@@ -175,7 +175,7 @@ namespace tl
             return _p->devices->get();
         }
 
-        std::shared_ptr<observer::IList<DeviceInfo> > System::observeDevices() const
+        std::shared_ptr<dtk::IObservableList<DeviceInfo> > System::observeDevices() const
         {
             return _p->devices;
         }
@@ -185,7 +185,7 @@ namespace tl
             return _p->defaultDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<DeviceInfo> > System::observeDefaultDevice() const
+        std::shared_ptr<dtk::IObservableValue<DeviceInfo> > System::observeDefaultDevice() const
         {
             return _p->defaultDevice;
         }

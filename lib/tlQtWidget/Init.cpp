@@ -12,8 +12,9 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/String.h>
+#include <dtk/core/Format.h>
 
 #include <QDir>
 #include <QFontDatabase>
@@ -66,7 +67,7 @@ namespace tl
             }
             context->log(
                 "tl::qtwidget::initFonts",
-                string::Format("Added Qt application fonts: {0}").arg(string::join(fontFamilyList, ", ")));
+                dtk::Format("Added Qt application fonts: {0}").arg(dtk::join(fontFamilyList, ", ")));
         }
 
         void System::_init(const std::shared_ptr<system::Context>& context)

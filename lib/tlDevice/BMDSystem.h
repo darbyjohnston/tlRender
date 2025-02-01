@@ -7,7 +7,8 @@
 #include <tlDevice/BMDData.h>
 
 #include <tlCore/ISystem.h>
-#include <tlCore/ListObserver.h>
+
+#include <dtk/core/ObservableList.h>
 
 namespace tl
 {
@@ -30,7 +31,7 @@ namespace tl
             static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
 
             //! Observe the device information.
-            std::shared_ptr<observer::IList<DeviceInfo> > observeDeviceInfo() const;
+            std::shared_ptr<dtk::IObservableList<DeviceInfo> > observeDeviceInfo() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;

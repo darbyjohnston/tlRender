@@ -19,7 +19,7 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                otime::RationalTime value
+                OTIO_NS::RationalTime value
                 READ value
                 WRITE setValue)
             Q_PROPERTY(
@@ -36,14 +36,14 @@ namespace tl
             void setTimeObject(qt::TimeObject*);
 
             //! Get the time value.
-            const otime::RationalTime& value() const;
+            const OTIO_NS::RationalTime& value() const;
 
             //! Get the time units.
             timeline::TimeUnits timeUnits() const;
 
         public Q_SLOTS:
             //! Set the time value.
-            void setValue(const otime::RationalTime&);
+            void setValue(const OTIO_NS::RationalTime&);
 
             //! Set the time units.
             void setTimeUnits(tl::timeline::TimeUnits);

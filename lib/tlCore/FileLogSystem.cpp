@@ -25,7 +25,7 @@ namespace tl
         {
             std::string fileName;
 
-            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
 
             struct Mutex
             {
@@ -51,7 +51,7 @@ namespace tl
 
             p.fileName = fileName;
 
-            p.logObserver = observer::ListObserver<log::Item>::create(
+            p.logObserver = dtk::ListObserver<log::Item>::create(
                 context->getSystem<log::System>()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {

@@ -19,7 +19,7 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                otime::RationalTime value
+                OTIO_NS::RationalTime value
                 READ value
                 WRITE setValue)
 
@@ -29,11 +29,11 @@ namespace tl
             virtual ~SpeedLabel();
 
             //! Get the speed value.
-            const otime::RationalTime& value() const;
+            const OTIO_NS::RationalTime& value() const;
 
         public Q_SLOTS:
             //! Set the speed value.
-            void setValue(const otime::RationalTime&);
+            void setValue(const OTIO_NS::RationalTime&);
 
         private:
             void _textUpdate();

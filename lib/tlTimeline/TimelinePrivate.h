@@ -51,7 +51,7 @@ namespace tl
 
             std::weak_ptr<system::Context> context;
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
-            std::shared_ptr<observer::Value<bool> > timelineChanges;
+            std::shared_ptr<dtk::ObservableValue<bool> > timelineChanges;
             file::Path path;
             file::Path audioPath;
             Options options;

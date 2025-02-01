@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Size.h>
+
+#include <dtk/core/Color.h>
 
 #include <QColor>
 #include <QSize>
@@ -22,10 +23,10 @@ namespace tl
         math::Size2i fromQt(const QSize&);
 
         //! Convert to a Qt color.
-        QColor toQt(const image::Color4f&);
+        QColor toQt(const dtk::Color4F&);
 
         //! Convert from a Qt color.
-        image::Color4f fromQt(const QColor&);
+        dtk::Color4F fromQt(const QColor&);
 
         //! Set whether the window is floating on top.
         void setFloatOnTop(bool, QWidget*);

@@ -25,9 +25,9 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
-            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > hudObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
         };
 
         ViewActions::ViewActions(App* app, MainWindow* mainWindow, QObject* parent) :
@@ -203,21 +203,21 @@ namespace tl
                     mainWindow->viewport()->setHUD(value);
                 });
 
-            p.frameViewObserver = observer::ValueObserver<bool>::create(
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->viewport()->observeFrameView(),
                 [this](bool)
                 {
                     _actionsUpdate();
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions&)
                 {
                     _actionsUpdate();
                 });
 
-            p.hudObserver = observer::ValueObserver<bool>::create(
+            p.hudObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->viewport()->observeHUD(),
                 [this](bool)
                 {

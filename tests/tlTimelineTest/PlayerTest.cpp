@@ -119,7 +119,7 @@ namespace tl
             _print(dtk::Format("Speed: {0}").arg(speed));
 
             // Test the playback speed.
-            auto speedObserver = observer::ValueObserver<double>::create(
+            auto speedObserver = dtk::ValueObserver<double>::create(
                 player->observeSpeed(),
                 [&speed](double value)
                 {
@@ -132,7 +132,7 @@ namespace tl
 
             // Test the playback mode.
             Playback playback = Playback::Stop;
-            auto playbackObserver = observer::ValueObserver<Playback>::create(
+            auto playbackObserver = dtk::ValueObserver<Playback>::create(
                 player->observePlayback(),
                 [&playback](Playback value)
                 {
@@ -144,7 +144,7 @@ namespace tl
 
             // Test the playback loop mode.
             Loop loop = Loop::Loop;
-            auto loopObserver = observer::ValueObserver<Loop>::create(
+            auto loopObserver = dtk::ValueObserver<Loop>::create(
                 player->observeLoop(),
                 [&loop](Loop value)
                 {
@@ -157,7 +157,7 @@ namespace tl
             // Test the current time.
             player->setPlayback(Playback::Stop);
             OTIO_NS::RationalTime currentTime = time::invalidTime;
-            auto currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
+            auto currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                 player->observeCurrentTime(),
                 [&currentTime](const OTIO_NS::RationalTime& value)
                 {
@@ -192,7 +192,7 @@ namespace tl
 
             // Test the in/out points.
             OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-            auto inOutRangeObserver = observer::ValueObserver<OTIO_NS::TimeRange>::create(
+            auto inOutRangeObserver = dtk::ValueObserver<OTIO_NS::TimeRange>::create(
                 player->observeInOutRange(),
                 [&inOutRange](const OTIO_NS::TimeRange& value)
                 {
@@ -220,7 +220,7 @@ namespace tl
 
             // Test the I/O options.
             io::Options ioOptions;
-            auto ioOptionsObserver = observer::ValueObserver<io::Options>::create(
+            auto ioOptionsObserver = dtk::ValueObserver<io::Options>::create(
                 player->observeIOOptions(),
                 [&ioOptions](const io::Options& value)
                 {
@@ -236,13 +236,13 @@ namespace tl
             // Test the video layers.
             int videoLayer = 0;
             std::vector<int> compareVideoLayers;
-            auto videoLayerObserver = observer::ValueObserver<int>::create(
+            auto videoLayerObserver = dtk::ValueObserver<int>::create(
                 player->observeVideoLayer(),
                 [&videoLayer](int value)
                 {
                     videoLayer = value;
                 });
-            auto compareVideoLayersObserver = observer::ListObserver<int>::create(
+            auto compareVideoLayersObserver = dtk::ListObserver<int>::create(
                 player->observeCompareVideoLayers(),
                 [&compareVideoLayers](const std::vector<int>& value)
                 {
@@ -261,7 +261,7 @@ namespace tl
 
             // Test audio.
             float volume = 1.F;
-            auto volumeObserver = observer::ValueObserver<float>::create(
+            auto volumeObserver = dtk::ValueObserver<float>::create(
                 player->observeVolume(),
                 [&volume](float value)
                 {
@@ -273,7 +273,7 @@ namespace tl
             player->setVolume(1.F);
 
             bool mute = false;
-            auto muteObserver = observer::ValueObserver<bool>::create(
+            auto muteObserver = dtk::ValueObserver<bool>::create(
                 player->observeMute(),
                 [&mute](bool value)
                 {
@@ -285,7 +285,7 @@ namespace tl
             player->setMute(false);
 
             std::vector<bool> channelMute = { false, false };
-            auto channelMuteObserver = observer::ListObserver<bool>::create(
+            auto channelMuteObserver = dtk::ListObserver<bool>::create(
                 player->observeChannelMute(),
                 [&channelMute](const std::vector<bool>& value)
                 {
@@ -298,7 +298,7 @@ namespace tl
             player->setChannelMute({ false, false });
 
             double audioOffset = 0.0;
-            auto audioOffsetObserver = observer::ValueObserver<double>::create(
+            auto audioOffsetObserver = dtk::ValueObserver<double>::create(
                 player->observeAudioOffset(),
                 [&audioOffset](double value)
                 {
@@ -312,7 +312,7 @@ namespace tl
             // Test frames.
             {
                 PlayerCacheOptions cacheOptions;
-                auto cacheOptionsObserver = observer::ValueObserver<PlayerCacheOptions>::create(
+                auto cacheOptionsObserver = dtk::ValueObserver<PlayerCacheOptions>::create(
                     player->observeCacheOptions(),
                     [&cacheOptions](const PlayerCacheOptions& value)
                     {
@@ -322,7 +322,7 @@ namespace tl
                 player->setCacheOptions(cacheOptions);
                 DTK_ASSERT(cacheOptions == player->getCacheOptions());
 
-                auto currentVideoObserver = observer::ListObserver<timeline::VideoData>::create(
+                auto currentVideoObserver = dtk::ListObserver<timeline::VideoData>::create(
                     player->observeCurrentVideo(),
                     [this](const std::vector<timeline::VideoData>& value)
                     {
@@ -334,7 +334,7 @@ namespace tl
                         }
                         _print(ss.str());
                     });
-                auto currentAudioObserver = observer::ListObserver<timeline::AudioData>::create(
+                auto currentAudioObserver = dtk::ListObserver<timeline::AudioData>::create(
                     player->observeCurrentAudio(),
                     [this](const std::vector<timeline::AudioData>& value)
                     {
@@ -345,7 +345,7 @@ namespace tl
                             _print(ss.str());
                         }
                     });
-                auto cacheInfoObserver = observer::ValueObserver<PlayerCacheInfo>::create(
+                auto cacheInfoObserver = dtk::ValueObserver<PlayerCacheInfo>::create(
                     player->observeCacheInfo(),
                     [this](const PlayerCacheInfo& value)
                     {

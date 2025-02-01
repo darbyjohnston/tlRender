@@ -27,13 +27,13 @@ namespace tl
 
             qtwidget::TimelineViewport* viewport = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
         };
 
         SecondaryWindow::SecondaryWindow(
@@ -74,49 +74,49 @@ namespace tl
                     _p->viewport->setPlayer(value);
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
                     _p->viewport->setCompareOptions(value);
                 });
 
-            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->colorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
                     _p->viewport->setOCIOOptions(value);
                 });
 
-            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.lutOptionsObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
                 app->colorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
                     _p->viewport->setLUTOptions(value);
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
                     _p->viewport->setDisplayOptions({ value });
                 });
 
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->viewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
                     _p->viewport->setBackgroundOptions(value);
                 });
 
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });
 
-            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
                 app->renderModel()->observeColorBuffer(),
                 [this](image::PixelType value)
                 {

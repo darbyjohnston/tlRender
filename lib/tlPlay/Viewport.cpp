@@ -16,7 +16,7 @@ namespace tl
     {
         struct Viewport::Private
         {
-            std::shared_ptr<observer::Value<bool> > hud;
+            std::shared_ptr<dtk::ObservableValue<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
             image::PixelType colorBuffer = image::PixelType::None;
@@ -46,10 +46,10 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<double> > fpsObserver;
-            std::shared_ptr<observer::ValueObserver<size_t> > droppedFramesObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
-            std::shared_ptr<observer::ListObserver<dtk::Color4F> > colorPickersObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
+            std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
+            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::Color4F> > colorPickersObserver;
         };
 
         void Viewport::_init(
@@ -59,7 +59,7 @@ namespace tl
             TimelineViewport::_init(context, parent);
             TLRENDER_P();
 
-            p.hud = observer::Value<bool>::create(false);
+            p.hud = dtk::ObservableValue<bool>::create(false);
 
             p.fpsLabel = ui::Label::create(context);
             p.fpsLabel->setFontRole(ui::FontRole::Mono);
@@ -83,14 +83,14 @@ namespace tl
             p.hudLayout->setGridPos(spacer, 1, 1);
             p.hudLayout->hide();
 
-            p.fpsObserver = observer::ValueObserver<double>::create(
+            p.fpsObserver = dtk::ValueObserver<double>::create(
                 observeFPS(),
                 [this](double value)
                 {
                     _p->fps = value;
                     _hudUpdate();
                 });
-            p.droppedFramesObserver = observer::ValueObserver<size_t>::create(
+            p.droppedFramesObserver = dtk::ValueObserver<size_t>::create(
                 observeDroppedFrames(),
                 [this](size_t value)
                 {
@@ -98,7 +98,7 @@ namespace tl
                     _hudUpdate();
                 });
 
-            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
                 observeColorBuffer(),
                 [this](image::PixelType value)
                 {
@@ -106,7 +106,7 @@ namespace tl
                     _hudUpdate();
                 });
 
-            p.colorPickersObserver = observer::ListObserver<dtk::Color4F>::create(
+            p.colorPickersObserver = dtk::ListObserver<dtk::Color4F>::create(
                 observeColorPickers(),
                 [this](const std::vector<dtk::Color4F>& value)
                 {
@@ -139,7 +139,7 @@ namespace tl
             return _p->hud->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > Viewport::observeHUD() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Viewport::observeHUD() const
         {
             return _p->hud;
         }

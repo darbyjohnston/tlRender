@@ -7,8 +7,9 @@
 #include <tlDevice/BMDOutputDevice.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/String.h>
+#include <dtk/core/Format.h>
 
 #include "platform.h"
 
@@ -30,7 +31,7 @@ namespace tl
         struct System::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::List<DeviceInfo> > deviceInfo;
+            std::shared_ptr<dtk::ObservableList<DeviceInfo> > deviceInfo;
             struct Mutex
             {
                 std::vector<DeviceInfo> deviceInfo;
@@ -48,7 +49,7 @@ namespace tl
 
             p.context = context;
 
-            p.deviceInfo = observer::List<DeviceInfo>::create();
+            p.deviceInfo = dtk::ObservableList<DeviceInfo>::create();
 
             p.running = true;
             p.thread = std::thread(
@@ -110,7 +111,7 @@ namespace tl
                                             BMDTimeValue frameDuration;
                                             BMDTimeScale frameTimescale;
                                             dlDisplayMode->GetFrameRate(&frameDuration, &frameTimescale);
-                                            displayMode.frameRate = otime::RationalTime(frameDuration, frameTimescale);
+                                            displayMode.frameRate = OTIO_NS::RationalTime(frameDuration, frameTimescale);
 
                                             dlDisplayMode->Release();
 
@@ -187,7 +188,7 @@ namespace tl
                                     }
                                     context->log(
                                         "tl::bmd::System",
-                                        string::Format(
+                                        dtk::Format(
                                             "\n"
                                             "    {0}\n"
                                             "        Display modes: {1}\n"
@@ -195,7 +196,7 @@ namespace tl
                                             "        HDR metadata: {3}\n"
                                             "        Max audio channels: {4}").
                                         arg(i.name).
-                                        arg(string::join(displayModes, ", ")).
+                                        arg(dtk::join(displayModes, ", ")).
                                         arg(i.minVideoPreroll).
                                         arg(i.hdrMetaData).
                                         arg(i.maxAudioChannels));
@@ -234,7 +235,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<observer::IList<DeviceInfo> > System::observeDeviceInfo() const
+        std::shared_ptr<dtk::IObservableList<DeviceInfo> > System::observeDeviceInfo() const
         {
             return _p->deviceInfo;
         }

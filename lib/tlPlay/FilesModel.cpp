@@ -13,15 +13,15 @@ namespace tl
         struct FilesModel::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > files;
-            std::shared_ptr<observer::Value<std::shared_ptr<FilesModelItem> > > a;
-            std::shared_ptr<observer::Value<int> > aIndex;
-            std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > b;
-            std::shared_ptr<observer::List<int> > bIndexes;
-            std::shared_ptr<observer::List<std::shared_ptr<FilesModelItem> > > active;
-            std::shared_ptr<observer::List<int> > layers;
-            std::shared_ptr<observer::Value<timeline::CompareOptions> > compareOptions;
-            std::shared_ptr<observer::Value<timeline::CompareTimeMode> > compareTime;
+            std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > files;
+            std::shared_ptr<dtk::ObservableValue<std::shared_ptr<FilesModelItem> > > a;
+            std::shared_ptr<dtk::ObservableValue<int> > aIndex;
+            std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > b;
+            std::shared_ptr<dtk::ObservableList<int> > bIndexes;
+            std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > active;
+            std::shared_ptr<dtk::ObservableList<int> > layers;
+            std::shared_ptr<dtk::ObservableValue<timeline::CompareOptions> > compareOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::CompareTimeMode> > compareTime;
         };
 
         void FilesModel::_init(const std::shared_ptr<system::Context>& context)
@@ -30,15 +30,15 @@ namespace tl
 
             p.context = context;
 
-            p.files = observer::List<std::shared_ptr<FilesModelItem> >::create();
-            p.a = observer::Value<std::shared_ptr<FilesModelItem> >::create();
-            p.aIndex = observer::Value<int>::create();
-            p.b = observer::List<std::shared_ptr<FilesModelItem> >::create();
-            p.bIndexes = observer::List<int>::create();
-            p.active = observer::List<std::shared_ptr<FilesModelItem> >::create();
-            p.layers = observer::List<int>::create();
-            p.compareOptions = observer::Value<timeline::CompareOptions>::create();
-            p.compareTime = observer::Value<timeline::CompareTimeMode>::create();
+            p.files = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
+            p.a = dtk::ObservableValue<std::shared_ptr<FilesModelItem> >::create();
+            p.aIndex = dtk::ObservableValue<int>::create();
+            p.b = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
+            p.bIndexes = dtk::ObservableList<int>::create();
+            p.active = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
+            p.layers = dtk::ObservableList<int>::create();
+            p.compareOptions = dtk::ObservableValue<timeline::CompareOptions>::create();
+            p.compareTime = dtk::ObservableValue<timeline::CompareTimeMode>::create();
         }
 
         FilesModel::FilesModel() :
@@ -60,7 +60,7 @@ namespace tl
             return _p->files->get();
         }
 
-        std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeFiles() const
+        std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > FilesModel::observeFiles() const
         {
             return _p->files;
         }
@@ -70,7 +70,7 @@ namespace tl
             return _p->a->get();
         }
 
-        std::shared_ptr<observer::IValue<std::shared_ptr<FilesModelItem> > > FilesModel::observeA() const
+        std::shared_ptr<dtk::IObservableValue<std::shared_ptr<FilesModelItem> > > FilesModel::observeA() const
         {
             return _p->a;
         }
@@ -80,7 +80,7 @@ namespace tl
             return _p->aIndex->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > FilesModel::observeAIndex() const
+        std::shared_ptr<dtk::IObservableValue<int> > FilesModel::observeAIndex() const
         {
             return _p->aIndex;
         }
@@ -90,7 +90,7 @@ namespace tl
             return _p->b->get();
         }
 
-        std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeB() const
+        std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > FilesModel::observeB() const
         {
             return _p->b;
         }
@@ -100,7 +100,7 @@ namespace tl
             return _p->bIndexes->get();
         }
 
-        std::shared_ptr<observer::IList<int> > FilesModel::observeBIndexes() const
+        std::shared_ptr<dtk::IObservableList<int> > FilesModel::observeBIndexes() const
         {
             return _p->bIndexes;
         }
@@ -110,7 +110,7 @@ namespace tl
             return _p->active->get();
         }
 
-        std::shared_ptr<observer::IList<std::shared_ptr<FilesModelItem> > > FilesModel::observeActive() const
+        std::shared_ptr<dtk::IObservableList<std::shared_ptr<FilesModelItem> > > FilesModel::observeActive() const
         {
             return _p->active;
         }
@@ -261,7 +261,7 @@ namespace tl
             if (index >= 0 && index < p.files->getSize())
             {
                 const auto& item = p.files->getItem(index);
-                setB(index, p.b->indexOf(item) == observer::invalidListIndex);
+                setB(index, p.b->indexOf(item) == dtk::ObservableListInvalidIndex);
             }
         }
 
@@ -427,7 +427,7 @@ namespace tl
             p.layers->setIfChanged(_getLayers());
         }
 
-        std::shared_ptr<observer::IList<int> > FilesModel::observeLayers() const
+        std::shared_ptr<dtk::IObservableList<int> > FilesModel::observeLayers() const
         {
             return _p->layers;
         }
@@ -484,7 +484,7 @@ namespace tl
             return _p->compareOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::CompareOptions> > FilesModel::observeCompareOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::CompareOptions> > FilesModel::observeCompareOptions() const
         {
             return _p->compareOptions;
         }
@@ -528,7 +528,7 @@ namespace tl
             return _p->compareTime->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::CompareTimeMode> > FilesModel::observeCompareTime() const
+        std::shared_ptr<dtk::IObservableValue<timeline::CompareTimeMode> > FilesModel::observeCompareTime() const
         {
             return _p->compareTime;
         }
@@ -543,7 +543,7 @@ namespace tl
         {
             TLRENDER_P();
             size_t index = p.files->indexOf(item);
-            return index != observer::invalidListIndex ? index : -1;
+            return index != dtk::ObservableListInvalidIndex ? index : -1;
         }
 
         std::vector<int> FilesModel::_bIndexes() const

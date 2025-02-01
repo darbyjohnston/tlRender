@@ -8,7 +8,7 @@
 
 #include <tlTimeline/Timeline.h>
 
-#include <tlCore/String.h>
+#include <dtk/core/String.h>
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>

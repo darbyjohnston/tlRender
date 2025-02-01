@@ -7,8 +7,8 @@
 #include <tlIO/FFmpeg.h>
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/FileIO.h>
+#include <dtk/core/Assert.h>
+#include <dtk/core/FileIO.h>
 
 #include <array>
 #include <sstream>
@@ -45,8 +45,8 @@ namespace tl
             {
                 const AVRational r = { 1, 2 };
                 const AVRational rs = ffmpeg::swap(r);
-                TLRENDER_ASSERT(r.num == rs.den);
-                TLRENDER_ASSERT(r.den == rs.num);
+                DTK_ASSERT(r.num == rs.den);
+                DTK_ASSERT(r.den == rs.num);
             }
         }
 
@@ -58,17 +58,17 @@ namespace tl
                 const file::Path& path,
                 const image::Info& imageInfo,
                 const image::Tags& tags,
-                const otime::RationalTime& duration,
+                const OTIO_NS::RationalTime& duration,
                 const Options& options)
             {
                 Info info;
                 info.video.push_back(imageInfo);
-                info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), duration);
+                info.videoTime = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), duration);
                 info.tags = tags;
                 auto write = plugin->write(path, info, options);
                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                 {
-                    write->writeVideo(otime::RationalTime(i, 24.0), image);
+                    write->writeVideo(OTIO_NS::RationalTime(i, 24.0), image);
                 }
             }
 
@@ -78,7 +78,7 @@ namespace tl
                 const file::Path& path,
                 bool memoryIO,
                 const image::Tags& tags,
-                const otime::RationalTime& duration,
+                const OTIO_NS::RationalTime& duration,
                 const Options& options)
             {
                 std::vector<uint8_t> memoryData;
@@ -97,23 +97,23 @@ namespace tl
                     read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
-                TLRENDER_ASSERT(!ioInfo.video.empty());
+                DTK_ASSERT(!ioInfo.video.empty());
                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                 {
-                    const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
-                    TLRENDER_ASSERT(videoData.image);
-                    TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
+                    const auto videoData = read->readVideo(OTIO_NS::RationalTime(i, 24.0)).get();
+                    DTK_ASSERT(videoData.image);
+                    DTK_ASSERT(videoData.image->getSize() == image->getSize());
                     const auto frameTags = videoData.image->getTags();
                     for (const auto& j : tags)
                     {
                         const auto k = frameTags.find(j.first);
-                        TLRENDER_ASSERT(k != frameTags.end());
-                        TLRENDER_ASSERT(k->second == j.second);
+                        DTK_ASSERT(k != frameTags.end());
+                        DTK_ASSERT(k->second == j.second);
                     }
                 }
                 for (size_t i = 0; i < static_cast<size_t>(duration.value()); ++i)
                 {
-                    const auto videoData = read->readVideo(otime::RationalTime(i, 24.0)).get();
+                    const auto videoData = read->readVideo(OTIO_NS::RationalTime(i, 24.0)).get();
                 }
             }
 
@@ -141,7 +141,7 @@ namespace tl
                 }
                 auto read = plugin->read(path, memory, options);
                 //! \bug This causes the test to hang.
-                //const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                //const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
             }
         }
 
@@ -214,7 +214,7 @@ namespace tl
                                     auto image = image::Image::create(imageInfo);
                                     image->zero();
                                     image->setTags(tags);
-                                    const otime::RationalTime duration(24.0, 24.0);
+                                    const OTIO_NS::RationalTime duration(24.0, 24.0);
                                     try
                                     {
                                         write(plugin, image, path, imageInfo, tags, duration, options);

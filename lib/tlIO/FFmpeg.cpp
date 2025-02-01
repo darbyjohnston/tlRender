@@ -4,11 +4,12 @@
 
 #include <tlIO/FFmpeg.h>
 
-#include <tlCore/Assert.h>
-#include <tlCore/Error.h>
 #include <tlCore/LogSystem.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Assert.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 extern "C"
 {
@@ -138,10 +139,10 @@ namespace tl
                     tag,
                     AV_DICT_IGNORE_SUFFIX)))
                 {
-                    if (string::compare(
+                    if (dtk::compare(
                         tag->key,
                         "timecode",
-                        string::Compare::CaseInsensitive))
+                        dtk::CaseCompare::Insensitive))
                     {
                         timecode = tag->value;
                         break;
@@ -163,8 +164,8 @@ namespace tl
 
         std::string getErrorLabel(int r)
         {
-            char buf[string::cBufferSize];
-            av_strerror(r, buf, string::cBufferSize);
+            char buf[dtk::cStringSize];
+            av_strerror(r, buf, dtk::cStringSize);
             return std::string(buf);
         }
 
@@ -203,10 +204,10 @@ namespace tl
             {
                 codecNames.push_back(avCodec->name);
             }
-            //std::cout << string::join(codecNames, ", ") << std::endl;
+            //std::cout << dtk::join(codecNames, ", ") << std::endl;
             if (auto logSystem = _logSystemWeak.lock())
             {
-                logSystem->print("tl::io::ffmpeg::Plugin", "Codecs: " + string::join(codecNames, ", "));
+                logSystem->print("tl::io::ffmpeg::Plugin", "Codecs: " + dtk::join(codecNames, ", "));
             }
         }
 
@@ -264,7 +265,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));
             return Write::create(path, info, options, _logSystem);
@@ -281,9 +282,11 @@ namespace tl
             case AV_LOG_INFO:
                 if (auto logSystem = _logSystemWeak.lock())
                 {
-                    char buf[string::cBufferSize];
-                    vsnprintf(buf, string::cBufferSize, fmt, vl);
-                    logSystem->print("tl::io::ffmpeg::Plugin", string::removeTrailingNewlines(buf));
+                    char buf[dtk::cStringSize];
+                    vsnprintf(buf, dtk::cStringSize, fmt, vl);
+                    std::string s(buf);
+                    dtk::removeTrailingNewlines(s);
+                    logSystem->print("tl::io::ffmpeg::Plugin", s);
                 }
                 break;
             case AV_LOG_VERBOSE:

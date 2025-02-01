@@ -26,8 +26,8 @@ namespace tl
 
             std::function<void(double)> callback;
 
-            std::shared_ptr<observer::ValueObserver<double> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::DoubleRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::DoubleRange> > rangeObserver;
         };
 
         void DoubleSlider::_init(
@@ -49,7 +49,7 @@ namespace tl
                 p.model = DoubleModel::create(context);
             }
 
-            p.valueObserver = observer::ValueObserver<double>::create(
+            p.valueObserver = dtk::ValueObserver<double>::create(
                 p.model->observeValue(),
                 [this](double value)
                 {
@@ -61,7 +61,7 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::DoubleRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::DoubleRange>::create(
                 p.model->observeRange(),
                 [this](const math::DoubleRange&)
                 {

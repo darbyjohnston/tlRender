@@ -7,7 +7,7 @@
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/DisplayOptions.h>
 
-#include <tlCore/ValueObserver.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -44,7 +44,7 @@ namespace tl
             const timeline::DisplayOptions& getDisplayOptions() const;
 
             //! Observe the display options.
-            std::shared_ptr<observer::IValue<timeline::DisplayOptions> > observeDisplayOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::DisplayOptions> > observeDisplayOptions() const;
 
             //! Set the display options.
             void setDisplayOptions(const timeline::DisplayOptions&);
@@ -53,7 +53,7 @@ namespace tl
             const timeline::BackgroundOptions& getBackgroundOptions() const;
 
             //! Observe the background options.
-            std::shared_ptr<observer::IValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);

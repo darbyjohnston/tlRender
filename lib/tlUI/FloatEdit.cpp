@@ -26,8 +26,8 @@ namespace tl
 
             std::function<void(float)> callback;
             
-            std::shared_ptr<observer::ValueObserver<float> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::FloatRange> > rangeObserver;
         };
 
         void FloatEdit::_init(
@@ -69,7 +69,7 @@ namespace tl
                     }
                 });
 
-            p.valueObserver = observer::ValueObserver<float>::create(
+            p.valueObserver = dtk::ValueObserver<float>::create(
                 p.model->observeValue(),
                 [this](float value)
                 {
@@ -80,7 +80,7 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::FloatRange>::create(
                 p.model->observeRange(),
                 [this](const math::FloatRange& value)
                 {

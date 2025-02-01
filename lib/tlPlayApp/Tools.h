@@ -6,7 +6,7 @@
 
 #include <tlUI/Event.h>
 
-#include <tlCore/ValueObserver.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -65,7 +65,7 @@ namespace tl
             int getActiveTool() const;
 
             //! Observe the active tool.
-            std::shared_ptr<observer::Value<int> > observeActiveTool() const;
+            std::shared_ptr<dtk::ObservableValue<int> > observeActiveTool() const;
 
             //! Set the active tool.
             void setActiveTool(int);

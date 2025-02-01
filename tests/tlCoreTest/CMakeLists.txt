@@ -9,9 +9,7 @@ set(HEADERS
     HDRTest.h
     ImageTest.h
     LRUCacheTest.h
-    ListObserverTest.h
     LogSystemTest.h
-    MapObserverTest.h
     MathTest.h
     MatrixTest.h
     MemoryTest.h
@@ -20,7 +18,6 @@ set(HEADERS
     RangeTest.h
     SizeTest.h
     TimeTest.h
-    ValueObserverTest.h
     VectorTest.h)
 
 set(SOURCE
@@ -34,9 +31,7 @@ set(SOURCE
     HDRTest.cpp
     ImageTest.cpp
     LRUCacheTest.cpp
-    ListObserverTest.cpp
     LogSystemTest.cpp
-    MapObserverTest.cpp
     MathTest.cpp
     MatrixTest.cpp
     MemoryTest.cpp
@@ -45,7 +40,6 @@ set(SOURCE
     RangeTest.cpp
     SizeTest.cpp
     TimeTest.cpp
-    ValueObserverTest.cpp
     VectorTest.cpp)
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})

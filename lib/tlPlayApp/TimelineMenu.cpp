@@ -21,12 +21,12 @@ namespace tl
             std::map<int, std::shared_ptr<ui::Action> > thumbnailsSizeItems;
             std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
-            std::shared_ptr<observer::ValueObserver<bool> > editableObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > scrollToCurrentFrameObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > stopOnScrubObserver;
-            std::shared_ptr<observer::ValueObserver<timelineui::ItemOptions> > itemOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timelineui::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > editableObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > scrollToCurrentFrameObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > stopOnScrubObserver;
+            std::shared_ptr<dtk::ValueObserver<timelineui::ItemOptions> > itemOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timelineui::DisplayOptions> > displayOptionsObserver;
         };
 
         void TimelineMenu::_init(
@@ -68,35 +68,35 @@ namespace tl
 
             _thumbnailsSizeUpdate();
 
-            p.editableObserver = observer::ValueObserver<bool>::create(
+            p.editableObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeEditable(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Editable"], value);
                 });
 
-            p.frameViewObserver = observer::ValueObserver<bool>::create(
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeFrameView(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["FrameView"], value);
                 });
 
-            p.scrollToCurrentFrameObserver = observer::ValueObserver<bool>::create(
+            p.scrollToCurrentFrameObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeScrollToCurrentFrame(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["ScrollToCurrentFrame"], value);
                 });
 
-            p.stopOnScrubObserver = observer::ValueObserver<bool>::create(
+            p.stopOnScrubObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeStopOnScrub(),
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["StopOnScrub"], value);
                 });
 
-            p.itemOptionsObserver = observer::ValueObserver<timelineui::ItemOptions>::create(
+            p.itemOptionsObserver = dtk::ValueObserver<timelineui::ItemOptions>::create(
                 mainWindow->getTimelineWidget()->observeItemOptions(),
                 [this](const timelineui::ItemOptions& value)
                 {
@@ -104,7 +104,7 @@ namespace tl
                     setItemChecked(_p->actions["Input"], value.inputEnabled);
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timelineui::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timelineui::DisplayOptions>::create(
                 mainWindow->getTimelineWidget()->observeDisplayOptions(),
                 [this](const timelineui::DisplayOptions& value)
                 {

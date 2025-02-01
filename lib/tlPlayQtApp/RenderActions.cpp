@@ -23,7 +23,7 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
         };
 
         RenderActions::RenderActions(App* app, QObject* parent) :
@@ -135,7 +135,7 @@ namespace tl
                         action->data().value<image::PixelType>());
                 });
 
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions&)
                 {

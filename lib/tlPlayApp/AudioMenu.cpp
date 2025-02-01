@@ -16,8 +16,8 @@ namespace tl
         {
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
 
-            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
         };
 
         void AudioMenu::_init(
@@ -35,7 +35,7 @@ namespace tl
             addItem(p.actions["VolumeDown"]);
             addItem(p.actions["Mute"]);
 
-            p.volumeObserver = observer::ValueObserver<float>::create(
+            p.volumeObserver = dtk::ValueObserver<float>::create(
                 app->getAudioModel()->observeVolume(),
                 [this](float value)
                 {
@@ -43,7 +43,7 @@ namespace tl
                     setItemEnabled(_p->actions["VolumeDown"], value > 0.F);
                 });
 
-            p.muteObserver = observer::ValueObserver<bool>::create(
+            p.muteObserver = dtk::ValueObserver<bool>::create(
                 app->getAudioModel()->observeMute(),
                 [this](bool value)
                 {

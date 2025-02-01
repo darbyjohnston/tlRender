@@ -24,8 +24,8 @@ namespace tl
 
             std::function<void(int)> callback;
 
-            std::shared_ptr<observer::ValueObserver<int> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<math::IntRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<math::IntRange> > rangeObserver;
         };
 
         void IntEdit::_init(
@@ -67,7 +67,7 @@ namespace tl
                     }
                 });
 
-            p.valueObserver = observer::ValueObserver<int>::create(
+            p.valueObserver = dtk::ValueObserver<int>::create(
                 p.model->observeValue(),
                 [this](int value)
                 {
@@ -78,7 +78,7 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = observer::ValueObserver<math::IntRange>::create(
+            p.rangeObserver = dtk::ValueObserver<math::IntRange>::create(
                 p.model->observeRange(),
                 [this](const math::IntRange& value)
                 {

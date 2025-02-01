@@ -41,7 +41,7 @@ namespace tl
             std::shared_ptr<ui::DoubleEdit> readBehind;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void CacheSettingsWidget::_init(
@@ -85,7 +85,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -172,7 +172,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> threadsEdit;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void FileSequenceSettingsWidget::_init(
@@ -234,7 +234,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -353,7 +353,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> threadsEdit;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void FFmpegSettingsWidget::_init(
@@ -388,7 +388,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -468,7 +468,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> diskCacheEdit;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void USDSettingsWidget::_init(
@@ -533,7 +533,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -661,7 +661,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> nativeFileDialogCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void FileBrowserSettingsWidget::_init(
@@ -686,7 +686,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -748,7 +748,7 @@ namespace tl
             std::shared_ptr<ui::IntEdit> audioRequestsEdit;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void PerformanceSettingsWidget::_init(
@@ -793,7 +793,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -875,7 +875,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> shareContextsCheckBox;
             std::shared_ptr<ui::VerticalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void OpenGLSettingsWidget::_init(
@@ -903,7 +903,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -963,7 +963,7 @@ namespace tl
             std::shared_ptr<ui::ComboBox> paletteComboBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void StyleSettingsWidget::_init(
@@ -989,7 +989,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {
@@ -1050,7 +1050,7 @@ namespace tl
             std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
 
         void MiscSettingsWidget::_init(
@@ -1075,7 +1075,7 @@ namespace tl
 
             _settingsUpdate(std::string());
 
-            p.settingsObserver = observer::ValueObserver<std::string>::create(
+            p.settingsObserver = dtk::ValueObserver<std::string>::create(
                 app->getSettings()->observeValues(),
                 [this](const std::string& name)
                 {

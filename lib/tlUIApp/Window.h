@@ -41,13 +41,13 @@ namespace tl
             const math::Size2i& getWindowSize() const;
 
             //! Observe the window size.
-            std::shared_ptr<observer::IValue<math::Size2i> > observeWindowSize() const;
+            std::shared_ptr<dtk::IObservableValue<math::Size2i> > observeWindowSize() const;
 
             //! Set the window size.
             void setWindowSize(const math::Size2i&);
 
             //! Observe whether the window is visible.
-            std::shared_ptr<observer::IValue<bool> > observeVisible() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeVisible() const;
 
             //! Get which screen the window is on.
             int getScreen() const;
@@ -56,7 +56,7 @@ namespace tl
             bool isFullScreen() const;
 
             //! Observe whether the window is in full screen mode.
-            std::shared_ptr<observer::IValue<bool> > observeFullScreen() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeFullScreen() const;
 
             //! Set whether the window is in full screen mode.
             void setFullScreen(bool, int screen = -1);
@@ -65,19 +65,19 @@ namespace tl
             bool isFloatOnTop() const;
 
             //! Observe whether the window is floating on top.
-            std::shared_ptr<observer::IValue<bool> > observeFloatOnTop() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeFloatOnTop() const;
 
             //! Set whether the window is floating on top.
             void setFloatOnTop(bool);
 
             //! Observe when the window is closed.
-            std::shared_ptr<observer::IValue<bool> > observeClose() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeClose() const;
 
             //! Get the color buffer type.
             image::PixelType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<observer::IValue<image::PixelType> > observeColorBuffer() const;
+            std::shared_ptr<dtk::IObservableValue<image::PixelType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
             void setColorBuffer(image::PixelType);

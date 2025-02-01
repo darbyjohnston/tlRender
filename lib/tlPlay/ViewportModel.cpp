@@ -14,8 +14,8 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::Value<timeline::BackgroundOptions> > backgroundOptions;
-            std::shared_ptr<observer::Value<timeline::DisplayOptions> > displayOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::DisplayOptions> > displayOptions;
         };
 
         void ViewportModel::_init(
@@ -28,9 +28,9 @@ namespace tl
             p.settings = settings;
 
             p.settings->setDefaultValue("Viewport/Background", timeline::BackgroundOptions());
-            p.backgroundOptions = observer::Value<timeline::BackgroundOptions>::create(
+            p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
                 p.settings->getValue< timeline::BackgroundOptions>("Viewport/Background"));
-            p.displayOptions = observer::Value<timeline::DisplayOptions>::create();
+            p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create();
         }
 
         ViewportModel::ViewportModel() :
@@ -54,7 +54,7 @@ namespace tl
             return _p->displayOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::DisplayOptions> > ViewportModel::observeDisplayOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::DisplayOptions> > ViewportModel::observeDisplayOptions() const
         {
             return _p->displayOptions;
         }
@@ -69,7 +69,7 @@ namespace tl
             return _p->backgroundOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::BackgroundOptions> > ViewportModel::observeBackgroundOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::BackgroundOptions> > ViewportModel::observeBackgroundOptions() const
         {
             return _p->backgroundOptions;
         }

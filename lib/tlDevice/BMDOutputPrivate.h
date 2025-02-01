@@ -124,7 +124,7 @@ namespace tl
         {
             timeline::Playback playback = timeline::Playback::Stop;
             double speed = 0.0;
-            otime::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
             bool seek = false;
             float volume = 1.F;
             bool mute = false;
@@ -192,14 +192,14 @@ namespace tl
             {
                 timeline::Playback playback = timeline::Playback::Stop;
                 double speed = 0.0;
-                otime::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
                 float volume = 1.F;
                 bool mute = false;
                 std::vector<bool> channelMute;
                 double audioOffset = 0.0;
                 std::vector<timeline::AudioData> audioData;
                 bool reset = false;
-                otime::RationalTime start = time::invalidTime;
+                OTIO_NS::RationalTime start = time::invalidTime;
                 std::mutex mutex;
             };
             AudioMutex _audioMutex;

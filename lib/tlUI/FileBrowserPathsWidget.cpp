@@ -30,8 +30,8 @@ namespace tl
             std::map<std::string, std::shared_ptr<VerticalLayout> > layouts;
             std::shared_ptr<VerticalLayout> layout;
             std::function<void(const std::string&)> callback;
-            std::shared_ptr<observer::ListObserver<std::string> > drivesObserver;
-            std::shared_ptr<observer::ListObserver<file::Path> > recentObserver;
+            std::shared_ptr<dtk::ListObserver<std::string> > drivesObserver;
+            std::shared_ptr<dtk::ListObserver<file::Path> > recentObserver;
         };
 
         void PathsWidget::_init(
@@ -84,7 +84,7 @@ namespace tl
                     }
                 });
 
-            p.drivesObserver = observer::ListObserver<std::string>::create(
+            p.drivesObserver = dtk::ListObserver<std::string>::create(
                 p.drivesModel->observeDrives(),
                 [this](const std::vector<std::string>& value)
                 {
@@ -121,7 +121,7 @@ namespace tl
             p.recentFilesModel = value;
             if (p.recentFilesModel)
             {
-                p.recentObserver = observer::ListObserver<file::Path>::create(
+                p.recentObserver = dtk::ListObserver<file::Path>::create(
                     p.recentFilesModel->observeRecent(),
                     [this](const std::vector<file::Path>& value)
                     {

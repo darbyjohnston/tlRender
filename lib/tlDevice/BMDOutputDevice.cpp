@@ -15,7 +15,8 @@
 
 #include <tlCore/AudioResample.h>
 #include <tlCore/Context.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <algorithm>
 #include <atomic>
@@ -51,20 +52,20 @@ namespace tl
         struct OutputDevice::Private
         {
             std::weak_ptr<system::Context> context;
-            std::shared_ptr<observer::Value<DeviceConfig> > config;
-            std::shared_ptr<observer::Value<bool> > enabled;
-            std::shared_ptr<observer::Value<bool> > active;
-            std::shared_ptr<observer::Value<math::Size2i> > size;
-            std::shared_ptr<observer::Value<FrameRate> > frameRate;
-            std::shared_ptr<observer::Value<int> > videoFrameDelay;
+            std::shared_ptr<dtk::ObservableValue<DeviceConfig> > config;
+            std::shared_ptr<dtk::ObservableValue<bool> > enabled;
+            std::shared_ptr<dtk::ObservableValue<bool> > active;
+            std::shared_ptr<dtk::ObservableValue<math::Size2i> > size;
+            std::shared_ptr<dtk::ObservableValue<FrameRate> > frameRate;
+            std::shared_ptr<dtk::ObservableValue<int> > videoFrameDelay;
 
             std::shared_ptr<timeline::Player> player;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<double> > speedObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > seekObserver;
-            std::shared_ptr<observer::ListObserver<timeline::VideoData> > videoObserver;
-            std::shared_ptr<observer::ListObserver<timeline::AudioData> > audioObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > speedObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > seekObserver;
+            std::shared_ptr<dtk::ListObserver<timeline::VideoData> > videoObserver;
+            std::shared_ptr<dtk::ListObserver<timeline::AudioData> > audioObserver;
 
             std::shared_ptr<gl::GLFWWindow> window;
 
@@ -87,10 +88,10 @@ namespace tl
                 math::Vector2i viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
-                otime::TimeRange timeRange = time::invalidTimeRange;
+                OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 timeline::Playback playback = timeline::Playback::Stop;
                 double speed = 0.0;
-                otime::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
                 bool seek = false;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
@@ -114,7 +115,7 @@ namespace tl
                 math::Vector2i viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
-                otime::TimeRange timeRange = time::invalidTimeRange;
+                OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 std::vector<timeline::VideoData> videoData;
                 std::shared_ptr<image::Image> overlay;
 
@@ -134,12 +135,12 @@ namespace tl
             TLRENDER_P();
 
             p.context = context;
-            p.config = observer::Value<DeviceConfig>::create();
-            p.enabled = observer::Value<bool>::create(false);
-            p.active = observer::Value<bool>::create(false);
-            p.size = observer::Value<math::Size2i>::create();
-            p.frameRate = observer::Value<FrameRate>::create();
-            p.videoFrameDelay = observer::Value<int>::create(bmd::videoFrameDelay);
+            p.config = dtk::ObservableValue<DeviceConfig>::create();
+            p.enabled = dtk::ObservableValue<bool>::create(false);
+            p.active = dtk::ObservableValue<bool>::create(false);
+            p.size = dtk::ObservableValue<math::Size2i>::create();
+            p.frameRate = dtk::ObservableValue<FrameRate>::create();
+            p.videoFrameDelay = dtk::ObservableValue<int>::create(bmd::videoFrameDelay);
 
             p.window = gl::GLFWWindow::create(
                 "tl::bmd::OutputDevice",
@@ -184,7 +185,7 @@ namespace tl
             return _p->config->get();
         }
 
-        std::shared_ptr<observer::IValue<DeviceConfig> > OutputDevice::observeConfig() const
+        std::shared_ptr<dtk::IObservableValue<DeviceConfig> > OutputDevice::observeConfig() const
         {
             return _p->config;
         }
@@ -207,7 +208,7 @@ namespace tl
             return _p->enabled->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > OutputDevice::observeEnabled() const
+        std::shared_ptr<dtk::IObservableValue<bool> > OutputDevice::observeEnabled() const
         {
             return _p->enabled;
         }
@@ -230,7 +231,7 @@ namespace tl
             return _p->active->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > OutputDevice::observeActive() const
+        std::shared_ptr<dtk::IObservableValue<bool> > OutputDevice::observeActive() const
         {
             return _p->active;
         }
@@ -240,7 +241,7 @@ namespace tl
             return _p->size->get();
         }
 
-        std::shared_ptr<observer::IValue<math::Size2i> > OutputDevice::observeSize() const
+        std::shared_ptr<dtk::IObservableValue<math::Size2i> > OutputDevice::observeSize() const
         {
             return _p->size;
         }
@@ -250,7 +251,7 @@ namespace tl
             return _p->frameRate->get();
         }
 
-        std::shared_ptr<observer::IValue<FrameRate> > OutputDevice::observeFrameRate() const
+        std::shared_ptr<dtk::IObservableValue<FrameRate> > OutputDevice::observeFrameRate() const
         {
             return _p->frameRate;
         }
@@ -260,7 +261,7 @@ namespace tl
             return _p->videoFrameDelay->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > OutputDevice::observeVideoFrameDelay() const
+        std::shared_ptr<dtk::IObservableValue<int> > OutputDevice::observeVideoFrameDelay() const
         {
             return _p->videoFrameDelay;
         }
@@ -419,7 +420,7 @@ namespace tl
             if (p.player)
             {
                 auto weak = std::weak_ptr<OutputDevice>(shared_from_this());
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [weak](timeline::Playback value)
                     {
@@ -432,8 +433,8 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
-                p.speedObserver = observer::ValueObserver<double>::create(
+                    dtk::ObserverAction::Suppress);
+                p.speedObserver = dtk::ValueObserver<double>::create(
                     p.player->observeSpeed(),
                     [weak](double value)
                     {
@@ -446,10 +447,10 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
-                p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    dtk::ObserverAction::Suppress);
+                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
-                    [weak](const otime::RationalTime& value)
+                    [weak](const OTIO_NS::RationalTime& value)
                     {
                         if (auto device = weak.lock())
                         {
@@ -460,10 +461,10 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
-                p.seekObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    dtk::ObserverAction::Suppress);
+                p.seekObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeSeek(),
-                    [weak](const otime::RationalTime&)
+                    [weak](const OTIO_NS::RationalTime&)
                     {
                         if (auto device = weak.lock())
                         {
@@ -474,8 +475,8 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
-                p.videoObserver = observer::ListObserver<timeline::VideoData>::create(
+                    dtk::ObserverAction::Suppress);
+                p.videoObserver = dtk::ListObserver<timeline::VideoData>::create(
                     p.player->observeCurrentVideo(),
                     [weak](const std::vector<timeline::VideoData>& value)
                     {
@@ -488,8 +489,8 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
-                p.audioObserver = observer::ListObserver<timeline::AudioData>::create(
+                    dtk::ObserverAction::Suppress);
+                p.audioObserver = dtk::ListObserver<timeline::AudioData>::create(
                     p.player->observeCurrentAudio(),
                     [weak](const std::vector<timeline::AudioData>& value)
                     {
@@ -502,7 +503,7 @@ namespace tl
                             device->_p->thread.cv.notify_one();
                         }
                     },
-                    observer::CallbackAction::Suppress);
+                    dtk::ObserverAction::Suppress);
             }
 
             {
@@ -563,7 +564,7 @@ namespace tl
             timeline::BackgroundOptions backgroundOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             double speed = 0.0;
-            otime::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
             bool seek = false;
             float volume = 1.F;
             bool mute = false;
@@ -865,7 +866,7 @@ namespace tl
                     p.thread.dl->config->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
                     context->log(
                         "tl::bmd::OutputDevice",
-                        string::Format("444 SDI output: {0}").arg(value));
+                        dtk::Format("444 SDI output: {0}").arg(value));
                 }
 
                 if (p.thread.dl->p->QueryInterface(IID_IDeckLinkStatus, (void**)&p.thread.dl->status) != S_OK)
@@ -917,7 +918,7 @@ namespace tl
                     {
                         context->log(
                             "tl::bmd::OutputDevice",
-                            string::Format(
+                            dtk::Format(
                                 "\n"
                                 "    #{0} {1}/{2}\n"
                                 "    video: {3} {4}\n"
@@ -1071,7 +1072,7 @@ namespace tl
                             0,
                             p.thread.overlay->getWidth(),
                             p.thread.overlay->getHeight()),
-                        image::Color4f(1.F, 1.F, 1.F),
+                        dtk::Color4F(1.F, 1.F, 1.F),
                         imageOptions);
                 }
 

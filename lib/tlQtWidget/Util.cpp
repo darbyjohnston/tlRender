@@ -18,14 +18,14 @@ namespace tl
             return math::Size2i(value.width(), value.height());
         }
 
-        QColor toQt(const image::Color4f& value)
+        QColor toQt(const dtk::Color4F& value)
         {
             return QColor::fromRgbF(value.r, value.g, value.b, value.a);
         }
 
-        image::Color4f fromQt(const QColor& value)
+        dtk::Color4F fromQt(const QColor& value)
         {
-            return image::Color4f(
+            return dtk::Color4F(
                 value.redF(),
                 value.greenF(),
                 value.blueF(),

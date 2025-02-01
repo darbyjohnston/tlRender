@@ -6,7 +6,8 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/Time.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -55,13 +56,13 @@ namespace tl
             virtual ~ITimeUnitsModel() = 0;
 
             //! Observer when the time units are changed.
-            std::shared_ptr<observer::IValue<bool> > observeTimeUnitsChanged() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeTimeUnitsChanged() const;
 
             //! Get a time label in the current time units.
             virtual std::string getLabel(const OTIO_NS::RationalTime&) const = 0;
 
         protected:
-            std::shared_ptr<observer::Value<bool> > _timeUnitsChanged;
+            std::shared_ptr<dtk::ObservableValue<bool> > _timeUnitsChanged;
         };
 
         //! Time units model.
@@ -85,7 +86,7 @@ namespace tl
             TimeUnits getTimeUnits() const;
 
             //! Observer the time units.
-            std::shared_ptr<observer::IValue<TimeUnits> > observeTimeUnits() const;
+            std::shared_ptr<dtk::IObservableValue<TimeUnits> > observeTimeUnits() const;
             
             //! Set the time units.
             void setTimeUnits(TimeUnits);

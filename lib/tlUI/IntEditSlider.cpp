@@ -24,8 +24,8 @@ namespace tl
 
             std::function<void(int)> callback;
 
-            std::shared_ptr<observer::ValueObserver<int> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hasDefaultObserver;
         };
 
         void IntEditSlider::_init(
@@ -65,7 +65,7 @@ namespace tl
                     _p->model->setDefaultValue();
                 });
 
-            p.valueObserver = observer::ValueObserver<int>::create(
+            p.valueObserver = dtk::ValueObserver<int>::create(
                 p.model->observeValue(),
                 [this](int value)
                 {
@@ -76,7 +76,7 @@ namespace tl
                     }
                 });
 
-            p.hasDefaultObserver = observer::ValueObserver<bool>::create(
+            p.hasDefaultObserver = dtk::ValueObserver<bool>::create(
                 p.model->observeHasDefaultValue(),
                 [this](bool value)
                 {

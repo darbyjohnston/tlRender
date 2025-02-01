@@ -24,7 +24,7 @@ namespace tl
             std::shared_ptr<ui::SearchBox> searchBox;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void InfoTool::_init(
@@ -59,7 +59,7 @@ namespace tl
             p.searchBox->setParent(hLayout);
             _setWidget(layout);
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {

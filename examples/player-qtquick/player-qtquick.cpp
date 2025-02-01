@@ -8,7 +8,8 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Path.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
 
 #include <QQmlComponent>
 #include <QQmlContext>

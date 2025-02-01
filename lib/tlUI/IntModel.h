@@ -6,7 +6,8 @@
 
 #include <tlCore/Context.h>
 #include <tlCore/Range.h>
-#include <tlCore/ValueObserver.h>
+
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -39,7 +40,7 @@ namespace tl
             void setValue(int);
 
             //! Observe the value.
-            std::shared_ptr<observer::IValue<int> > observeValue() const;
+            std::shared_ptr<dtk::IObservableValue<int> > observeValue() const;
 
             ///@}
 
@@ -53,7 +54,7 @@ namespace tl
             void setRange(const math::IntRange&);
 
             //! Observe the range.
-            std::shared_ptr<observer::IValue<math::IntRange> > observeRange() const;
+            std::shared_ptr<dtk::IObservableValue<math::IntRange> > observeRange() const;
 
             ///@}
 
@@ -93,7 +94,7 @@ namespace tl
             bool hasDefaultValue() const;
 
             //! Observe the default value.
-            std::shared_ptr<observer::IValue<bool> > observeHasDefaultValue() const;
+            std::shared_ptr<dtk::IObservableValue<bool> > observeHasDefaultValue() const;
 
             //! Get the default value.
             int getDefaultValue() const;

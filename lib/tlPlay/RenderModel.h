@@ -7,7 +7,7 @@
 #include <tlTimeline/ImageOptions.h>
 #include <tlTimeline/RenderOptions.h>
 
-#include <tlCore/ValueObserver.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -44,7 +44,7 @@ namespace tl
             const timeline::ImageOptions& getImageOptions() const;
 
             //! Observe the image options.
-            std::shared_ptr<observer::IValue<timeline::ImageOptions> > observeImageOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::ImageOptions> > observeImageOptions() const;
 
             //! Set the image options.
             void setImageOptions(const timeline::ImageOptions&);
@@ -53,7 +53,7 @@ namespace tl
             image::PixelType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<observer::IValue<image::PixelType> > observeColorBuffer() const;
+            std::shared_ptr<dtk::IObservableValue<image::PixelType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
             void setColorBuffer(image::PixelType);

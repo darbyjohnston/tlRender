@@ -12,20 +12,20 @@ namespace tl
     {
         struct FloatModel::Private
         {
-            std::shared_ptr<observer::Value<float> > value;
-            std::shared_ptr<observer::Value<math::FloatRange> > range;
+            std::shared_ptr<dtk::ObservableValue<float> > value;
+            std::shared_ptr<dtk::ObservableValue<math::FloatRange> > range;
             float step = .1F;
             float largeStep = 1.F;
-            std::shared_ptr<observer::Value<bool> > hasDefaultValue;
+            std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
             float defaultValue = 0.F;
         };
 
         void FloatModel::_init(const std::shared_ptr<system::Context>&)
         {
             TLRENDER_P();
-            p.value = observer::Value<float>::create(0.F);
-            p.range = observer::Value<math::FloatRange>::create(math::FloatRange(0.F, 1.F));
-            p.hasDefaultValue = observer::Value<bool>::create(false);
+            p.value = dtk::ObservableValue<float>::create(0.F);
+            p.range = dtk::ObservableValue<math::FloatRange>::create(math::FloatRange(0.F, 1.F));
+            p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
         FloatModel::FloatModel() :
@@ -56,7 +56,7 @@ namespace tl
             _p->value->setIfChanged(tmp);
         }
 
-        std::shared_ptr<observer::IValue<float> > FloatModel::observeValue() const
+        std::shared_ptr<dtk::IObservableValue<float> > FloatModel::observeValue() const
         {
             return _p->value;
         }
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<math::FloatRange> > FloatModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<math::FloatRange> > FloatModel::observeRange() const
         {
             return _p->range;
         }
@@ -129,7 +129,7 @@ namespace tl
             return _p->hasDefaultValue->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > FloatModel::observeHasDefaultValue() const
+        std::shared_ptr<dtk::IObservableValue<bool> > FloatModel::observeHasDefaultValue() const
         {
             return _p->hasDefaultValue;
         }

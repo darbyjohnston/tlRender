@@ -25,8 +25,8 @@ namespace tl
 
             QComboBox* deviceComboBox = nullptr;
 
-            std::shared_ptr<observer::ListObserver<audio::DeviceID> > audioDevicesObserver;
-            std::shared_ptr<observer::ValueObserver<audio::DeviceID> > audioDeviceObserver;
+            std::shared_ptr<dtk::ListObserver<audio::DeviceID> > audioDevicesObserver;
+            std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
         };
 
         AudioDeviceWidget::AudioDeviceWidget(App* app, QWidget* parent) :
@@ -53,7 +53,7 @@ namespace tl
                     }
                 });
 
-            p.audioDevicesObserver = observer::ListObserver<audio::DeviceID>::create(
+            p.audioDevicesObserver = dtk::ListObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevices(),
                 [this](const std::vector<audio::DeviceID>& devices)
                 {
@@ -74,7 +74,7 @@ namespace tl
                     }
                 });
 
-            p.audioDeviceObserver = observer::ValueObserver<audio::DeviceID>::create(
+            p.audioDeviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevice(),
                 [this](const audio::DeviceID &value)
                 {
@@ -96,7 +96,7 @@ namespace tl
         {
             qtwidget::FloatEditSlider* slider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
         };
 
         AudioOffsetWidget::AudioOffsetWidget(App* app, QWidget* parent) :
@@ -121,7 +121,7 @@ namespace tl
                     app->audioModel()->setSyncOffset(value);
                 });
 
-            p.syncOffsetObserver = observer::ValueObserver<double>::create(
+            p.syncOffsetObserver = dtk::ValueObserver<double>::create(
                 app->audioModel()->observeSyncOffset(),
                 [this](double value)
                 {

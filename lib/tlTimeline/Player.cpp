@@ -67,31 +67,31 @@ namespace tl
             p.ioInfo = timeline->getIOInfo();
 
             // Create observers.
-            p.speed = observer::Value<double>::create(p.timeRange.duration().rate());
-            p.playback = observer::Value<Playback>::create(Playback::Stop);
-            p.loop = observer::Value<Loop>::create(Loop::Loop);
-            p.currentTime = observer::Value<OTIO_NS::RationalTime>::create(
+            p.speed = dtk::ObservableValue<double>::create(p.timeRange.duration().rate());
+            p.playback = dtk::ObservableValue<Playback>::create(Playback::Stop);
+            p.loop = dtk::ObservableValue<Loop>::create(Loop::Loop);
+            p.currentTime = dtk::ObservableValue<OTIO_NS::RationalTime>::create(
                 playerOptions.currentTime != time::invalidTime ?
                 playerOptions.currentTime :
                 p.timeRange.start_time());
-            p.seek = observer::Value<OTIO_NS::RationalTime>::create(p.currentTime->get());
-            p.inOutRange = observer::Value<OTIO_NS::TimeRange>::create(p.timeRange);
-            p.compare = observer::List<std::shared_ptr<Timeline> >::create();
-            p.compareTime = observer::Value<CompareTimeMode>::create(CompareTimeMode::Relative);
-            p.ioOptions = observer::Value<io::Options>::create();
-            p.videoLayer = observer::Value<int>::create(0);
-            p.compareVideoLayers = observer::List<int>::create();
-            p.currentVideoData = observer::List<VideoData>::create();
-            p.audioDevice = observer::Value<audio::DeviceID>::create(playerOptions.audioDevice);
-            p.volume = observer::Value<float>::create(1.F);
-            p.mute = observer::Value<bool>::create(false);
-            p.channelMute = observer::List<bool>::create();
-            p.audioOffset = observer::Value<double>::create(0.0);
-            p.currentAudioData = observer::List<AudioData>::create();
-            p.cacheOptions = observer::Value<PlayerCacheOptions>::create(playerOptions.cache);
-            p.cacheInfo = observer::Value<PlayerCacheInfo>::create();
+            p.seek = dtk::ObservableValue<OTIO_NS::RationalTime>::create(p.currentTime->get());
+            p.inOutRange = dtk::ObservableValue<OTIO_NS::TimeRange>::create(p.timeRange);
+            p.compare = dtk::ObservableList<std::shared_ptr<Timeline> >::create();
+            p.compareTime = dtk::ObservableValue<CompareTimeMode>::create(CompareTimeMode::Relative);
+            p.ioOptions = dtk::ObservableValue<io::Options>::create();
+            p.videoLayer = dtk::ObservableValue<int>::create(0);
+            p.compareVideoLayers = dtk::ObservableList<int>::create();
+            p.currentVideoData = dtk::ObservableList<VideoData>::create();
+            p.audioDevice = dtk::ObservableValue<audio::DeviceID>::create(playerOptions.audioDevice);
+            p.volume = dtk::ObservableValue<float>::create(1.F);
+            p.mute = dtk::ObservableValue<bool>::create(false);
+            p.channelMute = dtk::ObservableList<bool>::create();
+            p.audioOffset = dtk::ObservableValue<double>::create(0.0);
+            p.currentAudioData = dtk::ObservableList<AudioData>::create();
+            p.cacheOptions = dtk::ObservableValue<PlayerCacheOptions>::create(playerOptions.cache);
+            p.cacheInfo = dtk::ObservableValue<PlayerCacheInfo>::create();
             auto weak = std::weak_ptr<Player>(shared_from_this());
-            p.timelineObserver = observer::ValueObserver<bool>::create(
+            p.timelineObserver = dtk::ValueObserver<bool>::create(
                 p.timeline->observeTimelineChanges(),
                 [weak](bool)
                 {
@@ -101,7 +101,7 @@ namespace tl
                     }
                 });
             auto audioSystem = context->getSystem<audio::System>();
-            p.audioDevicesObserver = observer::ListObserver<audio::DeviceInfo>::create(
+            p.audioDevicesObserver = dtk::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [weak](const std::vector<audio::DeviceInfo>&)
                 {
@@ -113,7 +113,7 @@ namespace tl
                         }
                     }
                 });
-            p.defaultAudioDeviceObserver = observer::ValueObserver<audio::DeviceInfo>::create(
+            p.defaultAudioDeviceObserver = dtk::ValueObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDefaultDevice(),
                 [weak](const audio::DeviceInfo&)
                 {
@@ -235,7 +235,7 @@ namespace tl
             return _p->speed->get();
         }
 
-        std::shared_ptr<observer::IValue<double> > Player::observeSpeed() const
+        std::shared_ptr<dtk::IObservableValue<double> > Player::observeSpeed() const
         {
             return _p->speed;
         }
@@ -262,7 +262,7 @@ namespace tl
             return _p->playback->get();
         }
 
-        std::shared_ptr<observer::IValue<Playback> > Player::observePlayback() const
+        std::shared_ptr<dtk::IObservableValue<Playback> > Player::observePlayback() const
         {
             return _p->playback;
         }
@@ -356,7 +356,7 @@ namespace tl
             return _p->loop->get();
         }
 
-        std::shared_ptr<observer::IValue<Loop> > Player::observeLoop() const
+        std::shared_ptr<dtk::IObservableValue<Loop> > Player::observeLoop() const
         {
             return _p->loop;
         }
@@ -371,12 +371,12 @@ namespace tl
             return _p->currentTime->get();
         }
 
-        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > Player::observeCurrentTime() const
+        std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > Player::observeCurrentTime() const
         {
             return _p->currentTime;
         }
 
-        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > Player::observeSeek() const
+        std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > Player::observeSeek() const
         {
             return _p->seek;
         }
@@ -489,7 +489,7 @@ namespace tl
             return _p->inOutRange->get();
         }
 
-        std::shared_ptr<observer::IValue<OTIO_NS::TimeRange> > Player::observeInOutRange() const
+        std::shared_ptr<dtk::IObservableValue<OTIO_NS::TimeRange> > Player::observeInOutRange() const
         {
             return _p->inOutRange;
         }
@@ -542,7 +542,7 @@ namespace tl
             return _p->compare->get();
         }
 
-        std::shared_ptr<observer::IList<std::shared_ptr<Timeline> > > Player::observeCompare() const
+        std::shared_ptr<dtk::IObservableList<std::shared_ptr<Timeline> > > Player::observeCompare() const
         {
             return _p->compare;
         }
@@ -564,7 +564,7 @@ namespace tl
             return _p->compareTime->get();
         }
 
-        std::shared_ptr<observer::IValue<CompareTimeMode> > Player::observeCompareTime() const
+        std::shared_ptr<dtk::IObservableValue<CompareTimeMode> > Player::observeCompareTime() const
         {
             return _p->compareTime;
         }
@@ -586,7 +586,7 @@ namespace tl
             return _p->ioOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<io::Options> > Player::observeIOOptions() const
+        std::shared_ptr<dtk::IObservableValue<io::Options> > Player::observeIOOptions() const
         {
             return _p->ioOptions;
         }
@@ -608,7 +608,7 @@ namespace tl
             return _p->videoLayer->get();
         }
 
-        std::shared_ptr<observer::IValue<int> > Player::observeVideoLayer() const
+        std::shared_ptr<dtk::IObservableValue<int> > Player::observeVideoLayer() const
         {
             return _p->videoLayer;
         }
@@ -630,7 +630,7 @@ namespace tl
             return _p->compareVideoLayers->get();
         }
 
-        std::shared_ptr<observer::IList<int> > Player::observeCompareVideoLayers() const
+        std::shared_ptr<dtk::IObservableList<int> > Player::observeCompareVideoLayers() const
         {
             return _p->compareVideoLayers;
         }
@@ -652,7 +652,7 @@ namespace tl
             return _p->currentVideoData->get();
         }
 
-        std::shared_ptr<observer::IList<VideoData> > Player::observeCurrentVideo() const
+        std::shared_ptr<dtk::IObservableList<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
         }
@@ -662,7 +662,7 @@ namespace tl
             return _p->cacheOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<PlayerCacheOptions> > Player::observeCacheOptions() const
+        std::shared_ptr<dtk::IObservableValue<PlayerCacheOptions> > Player::observeCacheOptions() const
         {
             return _p->cacheOptions;
         }
@@ -677,7 +677,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<PlayerCacheInfo> > Player::observeCacheInfo() const
+        std::shared_ptr<dtk::IObservableValue<PlayerCacheInfo> > Player::observeCacheInfo() const
         {
             return _p->cacheInfo;
         }

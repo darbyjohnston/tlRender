@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlCore/ListObserver.h>
-#include <tlCore/ValueObserver.h>
-
 #include <tlCore/Path.h>
+
+#include <dtk/core/ObservableList.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -39,7 +39,7 @@ namespace tl
             size_t getRecentMax() const;
 
             //! Observe the maximum number of recent files.
-            std::shared_ptr<observer::IValue<size_t> > observeRecentMax() const;
+            std::shared_ptr<dtk::IObservableValue<size_t> > observeRecentMax() const;
 
             //! Set the maximum number of recent files.
             void setRecentMax(size_t);
@@ -48,7 +48,7 @@ namespace tl
             const std::vector<file::Path>& getRecent() const;
 
             //! Observe the list of recent files.
-            std::shared_ptr<observer::IList<file::Path> > observeRecent() const;
+            std::shared_ptr<dtk::IObservableList<file::Path> > observeRecent() const;
 
             //! Set the recent files.
             void setRecent(const std::vector<file::Path>&);

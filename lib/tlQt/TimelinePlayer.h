@@ -38,11 +38,11 @@ namespace tl
                 WRITE setLoop
                 NOTIFY loopChanged)
             Q_PROPERTY(
-                otime::RationalTime currentTime
+                OTIO_NS::RationalTime currentTime
                 READ currentTime
                 NOTIFY currentTimeChanged)
             Q_PROPERTY(
-                otime::TimeRange inOutRange
+                OTIO_NS::TimeRange inOutRange
                 READ inOutRange
                 WRITE setInOutRange
                 NOTIFY inOutRangeChanged)
@@ -154,7 +154,7 @@ namespace tl
             ///@{
 
             //! Get the time range.
-            const otime::TimeRange& timeRange() const;
+            const OTIO_NS::TimeRange& timeRange() const;
 
             //! Get the I/O information. This information is retrieved from
             //! the first clip in the timeline.
@@ -183,7 +183,7 @@ namespace tl
             ///@{
 
             //! Get the current time.
-            const otime::RationalTime& currentTime() const;
+            const OTIO_NS::RationalTime& currentTime() const;
 
             ///@}
 
@@ -191,7 +191,7 @@ namespace tl
             ///@{
 
             //! Get the in/out points range.
-            const otime::TimeRange& inOutRange() const;
+            const OTIO_NS::TimeRange& inOutRange() const;
 
             ///@}
 
@@ -293,7 +293,7 @@ namespace tl
             ///@{
 
             //! Seek to the given time.
-            void seek(const otime::RationalTime&);
+            void seek(const OTIO_NS::RationalTime&);
 
             //! Time action.
             void timeAction(tl::timeline::TimeAction);
@@ -316,7 +316,7 @@ namespace tl
             ///@{
 
             //! Set the in/out points range.
-            void setInOutRange(const otime::TimeRange&);
+            void setInOutRange(const OTIO_NS::TimeRange&);
 
             //! Set the in point to the current time.
             void setInPoint();
@@ -404,10 +404,10 @@ namespace tl
             void loopChanged(tl::timeline::Loop);
 
             //! This signal is emitted when the current time is changed.
-            void currentTimeChanged(const otime::RationalTime&);
+            void currentTimeChanged(const OTIO_NS::RationalTime&);
 
             //! This signal is emitted when the in/out points range is changed.
-            void inOutRangeChanged(const otime::TimeRange&);
+            void inOutRangeChanged(const OTIO_NS::TimeRange&);
 
             ///@}
 

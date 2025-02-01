@@ -19,7 +19,7 @@ namespace tl
             QMap<QString, QAction*> actions;
             QScopedPointer<QMenu> menu;
 
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
         };
 
         AudioActions::AudioActions(App* app, QObject* parent) :
@@ -80,7 +80,7 @@ namespace tl
                     app->audioModel()->setMute(value);
                 });
 
-            p.muteObserver = observer::ValueObserver<bool>::create(
+            p.muteObserver = dtk::ValueObserver<bool>::create(
                 app->audioModel()->observeMute(),
                 [this](bool)
                 {

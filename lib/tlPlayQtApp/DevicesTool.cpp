@@ -47,7 +47,7 @@ namespace tl
             qtwidget::FloatEditSlider* maxCLLSlider = nullptr;
             qtwidget::FloatEditSlider* maxFALLSlider = nullptr;
 
-            std::shared_ptr<observer::ValueObserver<bmd::DevicesModelData> > dataObserver;
+            std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -274,7 +274,7 @@ namespace tl
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
-            p.dataObserver = observer::ValueObserver<bmd::DevicesModelData>::create(
+            p.dataObserver = dtk::ValueObserver<bmd::DevicesModelData>::create(
                 app->bmdDevicesModel()->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {

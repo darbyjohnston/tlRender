@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/ValueObserver.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/ObservableValue.h>
 
 #include <nlohmann/json.hpp>
 
@@ -48,7 +50,7 @@ namespace tl
             T getValue(const std::string&) const;
 
             //! Observe value changes.
-            std::shared_ptr<observer::IValue<std::string> > observeValues() const;
+            std::shared_ptr<dtk::IObservableValue<std::string> > observeValues() const;
 
             //! Set a default value.
             template<typename T>
@@ -69,7 +71,7 @@ namespace tl
             std::string _fileName;
             nlohmann::json _defaultValues;
             nlohmann::json _values;
-            std::shared_ptr<observer::Value<std::string> > _observer;
+            std::shared_ptr<dtk::ObservableValue<std::string> > _observer;
         };
     }
 }

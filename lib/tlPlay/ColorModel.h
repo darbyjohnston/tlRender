@@ -7,7 +7,7 @@
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
 
-#include <tlCore/ValueObserver.h>
+#include <dtk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -38,7 +38,7 @@ namespace tl
             const timeline::OCIOOptions& getOCIOOptions() const;
 
             //! Observe the OpenColorIO options.
-            std::shared_ptr<observer::IValue<timeline::OCIOOptions> > observeOCIOOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::OCIOOptions> > observeOCIOOptions() const;
 
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
@@ -47,7 +47,7 @@ namespace tl
             const timeline::LUTOptions& getLUTOptions() const;
 
             //! Observe the LUT options.
-            std::shared_ptr<observer::IValue<timeline::LUTOptions> > observeLUTOptions() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::LUTOptions> > observeLUTOptions() const;
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);

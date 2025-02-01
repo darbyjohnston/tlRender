@@ -20,9 +20,9 @@ namespace tl
             std::map<timeline::Playback, std::shared_ptr<ui::Action> > playbackItems;
             std::map<timeline::Loop, std::shared_ptr<ui::Action> > loopItems;
 
-            std::shared_ptr<observer::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::Loop> > loopObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::Loop> > loopObserver;
         };
 
         void PlaybackMenu::_init(
@@ -65,7 +65,7 @@ namespace tl
             _playbackUpdate();
             _loopUpdate();
 
-            p.playerObserver = observer::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -99,13 +99,13 @@ namespace tl
             p.player = value;
             if (p.player)
             {
-                p.playbackObserver = observer::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback)
                     {
                         _playbackUpdate();
                     });
-                p.loopObserver = observer::ValueObserver<timeline::Loop>::create(
+                p.loopObserver = dtk::ValueObserver<timeline::Loop>::create(
                     p.player->observeLoop(),
                     [this](timeline::Loop)
                     {

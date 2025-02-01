@@ -14,8 +14,8 @@ namespace tl
         {
             std::weak_ptr<system::Context> context;
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<observer::Value<image::PixelType> > colorBuffer;
-            std::shared_ptr<observer::Value<timeline::ImageOptions> > imageOptions;
+            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<timeline::ImageOptions> > imageOptions;
         };
 
         void RenderModel::_init(
@@ -28,9 +28,9 @@ namespace tl
             p.settings = settings;
 
             p.settings->setDefaultValue("Render/ColorBuffer", image::PixelType::RGBA_U8);
-            p.colorBuffer = observer::Value<image::PixelType>::create(
+            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(
                 p.settings->getValue<image::PixelType>("Render/ColorBuffer"));
-            p.imageOptions = observer::Value<timeline::ImageOptions>::create();
+            p.imageOptions = dtk::ObservableValue<timeline::ImageOptions>::create();
         }
 
         RenderModel::RenderModel() :
@@ -54,7 +54,7 @@ namespace tl
             return _p->imageOptions->get();
         }
 
-        std::shared_ptr<observer::IValue<timeline::ImageOptions> > RenderModel::observeImageOptions() const
+        std::shared_ptr<dtk::IObservableValue<timeline::ImageOptions> > RenderModel::observeImageOptions() const
         {
             return _p->imageOptions;
         }
@@ -69,7 +69,7 @@ namespace tl
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<observer::IValue<image::PixelType> > RenderModel::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<image::PixelType> > RenderModel::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }

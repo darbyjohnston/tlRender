@@ -17,9 +17,9 @@ namespace tl
         //! Display mode.
         struct DisplayMode
         {
-            std::string         name;
-            math::Size2i        size;
-            otime::RationalTime frameRate;
+            std::string           name;
+            math::Size2i          size;
+            OTIO_NS::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
         };

@@ -91,7 +91,7 @@ namespace tl
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
                 std::vector<timeline::VideoData> _videoData;
-                std::shared_ptr<observer::ListObserver<timeline::VideoData> > _videoDataObserver;
+                std::shared_ptr<dtk::ListObserver<timeline::VideoData> > _videoDataObserver;
                 std::chrono::steady_clock::time_point _startTime;
 
                 bool _running = true;

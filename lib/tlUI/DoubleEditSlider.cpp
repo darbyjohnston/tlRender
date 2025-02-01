@@ -24,8 +24,8 @@ namespace tl
 
             std::function<void(double)> callback;
 
-            std::shared_ptr<observer::ValueObserver<double> > valueObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > hasDefaultObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hasDefaultObserver;
         };
 
         void DoubleEditSlider::_init(
@@ -65,7 +65,7 @@ namespace tl
                     _p->model->setDefaultValue();
                 });
 
-            p.valueObserver = observer::ValueObserver<double>::create(
+            p.valueObserver = dtk::ValueObserver<double>::create(
                 p.model->observeValue(),
                 [this](double value)
                 {
@@ -76,7 +76,7 @@ namespace tl
                     }
                 });
 
-            p.hasDefaultObserver = observer::ValueObserver<bool>::create(
+            p.hasDefaultObserver = dtk::ValueObserver<bool>::create(
                 p.model->observeHasDefaultValue(),
                 [this](bool value)
                 {

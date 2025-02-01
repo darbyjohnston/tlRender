@@ -12,20 +12,20 @@ namespace tl
     {
         struct DoubleModel::Private
         {
-            std::shared_ptr<observer::Value<double> > value;
-            std::shared_ptr<observer::Value<math::DoubleRange> > range;
+            std::shared_ptr<dtk::ObservableValue<double> > value;
+            std::shared_ptr<dtk::ObservableValue<math::DoubleRange> > range;
             double step = 0.1;
             double largeStep = 1.0;
-            std::shared_ptr<observer::Value<bool> > hasDefaultValue;
+            std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
             double defaultValue = 0.0;
         };
 
         void DoubleModel::_init(const std::shared_ptr<system::Context>&)
         {
             TLRENDER_P();
-            p.value = observer::Value<double>::create(0.0);
-            p.range = observer::Value<math::DoubleRange>::create(math::DoubleRange(0.0, 1.0));
-            p.hasDefaultValue = observer::Value<bool>::create(false);
+            p.value = dtk::ObservableValue<double>::create(0.0);
+            p.range = dtk::ObservableValue<math::DoubleRange>::create(math::DoubleRange(0.0, 1.0));
+            p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
         DoubleModel::DoubleModel() :
@@ -56,7 +56,7 @@ namespace tl
             _p->value->setIfChanged(tmp);
         }
 
-        std::shared_ptr<observer::IValue<double> > DoubleModel::observeValue() const
+        std::shared_ptr<dtk::IObservableValue<double> > DoubleModel::observeValue() const
         {
             return _p->value;
         }
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<observer::IValue<math::DoubleRange> > DoubleModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<math::DoubleRange> > DoubleModel::observeRange() const
         {
             return _p->range;
         }
@@ -129,7 +129,7 @@ namespace tl
             return _p->hasDefaultValue->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > DoubleModel::observeHasDefaultValue() const
+        std::shared_ptr<dtk::IObservableValue<bool> > DoubleModel::observeHasDefaultValue() const
         {
             return _p->hasDefaultValue;
         }

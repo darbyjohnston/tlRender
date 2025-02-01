@@ -18,10 +18,10 @@ namespace tl
             std::vector<std::shared_ptr<ui::Action> > bActions;
             std::map<std::string, std::shared_ptr<ui::Menu> > menus;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ListObserver<int> > bIndexesObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
         };
 
         void CompareMenu::_init(
@@ -53,28 +53,28 @@ namespace tl
                 p.menus["Time"]->addItem(p.actions[label]);
             }
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
 
-            p.bIndexesObserver = observer::ListObserver<int>::create(
+            p.bIndexesObserver = dtk::ListObserver<int>::create(
                 app->getFilesModel()->observeBIndexes(),
                 [this](const std::vector<int>& value)
                 {
                     _bUpdate(value);
                 });
 
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->getFilesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions& value)
                 {
                     _compareUpdate(value);
                 });
 
-            p.compareTimeObserver = observer::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
                 app->getFilesModel()->observeCompareTime(),
                 [this](timeline::CompareTimeMode value)
                 {

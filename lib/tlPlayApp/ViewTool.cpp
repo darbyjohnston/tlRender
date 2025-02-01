@@ -30,7 +30,7 @@ namespace tl
             std::shared_ptr<ui::IntEditSlider> checkersSizeSlider;
             std::shared_ptr<ui::GridLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
 
         void BackgroundWidget::_init(
@@ -75,7 +75,7 @@ namespace tl
             p.checkersSizeSlider->setParent(p.layout);
             p.layout->setGridPos(p.checkersSizeSlider, 3, 1);
 
-            p.optionsObservers = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {

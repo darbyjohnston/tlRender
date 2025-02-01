@@ -115,19 +115,19 @@ namespace tl
             QLabel* cacheLabel = nullptr;
             QStatusBar* statusBar = nullptr;
 
-            std::shared_ptr<observer::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<observer::ValueObserver<int> > aIndexObserver;
-            std::shared_ptr<observer::ListObserver<int> > bIndexesObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
-            std::shared_ptr<observer::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<observer::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
+            std::shared_ptr<dtk::ListObserver<int> > bIndexesObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -433,84 +433,84 @@ namespace tl
             _playerUpdate(app->player());
             _widgetUpdate();
 
-            p.filesObserver = observer::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 app->filesModel()->observeFiles(),
                 [this](const std::vector<std::shared_ptr<play::FilesModelItem> >&)
                 {
                     _widgetUpdate();
                 });
-            p.aIndexObserver = observer::ValueObserver<int>::create(
+            p.aIndexObserver = dtk::ValueObserver<int>::create(
                 app->filesModel()->observeAIndex(),
                 [this](int)
                 {
                     _widgetUpdate();
                 });
-            p.bIndexesObserver = observer::ListObserver<int>::create(
+            p.bIndexesObserver = dtk::ListObserver<int>::create(
                 app->filesModel()->observeBIndexes(),
                 [this](const std::vector<int>&)
                 {
                     _widgetUpdate();
                 });
-            p.compareOptionsObserver = observer::ValueObserver<timeline::CompareOptions>::create(
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
                 app->filesModel()->observeCompareOptions(),
                 [this](const timeline::CompareOptions&)
                 {
                     _widgetUpdate();
                 });
 
-            p.ocioOptionsObserver = observer::ValueObserver<timeline::OCIOOptions>::create(
+            p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->colorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions&)
                 {
                     _widgetUpdate();
                 });
-            p.lutOptionsObserver = observer::ValueObserver<timeline::LUTOptions>::create(
+            p.lutOptionsObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
                 app->colorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions&)
                 {
                     _widgetUpdate();
                 });
 
-            p.displayOptionsObserver = observer::ValueObserver<timeline::DisplayOptions>::create(
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->viewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions&)
                 {
                     _widgetUpdate();
                 });
-            p.backgroundOptionsObserver = observer::ValueObserver<timeline::BackgroundOptions>::create(
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->viewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
                     _widgetUpdate();
                 });
 
-            p.imageOptionsObserver = observer::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
                 [this](const timeline::ImageOptions&)
                 {
                     _widgetUpdate();
                 });
-            p.colorBufferObserver = observer::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
                 app->renderModel()->observeColorBuffer(),
                 [this](image::PixelType)
                 {
                     _widgetUpdate();
                 });
 
-            p.volumeObserver = observer::ValueObserver<float>::create(
+            p.volumeObserver = dtk::ValueObserver<float>::create(
                 app->audioModel()->observeVolume(),
                 [this](float)
                 {
                     _widgetUpdate();
                 });
-            p.muteObserver = observer::ValueObserver<bool>::create(
+            p.muteObserver = dtk::ValueObserver<bool>::create(
                 app->audioModel()->observeMute(),
                 [this](bool)
                 {
                     _widgetUpdate();
                 });
 
-            p.logObserver = observer::ListObserver<log::Item>::create(
+            p.logObserver = dtk::ListObserver<log::Item>::create(
                 context->getLogSystem()->observeLog(),
                 [this](const std::vector<log::Item>& value)
                 {
@@ -606,7 +606,7 @@ namespace tl
             /*connect(
                 p.timelineWidget,
                 &qtwidget::TimelineWidget::timeScrubbed,
-                [this](const otime::RationalTime& value)
+                [this](const OTIO_NS::RationalTime& value)
                 {
                     std::cout << "Time scrubbed: " << value << std::endl;
                 });*/
@@ -614,7 +614,7 @@ namespace tl
             connect(
                 p.currentTimeSpinBox,
                 &qtwidget::TimeSpinBox::valueChanged,
-                [this](const otime::RationalTime& value)
+                [this](const OTIO_NS::RationalTime& value)
                 {
                     if (_p->player)
                     {
@@ -767,7 +767,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void MainWindow::_currentTimeCallback(const otime::RationalTime& value)
+        void MainWindow::_currentTimeCallback(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             const QSignalBlocker blocker(p.currentTimeSpinBox);
@@ -797,9 +797,9 @@ namespace tl
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 disconnect(
                     p.player.get(),
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
+                    SIGNAL(currentTimeChanged(const OTIO_NS::RationalTime&)),
                     this,
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    SLOT(_currentTimeCallback(const OTIO_NS::RationalTime&)));
             }
 
             p.player = player;
@@ -816,8 +816,8 @@ namespace tl
                     SLOT(_playbackCallback(tl::timeline::Playback)));
                 connect(
                     p.player.get(),
-                    SIGNAL(currentTimeChanged(const otime::RationalTime&)),
-                    SLOT(_currentTimeCallback(const otime::RationalTime&)));
+                    SIGNAL(currentTimeChanged(const OTIO_NS::RationalTime&)),
+                    SLOT(_currentTimeCallback(const OTIO_NS::RationalTime&)));
             }
 
             p.viewport->setPlayer(p.player ? p.player->player() : nullptr);

@@ -17,7 +17,7 @@ namespace tl
             return _p->audioDevice->get();
         }
 
-        std::shared_ptr<observer::IValue<audio::DeviceID> > Player::observeAudioDevice() const
+        std::shared_ptr<dtk::IObservableValue<audio::DeviceID> > Player::observeAudioDevice() const
         {
             return _p->audioDevice;
         }
@@ -39,7 +39,7 @@ namespace tl
             return _p->volume->get();
         }
 
-        std::shared_ptr<observer::IValue<float> > Player::observeVolume() const
+        std::shared_ptr<dtk::IObservableValue<float> > Player::observeVolume() const
         {
             return _p->volume;
         }
@@ -59,7 +59,7 @@ namespace tl
             return _p->mute->get();
         }
 
-        std::shared_ptr<observer::IValue<bool> > Player::observeMute() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Player::observeMute() const
         {
             return _p->mute;
         }
@@ -79,7 +79,7 @@ namespace tl
             return _p->channelMute->get();
         }
 
-        std::shared_ptr<observer::IList<bool> > Player::observeChannelMute() const
+        std::shared_ptr<dtk::IObservableList<bool> > Player::observeChannelMute() const
         {
             return _p->channelMute;
         }
@@ -99,7 +99,7 @@ namespace tl
             return _p->audioOffset->get();
         }
 
-        std::shared_ptr<observer::IValue<double> > Player::observeAudioOffset() const
+        std::shared_ptr<dtk::IObservableValue<double> > Player::observeAudioOffset() const
         {
             return _p->audioOffset;
         }
@@ -125,7 +125,7 @@ namespace tl
             return _p->currentAudioData->get();
         }
 
-        std::shared_ptr<observer::IList<AudioData> > Player::observeCurrentAudio() const
+        std::shared_ptr<dtk::IObservableList<AudioData> > Player::observeCurrentAudio() const
         {
             return _p->currentAudioData;
         }

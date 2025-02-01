@@ -44,7 +44,7 @@ namespace tl
             size_t threadCount = ffmpeg::threadCount;
             size_t requestTimeout = 5;
             size_t videoBufferSize = 4;
-            otime::RationalTime audioBufferSize = otime::RationalTime(2.0, 1.0);
+            OTIO_NS::RationalTime audioBufferSize = OTIO_NS::RationalTime(2.0, 1.0);
         };
 
         class ReadVideo
@@ -59,24 +59,24 @@ namespace tl
 
             bool isValid() const;
             const image::Info& getInfo() const;
-            const otime::TimeRange& getTimeRange() const;
+            const OTIO_NS::TimeRange& getTimeRange() const;
             const image::Tags& getTags() const;
 
             void start();
-            void seek(const otime::RationalTime&);
-            bool process(const otime::RationalTime& currentTime);
+            void seek(const OTIO_NS::RationalTime&);
+            bool process(const OTIO_NS::RationalTime& currentTime);
 
             bool isBufferEmpty() const;
             std::shared_ptr<image::Image> popBuffer();
 
         private:
-            int _decode(const otime::RationalTime& currentTime);
+            int _decode(const OTIO_NS::RationalTime& currentTime);
             void _copy(const std::shared_ptr<image::Image>&);
 
             std::string _fileName;
             Options _options;
             image::Info _info;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             image::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
@@ -109,25 +109,25 @@ namespace tl
 
             bool isValid() const;
             const audio::Info& getInfo() const;
-            const otime::TimeRange& getTimeRange() const;
+            const OTIO_NS::TimeRange& getTimeRange() const;
             const image::Tags& getTags() const;
 
             void start();
-            void seek(const otime::RationalTime&);
+            void seek(const OTIO_NS::RationalTime&);
             bool process(
-                const otime::RationalTime& currentTime,
+                const OTIO_NS::RationalTime& currentTime,
                 size_t sampleCount);
 
             size_t getBufferSize() const;
             void bufferCopy(uint8_t*, size_t sampleCount);
 
         private:
-            int _decode(const otime::RationalTime& currentTime);
+            int _decode(const OTIO_NS::RationalTime& currentTime);
 
             std::string _fileName;
             Options _options;
             audio::Info _info;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             image::Tags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
@@ -158,7 +158,7 @@ namespace tl
 
             struct VideoRequest
             {
-                otime::RationalTime time = time::invalidTime;
+                OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
                 std::promise<io::VideoData> promise;
             };
@@ -173,7 +173,7 @@ namespace tl
             VideoMutex videoMutex;
             struct VideoThread
             {
-                otime::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;
@@ -183,7 +183,7 @@ namespace tl
 
             struct AudioRequest
             {
-                otime::TimeRange timeRange = time::invalidTimeRange;
+                OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 io::Options options;
                 std::promise<io::AudioData> promise;
             };
@@ -197,7 +197,7 @@ namespace tl
             AudioMutex audioMutex;
             struct AudioThread
             {
-                otime::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
                 std::thread thread;

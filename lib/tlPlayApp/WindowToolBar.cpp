@@ -22,8 +22,8 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
             std::shared_ptr<ui::HorizontalLayout> layout;
 
-            std::shared_ptr<observer::ValueObserver<bool> > fullScreenObserver;
-            std::shared_ptr<observer::ValueObserver<bool> > secondaryObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > secondaryObserver;
         };
 
         void WindowToolBar::_init(
@@ -76,14 +76,14 @@ namespace tl
                     }
                 });
 
-            p.fullScreenObserver = observer::ValueObserver<bool>::create(
+            p.fullScreenObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->observeFullScreen(),
                 [this](bool value)
                 {
                     _p->buttons["FullScreen"]->setChecked(value);
                 });
 
-            p.secondaryObserver = observer::ValueObserver<bool>::create(
+            p.secondaryObserver = dtk::ValueObserver<bool>::create(
                 app->observeSecondaryWindow(),
                 [this](bool value)
                 {

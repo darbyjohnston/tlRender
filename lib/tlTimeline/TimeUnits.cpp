@@ -121,7 +121,7 @@ namespace tl
 
         void ITimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
         {
-            _timeUnitsChanged = observer::Value<bool>::create();
+            _timeUnitsChanged = dtk::ObservableValue<bool>::create();
         }
 
         ITimeUnitsModel::ITimeUnitsModel()
@@ -130,21 +130,21 @@ namespace tl
         ITimeUnitsModel::~ITimeUnitsModel()
         {}
 
-        std::shared_ptr<observer::IValue<bool> > ITimeUnitsModel::observeTimeUnitsChanged() const
+        std::shared_ptr<dtk::IObservableValue<bool> > ITimeUnitsModel::observeTimeUnitsChanged() const
         {
             return _timeUnitsChanged;
         }
 
         struct TimeUnitsModel::Private
         {
-            std::shared_ptr<observer::Value<TimeUnits> > timeUnits;
+            std::shared_ptr<dtk::ObservableValue<TimeUnits> > timeUnits;
         };
 
         void TimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
         {
             TLRENDER_P();
             ITimeUnitsModel::_init(context);
-            p.timeUnits = observer::Value<TimeUnits>::create(TimeUnits::Timecode);
+            p.timeUnits = dtk::ObservableValue<TimeUnits>::create(TimeUnits::Timecode);
         }
 
         TimeUnitsModel::TimeUnitsModel() :
@@ -167,7 +167,7 @@ namespace tl
             return _p->timeUnits->get();
         }
 
-        std::shared_ptr<observer::IValue<TimeUnits> > TimeUnitsModel::observeTimeUnits() const
+        std::shared_ptr<dtk::IObservableValue<TimeUnits> > TimeUnitsModel::observeTimeUnits() const
         {
             return _p->timeUnits;
         }

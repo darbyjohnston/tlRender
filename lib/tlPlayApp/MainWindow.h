@@ -75,7 +75,7 @@ namespace tl
             const WindowOptions& getWindowOptions() const;
 
             //! Observe the window options.
-            std::shared_ptr<observer::IValue<WindowOptions> > observeWindowOptions() const;
+            std::shared_ptr<dtk::IObservableValue<WindowOptions> > observeWindowOptions() const;
 
             //! Set the window options.
             void setWindowOptions(const WindowOptions&);

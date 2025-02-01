@@ -4,9 +4,9 @@
 
 #include <tlIO/OpenEXRPrivate.h>
 
-#include <tlCore/Error.h>
-#include <tlCore/String.h>
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <ImfChannelList.h>
 #include <ImfDoubleAttribute.h>
@@ -108,11 +108,11 @@ namespace tl
                 }
             }
 
-            out = string::join(std::vector<std::string>(prefixes.begin(), prefixes.end()), ',');
+            out = dtk::join(std::vector<std::string>(prefixes.begin(), prefixes.end()), ',');
             if (!suffixes.empty())
             {
                 out += '.';
-                out += string::join(suffixes, ',');
+                out += dtk::join(suffixes, ',');
             }
 
             return out;
@@ -139,7 +139,7 @@ namespace tl
 
         const Imf::Channel* find(const Imf::ChannelList& in, std::string& channel)
         {
-            const std::string channelLower = string::toLower(channel);
+            const std::string channelLower = dtk::toLower(channel);
             for (auto i = in.begin(); i != in.end(); ++i)
             {
                 const std::string inName(i.name());
@@ -148,7 +148,7 @@ namespace tl
                     (index != std::string::npos) ?
                     inName.substr(index + 1, inName.size() - index - 1) :
                     inName;
-                if (channelLower == string::toLower(tmp))
+                if (channelLower == dtk::toLower(tmp))
                 {
                     channel = inName;
                     return &i.channel();
@@ -452,10 +452,10 @@ namespace tl
                 {
                     for (size_t i = 0; i < 4; ++i)
                     {
-                        s.push_back(string::Format("{0}").arg(value.x[j][i]));
+                        s.push_back(dtk::Format("{0}").arg(value.x[j][i]));
                     }
                 }
-                return string::join(s, ' ');
+                return dtk::join(s, ' ');
             }
 
             template<>
@@ -526,7 +526,7 @@ namespace tl
             template<>
             std::string serialize(const Imf::KeyCode& value)
             {
-                return string::Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}").
+                return dtk::Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}").
                     arg(value.filmMfcCode()).
                     arg(value.filmType()).
                     arg(value.prefix()).
@@ -539,10 +539,10 @@ namespace tl
             template<>
             void deserialize(const std::string& s, Imf::KeyCode& value)
             {
-                auto split = string::split(s, ':');
+                auto split = dtk::split(s, ':');
                 if (split.size() != 7)
                 {
-                    throw error::ParseError();
+                    throw dtk::ParseError();
                 }
                 value.setFilmMfcCode(std::atoi(split[0].c_str()));
                 value.setFilmType(std::atoi(split[1].c_str()));
@@ -556,7 +556,7 @@ namespace tl
             template<>
             std::string serialize(const Imf::TimeCode& value)
             {
-                return string::Format("{0}:{1}:{2}:{3}").
+                return dtk::Format("{0}:{1}:{2}:{3}").
                     arg(value.hours(), 2, '0').
                     arg(value.minutes(), 2, '0').
                     arg(value.seconds(), 2, '0').
@@ -566,10 +566,10 @@ namespace tl
             template<>
             void deserialize(const std::string& s, Imf::TimeCode& value)
             {
-                auto split = string::split(s, ':');
+                auto split = dtk::split(s, ':');
                 if (split.size() != 4)
                 {
-                    throw error::ParseError();
+                    throw dtk::ParseError();
                 }
                 value.setHours(std::atoi(split[0].c_str()));
                 value.setMinutes(std::atoi(split[1].c_str()));
@@ -600,7 +600,7 @@ namespace tl
                 std::stringstream ss;
                 for (const auto& i : value)
                 {
-                    ss << std::string(string::Format("{0}:{1}").arg(i.size()).arg(i));
+                    ss << std::string(dtk::Format("{0}:{1}").arg(i.size()).arg(i));
                 }
                 return ss.str();
             }
@@ -611,14 +611,14 @@ namespace tl
                 std::string tmp = s;
                 while (!tmp.empty())
                 {
-                    auto split = string::split(tmp, ':');
+                    auto split = dtk::split(tmp, ':');
                     if (split.size() < 2)
                     {
-                        throw error::ParseError();
+                        throw dtk::ParseError();
                     }
                     int size = std::atoi(split[0].c_str());
                     split.erase(split.begin());
-                    tmp = string::join(split, ':');
+                    tmp = dtk::join(split, ':');
                     value.push_back(tmp.substr(0, size));
                     tmp.erase(0, size);
                 }
@@ -674,7 +674,7 @@ namespace tl
                 {
                     values.push_back(i.name());
                 }
-                tags["Channels"] = string::join(values, " ");
+                tags["Channels"] = dtk::join(values, " ");
             }
             tags["Line Order"] = serialize(header.lineOrder());
             tags["Compression"] = serialize(header.compression());
@@ -899,7 +899,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
-                throw std::runtime_error(string::Format("{0}: {1}").
+                throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));
             return Write::create(path, info, options, _logSystem);
