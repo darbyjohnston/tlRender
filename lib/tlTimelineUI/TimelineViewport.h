@@ -119,7 +119,7 @@ namespace tl
             void setColorPickers(const std::vector<math::Vector2i>&);
 
             //! Observe the color pickers.
-            std::shared_ptr<observer::IList<image::Color4f> > observeColorPickers() const;
+            std::shared_ptr<observer::IList<dtk::Color4F> > observeColorPickers() const;
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;

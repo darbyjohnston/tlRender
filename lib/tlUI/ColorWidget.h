@@ -35,13 +35,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the color.
-            const image::Color4f& getColor() const;
+            const dtk::Color4F& getColor() const;
 
             //! Set the color.
-            void setColor(const image::Color4f&);
+            void setColor(const dtk::Color4F&);
 
             //! Set the color callback.
-            void setCallback(const std::function<void(const image::Color4f&)>&);
+            void setCallback(const std::function<void(const dtk::Color4F&)>&);
 
             void setGeometry(const math::Box2i&) override;
             void sizeHintEvent(const SizeHintEvent&) override;

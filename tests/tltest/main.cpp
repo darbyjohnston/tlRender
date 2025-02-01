@@ -56,7 +56,6 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BoxTest.h>
-#include <tlCoreTest/ColorTest.h>
 #include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/FileIOTest.h>
 #include <tlCoreTest/FileInfoTest.h>
@@ -96,7 +95,6 @@ void coreTests(
 {
     tests.push_back(core_tests::AudioTest::create(context));
     tests.push_back(core_tests::BoxTest::create(context));
-    tests.push_back(core_tests::ColorTest::create(context));
     tests.push_back(core_tests::ContextTest::create(context));
     tests.push_back(core_tests::FileIOTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));

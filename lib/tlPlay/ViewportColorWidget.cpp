@@ -18,7 +18,7 @@ namespace tl
     {
         struct ViewportColorWidget::Private
         {
-            image::Color4f color;
+            dtk::Color4F color;
 
             std::shared_ptr<ui::ToolButton> closeButton;
             std::shared_ptr<ui::ColorSwatch> swatch;
@@ -91,7 +91,7 @@ namespace tl
             return out;
         }
 
-        void ViewportColorWidget::setColor(const image::Color4f& value)
+        void ViewportColorWidget::setColor(const dtk::Color4F& value)
         {
             TLRENDER_P();
             if (value == p.color)

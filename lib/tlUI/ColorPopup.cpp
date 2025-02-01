@@ -15,11 +15,11 @@ namespace tl
         {
             std::shared_ptr<ColorWidget> widget;
             std::shared_ptr<VerticalLayout> layout;
-            std::function<void(const image::Color4f&)> callback;
+            std::function<void(const dtk::Color4F&)> callback;
         };
 
         void ColorPopup::_init(
-            const image::Color4f& color,
+            const dtk::Color4F& color,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -35,7 +35,7 @@ namespace tl
             setWidget(p.layout);
 
             p.widget->setCallback(
-                [this](const image::Color4f& value)
+                [this](const dtk::Color4F& value)
                 {
                     if (_p->callback)
                     {
@@ -52,7 +52,7 @@ namespace tl
         {}
 
         std::shared_ptr<ColorPopup> ColorPopup::create(
-            const image::Color4f& color,
+            const dtk::Color4F& color,
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -61,7 +61,7 @@ namespace tl
             return out;
         }
 
-        void ColorPopup::setCallback(const std::function<void(const image::Color4f&)>& value)
+        void ColorPopup::setCallback(const std::function<void(const dtk::Color4F&)>& value)
         {
             _p->callback = value;
         }

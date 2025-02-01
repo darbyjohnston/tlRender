@@ -80,8 +80,8 @@ namespace tl
 
         geom::TriangleMesh2 checkers(
             const math::Box2i& box,
-            const image::Color4f& color0,
-            const image::Color4f& color1,
+            const dtk::Color4F& color0,
+            const dtk::Color4F& color1,
             const math::Size2i& checkerSize)
         {
             geom::TriangleMesh2 out;

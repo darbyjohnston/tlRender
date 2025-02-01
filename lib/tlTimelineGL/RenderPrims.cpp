@@ -12,7 +12,7 @@ namespace tl
     {
         void Render::drawRect(
             const math::Box2i& box,
-            const image::Color4f& color)
+            const dtk::Color4F& color)
         {
             TLRENDER_P();
             ++(p.currentStats.rects);
@@ -36,7 +36,7 @@ namespace tl
         void Render::drawMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
-            const image::Color4f& color)
+            const dtk::Color4F& color)
         {
             TLRENDER_P();
             ++(p.currentStats.meshes);
@@ -81,7 +81,7 @@ namespace tl
         void Render::drawColorMesh(
             const geom::TriangleMesh2& mesh,
             const math::Vector2i& position,
-            const image::Color4f& color)
+            const dtk::Color4F& color)
         {
             TLRENDER_P();
             ++(p.currentStats.meshes);
@@ -153,7 +153,7 @@ namespace tl
         void Render::drawText(
             const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
             const math::Vector2i& pos,
-            const image::Color4f& color)
+            const dtk::Color4F& color)
         {
             TLRENDER_P();
             ++(p.currentStats.text);
@@ -257,7 +257,7 @@ namespace tl
         void Render::drawTexture(
             unsigned int id,
             const math::Box2i& box,
-            const image::Color4f& color)
+            const dtk::Color4F& color)
         {
             TLRENDER_P();
             ++(p.currentStats.textures);
@@ -285,7 +285,7 @@ namespace tl
         void Render::drawImage(
             const std::shared_ptr<image::Image>& image,
             const math::Box2i& box,
-            const image::Color4f& color,
+            const dtk::Color4F& color,
             const timeline::ImageOptions& imageOptions)
         {
             TLRENDER_P();

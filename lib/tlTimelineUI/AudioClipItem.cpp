@@ -231,7 +231,7 @@ namespace tl
                 _displayOptions.waveformHeight);
             event.render->drawRect(
                 box,
-                image::Color4f(0.F, 0.F, 0.F));
+                dtk::Color4F(0.F, 0.F, 0.F));
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
@@ -298,8 +298,8 @@ namespace tl
                                     *i->second,
                                     box.min,
                                     enabled ?
-                                        image::Color4f(1.F, 1.F, 1.F) :
-                                        image::Color4f(.5F, .5F, .5F));
+                                        dtk::Color4F(1.F, 1.F, 1.F) :
+                                        dtk::Color4F(.5F, .5F, .5F));
                             }
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())

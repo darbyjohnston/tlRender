@@ -6,7 +6,6 @@
 
 #include <tlTimeline/ImageOptions.h>
 
-#include <tlCore/Color.h>
 #include <tlCore/Image.h>
 #include <tlCore/Matrix.h>
 

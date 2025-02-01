@@ -16,13 +16,13 @@ namespace tl
     {
         struct ColorWidget::Private
         {
-            image::Color4f color;
+            dtk::Color4F color;
 
             std::shared_ptr<ColorSwatch> swatch;
             std::map<std::string, std::shared_ptr<FloatEditSlider> > sliders;
             std::shared_ptr<HorizontalLayout> layout;
 
-            std::function<void(const image::Color4f&)> callback;
+            std::function<void(const dtk::Color4F&)> callback;
         };
 
         void ColorWidget::_init(
@@ -123,12 +123,12 @@ namespace tl
             return out;
         }
 
-        const image::Color4f& ColorWidget::getColor() const
+        const dtk::Color4F& ColorWidget::getColor() const
         {
             return _p->color;
         }
 
-        void ColorWidget::setColor(const image::Color4f& value)
+        void ColorWidget::setColor(const dtk::Color4F& value)
         {
             TLRENDER_P();
             if (value == p.color)
@@ -138,7 +138,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void ColorWidget::setCallback(const std::function<void(const image::Color4f&)>& value)
+        void ColorWidget::setCallback(const std::function<void(const dtk::Color4F&)>& value)
         {
             _p->callback = value;
         }

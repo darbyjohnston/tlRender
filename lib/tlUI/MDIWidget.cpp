@@ -243,7 +243,7 @@ namespace tl
             event.render->drawColorMesh(
                 shadow(g2.margin(p.size.shadow, 0, p.size.shadow, p.size.shadow), p.size.shadow),
                 math::Vector2i(),
-                image::Color4f(1.F, 1.F, 1.F));
+                dtk::Color4F(1.F, 1.F, 1.F));
             if (p.mouse.resize != MDIResize::None)
             {
                 const auto i = p.mouse.resizeBoxes.find(p.mouse.resize);

@@ -66,37 +66,37 @@ namespace tl
             return out;
         }
 
-        image::Color4f getMarkerColor(const std::string& value)
+        dtk::Color4F getMarkerColor(const std::string& value)
         {
-            const std::map<std::string, image::Color4f> colors =
+            const std::map<std::string, dtk::Color4F> colors =
             {
                 //! \bug The OTIO marker variables are causing undefined
                 //! symbol errors on Linux and macOS.
-                /*{OTIO_NS::Marker::Color::pink, image::Color4f(1.F, .752F, .796F)},
-                { OTIO_NS::Marker::Color::red, image::Color4f(1.F, 0.F, 0.F) },
-                { OTIO_NS::Marker::Color::orange, image::Color4f(1.F, .75F, 0.F) },
-                { OTIO_NS::Marker::Color::yellow, image::Color4f(1.F, 1.F, 0.F) },
-                { OTIO_NS::Marker::Color::green, image::Color4f(0.F, 1.F, 0.F) },
-                { OTIO_NS::Marker::Color::cyan, image::Color4f(0.F, 1.F, 1.F) },
-                { OTIO_NS::Marker::Color::blue, image::Color4f(0.F, 0.F, 1.F) },
-                { OTIO_NS::Marker::Color::purple, image::Color4f(0.5F, 0.F, .5F) },
-                { OTIO_NS::Marker::Color::magenta, image::Color4f(1.F, 0.F, 1.F) },
-                { OTIO_NS::Marker::Color::black, image::Color4f(0.F, 0.F, 0.F) },
-                { OTIO_NS::Marker::Color::white, image::Color4f(1.F, 1.F, 1.F) }*/
-                { "PINK", image::Color4f(1.F, .752F, .796F)},
-                { "RED", image::Color4f(1.F, 0.F, 0.F)},
-                { "ORANGE", image::Color4f(1.F, .75F, 0.F) },
-                { "YELLOW", image::Color4f(1.F, 1.F, 0.F)},
-                { "GREEN", image::Color4f(0.F, 1.F, 0.F) },
-                { "CYAN", image::Color4f(0.F, 1.F, 1.F)},
-                { "BLUE", image::Color4f(0.F, 0.F, 1.F)},
-                { "PURPLE", image::Color4f(0.5F, 0.F, .5F)},
-                { "MAGENTA", image::Color4f(1.F, 0.F, 1.F)},
-                { "BLACK", image::Color4f(0.F, 0.F, 0.F)},
-                { "WHITE", image::Color4f(1.F, 1.F, 1.F)}
+                /*{OTIO_NS::Marker::Color::pink, dtk::Color4F(1.F, .752F, .796F)},
+                { OTIO_NS::Marker::Color::red, dtk::Color4F(1.F, 0.F, 0.F) },
+                { OTIO_NS::Marker::Color::orange, dtk::Color4F(1.F, .75F, 0.F) },
+                { OTIO_NS::Marker::Color::yellow, dtk::Color4F(1.F, 1.F, 0.F) },
+                { OTIO_NS::Marker::Color::green, dtk::Color4F(0.F, 1.F, 0.F) },
+                { OTIO_NS::Marker::Color::cyan, dtk::Color4F(0.F, 1.F, 1.F) },
+                { OTIO_NS::Marker::Color::blue, dtk::Color4F(0.F, 0.F, 1.F) },
+                { OTIO_NS::Marker::Color::purple, dtk::Color4F(0.5F, 0.F, .5F) },
+                { OTIO_NS::Marker::Color::magenta, dtk::Color4F(1.F, 0.F, 1.F) },
+                { OTIO_NS::Marker::Color::black, dtk::Color4F(0.F, 0.F, 0.F) },
+                { OTIO_NS::Marker::Color::white, dtk::Color4F(1.F, 1.F, 1.F) }*/
+                { "PINK", dtk::Color4F(1.F, .752F, .796F)},
+                { "RED", dtk::Color4F(1.F, 0.F, 0.F)},
+                { "ORANGE", dtk::Color4F(1.F, .75F, 0.F) },
+                { "YELLOW", dtk::Color4F(1.F, 1.F, 0.F)},
+                { "GREEN", dtk::Color4F(0.F, 1.F, 0.F) },
+                { "CYAN", dtk::Color4F(0.F, 1.F, 1.F)},
+                { "BLUE", dtk::Color4F(0.F, 0.F, 1.F)},
+                { "PURPLE", dtk::Color4F(0.5F, 0.F, .5F)},
+                { "MAGENTA", dtk::Color4F(1.F, 0.F, 1.F)},
+                { "BLACK", dtk::Color4F(0.F, 0.F, 0.F)},
+                { "WHITE", dtk::Color4F(1.F, 1.F, 1.F)}
             };
             const auto i = colors.find(value);
-            return i != colors.end() ? i->second : image::Color4f();
+            return i != colors.end() ? i->second : dtk::Color4F();
         }
 
         DragAndDropData::DragAndDropData(

@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/ValueObserver.h>
+
+#include <dtk/core/Color.h>
 
 namespace tl
 {
@@ -88,7 +89,7 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE(ColorRole);
 
         //! Get default color roles.
-        std::map<ColorRole, image::Color4f> defaultColorRoles();
+        std::map<ColorRole, dtk::Color4F> defaultColorRoles();
 
         //! Font roles.
         enum class FontRole
@@ -135,13 +136,13 @@ namespace tl
             void setSizeRoles(const std::map<SizeRole, int>&);
 
             //! Get a color role.
-            image::Color4f getColorRole(ColorRole) const;
+            dtk::Color4F getColorRole(ColorRole) const;
 
             //! Set a color role.
-            void setColorRole(ColorRole, const image::Color4f&);
+            void setColorRole(ColorRole, const dtk::Color4F&);
 
             //! Set the color roles.
-            void setColorRoles(const std::map<ColorRole, image::Color4f>&);
+            void setColorRoles(const std::map<ColorRole, dtk::Color4F>&);
 
             //! Get a font role.
             image::FontInfo getFontRole(FontRole, float scale) const;
@@ -157,7 +158,7 @@ namespace tl
 
         private:
             std::map<SizeRole, int> _sizeRoles;
-            std::map<ColorRole, image::Color4f> _colorRoles;
+            std::map<ColorRole, dtk::Color4F> _colorRoles;
             std::map<FontRole, image::FontInfo> _fontRoles;
 
             TLRENDER_PRIVATE();
@@ -166,9 +167,9 @@ namespace tl
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const std::map<ColorRole, image::Color4f>&);
+        void to_json(nlohmann::json&, const std::map<ColorRole, dtk::Color4F>&);
 
-        void from_json(const nlohmann::json&, std::map<ColorRole, image::Color4f>&);
+        void from_json(const nlohmann::json&, std::map<ColorRole, dtk::Color4F>&);
 
         ///@}
     }

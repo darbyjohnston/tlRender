@@ -26,7 +26,7 @@ namespace tl
             std::shared_ptr<ui::GridLayout> hudLayout;
             struct ColorPicker
             {
-                image::Color4f color;
+                dtk::Color4F color;
                 math::Vector2i pos;
                 std::shared_ptr<ViewportColorWidget> widget;
             };
@@ -49,7 +49,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<double> > fpsObserver;
             std::shared_ptr<observer::ValueObserver<size_t> > droppedFramesObserver;
             std::shared_ptr<observer::ValueObserver<image::PixelType> > colorBufferObserver;
-            std::shared_ptr<observer::ListObserver<image::Color4f> > colorPickersObserver;
+            std::shared_ptr<observer::ListObserver<dtk::Color4F> > colorPickersObserver;
         };
 
         void Viewport::_init(
@@ -106,9 +106,9 @@ namespace tl
                     _hudUpdate();
                 });
 
-            p.colorPickersObserver = observer::ListObserver<image::Color4f>::create(
+            p.colorPickersObserver = observer::ListObserver<dtk::Color4F>::create(
                 observeColorPickers(),
-                [this](const std::vector<image::Color4f>& value)
+                [this](const std::vector<dtk::Color4F>& value)
                 {
                     for (size_t i = 0; i < value.size() && i < _p->colorPickers.size(); ++i)
                     {
@@ -247,7 +247,7 @@ namespace tl
                 {
                     p.mouse.mode = Private::MouseMode::ColorPicker;
                     p.colorPickers.push_back({
-                        image::Color4f(),
+                        dtk::Color4F(),
                         event.pos,
                         ViewportColorWidget::create(context, shared_from_this()) });
                     _colorPickersUpdate();

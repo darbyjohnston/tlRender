@@ -19,7 +19,7 @@ namespace tl
         PieChartData::PieChartData(
             const std::string& text,
             int percentage,
-            const image::Color4f& color) :
+            const dtk::Color4F& color) :
             text(text),
             percentage(percentage),
             color(color)
@@ -74,7 +74,7 @@ namespace tl
                     math::Size2i size;
                     math::Vector2i pos;
                     std::vector<std::shared_ptr<image::Glyph> > glyphs;
-                    image::Color4f color;
+                    dtk::Color4F color;
                     geom::TriangleMesh2 circleMesh;
                 };
                 std::vector<TextLabel> textLabels;
@@ -249,7 +249,7 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
+            //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
             const math::Box2i g = align(
                 _geometry.margin(-p.size.margin),

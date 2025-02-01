@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Image.h>
+
+#include <dtk/core/Color.h>
 
 namespace tl
 {
@@ -18,7 +19,7 @@ namespace tl
             bool clear = true;
 
             //! Clear color.
-            image::Color4f clearColor;
+            dtk::Color4F clearColor;
 
             //! Color buffer type.
             image::PixelType colorBuffer = image::PixelType::RGBA_U8;

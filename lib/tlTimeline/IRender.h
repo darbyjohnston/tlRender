@@ -53,7 +53,7 @@ namespace tl
             virtual void setViewport(const math::Box2i&) = 0;
 
             //! Clear the viewport.
-            virtual void clearViewport(const image::Color4f&) = 0;
+            virtual void clearViewport(const dtk::Color4F&) = 0;
 
             //! Get whether the clipping rectangle is enabled.
             virtual bool getClipRectEnabled() const = 0;
@@ -82,37 +82,37 @@ namespace tl
             //! Draw a rectangle.
             virtual void drawRect(
                 const math::Box2i&,
-                const image::Color4f&) = 0;
+                const dtk::Color4F&) = 0;
 
             //! Draw a triangle mesh.
             virtual void drawMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const image::Color4f&) = 0;
+                const dtk::Color4F&) = 0;
 
             //! Draw a triangle mesh with vertex color information.
             virtual void drawColorMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const image::Color4f&) = 0;
+                const dtk::Color4F&) = 0;
 
             //! Draw text.
             virtual void drawText(
                 const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
                 const math::Vector2i& position,
-                const image::Color4f&) = 0;
+                const dtk::Color4F&) = 0;
 
             //! Draw a texture.
             virtual void drawTexture(
                 unsigned int,
                 const math::Box2i&,
-                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F)) = 0;
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F)) = 0;
 
             //! Draw an image.
             virtual void drawImage(
                 const std::shared_ptr<image::Image>&,
                 const math::Box2i&,
-                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F),
                 const ImageOptions& = ImageOptions()) = 0;
 
             //! Draw timeline video data.

@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const image::Color4f&,
+                const dtk::Color4F&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -28,12 +28,12 @@ namespace tl
 
             //! Create a new popup.
             static std::shared_ptr<ColorPopup> create(
-                const image::Color4f&,
+                const dtk::Color4F&,
                 const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the callback.
-            void setCallback(const std::function<void(const image::Color4f&)>&);
+            void setCallback(const std::function<void(const dtk::Color4F&)>&);
 
         private:
             TLRENDER_PRIVATE();

@@ -564,7 +564,7 @@ namespace tl
                 value.h());
         }
 
-        void Render::clearViewport(const image::Color4f& value)
+        void Render::clearViewport(const dtk::Color4F& value)
         {
             glClearColor(value.r, value.g, value.b, value.a);
             glClear(GL_COLOR_BUFFER_BIT);

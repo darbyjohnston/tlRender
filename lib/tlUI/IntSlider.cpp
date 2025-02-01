@@ -187,7 +187,7 @@ namespace tl
             const math::Box2i g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
-            //    image::Color4f(1.F, 0.F, 0.F, .5F));
+            //    dtk::Color4F(1.F, 0.F, 0.F, .5F));
             int pos = 0;
             if (p.model)
             {

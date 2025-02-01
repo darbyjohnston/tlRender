@@ -95,7 +95,7 @@ namespace tl
                 });
 
             p.color0Swatch->setCallback(
-                [appWeak](const image::Color4f& value)
+                [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
                     {
@@ -106,7 +106,7 @@ namespace tl
                 });
 
             p.color1Swatch->setCallback(
-                [appWeak](const image::Color4f& value)
+                [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
                     {

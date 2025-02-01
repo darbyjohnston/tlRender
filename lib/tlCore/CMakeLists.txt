@@ -5,8 +5,6 @@ set(HEADERS
     AudioSystem.h
     Box.h
     BoxInline.h
-    Color.h
-    ColorInline.h
     Context.h
     ContextInline.h
     File.h
@@ -64,7 +62,6 @@ set(SOURCE
     AudioResample.cpp
     AudioSystem.cpp
     Box.cpp
-    Color.cpp
     Context.cpp
     FileIO.cpp
     FileInfo.cpp

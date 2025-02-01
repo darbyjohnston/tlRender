@@ -170,7 +170,7 @@ namespace tl
                 g2,
                 isEnabled() ?
                     event.style->getColorRole(p.colorRole) :
-                    image::greyscale(event.style->getColorRole(p.colorRole)));
+                    dtk::greyscale(event.style->getColorRole(p.colorRole)));
 
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);

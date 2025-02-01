@@ -50,7 +50,7 @@ namespace tl
             };
             DroppedFramesData droppedFramesData;
             std::vector<math::Vector2i> colorPickers;
-            std::shared_ptr<observer::List<image::Color4f> > colorPickerValues;
+            std::shared_ptr<observer::List<dtk::Color4F> > colorPickerValues;
 
             bool doRender = false;
             std::shared_ptr<gl::OffscreenBuffer> buffer;
@@ -89,7 +89,7 @@ namespace tl
             p.frameView = observer::Value<bool>::create(true);
             p.fps = observer::Value<double>::create(0.0);
             p.droppedFrames = observer::Value<size_t>::create(0);
-            p.colorPickerValues = observer::List<image::Color4f>::create();
+            p.colorPickerValues = observer::List<dtk::Color4F>::create();
         }
 
         TimelineViewport::TimelineViewport() :
@@ -371,7 +371,7 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        std::shared_ptr<observer::IList<image::Color4f> > TimelineViewport::observeColorPickers() const
+        std::shared_ptr<observer::IList<dtk::Color4F> > TimelineViewport::observeColorPickers() const
         {
             return _p->colorPickerValues;
         }
@@ -443,7 +443,7 @@ namespace tl
                         event.render->setRenderSize(size);
                         event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
                         event.render->setClipRectEnabled(false);
-                        event.render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
+                        event.render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
                         event.render->setOCIOOptions(p.ocioOptions);
                         event.render->setLUTOptions(p.lutOptions);
 
@@ -470,7 +470,7 @@ namespace tl
                                     p.backgroundOptions.color1,
                                     p.backgroundOptions.checkersSize),
                                 math::Vector2i(),
-                                image::Color4f(1.F, 1.F, 1.F));
+                                dtk::Color4F(1.F, 1.F, 1.F));
                             break;
                         case timeline::Background::Gradient:
                         {
@@ -501,7 +501,7 @@ namespace tl
                             event.render->drawColorMesh(
                                 mesh,
                                 math::Vector2i(),
-                                image::Color4f(1.F, 1.F, 1.F));
+                                dtk::Color4F(1.F, 1.F, 1.F));
                             break;
                         }
                         default: break;
@@ -514,7 +514,7 @@ namespace tl
                             vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
                             event.render->setTransform(pm * vm);
                             timeline::BackgroundOptions backgroundOptions;
-                            backgroundOptions.color0 = image::Color4f(0.F, 0.F, 0.F, 0.F);
+                            backgroundOptions.color0 = dtk::Color4F(0.F, 0.F, 0.F, 0.F);
                             event.render->drawVideo(
                                 p.videoData,
                                 timeline::getBoxes(p.compareOptions.mode, p.videoData),
@@ -545,7 +545,7 @@ namespace tl
             if (p.buffer && !p.colorPickers.empty())
             {
                 gl::OffscreenBufferBinding binding(p.buffer);
-                std::vector<image::Color4f> colors;
+                std::vector<dtk::Color4F> colors;
                 for (const auto& colorPicker : p.colorPickers)
                 {
                     const math::Vector2i pos = colorPicker - _geometry.min;
@@ -559,7 +559,7 @@ namespace tl
                         GL_RGBA,
                         GL_FLOAT,
                         sample.data());
-                    colors.push_back(image::Color4f(sample[0], sample[1], sample[2], sample[3]));
+                    colors.push_back(dtk::Color4F(sample[0], sample[1], sample[2], sample[3]));
                 }
                 p.colorPickerValues->setIfChanged(colors);
             }

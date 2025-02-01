@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <tlCore/Color.h>
 #include <tlCore/Image.h>
 #include <tlCore/Mesh.h>
+
+#include <dtk/core/Color.h>
 
 namespace tl
 {

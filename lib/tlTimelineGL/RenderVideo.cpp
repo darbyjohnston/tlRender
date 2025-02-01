@@ -111,7 +111,7 @@ namespace tl
                     drawColorMesh(
                         geom::checkers(box, options.color0, options.color1, options.checkersSize),
                         math::Vector2i(),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                     break;
                 case timeline::Background::Gradient:
                 {
@@ -141,7 +141,7 @@ namespace tl
                     drawColorMesh(
                         mesh,
                         math::Vector2i(),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                     break;
                 }
                 default: break;
@@ -222,7 +222,7 @@ namespace tl
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", image::Color4f(1.F, 0.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", dtk::Color4F(1.F, 0.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
@@ -263,7 +263,7 @@ namespace tl
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", image::Color4f(0.F, 1.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", dtk::Color4F(0.F, 1.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
@@ -379,7 +379,7 @@ namespace tl
                         p.viewport.h());
 
                     p.shaders["overlay"]->bind();
-                    p.shaders["overlay"]->setUniform("color", image::Color4f(1.F, 1.F, 1.F, compareOptions.overlay));
+                    p.shaders["overlay"]->setUniform("color", dtk::Color4F(1.F, 1.F, 1.F, compareOptions.overlay));
                     p.shaders["overlay"]->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -685,7 +685,7 @@ namespace tl
                                         image::getBox(
                                             layer.image->getAspect(),
                                             math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        image::Color4f(1.F, 1.F, 1.F, v),
+                                        dtk::Color4F(1.F, 1.F, 1.F, v),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve2"])
@@ -702,7 +702,7 @@ namespace tl
                                         image::getBox(
                                             layer.imageB->getAspect(),
                                             math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        image::Color4f(1.F, 1.F, 1.F, v),
+                                        dtk::Color4F(1.F, 1.F, 1.F, v),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve"] && p.buffers["dissolve2"])
@@ -711,7 +711,7 @@ namespace tl
 
                                     p.shaders["dissolve"]->bind();
                                     p.shaders["dissolve"]->setUniform("transform.mvp", transform);
-                                    p.shaders["dissolve"]->setUniform("color", image::Color4f(1.F, 1.F, 1.F));
+                                    p.shaders["dissolve"]->setUniform("color", dtk::Color4F(1.F, 1.F, 1.F));
                                     p.shaders["dissolve"]->setUniform("textureSampler", 0);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -749,7 +749,7 @@ namespace tl
                                     image::getBox(
                                         layer.image->getAspect(),
                                         math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    image::Color4f(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
+                                    dtk::Color4F(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptions);
                             }
                             else if (layer.imageB)
@@ -759,7 +759,7 @@ namespace tl
                                     image::getBox(
                                         layer.imageB->getAspect(),
                                         math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    image::Color4f(1.F, 1.F, 1.F, layer.transitionValue),
+                                    dtk::Color4F(1.F, 1.F, 1.F, layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                             }
                             break;
@@ -772,7 +772,7 @@ namespace tl
                                 image::getBox(
                                     layer.image->getAspect(),
                                     math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                image::Color4f(1.F, 1.F, 1.F),
+                                dtk::Color4F(1.F, 1.F, 1.F),
                                 imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
                         break;

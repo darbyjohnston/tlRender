@@ -13,9 +13,9 @@ namespace tl
     {
         struct ColorSwatch::Private
         {
-            image::Color4f color;
+            dtk::Color4F color;
             bool editable = false;
-            std::function<void(const image::Color4f&)> callback;
+            std::function<void(const dtk::Color4F&)> callback;
             SizeRole sizeRole = SizeRole::Swatch;
             std::shared_ptr<ColorPopup> popup;
 
@@ -51,12 +51,12 @@ namespace tl
             return out;
         }
 
-        const image::Color4f& ColorSwatch::getColor() const
+        const dtk::Color4F& ColorSwatch::getColor() const
         {
             return _p->color;
         }
 
-        void ColorSwatch::setColor(const image::Color4f& value)
+        void ColorSwatch::setColor(const dtk::Color4F& value)
         {
             TLRENDER_P();
             if (value == p.color)
@@ -75,7 +75,7 @@ namespace tl
             _setMousePress(p.editable);
         }
 
-        void ColorSwatch::setCallback(const std::function<void(const image::Color4f&)>& value)
+        void ColorSwatch::setCallback(const std::function<void(const dtk::Color4F&)>& value)
         {
             _p->callback = value;
         }
@@ -143,7 +143,7 @@ namespace tl
                     p.popup = ColorPopup::create(p.color, context);
                     p.popup->open(getWindow(), getGeometry());
                     p.popup->setCallback(
-                        [this](const image::Color4f& value)
+                        [this](const dtk::Color4F& value)
                         {
                             _p->color = value;
                             _updates |= Update::Draw;

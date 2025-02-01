@@ -142,7 +142,7 @@ namespace tl
             TLRENDER_P();
             //event.render->drawRect(
             //    _geometry,
-            //    image::Color4f(0.F, 0.F, 0.F, .2F));
+            //    dtk::Color4F(0.F, 0.F, 0.F, .2F));
             const math::Box2i g = p.label->getGeometry();
             const math::Box2i g2(
                 g.min.x - p.size.shadow,
@@ -152,7 +152,7 @@ namespace tl
             event.render->drawColorMesh(
                 shadow(g2, p.size.shadow),
                 math::Vector2i(),
-                image::Color4f(1.F, 1.F, 1.F));
+                dtk::Color4F(1.F, 1.F, 1.F));
 
             event.render->drawMesh(
                 border(g.margin(p.size.border), p.size.border),

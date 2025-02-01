@@ -12,10 +12,10 @@ namespace tl
             return i != _sizeRoles.end() ? (i->second * scale) : 0;
         }
 
-        inline image::Color4f Style::getColorRole(ColorRole role) const
+        inline dtk::Color4F Style::getColorRole(ColorRole role) const
         {
             const auto i = _colorRoles.find(role);
-            return i != _colorRoles.end() ? i->second : image::Color4f();
+            return i != _colorRoles.end() ? i->second : dtk::Color4F();
         }
 
         inline image::FontInfo Style::getFontRole(FontRole role, float scale) const

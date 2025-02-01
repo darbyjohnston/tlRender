@@ -181,7 +181,7 @@ namespace tl
                         p.cursorPos.y - p.dndCursorHotspot.y,
                         p.dndCursor->getWidth(),
                         p.dndCursor->getHeight()),
-                    image::Color4f(1.F, 1.F, 1.F));
+                    dtk::Color4F(1.F, 1.F, 1.F));
             }
         }
 

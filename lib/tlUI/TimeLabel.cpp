@@ -171,7 +171,7 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            //event.render->drawRect(_geometry, image::Color4f(.5F, .3F, .3F));
+            //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
             const math::Box2i g = align(
                 _geometry,

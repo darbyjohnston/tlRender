@@ -91,7 +91,7 @@ namespace tl
         struct Marker
         {
             std::string name;
-            image::Color4f color;
+            dtk::Color4F color;
             OTIO_NS::TimeRange range;
         };
 
@@ -99,7 +99,7 @@ namespace tl
         std::vector<Marker> getMarkers(const OTIO_NS::Item*);
 
         //! Convert a named marker color.
-        image::Color4f getMarkerColor(const std::string&);
+        dtk::Color4F getMarkerColor(const std::string&);
 
         //! Drag and drop data.
         class DragAndDropData : public ui::DragAndDropData

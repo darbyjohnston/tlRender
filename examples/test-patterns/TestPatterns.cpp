@@ -97,14 +97,14 @@ namespace tl
 
                     render->drawRect(
                         math::Box2i(0, 0, _size.w, _size.h),
-                        image::Color4f(.1F, .1F, .1F));
+                        dtk::Color4F(.1F, .1F, .1F));
 
                     /*render->drawRect(
                         math::Box2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
-                        image::Color4f(.5F, 0.F, 0.F));
+                        dtk::Color4F(.5F, 0.F, 0.F));
                     render->drawRect(
                         math::Box2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
-                        image::Color4f(0.F, .5F, 0.F));*/
+                        dtk::Color4F(0.F, .5F, 0.F));*/
 
                     const size_t resolution = 100;
                     geom::TriangleMesh2 mesh;
@@ -134,7 +134,7 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        image::Color4f(.2F, .2F, .2F));
+                        dtk::Color4F(.2F, .2F, .2F));
 
                     mesh.v.clear();
                     mesh.triangles.clear();
@@ -161,17 +161,17 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        image::Color4f(.3F, .3F, .3F));
+                        dtk::Color4F(.3F, .3F, .3F));
 
                     render->drawText(
                         fontSystem->getGlyphs(secondsString, _secondsFontInfo),
                         math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
 
                     render->drawText(
                         fontSystem->getGlyphs(framesString, _framesFontInfo),
                         math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                 }
             }
 
@@ -211,16 +211,16 @@ namespace tl
                 const std::shared_ptr<timeline::IRender>& render,
                 const OTIO_NS::RationalTime& time)
             {
-                const std::array<image::Color4f, 8> colors =
+                const std::array<dtk::Color4F, 8> colors =
                 {
-                    image::Color4f(0.F, 0.F, 0.F),
-                    image::Color4f(1.F, 0.F, 0.F),
-                    image::Color4f(1.F, 1.F, 0.F),
-                    image::Color4f(0.F, 1.F, 0.F),
-                    image::Color4f(0.F, 1.F, 1.F),
-                    image::Color4f(0.F, 0.F, 1.F),
-                    image::Color4f(1.F, 0.F, 1.F),
-                    image::Color4f(1.F, 1.F, 1.F)
+                    dtk::Color4F(0.F, 0.F, 0.F),
+                    dtk::Color4F(1.F, 0.F, 0.F),
+                    dtk::Color4F(1.F, 1.F, 0.F),
+                    dtk::Color4F(0.F, 1.F, 0.F),
+                    dtk::Color4F(0.F, 1.F, 1.F),
+                    dtk::Color4F(0.F, 0.F, 1.F),
+                    dtk::Color4F(1.F, 0.F, 1.F),
+                    dtk::Color4F(1.F, 1.F, 1.F)
                 };
                 const int swatchWidth = _size.w / colors.size();
                 for (int x = 0, i = 0; x < _size.w; x += swatchWidth, ++i)
@@ -279,7 +279,7 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                 }
                 {
                     geom::TriangleMesh2 mesh;
@@ -301,7 +301,7 @@ namespace tl
                     render->drawMesh(
                         mesh,
                         math::Vector2i(),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                 }
             }
 

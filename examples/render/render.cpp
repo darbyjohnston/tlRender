@@ -427,7 +427,7 @@ namespace tl
                 _render->setClipRectEnabled(true);
                 _render->setViewport(box);
                 _render->setClipRect(box);
-                _render->clearViewport(image::Color4f(0.F, 0.F, 0.F));
+                _render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
 
                 _render->setTransform(math::ortho(
                     0.F,
@@ -464,11 +464,11 @@ namespace tl
                     math::Size2i textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
                         math::Box2i(0, 0, viewportSize.w, fontMetrics.lineHeight),
-                        image::Color4f(0.F, 0.F, 0.F, .7F));
+                        dtk::Color4F(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),
                         math::Vector2i(fontSize / 5, fontMetrics.ascender),
-                        image::Color4f(1.F, 1.F, 1.F));
+                        dtk::Color4F(1.F, 1.F, 1.F));
                 }
 
                 _render->setClipRectEnabled(false);

@@ -378,7 +378,7 @@ namespace tl
                     box.h());
                 event.render->drawRect(
                     box2,
-                    image::Color4f(1.F, 0.F, 0.F, .2F));
+                    dtk::Color4F(1.F, 0.F, 0.F, .2F));
             }*/
 
             if (p.cursorVisible)

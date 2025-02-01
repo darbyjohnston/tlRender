@@ -6,8 +6,6 @@
 
 #include <tlGL/GL.h>
 
-#include <tlCore/Color.h>
-
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -186,7 +184,7 @@ namespace tl
             glUniformMatrix4fv(location, 1, GL_FALSE, value.e);
         }
 
-        void Shader::setUniform(int location, const image::Color4f& value)
+        void Shader::setUniform(int location, const dtk::Color4F& value)
         {
             glUniform4fv(location, 1, &value.r);
         }
@@ -258,7 +256,7 @@ namespace tl
             glUniformMatrix4fv(location, 1, GL_FALSE, value.e);
         }
         
-        void Shader::setUniform(const std::string& name, const image::Color4f& value)
+        void Shader::setUniform(const std::string& name, const dtk::Color4F& value)
         {
             const GLint location = glGetUniformLocation(_p->program, name.c_str());
             glUniform4fv(location, 1, &value.r);

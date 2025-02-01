@@ -52,7 +52,7 @@ namespace tl
             void setRenderSize(const math::Size2i&) override;
             math::Box2i getViewport() const override;
             void setViewport(const math::Box2i&) override;
-            void clearViewport(const image::Color4f&) override;
+            void clearViewport(const dtk::Color4F&) override;
             bool getClipRectEnabled() const override;
             void setClipRectEnabled(bool) override;
             math::Box2i getClipRect() const override;
@@ -64,27 +64,27 @@ namespace tl
 
             void drawRect(
                 const math::Box2i&,
-                const image::Color4f&) override;
+                const dtk::Color4F&) override;
             void drawMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const image::Color4f&) override;
+                const dtk::Color4F&) override;
             void drawColorMesh(
                 const geom::TriangleMesh2&,
                 const math::Vector2i& position,
-                const image::Color4f&) override;
+                const dtk::Color4F&) override;
             void drawText(
                 const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
                 const math::Vector2i& position,
-                const image::Color4f&) override;
+                const dtk::Color4F&) override;
             void drawTexture(
                 unsigned int,
                 const math::Box2i&,
-                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F)) override;
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F)) override;
             void drawImage(
                 const std::shared_ptr<image::Image>&,
                 const math::Box2i&,
-                const image::Color4f& = image::Color4f(1.F, 1.F, 1.F),
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F),
                 const timeline::ImageOptions& = timeline::ImageOptions()) override;
             void drawVideo(
                 const std::vector<timeline::VideoData>&,

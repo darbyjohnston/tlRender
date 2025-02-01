@@ -133,7 +133,7 @@ namespace tl
                         math::Matrix4x4f());
                     shader->setUniform(
                         glGetUniformLocation(shader->getProgram(), "colorValue"),
-                        image::Color4f(0.F, .1F, .2F));
+                        dtk::Color4F(0.F, .1F, .2F));
                     float color2[4] = { 0.F, .1F, .2F, 1.F };
                     shader->setUniform(
                         glGetUniformLocation(shader->getProgram(), "color2Value"),
@@ -169,7 +169,7 @@ namespace tl
                     shader->setUniform("vec4Value", math::Vector4f(1.0, 2.0, 3.0, 4.0));
                     shader->setUniform("mat3Value", math::Matrix3x3f());
                     shader->setUniform("mat4Value", math::Matrix4x4f());
-                    shader->setUniform( "colorValue", image::Color4f(0.F, .1F, .2F));
+                    shader->setUniform("colorValue", dtk::Color4F(0.F, .1F, .2F));
                     shader->setUniform("color2Value", color2);
                     shader->setUniform("intArray", std::vector<int>({ 1, 2, 3 }));
                     shader->setUniform("floatArray", std::vector<float>({ 1.F, 2.F, 3.F }));

@@ -243,7 +243,7 @@ namespace tl
                 _displayOptions.thumbnailHeight);
             event.render->drawRect(
                 box,
-                image::Color4f(0.F, 0.F, 0.F));
+                dtk::Color4F(0.F, 0.F, 0.F));
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
