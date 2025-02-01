@@ -46,11 +46,11 @@ namespace tl
             std::string getErrorString()
             {
                 std::string out;
-                char buf[string::cBufferSize] = "";
+                char buf[dtk::cStringSize] = "";
 #if defined(_GNU_SOURCE)
-                out = strerror_r(errno, buf, string::cBufferSize);
+                out = strerror_r(errno, buf, dtk::cStringSize);
 #else // _GNU_SOURCE
-                strerror_r(errno, buf, string::cBufferSize);
+                strerror_r(errno, buf, dtk::cStringSize);
                 out = buf;
 #endif // _GNU_SOURCE
                 return out;
