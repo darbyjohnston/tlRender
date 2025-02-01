@@ -71,7 +71,6 @@
 #include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
 #include <tlCoreTest/MeshTest.h>
-#include <tlCoreTest/OSTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
 #include <tlCoreTest/SizeTest.h>
@@ -110,7 +109,6 @@ void coreTests(
     tests.push_back(core_tests::MatrixTest::create(context));
     tests.push_back(core_tests::MemoryTest::create(context));
     tests.push_back(core_tests::MeshTest::create(context));
-    tests.push_back(core_tests::OSTest::create(context));
     tests.push_back(core_tests::PathTest::create(context));
     tests.push_back(core_tests::RangeTest::create(context));
     tests.push_back(core_tests::SizeTest::create(context));

@@ -38,7 +38,6 @@ set(HEADERS
     MemoryInline.h
     Mesh.h
     MeshInline.h
-    OS.h
     Observer.h
     Path.h
     PathInline.h
@@ -75,7 +74,6 @@ set(SOURCE
     Matrix.cpp
     Memory.cpp
     Mesh.cpp
-    OS.cpp
     Path.cpp
     Random.cpp
     Range.cpp
@@ -88,7 +86,6 @@ if (WIN32)
         FileIOWin32.cpp
         FileInfoWin32.cpp
         FileWin32.cpp
-        OSWin32.cpp
         PathWin32.cpp
         TimeWin32.cpp)
 else()
@@ -96,7 +93,6 @@ else()
         FileIOUnix.cpp
         FileInfoUnix.cpp
         FileUnix.cpp
-        OSUnix.cpp
         PathUnix.cpp
         TimeUnix.cpp)
 endif()

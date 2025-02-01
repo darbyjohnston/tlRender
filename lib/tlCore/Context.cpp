@@ -6,10 +6,10 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FontSystem.h>
-#include <tlCore/OS.h>
 #include <tlCore/Timer.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/OS.h>
 
 #include <sstream>
 
@@ -26,7 +26,7 @@ namespace tl
             _logSystem = log::System::create(shared_from_this());
             addSystem(_logSystem);
 
-            const os::SystemInfo info = os::getSystemInfo();
+            const dtk::SystemInfo info = dtk::getSystemInfo();
             log("tl::system::Context", dtk::Format(
                 "\n"
                 "    System: {0}\n"

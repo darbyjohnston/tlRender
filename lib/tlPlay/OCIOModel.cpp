@@ -5,7 +5,8 @@
 #include <tlPlay/OCIOModel.h>
 
 #include <tlCore/Context.h>
-#include <tlCore/OS.h>
+
+#include <dtk/core/OS.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -60,7 +61,7 @@ namespace tl
 
 #if defined(TLRENDER_OCIO)
             std::string env;
-            if (os::getEnv("OCIO", env) && !env.empty())
+            if (dtk::getEnv("OCIO", env) && !env.empty())
             {
                 try
                 {
