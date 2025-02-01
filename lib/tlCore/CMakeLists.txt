@@ -1,5 +1,4 @@
 set(HEADERS
-    Assert.h
     Audio.h
     AudioInline.h
     AudioResample.h
@@ -61,7 +60,6 @@ set(HEADERS
     VectorInline.h)
 
 set(SOURCE
-    Assert.cpp
     Audio.cpp
     AudioResample.cpp
     AudioSystem.cpp

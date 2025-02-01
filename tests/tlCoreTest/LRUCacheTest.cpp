@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/LRUCacheTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/LRUCache.h>
 #include <tlCore/Memory.h>
 
@@ -27,45 +26,45 @@ namespace tl
         {
             {
                 LRUCache<int, int> c;
-                TLRENDER_ASSERT(0 == c.getSize());
-                TLRENDER_ASSERT(0.F == c.getPercentage());
+                DTK_ASSERT(0 == c.getSize());
+                DTK_ASSERT(0.F == c.getPercentage());
             }
             {
                 LRUCache<int, int> c;
-                TLRENDER_ASSERT(!c.contains(0));
+                DTK_ASSERT(!c.contains(0));
                 int v = 0;
-                TLRENDER_ASSERT(!c.get(0, v));
+                DTK_ASSERT(!c.get(0, v));
                 c.add(0, 1);
-                TLRENDER_ASSERT(1 == c.getSize());
-                TLRENDER_ASSERT(c.contains(0));
-                TLRENDER_ASSERT(c.get(0, v));
-                TLRENDER_ASSERT(1 == v);
+                DTK_ASSERT(1 == c.getSize());
+                DTK_ASSERT(c.contains(0));
+                DTK_ASSERT(c.get(0, v));
+                DTK_ASSERT(1 == v);
                 c.remove(0);
-                TLRENDER_ASSERT(!c.contains(0));
+                DTK_ASSERT(!c.contains(0));
                 c.add(0, 1);
                 c.clear();
-                TLRENDER_ASSERT(!c.contains(0));
+                DTK_ASSERT(!c.contains(0));
             }
             {
                 LRUCache<int, int> c;
                 c.setMax(3);
-                TLRENDER_ASSERT(3 == c.getMax());
+                DTK_ASSERT(3 == c.getMax());
                 c.add(0, 1);
                 c.add(1, 2);
                 c.add(2, 3);
                 c.add(3, 4);
-                TLRENDER_ASSERT(c.contains(1));
-                TLRENDER_ASSERT(c.contains(2));
-                TLRENDER_ASSERT(c.contains(3));
+                DTK_ASSERT(c.contains(1));
+                DTK_ASSERT(c.contains(2));
+                DTK_ASSERT(c.contains(3));
                 int v = 0;
                 c.get(1, v);
                 c.add(4, 5);
-                TLRENDER_ASSERT(c.contains(1));
-                TLRENDER_ASSERT(c.contains(3));
-                TLRENDER_ASSERT(c.contains(4));
+                DTK_ASSERT(c.contains(1));
+                DTK_ASSERT(c.contains(3));
+                DTK_ASSERT(c.contains(4));
                 const auto l = c.getKeys();
-                TLRENDER_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());
-                TLRENDER_ASSERT(std::vector<int>({ 2, 4, 5 }) == c.getValues());
+                DTK_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());
+                DTK_ASSERT(std::vector<int>({ 2, 4, 5 }) == c.getValues());
             }
             {
                 LRUCache<int, int> c;
@@ -74,18 +73,18 @@ namespace tl
                 c.add(1, 2, memory::megabyte);
                 c.add(2, 3, memory::megabyte);
                 c.add(3, 4, memory::megabyte);
-                TLRENDER_ASSERT(c.contains(1));
-                TLRENDER_ASSERT(c.contains(2));
-                TLRENDER_ASSERT(c.contains(3));
+                DTK_ASSERT(c.contains(1));
+                DTK_ASSERT(c.contains(2));
+                DTK_ASSERT(c.contains(3));
                 int v = 0;
                 c.get(1, v);
                 c.add(4, 5, memory::megabyte);
-                TLRENDER_ASSERT(c.contains(1));
-                TLRENDER_ASSERT(c.contains(3));
-                TLRENDER_ASSERT(c.contains(4));
+                DTK_ASSERT(c.contains(1));
+                DTK_ASSERT(c.contains(3));
+                DTK_ASSERT(c.contains(4));
                 const auto l = c.getKeys();
-                TLRENDER_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());
-                TLRENDER_ASSERT(std::vector<int>({ 2, 4, 5 }) == c.getValues());
+                DTK_ASSERT(std::vector<int>({ 1, 3, 4 }) == c.getKeys());
+                DTK_ASSERT(std::vector<int>({ 2, 4, 5 }) == c.getValues());
             }
         }
     }

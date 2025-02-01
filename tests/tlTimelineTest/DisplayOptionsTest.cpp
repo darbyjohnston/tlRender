@@ -32,8 +32,8 @@ namespace tl
             {
                 Color color;
                 color.enabled = true;
-                TLRENDER_ASSERT(color == color);
-                TLRENDER_ASSERT(color != Color());
+                DTK_ASSERT(color == color);
+                DTK_ASSERT(color != Color());
             }
             {
                 const auto mat = brightness(math::Vector3f(2.F, 1.F, 1.F));
@@ -64,26 +64,26 @@ namespace tl
             {
                 Levels levels;
                 levels.enabled = true;
-                TLRENDER_ASSERT(levels == levels);
-                TLRENDER_ASSERT(levels != Levels());
+                DTK_ASSERT(levels == levels);
+                DTK_ASSERT(levels != Levels());
             }
             {
                 EXRDisplay exrDisplay;
                 exrDisplay.enabled = true;
-                TLRENDER_ASSERT(exrDisplay == exrDisplay);
-                TLRENDER_ASSERT(exrDisplay != EXRDisplay());
+                DTK_ASSERT(exrDisplay == exrDisplay);
+                DTK_ASSERT(exrDisplay != EXRDisplay());
             }
             {
                 SoftClip softClip;
                 softClip.enabled = true;
-                TLRENDER_ASSERT(softClip == softClip);
-                TLRENDER_ASSERT(softClip != SoftClip());
+                DTK_ASSERT(softClip == softClip);
+                DTK_ASSERT(softClip != SoftClip());
             }
             {
                 DisplayOptions displayOptions;
                 displayOptions.channels = Channels::Red;
-                TLRENDER_ASSERT(displayOptions == displayOptions);
-                TLRENDER_ASSERT(displayOptions != DisplayOptions());
+                DTK_ASSERT(displayOptions == displayOptions);
+                DTK_ASSERT(displayOptions != DisplayOptions());
             }
         }
     }

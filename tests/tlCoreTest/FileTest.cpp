@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/FileTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
 
@@ -38,21 +37,21 @@ namespace tl
             {
                 FileIO::create(fileName, Mode::Write);
             }
-            TLRENDER_ASSERT(exists(fileName));
-            TLRENDER_ASSERT(rm(fileName));
+            DTK_ASSERT(exists(fileName));
+            DTK_ASSERT(rm(fileName));
         }
 
         void FileTest::_dir()
         {
             {
                 bool r = mkdir("File Test");
-                TLRENDER_ASSERT(r);
+                DTK_ASSERT(r);
                 r = mkdir("File Test");
-                TLRENDER_ASSERT(!r);
+                DTK_ASSERT(!r);
                 r = rmdir("File Test");
-                TLRENDER_ASSERT(r);
+                DTK_ASSERT(r);
                 r = rmdir("File Test");
-                TLRENDER_ASSERT(!r);
+                DTK_ASSERT(!r);
             }
             {
                 _print(dtk::Format("CWD: {0}").arg(getCWD()));

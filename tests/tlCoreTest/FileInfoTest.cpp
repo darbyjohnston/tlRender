@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/FileInfoTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/FileInfo.h>
@@ -45,7 +44,7 @@ namespace tl
         {
             {
                 const FileInfo f;
-                TLRENDER_ASSERT(f.getPath().isEmpty());
+                DTK_ASSERT(f.getPath().isEmpty());
             }
             {
                 const Path path("tmp");
@@ -53,11 +52,11 @@ namespace tl
                     FileIO::create(path.get(), Mode::Write);
                 }
                 const FileInfo f(path);
-                TLRENDER_ASSERT(path == f.getPath());
-                TLRENDER_ASSERT(Type::File == f.getType());
-                TLRENDER_ASSERT(0 == f.getSize());
-                TLRENDER_ASSERT(f.getPermissions() != 0);
-                TLRENDER_ASSERT(f.getTime() != 0);
+                DTK_ASSERT(path == f.getPath());
+                DTK_ASSERT(Type::File == f.getType());
+                DTK_ASSERT(0 == f.getSize());
+                DTK_ASSERT(f.getPermissions() != 0);
+                DTK_ASSERT(f.getTime() != 0);
                 rm(path.get());
             }
         }
@@ -68,59 +67,59 @@ namespace tl
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 2));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 2));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.0001.exr")));
                 f.sequence(FileInfo(Path("test.0002.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
             }
             {
                 FileInfo f(Path("test.0000.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
             }
             {
                 FileInfo f(Path("test.1.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(1, 1));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(1, 1));
             }
             {
                 FileInfo f(Path("test.exr"));
                 f.sequence(FileInfo(Path("test3.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
             }
             {
                 FileInfo f(Path("test3.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(3, 3));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(3, 3));
             }
             {
                 FileInfo f(Path("test0999.exr"));
                 f.sequence(FileInfo(Path("test1000.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
             }
             {
                 FileInfo f(Path("0001.exr"));
                 f.sequence(FileInfo(Path("7800.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(1, 7800));
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(1, 7800));
             }
             {
                 FileInfo f(Path("1000.exr"));
                 f.sequence(FileInfo(Path("0999.exr")));
-                TLRENDER_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
-                TLRENDER_ASSERT(f.getPath().getPadding() == 4);
+                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+                DTK_ASSERT(f.getPath().getPadding() == 4);
                 std::string s = f.getPath().get(999);
-                TLRENDER_ASSERT("0999.exr" == s);
+                DTK_ASSERT("0999.exr" == s);
                 s = f.getPath().get(1000);
-                TLRENDER_ASSERT("1000.exr" == s);
+                DTK_ASSERT("1000.exr" == s);
             }
         }
 
@@ -129,8 +128,8 @@ namespace tl
             {
                 ListOptions options;
                 options.sort = ListSort::Time;
-                TLRENDER_ASSERT(options == options);
-                TLRENDER_ASSERT(options != ListOptions());
+                DTK_ASSERT(options == options);
+                DTK_ASSERT(options != ListOptions());
             }
             
             std::string tmp = createTempDir();
@@ -154,14 +153,14 @@ namespace tl
                 options.sequence = true;
                 options.sequenceExtensions = { ".exr", ".tif" };
                 file::list(tmp, list, options);
-                TLRENDER_ASSERT(7 == list.size());
+                DTK_ASSERT(7 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
                     if ("render." == path.getBaseName())
                     {
-                        TLRENDER_ASSERT(path.isSequence());
-                        TLRENDER_ASSERT(path.getSequence() == math::IntRange(1, 3));
+                        DTK_ASSERT(path.isSequence());
+                        DTK_ASSERT(path.getSequence() == math::IntRange(1, 3));
                     }
                 }
                 for (const auto i : { "movie.1.mov", "movie.2.mov" })
@@ -173,18 +172,18 @@ namespace tl
                         {
                             return i == value.getPath().get(-1, PathType::FileName);
                         });
-                    TLRENDER_ASSERT(j != list.end());
+                    DTK_ASSERT(j != list.end());
                 }
                 
                 options.sequence = false;
                 file::list(tmp, list, options);
-                TLRENDER_ASSERT(13 == list.size());
+                DTK_ASSERT(13 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
                     if ("render." == path.getBaseName())
                     {
-                        TLRENDER_ASSERT(!path.isSequence());
+                        DTK_ASSERT(!path.isSequence());
                     }
                 }
             }

@@ -8,7 +8,6 @@
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Context.h>
 
 #include <dtk/core/Format.h>

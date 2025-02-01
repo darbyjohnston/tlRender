@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/HDRTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/HDR.h>
 
 using namespace tl::image;
@@ -40,9 +39,9 @@ namespace tl
             {
                 HDRData a;
                 HDRData b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.eotf = image::HDR_EOTF::ST2084;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
         }
 
@@ -66,7 +65,7 @@ namespace tl
                 to_json(json, value);
                 HDRData value2;
                 from_json(json, value2);
-                TLRENDER_ASSERT(value == value2);
+                DTK_ASSERT(value == value2);
             }
         }
     }

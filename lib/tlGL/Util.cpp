@@ -6,8 +6,6 @@
 
 #include <tlGL/GL.h>
 
-#include <tlCore/Assert.h>
-
 #include <array>
 #include <iostream>
 

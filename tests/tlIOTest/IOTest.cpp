@@ -6,8 +6,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -38,17 +36,17 @@ namespace tl
         {
             {
                 const VideoData v;
-                TLRENDER_ASSERT(!time::isValid(v.time));
-                TLRENDER_ASSERT(!v.image);
+                DTK_ASSERT(!time::isValid(v.time));
+                DTK_ASSERT(!v.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
                 const auto image = image::Image::create(160, 80, image::PixelType::L_U8);
                 const VideoData v(time, layer, image);
-                TLRENDER_ASSERT(time.strictly_equal(v.time));
-                TLRENDER_ASSERT(layer == v.layer);
-                TLRENDER_ASSERT(image == v.image);
+                DTK_ASSERT(time.strictly_equal(v.time));
+                DTK_ASSERT(layer == v.layer);
+                DTK_ASSERT(image == v.image);
             }
             {
                 const auto time = otime::RationalTime(1.0, 24.0);
@@ -56,10 +54,10 @@ namespace tl
                 const auto image = image::Image::create(16, 16, image::PixelType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 b.time = otime::RationalTime(2.0, 24.0);
-                TLRENDER_ASSERT(a != b);
-                TLRENDER_ASSERT(a < b);
+                DTK_ASSERT(a != b);
+                DTK_ASSERT(a < b);
             }
         }
 
@@ -117,10 +115,10 @@ namespace tl
                 }
                 for (const auto& plugin : plugins)
                 {
-                    TLRENDER_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
+                    DTK_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
-                TLRENDER_ASSERT(!system->getPlugin(file::Path()));
-                TLRENDER_ASSERT(!system->getPlugin<DummyPlugin>());
+                DTK_ASSERT(!system->getPlugin(file::Path()));
+                DTK_ASSERT(!system->getPlugin<DummyPlugin>());
             }
             {
                 std::vector<std::string> extensions;
@@ -132,8 +130,8 @@ namespace tl
                 ss << "Extensions: " << dtk::join(extensions, ", ");
                 _print(ss.str());
             }
-            TLRENDER_ASSERT(!system->read(file::Path()));
-            TLRENDER_ASSERT(!system->write(file::Path(), Info()));
+            DTK_ASSERT(!system->read(file::Path()));
+            DTK_ASSERT(!system->write(file::Path(), Info()));
         }
     }
 }

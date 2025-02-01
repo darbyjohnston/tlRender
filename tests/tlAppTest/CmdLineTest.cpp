@@ -110,11 +110,11 @@ namespace tl
                 {
                     i->parse(cmdLine);
                 }
-                TLRENDER_ASSERT(flag);
-                TLRENDER_ASSERT(1 == intValue);
-                TLRENDER_ASSERT("omo" == string);
-                TLRENDER_ASSERT("input" == input);
-                TLRENDER_ASSERT("output" == output);
+                DTK_ASSERT(flag);
+                DTK_ASSERT(1 == intValue);
+                DTK_ASSERT("omo" == string);
+                DTK_ASSERT("input" == input);
+                DTK_ASSERT("output" == output);
             }
             
             flag = false;
@@ -138,9 +138,9 @@ namespace tl
                         _print(ss.str());
                     }
                 }
-                TLRENDER_ASSERT(flag);
-                TLRENDER_ASSERT(2 == intValue);
-                TLRENDER_ASSERT("oom" == string);
+                DTK_ASSERT(flag);
+                DTK_ASSERT(2 == intValue);
+                DTK_ASSERT("oom" == string);
             }
  
             {
@@ -148,7 +148,7 @@ namespace tl
                 try
                 {
                     inputArg->parse(cmdLine);
-                    TLRENDER_ASSERT(false);
+                    DTK_ASSERT(false);
                 }
                 catch (const std::exception&)
                 {}
@@ -161,7 +161,7 @@ namespace tl
                 try
                 {
                     intOption->parse(cmdLine);
-                    TLRENDER_ASSERT(false);
+                    DTK_ASSERT(false);
                 }
                 catch (const std::exception&)
                 {}
@@ -174,7 +174,7 @@ namespace tl
                 try
                 {
                     stringOption->parse(cmdLine);
-                    TLRENDER_ASSERT(false);
+                    DTK_ASSERT(false);
                 }
                 catch (const std::exception&)
                 {}

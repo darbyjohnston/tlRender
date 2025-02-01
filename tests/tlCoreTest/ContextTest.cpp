@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/ContextTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Context.h>
 #include <tlCore/ISystem.h>
 
@@ -74,15 +73,15 @@ namespace tl
         {
             {
                 auto testSystem = TestSystem::create(_context);
-                TLRENDER_ASSERT(testSystem->getContext().lock());
+                DTK_ASSERT(testSystem->getContext().lock());
                 {
                     std::stringstream ss;
                     ss << "Name: " << testSystem->getName();
                     _print(ss.str());
                 }
-                TLRENDER_ASSERT(!_context->getSystem<TestSystem>());
+                DTK_ASSERT(!_context->getSystem<TestSystem>());
                 _context->addSystem(testSystem);
-                TLRENDER_ASSERT(testSystem == _context->getSystem<TestSystem>());
+                DTK_ASSERT(testSystem == _context->getSystem<TestSystem>());
                 for (size_t i = 0; i < 10; ++i)
                 {
                     _context->tick();

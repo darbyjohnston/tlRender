@@ -9,7 +9,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 
 #include <dtk/core/Format.h>
@@ -56,8 +55,8 @@ namespace tl
         {
             Options a;
             a.fileSequenceAudio = FileSequenceAudio::Directory;
-            TLRENDER_ASSERT(a == a);
-            TLRENDER_ASSERT(a != Options());
+            DTK_ASSERT(a == a);
+            DTK_ASSERT(a != Options());
         }
 
         void TimelineTest::_util()
@@ -67,8 +66,8 @@ namespace tl
         void TimelineTest::_transitions()
         {
             {
-                TLRENDER_ASSERT(toTransition(std::string()) == Transition::None);
-                TLRENDER_ASSERT(toTransition("SMPTE_Dissolve") == Transition::Dissolve);
+                DTK_ASSERT(toTransition(std::string()) == Transition::None);
+                DTK_ASSERT(toTransition("SMPTE_Dissolve") == Transition::Dissolve);
             }
         }
 
@@ -76,15 +75,15 @@ namespace tl
         {
             {
                 VideoLayer a, b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.transition = Transition::Dissolve;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 VideoData a, b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.time = otime::RationalTime(1.0, 24.0);
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
         }
 
@@ -163,7 +162,7 @@ namespace tl
                     }
                 }
             }
-            TLRENDER_ASSERT(videoRequests.empty());
+            DTK_ASSERT(videoRequests.empty());
 
             // Get audio from the timeline.
             std::vector<timeline::AudioData> audioData;
@@ -189,7 +188,7 @@ namespace tl
                     }
                 }
             }
-            TLRENDER_ASSERT(audioRequests.empty());
+            DTK_ASSERT(audioRequests.empty());
 
             // Cancel requests.
             videoData.clear();
@@ -251,7 +250,7 @@ namespace tl
                 options.fileSequenceAudio = FileSequenceAudio::None;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(audioPath.isEmpty());
+                DTK_ASSERT(audioPath.isEmpty());
                 _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -266,7 +265,7 @@ namespace tl
                 options.fileSequenceAudio = FileSequenceAudio::BaseName;
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
+                DTK_ASSERT(!audioPath.isEmpty());
                 _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -286,7 +285,7 @@ namespace tl
                     _context,
                     options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
+                DTK_ASSERT(!audioPath.isEmpty());
                 _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -302,7 +301,7 @@ namespace tl
                 options.fileSequenceAudioDirectory = "";
                 auto timeline = Timeline::create(path, _context, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                TLRENDER_ASSERT(!audioPath.isEmpty());
+                DTK_ASSERT(!audioPath.isEmpty());
                 _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
@@ -321,7 +320,7 @@ namespace tl
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otio"),
                 _context);
             timeline->setTimeline(otioTimeline);
-            TLRENDER_ASSERT(otioTimeline.value == timeline->getTimeline().value);
+            DTK_ASSERT(otioTimeline.value == timeline->getTimeline().value);
         }
     }
 }

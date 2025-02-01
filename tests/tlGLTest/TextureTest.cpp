@@ -53,8 +53,8 @@ namespace tl
             {
                 TextureOptions options;
                 options.pbo = true;
-                TLRENDER_ASSERT(options == options);
-                TLRENDER_ASSERT(options != TextureOptions());
+                DTK_ASSERT(options == options);
+                DTK_ASSERT(options != TextureOptions());
             }
             struct TestData
             {
@@ -77,12 +77,12 @@ namespace tl
                     TextureOptions options;
                     options.pbo = data.pbo;
                     auto texture = Texture::create(info, options);
-                    TLRENDER_ASSERT(texture->getID());
-                    TLRENDER_ASSERT(texture->getInfo() == info);
-                    TLRENDER_ASSERT(texture->getSize() == info.size);
-                    TLRENDER_ASSERT(texture->getWidth() == info.size.w);
-                    TLRENDER_ASSERT(texture->getHeight() == info.size.h);
-                    TLRENDER_ASSERT(texture->getPixelType() == info.pixelType);
+                    DTK_ASSERT(texture->getID());
+                    DTK_ASSERT(texture->getInfo() == info);
+                    DTK_ASSERT(texture->getSize() == info.size);
+                    DTK_ASSERT(texture->getWidth() == info.size.w);
+                    DTK_ASSERT(texture->getHeight() == info.size.h);
+                    DTK_ASSERT(texture->getPixelType() == info.pixelType);
                     auto image = image::Image::create(info);
                     texture->copy(image);
                     auto image2 = image::Image::create(data.size.w / 2, data.size.h / 2, data.pixelType);
@@ -119,10 +119,10 @@ namespace tl
                         data.textureCount,
                         data.textureSize,
                         data.textureType);
-                    TLRENDER_ASSERT(atlas->getTextureCount() == data.textureCount);
-                    TLRENDER_ASSERT(atlas->getTextureSize() == data.textureSize);
-                    TLRENDER_ASSERT(atlas->getTextureType() == data.textureType);
-                    TLRENDER_ASSERT(atlas->getTextures().size() == data.textureCount);
+                    DTK_ASSERT(atlas->getTextureCount() == data.textureCount);
+                    DTK_ASSERT(atlas->getTextureSize() == data.textureSize);
+                    DTK_ASSERT(atlas->getTextureType() == data.textureType);
+                    DTK_ASSERT(atlas->getTextures().size() == data.textureCount);
                     std::vector<TextureAtlasID> ids;
                     auto image = image::Image::create(50, 50, image::PixelType::RGBA_U8);
                     for (size_t i = 0; i < 8; ++i)

@@ -7,8 +7,6 @@
 #include <tlIO/DPX.h>
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-
 #include <sstream>
 
 using namespace tl::io;
@@ -83,12 +81,12 @@ namespace tl
                     read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
-                TLRENDER_ASSERT(!ioInfo.video.empty());
+                DTK_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                TLRENDER_ASSERT(videoData.image);                             TLRENDER_ASSERT(videoData.image);
-                TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
+                DTK_ASSERT(videoData.image);                             DTK_ASSERT(videoData.image);
+                DTK_ASSERT(videoData.image->getSize() == image->getSize());
                 //! \todo Compare image data.
-                //TLRENDER_ASSERT(0 == memcmp(
+                //DTK_ASSERT(0 == memcmp(
                 //    videoData.image->getData(),
                 //    image->getData(),
                 //    image->getDataByteCount()));
@@ -96,8 +94,8 @@ namespace tl
                 for (const auto& j : tags)
                 {
                     const auto k = frameTags.find(j.first);
-                    TLRENDER_ASSERT(k != frameTags.end());
-                    TLRENDER_ASSERT(k->second == j.second);
+                    DTK_ASSERT(k != frameTags.end());
+                    DTK_ASSERT(k->second == j.second);
                 }
             }
 

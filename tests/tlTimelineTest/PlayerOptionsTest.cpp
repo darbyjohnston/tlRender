@@ -29,8 +29,8 @@ namespace tl
             {
                 PlayerCacheOptions v;
                 v.readAhead = otime::RationalTime(10.0, 1.0);
-                TLRENDER_ASSERT(v == v);
-                TLRENDER_ASSERT(v != PlayerCacheOptions());
+                DTK_ASSERT(v == v);
+                DTK_ASSERT(v != PlayerCacheOptions());
             }
         }
     }

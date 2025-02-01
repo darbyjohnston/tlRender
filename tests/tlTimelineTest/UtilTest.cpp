@@ -6,7 +6,6 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/FileInfo.h>
 
 #include <dtk/core/Format.h>
@@ -71,7 +70,7 @@ namespace tl
             {
                 std::vector<otime::RationalTime> f;
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(r.empty());
+                DTK_ASSERT(r.empty());
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -79,8 +78,8 @@ namespace tl
                     otime::RationalTime(0, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(1 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
+                DTK_ASSERT(1 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -89,8 +88,8 @@ namespace tl
                     otime::RationalTime(1, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(1 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(1 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -100,8 +99,8 @@ namespace tl
                     otime::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(1 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(3, 24)) == r[0]);
+                DTK_ASSERT(1 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(3, 24)) == r[0]);
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -110,9 +109,9 @@ namespace tl
                     otime::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(2 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(2, 24), otime::RationalTime(1, 24)) == r[1]);
+                DTK_ASSERT(2 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(2, 24), otime::RationalTime(1, 24)) == r[1]);
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -122,9 +121,9 @@ namespace tl
                     otime::RationalTime(3, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(2 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(1, 24)) == r[1]);
+                DTK_ASSERT(2 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(1, 24)) == r[1]);
             }
             {
                 std::vector<otime::RationalTime> f =
@@ -135,9 +134,9 @@ namespace tl
                     otime::RationalTime(4, 24)
                 };
                 auto r = toRanges(f);
-                TLRENDER_ASSERT(2 == r.size());
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
-                TLRENDER_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(2, 24)) == r[1]);
+                DTK_ASSERT(2 == r.size());
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(2, 24)) == r[1]);
             }
         }
 
@@ -152,20 +151,20 @@ namespace tl
                     otio::RationalTime(0.0, 24.0),
                     timeRange,
                     &looped);
-                TLRENDER_ASSERT(otio::RationalTime(0.0, 24.0) == t);
-                TLRENDER_ASSERT(!looped);
+                DTK_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                DTK_ASSERT(!looped);
                 t = loop(
                     otio::RationalTime(24.0, 24.0),
                     timeRange,
                     &looped);
-                TLRENDER_ASSERT(otio::RationalTime(0.0, 24.0) == t);
-                TLRENDER_ASSERT(looped);
+                DTK_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                DTK_ASSERT(looped);
                 t = loop(
                     otio::RationalTime(-1.0, 24.0),
                     timeRange,
                     &looped);
-                TLRENDER_ASSERT(otio::RationalTime(23.0, 24.0) == t);
-                TLRENDER_ASSERT(looped);
+                DTK_ASSERT(otio::RationalTime(23.0, 24.0) == t);
+                DTK_ASSERT(looped);
             }
             {
                 const otio::TimeRange timeRange(
@@ -178,7 +177,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     cacheRange }));
 
                 cacheRange = otio::TimeRange(
@@ -188,7 +187,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     otio::TimeRange(
                         otio::RationalTime(0.0, 24.0),
                         otio::RationalTime(11.0, 24.0)),
@@ -203,7 +202,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     otio::TimeRange(
                         otio::RationalTime(13.0, 24.0),
                         otio::RationalTime(11.0, 24.0)),
@@ -218,7 +217,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     timeRange }));
             }
             {
@@ -232,7 +231,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     cacheRange }));
 
                 cacheRange = otio::TimeRange(
@@ -242,7 +241,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     otio::TimeRange(
                         otio::RationalTime(0.0, 24.0),
                         otio::RationalTime(1.0, 24.0)),
@@ -257,7 +256,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     otio::TimeRange(
                         otio::RationalTime(0.0, 24.0),
                         otio::RationalTime(11.0, 24.0)),
@@ -272,7 +271,7 @@ namespace tl
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                TLRENDER_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<otime::TimeRange>({
                     timeRange }));
             }
         }
@@ -296,16 +295,16 @@ namespace tl
                 }
                 otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
                 otioTimeline->set_tracks(otioStack);
-                TLRENDER_ASSERT(otioStack == getRoot(otioClip));
-                TLRENDER_ASSERT(otioStack == getParent<otio::Stack>(otioClip));
-                TLRENDER_ASSERT(otioTrack == getParent<otio::Track>(otioClip));
+                DTK_ASSERT(otioStack == getRoot(otioClip));
+                DTK_ASSERT(otioStack == getParent<otio::Stack>(otioClip));
+                DTK_ASSERT(otioTrack == getParent<otio::Track>(otioClip));
             }
             {
                 VideoData a;
                 a.time = otime::RationalTime(1.0, 24.0);
                 VideoData b;
                 b.time = otime::RationalTime(1.0, 24.0);
-                TLRENDER_ASSERT(isTimeEqual(a, b));
+                DTK_ASSERT(isTimeEqual(a, b));
             }
         }
 
@@ -315,7 +314,7 @@ namespace tl
                 audio::Info info(2, audio::DataType::S32, 48000);
                 std::vector<AudioData> data;
                 auto out = audioCopy(info, data, Playback::Forward, 0, 2000);
-                TLRENDER_ASSERT(out.empty());
+                DTK_ASSERT(out.empty());
 
                 auto audio = audio::Audio::create(info, info.sampleRate);
                 audio::S32_T* audioP = reinterpret_cast<audio::S32_T*>(audio->getData());
@@ -326,74 +325,74 @@ namespace tl
                 }
                 data.push_back(AudioData({ 0.0, { { audio } } }));
                 out = audioCopy(info, data, Playback::Forward, 0, 2000);
-                TLRENDER_ASSERT(1 == out.size());
-                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                DTK_ASSERT(1 == out.size());
+                DTK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 for (size_t i = 0; i < out[0]->getSampleCount(); ++i, audioP += 2)
                 {
-                    TLRENDER_ASSERT(i == audioP[0]);
-                    TLRENDER_ASSERT((i + 1) == audioP[1]);
+                    DTK_ASSERT(i == audioP[0]);
+                    DTK_ASSERT((i + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
-                TLRENDER_ASSERT(1 == out.size());
-                TLRENDER_ASSERT(1000 == out[0]->getSampleCount());
+                DTK_ASSERT(1 == out.size());
+                DTK_ASSERT(1000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 for (size_t i = 0, j = info.sampleRate - 1000; i < out[0]->getSampleCount(); ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 data.push_back(AudioData({ 1.0, { { audio } } }));
                 out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
-                TLRENDER_ASSERT(1 == out.size());
-                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                DTK_ASSERT(1 == out.size());
+                DTK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 size_t i = 0;
                 size_t j = info.sampleRate - 1000;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
                 i = 0;
                 j = 0;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Reverse, info.sampleRate, 2000);
-                TLRENDER_ASSERT(1 == out.size());
-                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                DTK_ASSERT(1 == out.size());
+                DTK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 i = 0;
                 j = info.sampleRate - 2000;
                 for (; i < 2000; ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Reverse, info.sampleRate + 1000, 2000);
-                TLRENDER_ASSERT(1 == out.size());
-                TLRENDER_ASSERT(2000 == out[0]->getSampleCount());
+                DTK_ASSERT(1 == out.size());
+                DTK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 i = 0;
                 j = info.sampleRate - 1000;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
                 i = 0;
                 j = 0;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    TLRENDER_ASSERT(j == audioP[0]);
-                    TLRENDER_ASSERT((j + 1) == audioP[1]);
+                    DTK_ASSERT(j == audioP[0]);
+                    DTK_ASSERT((j + 1) == audioP[1]);
                 }
             }
         }

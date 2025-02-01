@@ -6,8 +6,6 @@
 
 #include <tlTimeline/OCIOOptions.h>
 
-#include <tlCore/Assert.h>
-
 using namespace tl::timeline;
 
 namespace tl
@@ -28,9 +26,9 @@ namespace tl
             {
                 OCIOOptions a;
                 OCIOOptions b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.fileName = "fileName";
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
         }
     }

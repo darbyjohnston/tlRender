@@ -6,8 +6,6 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/Assert.h>
-
 using namespace tl::timeline;
 
 namespace tl

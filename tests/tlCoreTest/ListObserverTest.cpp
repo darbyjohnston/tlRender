@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/ListObserverTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/ListObserver.h>
 
 namespace tl
@@ -24,7 +23,7 @@ namespace tl
         {
             std::vector<int> list = {};
             auto value = observer::List<int>::create(list);
-            TLRENDER_ASSERT(list == value->get());
+            DTK_ASSERT(list == value->get());
 
             std::vector<int> result;
             auto observer = observer::ListObserver<int>::create(
@@ -35,15 +34,15 @@ namespace tl
                 });
             list.push_back(1);
             bool changed = value->setIfChanged(list);
-            TLRENDER_ASSERT(changed);
+            DTK_ASSERT(changed);
             changed = value->setIfChanged(list);
-            TLRENDER_ASSERT(!changed);
-            TLRENDER_ASSERT(list == result);
-            TLRENDER_ASSERT(1 == value->getSize());
-            TLRENDER_ASSERT(!value->isEmpty());
-            TLRENDER_ASSERT(1 == value->getItem(0));
-            TLRENDER_ASSERT(value->contains(1));
-            TLRENDER_ASSERT(0 == value->indexOf(1));
+            DTK_ASSERT(!changed);
+            DTK_ASSERT(list == result);
+            DTK_ASSERT(1 == value->getSize());
+            DTK_ASSERT(!value->isEmpty());
+            DTK_ASSERT(1 == value->getItem(0));
+            DTK_ASSERT(value->contains(1));
+            DTK_ASSERT(0 == value->indexOf(1));
 
             {
                 std::vector<int> result2;
@@ -55,19 +54,19 @@ namespace tl
                     });
                 list.push_back(2);
                 value->setIfChanged(list);
-                TLRENDER_ASSERT(list == result);
-                TLRENDER_ASSERT(list == result2);
-                TLRENDER_ASSERT(2 == value->getSize());
-                TLRENDER_ASSERT(2 == value->getItem(1));
-                TLRENDER_ASSERT(value->contains(2));
-                TLRENDER_ASSERT(1 == value->indexOf(2));
-                TLRENDER_ASSERT(2 == value->getObserversCount());
+                DTK_ASSERT(list == result);
+                DTK_ASSERT(list == result2);
+                DTK_ASSERT(2 == value->getSize());
+                DTK_ASSERT(2 == value->getItem(1));
+                DTK_ASSERT(value->contains(2));
+                DTK_ASSERT(1 == value->indexOf(2));
+                DTK_ASSERT(2 == value->getObserversCount());
             }
 
-            TLRENDER_ASSERT(1 == value->getObserversCount());
+            DTK_ASSERT(1 == value->getObserversCount());
 
             value->clear();
-            TLRENDER_ASSERT(value->isEmpty());
+            DTK_ASSERT(value->isEmpty());
             value->pushBack(2);
             value->pushBack(3);
             value->setItem(0, 4);
@@ -77,7 +76,7 @@ namespace tl
             value->removeItem(0);
             value->removeItem(0);
             value->removeItem(0);
-            TLRENDER_ASSERT(value->isEmpty());
+            DTK_ASSERT(value->isEmpty());
         }
     }
 }

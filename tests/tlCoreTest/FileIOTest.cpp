@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/FileIOTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/Path.h>
@@ -47,12 +46,12 @@ namespace tl
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create(fileName, Mode::Write);
-                TLRENDER_ASSERT(io->isOpen());
-                TLRENDER_ASSERT(io->getFileName() == fileName);
+                DTK_ASSERT(io->isOpen());
+                DTK_ASSERT(io->getFileName() == fileName);
             }
             {
                 auto io = FileIO::createTemp();
-                TLRENDER_ASSERT(io->isOpen());
+                DTK_ASSERT(io->isOpen());
             }
             {
                 constexpr int8_t   i8 = std::numeric_limits<int8_t>::max();
@@ -90,22 +89,22 @@ namespace tl
                     io->read32(&_i32);
                     io->readU32(&_u32);
                     io->readF32(&_f);
-                    TLRENDER_ASSERT(i8 == _i8);
-                    TLRENDER_ASSERT(u8 == _u8);
-                    TLRENDER_ASSERT(i16 == _i16);
-                    TLRENDER_ASSERT(u16 == _u16);
-                    TLRENDER_ASSERT(i32 == _i32);
-                    TLRENDER_ASSERT(u32 == _u32);
-                    TLRENDER_ASSERT(f == _f);
+                    DTK_ASSERT(i8 == _i8);
+                    DTK_ASSERT(u8 == _u8);
+                    DTK_ASSERT(i16 == _i16);
+                    DTK_ASSERT(u16 == _u16);
+                    DTK_ASSERT(i32 == _i32);
+                    DTK_ASSERT(u32 == _u32);
+                    DTK_ASSERT(f == _f);
                 }
             }
             {
                 auto io = FileIO::create("大平原", Mode::Write);
-                TLRENDER_ASSERT(io->isOpen());
+                DTK_ASSERT(io->isOpen());
             }
             {
                 auto io = FileIO::create("大平原", Mode::Read);
-                TLRENDER_ASSERT(io->isOpen());
+                DTK_ASSERT(io->isOpen());
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
@@ -123,9 +122,9 @@ namespace tl
                     io = FileIO::create(fileName, Mode::Read, readType);
                     std::string buf = readContents(io);
                     _print(buf);
-                    TLRENDER_ASSERT((_text + " " + _text2) == buf);
+                    DTK_ASSERT((_text + " " + _text2) == buf);
                     io->setPos(0);
-                    TLRENDER_ASSERT(0 == io->getPos());
+                    DTK_ASSERT(0 == io->getPos());
                 }
             }
             {
@@ -143,10 +142,10 @@ namespace tl
                     char buf[dtk::cStringSize];
                     readWord(io, buf);
                     _print(buf);
-                    TLRENDER_ASSERT(_text == buf);
+                    DTK_ASSERT(_text == buf);
                     readWord(io, buf);
                     _print(buf);
-                    TLRENDER_ASSERT(_text2 == buf);
+                    DTK_ASSERT(_text2 == buf);
                 }
             }
             {
@@ -161,10 +160,10 @@ namespace tl
                     char buf[dtk::cStringSize];
                     readLine(io, buf);
                     _print(buf);
-                    TLRENDER_ASSERT(_text == buf);
+                    DTK_ASSERT(_text == buf);
                     readLine(io, buf);
                     _print(buf);
-                    TLRENDER_ASSERT(_text2 == buf);
+                    DTK_ASSERT(_text2 == buf);
                 }
             }
             {
@@ -182,15 +181,15 @@ namespace tl
                 {
                     _print(i);
                 }
-                TLRENDER_ASSERT(_text == lines[0]);
-                TLRENDER_ASSERT(_text2 == lines[2]);
+                DTK_ASSERT(_text == lines[0]);
+                DTK_ASSERT(_text2 == lines[2]);
             }
             {
                 const std::string fileName = Path(createTempDir(), _fileName).get();
                 auto io = FileIO::create(fileName, Mode::Write);
-                TLRENDER_ASSERT(!io->hasEndianConversion());
+                DTK_ASSERT(!io->hasEndianConversion());
                 io->setEndianConversion(true);
-                TLRENDER_ASSERT(io->hasEndianConversion());
+                DTK_ASSERT(io->hasEndianConversion());
                 uint32_t u32 = 0;
                 uint8_t* p = reinterpret_cast<uint8_t*>(&u32);
                 p[0] = 0;
@@ -208,17 +207,17 @@ namespace tl
                         uint32_t _u32 = 0;
                         io->readU32(&_u32);
                         uint8_t* p2 = reinterpret_cast<uint8_t*>(&_u32);
-                        TLRENDER_ASSERT(p[0] == p2[3]);
-                        TLRENDER_ASSERT(p[1] == p2[2]);
-                        TLRENDER_ASSERT(p[2] == p2[1]);
-                        TLRENDER_ASSERT(p[3] == p2[0]);
+                        DTK_ASSERT(p[0] == p2[3]);
+                        DTK_ASSERT(p[1] == p2[2]);
+                        DTK_ASSERT(p[2] == p2[1]);
+                        DTK_ASSERT(p[3] == p2[0]);
                         io->setEndianConversion(true);
                         io->setPos(0);
                         io->readU32(&_u32);
-                        TLRENDER_ASSERT(p[0] == p2[0]);
-                        TLRENDER_ASSERT(p[1] == p2[1]);
-                        TLRENDER_ASSERT(p[2] == p2[2]);
-                        TLRENDER_ASSERT(p[3] == p2[3]);
+                        DTK_ASSERT(p[0] == p2[0]);
+                        DTK_ASSERT(p[1] == p2[1]);
+                        DTK_ASSERT(p[2] == p2[2]);
+                        DTK_ASSERT(p[3] == p2[3]);
                         io.reset();
                     }
                 }
@@ -229,7 +228,7 @@ namespace tl
                 try
                 {
                     FileIO::create(std::string(), mode);
-                    TLRENDER_ASSERT(false);
+                    DTK_ASSERT(false);
                 }
                 catch (const std::exception& e)
                 {
@@ -247,7 +246,7 @@ namespace tl
                 uint8_t buf[16];
                 //! \bug FileIO::read() doesn't fail here on Windows?
                 io->read(buf, 16, 1);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception& e)
             {
@@ -263,7 +262,7 @@ namespace tl
                 uint8_t buf[16];
                 //! \bug FileIO::read() doesn't fail here on Windows?
                 io->read(buf, 16, 1);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception& e)
             {
@@ -278,7 +277,7 @@ namespace tl
                 //! \todo This does not get tested since FileIO::create throws
                 //! an exception.
                 io->write(buf, 16, 1);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception& e)
             {
@@ -291,7 +290,7 @@ namespace tl
                 //! \todo This does not get tested since FileIO::create throws
                 //! an exception.
                 io->setPos(16);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception& e)
             {
@@ -304,7 +303,7 @@ namespace tl
                 //! \todo This does not get tested since FileIO::create throws
                 //! an exception.
                 io->seek(16);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception& e)
             {

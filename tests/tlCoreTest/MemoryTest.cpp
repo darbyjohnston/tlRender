@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/MemoryTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Memory.h>
 
 #include <sstream>
@@ -51,7 +50,7 @@ namespace tl
             {
                 uint8_t u8 = 1;
                 endian(&u8, 1, 1);
-                TLRENDER_ASSERT(1 == u8);
+                DTK_ASSERT(1 == u8);
             }
             {
                 uint16_t u16 = 0;
@@ -59,8 +58,8 @@ namespace tl
                 p[0] = 0;
                 p[1] = 1;
                 endian(&u16, 1, 2);
-                TLRENDER_ASSERT(1 == p[0]);
-                TLRENDER_ASSERT(0 == p[1]);
+                DTK_ASSERT(1 == p[0]);
+                DTK_ASSERT(0 == p[1]);
             }
             {
                 uint32_t u32 = 0;
@@ -70,10 +69,10 @@ namespace tl
                 p[2] = 2;
                 p[3] = 3;
                 endian(&u32, 1, 4);
-                TLRENDER_ASSERT(3 == p[0]);
-                TLRENDER_ASSERT(2 == p[1]);
-                TLRENDER_ASSERT(1 == p[2]);
-                TLRENDER_ASSERT(0 == p[3]);
+                DTK_ASSERT(3 == p[0]);
+                DTK_ASSERT(2 == p[1]);
+                DTK_ASSERT(1 == p[2]);
+                DTK_ASSERT(0 == p[3]);
             }
             {
                 uint64_t u64 = 0;
@@ -87,20 +86,20 @@ namespace tl
                 p[6] = 6;
                 p[7] = 7;
                 endian(&u64, 1, 8);
-                TLRENDER_ASSERT(7 == p[0]);
-                TLRENDER_ASSERT(6 == p[1]);
-                TLRENDER_ASSERT(5 == p[2]);
-                TLRENDER_ASSERT(4 == p[3]);
-                TLRENDER_ASSERT(3 == p[4]);
-                TLRENDER_ASSERT(2 == p[5]);
-                TLRENDER_ASSERT(1 == p[6]);
-                TLRENDER_ASSERT(0 == p[7]);
+                DTK_ASSERT(7 == p[0]);
+                DTK_ASSERT(6 == p[1]);
+                DTK_ASSERT(5 == p[2]);
+                DTK_ASSERT(4 == p[3]);
+                DTK_ASSERT(3 == p[4]);
+                DTK_ASSERT(2 == p[5]);
+                DTK_ASSERT(1 == p[6]);
+                DTK_ASSERT(0 == p[7]);
             }
             {
                 uint8_t u8 = 0;
                 uint8_t _u8 = 0;
                 endian(&u8, &_u8, 1, 1);
-                TLRENDER_ASSERT(u8 == _u8);
+                DTK_ASSERT(u8 == _u8);
             }
             {
                 uint16_t u16 = 0;
@@ -110,8 +109,8 @@ namespace tl
                 p[0] = 0;
                 p[1] = 1;
                 endian(&u16, &_u16, 1, 2);
-                TLRENDER_ASSERT(p[0] == p2[1]);
-                TLRENDER_ASSERT(p[1] == p2[0]);
+                DTK_ASSERT(p[0] == p2[1]);
+                DTK_ASSERT(p[1] == p2[0]);
             }
             {
                 uint32_t u32 = 0;
@@ -123,10 +122,10 @@ namespace tl
                 p[2] = 2;
                 p[3] = 3;
                 endian(&u32, &_u32, 1, 4);
-                TLRENDER_ASSERT(p[0] == p2[3]);
-                TLRENDER_ASSERT(p[1] == p2[2]);
-                TLRENDER_ASSERT(p[2] == p2[1]);
-                TLRENDER_ASSERT(p[3] == p2[0]);
+                DTK_ASSERT(p[0] == p2[3]);
+                DTK_ASSERT(p[1] == p2[2]);
+                DTK_ASSERT(p[2] == p2[1]);
+                DTK_ASSERT(p[3] == p2[0]);
             }
             {
                 uint64_t u64 = 0;
@@ -142,14 +141,14 @@ namespace tl
                 p[6] = 6;
                 p[7] = 7;
                 endian(&u64, &_u64, 1, 8);
-                TLRENDER_ASSERT(p[0] == p2[7]);
-                TLRENDER_ASSERT(p[1] == p2[6]);
-                TLRENDER_ASSERT(p[2] == p2[5]);
-                TLRENDER_ASSERT(p[3] == p2[4]);
-                TLRENDER_ASSERT(p[4] == p2[3]);
-                TLRENDER_ASSERT(p[5] == p2[2]);
-                TLRENDER_ASSERT(p[6] == p2[1]);
-                TLRENDER_ASSERT(p[7] == p2[0]);
+                DTK_ASSERT(p[0] == p2[7]);
+                DTK_ASSERT(p[1] == p2[6]);
+                DTK_ASSERT(p[2] == p2[5]);
+                DTK_ASSERT(p[3] == p2[4]);
+                DTK_ASSERT(p[4] == p2[3]);
+                DTK_ASSERT(p[5] == p2[2]);
+                DTK_ASSERT(p[6] == p2[1]);
+                DTK_ASSERT(p[7] == p2[0]);
             }
         }
 
@@ -158,36 +157,36 @@ namespace tl
             {
                 uint8_t a = 0;
                 _print(getBitString(a));
-                TLRENDER_ASSERT(!getBit(a, 0));
+                DTK_ASSERT(!getBit(a, 0));
                 a = setBit(a, 0);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 0));
+                DTK_ASSERT(getBit(a, 0));
                 a = setBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 7));
+                DTK_ASSERT(getBit(a, 7));
                 a = clearBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(!getBit(a, 7));
+                DTK_ASSERT(!getBit(a, 7));
                 a = toggleBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 7));
+                DTK_ASSERT(getBit(a, 7));
             }
             {
                 uint16_t a = 0;
                 _print(getBitString(a));
-                TLRENDER_ASSERT(!getBit(a, 0));
+                DTK_ASSERT(!getBit(a, 0));
                 a = setBit(a, 0);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 0));
+                DTK_ASSERT(getBit(a, 0));
                 a = setBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 7));
+                DTK_ASSERT(getBit(a, 7));
                 a = clearBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(!getBit(a, 7));
+                DTK_ASSERT(!getBit(a, 7));
                 a = toggleBit(a, 7);
                 _print(getBitString(a));
-                TLRENDER_ASSERT(getBit(a, 7));
+                DTK_ASSERT(getBit(a, 7));
             }
         }
     }

@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/SizeTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Size.h>
 
 using namespace tl::math;
@@ -35,39 +34,39 @@ namespace tl
         {
             {
                 Size2i v;
-                TLRENDER_ASSERT(0 == v.w);
-                TLRENDER_ASSERT(0 == v.h);
+                DTK_ASSERT(0 == v.w);
+                DTK_ASSERT(0 == v.h);
                 v = Size2i(1, 2);
-                TLRENDER_ASSERT(1 == v.w);
-                TLRENDER_ASSERT(2 == v.h);
+                DTK_ASSERT(1 == v.w);
+                DTK_ASSERT(2 == v.h);
             }
             {
                 Size2f v;
-                TLRENDER_ASSERT(0.F == v.w);
-                TLRENDER_ASSERT(0.F == v.h);
+                DTK_ASSERT(0.F == v.w);
+                DTK_ASSERT(0.F == v.h);
                 v = Size2f(1.F, 2.F);
-                TLRENDER_ASSERT(1.F == v.w);
-                TLRENDER_ASSERT(2.F == v.h);
+                DTK_ASSERT(1.F == v.w);
+                DTK_ASSERT(2.F == v.h);
             }
         }
 
         void SizeTest::_components()
         {
             {
-                TLRENDER_ASSERT(!Size2i().isValid());
-                TLRENDER_ASSERT(!Size2f().isValid());
+                DTK_ASSERT(!Size2i().isValid());
+                DTK_ASSERT(!Size2f().isValid());
             }
             {
                 Size2i v(1, 2);
                 v.zero();
-                TLRENDER_ASSERT(0 == v.w);
-                TLRENDER_ASSERT(0 == v.h);
+                DTK_ASSERT(0 == v.w);
+                DTK_ASSERT(0 == v.h);
             }
             {
                 Size2f v(1, 2);
                 v.zero();
-                TLRENDER_ASSERT(0.F == v.w);
-                TLRENDER_ASSERT(0.F == v.h);
+                DTK_ASSERT(0.F == v.w);
+                DTK_ASSERT(0.F == v.h);
             }
         }
 
@@ -75,19 +74,19 @@ namespace tl
         {
             {
                 Size2i v(1, 2);
-                TLRENDER_ASSERT(2.F == v.getArea());
+                DTK_ASSERT(2.F == v.getArea());
             }
             {
                 Size2f v(1.F, 2.F);
-                TLRENDER_ASSERT(2.F == v.getArea());
+                DTK_ASSERT(2.F == v.getArea());
             }
             {
                 Size2i v(2, 1);
-                TLRENDER_ASSERT(2.F == v.getAspect());
+                DTK_ASSERT(2.F == v.getAspect());
             }
             {
                 Size2f v(2.F, 1.F);
-                TLRENDER_ASSERT(2.F == v.getAspect());
+                DTK_ASSERT(2.F == v.getAspect());
             }
         }
 
@@ -96,92 +95,92 @@ namespace tl
             {
                 Size2i a;
                 Size2i b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.w = 1;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 Size2f a;
                 Size2f b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.w = 1.F;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 const Size2i a(1, 2);
                 const Size2i b(3, 4);
                 const Size2i c = a + b;
-                TLRENDER_ASSERT(4 == c.w);
-                TLRENDER_ASSERT(6 == c.h);
+                DTK_ASSERT(4 == c.w);
+                DTK_ASSERT(6 == c.h);
             }
             {
                 const Size2f a(1.F, 2.F);
                 const Size2f b(3.F, 4.F);
                 const Size2f c = a + b;
-                TLRENDER_ASSERT(4.F == c.w);
-                TLRENDER_ASSERT(6.F == c.h);
+                DTK_ASSERT(4.F == c.w);
+                DTK_ASSERT(6.F == c.h);
             }
             {
                 const Size2i a(1, 2);
                 const Size2i c = a + 3;
-                TLRENDER_ASSERT(4 == c.w);
-                TLRENDER_ASSERT(5 == c.h);
+                DTK_ASSERT(4 == c.w);
+                DTK_ASSERT(5 == c.h);
             }
             {
                 const Size2f a(1.F, 2.F);
                 const Size2f c = a + 3.F;
-                TLRENDER_ASSERT(4.F == c.w);
-                TLRENDER_ASSERT(5.F == c.h);
+                DTK_ASSERT(4.F == c.w);
+                DTK_ASSERT(5.F == c.h);
             }
             {
                 const Size2i a(1, 2);
                 const Size2i b(3, 4);
                 const Size2i c = b - a;
-                TLRENDER_ASSERT(2 == c.w);
-                TLRENDER_ASSERT(2 == c.h);
+                DTK_ASSERT(2 == c.w);
+                DTK_ASSERT(2 == c.h);
             }
             {
                 const Size2f a(1.F, 2.F);
                 const Size2f b(3.F, 4.F);
                 const Size2f c = b - a;
-                TLRENDER_ASSERT(2.F == c.w);
-                TLRENDER_ASSERT(2.F == c.h);
+                DTK_ASSERT(2.F == c.w);
+                DTK_ASSERT(2.F == c.h);
             }
             {
                 const Size2i a(1, 2);
                 const Size2i c = a - 1;
-                TLRENDER_ASSERT(0 == c.w);
-                TLRENDER_ASSERT(1 == c.h);
+                DTK_ASSERT(0 == c.w);
+                DTK_ASSERT(1 == c.h);
             }
             {
                 const Size2f a(1.F, 2.F);
                 const Size2f c = a - 1.F;
-                TLRENDER_ASSERT(0.F == c.w);
-                TLRENDER_ASSERT(1.F == c.h);
+                DTK_ASSERT(0.F == c.w);
+                DTK_ASSERT(1.F == c.h);
             }
             {
                 const Size2i a(3, 4);
                 const Size2i c = a * 2.F;
-                TLRENDER_ASSERT(6 == c.w);
-                TLRENDER_ASSERT(8 == c.h);
+                DTK_ASSERT(6 == c.w);
+                DTK_ASSERT(8 == c.h);
             }
             {
                 const Size2f a(3.F, 4.F);
                 const Size2f c = a * 2.F;
-                TLRENDER_ASSERT(6.F == c.w);
-                TLRENDER_ASSERT(8.F == c.h);
+                DTK_ASSERT(6.F == c.w);
+                DTK_ASSERT(8.F == c.h);
             }
             {
                 const Size2i a(3, 4);
                 const Size2i c = a / 2.F;
-                TLRENDER_ASSERT(1 == c.w);
-                TLRENDER_ASSERT(2 == c.h);
+                DTK_ASSERT(1 == c.w);
+                DTK_ASSERT(2 == c.h);
             }
             {
                 const Size2f a(3.F, 4.F);
                 const Size2f c = a / 2.F;
-                TLRENDER_ASSERT(1.5F == c.w);
-                TLRENDER_ASSERT(2.F == c.h);
+                DTK_ASSERT(1.5F == c.w);
+                DTK_ASSERT(2.F == c.h);
             }
         }
     
@@ -193,7 +192,7 @@ namespace tl
                 to_json(json, v);
                 Size2i v2;
                 from_json(json, v2);
-                TLRENDER_ASSERT(v == v2);
+                DTK_ASSERT(v == v2);
             }
             {
                 const Size2f v(1.F, 2.F);
@@ -201,7 +200,7 @@ namespace tl
                 to_json(json, v);
                 Size2f v2;
                 from_json(json, v2);
-                TLRENDER_ASSERT(v == v2);
+                DTK_ASSERT(v == v2);
             }
             {
                 const Size2i v(1, 2);
@@ -209,7 +208,7 @@ namespace tl
                 ss << v;
                 Size2i v2;
                 ss >> v2;
-                TLRENDER_ASSERT(v == v2);
+                DTK_ASSERT(v == v2);
             }
             {
                 const Size2f v(1.F, 2.F);
@@ -217,14 +216,14 @@ namespace tl
                 ss << v;
                 Size2f v2;
                 ss >> v2;
-                TLRENDER_ASSERT(v == v2);
+                DTK_ASSERT(v == v2);
             }
             try
             {
                 Size2i v;
                 std::stringstream ss("...");
                 ss >> v;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -233,7 +232,7 @@ namespace tl
                 Size2f v;
                 std::stringstream ss("...");
                 ss >> v;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

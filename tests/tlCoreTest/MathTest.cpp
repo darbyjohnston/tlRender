@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/MathTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Math.h>
 
 using namespace tl::math;
@@ -25,15 +24,15 @@ namespace tl
         void MathTest::run()
         {
             {
-                TLRENDER_ASSERT(rad2deg(deg2rad(360.F)) == 360.F);
+                DTK_ASSERT(rad2deg(deg2rad(360.F)) == 360.F);
             }
             {
-                TLRENDER_ASSERT(0 == clamp(-1, 0, 1));
-                TLRENDER_ASSERT(1 == clamp(2, 0, 1));
+                DTK_ASSERT(0 == clamp(-1, 0, 1));
+                DTK_ASSERT(1 == clamp(2, 0, 1));
             }
             {
-                TLRENDER_ASSERT(0.F == lerp(0.F, 0.F, 1.F));
-                TLRENDER_ASSERT(1.F == lerp(1.F, 0.F, 1.F));
+                DTK_ASSERT(0.F == lerp(0.F, 0.F, 1.F));
+                DTK_ASSERT(1.F == lerp(1.F, 0.F, 1.F));
             }
             {
                 for (float i = 0.F; i <= 1.F; i += .1F)
@@ -50,13 +49,13 @@ namespace tl
                 }
             }
             {
-                TLRENDER_ASSERT(1 == digits(0));
-                TLRENDER_ASSERT(1 == digits(1));
-                TLRENDER_ASSERT(2 == digits(10));
-                TLRENDER_ASSERT(3 == digits(123));
-                TLRENDER_ASSERT(2 == digits(-1));
-                TLRENDER_ASSERT(3 == digits(-10));
-                TLRENDER_ASSERT(4 == digits(-123));
+                DTK_ASSERT(1 == digits(0));
+                DTK_ASSERT(1 == digits(1));
+                DTK_ASSERT(2 == digits(10));
+                DTK_ASSERT(3 == digits(123));
+                DTK_ASSERT(2 == digits(-1));
+                DTK_ASSERT(3 == digits(-10));
+                DTK_ASSERT(4 == digits(-123));
             }
         }
     }

@@ -102,9 +102,9 @@ namespace tl
                         "\n"
                         "    fColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
                         "}\n");
-                    TLRENDER_ASSERT(!shader->getVertexSource().empty());
-                    TLRENDER_ASSERT(!shader->getFragmentSource().empty());
-                    TLRENDER_ASSERT(shader->getProgram());
+                    DTK_ASSERT(!shader->getVertexSource().empty());
+                    DTK_ASSERT(!shader->getFragmentSource().empty());
+                    DTK_ASSERT(shader->getProgram());
                     shader->bind();
 
                     shader->setUniform(

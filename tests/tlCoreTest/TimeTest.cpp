@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/TimeTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Time.h>
 #include <tlCore/Timer.h>
 
@@ -51,12 +50,12 @@ namespace tl
                 _print(ss.str());
             }
             {
-                TLRENDER_ASSERT(!isValid(invalidTime));
-                TLRENDER_ASSERT(isValid(otime::RationalTime(24.0, 24.0)));
+                DTK_ASSERT(!isValid(invalidTime));
+                DTK_ASSERT(isValid(otime::RationalTime(24.0, 24.0)));
             }
             {
-                TLRENDER_ASSERT(!isValid(invalidTimeRange));
-                TLRENDER_ASSERT(isValid(otime::TimeRange(
+                DTK_ASSERT(!isValid(invalidTimeRange));
+                DTK_ASSERT(isValid(otime::TimeRange(
                     otime::RationalTime(0.0, 24.0),
                     otime::RationalTime(24.0, 24.0))));
             }
@@ -64,12 +63,12 @@ namespace tl
                 const otime::TimeRange a(
                     otime::RationalTime(24.0, 24.0),
                     otime::RationalTime(24.0, 24.0));
-                TLRENDER_ASSERT(compareExact(a, a));
+                DTK_ASSERT(compareExact(a, a));
                 const otime::TimeRange b(
                     otime::RationalTime(1.0, 1.0),
                     otime::RationalTime(1.0, 1.0));
-                TLRENDER_ASSERT(a == b);
-                TLRENDER_ASSERT(!compareExact(a, b));
+                DTK_ASSERT(a == b);
+                DTK_ASSERT(!compareExact(a, b));
             }
         }
         
@@ -125,7 +124,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto frames = time::frames(i.range);
-                    TLRENDER_ASSERT(frames == i.frames);
+                    DTK_ASSERT(frames == i.frames);
                 }
             }
             {
@@ -225,7 +224,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto seconds = time::seconds(i.range);
-                    TLRENDER_ASSERT(seconds == i.seconds);
+                    DTK_ASSERT(seconds == i.seconds);
                 }
             }
             {
@@ -250,7 +249,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto rational = toRational(i.rate);
-                    TLRENDER_ASSERT(
+                    DTK_ASSERT(
                         rational.first == i.rational.first &&
                         rational.second == i.rational.second);
                 }
@@ -267,11 +266,11 @@ namespace tl
                 int count = 0;
                 int offset = 0;
                 stringToKeycode(s, id, type, prefix, count, offset);
-                TLRENDER_ASSERT(1 == id);
-                TLRENDER_ASSERT(2 == type);
-                TLRENDER_ASSERT(3 == prefix);
-                TLRENDER_ASSERT(4 == count);
-                TLRENDER_ASSERT(5 == offset);
+                DTK_ASSERT(1 == id);
+                DTK_ASSERT(2 == type);
+                DTK_ASSERT(3 == prefix);
+                DTK_ASSERT(4 == count);
+                DTK_ASSERT(5 == offset);
             }
             try
             {
@@ -282,7 +281,7 @@ namespace tl
                 int count = 0;
                 int offset = 0;
                 stringToKeycode(s, id, type, prefix, count, offset);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -297,23 +296,23 @@ namespace tl
                 int second = 0;
                 int frame = 0;
                 timecodeToTime(t, hour, minute, second, frame);
-                TLRENDER_ASSERT(1 == hour);
-                TLRENDER_ASSERT(2 == minute);
-                TLRENDER_ASSERT(3 == second);
-                TLRENDER_ASSERT(4 == frame);
+                DTK_ASSERT(1 == hour);
+                DTK_ASSERT(2 == minute);
+                DTK_ASSERT(3 == second);
+                DTK_ASSERT(4 == frame);
             }
             {
                 const std::string s = "01:02:03:04";
                 uint32_t t = 0;
                 stringToTimecode(s, t);
-                TLRENDER_ASSERT(s == timecodeToString(t));
+                DTK_ASSERT(s == timecodeToString(t));
             }
             try
             {
                 const std::string s = "...";
                 uint32_t t = 0;
                 stringToTimecode(s, t);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -322,9 +321,9 @@ namespace tl
         void TimeTest::_timer()
         {
             auto timer = Timer::create(_context);
-            TLRENDER_ASSERT(!timer->isRepeating());
+            DTK_ASSERT(!timer->isRepeating());
             timer->setRepeating(true);
-            TLRENDER_ASSERT(timer->isRepeating());
+            DTK_ASSERT(timer->isRepeating());
             size_t count = 0;
             timer->start(
                 std::chrono::milliseconds(100),
@@ -337,8 +336,8 @@ namespace tl
                         timer->stop();
                     }
                 });
-            TLRENDER_ASSERT(timer->isActive());
-            TLRENDER_ASSERT(std::chrono::milliseconds(100) == timer->getTimeout());
+            DTK_ASSERT(timer->isActive());
+            DTK_ASSERT(std::chrono::milliseconds(100) == timer->getTimeout());
             while (timer->isActive())
             {
                 _context->tick();
@@ -366,7 +365,7 @@ namespace tl
                 to_json(json, t);
                 otime::RationalTime t2 = invalidTime;
                 from_json(json, t2);
-                TLRENDER_ASSERT(t == t2);
+                DTK_ASSERT(t == t2);
             }
             {
                 const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
@@ -374,7 +373,7 @@ namespace tl
                 to_json(json, t);
                 otime::TimeRange t2 = invalidTimeRange;
                 from_json(json, t2);
-                TLRENDER_ASSERT(t == t2);
+                DTK_ASSERT(t == t2);
             }
             {
                 const auto t = otime::RationalTime(1.0, 24.0);
@@ -382,14 +381,14 @@ namespace tl
                 ss << t;
                 otime::RationalTime t2 = invalidTime;
                 ss >> t2;
-                TLRENDER_ASSERT(t == t2);
+                DTK_ASSERT(t == t2);
             }
             try
             {
                 otime::RationalTime t = invalidTime;
                 std::stringstream ss("...");
                 ss >> t;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -399,14 +398,14 @@ namespace tl
                 ss << t;
                 otime::TimeRange t2 = invalidTimeRange;
                 ss >> t2;
-                TLRENDER_ASSERT(t == t2);
+                DTK_ASSERT(t == t2);
             }
             try
             {
                 otime::TimeRange t = invalidTimeRange;
                 std::stringstream ss("...");
                 ss >> t;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -415,7 +414,7 @@ namespace tl
                 otime::TimeRange t = invalidTimeRange;
                 std::stringstream ss(".-.");
                 ss >> t;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

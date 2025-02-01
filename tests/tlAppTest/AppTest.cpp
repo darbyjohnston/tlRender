@@ -53,7 +53,7 @@ namespace tl
                 strcpy(argv[0], "app");
                 strcpy(argv[1], "arg1");
                 strcpy(argv[2], "arg2");
-                TLRENDER_ASSERT(s == convert(s.size(), argv));
+                DTK_ASSERT(s == convert(s.size(), argv));
                 delete [] argv[0];
                 delete [] argv[1];
                 delete [] argv[2];
@@ -74,7 +74,7 @@ namespace tl
                 wcscpy(argv[0], L"app");
                 wcscpy(argv[1], L"arg1");
                 wcscpy(argv[2], L"arg2");
-                TLRENDER_ASSERT(s == convert(s.size(), argv));
+                DTK_ASSERT(s == convert(s.size(), argv));
                 delete [] argv[0];
                 delete [] argv[1];
                 delete [] argv[2];
@@ -149,12 +149,12 @@ namespace tl
         {
             {
                 auto app = App::create({ "app" }, _context);
-                TLRENDER_ASSERT(app->getContext());
-                TLRENDER_ASSERT(1 == app->getExit());
+                DTK_ASSERT(app->getContext());
+                DTK_ASSERT(1 == app->getExit());
             }
             {
                 auto app = App::create({ "app", "-h" }, _context);
-                TLRENDER_ASSERT(1 == app->getExit());
+                DTK_ASSERT(1 == app->getExit());
             }
             {
                 auto app = App::create(
@@ -168,11 +168,11 @@ namespace tl
                         "Extension"
                      },
                     _context);
-                TLRENDER_ASSERT(0 == app->getExit());
-                TLRENDER_ASSERT(file::Type::Directory == app->getInput());
-                TLRENDER_ASSERT("output" == app->getOutput());
-                TLRENDER_ASSERT(10 == app->getIntOption());
-                TLRENDER_ASSERT(file::ListSort::Extension == app->getListSortOption());
+                DTK_ASSERT(0 == app->getExit());
+                DTK_ASSERT(file::Type::Directory == app->getInput());
+                DTK_ASSERT("output" == app->getOutput());
+                DTK_ASSERT(10 == app->getIntOption());
+                DTK_ASSERT(file::ListSort::Extension == app->getListSortOption());
             }
             {
                 auto app = App::create({ "app", "directory", "-log" }, _context);
@@ -184,26 +184,26 @@ namespace tl
                     _context->tick();
                     time::sleep(std::chrono::milliseconds(1000));
                 }
-                TLRENDER_ASSERT(0 == app->getExit());
+                DTK_ASSERT(0 == app->getExit());
             }
             try
             {
                 auto app = App::create({ "app", "input" }, _context);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
             try
             {
                 auto app = App::create({ "app", "input", "-int" }, _context);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
             try
             {
                 auto app = App::create({ "app", "input", "-listSort" }, _context);
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

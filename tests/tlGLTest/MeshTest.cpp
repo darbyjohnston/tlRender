@@ -67,7 +67,7 @@ namespace tl
             {
                 auto mesh = geom::box(math::Box2f(0.F, 1.F, 2.F, 3.F));
                 auto data = convert(mesh, type);
-                TLRENDER_ASSERT(!data.empty());
+                DTK_ASSERT(!data.empty());
             }
             for (auto type : {
                     VBOType::Pos3_F32,
@@ -81,7 +81,7 @@ namespace tl
             {
                 auto mesh = geom::sphere(10.F, 10, 10);
                 auto data = convert(mesh, type);
-                TLRENDER_ASSERT(!data.empty());
+                DTK_ASSERT(!data.empty());
             }
         }
 
@@ -96,13 +96,13 @@ namespace tl
                 auto mesh = geom::box(math::Box2f(0.F, 1.F, 2.F, 3.F));
                 auto data = convert(mesh, type);
                 auto vbo = VBO::create(mesh.v.size(), type);
-                TLRENDER_ASSERT(mesh.v.size() == vbo->getSize());
-                TLRENDER_ASSERT(type == vbo->getType());
-                TLRENDER_ASSERT(vbo->getID());
+                DTK_ASSERT(mesh.v.size() == vbo->getSize());
+                DTK_ASSERT(type == vbo->getType());
+                DTK_ASSERT(vbo->getID());
                 vbo->copy(data);
                 vbo->copy(data, 0, 1);
                 auto vao = VAO::create(type, vbo->getID());
-                TLRENDER_ASSERT(vao->getID());
+                DTK_ASSERT(vao->getID());
                 vao->bind();
                 vao->draw(GL_TRIANGLES, 0, vbo->getSize());
             }
@@ -119,13 +119,13 @@ namespace tl
                 auto mesh = geom::sphere(10.F, 10, 10);
                 auto data = convert(mesh, type);
                 auto vbo = VBO::create(mesh.v.size(), type);
-                TLRENDER_ASSERT(mesh.v.size() == vbo->getSize());
-                TLRENDER_ASSERT(type == vbo->getType());
-                TLRENDER_ASSERT(vbo->getID());
+                DTK_ASSERT(mesh.v.size() == vbo->getSize());
+                DTK_ASSERT(type == vbo->getType());
+                DTK_ASSERT(vbo->getID());
                 vbo->copy(data);
                 vbo->copy(data, 0, 1);
                 auto vao = VAO::create(type, vbo->getID());
-                TLRENDER_ASSERT(vao->getID());
+                DTK_ASSERT(vao->getID());
                 vao->bind();
                 vao->draw(GL_TRIANGLES, 0, vbo->getSize());
             }

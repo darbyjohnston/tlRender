@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/ColorTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Color.h>
 
 using namespace tl::image;
@@ -26,24 +25,24 @@ namespace tl
         {
             {
                 const Color4f c;
-                TLRENDER_ASSERT(0.F == c.r);
-                TLRENDER_ASSERT(0.F == c.g);
-                TLRENDER_ASSERT(0.F == c.b);
-                TLRENDER_ASSERT(0.F == c.a);
+                DTK_ASSERT(0.F == c.r);
+                DTK_ASSERT(0.F == c.g);
+                DTK_ASSERT(0.F == c.b);
+                DTK_ASSERT(0.F == c.a);
             }
             {
                 const Color4f c(1.F, 2.F, 3.F, 4.F);
-                TLRENDER_ASSERT(1.F == c.r);
-                TLRENDER_ASSERT(2.F == c.g);
-                TLRENDER_ASSERT(3.F == c.b);
-                TLRENDER_ASSERT(4.F == c.a);
+                DTK_ASSERT(1.F == c.r);
+                DTK_ASSERT(2.F == c.g);
+                DTK_ASSERT(3.F == c.b);
+                DTK_ASSERT(4.F == c.a);
             }
             {
                 Color4f a;
                 Color4f b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.r = 1.F;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 const Color4f c(1.F, .5F, 0.F);
@@ -51,7 +50,7 @@ namespace tl
                 to_json(json, c);
                 Color4f c2;
                 from_json(json, c2);
-                TLRENDER_ASSERT(c == c2);
+                DTK_ASSERT(c == c2);
             }
             {
                 const Color4f c(1.F, .5F, 0.F);
@@ -59,14 +58,14 @@ namespace tl
                 ss << c;
                 Color4f c2;
                 ss >> c2;
-                TLRENDER_ASSERT(c == c2);
+                DTK_ASSERT(c == c2);
             }
             try
             {
                 Color4f c;
                 std::stringstream ss("...");
                 ss >> c;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

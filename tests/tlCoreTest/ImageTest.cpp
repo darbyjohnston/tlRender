@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/ImageTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Image.h>
 
 #include <dtk/core/Format.h>
@@ -38,24 +37,24 @@ namespace tl
         {
             {
                 const Size size;
-                TLRENDER_ASSERT(0 == size.w);
-                TLRENDER_ASSERT(0 == size.h);
-                TLRENDER_ASSERT(1.F == size.pixelAspectRatio);
-                TLRENDER_ASSERT(!size.isValid());
-                TLRENDER_ASSERT(0.F == size.getAspect());
+                DTK_ASSERT(0 == size.w);
+                DTK_ASSERT(0 == size.h);
+                DTK_ASSERT(1.F == size.pixelAspectRatio);
+                DTK_ASSERT(!size.isValid());
+                DTK_ASSERT(0.F == size.getAspect());
             }
             {
                 const Size size(1, 2);
-                TLRENDER_ASSERT(1 == size.w);
-                TLRENDER_ASSERT(2 == size.h);
-                TLRENDER_ASSERT(1.F == size.pixelAspectRatio);
-                TLRENDER_ASSERT(size.isValid());
-                TLRENDER_ASSERT(.5F == size.getAspect());
+                DTK_ASSERT(1 == size.w);
+                DTK_ASSERT(2 == size.h);
+                DTK_ASSERT(1.F == size.pixelAspectRatio);
+                DTK_ASSERT(size.isValid());
+                DTK_ASSERT(.5F == size.getAspect());
             }
             {
-                TLRENDER_ASSERT(Size(1, 2) == Size(1, 2));
-                TLRENDER_ASSERT(Size(1, 2) != Size(1, 3));
-                TLRENDER_ASSERT(Size(1, 2) < Size(1, 3));
+                DTK_ASSERT(Size(1, 2) == Size(1, 2));
+                DTK_ASSERT(Size(1, 2) != Size(1, 3));
+                DTK_ASSERT(Size(1, 2) < Size(1, 3));
             }
             {
                 const Size size(1, 2, 2.F);
@@ -63,12 +62,12 @@ namespace tl
                 ss << size;
                 Size size2;
                 ss >> size2;
-                TLRENDER_ASSERT(size == size2);
+                DTK_ASSERT(size == size2);
             }
             {
-                TLRENDER_ASSERT(math::Box2i(0, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 100)));
-                TLRENDER_ASSERT(math::Box2i(50, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 200, 100)));
-                TLRENDER_ASSERT(math::Box2i(0, 50, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 200)));
+                DTK_ASSERT(math::Box2i(0, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 100)));
+                DTK_ASSERT(math::Box2i(50, 0, 100, 100) == getBox(1.F, math::Box2i(0, 0, 200, 100)));
+                DTK_ASSERT(math::Box2i(0, 50, 100, 100) == getBox(1.F, math::Box2i(0, 0, 100, 200)));
             }
         }
 
@@ -87,45 +86,45 @@ namespace tl
         {
             {
                 const Info info;
-                TLRENDER_ASSERT(Size() == info.size);
-                TLRENDER_ASSERT(PixelType::None == info.pixelType);
-                TLRENDER_ASSERT(!info.isValid());
+                DTK_ASSERT(Size() == info.size);
+                DTK_ASSERT(PixelType::None == info.pixelType);
+                DTK_ASSERT(!info.isValid());
             }
             {
                 const Info info(Size(1, 2), PixelType::L_U8);
-                TLRENDER_ASSERT(Size(1, 2) == info.size);
-                TLRENDER_ASSERT(PixelType::L_U8 == info.pixelType);
-                TLRENDER_ASSERT(info.isValid());
+                DTK_ASSERT(Size(1, 2) == info.size);
+                DTK_ASSERT(PixelType::L_U8 == info.pixelType);
+                DTK_ASSERT(info.isValid());
             }
             {
                 const Info info(1, 2, PixelType::L_U8);
-                TLRENDER_ASSERT(Size(1, 2) == info.size);
-                TLRENDER_ASSERT(PixelType::L_U8 == info.pixelType);
-                TLRENDER_ASSERT(info.isValid());
+                DTK_ASSERT(Size(1, 2) == info.size);
+                DTK_ASSERT(PixelType::L_U8 == info.pixelType);
+                DTK_ASSERT(info.isValid());
             }
             {
                 Info info(1, 2, PixelType::L_U8);
                 info.layout.alignment = 1;
-                TLRENDER_ASSERT(getDataByteCount(info) == 2);
+                DTK_ASSERT(getDataByteCount(info) == 2);
             }
             {
                 Info info(1, 2, PixelType::L_U8);
                 info.layout.alignment = 2;
-                TLRENDER_ASSERT(getDataByteCount(info) == 4);
+                DTK_ASSERT(getDataByteCount(info) == 4);
             }
             {
                 Info info(1, 2, PixelType::L_U8);
                 info.layout.alignment = 4;
-                TLRENDER_ASSERT(getDataByteCount(info) == 8);
+                DTK_ASSERT(getDataByteCount(info) == 8);
             }
             {
                 Info info(1, 2, PixelType::L_U16);
                 info.layout.alignment = 4;
-                TLRENDER_ASSERT(getDataByteCount(info) == 8);
+                DTK_ASSERT(getDataByteCount(info) == 8);
             }
             {
-                TLRENDER_ASSERT(Info(1, 2, PixelType::L_U8) == Info(1, 2, PixelType::L_U8));
-                TLRENDER_ASSERT(Info(1, 2, PixelType::L_U8) != Info(1, 2, PixelType::L_U16));
+                DTK_ASSERT(Info(1, 2, PixelType::L_U8) == Info(1, 2, PixelType::L_U8));
+                DTK_ASSERT(Info(1, 2, PixelType::L_U8) != Info(1, 2, PixelType::L_U16));
             }
         }
 
@@ -162,17 +161,17 @@ namespace tl
                 }
             }
             {
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::None, {}) == PixelType::None);
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::L_U16, { PixelType::L_U8 }) == PixelType::L_U8);
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::L_U16, { PixelType::L_U8, PixelType::L_U16 }) == PixelType::L_U16);
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::L_U16, { PixelType::L_U8, PixelType::L_U16, PixelType::L_U32 }) == PixelType::L_U16);
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::RGB_U16, { PixelType::L_U8, PixelType::L_U16, PixelType::L_U32 }) == PixelType::L_U16);
-                TLRENDER_ASSERT(getClosest(
+                DTK_ASSERT(getClosest(
                     PixelType::L_U16, { PixelType::RGB_U8, PixelType::RGB_U16, PixelType::RGB_U32 }) == PixelType::RGB_U16);
             }
             for (auto i : getPixelTypeEnums())
@@ -190,27 +189,27 @@ namespace tl
                 const Info info(1, 2, PixelType::L_U8);
                 auto image = Image::create(info);
                 image->zero();
-                TLRENDER_ASSERT(image->getInfo() == info);
-                TLRENDER_ASSERT(image->getSize() == info.size);
-                TLRENDER_ASSERT(image->getWidth() == info.size.w);
-                TLRENDER_ASSERT(image->getHeight() == info.size.h);
-                TLRENDER_ASSERT(image->getAspect() == .5F);
-                TLRENDER_ASSERT(image->getPixelType() == info.pixelType);
-                TLRENDER_ASSERT(image->isValid());
-                TLRENDER_ASSERT(image->getData());
-                TLRENDER_ASSERT(static_cast<const Image*>(image.get())->getData());
+                DTK_ASSERT(image->getInfo() == info);
+                DTK_ASSERT(image->getSize() == info.size);
+                DTK_ASSERT(image->getWidth() == info.size.w);
+                DTK_ASSERT(image->getHeight() == info.size.h);
+                DTK_ASSERT(image->getAspect() == .5F);
+                DTK_ASSERT(image->getPixelType() == info.pixelType);
+                DTK_ASSERT(image->isValid());
+                DTK_ASSERT(image->getData());
+                DTK_ASSERT(static_cast<const Image*>(image.get())->getData());
             }
             {
                 auto image = Image::create(Size(1, 2), PixelType::L_U8);
-                TLRENDER_ASSERT(image->getWidth() == 1);
-                TLRENDER_ASSERT(image->getHeight() == 2);
-                TLRENDER_ASSERT(image->getPixelType() == PixelType::L_U8);
+                DTK_ASSERT(image->getWidth() == 1);
+                DTK_ASSERT(image->getHeight() == 2);
+                DTK_ASSERT(image->getPixelType() == PixelType::L_U8);
             }
             {
                 auto image = Image::create(1, 2, PixelType::L_U8);
-                TLRENDER_ASSERT(image->getWidth() == 1);
-                TLRENDER_ASSERT(image->getHeight() == 2);
-                TLRENDER_ASSERT(image->getPixelType() == PixelType::L_U8);
+                DTK_ASSERT(image->getWidth() == 1);
+                DTK_ASSERT(image->getHeight() == 2);
+                DTK_ASSERT(image->getPixelType() == PixelType::L_U8);
             }
         }
 
@@ -222,7 +221,7 @@ namespace tl
                 to_json(json, s);
                 Size s2;
                 from_json(json, s2);
-                TLRENDER_ASSERT(s == s2);
+                DTK_ASSERT(s == s2);
             }
             {
                 const Size s(1, 2);
@@ -230,7 +229,7 @@ namespace tl
                 ss << s;
                 Size s2;
                 ss >> s2;
-                TLRENDER_ASSERT(s == s2);
+                DTK_ASSERT(s == s2);
             }
             {
                 const Size s(1, 2, 2.F);
@@ -238,14 +237,14 @@ namespace tl
                 ss << s;
                 Size s2;
                 ss >> s2;
-                TLRENDER_ASSERT(s == s2);
+                DTK_ASSERT(s == s2);
             }
             try
             {
                 Size s;
                 std::stringstream ss;
                 ss >> s;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -254,7 +253,7 @@ namespace tl
                 Size s;
                 std::stringstream ss("...");
                 ss >> s;
-                TLRENDER_ASSERT(false);
+                DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

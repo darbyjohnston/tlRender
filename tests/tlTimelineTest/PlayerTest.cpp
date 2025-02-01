@@ -9,8 +9,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
-
 #include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
@@ -67,7 +65,7 @@ namespace tl
                     _print(dtk::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(path.get(), _context);
                     auto player = Player::create(timeline, _context);
-                    TLRENDER_ASSERT(player->getTimeline());
+                    DTK_ASSERT(player->getTimeline());
                     _player(player);
                 }
                 catch (const std::exception& e)
@@ -129,7 +127,7 @@ namespace tl
                 });
             const double doubleSpeed = defaultSpeed * 2.0;
             player->setSpeed(doubleSpeed);
-            TLRENDER_ASSERT(doubleSpeed == speed);
+            DTK_ASSERT(doubleSpeed == speed);
             player->setSpeed(defaultSpeed);
 
             // Test the playback mode.
@@ -141,8 +139,8 @@ namespace tl
                     playback = value;
                 });
             player->setPlayback(Playback::Forward);
-            TLRENDER_ASSERT(Playback::Forward == player->getPlayback());
-            TLRENDER_ASSERT(Playback::Forward == playback);
+            DTK_ASSERT(Playback::Forward == player->getPlayback());
+            DTK_ASSERT(Playback::Forward == playback);
 
             // Test the playback loop mode.
             Loop loop = Loop::Loop;
@@ -153,8 +151,8 @@ namespace tl
                     loop = value;
                 });
             player->setLoop(Loop::Once);
-            TLRENDER_ASSERT(Loop::Once == player->getLoop());
-            TLRENDER_ASSERT(Loop::Once == loop);
+            DTK_ASSERT(Loop::Once == player->getLoop());
+            DTK_ASSERT(Loop::Once == loop);
 
             // Test the current time.
             player->setPlayback(Playback::Stop);
@@ -166,20 +164,20 @@ namespace tl
                     currentTime = value;
                 });
             player->seek(timeRange.start_time());
-            TLRENDER_ASSERT(timeRange.start_time() == player->getCurrentTime());
-            TLRENDER_ASSERT(timeRange.start_time() == currentTime);
+            DTK_ASSERT(timeRange.start_time() == player->getCurrentTime());
+            DTK_ASSERT(timeRange.start_time() == currentTime);
             const double rate = timeRange.duration().rate();
             player->seek(
                 timeRange.start_time() + otime::RationalTime(1.0, rate));
-            TLRENDER_ASSERT(
+            DTK_ASSERT(
                 timeRange.start_time() + otime::RationalTime(1.0, rate) ==
                 currentTime);
             player->end();
-            TLRENDER_ASSERT(timeRange.end_time_inclusive() == currentTime);
+            DTK_ASSERT(timeRange.end_time_inclusive() == currentTime);
             player->start();
-            TLRENDER_ASSERT(timeRange.start_time() == currentTime);
+            DTK_ASSERT(timeRange.start_time() == currentTime);
             player->frameNext();
-            TLRENDER_ASSERT(
+            DTK_ASSERT(
                 timeRange.start_time() + otime::RationalTime(1.0, rate) ==
                 currentTime);
             player->timeAction(TimeAction::FrameNextX10);
@@ -203,22 +201,22 @@ namespace tl
             player->setInOutRange(otime::TimeRange(
                 timeRange.start_time(),
                 otime::RationalTime(10.0, rate)));
-            TLRENDER_ASSERT(otime::TimeRange(
+            DTK_ASSERT(otime::TimeRange(
                 timeRange.start_time(),
                 otime::RationalTime(10.0, rate)) == player->getInOutRange());
-            TLRENDER_ASSERT(otime::TimeRange(
+            DTK_ASSERT(otime::TimeRange(
                 timeRange.start_time(),
                 otime::RationalTime(10.0, rate)) == inOutRange);
             player->seek(timeRange.start_time() + otime::RationalTime(1.0, rate));
             player->setInPoint();
             player->seek(timeRange.start_time() + otime::RationalTime(10.0, rate));
             player->setOutPoint();
-            TLRENDER_ASSERT(otime::TimeRange(
+            DTK_ASSERT(otime::TimeRange(
                 timeRange.start_time() + otime::RationalTime(1.0, rate),
                 otime::RationalTime(10.0, rate)) == inOutRange);
             player->resetInPoint();
             player->resetOutPoint();
-            TLRENDER_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
+            DTK_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
 
             // Test the I/O options.
             io::Options ioOptions;
@@ -231,8 +229,8 @@ namespace tl
             io::Options ioOptions2;
             ioOptions2["Layer"] = "1";
             player->setIOOptions(ioOptions2);
-            TLRENDER_ASSERT(ioOptions2 == player->getIOOptions());
-            TLRENDER_ASSERT(ioOptions2 == ioOptions);
+            DTK_ASSERT(ioOptions2 == player->getIOOptions());
+            DTK_ASSERT(ioOptions2 == ioOptions);
             player->setIOOptions({});
 
             // Test the video layers.
@@ -252,12 +250,12 @@ namespace tl
                 });
             int videoLayer2 = 1;
             player->setVideoLayer(videoLayer2);
-            TLRENDER_ASSERT(videoLayer2 == player->getVideoLayer());
-            TLRENDER_ASSERT(videoLayer2 == videoLayer);
+            DTK_ASSERT(videoLayer2 == player->getVideoLayer());
+            DTK_ASSERT(videoLayer2 == videoLayer);
             std::vector<int> compareVideoLayers2 = { 2, 3 };
             player->setCompareVideoLayers(compareVideoLayers2);
-            TLRENDER_ASSERT(compareVideoLayers2 == player->getCompareVideoLayers());
-            TLRENDER_ASSERT(compareVideoLayers2 == compareVideoLayers);
+            DTK_ASSERT(compareVideoLayers2 == player->getCompareVideoLayers());
+            DTK_ASSERT(compareVideoLayers2 == compareVideoLayers);
             player->setVideoLayer(0);
             player->setCompareVideoLayers({});
 
@@ -270,8 +268,8 @@ namespace tl
                     volume = value;
                 });
             player->setVolume(.5F);
-            TLRENDER_ASSERT(.5F == player->getVolume());
-            TLRENDER_ASSERT(.5F == volume);
+            DTK_ASSERT(.5F == player->getVolume());
+            DTK_ASSERT(.5F == volume);
             player->setVolume(1.F);
 
             bool mute = false;
@@ -282,8 +280,8 @@ namespace tl
                     mute = value;
                 });
             player->setMute(true);
-            TLRENDER_ASSERT(player->isMuted());
-            TLRENDER_ASSERT(mute);
+            DTK_ASSERT(player->isMuted());
+            DTK_ASSERT(mute);
             player->setMute(false);
 
             std::vector<bool> channelMute = { false, false };
@@ -294,9 +292,9 @@ namespace tl
                     channelMute = value;
                 });
             player->setChannelMute({ true, true });
-            TLRENDER_ASSERT(player->getChannelMute() == std::vector<bool>({ true, true }));
-            TLRENDER_ASSERT(channelMute[0]);
-            TLRENDER_ASSERT(channelMute[1]);
+            DTK_ASSERT(player->getChannelMute() == std::vector<bool>({ true, true }));
+            DTK_ASSERT(channelMute[0]);
+            DTK_ASSERT(channelMute[1]);
             player->setChannelMute({ false, false });
 
             double audioOffset = 0.0;
@@ -307,8 +305,8 @@ namespace tl
                     audioOffset = value;
                 });
             player->setAudioOffset(0.5);
-            TLRENDER_ASSERT(0.5 == player->getAudioOffset());
-            TLRENDER_ASSERT(0.5 == audioOffset);
+            DTK_ASSERT(0.5 == player->getAudioOffset());
+            DTK_ASSERT(0.5 == audioOffset);
             player->setAudioOffset(0.0);
             
             // Test frames.
@@ -322,7 +320,7 @@ namespace tl
                     });
                 cacheOptions.readAhead = otime::RationalTime(1.0, 1.0);
                 player->setCacheOptions(cacheOptions);
-                TLRENDER_ASSERT(cacheOptions == player->getCacheOptions());
+                DTK_ASSERT(cacheOptions == player->getCacheOptions());
 
                 auto currentVideoObserver = observer::ListObserver<timeline::VideoData>::create(
                     player->observeCurrentVideo(),

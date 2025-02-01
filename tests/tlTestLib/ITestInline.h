@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlCore/Assert.h>
-
 #include <sstream>
+
+#include <dtk/core/Assert.h>
 
 namespace tl
 {
@@ -27,7 +27,7 @@ namespace tl
                     ss << i;
                     T j;
                     ss >> j;
-                    TLRENDER_ASSERT(i == j);
+                    DTK_ASSERT(i == j);
                 }
             }
         }

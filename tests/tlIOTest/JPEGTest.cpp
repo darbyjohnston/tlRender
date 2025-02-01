@@ -7,7 +7,6 @@
 #include <tlIO/JPEG.h>
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/FileIO.h>
 
 #include <sstream>
@@ -69,16 +68,16 @@ namespace tl
                     read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
-                TLRENDER_ASSERT(!ioInfo.video.empty());
+                DTK_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
-                TLRENDER_ASSERT(videoData.image);
-                TLRENDER_ASSERT(videoData.image->getSize() == image->getSize());
+                DTK_ASSERT(videoData.image);
+                DTK_ASSERT(videoData.image->getSize() == image->getSize());
                 const auto frameTags = videoData.image->getTags();
                 for (const auto& j : tags)
                 {
                     const auto k = frameTags.find(j.first);
-                    TLRENDER_ASSERT(k != frameTags.end());
-                    TLRENDER_ASSERT(k->second == j.second);
+                    DTK_ASSERT(k != frameTags.end());
+                    DTK_ASSERT(k->second == j.second);
                 }
             }
 

@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/FontSystemTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/FontSystem.h>
 
 #include <dtk/core/Format.h>
@@ -34,48 +33,48 @@ namespace tl
                 })
             {
                 auto data = getFontData(font);
-                TLRENDER_ASSERT(!data.empty());
+                DTK_ASSERT(!data.empty());
             }
             {
                 const FontInfo fi;
-                TLRENDER_ASSERT("NotoSans-Regular" == fi.family);
-                TLRENDER_ASSERT(12 == fi.size);
+                DTK_ASSERT("NotoSans-Regular" == fi.family);
+                DTK_ASSERT(12 == fi.size);
             }
             {
                 const FontInfo fi("NotoMono-Regular", 14);
-                TLRENDER_ASSERT("NotoMono-Regular" == fi.family);
-                TLRENDER_ASSERT(14 == fi.size);
+                DTK_ASSERT("NotoMono-Regular" == fi.family);
+                DTK_ASSERT(14 == fi.size);
             }
             {
                 FontInfo a;
                 FontInfo b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
             }
             {
                 FontInfo a("NotoMono-Regular", 14);
                 FontInfo b;
-                TLRENDER_ASSERT(a < b);
+                DTK_ASSERT(a < b);
             }
             {
                 const GlyphInfo gi;
-                TLRENDER_ASSERT(0 == gi.code);
-                TLRENDER_ASSERT(FontInfo() == gi.fontInfo);
+                DTK_ASSERT(0 == gi.code);
+                DTK_ASSERT(FontInfo() == gi.fontInfo);
             }
             {
                 const FontInfo fi("NotoMono-Regular", 14);
                 const GlyphInfo gi(1, fi);
-                TLRENDER_ASSERT(1 == gi.code);
-                TLRENDER_ASSERT(fi == gi.fontInfo);
+                DTK_ASSERT(1 == gi.code);
+                DTK_ASSERT(fi == gi.fontInfo);
             }
             {
                 GlyphInfo a;
                 GlyphInfo b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
             }
             {
                 GlyphInfo a;
                 GlyphInfo b(1, FontInfo("NotoMono-Regular", 14));
-                TLRENDER_ASSERT(a < b);
+                DTK_ASSERT(a < b);
             }
             auto fontSystem = _context->getSystem<image::FontSystem>();
             for (auto fontSize : { 14, 0 })
@@ -101,7 +100,7 @@ namespace tl
                     const math::Size2i size = fontSystem->getSize(text[i], fi, maxLineWidth[i]);
                     _print(dtk::Format("Size: {0}").arg(size));
                     const auto boxes = fontSystem->getBox(text[i], fi, maxLineWidth[i]);
-                    TLRENDER_ASSERT(text[i].size() == boxes.size());
+                    DTK_ASSERT(text[i].size() == boxes.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
                         _print(dtk::Format("Box '{0}': {1}").
@@ -109,7 +108,7 @@ namespace tl
                             arg(boxes[j]));
                     }
                     const auto glyphs = fontSystem->getGlyphs(text[i], fi);
-                    TLRENDER_ASSERT(text[i].size() == glyphs.size());
+                    DTK_ASSERT(text[i].size() == glyphs.size());
                     for (size_t j = 0; j < text[i].size(); ++j)
                     {
                         image::Size size;

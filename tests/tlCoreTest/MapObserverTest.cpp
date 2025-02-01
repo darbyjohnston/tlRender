@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/MapObserverTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/MapObserver.h>
 
 namespace tl
@@ -24,7 +23,7 @@ namespace tl
         {
             std::map<int, int> map = {};
             auto value = observer::Map<int, int>::create(map);
-            TLRENDER_ASSERT(map == value->get());
+            DTK_ASSERT(map == value->get());
 
             std::map<int, int> result;
             auto observer = observer::MapObserver<int, int>::create(
@@ -35,14 +34,14 @@ namespace tl
                 });
             map[0] = 1;
             bool changed = value->setIfChanged(map);
-            TLRENDER_ASSERT(changed);
+            DTK_ASSERT(changed);
             changed = value->setIfChanged(map);
-            TLRENDER_ASSERT(!changed);
-            TLRENDER_ASSERT(map == result);
-            TLRENDER_ASSERT(1 == value->getSize());
-            TLRENDER_ASSERT(!value->isEmpty());
-            TLRENDER_ASSERT(value->hasKey(0));
-            TLRENDER_ASSERT(1 == value->getItem(0));
+            DTK_ASSERT(!changed);
+            DTK_ASSERT(map == result);
+            DTK_ASSERT(1 == value->getSize());
+            DTK_ASSERT(!value->isEmpty());
+            DTK_ASSERT(value->hasKey(0));
+            DTK_ASSERT(1 == value->getItem(0));
 
             {
                 std::map<int, int> result2;
@@ -54,16 +53,16 @@ namespace tl
                     });
                 map[1] = 2;
                 value->setIfChanged(map);
-                TLRENDER_ASSERT(map == result);
-                TLRENDER_ASSERT(map == result2);
-                TLRENDER_ASSERT(2 == value->getSize());
-                TLRENDER_ASSERT(!value->isEmpty());
-                TLRENDER_ASSERT(value->hasKey(1));
-                TLRENDER_ASSERT(2 == value->getItem(1));
-                TLRENDER_ASSERT(2 == value->getObserversCount());
+                DTK_ASSERT(map == result);
+                DTK_ASSERT(map == result2);
+                DTK_ASSERT(2 == value->getSize());
+                DTK_ASSERT(!value->isEmpty());
+                DTK_ASSERT(value->hasKey(1));
+                DTK_ASSERT(2 == value->getItem(1));
+                DTK_ASSERT(2 == value->getObserversCount());
             }
 
-            TLRENDER_ASSERT(1 == value->getObserversCount());
+            DTK_ASSERT(1 == value->getObserversCount());
         }
     }
 }

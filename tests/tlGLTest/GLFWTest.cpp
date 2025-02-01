@@ -42,7 +42,7 @@ namespace tl
             }
             if (window)
             {
-                TLRENDER_ASSERT(window->getGLFW());
+                DTK_ASSERT(window->getGLFW());
                 _print(dtk::Format("Window size: {0}").arg(window->getSize()));
                 _print(dtk::Format("Frame buffer size: {0}").arg(window->getFrameBufferSize()));
                 _print(dtk::Format("Content scale: {0}").arg(window->getContentScale()));
@@ -119,16 +119,16 @@ namespace tl
                 window->makeCurrent();
                 window->setSize(math::Size2i(100, 100));
                 window->setSize(math::Size2i(100, 100));
-                TLRENDER_ASSERT(!window->shouldClose());
+                DTK_ASSERT(!window->shouldClose());
 
                 window->setFullScreen(true);
                 window->setFullScreen(true);
-                TLRENDER_ASSERT(window->isFullScreen());
+                DTK_ASSERT(window->isFullScreen());
                 window->setFullScreen(false);
 
                 window->setFloatOnTop(true);
                 window->setFloatOnTop(true);
-                TLRENDER_ASSERT(window->isFloatOnTop());
+                DTK_ASSERT(window->isFloatOnTop());
                 window->setFloatOnTop(false);
 
                 window->swap();

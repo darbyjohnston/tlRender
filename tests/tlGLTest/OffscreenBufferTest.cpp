@@ -59,8 +59,8 @@ namespace tl
             {
                 OffscreenBufferOptions options;
                 options.colorType = offscreenColorDefault;
-                TLRENDER_ASSERT(options == options);
-                TLRENDER_ASSERT(options != OffscreenBufferOptions());
+                DTK_ASSERT(options == options);
+                DTK_ASSERT(options != OffscreenBufferOptions());
             }
             struct TestData
             {
@@ -167,14 +167,14 @@ namespace tl
                     options.stencil = data.stencil;
                     options.sampling = data.sampling;
                     auto buffer = OffscreenBuffer::create(data.size, options);
-                    TLRENDER_ASSERT(buffer->getSize() == data.size);
-                    TLRENDER_ASSERT(buffer->getWidth() == data.size.w);
-                    TLRENDER_ASSERT(buffer->getHeight() == data.size.h);
-                    TLRENDER_ASSERT(buffer->getOptions() == options);
-                    TLRENDER_ASSERT(buffer->getID());
-                    TLRENDER_ASSERT(buffer->getColorID());
+                    DTK_ASSERT(buffer->getSize() == data.size);
+                    DTK_ASSERT(buffer->getWidth() == data.size.w);
+                    DTK_ASSERT(buffer->getHeight() == data.size.h);
+                    DTK_ASSERT(buffer->getOptions() == options);
+                    DTK_ASSERT(buffer->getID());
+                    DTK_ASSERT(buffer->getColorID());
                     buffer->bind();
-                    TLRENDER_ASSERT(!doCreate(buffer, data.size, options));
+                    DTK_ASSERT(!doCreate(buffer, data.size, options));
                 }
                 catch (const std::exception& e)
                 {
@@ -190,12 +190,12 @@ namespace tl
                     options.depth = depth;
                     const math::Size2i size(100, 200);
                     auto buffer = OffscreenBuffer::create(size, options);
-                    TLRENDER_ASSERT(buffer->getSize() == size);
-                    TLRENDER_ASSERT(buffer->getWidth() == size.w);
-                    TLRENDER_ASSERT(buffer->getHeight() == size.h);
-                    TLRENDER_ASSERT(buffer->getOptions() == options);
-                    TLRENDER_ASSERT(buffer->getID());
-                    TLRENDER_ASSERT(buffer->getColorID());
+                    DTK_ASSERT(buffer->getSize() == size);
+                    DTK_ASSERT(buffer->getWidth() == size.w);
+                    DTK_ASSERT(buffer->getHeight() == size.h);
+                    DTK_ASSERT(buffer->getOptions() == options);
+                    DTK_ASSERT(buffer->getID());
+                    DTK_ASSERT(buffer->getColorID());
                     buffer->bind();
                 }
                 catch (const std::exception& e)
@@ -212,12 +212,12 @@ namespace tl
                     options.sampling = sampling;
                     const math::Size2i size(100, 200);
                     auto buffer = OffscreenBuffer::create(size, options);
-                    TLRENDER_ASSERT(buffer->getSize() == size);
-                    TLRENDER_ASSERT(buffer->getWidth() == size.w);
-                    TLRENDER_ASSERT(buffer->getHeight() == size.h);
-                    TLRENDER_ASSERT(buffer->getOptions() == options);
-                    TLRENDER_ASSERT(buffer->getID());
-                    TLRENDER_ASSERT(buffer->getColorID());
+                    DTK_ASSERT(buffer->getSize() == size);
+                    DTK_ASSERT(buffer->getWidth() == size.w);
+                    DTK_ASSERT(buffer->getHeight() == size.h);
+                    DTK_ASSERT(buffer->getOptions() == options);
+                    DTK_ASSERT(buffer->getID());
+                    DTK_ASSERT(buffer->getColorID());
                     buffer->bind();
                 }
                 catch (const std::exception& e)

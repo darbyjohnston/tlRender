@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/OSTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/OS.h>
 
 #include <dtk/core/String.h>
@@ -42,46 +41,46 @@ namespace tl
             {
                 const std::string env = "OSTEST";
                 const std::string value = "1";
-                TLRENDER_ASSERT(setEnv(env, value));
+                DTK_ASSERT(setEnv(env, value));
                 std::string value2;
-                TLRENDER_ASSERT(getEnv(env, value2));
-                TLRENDER_ASSERT(value == value2);
-                TLRENDER_ASSERT(delEnv(env));
+                DTK_ASSERT(getEnv(env, value2));
+                DTK_ASSERT(value == value2);
+                DTK_ASSERT(delEnv(env));
             }
             {
                 const std::string env = "OSTEST";
                 std::string value;
-                TLRENDER_ASSERT(!getEnv(env, value));
+                DTK_ASSERT(!getEnv(env, value));
             }
             {
                 const std::string env = "OSTEST";
                 const int value = 1;
                 std::stringstream ss;
                 ss << value;
-                TLRENDER_ASSERT(setEnv(env, ss.str()));
+                DTK_ASSERT(setEnv(env, ss.str()));
                 int value2 = 0;
-                TLRENDER_ASSERT(getEnv(env, value2));
-                TLRENDER_ASSERT(value == value2);
-                TLRENDER_ASSERT(delEnv(env));
+                DTK_ASSERT(getEnv(env, value2));
+                DTK_ASSERT(value == value2);
+                DTK_ASSERT(delEnv(env));
             }
             {
                 const std::string env = "OSTEST";
                 int value = 0;
-                TLRENDER_ASSERT(!getEnv(env, value));
+                DTK_ASSERT(!getEnv(env, value));
             }
             {
                 const std::string env = "OSTEST";
                 const std::vector<std::string> value = { "a", "b", "c" };
-                TLRENDER_ASSERT(setEnv(env, dtk::join(value, envListSeparator)));
+                DTK_ASSERT(setEnv(env, dtk::join(value, envListSeparator)));
                 std::vector<std::string> value2;
-                TLRENDER_ASSERT(getEnv(env, value2));
-                TLRENDER_ASSERT(value == value2);
-                TLRENDER_ASSERT(delEnv(env));
+                DTK_ASSERT(getEnv(env, value2));
+                DTK_ASSERT(value == value2);
+                DTK_ASSERT(delEnv(env));
             }
             {
                 const std::string env = "OSTEST";
                 std::vector<std::string> value;
-                TLRENDER_ASSERT(!getEnv(env, value));
+                DTK_ASSERT(!getEnv(env, value));
             }
         }
     }

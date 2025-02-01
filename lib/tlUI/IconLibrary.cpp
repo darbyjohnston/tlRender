@@ -7,7 +7,6 @@
 #include <tlIO/PNG.h>
 #include <tlIO/System.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/LRUCache.h>
 
 #include <dtk/core/Format.h>

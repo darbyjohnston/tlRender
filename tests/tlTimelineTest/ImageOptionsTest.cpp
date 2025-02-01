@@ -34,14 +34,14 @@ namespace tl
             {
                 ImageFilters v;
                 v.minify = ImageFilter::Nearest;
-                TLRENDER_ASSERT(v == v);
-                TLRENDER_ASSERT(v != ImageFilters());
+                DTK_ASSERT(v == v);
+                DTK_ASSERT(v != ImageFilters());
             }
             {
                 ImageOptions v;
                 v.videoLevels = InputVideoLevels::FullRange;
-                TLRENDER_ASSERT(v == v);
-                TLRENDER_ASSERT(v != ImageOptions());
+                DTK_ASSERT(v == v);
+                DTK_ASSERT(v != ImageOptions());
             }
         }
     }

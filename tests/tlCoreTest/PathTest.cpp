@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/PathTest.h>
 
-#include <tlCore/Assert.h>
 #include <tlCore/Path.h>
 
 #include <dtk/core/Format.h>
@@ -48,37 +47,37 @@ namespace tl
             {
                 PathOptions a;
                 const PathOptions b;
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 a.maxNumberDigits = 0;
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 const Path path;
-                TLRENDER_ASSERT(path.isEmpty());
-                TLRENDER_ASSERT(path.getDirectory().empty());
-                TLRENDER_ASSERT(path.getBaseName().empty());
-                TLRENDER_ASSERT(path.getNumber().empty());
-                TLRENDER_ASSERT(path.getExtension().empty());
+                DTK_ASSERT(path.isEmpty());
+                DTK_ASSERT(path.getDirectory().empty());
+                DTK_ASSERT(path.getBaseName().empty());
+                DTK_ASSERT(path.getNumber().empty());
+                DTK_ASSERT(path.getExtension().empty());
             }
             {
                 Path path("/tmp/file.txt");
-                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                DTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("/tmp", "file.txt");
-                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                DTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("/tmp/", "file.txt");
-                TLRENDER_ASSERT(path.get() == "/tmp/file.txt");
+                DTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("\\tmp\\file.txt");
-                TLRENDER_ASSERT(path.get() == "\\tmp\\file.txt");
+                DTK_ASSERT(path.get() == "\\tmp\\file.txt");
             }
             {
                 std::string s = Path("tmp/", "render.", "0001", 4, ".exr", "http://", "?user=foo;password=bar").get();
-                TLRENDER_ASSERT(s == "http://tmp/render.0001.exr?user=foo;password=bar");
+                DTK_ASSERT(s == "http://tmp/render.0001.exr?user=foo;password=bar");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2);
-                TLRENDER_ASSERT(s == "http://tmp/render.0002.exr");
+                DTK_ASSERT(s == "http://tmp/render.0002.exr");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::Path);
-                TLRENDER_ASSERT(s == "tmp/render.0002.exr");
+                DTK_ASSERT(s == "tmp/render.0002.exr");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::FileName);
-                TLRENDER_ASSERT(s == "render.0002.exr");
+                DTK_ASSERT(s == "render.0002.exr");
             }
             {
                 struct Data
@@ -128,113 +127,113 @@ namespace tl
                 {
                     const Path path(i.input);
                     std::string s = path.get();
-                    TLRENDER_ASSERT(i.input == s);
-                    TLRENDER_ASSERT(i.protocol == path.getProtocol());
-                    TLRENDER_ASSERT(i.directory == path.getDirectory());
-                    TLRENDER_ASSERT(i.baseName == path.getBaseName());
-                    TLRENDER_ASSERT(i.number == path.getNumber());
-                    TLRENDER_ASSERT(i.padding == path.getPadding());
-                    TLRENDER_ASSERT(i.extension == path.getExtension());
-                    TLRENDER_ASSERT(i.request == path.getRequest());
+                    DTK_ASSERT(i.input == s);
+                    DTK_ASSERT(i.protocol == path.getProtocol());
+                    DTK_ASSERT(i.directory == path.getDirectory());
+                    DTK_ASSERT(i.baseName == path.getBaseName());
+                    DTK_ASSERT(i.number == path.getNumber());
+                    DTK_ASSERT(i.padding == path.getPadding());
+                    DTK_ASSERT(i.extension == path.getExtension());
+                    DTK_ASSERT(i.request == path.getRequest());
                 }
             }
             {
                 Path p("render.0001.exr");
                 const math::IntRange sequence(1, 100);
                 p.setSequence(sequence);
-                TLRENDER_ASSERT(sequence == p.getSequence());
-                TLRENDER_ASSERT(p.isSequence());
-                TLRENDER_ASSERT("0001-0100" == p.getSequenceString());
-                TLRENDER_ASSERT(p.sequence(Path("render.0101.exr")));
-                TLRENDER_ASSERT(!p.sequence(Path("render.101.exr")));
+                DTK_ASSERT(sequence == p.getSequence());
+                DTK_ASSERT(p.isSequence());
+                DTK_ASSERT("0001-0100" == p.getSequenceString());
+                DTK_ASSERT(p.sequence(Path("render.0101.exr")));
+                DTK_ASSERT(!p.sequence(Path("render.101.exr")));
             }
             {
                 Path p("render.0001.exr");
                 const math::IntRange sequence(1, 9999);
                 p.setSequence(sequence);
-                TLRENDER_ASSERT("0001-9999" == p.getSequenceString());
-                TLRENDER_ASSERT(p.sequence(Path("render.0001.exr")));
-                TLRENDER_ASSERT(p.sequence(Path("render.1000.exr")));
+                DTK_ASSERT("0001-9999" == p.getSequenceString());
+                DTK_ASSERT(p.sequence(Path("render.0001.exr")));
+                DTK_ASSERT(p.sequence(Path("render.1000.exr")));
                 //! \bug Handle frame numbers that exceed the zero padding.
-                //TLRENDER_ASSERT(p.sequence(Path("render.10000.exr")));
+                //DTK_ASSERT(p.sequence(Path("render.10000.exr")));
             }
             {
                 Path p("render.1000.exr");
                 const math::IntRange sequence(1, 9999);
                 p.setSequence(sequence);
-                TLRENDER_ASSERT(p.sequence(Path("render.0001.exr")));
-                TLRENDER_ASSERT(p.sequence(Path("render.1000.exr")));
+                DTK_ASSERT(p.sequence(Path("render.0001.exr")));
+                DTK_ASSERT(p.sequence(Path("render.1000.exr")));
                 //! \bug How should the padding be handled in this case?
-                //TLRENDER_ASSERT("0001-9999" == p.getSequenceString());
+                //DTK_ASSERT("0001-9999" == p.getSequenceString());
             }
             {
                 Path path("render.00000.exr");
-                TLRENDER_ASSERT(path.sequence(Path("render.10000.exr")));
+                DTK_ASSERT(path.sequence(Path("render.10000.exr")));
             }
             {
-                TLRENDER_ASSERT(Path("/").isAbsolute());
-                TLRENDER_ASSERT(Path("/tmp").isAbsolute());
-                TLRENDER_ASSERT(Path("\\").isAbsolute());
-                TLRENDER_ASSERT(Path("C:").isAbsolute());
-                TLRENDER_ASSERT(Path("C:\\tmp").isAbsolute());
-                TLRENDER_ASSERT(!Path("").isAbsolute());
-                TLRENDER_ASSERT(!Path("../..").isAbsolute());
-                TLRENDER_ASSERT(!Path("..\\..").isAbsolute());
+                DTK_ASSERT(Path("/").isAbsolute());
+                DTK_ASSERT(Path("/tmp").isAbsolute());
+                DTK_ASSERT(Path("\\").isAbsolute());
+                DTK_ASSERT(Path("C:").isAbsolute());
+                DTK_ASSERT(Path("C:\\tmp").isAbsolute());
+                DTK_ASSERT(!Path("").isAbsolute());
+                DTK_ASSERT(!Path("../..").isAbsolute());
+                DTK_ASSERT(!Path("..\\..").isAbsolute());
             }
             {
                 const Path a("/");
                 Path b("/");
-                TLRENDER_ASSERT(a == b);
+                DTK_ASSERT(a == b);
                 b = Path("/tmp");
-                TLRENDER_ASSERT(a != b);
+                DTK_ASSERT(a != b);
             }
             {
                 Path a("/tmp/render.1.exr");
                 a.setProtocol("file://");
-                TLRENDER_ASSERT("file://" == a.getProtocol());
-                TLRENDER_ASSERT("file:" == a.getProtocolName());
-                TLRENDER_ASSERT(a.get() == "file:///tmp/render.1.exr");
+                DTK_ASSERT("file://" == a.getProtocol());
+                DTK_ASSERT("file:" == a.getProtocolName());
+                DTK_ASSERT(a.get() == "file:///tmp/render.1.exr");
                 a.setDirectory("/usr/tmp/");
-                TLRENDER_ASSERT("/usr/tmp/" == a.getDirectory());
-                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/render.1.exr");
+                DTK_ASSERT("/usr/tmp/" == a.getDirectory());
+                DTK_ASSERT(a.get() == "file:///usr/tmp/render.1.exr");
                 a.setBaseName("comp.");
-                TLRENDER_ASSERT("comp." == a.getBaseName());
-                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.1.exr");
+                DTK_ASSERT("comp." == a.getBaseName());
+                DTK_ASSERT(a.get() == "file:///usr/tmp/comp.1.exr");
                 a.setNumber("0010");
-                TLRENDER_ASSERT("0010" == a.getNumber());
-                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
-                TLRENDER_ASSERT(a.getPadding() == 4);
-                TLRENDER_ASSERT(a.getSequence() == math::IntRange(10, 10));
+                DTK_ASSERT("0010" == a.getNumber());
+                DTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
+                DTK_ASSERT(a.getPadding() == 4);
+                DTK_ASSERT(a.getSequence() == math::IntRange(10, 10));
                 a.setExtension(".tif");
-                TLRENDER_ASSERT(".tif" == a.getExtension());
-                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");
+                DTK_ASSERT(".tif" == a.getExtension());
+                DTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");
                 a.setRequest("?user=foo;password=bar");
-                TLRENDER_ASSERT("?user=foo;password=bar" == a.getRequest());
-                TLRENDER_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif?user=foo;password=bar");
+                DTK_ASSERT("?user=foo;password=bar" == a.getRequest());
+                DTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif?user=foo;password=bar");
             }
         }
 
         void PathTest::_util()
         {
             {
-                TLRENDER_ASSERT(isPathSeparator('/'));
-                TLRENDER_ASSERT(isPathSeparator('\\'));
+                DTK_ASSERT(isPathSeparator('/'));
+                DTK_ASSERT(isPathSeparator('\\'));
             }
             {
                 std::string path = appendSeparator(std::string());
-                TLRENDER_ASSERT(path.empty());
+                DTK_ASSERT(path.empty());
                 path = appendSeparator(std::string("/"));
-                TLRENDER_ASSERT("/" == path);
-                TLRENDER_ASSERT("/tmp/" == appendSeparator(std::string("/tmp")));
-                TLRENDER_ASSERT("/tmp/" == appendSeparator(std::string("/tmp/")));
+                DTK_ASSERT("/" == path);
+                DTK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp")));
+                DTK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp/")));
             }
             {
                 std::string path = getParent("/usr/tmp");
-                TLRENDER_ASSERT("/usr" == path);
+                DTK_ASSERT("/usr" == path);
                 path = getParent("/tmp");
-                TLRENDER_ASSERT("/" == path);
+                DTK_ASSERT("/" == path);
                 path = getParent("a/b");
-                TLRENDER_ASSERT("a" == path);
+                DTK_ASSERT("a" == path);
             }
             {
                 _print(dtk::Format("Drives: {0}").arg(dtk::join(getDrives(), " ")));

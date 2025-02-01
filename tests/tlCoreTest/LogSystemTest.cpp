@@ -26,8 +26,8 @@ namespace tl
             {
                 Item item;
                 item.message = "Test";
-                TLRENDER_ASSERT(item == item);
-                TLRENDER_ASSERT(item != Item());
+                DTK_ASSERT(item == item);
+                DTK_ASSERT(item != Item());
             }
         }
     }
