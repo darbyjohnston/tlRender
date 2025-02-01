@@ -20,14 +20,14 @@ namespace tl
         //! Get a video cache key.
         std::string getVideoCacheKey(
             const file::Path&,
-            const otime::RationalTime&,
+            const OTIO_NS::RationalTime&,
             const Options& initOptions,
             const Options& frameOptions);
 
         //! Get an audio cache key.
         std::string getAudioCacheKey(
             const file::Path&,
-            const otime::TimeRange&,
+            const OTIO_NS::TimeRange&,
             const Options& initOptions,
             const Options& frameOptions);
 

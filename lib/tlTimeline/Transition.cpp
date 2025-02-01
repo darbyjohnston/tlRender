@@ -27,7 +27,7 @@ namespace tl
         Transition toTransition(const std::string& value)
         {
             Transition out = Transition::None;
-            if (otio::Transition::Type::SMPTE_Dissolve == value)
+            if (OTIO_NS::Transition::Type::SMPTE_Dissolve == value)
             {
                 out = Transition::Dissolve;
             }

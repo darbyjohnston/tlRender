@@ -28,7 +28,7 @@ namespace tl
         {
             {
                 PlayerCacheOptions v;
-                v.readAhead = otime::RationalTime(10.0, 1.0);
+                v.readAhead = OTIO_NS::RationalTime(10.0, 1.0);
                 DTK_ASSERT(v == v);
                 DTK_ASSERT(v != PlayerCacheOptions());
             }

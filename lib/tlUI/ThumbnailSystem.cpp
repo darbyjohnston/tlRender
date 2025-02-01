@@ -127,7 +127,7 @@ namespace tl
         std::string ThumbnailCache::getThumbnailKey(
             int height,
             const file::Path& path,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             std::vector<std::string> s;
@@ -169,7 +169,7 @@ namespace tl
         std::string ThumbnailCache::getWaveformKey(
             const math::Size2i& size,
             const file::Path& path,
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
             std::vector<std::string> s;
@@ -239,7 +239,7 @@ namespace tl
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
                 int height = 0;
-                otime::RationalTime time = time::invalidTime;
+                OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
                 std::promise<std::shared_ptr<image::Image> > promise;
             };
@@ -250,7 +250,7 @@ namespace tl
                 file::Path path;
                 std::vector<file::MemoryRead> memoryRead;
                 math::Size2i size;
-                otime::TimeRange timeRange = time::invalidTimeRange;
+                OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 io::Options options;
                 std::promise<std::shared_ptr<geom::TriangleMesh2> > promise;
             };
@@ -467,7 +467,7 @@ namespace tl
         ThumbnailRequest ThumbnailGenerator::getThumbnail(
             const file::Path& path,
             int height,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             return getThumbnail(path, {}, height, time, options);
@@ -477,7 +477,7 @@ namespace tl
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             int height,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             TLRENDER_P();
@@ -517,7 +517,7 @@ namespace tl
         WaveformRequest ThumbnailGenerator::getWaveform(
             const file::Path& path,
             const math::Size2i& size,
-            const otime::TimeRange& range,
+            const OTIO_NS::TimeRange& range,
             const io::Options& options)
         {
             return getWaveform(path, {}, size, range, options);
@@ -527,7 +527,7 @@ namespace tl
             const file::Path& path,
             const std::vector<file::MemoryRead>& memoryRead,
             const math::Size2i& size,
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
             TLRENDER_P();
@@ -730,7 +730,7 @@ namespace tl
                                 {
                                     p.thumbnailThread.buffer = gl::OffscreenBuffer::create(size, options);
                                 }
-                                const otime::RationalTime time =
+                                const OTIO_NS::RationalTime time =
                                     request->time != time::invalidTime ?
                                     request->time :
                                     info.videoTime.start_time();
@@ -992,12 +992,12 @@ namespace tl
                             if (read)
                             {
                                 const auto info = read->getInfo().get();
-                                const otime::TimeRange timeRange =
+                                const OTIO_NS::TimeRange timeRange =
                                     request->timeRange != time::invalidTimeRange ?
                                     request->timeRange :
-                                    otime::TimeRange(
-                                        otime::RationalTime(0.0, 1.0),
-                                        otime::RationalTime(1.0, 1.0));
+                                    OTIO_NS::TimeRange(
+                                        OTIO_NS::RationalTime(0.0, 1.0),
+                                        OTIO_NS::RationalTime(1.0, 1.0));
                                 const auto audioData = read->readAudio(timeRange, request->options).get();
                                 if (audioData.audio)
                                 {
@@ -1100,7 +1100,7 @@ namespace tl
         ThumbnailRequest ThumbnailSystem::getThumbnail(
             const file::Path& path,
             int height,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& ioOptions)
         {
             return _p->generator->getThumbnail(path, height, time, ioOptions);
@@ -1109,7 +1109,7 @@ namespace tl
         WaveformRequest ThumbnailSystem::getWaveform(
             const file::Path& path,
             const math::Size2i& size,
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& timeRange,
             const io::Options& ioOptions)
         {
             return _p->generator->getWaveform(path, size, timeRange, ioOptions);

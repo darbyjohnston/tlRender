@@ -34,7 +34,7 @@ namespace tl
         struct VideoData
         {
             image::Size size;
-            otime::RationalTime time = time::invalidTime;
+            OTIO_NS::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 
             bool operator == (const VideoData&) const;

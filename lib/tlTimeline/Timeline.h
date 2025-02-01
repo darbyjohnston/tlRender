@@ -55,7 +55,7 @@ namespace tl
 
         //! Create a new timeline from a path. The path can point to an .otio
         //! file, .otioz file, movie file, or image sequence.
-        otio::SerializableObject::Retainer<otio::Timeline> create(
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
             const file::Path&,
             const std::shared_ptr<system::Context>&,
             const Options& = Options());
@@ -63,7 +63,7 @@ namespace tl
         //! Create a new timeline from a path and audio path. The file name
         //! can point to an .otio file, .otioz file, movie file, or image
         //! sequence.
-        otio::SerializableObject::Retainer<otio::Timeline> create(
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
             const file::Path& path,
             const file::Path& audioPath,
             const std::shared_ptr<system::Context>&,
@@ -90,7 +90,7 @@ namespace tl
 
         protected:
             void _init(
-                const otio::SerializableObject::Retainer<otio::Timeline>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 const Options&);
 
@@ -101,7 +101,7 @@ namespace tl
 
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
-                const otio::SerializableObject::Retainer<otio::Timeline>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
                 const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
@@ -140,13 +140,13 @@ namespace tl
             const std::weak_ptr<system::Context>& getContext() const;
 
             //! Get the timeline.
-            const otio::SerializableObject::Retainer<otio::Timeline>& getTimeline() const;
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& getTimeline() const;
 
             //! Observe timeline changes.
             std::shared_ptr<observer::IValue<bool> > observeTimelineChanges() const;
 
             //! Set the timeline.
-            void setTimeline(const otio::SerializableObject::Retainer<otio::Timeline>&);
+            void setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&);
 
             //! Get the file path.
             const file::Path& getPath() const;
@@ -161,7 +161,7 @@ namespace tl
             ///@{
 
             //! Get the time range.
-            const otime::TimeRange& getTimeRange() const;
+            const OTIO_NS::TimeRange& getTimeRange() const;
 
             //! Get the I/O information. This information is retrieved from
             //! the first clip in the timeline.
@@ -174,7 +174,7 @@ namespace tl
 
             //! Get video data.
             VideoRequest getVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const io::Options& = io::Options());
 
             //! Get audio data.

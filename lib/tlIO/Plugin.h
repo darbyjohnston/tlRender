@@ -74,12 +74,12 @@ namespace tl
 
             //! Read video data.
             virtual std::future<VideoData> readVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const Options& = Options());
 
             //! Read audio data.
             virtual std::future<AudioData> readAudio(
-                const otime::TimeRange&,
+                const OTIO_NS::TimeRange&,
                 const Options& = Options());
 
             //! Cancel pending requests.
@@ -106,7 +106,7 @@ namespace tl
 
             //! Write video data.
             virtual void writeVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const Options& = Options()) = 0;
 

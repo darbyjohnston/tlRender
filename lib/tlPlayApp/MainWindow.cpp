@@ -154,7 +154,7 @@ namespace tl
             std::shared_ptr<observer::ValueObserver<double> > speedObserver;
             std::shared_ptr<observer::ValueObserver<double> > speedObserver2;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<observer::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
@@ -485,7 +485,7 @@ namespace tl
                 });
 
             p.currentTimeEdit->setCallback(
-                [this](const otime::RationalTime& value)
+                [this](const OTIO_NS::RationalTime& value)
                 {
                     if (_p->player)
                     {
@@ -797,9 +797,9 @@ namespace tl
                         _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
                     });
 
-                p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
-                    [this](const otime::RationalTime& value)
+                    [this](const OTIO_NS::RationalTime& value)
                     {
                         _p->currentTimeEdit->setValue(value);
                     });

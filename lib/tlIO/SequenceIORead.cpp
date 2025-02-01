@@ -125,7 +125,7 @@ namespace tl
         }
 
         std::future<VideoData> ISequenceRead::readVideo(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const Options& options)
         {
             TLRENDER_P();
@@ -237,7 +237,7 @@ namespace tl
                         {
                             fileName = _path.get(-1, file::PathType::Path);
                         }
-                        const otime::RationalTime time = request->time;
+                        const OTIO_NS::RationalTime time = request->time;
                         const Options options = request->options;
                         request->future = std::async(
                             std::launch::async,

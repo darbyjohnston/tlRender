@@ -37,7 +37,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<timeline::Player>&,
-                const otio::SerializableObject::Retainer<otio::Stack>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
@@ -54,7 +54,7 @@ namespace tl
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
                 const std::shared_ptr<timeline::Player>&,
-                const otio::SerializableObject::Retainer<otio::Stack>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
@@ -73,7 +73,7 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);

@@ -70,11 +70,11 @@ namespace tl
                     "Playback loop mode.",
                     dtk::Format("{0}").arg(options.loop),
                     dtk::join(timeline::getLoopLabels(), ", ")),
-                app::CmdLineValueOption<otime::RationalTime>::create(
+                app::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                     options.seek,
                     { "-seek" },
                     "Seek to the given time."),
-                app::CmdLineValueOption<otime::TimeRange>::create(
+                app::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                     options.inOutRange,
                     { "-inOutRange" },
                     "Set the in/out points range."),

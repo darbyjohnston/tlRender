@@ -22,7 +22,7 @@ namespace tl
         {
         protected:
             void _init(
-                const otio::SerializableObject::Retainer<otio::Clip>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
@@ -38,7 +38,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<AudioClipItem> create(
-                const otio::SerializableObject::Retainer<otio::Clip>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,

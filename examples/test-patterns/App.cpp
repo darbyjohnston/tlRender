@@ -71,8 +71,8 @@ namespace tl
                         math::Size2i(4096, 2160)
                         })
                     {
-                        otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                        otio::SerializableObject::Retainer<otio::Track> otioTrack(new otio::Track);
+                        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Track> otioTrack(new OTIO_NS::Track);
                         otioTimeline->tracks()->append_child(otioTrack);
 
                         for (const auto& name : {
@@ -84,20 +84,20 @@ namespace tl
                             //const std::string output = dtk::Format("{0}_{1}_pattern.mp4").arg(name).arg(size);
                             const std::string output = dtk::Format("{0}_{1}.0.dpx").arg(name).arg(size);
                             std::cout << "Output: " << output << std::endl;
-                            otio::SerializableObject::Retainer<otio::Clip> otioClip(new otio::Clip);
-                            //otio::SerializableObject::Retainer<otio::MediaReference> mediaReference(
-                            //    new otio::ExternalReference(dtk::Format("{0}").arg(output)));
-                            otio::SerializableObject::Retainer<otio::ImageSequenceReference> mediaReference(
-                                new otio::ImageSequenceReference(
+                            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip> otioClip(new OTIO_NS::Clip);
+                            //OTIO_NS::SerializableObject::Retainer<OTIO_NS::MediaReference> mediaReference(
+                            //    new OTIO_NS::ExternalReference(dtk::Format("{0}").arg(output)));
+                            OTIO_NS::SerializableObject::Retainer<OTIO_NS::ImageSequenceReference> mediaReference(
+                                new OTIO_NS::ImageSequenceReference(
                                     "file://",
                                     file::Path(output).getBaseName(),
                                     file::Path(output).getExtension(),
                                     0,
                                     1,
                                     24));
-                            const otime::TimeRange timeRange(
-                                otime::RationalTime(0.0, 24.0),
-                                otime::RationalTime(24 * 3, 24.0));
+                            const OTIO_NS::TimeRange timeRange(
+                                OTIO_NS::RationalTime(0.0, 24.0),
+                                OTIO_NS::RationalTime(24 * 3, 24.0));
                             mediaReference->set_available_range(timeRange);
                             otioClip->set_media_reference(mediaReference);
                             otioTrack->append_child(otioClip);
@@ -138,7 +138,7 @@ namespace tl
                             auto pattern = TestPatternFactory::create(name, size, _context);
                             for (double i = ioInfo.videoTime.start_time().value(); i < ioInfo.videoTime.duration().value(); i = i + 1.0)
                             {
-                                const otime::RationalTime time(i, 24.0);
+                                const OTIO_NS::RationalTime time(i, 24.0);
 
                                 render->begin(size);
                                 pattern->render(render, time);

@@ -1037,10 +1037,10 @@ namespace tl
                 p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = otime::RationalTime(
+            cacheOptions.readAhead = OTIO_NS::RationalTime(
                 p.settings->getValue<double>("Cache/ReadAhead"),
                 1.0);
-            cacheOptions.readBehind = otime::RationalTime(
+            cacheOptions.readBehind = OTIO_NS::RationalTime(
                 p.settings->getValue<double>("Cache/ReadBehind"),
                 1.0);
             if (auto player = p.player->get())

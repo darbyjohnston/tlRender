@@ -651,8 +651,8 @@ namespace tl
                 event.accept = true;
                 if (p.player)
                 {
-                    const otime::RationalTime t = p.player->getCurrentTime();
-                    p.player->seek(t + otime::RationalTime(event.value.y, t.rate()));
+                    const OTIO_NS::RationalTime t = p.player->getCurrentTime();
+                    p.player->seek(t + OTIO_NS::RationalTime(event.value.y, t.rate()));
                 }
             }
         }
@@ -733,7 +733,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::_droppedFramesUpdate(const otime::RationalTime& value)
+        void TimelineViewport::_droppedFramesUpdate(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             if (value != time::invalidTime && p.droppedFramesData.init)

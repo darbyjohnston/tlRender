@@ -201,7 +201,7 @@ namespace tl
 
                 io::VideoData read(
                     const std::string& fileName,
-                    const otime::RationalTime& time)
+                    const OTIO_NS::RationalTime& time)
                 {
                     io::VideoData out;
                     out.time = time;
@@ -344,16 +344,16 @@ namespace tl
             const file::MemoryRead* memory)
         {
             io::Info out = File(fileName, memory).getInfo();
-            out.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
-                otime::RationalTime(_startFrame, _defaultSpeed),
-                otime::RationalTime(_endFrame, _defaultSpeed));
+            out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                OTIO_NS::RationalTime(_startFrame, _defaultSpeed),
+                OTIO_NS::RationalTime(_endFrame, _defaultSpeed));
             return out;
         }
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
             const file::MemoryRead* memory,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options&)
         {
             return File(fileName, memory).read(fileName, time);

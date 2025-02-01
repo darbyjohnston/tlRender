@@ -41,13 +41,13 @@ namespace tl
             const std::shared_ptr<timeline::TimeUnitsModel>& getTimeUnitsModel() const;
 
             //! Get the time value.
-            const otime::RationalTime& getValue() const;
+            const OTIO_NS::RationalTime& getValue() const;
 
             //! Set the time value.
-            void setValue(const otime::RationalTime&);
+            void setValue(const OTIO_NS::RationalTime&);
 
             //! Set the time value callback.
-            void setCallback(const std::function<void(const otime::RationalTime&)>&);
+            void setCallback(const std::function<void(const OTIO_NS::RationalTime&)>&);
 
             //! Set the font role.
             void setFontRole(FontRole);
@@ -60,7 +60,7 @@ namespace tl
 
         private:
             void _commitValue(const std::string&);
-            void _commitValue(const otime::RationalTime&);
+            void _commitValue(const OTIO_NS::RationalTime&);
             void _textUpdate();
 
             TLRENDER_PRIVATE();

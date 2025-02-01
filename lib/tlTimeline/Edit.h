@@ -14,8 +14,8 @@ namespace tl
     namespace timeline
     {
         //! Copy the given timeline.
-        otio::SerializableObject::Retainer<otio::Timeline> copy(
-            const otio::SerializableObject::Retainer<otio::Timeline>&);
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> copy(
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&);
 
         //! Move items data.
         struct MoveData
@@ -27,8 +27,8 @@ namespace tl
         };
 
         //! Move items in the timeline.
-        otio::SerializableObject::Retainer<otio::Timeline> move(
-            const otio::SerializableObject::Retainer<otio::Timeline>&,
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> move(
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
             const std::vector<MoveData>&);
     }
 }

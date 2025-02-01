@@ -44,14 +44,14 @@ namespace tl
         {}
 
         std::future<VideoData> IRead::readVideo(
-            const otime::RationalTime&,
+            const OTIO_NS::RationalTime&,
             const Options&)
         {
             return std::future<VideoData>();
         }
 
         std::future<AudioData> IRead::readAudio(
-            const otime::TimeRange&,
+            const OTIO_NS::TimeRange&,
             const Options&)
         {
             return std::future<AudioData>();

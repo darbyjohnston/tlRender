@@ -87,27 +87,27 @@ namespace tl
             }
             {
                 const auto time = getCompareTime(
-                    otime::RationalTime(0.0, 24.0),
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0)),
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0)),
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0)),
                     CompareTimeMode::Absolute);
-                DTK_ASSERT(time == otime::RationalTime(0.0, 24.0));
+                DTK_ASSERT(time == OTIO_NS::RationalTime(0.0, 24.0));
             }
             {
                 const auto time = getCompareTime(
-                    otime::RationalTime(0.0, 24.0),
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0)),
-                    otime::TimeRange(
-                        otime::RationalTime(24.0, 24.0),
-                        otime::RationalTime(24.0, 24.0)),
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(24.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0)),
                     CompareTimeMode::Relative);
-                DTK_ASSERT(time == otime::RationalTime(24.0, 24.0));
+                DTK_ASSERT(time == OTIO_NS::RationalTime(24.0, 24.0));
             }
         }
     }

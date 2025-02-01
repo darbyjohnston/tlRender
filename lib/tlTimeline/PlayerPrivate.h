@@ -28,16 +28,16 @@ namespace tl
     {
         struct Player::Private
         {
-            otime::RationalTime loopPlayback(const otime::RationalTime&, bool& looped);
+            OTIO_NS::RationalTime loopPlayback(const OTIO_NS::RationalTime&, bool& looped);
 
             void clearRequests();
             void clearCache();
             void cacheUpdate();
 
             bool hasAudio() const;
-            void playbackReset(const otime::RationalTime&);
+            void playbackReset(const OTIO_NS::RationalTime&);
             void audioInit(const std::shared_ptr<system::Context>&);
-            void audioReset(const otime::RationalTime&);
+            void audioReset(const OTIO_NS::RationalTime&);
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             void sdlCallback(uint8_t* stream, int len);
 #if defined(TLRENDER_SDL2)
@@ -51,15 +51,15 @@ namespace tl
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
-            otime::TimeRange timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
 
             std::shared_ptr<observer::Value<double> > speed;
             std::shared_ptr<observer::Value<Playback> > playback;
             std::shared_ptr<observer::Value<Loop> > loop;
-            std::shared_ptr<observer::Value<otime::RationalTime> > currentTime;
-            std::shared_ptr<observer::Value<otime::RationalTime> > seek;
-            std::shared_ptr<observer::Value<otime::TimeRange> > inOutRange;
+            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > currentTime;
+            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > seek;
+            std::shared_ptr<observer::Value<OTIO_NS::TimeRange> > inOutRange;
             std::shared_ptr<observer::List<std::shared_ptr<Timeline> > > compare;
             std::shared_ptr<observer::Value<CompareTimeMode> > compareTime;
             std::shared_ptr<observer::Value<io::Options> > ioOptions;
@@ -91,8 +91,8 @@ namespace tl
             struct Mutex
             {
                 Playback playback = Playback::Stop;
-                otime::RationalTime currentTime = time::invalidTime;
-                otime::TimeRange inOutRange = time::invalidTimeRange;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
                 CompareTimeMode compareTime = CompareTimeMode::Relative;
                 io::Options ioOptions;
@@ -113,8 +113,8 @@ namespace tl
             struct Thread
             {
                 Playback playback = Playback::Stop;
-                otime::RationalTime currentTime = time::invalidTime;
-                otime::TimeRange inOutRange = time::invalidTimeRange;
+                OTIO_NS::RationalTime currentTime = time::invalidTime;
+                OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
                 CompareTimeMode compareTime = CompareTimeMode::Relative;
                 io::Options ioOptions;
@@ -123,8 +123,8 @@ namespace tl
                 double audioOffset = 0.0;
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
-                std::map<otime::RationalTime, std::vector<VideoRequest> > videoDataRequests;
-                std::map<otime::RationalTime, std::vector<VideoData> > videoDataCache;
+                std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
+                std::map<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
                 std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
@@ -143,7 +143,7 @@ namespace tl
                 double audioOffset = 0.0;
                 std::map<int64_t, AudioData> audioDataCache;
                 bool reset = false;
-                otime::RationalTime start = time::invalidTime;
+                OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;
                 std::mutex mutex;
             };
@@ -163,7 +163,7 @@ namespace tl
             struct NoAudio
             {
                 std::chrono::steady_clock::time_point playbackTimer;
-                otime::RationalTime start = time::invalidTime;
+                OTIO_NS::RationalTime start = time::invalidTime;
             };
             NoAudio noAudio;
         };

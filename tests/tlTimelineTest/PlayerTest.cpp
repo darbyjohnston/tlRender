@@ -97,7 +97,7 @@ namespace tl
             const file::Path& audioPath = player->getAudioPath();
             const PlayerOptions& playerOptions = player->getPlayerOptions();
             const Options options = player->getOptions();
-            const otime::TimeRange& timeRange = player->getTimeRange();
+            const OTIO_NS::TimeRange& timeRange = player->getTimeRange();
             const io::Info& ioInfo = player->getIOInfo();
             const double defaultSpeed = player->getDefaultSpeed();
             double speed = player->getSpeed();
@@ -156,10 +156,10 @@ namespace tl
 
             // Test the current time.
             player->setPlayback(Playback::Stop);
-            otime::RationalTime currentTime = time::invalidTime;
-            auto currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
+            auto currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
                 player->observeCurrentTime(),
-                [&currentTime](const otime::RationalTime& value)
+                [&currentTime](const OTIO_NS::RationalTime& value)
                 {
                     currentTime = value;
                 });
@@ -168,9 +168,9 @@ namespace tl
             DTK_ASSERT(timeRange.start_time() == currentTime);
             const double rate = timeRange.duration().rate();
             player->seek(
-                timeRange.start_time() + otime::RationalTime(1.0, rate));
+                timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate));
             DTK_ASSERT(
-                timeRange.start_time() + otime::RationalTime(1.0, rate) ==
+                timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate) ==
                 currentTime);
             player->end();
             DTK_ASSERT(timeRange.end_time_inclusive() == currentTime);
@@ -178,7 +178,7 @@ namespace tl
             DTK_ASSERT(timeRange.start_time() == currentTime);
             player->frameNext();
             DTK_ASSERT(
-                timeRange.start_time() + otime::RationalTime(1.0, rate) ==
+                timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate) ==
                 currentTime);
             player->timeAction(TimeAction::FrameNextX10);
             player->timeAction(TimeAction::FrameNextX100);
@@ -191,32 +191,32 @@ namespace tl
             player->timeAction(TimeAction::JumpBack10s);
 
             // Test the in/out points.
-            otime::TimeRange inOutRange = time::invalidTimeRange;
-            auto inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
+            auto inOutRangeObserver = observer::ValueObserver<OTIO_NS::TimeRange>::create(
                 player->observeInOutRange(),
-                [&inOutRange](const otime::TimeRange& value)
+                [&inOutRange](const OTIO_NS::TimeRange& value)
                 {
                     inOutRange = value;
                 });
-            player->setInOutRange(otime::TimeRange(
+            player->setInOutRange(OTIO_NS::TimeRange(
                 timeRange.start_time(),
-                otime::RationalTime(10.0, rate)));
-            DTK_ASSERT(otime::TimeRange(
+                OTIO_NS::RationalTime(10.0, rate)));
+            DTK_ASSERT(OTIO_NS::TimeRange(
                 timeRange.start_time(),
-                otime::RationalTime(10.0, rate)) == player->getInOutRange());
-            DTK_ASSERT(otime::TimeRange(
+                OTIO_NS::RationalTime(10.0, rate)) == player->getInOutRange());
+            DTK_ASSERT(OTIO_NS::TimeRange(
                 timeRange.start_time(),
-                otime::RationalTime(10.0, rate)) == inOutRange);
-            player->seek(timeRange.start_time() + otime::RationalTime(1.0, rate));
+                OTIO_NS::RationalTime(10.0, rate)) == inOutRange);
+            player->seek(timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate));
             player->setInPoint();
-            player->seek(timeRange.start_time() + otime::RationalTime(10.0, rate));
+            player->seek(timeRange.start_time() + OTIO_NS::RationalTime(10.0, rate));
             player->setOutPoint();
-            DTK_ASSERT(otime::TimeRange(
-                timeRange.start_time() + otime::RationalTime(1.0, rate),
-                otime::RationalTime(10.0, rate)) == inOutRange);
+            DTK_ASSERT(OTIO_NS::TimeRange(
+                timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate),
+                OTIO_NS::RationalTime(10.0, rate)) == inOutRange);
             player->resetInPoint();
             player->resetOutPoint();
-            DTK_ASSERT(otime::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
+            DTK_ASSERT(OTIO_NS::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
 
             // Test the I/O options.
             io::Options ioOptions;
@@ -318,7 +318,7 @@ namespace tl
                     {
                         cacheOptions = value;
                     });
-                cacheOptions.readAhead = otime::RationalTime(1.0, 1.0);
+                cacheOptions.readAhead = OTIO_NS::RationalTime(1.0, 1.0);
                 player->setCacheOptions(cacheOptions);
                 DTK_ASSERT(cacheOptions == player->getCacheOptions());
 

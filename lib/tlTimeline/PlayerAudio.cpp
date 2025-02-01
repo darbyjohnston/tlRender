@@ -309,7 +309,7 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        void Player::Private::audioReset(const otime::RationalTime& time)
+        void Player::Private::audioReset(const OTIO_NS::RationalTime& time)
         {
             audioMutex.reset = true;
             audioMutex.start = time;
@@ -330,7 +330,7 @@ namespace tl
             std::chrono::steady_clock::time_point muteTimeout;
             double audioOffset = 0.0;
             bool reset = false;
-            otime::RationalTime start = time::invalidTime;
+            OTIO_NS::RationalTime start = time::invalidTime;
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
                 playback = audioMutex.playback;
@@ -387,7 +387,7 @@ namespace tl
                     // Get audio from the cache.
                     int64_t t =
                         (start - timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
-                        otime::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                        OTIO_NS::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
                     if (Playback::Forward == playback)
                     {
                         t += audioThread.inputFrame;
@@ -409,7 +409,7 @@ namespace tl
                             }
                         }
                     }
-                    copySize = otio::RationalTime(
+                    copySize = OTIO_NS::RationalTime(
                         outputSamples * 2 * speedMult - static_cast<double>(getSampleCount(audioThread.buffer)),
                         outputInfo.sampleRate).
                         rescaled_to(inputInfo.sampleRate).value();
@@ -454,7 +454,7 @@ namespace tl
                     }
                     else
                     {
-                        const int64_t frames = otio::RationalTime(outputSamples, outputInfo.sampleRate).
+                        const int64_t frames = OTIO_NS::RationalTime(outputSamples, outputInfo.sampleRate).
                             rescaled_to(inputInfo.sampleRate).value();
                         audioThread.inputFrame += frames;
                         audioThread.outputFrame += frames;

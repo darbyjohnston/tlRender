@@ -31,7 +31,7 @@ namespace tl
 
                 virtual void render(
                     const std::shared_ptr<timeline::IRender>&,
-                    const otime::RationalTime&) = 0;
+                    const OTIO_NS::RationalTime&) = 0;
 
             protected:
                 std::weak_ptr<system::Context> _context;
@@ -57,7 +57,7 @@ namespace tl
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
-                    const otime::RationalTime&) override;
+                    const OTIO_NS::RationalTime&) override;
 
             private:
                 image::FontInfo _secondsFontInfo;
@@ -84,7 +84,7 @@ namespace tl
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
-                    const otime::RationalTime&) override;
+                    const OTIO_NS::RationalTime&) override;
 
             private:
                 std::shared_ptr<image::Image> _gradient;
@@ -103,7 +103,7 @@ namespace tl
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
-                    const otime::RationalTime&) override;
+                    const OTIO_NS::RationalTime&) override;
             };
 
             class TestPatternFactory

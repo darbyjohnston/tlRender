@@ -17,8 +17,8 @@ namespace tl
         struct TimeEdit::Private
         {
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
-            otime::RationalTime value = time::invalidTime;
-            std::function<void(const otime::RationalTime&)> callback;
+            OTIO_NS::RationalTime value = time::invalidTime;
+            std::function<void(const OTIO_NS::RationalTime&)> callback;
             std::shared_ptr<LineEdit> lineEdit;
             std::shared_ptr<IncButtons> incButtons;
             std::shared_ptr<HorizontalLayout> layout;
@@ -70,12 +70,12 @@ namespace tl
             p.incButtons->setIncCallback(
                 [this]
                 {
-                    _commitValue(_p->value + otime::RationalTime(1.0, _p->value.rate()));
+                    _commitValue(_p->value + OTIO_NS::RationalTime(1.0, _p->value.rate()));
                 });
             p.incButtons->setDecCallback(
                 [this]
                 {
-                    _commitValue(_p->value + otime::RationalTime(-1.0, _p->value.rate()));
+                    _commitValue(_p->value + OTIO_NS::RationalTime(-1.0, _p->value.rate()));
                 });
 
             p.timeUnitsObserver = observer::ValueObserver<timeline::TimeUnits>::create(
@@ -108,12 +108,12 @@ namespace tl
             return _p->timeUnitsModel;
         }
 
-        const otime::RationalTime& TimeEdit::getValue() const
+        const OTIO_NS::RationalTime& TimeEdit::getValue() const
         {
             return _p->value;
         }
 
-        void TimeEdit::setValue(const otime::RationalTime& value)
+        void TimeEdit::setValue(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             if (value.strictly_equal(p.value))
@@ -122,7 +122,7 @@ namespace tl
             _textUpdate();
         }
 
-        void TimeEdit::setCallback(const std::function<void(const otime::RationalTime&)>& value)
+        void TimeEdit::setCallback(const std::function<void(const OTIO_NS::RationalTime&)>& value)
         {
             _p->callback = value;
         }
@@ -160,25 +160,25 @@ namespace tl
                     event.accept = true;
                     _commitValue(
                         p.value +
-                        otime::RationalTime(1.0, p.value.rate()));
+                        OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
                 case Key::Down:
                     event.accept = true;
                     _commitValue(
                         p.value -
-                        otime::RationalTime(1.0, p.value.rate()));
+                        OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
                 case Key::PageUp:
                     event.accept = true;
                     _commitValue(
                         p.value +
-                        otime::RationalTime(p.value.rate(), p.value.rate()));
+                        OTIO_NS::RationalTime(p.value.rate(), p.value.rate()));
                     break;
                 case Key::PageDown:
                     event.accept = true;
                     _commitValue(
                         p.value -
-                        otime::RationalTime(p.value.rate(), p.value.rate()));
+                        OTIO_NS::RationalTime(p.value.rate(), p.value.rate()));
                     break;
                 default: break;
                 }
@@ -193,8 +193,8 @@ namespace tl
         void TimeEdit::_commitValue(const std::string& value)
         {
             TLRENDER_P();
-            otime::RationalTime tmp = time::invalidTime;
-            otime::ErrorStatus errorStatus;
+            OTIO_NS::RationalTime tmp = time::invalidTime;
+            opentime::ErrorStatus errorStatus;
             if (p.timeUnitsModel)
             {
                 const timeline::TimeUnits timeUnits = p.timeUnitsModel->getTimeUnits();
@@ -206,7 +206,7 @@ namespace tl
             }
             const bool valid =
                 tmp != time::invalidTime &&
-                !otime::is_error(errorStatus);
+                !opentime::is_error(errorStatus);
             if (valid)
             {
                 p.value = tmp;
@@ -218,7 +218,7 @@ namespace tl
             }
         }
 
-        void TimeEdit::_commitValue(const otime::RationalTime& value)
+        void TimeEdit::_commitValue(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             p.value = value;

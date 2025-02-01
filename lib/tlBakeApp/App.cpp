@@ -43,7 +43,7 @@ namespace tl
                         "The output file.")
                 },
                 {
-                    app::CmdLineValueOption<otime::TimeRange>::create(
+                    app::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
@@ -211,7 +211,7 @@ namespace tl
                     arg(_timeRange.start_time().value()).
                     arg(_timeRange.end_time_inclusive().value()));
                 _inputTime = _timeRange.start_time();
-                _outputTime = otime::RationalTime(0.0, _timeRange.duration().rate());
+                _outputTime = OTIO_NS::RationalTime(0.0, _timeRange.duration().rate());
 
                 // Render information.
                 const auto& info = _timeline->getIOInfo();
@@ -393,12 +393,12 @@ namespace tl
             _writer->writeVideo(_outputTime, _outputImage);
 
             // Advance the time.
-            _inputTime += otime::RationalTime(1, _inputTime.rate());
+            _inputTime += OTIO_NS::RationalTime(1, _inputTime.rate());
             if (_inputTime > _timeRange.end_time_inclusive())
             {
                 _running = false;
             }
-            _outputTime += otime::RationalTime(1, _outputTime.rate());
+            _outputTime += OTIO_NS::RationalTime(1, _outputTime.rate());
         }
 
         void App::_printProgress()

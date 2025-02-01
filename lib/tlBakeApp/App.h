@@ -33,7 +33,7 @@ namespace tl
         //! Application options.
         struct Options
         {
-            otime::TimeRange inOutRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
             math::Size2i renderSize;
             image::PixelType outputPixelType = image::PixelType::None;
             timeline::OCIOOptions ocioOptions;
@@ -97,9 +97,9 @@ namespace tl
             std::shared_ptr<timeline::Timeline> _timeline;
             math::Size2i _renderSize;
             image::Info _outputInfo;
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            otime::RationalTime _inputTime = time::invalidTime;
-            otime::RationalTime _outputTime = time::invalidTime;
+            OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
+            OTIO_NS::RationalTime _inputTime = time::invalidTime;
+            OTIO_NS::RationalTime _outputTime = time::invalidTime;
 
             std::shared_ptr<gl::GLFWWindow> _window;
             std::shared_ptr<io::IPlugin> _usdPlugin;

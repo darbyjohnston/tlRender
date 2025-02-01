@@ -65,10 +65,10 @@ namespace tl
         math::Size2i getRenderSize(CompareMode, const std::vector<VideoData>&);
 
         //! Get a compare time.
-        otime::RationalTime getCompareTime(
-            const otime::RationalTime& sourceTime,
-            const otime::TimeRange& sourceTimeRange,
-            const otime::TimeRange& compareTimeRange,
+        OTIO_NS::RationalTime getCompareTime(
+            const OTIO_NS::RationalTime& sourceTime,
+            const OTIO_NS::TimeRange& sourceTimeRange,
+            const OTIO_NS::TimeRange& compareTimeRange,
             CompareTimeMode);
     }
 }

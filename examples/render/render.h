@@ -27,8 +27,8 @@ namespace tl
                 bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
-                otime::RationalTime seek = time::invalidTime;
-                otime::TimeRange inOutRange = time::invalidTimeRange;
+                OTIO_NS::RationalTime seek = time::invalidTime;
+                OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
                 timeline::OCIOOptions ocioOptions;
                 timeline::LUTOptions lutOptions;
             };

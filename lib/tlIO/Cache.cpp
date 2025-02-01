@@ -30,7 +30,7 @@ namespace tl
 
         std::string getVideoCacheKey(
             const file::Path& path,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const Options& initOptions,
             const Options& frameOptions)
         {
@@ -51,7 +51,7 @@ namespace tl
 
         std::string getAudioCacheKey(
             const file::Path& path,
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& timeRange,
             const Options& initOptions,
             const Options& frameOptions)
         {

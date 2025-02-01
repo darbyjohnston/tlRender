@@ -23,8 +23,8 @@ namespace tl
     {
         struct Timeline::Private
         {
-            bool getVideoInfo(const otio::Composable*);
-            bool getAudioInfo(const otio::Composable*);
+            bool getVideoInfo(const OTIO_NS::Composable*);
+            bool getAudioInfo(const OTIO_NS::Composable*);
 
             float transitionValue(double frame, double in, double out) const;
 
@@ -33,30 +33,30 @@ namespace tl
             void finishRequests();
 
             std::shared_ptr<io::IRead> getRead(
-                const otio::Clip*,
+                const OTIO_NS::Clip*,
                 const io::Options&);
             std::future<io::VideoData> readVideo(
-                const otio::Clip*,
-                const otime::RationalTime&,
+                const OTIO_NS::Clip*,
+                const OTIO_NS::RationalTime&,
                 const io::Options&);
             std::future<io::AudioData> readAudio(
-                const otio::Clip*,
-                const otime::TimeRange&,
+                const OTIO_NS::Clip*,
+                const OTIO_NS::TimeRange&,
                 const io::Options&);
 
             std::shared_ptr<audio::Audio> padAudioToOneSecond(
                 const std::shared_ptr<audio::Audio>&,
                 double seconds,
-                const otime::TimeRange&);
+                const OTIO_NS::TimeRange&);
 
             std::weak_ptr<system::Context> context;
-            otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
             std::shared_ptr<observer::Value<bool> > timelineChanges;
             file::Path path;
             file::Path audioPath;
             Options options;
             memory::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
-            otime::TimeRange timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
             uint64_t requestId = 0;
 
@@ -76,7 +76,7 @@ namespace tl
                 VideoRequest(VideoRequest&&) = default;
 
                 uint64_t id = 0;
-                otime::RationalTime time = time::invalidTime;
+                OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
                 std::promise<VideoData> promise;
 
@@ -89,7 +89,7 @@ namespace tl
                 AudioLayerData(AudioLayerData&&) = default;
 
                 double seconds = -1.0;
-                otime::TimeRange timeRange;
+                OTIO_NS::TimeRange timeRange;
                 std::future<io::AudioData> audio;
             };
             struct AudioRequest
@@ -107,7 +107,7 @@ namespace tl
 
             struct Mutex
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
                 bool otioTimelineChanged = false;
                 std::list<std::shared_ptr<VideoRequest> > videoRequests;
                 std::list<std::shared_ptr<AudioRequest> > audioRequests;
@@ -117,7 +117,7 @@ namespace tl
             Mutex mutex;
             struct Thread
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline;
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
                 std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
                 std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
                 std::condition_variable cv;

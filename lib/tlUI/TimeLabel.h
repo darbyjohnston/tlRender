@@ -41,10 +41,10 @@ namespace tl
             const std::shared_ptr<timeline::TimeUnitsModel>& getTimeUnitsModel() const;
 
             //! Get the time value.
-            const otime::RationalTime& getValue() const;
+            const OTIO_NS::RationalTime& getValue() const;
 
             //! Set the time value.
-            void setValue(const otime::RationalTime&);
+            void setValue(const OTIO_NS::RationalTime&);
 
             //! Set the margin role.
             void setMarginRole(SizeRole);

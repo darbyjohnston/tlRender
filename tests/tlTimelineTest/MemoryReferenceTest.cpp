@@ -27,7 +27,7 @@ namespace tl
         void MemoryReferenceTest::run()
         {
             {
-                otio::SerializableObject::Retainer<RawMemoryReference> v(new RawMemoryReference);
+                OTIO_NS::SerializableObject::Retainer<RawMemoryReference> v(new RawMemoryReference);
                 v->set_target_url("url");
                 DTK_ASSERT("url" == v->target_url());
                 std::vector<uint8_t> memory(100, 0);
@@ -36,7 +36,7 @@ namespace tl
                 DTK_ASSERT(v->memory_size() == memory.size());
             }
             {
-                otio::SerializableObject::Retainer<SharedMemoryReference> v(new SharedMemoryReference);
+                OTIO_NS::SerializableObject::Retainer<SharedMemoryReference> v(new SharedMemoryReference);
                 v->set_target_url("url");
                 DTK_ASSERT("url" == v->target_url());
                 std::shared_ptr<std::vector<uint8_t> > memory(new std::vector<uint8_t>(100, 0));
@@ -44,7 +44,7 @@ namespace tl
                 DTK_ASSERT(v->memory() == memory);
             }
             {
-                otio::SerializableObject::Retainer<RawMemorySequenceReference> v(new RawMemorySequenceReference);
+                OTIO_NS::SerializableObject::Retainer<RawMemorySequenceReference> v(new RawMemorySequenceReference);
                 v->set_target_url("url");
                 DTK_ASSERT("url" == v->target_url());
                 std::vector<std::shared_ptr<std::vector<uint8_t> > > dataList;
@@ -62,7 +62,7 @@ namespace tl
                 DTK_ASSERT(v->memory_sizes() == sizes);
             }
             {
-                otio::SerializableObject::Retainer<SharedMemorySequenceReference> v(new SharedMemorySequenceReference);
+                OTIO_NS::SerializableObject::Retainer<SharedMemorySequenceReference> v(new SharedMemorySequenceReference);
                 v->set_target_url("url");
                 DTK_ASSERT("url" == v->target_url());
                 std::vector<std::shared_ptr<std::vector<uint8_t> > > memory;
@@ -76,10 +76,10 @@ namespace tl
                 DTK_ASSERT(v->memory() == memory);
             }
             {
-                otio::SerializableObject::Retainer<ZipMemoryReference> v(new ZipMemoryReference);
+                OTIO_NS::SerializableObject::Retainer<ZipMemoryReference> v(new ZipMemoryReference);
             }
             {
-                otio::SerializableObject::Retainer<ZipMemorySequenceReference> v(new ZipMemorySequenceReference);
+                OTIO_NS::SerializableObject::Retainer<ZipMemorySequenceReference> v(new ZipMemorySequenceReference);
             }
         }
     }

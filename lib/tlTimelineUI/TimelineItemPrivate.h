@@ -15,13 +15,13 @@ namespace tl
         struct TimelineItem::Private
         {
             std::shared_ptr<timeline::Player> player;
-            otime::RationalTime currentTime = time::invalidTime;
-            otime::TimeRange inOutRange = time::invalidTimeRange;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
             std::shared_ptr<observer::Value<bool> > scrub;
-            std::shared_ptr<observer::Value<otime::RationalTime> > timeScrub;
+            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             int minimumHeight = 0;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
@@ -30,7 +30,7 @@ namespace tl
             {
                 int index = 0;
                 TrackType type = TrackType::None;
-                otime::TimeRange timeRange;
+                OTIO_NS::TimeRange timeRange;
                 std::shared_ptr<ui::ToolButton> enabledButton;
                 std::shared_ptr<ui::Label> label;
                 std::shared_ptr<ui::Label> durationLabel;
@@ -98,8 +98,8 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
-            std::shared_ptr<observer::ValueObserver<otime::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
             std::shared_ptr<observer::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
 
             std::shared_ptr<IItem> getAssociated(

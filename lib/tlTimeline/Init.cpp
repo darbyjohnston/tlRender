@@ -34,27 +34,27 @@ namespace tl
             {
                 {
                     "RawMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemoryReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::RawMemoryReference>()
                 },
                 {
                     "SharedMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemoryReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::SharedMemoryReference>()
                 },
                 {
                     "RawMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::RawMemorySequenceReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::RawMemorySequenceReference>()
                 },
                 {
                     "SharedMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::SharedMemorySequenceReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::SharedMemorySequenceReference>()
                 },
                 {
                     "ZipMemoryReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemoryReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::ZipMemoryReference>()
                 },
                 {
                     "ZipMemorySequenceReference",
-                    otio::TypeRegistry::instance().register_type<tl::timeline::ZipMemorySequenceReference>()
+                    OTIO_NS::TypeRegistry::instance().register_type<tl::timeline::ZipMemorySequenceReference>()
                 }
             };
             for (const auto& t : registerTypes)

@@ -175,17 +175,17 @@ namespace tl
             void* reader = nullptr;
         };
 
-        otio::SerializableObject::Retainer<otio::Timeline> readOTIO(
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> readOTIO(
             const file::Path& path,
-            otio::ErrorStatus* errorStatus)
+            OTIO_NS::ErrorStatus* errorStatus)
         {
-            otio::SerializableObject::Retainer<otio::Timeline> out;
+            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> out;
             const std::string fileName = path.get();
             const std::string extension = dtk::toLower(path.getExtension());
             if (".otio" == extension)
             {
-                out = dynamic_cast<otio::Timeline*>(
-                    otio::Timeline::from_json_file(fileName, errorStatus));
+                out = dynamic_cast<OTIO_NS::Timeline*>(
+                    OTIO_NS::Timeline::from_json_file(fileName, errorStatus));
             }
             else if (".otioz" == extension)
             {
@@ -223,14 +223,14 @@ namespace tl
                     }
                     buf[fileInfo->uncompressed_size] = 0;
 
-                    out = dynamic_cast<otio::Timeline*>(
-                        otio::Timeline::from_json_string(buf.data(), errorStatus));
+                    out = dynamic_cast<OTIO_NS::Timeline*>(
+                        OTIO_NS::Timeline::from_json_string(buf.data(), errorStatus));
 
                     auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
-                    for (auto clip : out->find_children<otio::Clip>())
+                    for (auto clip : out->find_children<OTIO_NS::Clip>())
                     {
                         if (auto externalReference =
-                            dynamic_cast<otio::ExternalReference*>(clip->media_reference()))
+                            dynamic_cast<OTIO_NS::ExternalReference*>(clip->media_reference()))
                         {
                             const std::string mediaFileName = file::Path(
                                 externalReference->target_url()).get();
@@ -264,7 +264,7 @@ namespace tl
                             clip->set_media_reference(memoryReference);
                         }
                         else if (auto imageSequenceReference =
-                            dynamic_cast<otio::ImageSequenceReference*>(clip->media_reference()))
+                            dynamic_cast<OTIO_NS::ImageSequenceReference*>(clip->media_reference()))
                         {
                             std::vector<const uint8_t*> memory;
                             std::vector<size_t> memory_sizes;
@@ -330,14 +330,14 @@ namespace tl
 
                     auto pyToJSONString = PyObjectRef(PyObject_GetAttrString(pyTimeline, "to_json_string"));
                     auto pyJSONString = PyObjectRef(PyObject_CallObject(pyToJSONString, NULL));
-                    out = otio::SerializableObject::Retainer<otio::Timeline>(
-                        dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_string(
+                    out = OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>(
+                        dynamic_cast<OTIO_NS::Timeline*>(OTIO_NS::Timeline::from_json_string(
                             PyUnicode_AsUTF8AndSize(pyJSONString, NULL),
                             errorStatus)));
                 }
                 catch (const std::exception& e)
                 {
-                    errorStatus->outcome = otio::ErrorStatus::Outcome::FILE_OPEN_FAILED;
+                    errorStatus->outcome = OTIO_NS::ErrorStatus::Outcome::FILE_OPEN_FAILED;
                     errorStatus->details = e.what();
                 }
                 if (PyErr_Occurred())
@@ -350,7 +350,7 @@ namespace tl
             return out;
         }
 
-        otio::SerializableObject::Retainer<otio::Timeline> create(
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
             const file::Path& path,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
@@ -358,13 +358,13 @@ namespace tl
             return create(path, file::Path(), context, options);
         }
 
-        otio::SerializableObject::Retainer<otio::Timeline> create(
+        OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
             const file::Path& inputPath,
             const file::Path& inputAudioPath,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
-            otio::SerializableObject::Retainer<otio::Timeline> out;
+            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> out;
             std::string error;
             file::Path path = inputPath;
             file::Path audioPath = inputAudioPath;
@@ -416,20 +416,20 @@ namespace tl
                 {
                     const auto info = read->getInfo().get();
 
-                    otime::RationalTime startTime = time::invalidTime;
-                    otio::Track* videoTrack = nullptr;
-                    otio::Track* audioTrack = nullptr;
-                    otio::ErrorStatus errorStatus;
+                    OTIO_NS::RationalTime startTime = time::invalidTime;
+                    OTIO_NS::Track* videoTrack = nullptr;
+                    OTIO_NS::Track* audioTrack = nullptr;
+                    OTIO_NS::ErrorStatus errorStatus;
 
                     // Read the video.
                     if (!info.video.empty())
                     {
                         startTime = info.videoTime.start_time();
-                        auto videoClip = new otio::Clip;
+                        auto videoClip = new OTIO_NS::Clip;
                         videoClip->set_source_range(info.videoTime);
                         if (isSequence)
                         {
-                            auto mediaReference = new otio::ImageSequenceReference(
+                            auto mediaReference = new OTIO_NS::ImageSequenceReference(
                                 path.isFileProtocol() ?
                                     std::string() :
                                     (path.getProtocol() + path.getDirectory()),
@@ -444,13 +444,13 @@ namespace tl
                         }
                         else
                         {
-                            videoClip->set_media_reference(new otio::ExternalReference(
+                            videoClip->set_media_reference(new OTIO_NS::ExternalReference(
                                 path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 info.videoTime));
                         }
-                        videoTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                        videoTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                         videoTrack->append_child(videoClip, &errorStatus);
-                        if (otio::is_error(errorStatus))
+                        if (OTIO_NS::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -463,15 +463,15 @@ namespace tl
                         {
                             const auto audioInfo = audioRead->getInfo().get();
 
-                            auto audioClip = new otio::Clip;
+                            auto audioClip = new OTIO_NS::Clip;
                             audioClip->set_source_range(audioInfo.audioTime);
-                            audioClip->set_media_reference(new otio::ExternalReference(
+                            audioClip->set_media_reference(new OTIO_NS::ExternalReference(
                                 audioPath.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                                 audioInfo.audioTime));
 
-                            audioTrack = new otio::Track("Audio", std::nullopt, otio::Track::Kind::audio);
+                            audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
                             audioTrack->append_child(audioClip, &errorStatus);
-                            if (otio::is_error(errorStatus))
+                            if (OTIO_NS::is_error(errorStatus))
                             {
                                 throw std::runtime_error("Cannot append child");
                             }
@@ -484,26 +484,26 @@ namespace tl
                             startTime = info.audioTime.start_time();
                         }
 
-                        auto audioClip = new otio::Clip;
+                        auto audioClip = new OTIO_NS::Clip;
                         audioClip->set_source_range(info.audioTime);
-                        audioClip->set_media_reference(new otio::ExternalReference(
+                        audioClip->set_media_reference(new OTIO_NS::ExternalReference(
                             path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
                             info.audioTime));
 
-                        audioTrack = new otio::Track("Audio", std::nullopt, otio::Track::Kind::audio);
+                        audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
                         audioTrack->append_child(audioClip, &errorStatus);
-                        if (otio::is_error(errorStatus))
+                        if (OTIO_NS::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
                     }
 
                     // Create the stack.
-                    auto otioStack = new otio::Stack;
+                    auto otioStack = new OTIO_NS::Stack;
                     if (videoTrack)
                     {
                         otioStack->append_child(videoTrack, &errorStatus);
-                        if (otio::is_error(errorStatus))
+                        if (OTIO_NS::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
@@ -511,14 +511,14 @@ namespace tl
                     if (audioTrack)
                     {
                         otioStack->append_child(audioTrack, &errorStatus);
-                        if (otio::is_error(errorStatus))
+                        if (OTIO_NS::is_error(errorStatus))
                         {
                             throw std::runtime_error("Cannot append child");
                         }
                     }
 
                     // Create the timeline.
-                    out = new otio::Timeline(path.get());
+                    out = new OTIO_NS::Timeline(path.get());
                     out->set_tracks(otioStack);
                     if (time::isValid(startTime))
                     {
@@ -544,9 +544,9 @@ namespace tl
             // Is the input an OTIO file?
             if (!out)
             {
-                otio::ErrorStatus errorStatus;
+                OTIO_NS::ErrorStatus errorStatus;
                 out = readOTIO(path, &errorStatus);
-                if (otio::is_error(errorStatus))
+                if (OTIO_NS::is_error(errorStatus))
                 {
                     out = nullptr;
                     error = errorStatus.full_description;
@@ -561,7 +561,7 @@ namespace tl
                 throw std::runtime_error(error);
             }
 
-            otio::AnyDictionary dict;
+            OTIO_NS::AnyDictionary dict;
             dict["path"] = path.get();
             dict["audioPath"] = audioPath.get();
             out->metadata()["tlRender"] = dict;
@@ -570,7 +570,7 @@ namespace tl
         }
 
         std::shared_ptr<Timeline> Timeline::create(
-            const otio::SerializableObject::Retainer<otio::Timeline>& timeline,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& timeline,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {

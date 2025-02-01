@@ -29,22 +29,22 @@ namespace tl
 
         namespace
         {
-            otio::SerializableObject::Retainer<otio::Composable> getChild(
-                const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
+            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Composable> getChild(
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
                 int track,
                 int index)
             {
-                auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(otioTimeline->tracks()->children()[track]);
+                auto otioTrack = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Track>(otioTimeline->tracks()->children()[track]);
                 return otioTrack->children()[index];
             }
 
-            otio::SerializableObject::Retainer<otio::Clip> getClip(
-                const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
+            OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip> getClip(
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
                 int track,
                 int index)
             {
-                auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(otioTimeline->tracks()->children()[track]);
-                return otio::dynamic_retainer_cast<otio::Clip>(otioTrack->children()[index]);
+                auto otioTrack = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Track>(otioTimeline->tracks()->children()[track]);
+                return OTIO_NS::dynamic_retainer_cast<OTIO_NS::Clip>(otioTrack->children()[index]);
             }
         }
 
@@ -56,15 +56,15 @@ namespace tl
         void EditTest::_move()
         {
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                auto otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
 
                 MoveData moveData;
                 moveData.fromTrack = 0;
@@ -82,21 +82,21 @@ namespace tl
                 DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
             }
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                auto otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 1",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
 
                 MoveData moveData;
                 moveData.fromTrack = 0;
@@ -116,27 +116,27 @@ namespace tl
                 DTK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
             }
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                auto otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 1",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 2",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
 
                 MoveData moveData;
                 moveData.fromTrack = 0;
@@ -158,47 +158,47 @@ namespace tl
                 DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
             }
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                auto otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 1",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 2",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack = new otio::Track("Audio", std::nullopt, otio::Track::Kind::audio);
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Audio 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 48000.0),
-                        otime::RationalTime(48000.0, 48000.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 48000.0),
+                        OTIO_NS::RationalTime(48000.0, 48000.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Audio 1",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 48000.0),
-                        otime::RationalTime(48000.0, 48000.0))));
-                otioTrack->append_child(new otio::Clip(
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 48000.0),
+                        OTIO_NS::RationalTime(48000.0, 48000.0))));
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Audio 2",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 48000.0),
-                        otime::RationalTime(48000.0, 48000.0))));
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 48000.0),
+                        OTIO_NS::RationalTime(48000.0, 48000.0))));
 
                 std::vector<MoveData> moveData;
                 moveData.push_back({ 0, 2, 0, 0 });
@@ -223,16 +223,16 @@ namespace tl
                 DTK_ASSERT("Audio 0" == getChild(otioTimeline3, 1, 2)->name());
             }
             {
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
-                auto otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
+                auto otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
-                otioTrack->append_child(new otio::Clip(
+                otioTrack->append_child(new OTIO_NS::Clip(
                     "Video 0",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 24.0),
-                        otime::RationalTime(24.0, 24.0))));
-                otioTrack = new otio::Track("Video", std::nullopt, otio::Track::Kind::video);
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(24.0, 24.0))));
+                otioTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
                 otioTimeline->tracks()->append_child(otioTrack);
 
                 MoveData moveData;
@@ -257,13 +257,13 @@ namespace tl
                     auto otioTimeline = timeline::create(
                         file::Path(TLRENDER_SAMPLE_DATA, otio),
                         _context);
-                    auto track = dynamic_cast<otio::Track*>(otioTimeline->tracks()->children()[0].value);
-                    track->append_child(new otio::Clip(
+                    auto track = dynamic_cast<OTIO_NS::Track*>(otioTimeline->tracks()->children()[0].value);
+                    track->append_child(new OTIO_NS::Clip(
                         "Video",
                         nullptr,
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 30.0),
-                            otime::RationalTime(30.0, 30.0))));
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 30.0),
+                            OTIO_NS::RationalTime(30.0, 30.0))));
                     toMemoryReferences(otioTimeline.value, TLRENDER_SAMPLE_DATA, toMemoryReference);
 
                     const std::string video0 = getChild(otioTimeline, 0, 0)->name();
@@ -312,13 +312,13 @@ namespace tl
                 auto otioTimeline = timeline::create(
                     file::Path(TLRENDER_SAMPLE_DATA, otioz),
                     _context);
-                auto track = dynamic_cast<otio::Track*>(otioTimeline->tracks()->children()[0].value);
-                track->append_child(new otio::Clip(
+                auto track = dynamic_cast<OTIO_NS::Track*>(otioTimeline->tracks()->children()[0].value);
+                track->append_child(new OTIO_NS::Clip(
                     "Video",
                     nullptr,
-                    otime::TimeRange(
-                        otime::RationalTime(0.0, 30.0),
-                        otime::RationalTime(30.0, 30.0))));
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 30.0),
+                        OTIO_NS::RationalTime(30.0, 30.0))));
 
                 const std::string video0 = getChild(otioTimeline, 0, 0)->name();
                 const std::string video1 = getChild(otioTimeline, 0, 1)->name();

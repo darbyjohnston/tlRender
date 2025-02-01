@@ -123,7 +123,7 @@ namespace tl
             std::shared_ptr<observer::IValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             ///@}
 

@@ -32,13 +32,13 @@ namespace tl
             std::vector<image::Info> video;
 
             //! Video time range.
-            otime::TimeRange videoTime = time::invalidTimeRange;
+            OTIO_NS::TimeRange videoTime = time::invalidTimeRange;
 
             //! Audio information.
             audio::Info audio;
 
             //! Audio time range.
-            otime::TimeRange audioTime = time::invalidTimeRange;
+            OTIO_NS::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
             image::Tags tags;
@@ -52,11 +52,11 @@ namespace tl
         {
             VideoData();
             VideoData(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 uint16_t layer,
                 const std::shared_ptr<image::Image>&);
 
-            otime::RationalTime           time = time::invalidTime;
+            OTIO_NS::RationalTime           time = time::invalidTime;
             uint16_t                      layer = 0;
             std::shared_ptr<image::Image> image;
 
@@ -70,10 +70,10 @@ namespace tl
         {
             AudioData();
             AudioData(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const std::shared_ptr<audio::Audio>&);
 
-            otime::RationalTime           time = time::invalidTime;
+            OTIO_NS::RationalTime           time = time::invalidTime;
             std::shared_ptr<audio::Audio> audio;
 
             bool operator == (const AudioData&) const;

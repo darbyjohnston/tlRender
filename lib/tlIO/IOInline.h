@@ -25,7 +25,7 @@ namespace tl
         {}
 
         inline VideoData::VideoData(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             uint16_t layer,
             const std::shared_ptr<image::Image>& image) :
             time(time),
@@ -55,7 +55,7 @@ namespace tl
         {}
 
         inline AudioData::AudioData(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const std::shared_ptr<audio::Audio>& audio) :
             time(time),
             audio(audio)

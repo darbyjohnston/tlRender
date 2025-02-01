@@ -92,11 +92,11 @@ namespace tl
         {
             std::string name;
             image::Color4f color;
-            otime::TimeRange range;
+            OTIO_NS::TimeRange range;
         };
 
         //! Get the markers from an item.
-        std::vector<Marker> getMarkers(const otio::Item*);
+        std::vector<Marker> getMarkers(const OTIO_NS::Item*);
 
         //! Convert a named marker color.
         image::Color4f getMarkerColor(const std::string&);
@@ -121,8 +121,8 @@ namespace tl
         protected:
             void _init(
                 const std::string& objectName,
-                const otime::TimeRange& timeRange,
-                const otime::TimeRange& trimmedRange,
+                const OTIO_NS::TimeRange& timeRange,
+                const OTIO_NS::TimeRange& trimmedRange,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
@@ -136,7 +136,7 @@ namespace tl
             virtual ~IItem();
             
             //! Get the item time range.
-            const otime::TimeRange& getTimeRange() const;
+            const OTIO_NS::TimeRange& getTimeRange() const;
 
             //! Set the item scale.
             virtual void setScale(double);
@@ -154,22 +154,22 @@ namespace tl
             void setSelectRole(ui::ColorRole);
 
             //! Convert a position to a time.
-            otime::RationalTime posToTime(float) const;
+            OTIO_NS::RationalTime posToTime(float) const;
 
             //! Convert a time to a position.
-            int timeToPos(const otime::RationalTime&) const;
+            int timeToPos(const OTIO_NS::RationalTime&) const;
 
         protected:
             static math::Box2i _getClipRect(
                 const math::Box2i&,
                 double scale);
 
-            std::string _getDurationLabel(const otime::RationalTime&);
+            std::string _getDurationLabel(const OTIO_NS::RationalTime&);
 
             virtual void _timeUnitsUpdate();
 
-            otime::TimeRange _timeRange = time::invalidTimeRange;
-            otime::TimeRange _trimmedRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange _trimmedRange = time::invalidTimeRange;
             double _scale = 500.0;
             ItemOptions _options;
             DisplayOptions _displayOptions;

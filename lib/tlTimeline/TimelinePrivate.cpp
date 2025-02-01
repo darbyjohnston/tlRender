@@ -23,9 +23,9 @@ namespace tl
             const std::chrono::milliseconds timeout(5);
         }
 
-        bool Timeline::Private::getVideoInfo(const otio::Composable* composable)
+        bool Timeline::Private::getVideoInfo(const OTIO_NS::Composable* composable)
         {
-            if (auto clip = dynamic_cast<const otio::Clip*>(composable))
+            if (auto clip = dynamic_cast<const OTIO_NS::Clip*>(composable))
             {
                 if (auto context = this->context.lock())
                 {
@@ -40,7 +40,7 @@ namespace tl
                     }
                 }
             }
-            if (auto composition = dynamic_cast<const otio::Composition*>(composable))
+            if (auto composition = dynamic_cast<const OTIO_NS::Composition*>(composable))
             {
                 for (const auto& child : composition->children())
                 {
@@ -53,9 +53,9 @@ namespace tl
             return false;
         }
 
-        bool Timeline::Private::getAudioInfo(const otio::Composable* composable)
+        bool Timeline::Private::getAudioInfo(const OTIO_NS::Composable* composable)
         {
-            if (auto clip = dynamic_cast<const otio::Clip*>(composable))
+            if (auto clip = dynamic_cast<const OTIO_NS::Clip*>(composable))
             {
                 if (auto context = this->context.lock())
                 {
@@ -70,7 +70,7 @@ namespace tl
                     }
                 }
             }
-            if (auto composition = dynamic_cast<const otio::Composition*>(composable))
+            if (auto composition = dynamic_cast<const OTIO_NS::Composition*>(composable))
             {
                 for (const auto& child : composition->children())
                 {
@@ -180,22 +180,22 @@ namespace tl
                     {
                         for (const auto& otioChild : otioTrack->children())
                         {
-                            if (auto otioItem = dynamic_cast<otio::Item*>(otioChild.value))
+                            if (auto otioItem = dynamic_cast<OTIO_NS::Item*>(otioChild.value))
                             {
                                 const auto requestTime = request->time - timeRange.start_time();
-                                otio::ErrorStatus errorStatus;
+                                OTIO_NS::ErrorStatus errorStatus;
                                 const auto range = otioItem->trimmed_range_in_parent(&errorStatus);
                                 if (range.has_value() && range.value().contains(requestTime))
                                 {
                                     VideoLayerData videoData;
                                     try
                                     {
-                                        if (auto otioClip = dynamic_cast<const otio::Clip*>(otioItem))
+                                        if (auto otioClip = dynamic_cast<const OTIO_NS::Clip*>(otioItem))
                                         {
                                             videoData.image = readVideo(otioClip, requestTime, request->options);
                                         }
                                         const auto neighbors = otioTrack->neighbors_of(otioItem, &errorStatus);
-                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.second.value))
+                                        if (auto otioTransition = dynamic_cast<OTIO_NS::Transition*>(neighbors.second.value))
                                         {
                                             if (requestTime > range.value().end_time_inclusive() - otioTransition->in_offset())
                                             {
@@ -205,13 +205,13 @@ namespace tl
                                                     range.value().end_time_inclusive().value() - otioTransition->in_offset().value(),
                                                     range.value().end_time_inclusive().value() + otioTransition->out_offset().value() + 1.0);
                                                 const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
-                                                if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.second.value))
+                                                if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.second.value))
                                                 {
                                                     videoData.imageB = readVideo(otioClipB, requestTime, request->options);
                                                 }
                                             }
                                         }
-                                        if (auto otioTransition = dynamic_cast<otio::Transition*>(neighbors.first.value))
+                                        if (auto otioTransition = dynamic_cast<OTIO_NS::Transition*>(neighbors.first.value))
                                         {
                                             if (requestTime < range.value().start_time() + otioTransition->out_offset())
                                             {
@@ -222,7 +222,7 @@ namespace tl
                                                     range.value().start_time().value() - otioTransition->in_offset().value() - 1.0,
                                                     range.value().start_time().value() + otioTransition->out_offset().value());
                                                 const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
-                                                if (const auto otioClipB = dynamic_cast<otio::Clip*>(transitionNeighbors.first.value))
+                                                if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.first.value))
                                                 {
                                                     videoData.image = readVideo(otioClipB, requestTime, request->options);
                                                 }
@@ -252,26 +252,26 @@ namespace tl
                     {
                         for (const auto& otioChild : otioTrack->children())
                         {
-                            if (auto otioClip = dynamic_cast<otio::Clip*>(otioChild.value))
+                            if (auto otioClip = dynamic_cast<OTIO_NS::Clip*>(otioChild.value))
                             {
                                 const auto rangeOptional = otioClip->trimmed_range_in_parent();
                                 if (rangeOptional.has_value())
                                 {
-                                    const otime::TimeRange clipTimeRange(
+                                    const OTIO_NS::TimeRange clipTimeRange(
                                         rangeOptional.value().start_time().rescaled_to(1.0),
                                         rangeOptional.value().duration().rescaled_to(1.0));
                                     const double start = request->seconds -
                                         timeRange.start_time().rescaled_to(1.0).value();
-                                    const otime::TimeRange requestTimeRange = otime::TimeRange(
-                                        otime::RationalTime(start, 1.0),
-                                        otime::RationalTime(1.0, 1.0));
+                                    const OTIO_NS::TimeRange requestTimeRange = OTIO_NS::TimeRange(
+                                        OTIO_NS::RationalTime(start, 1.0),
+                                        OTIO_NS::RationalTime(1.0, 1.0));
                                     if (requestTimeRange.intersects(clipTimeRange))
                                     {
                                         AudioLayerData audioData;
                                         audioData.seconds = request->seconds;
                                         try
                                         {
-                                            //! \bug Why is otime::TimeRange::clamped() not giving us the
+                                            //! \bug Why is OTIO_NS::TimeRange::clamped() not giving us the
                                             //! result we expect?
                                             //audioData.timeRange = requestTimeRange.clamped(clipTimeRange);
                                             const double start = std::max(
@@ -280,9 +280,9 @@ namespace tl
                                             const double end = std::min(
                                                 clipTimeRange.start_time().value() + clipTimeRange.duration().value(),
                                                 requestTimeRange.start_time().value() + requestTimeRange.duration().value());
-                                            audioData.timeRange = otime::TimeRange(
-                                                otime::RationalTime(start, 1.0),
-                                                otime::RationalTime(end - start, 1.0));
+                                            audioData.timeRange = OTIO_NS::TimeRange(
+                                                OTIO_NS::RationalTime(start, 1.0),
+                                                OTIO_NS::RationalTime(end - start, 1.0));
                                             audioData.audio = readAudio(otioClip, audioData.timeRange, request->options);
                                         }
                                         catch (const std::exception&)
@@ -460,7 +460,7 @@ namespace tl
         }
 
         std::shared_ptr<io::IRead> Timeline::Private::getRead(
-            const otio::Clip* clip,
+            const OTIO_NS::Clip* clip,
             const io::Options& ioOptions)
         {
             std::shared_ptr<io::IRead> out;
@@ -485,8 +485,8 @@ namespace tl
         }
 
         std::future<io::VideoData> Timeline::Private::readVideo(
-            const otio::Clip* clip,
-            const otime::RationalTime& time,
+            const OTIO_NS::Clip* clip,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             std::future<io::VideoData> out;
@@ -508,8 +508,8 @@ namespace tl
         }
 
         std::future<io::AudioData> Timeline::Private::readAudio(
-            const otio::Clip* clip,
-            const otime::TimeRange& timeRange,
+            const OTIO_NS::Clip* clip,
+            const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
             std::future<io::AudioData> out;
@@ -532,15 +532,15 @@ namespace tl
         std::shared_ptr<audio::Audio> Timeline::Private::padAudioToOneSecond(
             const std::shared_ptr<audio::Audio>& audio,
             double seconds,
-            const otime::TimeRange& timeRange)
+            const OTIO_NS::TimeRange& timeRange)
         {
             std::list<std::shared_ptr<audio::Audio> > list;
             const double s = seconds - this->timeRange.start_time().rescaled_to(1.0).value();
             if (timeRange.start_time().value() > s)
             {
-                const otime::RationalTime t =
-                    timeRange.start_time() - otime::RationalTime(s, 1.0);
-                const otime::RationalTime t2 =
+                const OTIO_NS::RationalTime t =
+                    timeRange.start_time() - OTIO_NS::RationalTime(s, 1.0);
+                const OTIO_NS::RationalTime t2 =
                     t.rescaled_to(audio->getInfo().sampleRate);
                 auto silence = audio::Audio::create(audio->getInfo(), t2.value());
                 silence->zero();
@@ -549,9 +549,9 @@ namespace tl
             list.push_back(audio);
             if (timeRange.end_time_exclusive().value() < s + 1.0)
             {
-                const otime::RationalTime t =
-                    otime::RationalTime(s + 1.0, 1.0) - timeRange.end_time_exclusive();
-                const otime::RationalTime t2 =
+                const OTIO_NS::RationalTime t =
+                    OTIO_NS::RationalTime(s + 1.0, 1.0) - timeRange.end_time_exclusive();
+                const OTIO_NS::RationalTime t2 =
                     t.rescaled_to(audio->getInfo().sampleRate);
                 auto silence = audio::Audio::create(audio->getInfo(), t2.value());
                 silence->zero();

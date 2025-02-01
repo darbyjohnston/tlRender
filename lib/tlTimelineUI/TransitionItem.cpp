@@ -9,7 +9,7 @@ namespace tl
     namespace timelineui
     {
         void TransitionItem::_init(
-            const otio::SerializableObject::Retainer<otio::Transition>& transition,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -17,14 +17,14 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            otime::TimeRange timeRange = time::invalidTimeRange;
-            otime::TimeRange trimmedRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange trimmedRange = time::invalidTimeRange;
             const auto timeRangeOpt = transition->trimmed_range_in_parent();
             if (timeRangeOpt.has_value())
             {
                 timeRange = timeRangeOpt.value();
-                trimmedRange = otime::TimeRange(
-                    otime::RationalTime(0.0, timeRange.duration().rate()),
+                trimmedRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(0.0, timeRange.duration().rate()),
                     timeRange.duration());
             }
             IItem::_init(
@@ -46,7 +46,7 @@ namespace tl
         {}
 
         std::shared_ptr<TransitionItem> TransitionItem::create(
-            const otio::SerializableObject::Retainer<otio::Transition>& transition,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,

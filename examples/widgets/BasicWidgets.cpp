@@ -156,14 +156,14 @@ namespace tl
 
                 auto timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 auto timeEdit0 = ui::TimeEdit::create(timeUnitsModel, context);
-                timeEdit0->setValue(otime::RationalTime(0.0, 24.0));
+                timeEdit0->setValue(OTIO_NS::RationalTime(0.0, 24.0));
                 auto timeEdit1 = ui::TimeEdit::create(timeUnitsModel, context);
-                timeEdit1->setValue(otime::RationalTime(240.0, 24.0));
+                timeEdit1->setValue(OTIO_NS::RationalTime(240.0, 24.0));
                 auto timeEdit2 = ui::TimeEdit::create(timeUnitsModel, context);
-                timeEdit2->setValue(otime::RationalTime(240.0, 24.0));
+                timeEdit2->setValue(OTIO_NS::RationalTime(240.0, 24.0));
                 timeEdit2->setEnabled(false);
                 auto timeLabel0 = ui::TimeLabel::create(timeUnitsModel, context);
-                timeLabel0->setValue(otime::RationalTime(240.0, 24.0));
+                timeLabel0->setValue(OTIO_NS::RationalTime(240.0, 24.0));
                 auto timeUnitsComboBox = ui::ComboBox::create(context);
                 timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
                 timeUnitsComboBox->setCurrentIndex(

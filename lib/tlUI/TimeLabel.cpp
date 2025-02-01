@@ -15,7 +15,7 @@ namespace tl
         struct TimeLabel::Private
         {
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
-            otime::RationalTime value = time::invalidTime;
+            OTIO_NS::RationalTime value = time::invalidTime;
             std::string text;
             std::string format;
             SizeRole marginRole = SizeRole::None;
@@ -89,12 +89,12 @@ namespace tl
             return _p->timeUnitsModel;
         }
 
-        const otime::RationalTime& TimeLabel::getValue() const
+        const OTIO_NS::RationalTime& TimeLabel::getValue() const
         {
             return _p->value;
         }
 
-        void TimeLabel::setValue(const otime::RationalTime& value)
+        void TimeLabel::setValue(const OTIO_NS::RationalTime& value)
         {
             TLRENDER_P();
             if (value.strictly_equal(p.value))

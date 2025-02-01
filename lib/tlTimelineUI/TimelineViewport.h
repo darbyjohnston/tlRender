@@ -139,7 +139,7 @@ namespace tl
             math::Vector2i _getViewportCenter() const;
             void _frameView();
 
-            void _droppedFramesUpdate(const otime::RationalTime&);
+            void _droppedFramesUpdate(const OTIO_NS::RationalTime&);
 
             TLRENDER_PRIVATE();
         };

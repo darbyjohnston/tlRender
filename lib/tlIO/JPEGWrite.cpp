@@ -212,7 +212,7 @@ namespace tl
 
         void Write::_writeVideo(
             const std::string& fileName,
-            const otime::RationalTime&,
+            const OTIO_NS::RationalTime&,
             const std::shared_ptr<image::Image>& image,
             const io::Options&)
         {

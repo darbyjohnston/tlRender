@@ -51,22 +51,22 @@ namespace tl
             }
             {
                 DTK_ASSERT(!isValid(invalidTime));
-                DTK_ASSERT(isValid(otime::RationalTime(24.0, 24.0)));
+                DTK_ASSERT(isValid(OTIO_NS::RationalTime(24.0, 24.0)));
             }
             {
                 DTK_ASSERT(!isValid(invalidTimeRange));
-                DTK_ASSERT(isValid(otime::TimeRange(
-                    otime::RationalTime(0.0, 24.0),
-                    otime::RationalTime(24.0, 24.0))));
+                DTK_ASSERT(isValid(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0))));
             }
             {
-                const otime::TimeRange a(
-                    otime::RationalTime(24.0, 24.0),
-                    otime::RationalTime(24.0, 24.0));
+                const OTIO_NS::TimeRange a(
+                    OTIO_NS::RationalTime(24.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
                 DTK_ASSERT(compareExact(a, a));
-                const otime::TimeRange b(
-                    otime::RationalTime(1.0, 1.0),
-                    otime::RationalTime(1.0, 1.0));
+                const OTIO_NS::TimeRange b(
+                    OTIO_NS::RationalTime(1.0, 1.0),
+                    OTIO_NS::RationalTime(1.0, 1.0));
                 DTK_ASSERT(a == b);
                 DTK_ASSERT(!compareExact(a, b));
             }
@@ -82,43 +82,43 @@ namespace tl
             {
                 struct Data
                 {
-                    otime::TimeRange range;
-                    std::vector<otime::RationalTime> frames;
+                    OTIO_NS::TimeRange range;
+                    std::vector<OTIO_NS::RationalTime> frames;
                 };
                 const std::vector<Data> data =
                 {
                     Data({ time::invalidTimeRange, {} }),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 24.0),
-                            otime::RationalTime(1.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 24.0),
+                            OTIO_NS::RationalTime(1.0, 24.0)),
                         {
-                            otime::RationalTime(0.0, 24.0)
+                            OTIO_NS::RationalTime(0.0, 24.0)
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 24.0),
-                            otime::RationalTime(3.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 24.0),
+                            OTIO_NS::RationalTime(3.0, 24.0)),
                         {
-                            otime::RationalTime(0.0, 24.0),
-                            otime::RationalTime(1.0, 24.0),
-                            otime::RationalTime(2.0, 24.0)
+                            OTIO_NS::RationalTime(0.0, 24.0),
+                            OTIO_NS::RationalTime(1.0, 24.0),
+                            OTIO_NS::RationalTime(2.0, 24.0)
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 1.0),
-                            otime::RationalTime(1.0, 1.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 1.0),
+                            OTIO_NS::RationalTime(1.0, 1.0)),
                         {
-                            otime::RationalTime(0.0, 1.0)
+                            OTIO_NS::RationalTime(0.0, 1.0)
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 1.0),
-                            otime::RationalTime(3.0, 1.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 1.0),
+                            OTIO_NS::RationalTime(3.0, 1.0)),
                         {
-                            otime::RationalTime(0.0, 1.0),
-                            otime::RationalTime(1.0, 1.0),
-                            otime::RationalTime(2.0, 1.0)
+                            OTIO_NS::RationalTime(0.0, 1.0),
+                            OTIO_NS::RationalTime(1.0, 1.0),
+                            OTIO_NS::RationalTime(2.0, 1.0)
                         }})
                 };
                 for (const auto& i : data)
@@ -130,95 +130,95 @@ namespace tl
             {
                 struct Data
                 {
-                    otime::TimeRange range;
-                    std::vector<otime::TimeRange> seconds;
+                    OTIO_NS::TimeRange range;
+                    std::vector<OTIO_NS::TimeRange> seconds;
                 };
                 const std::vector<Data> data =
                 {
                     Data({time::invalidTimeRange, {}}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 24.0),
-                            otime::RationalTime(24.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 24.0),
+                            OTIO_NS::RationalTime(24.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(0.0, 24.0),
-                                otime::RationalTime(24.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(0.0, 24.0),
+                                OTIO_NS::RationalTime(24.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(0.0, 24.0),
-                            otime::RationalTime(72.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(0.0, 24.0),
+                            OTIO_NS::RationalTime(72.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(0.0, 24.0),
-                                otime::RationalTime(24.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(24.0, 24.0),
-                                otime::RationalTime(24.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(48.0, 24.0),
-                                otime::RationalTime(24.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(0.0, 24.0),
+                                OTIO_NS::RationalTime(24.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(24.0, 24.0),
+                                OTIO_NS::RationalTime(24.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(48.0, 24.0),
+                                OTIO_NS::RationalTime(24.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(12.0, 24.0),
-                            otime::RationalTime(12.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(12.0, 24.0),
+                            OTIO_NS::RationalTime(12.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(12.0, 24.0),
-                                otime::RationalTime(12.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(12.0, 24.0),
+                                OTIO_NS::RationalTime(12.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(12.0, 24.0),
-                            otime::RationalTime(24.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(12.0, 24.0),
+                            OTIO_NS::RationalTime(24.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(12.0, 24.0),
-                                otime::RationalTime(12.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(24.0, 24.0),
-                                otime::RationalTime(12.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(12.0, 24.0),
+                                OTIO_NS::RationalTime(12.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(24.0, 24.0),
+                                OTIO_NS::RationalTime(12.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(23.0, 24.0),
-                            otime::RationalTime(24.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(23.0, 24.0),
+                            OTIO_NS::RationalTime(24.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(23.0, 24.0),
-                                otime::RationalTime(1.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(24.0, 24.0),
-                                otime::RationalTime(23.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(23.0, 24.0),
+                                OTIO_NS::RationalTime(1.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(24.0, 24.0),
+                                OTIO_NS::RationalTime(23.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(-1.0, 24.0),
-                            otime::RationalTime(24.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(-1.0, 24.0),
+                            OTIO_NS::RationalTime(24.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(-1.0, 24.0),
-                                otime::RationalTime(1.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(0.0, 24.0),
-                                otime::RationalTime(23.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(-1.0, 24.0),
+                                OTIO_NS::RationalTime(1.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(0.0, 24.0),
+                                OTIO_NS::RationalTime(23.0, 24.0))
                         }}),
                     Data({
-                        otime::TimeRange(
-                            otime::RationalTime(-1.0, 24.0),
-                            otime::RationalTime(48.0, 24.0)),
+                        OTIO_NS::TimeRange(
+                            OTIO_NS::RationalTime(-1.0, 24.0),
+                            OTIO_NS::RationalTime(48.0, 24.0)),
                         {
-                            otime::TimeRange(
-                                otime::RationalTime(-1.0, 24.0),
-                                otime::RationalTime(1.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(0.0, 24.0),
-                                otime::RationalTime(24.0, 24.0)),
-                            otime::TimeRange(
-                                otime::RationalTime(24.0, 24.0),
-                                otime::RationalTime(23.0, 24.0))
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(-1.0, 24.0),
+                                OTIO_NS::RationalTime(1.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(0.0, 24.0),
+                                OTIO_NS::RationalTime(24.0, 24.0)),
+                            OTIO_NS::TimeRange(
+                                OTIO_NS::RationalTime(24.0, 24.0),
+                                OTIO_NS::RationalTime(23.0, 24.0))
                         }})
                 };
                 for (const auto& i : data)
@@ -360,32 +360,32 @@ namespace tl
         void TimeTest::_serialize()
         {
             {
-                const otime::RationalTime t(1.0, 24.0);
+                const OTIO_NS::RationalTime t(1.0, 24.0);
                 nlohmann::json json;
                 to_json(json, t);
-                otime::RationalTime t2 = invalidTime;
+                OTIO_NS::RationalTime t2 = invalidTime;
                 from_json(json, t2);
                 DTK_ASSERT(t == t2);
             }
             {
-                const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                const auto t = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
                 nlohmann::json json;
                 to_json(json, t);
-                otime::TimeRange t2 = invalidTimeRange;
+                OTIO_NS::TimeRange t2 = invalidTimeRange;
                 from_json(json, t2);
                 DTK_ASSERT(t == t2);
             }
             {
-                const auto t = otime::RationalTime(1.0, 24.0);
+                const auto t = OTIO_NS::RationalTime(1.0, 24.0);
                 std::stringstream ss;
                 ss << t;
-                otime::RationalTime t2 = invalidTime;
+                OTIO_NS::RationalTime t2 = invalidTime;
                 ss >> t2;
                 DTK_ASSERT(t == t2);
             }
             try
             {
-                otime::RationalTime t = invalidTime;
+                OTIO_NS::RationalTime t = invalidTime;
                 std::stringstream ss("...");
                 ss >> t;
                 DTK_ASSERT(false);
@@ -393,16 +393,16 @@ namespace tl
             catch (const std::exception&)
             {}
             {
-                const auto t = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                const auto t = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
                 std::stringstream ss;
                 ss << t;
-                otime::TimeRange t2 = invalidTimeRange;
+                OTIO_NS::TimeRange t2 = invalidTimeRange;
                 ss >> t2;
                 DTK_ASSERT(t == t2);
             }
             try
             {
-                otime::TimeRange t = invalidTimeRange;
+                OTIO_NS::TimeRange t = invalidTimeRange;
                 std::stringstream ss("...");
                 ss >> t;
                 DTK_ASSERT(false);
@@ -411,7 +411,7 @@ namespace tl
             {}
             try
             {
-                otime::TimeRange t = invalidTimeRange;
+                OTIO_NS::TimeRange t = invalidTimeRange;
                 std::stringstream ss(".-.");
                 ss >> t;
                 DTK_ASSERT(false);

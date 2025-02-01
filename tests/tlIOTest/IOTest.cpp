@@ -40,7 +40,7 @@ namespace tl
                 DTK_ASSERT(!v.image);
             }
             {
-                const auto time = otime::RationalTime(1.0, 24.0);
+                const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
                 const auto image = image::Image::create(160, 80, image::PixelType::L_U8);
                 const VideoData v(time, layer, image);
@@ -49,13 +49,13 @@ namespace tl
                 DTK_ASSERT(image == v.image);
             }
             {
-                const auto time = otime::RationalTime(1.0, 24.0);
+                const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
                 const auto image = image::Image::create(16, 16, image::PixelType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
                 DTK_ASSERT(a == b);
-                b.time = otime::RationalTime(2.0, 24.0);
+                b.time = OTIO_NS::RationalTime(2.0, 24.0);
                 DTK_ASSERT(a != b);
                 DTK_ASSERT(a < b);
             }

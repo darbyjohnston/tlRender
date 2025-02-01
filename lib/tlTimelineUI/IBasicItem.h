@@ -20,7 +20,7 @@ namespace tl
                 const std::string& label,
                 ui::ColorRole,
                 const std::string& objectName,
-                const otio::SerializableObject::Retainer<otio::Item>&,
+                const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,

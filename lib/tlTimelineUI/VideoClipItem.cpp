@@ -35,11 +35,11 @@ namespace tl
             io::Options ioOptions;
             ui::InfoRequest infoRequest;
             std::shared_ptr<io::Info> ioInfo;
-            std::map<otime::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
+            std::map<OTIO_NS::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
         };
 
         void VideoClipItem::_init(
-            const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -91,7 +91,7 @@ namespace tl
         }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
-            const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -284,13 +284,13 @@ namespace tl
                         _displayOptions.thumbnailHeight);
                     if (box.intersects(clipRect))
                     {
-                        const otime::RationalTime time = otime::RationalTime(
+                        const OTIO_NS::RationalTime time = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 1 ? (x / static_cast<double>(w - 1)) : 0) *
                             _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
                             _timeRange.start_time().rate()).
                             floor();
-                        const otime::RationalTime mediaTime = timeline::toVideoMediaTime(
+                        const OTIO_NS::RationalTime mediaTime = timeline::toVideoMediaTime(
                             time,
                             _timeRange,
                             _trimmedRange,

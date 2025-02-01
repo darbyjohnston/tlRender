@@ -74,11 +74,11 @@ namespace tl
 
             void CountTestPattern::render(
                 const std::shared_ptr<timeline::IRender>& render,
-                const otime::RationalTime& time)
+                const OTIO_NS::RationalTime& time)
             {
                 if (auto context = _context.lock())
                 {
-                    const otime::RationalTime seconds = time.rescaled_to(1.0);
+                    const OTIO_NS::RationalTime seconds = time.rescaled_to(1.0);
                     const int wholeSeconds = static_cast<int>(seconds.value());
                     const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
 
@@ -209,7 +209,7 @@ namespace tl
 
             void SwatchesTestPattern::render(
                 const std::shared_ptr<timeline::IRender>& render,
-                const otime::RationalTime& time)
+                const OTIO_NS::RationalTime& time)
             {
                 const std::array<image::Color4f, 8> colors =
                 {
@@ -251,7 +251,7 @@ namespace tl
 
             void GridTestPattern::render(
                 const std::shared_ptr<timeline::IRender>& render,
-                const otime::RationalTime& time)
+                const OTIO_NS::RationalTime& time)
             {
                 int cellSize = 2;
                 switch (static_cast<int>(time.value() / 24.0) % 3)

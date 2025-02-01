@@ -29,8 +29,8 @@ namespace tl
             double speed = 0.0;
             timeline::Playback playback = timeline::Playback::Stop;
             timeline::Loop loop = timeline::Loop::Loop;
-            otime::RationalTime seek = time::invalidTime;
-            otime::TimeRange inOutRange = time::invalidTimeRange;
+            OTIO_NS::RationalTime seek = time::invalidTime;
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
 

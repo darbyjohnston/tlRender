@@ -37,7 +37,7 @@ namespace tl
 
             std::future<Info> getInfo() override;
             std::future<VideoData> readVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const Options& = Options()) override;
             void cancelRequests() override;
 
@@ -48,7 +48,7 @@ namespace tl
             virtual VideoData _readVideo(
                 const std::string& fileName,
                 const file::MemoryRead*,
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const Options&) = 0;
 
             //! \bug This must be called in the sub-class destructor.
@@ -82,14 +82,14 @@ namespace tl
             virtual ~ISequenceWrite();
 
             void writeVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const Options& = Options()) override;
 
         protected:
             virtual void _writeVideo(
                 const std::string& fileName,
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const Options&) = 0;
 

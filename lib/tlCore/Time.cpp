@@ -16,14 +16,14 @@ namespace tl
 {
     namespace time
     {
-        std::vector<otime::RationalTime> frames(const otime::TimeRange& value)
+        std::vector<OTIO_NS::RationalTime> frames(const OTIO_NS::TimeRange& value)
         {
-            std::vector<otime::RationalTime> out;
+            std::vector<OTIO_NS::RationalTime> out;
             if (isValid(value))
             {
                 const auto start = value.start_time();
                 const auto end = value.end_time_exclusive();
-                const auto inc = otime::RationalTime(1.0, value.duration().rate());
+                const auto inc = OTIO_NS::RationalTime(1.0, value.duration().rate());
                 for (auto time = start; time < end; time += inc)
                 {
                     out.push_back(time);
@@ -32,12 +32,12 @@ namespace tl
             return out;
         }
 
-        std::vector<otime::TimeRange> seconds(const otime::TimeRange& value)
+        std::vector<OTIO_NS::TimeRange> seconds(const OTIO_NS::TimeRange& value)
         {
-            std::vector<otime::TimeRange> out;
+            std::vector<OTIO_NS::TimeRange> out;
             if (value != invalidTimeRange)
             {
-                const otime::TimeRange seconds(
+                const OTIO_NS::TimeRange seconds(
                     value.start_time().rescaled_to(1.0),
                     value.duration().rescaled_to(1.0));
                 for (double t = std::floor(seconds.start_time().value());
@@ -46,10 +46,10 @@ namespace tl
                 {
                     const double start = std::max(t, seconds.start_time().value());
                     const double end = std::min(t + 1.0, seconds.end_time_exclusive().value());
-                    const otime::TimeRange second(
-                        otime::RationalTime(start, 1.0),
-                        otime::RationalTime(end - start, 1.0));
-                    const otime::TimeRange scaled(
+                    const OTIO_NS::TimeRange second(
+                        OTIO_NS::RationalTime(start, 1.0),
+                        OTIO_NS::RationalTime(end - start, 1.0));
+                    const OTIO_NS::TimeRange scaled(
                         second.start_time().rescaled_to(value.duration().rate()),
                         second.duration().rescaled_to(value.duration().rate()));
                     out.push_back(scaled);

@@ -68,11 +68,11 @@ namespace tl
                         "Playback mode.",
                         dtk::Format("{0}").arg(_options.playback),
                         dtk::join(timeline::getPlaybackLabels(), ", ")),
-                    app::CmdLineValueOption<otime::RationalTime>::create(
+                    app::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                         _options.seek,
                         { "-seek" },
                         "Seek to the given time."),
-                    app::CmdLineValueOption<otime::TimeRange>::create(
+                    app::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),

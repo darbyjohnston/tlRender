@@ -31,11 +31,11 @@ namespace tl
 
             ui::InfoRequest infoRequest;
             std::shared_ptr<io::Info> ioInfo;
-            std::map<otime::RationalTime, ui::WaveformRequest> waveformRequests;
+            std::map<OTIO_NS::RationalTime, ui::WaveformRequest> waveformRequests;
         };
 
         void AudioClipItem::_init(
-            const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -84,7 +84,7 @@ namespace tl
         }
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
-            const otio::SerializableObject::Retainer<otio::Clip>& clip,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -266,20 +266,20 @@ namespace tl
                         _displayOptions.waveformHeight);
                     if (box.intersects(clipRect))
                     {
-                        const otime::RationalTime time = otime::RationalTime(
+                        const OTIO_NS::RationalTime time = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? (x / static_cast<double>(w)) : 0) *
                             _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
                             _timeRange.start_time().rate()).
                             round();
-                        const otime::RationalTime time2 = otime::RationalTime(
+                        const OTIO_NS::RationalTime time2 = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
                             (w > 0 ? ((x + _displayOptions.waveformWidth) / static_cast<double>(w)) : 0) *
                             _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
                             _timeRange.start_time().rate()).
                             round();
-                        const otime::TimeRange mediaRange = timeline::toAudioMediaTime(
-                            otime::TimeRange::range_from_start_end_time(time, time2),
+                        const OTIO_NS::TimeRange mediaRange = timeline::toAudioMediaTime(
+                            OTIO_NS::TimeRange::range_from_start_end_time(time, time2),
                             _timeRange,
                             _trimmedRange,
                             p.ioInfo->audio.sampleRate);

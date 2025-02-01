@@ -68,210 +68,210 @@ namespace tl
         void UtilTest::_ranges()
         {
             {
-                std::vector<otime::RationalTime> f;
+                std::vector<OTIO_NS::RationalTime> f;
                 auto r = toRanges(f);
                 DTK_ASSERT(r.empty());
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24)
+                    OTIO_NS::RationalTime(0, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24),
-                    otime::RationalTime(1, 24)
+                    OTIO_NS::RationalTime(0, 24),
+                    OTIO_NS::RationalTime(1, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24),
-                    otime::RationalTime(1, 24),
-                    otime::RationalTime(2, 24)
+                    OTIO_NS::RationalTime(0, 24),
+                    OTIO_NS::RationalTime(1, 24),
+                    OTIO_NS::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(3, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(3, 24)) == r[0]);
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24),
-                    otime::RationalTime(2, 24)
+                    OTIO_NS::RationalTime(0, 24),
+                    OTIO_NS::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(1, 24)) == r[0]);
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(2, 24), otime::RationalTime(1, 24)) == r[1]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(2, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24),
-                    otime::RationalTime(1, 24),
-                    otime::RationalTime(3, 24)
+                    OTIO_NS::RationalTime(0, 24),
+                    OTIO_NS::RationalTime(1, 24),
+                    OTIO_NS::RationalTime(3, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(1, 24)) == r[1]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
             }
             {
-                std::vector<otime::RationalTime> f =
+                std::vector<OTIO_NS::RationalTime> f =
                 {
-                    otime::RationalTime(0, 24),
-                    otime::RationalTime(1, 24),
-                    otime::RationalTime(3, 24),
-                    otime::RationalTime(4, 24)
+                    OTIO_NS::RationalTime(0, 24),
+                    OTIO_NS::RationalTime(1, 24),
+                    OTIO_NS::RationalTime(3, 24),
+                    OTIO_NS::RationalTime(4, 24)
                 };
                 auto r = toRanges(f);
                 DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(0, 24), otime::RationalTime(2, 24)) == r[0]);
-                DTK_ASSERT(otime::TimeRange(otime::RationalTime(3, 24), otime::RationalTime(2, 24)) == r[1]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
+                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(2, 24)) == r[1]);
             }
         }
 
         void UtilTest::_loop()
         {
             {
-                const otio::TimeRange timeRange(
-                    otio::RationalTime(0.0, 24.0),
-                    otio::RationalTime(24.0, 24.0));
+                const OTIO_NS::TimeRange timeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
                 bool looped = false;
-                otio::RationalTime t = loop(
-                    otio::RationalTime(0.0, 24.0),
+                OTIO_NS::RationalTime t = loop(
+                    OTIO_NS::RationalTime(0.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                DTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
                 DTK_ASSERT(!looped);
                 t = loop(
-                    otio::RationalTime(24.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(otio::RationalTime(0.0, 24.0) == t);
+                DTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
                 DTK_ASSERT(looped);
                 t = loop(
-                    otio::RationalTime(-1.0, 24.0),
+                    OTIO_NS::RationalTime(-1.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(otio::RationalTime(23.0, 24.0) == t);
+                DTK_ASSERT(OTIO_NS::RationalTime(23.0, 24.0) == t);
                 DTK_ASSERT(looped);
             }
             {
-                const otio::TimeRange timeRange(
-                    otio::RationalTime(0.0, 24.0),
-                    otio::RationalTime(24.0, 24.0));
-                otio::TimeRange cacheRange(
-                    otio::RationalTime(0.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                const OTIO_NS::TimeRange timeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                OTIO_NS::TimeRange cacheRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 auto result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
                     cacheRange }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(-1.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(-1.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
-                    otio::TimeRange(
-                        otio::RationalTime(0.0, 24.0),
-                        otio::RationalTime(11.0, 24.0)),
-                    otio::TimeRange(
-                        otio::RationalTime(23.0, 24.0),
-                        otio::RationalTime(1.0, 24.0)) }));
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(11.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(23.0, 24.0),
+                        OTIO_NS::RationalTime(1.0, 24.0)) }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(13.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(13.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
-                    otio::TimeRange(
-                        otio::RationalTime(13.0, 24.0),
-                        otio::RationalTime(11.0, 24.0)),
-                    otio::TimeRange(
-                        otio::RationalTime(0.0, 24.0),
-                        otio::RationalTime(1.0, 24.0)) }));
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(13.0, 24.0),
+                        OTIO_NS::RationalTime(11.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(1.0, 24.0)) }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(-1.0, 24.0),
-                    otio::RationalTime(26.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(-1.0, 24.0),
+                    OTIO_NS::RationalTime(26.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Forward);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
                     timeRange }));
             }
             {
-                const otio::TimeRange timeRange(
-                    otio::RationalTime(0.0, 24.0),
-                    otio::RationalTime(24.0, 24.0));
-                otio::TimeRange cacheRange(
-                    otio::RationalTime(12.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                const OTIO_NS::TimeRange timeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                OTIO_NS::TimeRange cacheRange(
+                    OTIO_NS::RationalTime(12.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 auto result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
                     cacheRange }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(13.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(13.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
-                    otio::TimeRange(
-                        otio::RationalTime(0.0, 24.0),
-                        otio::RationalTime(1.0, 24.0)),
-                    otio::TimeRange(
-                        otio::RationalTime(13.0, 24.0),
-                        otio::RationalTime(11.0, 24.0)) }));
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(1.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(13.0, 24.0),
+                        OTIO_NS::RationalTime(11.0, 24.0)) }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(-1.0, 24.0),
-                    otio::RationalTime(12.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(-1.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
-                    otio::TimeRange(
-                        otio::RationalTime(0.0, 24.0),
-                        otio::RationalTime(11.0, 24.0)),
-                    otio::TimeRange(
-                        otio::RationalTime(23.0, 24.0),
-                        otio::RationalTime(1.0, 24.0)) }));
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, 24.0),
+                        OTIO_NS::RationalTime(11.0, 24.0)),
+                    OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(23.0, 24.0),
+                        OTIO_NS::RationalTime(1.0, 24.0)) }));
 
-                cacheRange = otio::TimeRange(
-                    otio::RationalTime(-1.0, 24.0),
-                    otio::RationalTime(26.0, 24.0));
+                cacheRange = OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(-1.0, 24.0),
+                    OTIO_NS::RationalTime(26.0, 24.0));
                 result = loopCache(
                     cacheRange,
                     timeRange,
                     CacheDirection::Reverse);
-                DTK_ASSERT(result == std::vector<otime::TimeRange>({
+                DTK_ASSERT(result == std::vector<OTIO_NS::TimeRange>({
                     timeRange }));
             }
         }
@@ -279,31 +279,31 @@ namespace tl
         void UtilTest::_util()
         {
             {
-                auto otioClip = new otio::Clip;
-                otio::ErrorStatus errorStatus;
-                auto otioTrack = new otio::Track();
+                auto otioClip = new OTIO_NS::Clip;
+                OTIO_NS::ErrorStatus errorStatus;
+                auto otioTrack = new OTIO_NS::Track();
                 otioTrack->append_child(otioClip, &errorStatus);
-                if (otio::is_error(errorStatus))
+                if (OTIO_NS::is_error(errorStatus))
                 {
                     throw std::runtime_error("Cannot append child");
                 }
-                auto otioStack = new otio::Stack;
+                auto otioStack = new OTIO_NS::Stack;
                 otioStack->append_child(otioTrack, &errorStatus);
-                if (otio::is_error(errorStatus))
+                if (OTIO_NS::is_error(errorStatus))
                 {
                     throw std::runtime_error("Cannot append child");
                 }
-                otio::SerializableObject::Retainer<otio::Timeline> otioTimeline(new otio::Timeline);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
                 otioTimeline->set_tracks(otioStack);
                 DTK_ASSERT(otioStack == getRoot(otioClip));
-                DTK_ASSERT(otioStack == getParent<otio::Stack>(otioClip));
-                DTK_ASSERT(otioTrack == getParent<otio::Track>(otioClip));
+                DTK_ASSERT(otioStack == getParent<OTIO_NS::Stack>(otioClip));
+                DTK_ASSERT(otioTrack == getParent<OTIO_NS::Track>(otioClip));
             }
             {
                 VideoData a;
-                a.time = otime::RationalTime(1.0, 24.0);
+                a.time = OTIO_NS::RationalTime(1.0, 24.0);
                 VideoData b;
-                b.time = otime::RationalTime(1.0, 24.0);
+                b.time = OTIO_NS::RationalTime(1.0, 24.0);
                 DTK_ASSERT(isTimeEqual(a, b));
             }
         }
@@ -405,8 +405,8 @@ namespace tl
             {
                 if (".otio" == entry.getPath().getExtension())
                 {
-                    otio::SerializableObject::Retainer<otio::Timeline> timeline(
-                        dynamic_cast<otio::Timeline*>(otio::Timeline::from_json_file(entry.getPath().get())));
+                    OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> timeline(
+                        dynamic_cast<OTIO_NS::Timeline*>(OTIO_NS::Timeline::from_json_file(entry.getPath().get())));
                     file::Path outputPath = entry.getPath();
                     outputPath.setExtension(".otioz");
                     writeOTIOZ(

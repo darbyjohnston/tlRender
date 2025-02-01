@@ -22,7 +22,7 @@ namespace tl
     {
         void TimelineItem::_init(
             const std::shared_ptr<timeline::Player>& player,
-            const otio::SerializableObject::Retainer<otio::Stack>& stack,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>& stack,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -31,9 +31,9 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            const otime::TimeRange timeRange = player->getTimeRange();
-            const otime::TimeRange trimmedRange(
-                otime::RationalTime(0.0, timeRange.duration().rate()),
+            const OTIO_NS::TimeRange timeRange = player->getTimeRange();
+            const OTIO_NS::TimeRange trimmedRange(
+                OTIO_NS::RationalTime(0.0, timeRange.duration().rate()),
                 timeRange.duration());
             IItem::_init(
                 "tl::timelineui::TimelineItem",
@@ -53,7 +53,7 @@ namespace tl
             p.player = player;
 
             p.scrub = observer::Value<bool>::create(false);
-            p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
+            p.timeScrub = observer::Value<OTIO_NS::RationalTime>::create(time::invalidTime);
 
             p.thumbnailGenerator = ui::ThumbnailGenerator::create(
                 context->getSystem<ui::ThumbnailSystem>()->getCache(),
@@ -64,12 +64,12 @@ namespace tl
             int stackIndex = 0;
             for (const auto& child : otioTimeline->tracks()->children())
             {
-                if (auto otioTrack = otio::dynamic_retainer_cast<otio::Track>(child))
+                if (auto otioTrack = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Track>(child))
                 {
                     Private::Track track;
                     track.index = p.tracks.size();
                     std::string trackLabel = otioTrack->name();
-                    if (otio::Track::Kind::video == otioTrack->kind())
+                    if (OTIO_NS::Track::Kind::video == otioTrack->kind())
                     {
                         track.type = TrackType::Video;
                         if (trackLabel.empty())
@@ -77,7 +77,7 @@ namespace tl
                             trackLabel = "Video Track";
                         }
                     }
-                    else if (otio::Track::Kind::audio == otioTrack->kind())
+                    else if (OTIO_NS::Track::Kind::audio == otioTrack->kind())
                     {
                         track.type = TrackType::Audio;
                         if (trackLabel.empty())
@@ -116,7 +116,7 @@ namespace tl
                     for (const auto& child : otioTrack->children())
                     {
                         std::shared_ptr<IBasicItem> item;
-                        if (auto clip = otio::dynamic_retainer_cast<otio::Clip>(child))
+                        if (auto clip = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Clip>(child))
                         {
                             switch (track.type)
                             {
@@ -145,7 +145,7 @@ namespace tl
                             default: break;
                             }
                         }
-                        else if (auto gap = otio::dynamic_retainer_cast<otio::Gap>(child))
+                        else if (auto gap = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Gap>(child))
                         {
                             item = GapItem::create(
                                 TrackType::Video == track.type ?
@@ -174,17 +174,17 @@ namespace tl
             _tracksUpdate();
             _textUpdate();
 
-            p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+            p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
                 p.player->observeCurrentTime(),
-                [this](const otime::RationalTime& value)
+                [this](const OTIO_NS::RationalTime& value)
                 {
                     _p->currentTime = value;
                     _updates |= ui::Update::Draw;
                 });
 
-            p.inOutRangeObserver = observer::ValueObserver<otime::TimeRange>::create(
+            p.inOutRangeObserver = observer::ValueObserver<OTIO_NS::TimeRange>::create(
                 p.player->observeInOutRange(),
-                [this](const otime::TimeRange value)
+                [this](const OTIO_NS::TimeRange value)
                 {
                     _p->inOutRange = value;
                     _updates |= ui::Update::Draw;
@@ -208,7 +208,7 @@ namespace tl
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
             const std::shared_ptr<timeline::Player>& player,
-            const otio::SerializableObject::Retainer<otio::Stack>& stack,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>& stack,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -246,7 +246,7 @@ namespace tl
             return _p->scrub;
         }
 
-        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineItem::observeTimeScrub() const
+        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > TimelineItem::observeTimeScrub() const
         {
             return _p->timeScrub;
         }
@@ -349,7 +349,7 @@ namespace tl
                     {
                         continue;
                     }
-                    const otime::TimeRange& timeRange = item->getTimeRange();
+                    const OTIO_NS::TimeRange& timeRange = item->getTimeRange();
                     math::Size2i sizeHint;
                     if (visible)
                     {
@@ -506,7 +506,7 @@ namespace tl
             {
             case Private::MouseMode::CurrentTime:
             {
-                const otime::RationalTime time = posToTime(event.pos.x);
+                const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                 p.timeScrub->setIfChanged(time);
                 p.player->seek(time);
                 break;
@@ -608,7 +608,7 @@ namespace tl
                     {
                         p.player->setPlayback(timeline::Playback::Stop);
                     }
-                    const otime::RationalTime time = posToTime(event.pos.x);
+                    const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                     p.scrub->setIfChanged(true);
                     p.timeScrub->setIfChanged(time);
                     p.player->seek(time);
@@ -825,8 +825,8 @@ namespace tl
                 {
                     geom::TriangleMesh2 mesh;
                     size_t i = 1;
-                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
                     const double inc = 1.0 / _timeRange.duration().rate();
                     const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
                     const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
@@ -869,8 +869,8 @@ namespace tl
                 {
                     geom::TriangleMesh2 mesh;
                     size_t i = 1;
-                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
                     const double inc = seconds;
                     const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
                     const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
@@ -918,7 +918,7 @@ namespace tl
             for (const auto& frameMarker : p.frameMarkers)
             {
                 const math::Box2i g2(
-                    timeToPos(otime::RationalTime(frameMarker, rate)),
+                    timeToPos(OTIO_NS::RationalTime(frameMarker, rate)),
                     p.size.scrollPos.y +
                     g.min.y,
                     p.size.border * 2,
@@ -951,15 +951,15 @@ namespace tl
                 if (seconds > 0.0 && tick > 0)
                 {
                     const math::Size2i labelMaxSize = _getLabelMaxSize(event.fontSystem);
-                    const otime::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const otime::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
                     const double inc = seconds;
                     const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
                     const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
                     for (double t = x0; t <= x1; t += inc)
                     {
-                        const otime::RationalTime time = _timeRange.start_time() +
-                            otime::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
+                        const OTIO_NS::RationalTime time = _timeRange.start_time() +
+                            OTIO_NS::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
                         const math::Box2i box(
                             g.min.x +
                             t / duration * w +
@@ -1129,12 +1129,12 @@ namespace tl
             TLRENDER_P();
             for (const auto& track : p.tracks)
             {
-                const otime::RationalTime duration = track.timeRange.duration();
+                const OTIO_NS::RationalTime duration = track.timeRange.duration();
                 const bool khz =
                     TrackType::Audio == track.type ?
                     (duration.rate() >= 1000.0) :
                     false;
-                const otime::RationalTime rescaled = duration.rescaled_to(_data->speed);
+                const OTIO_NS::RationalTime rescaled = duration.rescaled_to(_data->speed);
                 const std::string label = dtk::Format("{0}, {1}{2}").
                     arg(_data->timeUnitsModel->getLabel(rescaled)).
                     arg(khz ? (duration.rate() / 1000.0) : duration.rate()).
@@ -1179,18 +1179,18 @@ namespace tl
             if (trackIndex >= 0 && trackIndex < tracks.size() &&
                 tracks.size() > 1)
             {
-                const otime::TimeRange& timeRange = item->getTimeRange();
+                const OTIO_NS::TimeRange& timeRange = item->getTimeRange();
                 if (TrackType::Video == tracks[trackIndex].type &&
                     trackIndex < tracks.size() - 1 &&
                     TrackType::Audio == tracks[trackIndex + 1].type)
                 {
                     for (size_t i = 0; i < tracks[trackIndex + 1].items.size(); ++i)
                     {
-                        const otime::TimeRange& audioTimeRange =
+                        const OTIO_NS::TimeRange& audioTimeRange =
                             tracks[trackIndex + 1].items[i]->getTimeRange();
-                        const otime::RationalTime audioStartTime =
+                        const OTIO_NS::RationalTime audioStartTime =
                             audioTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
-                        const otime::RationalTime audioDuration =
+                        const OTIO_NS::RationalTime audioDuration =
                             audioTimeRange.duration().rescaled_to(timeRange.duration().rate());
                         if (math::fuzzyCompare(
                                 audioStartTime.value(),
@@ -1212,11 +1212,11 @@ namespace tl
                 {
                     for (size_t i = 0; i < tracks[trackIndex - 1].items.size(); ++i)
                     {
-                        const otime::TimeRange& videoTimeRange = 
+                        const OTIO_NS::TimeRange& videoTimeRange = 
                             tracks[trackIndex - 1].items[i]->getTimeRange();
-                        const otime::RationalTime videoStartTime =
+                        const OTIO_NS::RationalTime videoStartTime =
                             videoTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
-                        const otime::RationalTime videoDuration =
+                        const OTIO_NS::RationalTime videoDuration =
                             videoTimeRange.duration().rescaled_to(timeRange.duration().rate());
                         if (math::fuzzyCompare(
                                 videoStartTime.value(),

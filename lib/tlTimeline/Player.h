@@ -21,10 +21,10 @@ namespace tl
             float videoPercentage = 0.F;
 
             //! Cached video frames.
-            std::vector<otime::TimeRange> videoFrames;
+            std::vector<OTIO_NS::TimeRange> videoFrames;
 
             //! Cached audio frames.
-            std::vector<otime::TimeRange> audioFrames;
+            std::vector<OTIO_NS::TimeRange> audioFrames;
 
             bool operator == (const PlayerCacheInfo&) const;
             bool operator != (const PlayerCacheInfo&) const;
@@ -122,7 +122,7 @@ namespace tl
             ///@{
 
             //! Get the time range.
-            const otime::TimeRange& getTimeRange() const;
+            const OTIO_NS::TimeRange& getTimeRange() const;
 
             //! Get the I/O information. This information is retrieved from
             //! the first clip in the timeline.
@@ -169,16 +169,16 @@ namespace tl
             ///@{
 
             //! Get the current time.
-            otime::RationalTime getCurrentTime() const;
+            OTIO_NS::RationalTime getCurrentTime() const;
 
             //! Observe the current time.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeCurrentTime() const;
+            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeCurrentTime() const;
 
             //! Observe seeking.
-            std::shared_ptr<observer::IValue<otime::RationalTime> > observeSeek() const;
+            std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > observeSeek() const;
 
             //! Seek to the given time.
-            void seek(const otime::RationalTime&);
+            void seek(const OTIO_NS::RationalTime&);
 
             //! Time action.
             void timeAction(TimeAction);
@@ -201,13 +201,13 @@ namespace tl
             ///@{
 
             //! Get the in/out points range.
-            otime::TimeRange getInOutRange() const;
+            OTIO_NS::TimeRange getInOutRange() const;
 
             //! Observe the in/out points range.
-            std::shared_ptr<observer::IValue<otime::TimeRange> > observeInOutRange() const;
+            std::shared_ptr<observer::IValue<OTIO_NS::TimeRange> > observeInOutRange() const;
 
             //! Set the in/out points range.
-            void setInOutRange(const otime::TimeRange&);
+            void setInOutRange(const OTIO_NS::TimeRange&);
 
             //! Set the in point to the current time.
             void setInPoint();

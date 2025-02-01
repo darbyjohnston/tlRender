@@ -185,20 +185,20 @@ namespace tl
             return getRenderSize(mode, sizes);
         }
 
-        otime::RationalTime getCompareTime(
-            const otime::RationalTime& sourceTime,
-            const otime::TimeRange& sourceTimeRange,
-            const otime::TimeRange& compareTimeRange,
+        OTIO_NS::RationalTime getCompareTime(
+            const OTIO_NS::RationalTime& sourceTime,
+            const OTIO_NS::TimeRange& sourceTimeRange,
+            const OTIO_NS::TimeRange& compareTimeRange,
             CompareTimeMode mode)
         {
-            otime::RationalTime out;
+            OTIO_NS::RationalTime out;
             switch (mode)
             {
             case CompareTimeMode::Relative:
             {
-                const otime::RationalTime relativeTime =
+                const OTIO_NS::RationalTime relativeTime =
                     sourceTime - sourceTimeRange.start_time();
-                const otime::RationalTime relativeTimeRescaled = relativeTime.
+                const OTIO_NS::RationalTime relativeTimeRescaled = relativeTime.
                     rescaled_to(compareTimeRange.duration().rate()).
                     floor();
                 out = compareTimeRange.start_time() + relativeTimeRescaled;

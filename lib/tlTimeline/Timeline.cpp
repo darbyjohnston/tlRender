@@ -48,7 +48,7 @@ namespace tl
         }
 
         void Timeline::_init(
-            const otio::SerializableObject::Retainer<otio::Timeline>& otioTimeline,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
             const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
@@ -91,7 +91,7 @@ namespace tl
             {
                 try
                 {
-                    const auto dict = std::any_cast<otio::AnyDictionary>(i->second);
+                    const auto dict = std::any_cast<OTIO_NS::AnyDictionary>(i->second);
                     auto j = dict.find("path");
                     if (j != dict.end())
                     {
@@ -113,9 +113,9 @@ namespace tl
             p.timeRange = timeline::getTimeRange(p.otioTimeline.value);
             for (const auto& i : p.otioTimeline.value->tracks()->children())
             {
-                if (auto otioTrack = dynamic_cast<const otio::Track*>(i.value))
+                if (auto otioTrack = dynamic_cast<const OTIO_NS::Track*>(i.value))
                 {
-                    if (otio::Track::Kind::audio == otioTrack->kind())
+                    if (OTIO_NS::Track::Kind::audio == otioTrack->kind())
                     {
                         if (p.getAudioInfo(otioTrack))
                         {
@@ -144,9 +144,9 @@ namespace tl
             }
             for (const auto& i : p.otioTimeline.value->tracks()->children())
             {
-                if (auto otioTrack = dynamic_cast<const otio::Track*>(i.value))
+                if (auto otioTrack = dynamic_cast<const OTIO_NS::Track*>(i.value))
                 {
-                    if (otio::Track::Kind::video == otioTrack->kind())
+                    if (OTIO_NS::Track::Kind::video == otioTrack->kind())
                     {
                         if (p.getVideoInfo(otioTrack))
                         {
@@ -205,7 +205,7 @@ namespace tl
             return _p->context;
         }
         
-        const otio::SerializableObject::Retainer<otio::Timeline>& Timeline::getTimeline() const
+        const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& Timeline::getTimeline() const
         {
             return _p->otioTimeline;
         }
@@ -215,7 +215,7 @@ namespace tl
             return _p->timelineChanges;
         }
 
-        void Timeline::setTimeline(const otio::SerializableObject::Retainer<otio::Timeline>& value)
+        void Timeline::setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& value)
         {
             TLRENDER_P();
             p.otioTimeline = value;
@@ -241,7 +241,7 @@ namespace tl
             return _p->options;
         }
 
-        const otime::TimeRange& Timeline::getTimeRange() const
+        const OTIO_NS::TimeRange& Timeline::getTimeRange() const
         {
             return _p->timeRange;
         }
@@ -252,7 +252,7 @@ namespace tl
         }
 
         VideoRequest Timeline::getVideo(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
             TLRENDER_P();

@@ -82,7 +82,7 @@ namespace tl
             {
                 VideoData a, b;
                 DTK_ASSERT(a == b);
-                a.time = otime::RationalTime(1.0, 24.0);
+                a.time = OTIO_NS::RationalTime(1.0, 24.0);
                 DTK_ASSERT(a != b);
             }
         }
@@ -132,18 +132,18 @@ namespace tl
         void TimelineTest::_timeline(const std::shared_ptr<timeline::Timeline>& timeline)
         {
             // Get video from the timeline.
-            const otime::TimeRange& timeRange = timeline->getTimeRange();
+            const OTIO_NS::TimeRange& timeRange = timeline->getTimeRange();
             std::vector<timeline::VideoData> videoData;
             std::vector<timeline::VideoRequest> videoRequests;
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoRequests.push_back(timeline->getVideo(OTIO_NS::RationalTime(i, 24.0)));
             }
             io::Options ioOptions;
             ioOptions["Layer"] = "1";
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
+                videoRequests.push_back(timeline->getVideo(OTIO_NS::RationalTime(i, 24.0), ioOptions));
             }
             while (videoData.size() < static_cast<size_t>(timeRange.duration().value()) * 2)
             {
@@ -197,11 +197,11 @@ namespace tl
             audioRequests.clear();
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0)));
+                videoRequests.push_back(timeline->getVideo(OTIO_NS::RationalTime(i, 24.0)));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().value()); ++i)
             {
-                videoRequests.push_back(timeline->getVideo(otime::RationalTime(i, 24.0), ioOptions));
+                videoRequests.push_back(timeline->getVideo(OTIO_NS::RationalTime(i, 24.0), ioOptions));
             }
             for (size_t i = 0; i < static_cast<size_t>(timeRange.duration().rescaled_to(1.0).value()); ++i)
             {

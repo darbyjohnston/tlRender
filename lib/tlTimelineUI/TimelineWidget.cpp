@@ -30,15 +30,15 @@ namespace tl
             float mouseWheelScale = 1.1F;
             std::shared_ptr<observer::Value<bool> > stopOnScrub;
             std::shared_ptr<observer::Value<bool> > scrub;
-            std::shared_ptr<observer::Value<otime::RationalTime> > timeScrub;
+            std::shared_ptr<observer::Value<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             std::shared_ptr<observer::Value<ItemOptions> > itemOptions;
             std::shared_ptr<observer::Value<DisplayOptions> > displayOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
-            otime::TimeRange timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             timeline::Playback playback = timeline::Playback::Stop;
-            otime::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
             double scale = 500.0;
             bool sizeInit = true;
 
@@ -62,9 +62,9 @@ namespace tl
 
             std::shared_ptr<observer::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<observer::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > currentTimeObserver;
+            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<observer::ValueObserver<bool> > scrubObserver;
-            std::shared_ptr<observer::ValueObserver<otime::RationalTime> > timeScrubObserver;
+            std::shared_ptr<observer::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
         };
 
         void TimelineWidget::_init(
@@ -86,7 +86,7 @@ namespace tl
             p.scrollToCurrentFrame = observer::Value<bool>::create(true);
             p.stopOnScrub = observer::Value<bool>::create(true);
             p.scrub = observer::Value<bool>::create(false);
-            p.timeScrub = observer::Value<otime::RationalTime>::create(time::invalidTime);
+            p.timeScrub = observer::Value<OTIO_NS::RationalTime>::create(time::invalidTime);
             p.itemOptions = observer::Value<ItemOptions>::create();
             p.displayOptions = observer::Value<DisplayOptions>::create();
 
@@ -164,9 +164,9 @@ namespace tl
                         _p->playback = value;
                     });
 
-                p.currentTimeObserver = observer::ValueObserver<otime::RationalTime>::create(
+                p.currentTimeObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
-                    [this](const otime::RationalTime& value)
+                    [this](const OTIO_NS::RationalTime& value)
                     {
                         _p->currentTime = value;
                         _scrollUpdate();
@@ -332,7 +332,7 @@ namespace tl
             return _p->scrub;
         }
 
-        std::shared_ptr<observer::IValue<otime::RationalTime> > TimelineWidget::observeTimeScrub() const
+        std::shared_ptr<observer::IValue<OTIO_NS::RationalTime> > TimelineWidget::observeTimeScrub() const
         {
             return _p->timeScrub;
         }
@@ -587,7 +587,7 @@ namespace tl
             double out = 1.0;
             if (p.player)
             {
-                const otime::TimeRange& timeRange = p.player->getTimeRange();
+                const OTIO_NS::TimeRange& timeRange = p.player->getTimeRange();
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
@@ -605,7 +605,7 @@ namespace tl
             if (p.player)
             {
                 const math::Box2i scrollViewport = p.scrollWidget->getViewport();
-                const otime::TimeRange& timeRange = p.player->getTimeRange();
+                const OTIO_NS::TimeRange& timeRange = p.player->getTimeRange();
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration < 1.0)
                 {
@@ -688,7 +688,7 @@ namespace tl
                 if (pos < (vp.min.x + margin) || pos >(vp.max.x - margin))
                 {
                     const int offset = pos < (vp.min.x + margin) ? (vp.min.x + margin) : (vp.max.x - margin);
-                    const otime::RationalTime t = p.currentTime - p.timeRange.start_time();
+                    const OTIO_NS::RationalTime t = p.currentTime - p.timeRange.start_time();
                     math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
                     scrollPos.x = _geometry.min.x - offset + t.rescaled_to(1.0).value() * p.scale;
                     p.scrollWidget->setScrollPos(scrollPos);
@@ -737,9 +737,9 @@ namespace tl
                             _scrollUpdate();
                         });
 
-                    p.timeScrubObserver = observer::ValueObserver<otime::RationalTime>::create(
+                    p.timeScrubObserver = observer::ValueObserver<OTIO_NS::RationalTime>::create(
                         p.timelineItem->observeTimeScrub(),
-                        [this](const otime::RationalTime& value)
+                        [this](const OTIO_NS::RationalTime& value)
                         {
                             _p->timeScrub->setIfChanged(value);
                         });

@@ -45,7 +45,7 @@ namespace tl
             const std::string& label,
             ui::ColorRole colorRole,
             const std::string& objectName,
-            const otio::SerializableObject::Retainer<otio::Item>& item,
+            const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>& item,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
@@ -53,13 +53,13 @@ namespace tl
             const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            otime::TimeRange timeRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             const auto timeRangeOpt = item->trimmed_range_in_parent();
             if (timeRangeOpt.has_value())
             {
                 timeRange = timeRangeOpt.value();
             }
-            const otime::TimeRange trimmedRange = item->trimmed_range();
+            const OTIO_NS::TimeRange trimmedRange = item->trimmed_range();
             IItem::_init(
                 objectName,
                 timeRange,

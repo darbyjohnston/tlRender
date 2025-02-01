@@ -55,7 +55,7 @@ namespace tl
             io::VideoData _readVideo(
                 const std::string& fileName,
                 const file::MemoryRead*,
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const io::Options&) override;
         };
 
@@ -84,7 +84,7 @@ namespace tl
         protected:
             void _writeVideo(
                 const std::string& fileName,
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const std::shared_ptr<image::Image>&,
                 const io::Options&) override;
         };

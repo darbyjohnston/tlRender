@@ -51,10 +51,10 @@ namespace tl
             {
                 Info info;
                 info.video.push_back(imageInfo);
-                info.videoTime = otime::TimeRange(otime::RationalTime(0.0, 24.0), otime::RationalTime(1.0, 24.0));
+                info.videoTime = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
                 info.tags = tags;
                 auto write = plugin->write(path, info, options);
-                write->writeVideo(otime::RationalTime(0.0, 24.0), image);
+                write->writeVideo(OTIO_NS::RationalTime(0.0, 24.0), image);
             }
 
             void read(
@@ -82,7 +82,7 @@ namespace tl
                 }
                 const auto ioInfo = read->getInfo().get();
                 DTK_ASSERT(!ioInfo.video.empty());
-                const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
                 DTK_ASSERT(videoData.image);                             DTK_ASSERT(videoData.image);
                 DTK_ASSERT(videoData.image->getSize() == image->getSize());
                 //! \todo Compare image data.
@@ -122,7 +122,7 @@ namespace tl
                     memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory);
-                const auto videoData = read->readVideo(otime::RationalTime(0.0, 24.0)).get();
+                const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
             }
         }
 
