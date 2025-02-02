@@ -45,8 +45,8 @@ namespace tl
         };
 
         void FileButton::_init(
-            const std::shared_ptr<play::FilesModelItem>& item,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<play::FilesModelItem>& item,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::play_app::FileButton", context, parent);
@@ -68,12 +68,12 @@ namespace tl
         {}
 
         std::shared_ptr<FileButton> FileButton::create(
-            const std::shared_ptr<play::FilesModelItem>& item,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<play::FilesModelItem>& item,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileButton>(new FileButton);
-            out->_init(item, context, parent);
+            out->_init(context, item, parent);
             return out;
         }
 

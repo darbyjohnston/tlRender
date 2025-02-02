@@ -19,8 +19,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             DevicesTool();
@@ -29,8 +29,8 @@ namespace tl
             virtual ~DevicesTool();
 
             static std::shared_ptr<DevicesTool> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

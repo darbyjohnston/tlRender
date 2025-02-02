@@ -21,8 +21,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             InfoTool();
@@ -31,8 +31,8 @@ namespace tl
             virtual ~InfoTool();
 
             static std::shared_ptr<InfoTool> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

@@ -23,9 +23,9 @@ namespace tl
         };
 
         void FileToolBar::_init(
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -96,13 +96,13 @@ namespace tl
         {}
 
         std::shared_ptr<FileToolBar> FileToolBar::create(
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileToolBar>(new FileToolBar);
-            out->_init(actions, app, context, parent);
+            out->_init(context, app, actions, parent);
             return out;
         }
 

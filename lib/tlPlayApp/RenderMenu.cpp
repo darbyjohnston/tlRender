@@ -23,9 +23,9 @@ namespace tl
         };
 
         void RenderMenu::_init(
-            const std::shared_ptr<RenderActions>& actions,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<RenderActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -101,13 +101,13 @@ namespace tl
         {}
 
         std::shared_ptr<RenderMenu> RenderMenu::create(
-            const std::shared_ptr<RenderActions>& actions,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<RenderActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<RenderMenu>(new RenderMenu);
-            out->_init(actions, app, context, parent);
+            out->_init(context, app, actions, parent);
             return out;
         }
 

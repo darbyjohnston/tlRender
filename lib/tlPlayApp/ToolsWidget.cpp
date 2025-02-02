@@ -30,9 +30,9 @@ namespace tl
         };
 
         void ToolsWidget::_init(
-            const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -41,15 +41,15 @@ namespace tl
                 parent);
             TLRENDER_P();
 
-            p.toolWidgets[Tool::Audio] = AudioTool::create(app, context);
-            p.toolWidgets[Tool::Color] = ColorTool::create(app, context);
-            p.toolWidgets[Tool::Devices] = DevicesTool::create(app, context);
-            p.toolWidgets[Tool::Files] = FilesTool::create(app, context);
-            p.toolWidgets[Tool::Info] = InfoTool::create(app, context);
-            p.toolWidgets[Tool::Messages] = MessagesTool::create(app, context);
-            p.toolWidgets[Tool::Settings] = SettingsTool::create(app, context);
-            p.toolWidgets[Tool::SystemLog] = SystemLogTool::create(app, context);
-            p.toolWidgets[Tool::View] = ViewTool::create(app, context);
+            p.toolWidgets[Tool::Audio] = AudioTool::create(context, app);
+            p.toolWidgets[Tool::Color] = ColorTool::create(context, app);
+            p.toolWidgets[Tool::Devices] = DevicesTool::create(context, app);
+            p.toolWidgets[Tool::Files] = FilesTool::create(context, app);
+            p.toolWidgets[Tool::Info] = InfoTool::create(context, app);
+            p.toolWidgets[Tool::Messages] = MessagesTool::create(context, app);
+            p.toolWidgets[Tool::Settings] = SettingsTool::create(context, app);
+            p.toolWidgets[Tool::SystemLog] = SystemLogTool::create(context, app);
+            p.toolWidgets[Tool::View] = ViewTool::create(context, app);
 
             p.layout = ui::StackLayout::create(context, shared_from_this());
             for (const auto& widget : p.toolWidgets)
@@ -74,13 +74,13 @@ namespace tl
         {}
 
         std::shared_ptr<ToolsWidget> ToolsWidget::create(
-            const std::shared_ptr<MainWindow>& mainWindow,
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsWidget>(new ToolsWidget);
-            out->_init(mainWindow, app, context, parent);
+            out->_init(context, app, mainWindow, parent);
             return out;
         }
 

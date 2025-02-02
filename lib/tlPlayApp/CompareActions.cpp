@@ -20,8 +20,8 @@ namespace tl
         };
 
         void CompareActions::_init(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
             TLRENDER_P();
 
@@ -164,11 +164,11 @@ namespace tl
         {}
 
         std::shared_ptr<CompareActions> CompareActions::create(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<CompareActions>(new CompareActions);
-            out->_init(app, context);
+            out->_init(context, app);
             return out;
         }
 

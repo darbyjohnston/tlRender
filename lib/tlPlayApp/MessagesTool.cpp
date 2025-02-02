@@ -36,15 +36,15 @@ namespace tl
         };
 
         void MessagesTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::Messages,
                 "tl::play_app::MessagesTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
@@ -126,12 +126,12 @@ namespace tl
         {}
 
         std::shared_ptr<MessagesTool> MessagesTool::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<dtk::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MessagesTool>(new MessagesTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
     }

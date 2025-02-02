@@ -19,8 +19,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&);
 
             AudioActions();
 
@@ -28,8 +28,8 @@ namespace tl
             ~AudioActions();
 
             static std::shared_ptr<AudioActions> create(
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&);
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

@@ -45,8 +45,8 @@ namespace tl
         };
 
         void CacheSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::CacheSettingsWidget", context, parent);
@@ -119,12 +119,12 @@ namespace tl
         {}
 
         std::shared_ptr<CacheSettingsWidget> CacheSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CacheSettingsWidget>(new CacheSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -176,8 +176,8 @@ namespace tl
         };
 
         void FileSequenceSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FileSequenceSettingsWidget", context, parent);
@@ -288,12 +288,12 @@ namespace tl
         {}
 
         std::shared_ptr<FileSequenceSettingsWidget> FileSequenceSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileSequenceSettingsWidget>(new FileSequenceSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -357,8 +357,8 @@ namespace tl
         };
 
         void FFmpegSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FFmpegSettingsWidget", context, parent);
@@ -416,12 +416,12 @@ namespace tl
         {}
 
         std::shared_ptr<FFmpegSettingsWidget> FFmpegSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FFmpegSettingsWidget>(new FFmpegSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -472,8 +472,8 @@ namespace tl
         };
 
         void USDSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::USDSettingsWidget", context, parent);
@@ -592,12 +592,12 @@ namespace tl
         {}
 
         std::shared_ptr<USDSettingsWidget> USDSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<USDSettingsWidget>(new USDSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -665,8 +665,8 @@ namespace tl
         };
 
         void FileBrowserSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FileBrowserSettingsWidget", context, parent);
@@ -708,12 +708,12 @@ namespace tl
         {}
 
         std::shared_ptr<FileBrowserSettingsWidget> FileBrowserSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileBrowserSettingsWidget>(new FileBrowserSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -752,8 +752,8 @@ namespace tl
         };
 
         void PerformanceSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::PerformanceSettingsWidget", context, parent);
@@ -827,12 +827,12 @@ namespace tl
         {}
 
         std::shared_ptr<PerformanceSettingsWidget> PerformanceSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PerformanceSettingsWidget>(new PerformanceSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -879,8 +879,8 @@ namespace tl
         };
 
         void OpenGLSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::OpenGLSettingsWidget", context, parent);
@@ -925,12 +925,12 @@ namespace tl
         {}
 
         std::shared_ptr<OpenGLSettingsWidget> OpenGLSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<OpenGLSettingsWidget>(new OpenGLSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -967,8 +967,8 @@ namespace tl
         };
 
         void StyleSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::StyleSettingsWidget", context, parent);
@@ -1012,12 +1012,12 @@ namespace tl
         {}
 
         std::shared_ptr<StyleSettingsWidget> StyleSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<StyleSettingsWidget>(new StyleSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -1054,8 +1054,8 @@ namespace tl
         };
 
         void MiscSettingsWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::MiscSettingsWidget", context, parent);
@@ -1097,12 +1097,12 @@ namespace tl
         {}
 
         std::shared_ptr<MiscSettingsWidget> MiscSettingsWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MiscSettingsWidget>(new MiscSettingsWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -1136,31 +1136,31 @@ namespace tl
         };
 
         void SettingsTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::Settings,
                 "tl::play_app::SettingsTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
-            auto cacheWidget = CacheSettingsWidget::create(app, context);
-            auto fileSequenceWidget = FileSequenceSettingsWidget::create(app, context);
+            auto cacheWidget = CacheSettingsWidget::create(context, app);
+            auto fileSequenceWidget = FileSequenceSettingsWidget::create(context, app);
 #if defined(TLRENDER_FFMPEG)
-            auto ffmpegWidget = FFmpegSettingsWidget::create(app, context);
+            auto ffmpegWidget = FFmpegSettingsWidget::create(context, app);
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-            auto usdWidget = USDSettingsWidget::create(app, context);
+            auto usdWidget = USDSettingsWidget::create(context, app);
 #endif // TLRENDER_USD
-            auto fileBrowserWidget = FileBrowserSettingsWidget::create(app, context);
-            auto performanceWidget = PerformanceSettingsWidget::create(app, context);
-            auto openGLWidget = OpenGLSettingsWidget::create(app, context);
-            auto styleWidget = StyleSettingsWidget::create(app, context);
-            auto miscWidget = MiscSettingsWidget::create(app, context);
+            auto fileBrowserWidget = FileBrowserSettingsWidget::create(context, app);
+            auto performanceWidget = PerformanceSettingsWidget::create(context, app);
+            auto openGLWidget = OpenGLSettingsWidget::create(context, app);
+            auto styleWidget = StyleSettingsWidget::create(context, app);
+            auto miscWidget = MiscSettingsWidget::create(context, app);
             auto vLayout = ui::VerticalLayout::create(context);
             vLayout->setSpacingRole(ui::SizeRole::None);
             auto bellows = ui::Bellows::create("Cache", context, vLayout);
@@ -1234,12 +1234,12 @@ namespace tl
         {}
 
         std::shared_ptr<SettingsTool> SettingsTool::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<dtk::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SettingsTool>(new SettingsTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
     }

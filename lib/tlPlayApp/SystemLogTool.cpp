@@ -36,15 +36,15 @@ namespace tl
         };
 
         void SystemLogTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::SystemLog,
                 "tl::play_app::SystemLogTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
@@ -119,12 +119,12 @@ namespace tl
         {}
 
         std::shared_ptr<SystemLogTool> SystemLogTool::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<dtk::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SystemLogTool>(new SystemLogTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
     }

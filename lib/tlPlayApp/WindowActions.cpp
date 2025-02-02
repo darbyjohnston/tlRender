@@ -19,9 +19,9 @@ namespace tl
         };
 
         void WindowActions::_init(
-            const std::shared_ptr<MainWindow>& mainWindow,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<MainWindow>& mainWindow)
         {
             TLRENDER_P();
 
@@ -182,12 +182,12 @@ namespace tl
         {}
 
         std::shared_ptr<WindowActions> WindowActions::create(
-            const std::shared_ptr<MainWindow>& mainWindow,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<MainWindow>& mainWindow)
         {
             auto out = std::shared_ptr<WindowActions>(new WindowActions);
-            out->_init(mainWindow, app, context);
+            out->_init(context, app, mainWindow);
             return out;
         }
 

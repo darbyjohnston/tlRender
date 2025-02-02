@@ -41,15 +41,15 @@ namespace tl
         };
 
         void FilesTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::Files,
                 "tl::play_app::FilesTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
@@ -213,12 +213,12 @@ namespace tl
         {}
 
         std::shared_ptr<FilesTool> FilesTool::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<dtk::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FilesTool>(new FilesTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -244,7 +244,7 @@ namespace tl
                     size_t row = 0;
                     for (const auto& item : value)
                     {
-                        auto aButton = FileButton::create(item, context);
+                        auto aButton = FileButton::create(context, item);
                         aButton->setChecked(item == a);
                         aButton->setToolTip(item->path.get());
                         p.aButtons[item] = aButton;

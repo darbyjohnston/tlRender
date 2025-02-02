@@ -237,72 +237,72 @@ namespace tl
             displayOptions.markers = p.settings->getValue<bool>("Timeline/Markers");
             p.timelineWidget->setDisplayOptions(displayOptions);
 
-            p.fileActions = FileActions::create(app, context);
-            p.compareActions = CompareActions::create(app, context);
+            p.fileActions = FileActions::create(context, app);
+            p.compareActions = CompareActions::create(context, app);
             p.windowActions = WindowActions::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.viewActions = ViewActions::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
-            p.renderActions = RenderActions::create(app, context);
-            p.playbackActions = PlaybackActions::create(app, context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+            p.renderActions = RenderActions::create(context, app);
+            p.playbackActions = PlaybackActions::create(context, app);
             p.frameActions = FrameActions::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.timelineActions = TimelineActions::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
-            p.audioActions = AudioActions::create(app, context);
-            p.toolsActions = ToolsActions::create(app, context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+            p.audioActions = AudioActions::create(context, app);
+            p.toolsActions = ToolsActions::create(context, app);
 
             p.fileMenu = FileMenu::create(
-                p.fileActions->getActions(),
+                context,
                 app,
-                context);
+                p.fileActions->getActions());
             p.compareMenu = CompareMenu::create(
-                p.compareActions->getActions(),
+                context,
                 app,
-                context);
+                p.compareActions->getActions());
             p.windowMenu = WindowMenu::create(
-                p.windowActions->getActions(),
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                p.windowActions->getActions());
             p.viewMenu = ViewMenu::create(
-                p.viewActions->getActions(),
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                p.viewActions->getActions());
             p.renderMenu = RenderMenu::create(
-                p.renderActions,
+                context,
                 app,
-                context);
+                p.renderActions);
             p.playbackMenu = PlaybackMenu::create(
-                p.playbackActions->getActions(),
+                context,
                 app,
-                context);
+                p.playbackActions->getActions());
             p.frameMenu = FrameMenu::create(
-                p.frameActions->getActions(),
+                context,
                 app,
-                context);
+                p.frameActions->getActions());
             p.timelineMenu = TimelineMenu::create(
-                p.timelineActions->getActions(),
+                context,
+                app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                app,
-                context);
+                p.timelineActions->getActions());
             p.audioMenu = AudioMenu::create(
-                p.audioActions->getActions(),
+                context,
                 app,
-                context);
+                p.audioActions->getActions());
             p.toolsMenu = ToolsMenu::create(
-                p.toolsActions->getActions(),
+                context,
                 app,
-                context);
+                p.toolsActions->getActions());
             p.menuBar = ui::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);
@@ -316,27 +316,27 @@ namespace tl
             p.menuBar->addMenu("Tools", p.toolsMenu);
 
             p.fileToolBar = FileToolBar::create(
-                p.fileActions->getActions(),
+                context,
                 app,
-                context);
+                p.fileActions->getActions());
             p.compareToolBar = CompareToolBar::create(
-                p.compareActions->getActions(),
+                context,
                 app,
-                context);
+                p.compareActions->getActions());
             p.windowToolBar = WindowToolBar::create(
-                p.windowActions->getActions(),
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                p.windowActions->getActions());
             p.viewToolBar = ViewToolBar::create(
-                p.viewActions->getActions(),
+                context,
+                app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                app,
-                context);
+                p.viewActions->getActions());
             p.toolsToolBar = ToolsToolBar::create(
-                p.toolsActions->getActions(),
+                context,
                 app,
-                context);
+                p.toolsActions->getActions());
 
             auto playbackActions = p.playbackActions->getActions();
             auto stopButton = ui::ToolButton::create(context);
@@ -410,9 +410,9 @@ namespace tl
             p.infoLabel->setMarginRole(ui::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                context,
                 app,
-                context);
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.toolsWidget->hide();
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
@@ -825,7 +825,7 @@ namespace tl
                             p.player ?
                             p.player->getDefaultSpeed() :
                             0.0;
-                        p.speedPopup = SpeedPopup::create(defaultSpeed, context);
+                        p.speedPopup = SpeedPopup::create(context, defaultSpeed);
                         p.speedPopup->open(window, p.speedButton->getGeometry());
                         auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                         p.speedPopup->setCallback(
@@ -869,7 +869,7 @@ namespace tl
                     {
                         if (!p.audioPopup)
                         {
-                            p.audioPopup = AudioPopup::create(app, context);
+                            p.audioPopup = AudioPopup::create(context, app);
                             p.audioPopup->open(window, p.audioButton->getGeometry());
                             auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                             p.audioPopup->setCloseCallback(

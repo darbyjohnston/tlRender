@@ -34,8 +34,8 @@ namespace tl
         };
 
         void BackgroundWidget::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::BackgroundWidget", context, parent);
@@ -137,12 +137,12 @@ namespace tl
         {}
 
         std::shared_ptr<BackgroundWidget> BackgroundWidget::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<BackgroundWidget>(new BackgroundWidget);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -173,19 +173,19 @@ namespace tl
         };
 
         void ViewTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::View,
                 "tl::play_app::ViewTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
-            p.backgroundWidget = BackgroundWidget::create(app, context);
+            p.backgroundWidget = BackgroundWidget::create(context, app);
 
             auto layout = ui::VerticalLayout::create(context);
             auto bellows = ui::Bellows::create("Background", context, layout);
@@ -203,12 +203,12 @@ namespace tl
         {}
 
         std::shared_ptr<ViewTool> ViewTool::create(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewTool>(new ViewTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
     }

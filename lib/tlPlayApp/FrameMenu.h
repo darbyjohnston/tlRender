@@ -22,9 +22,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             FrameMenu();
@@ -33,9 +33,9 @@ namespace tl
             ~FrameMenu();
 
             static std::shared_ptr<FrameMenu> create(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

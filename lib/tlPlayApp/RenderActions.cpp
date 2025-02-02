@@ -20,8 +20,8 @@ namespace tl
         };
 
         void RenderActions::_init(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
             TLRENDER_P();
 
@@ -138,11 +138,11 @@ namespace tl
         {}
 
         std::shared_ptr<RenderActions> RenderActions::create(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<RenderActions>(new RenderActions);
-            out->_init(app, context);
+            out->_init(context, app);
             return out;
         }
 

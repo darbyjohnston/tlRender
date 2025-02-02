@@ -27,8 +27,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             RenderModel();
 
@@ -37,8 +37,8 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<RenderModel> create(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             //! Get the image options.
             const timeline::ImageOptions& getImageOptions() const;

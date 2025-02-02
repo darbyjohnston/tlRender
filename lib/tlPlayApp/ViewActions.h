@@ -22,9 +22,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<MainWindow>&);
 
             ViewActions();
 
@@ -32,9 +32,9 @@ namespace tl
             ~ViewActions();
 
             static std::shared_ptr<ViewActions> create(
-                const std::shared_ptr<MainWindow>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<MainWindow>&);
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

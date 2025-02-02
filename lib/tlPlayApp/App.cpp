@@ -283,8 +283,8 @@ namespace tl
 #endif // __APPLE__
                     p.secondaryWindow = SecondaryWindow::create(
                         _context,
-                        p.mainWindow,
-                        std::dynamic_pointer_cast<App>(shared_from_this()));
+                        std::dynamic_pointer_cast<App>(shared_from_this()),
+                        p.mainWindow);
                     addWindow(p.secondaryWindow);
                     if (secondaryScreen != -1)
                     {
@@ -363,9 +363,9 @@ namespace tl
                 p.settingsFileName = settingsFileName;
             }
             p.settings = play::Settings::create(
+                _context,
                 p.settingsFileName,
-                p.options.resetSettings,
-                _context);
+                p.options.resetSettings);
 
             p.settings->setDefaultValue("Files/RecentMax", 10);
 
@@ -437,11 +437,11 @@ namespace tl
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
-            p.viewportModel = play::ViewportModel::create(p.settings, _context);
+            p.viewportModel = play::ViewportModel::create(_context, p.settings);
 
-            p.renderModel = play::RenderModel::create(p.settings, _context);
+            p.renderModel = play::RenderModel::create(_context, p.settings);
 
-            p.audioModel = play::AudioModel::create(p.settings, _context);
+            p.audioModel = play::AudioModel::create(_context, p.settings);
 
             p.toolsModel = ToolsModel::create();
         }

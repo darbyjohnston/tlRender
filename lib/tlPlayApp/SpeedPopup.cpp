@@ -25,8 +25,8 @@ namespace tl
         };
 
         void SpeedPopup::_init(
-            double defaultSpeed,
             const std::shared_ptr<dtk::Context>& context,
+            double defaultSpeed,
             const std::shared_ptr<IWidget>& parent)
         {
             IMenuPopup::_init(
@@ -85,12 +85,12 @@ namespace tl
         {}
 
         std::shared_ptr<SpeedPopup> SpeedPopup::create(
-            double defaultSpeed,
             const std::shared_ptr<dtk::Context>& context,
+            double defaultSpeed,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SpeedPopup>(new SpeedPopup);
-            out->_init(defaultSpeed, context, parent);
+            out->_init(context, defaultSpeed, parent);
             return out;
         }
 

@@ -19,8 +19,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&);
 
             RenderActions();
 
@@ -28,8 +28,8 @@ namespace tl
             ~RenderActions();
 
             static std::shared_ptr<RenderActions> create(
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&);
 
             const std::vector<image::PixelType>& getColorBuffers() const;
 

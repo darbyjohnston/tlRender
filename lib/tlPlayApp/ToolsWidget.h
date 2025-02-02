@@ -22,9 +22,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ToolsWidget();
@@ -34,9 +34,9 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<ToolsWidget> create(
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;

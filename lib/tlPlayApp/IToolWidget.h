@@ -21,10 +21,10 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 Tool,
                 const std::string& objectName,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IToolWidget();

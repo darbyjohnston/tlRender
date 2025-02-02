@@ -10,11 +10,6 @@
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play_qt
     {
         //! Messages tool.

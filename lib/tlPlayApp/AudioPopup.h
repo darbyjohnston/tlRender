@@ -19,8 +19,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             AudioPopup();
@@ -29,8 +29,8 @@ namespace tl
             virtual ~AudioPopup();
 
             static std::shared_ptr<AudioPopup> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

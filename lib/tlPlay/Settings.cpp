@@ -19,9 +19,9 @@ namespace tl
     namespace play
     {
         void Settings::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string fileName,
-            bool reset,
-            const std::shared_ptr<dtk::Context>& context)
+            bool reset)
         {
             _context = context;
             _fileName = fileName;
@@ -41,12 +41,12 @@ namespace tl
         }
 
         std::shared_ptr<Settings> Settings::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string fileName,
-            bool reset,
-            const std::shared_ptr<dtk::Context>& context)
+            bool reset)
         {
             auto out = std::shared_ptr<Settings>(new Settings);
-            out->_init(fileName, reset, context);
+            out->_init(context, fileName, reset);
             return out;
         }
 

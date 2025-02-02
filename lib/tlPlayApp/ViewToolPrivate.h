@@ -18,8 +18,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             BackgroundWidget();
@@ -28,8 +28,8 @@ namespace tl
             virtual ~BackgroundWidget();
 
             static std::shared_ptr<BackgroundWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;

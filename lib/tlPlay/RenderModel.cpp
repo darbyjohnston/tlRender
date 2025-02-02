@@ -19,8 +19,8 @@ namespace tl
         };
 
         void RenderModel::_init(
-            const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<Settings>& settings)
         {
             TLRENDER_P();
 
@@ -41,11 +41,11 @@ namespace tl
         {}
 
         std::shared_ptr<RenderModel> RenderModel::create(
-            const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<Settings>& settings)
         {
             auto out = std::shared_ptr<RenderModel>(new RenderModel);
-            out->_init(settings, context);
+            out->_init(context, settings);
             return out;
         }
 

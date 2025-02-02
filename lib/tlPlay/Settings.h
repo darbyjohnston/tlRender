@@ -30,9 +30,9 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string fileName,
-                bool reset,
-                const std::shared_ptr<dtk::Context>&);
+                bool reset);
 
             Settings();
 
@@ -41,9 +41,9 @@ namespace tl
 
             //! Create a new settings.
             static std::shared_ptr<Settings> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string fileName,
-                bool reset,
-                const std::shared_ptr<dtk::Context>&);
+                bool reset);
 
             //! Get a value.
             template<typename T>

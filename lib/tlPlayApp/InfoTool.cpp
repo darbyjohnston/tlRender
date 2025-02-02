@@ -28,15 +28,15 @@ namespace tl
         };
 
         void InfoTool::_init(
-            const std::shared_ptr<App>& app,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
+                context,
+                app,
                 Tool::Info,
                 "tl::play_app::InfoTool",
-                app,
-                context,
                 parent);
             TLRENDER_P();
 
@@ -83,12 +83,12 @@ namespace tl
         {}
 
         std::shared_ptr<InfoTool> InfoTool::create(
-            const std::shared_ptr<App>&app,
-            const std::shared_ptr<dtk::Context>&context,
-            const std::shared_ptr<IWidget>&parent)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<InfoTool>(new InfoTool);
-            out->_init(app, context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 

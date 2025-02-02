@@ -18,8 +18,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<play::FilesModelItem>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<play::FilesModelItem>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileButton();
@@ -28,8 +28,8 @@ namespace tl
             virtual ~FileButton();
 
             static std::shared_ptr<FileButton> create(
-                const std::shared_ptr<play::FilesModelItem>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<play::FilesModelItem>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void tickEvent(

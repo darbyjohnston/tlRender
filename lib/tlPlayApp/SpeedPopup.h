@@ -17,8 +17,8 @@ namespace tl
 
         protected:
             void _init(
-                double defaultSpeed,
                 const std::shared_ptr<dtk::Context>&,
+                double defaultSpeed,
                 const std::shared_ptr<IWidget>& parent);
 
             SpeedPopup();
@@ -27,8 +27,8 @@ namespace tl
             virtual ~SpeedPopup();
 
             static std::shared_ptr<SpeedPopup> create(
-                double defaultSpeed,
                 const std::shared_ptr<dtk::Context>&,
+                double defaultSpeed,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setCallback(const std::function<void(double)>&);

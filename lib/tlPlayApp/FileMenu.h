@@ -21,9 +21,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileMenu();
@@ -32,9 +32,9 @@ namespace tl
             ~FileMenu();
 
             static std::shared_ptr<FileMenu> create(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

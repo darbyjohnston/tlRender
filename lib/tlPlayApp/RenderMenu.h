@@ -20,9 +20,9 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<RenderActions>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<RenderActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             RenderMenu();
@@ -31,9 +31,9 @@ namespace tl
             ~RenderMenu();
 
             static std::shared_ptr<RenderMenu> create(
-                const std::shared_ptr<RenderActions>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<RenderActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

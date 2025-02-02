@@ -8,11 +8,6 @@
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     //! Qt Quick support
     namespace qtquick
     {

@@ -27,8 +27,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             ViewportModel();
 
@@ -37,8 +37,8 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<ViewportModel> create(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             //! Get the display options.
             const timeline::DisplayOptions& getDisplayOptions() const;

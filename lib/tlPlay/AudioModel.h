@@ -13,11 +13,6 @@
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         class Settings;
@@ -29,8 +24,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             AudioModel();
 
@@ -39,8 +34,8 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<AudioModel> create(
-                const std::shared_ptr<Settings>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<Settings>&);
 
             //! Get the output devices.
             const std::vector<audio::DeviceID>& getDevices();

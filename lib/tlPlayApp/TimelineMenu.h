@@ -20,10 +20,10 @@ namespace tl
 
         protected:
             void _init(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<MainWindow>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineMenu();
@@ -32,10 +32,10 @@ namespace tl
             ~TimelineMenu();
 
             static std::shared_ptr<TimelineMenu> create(
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
-                const std::shared_ptr<MainWindow>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<MainWindow>&,
+                const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

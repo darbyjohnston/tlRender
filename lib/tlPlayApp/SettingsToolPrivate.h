@@ -19,8 +19,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             CacheSettingsWidget();
@@ -29,8 +29,8 @@ namespace tl
             virtual ~CacheSettingsWidget();
 
             static std::shared_ptr<CacheSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -49,8 +49,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileSequenceSettingsWidget();
@@ -59,8 +59,8 @@ namespace tl
             virtual ~FileSequenceSettingsWidget();
 
             static std::shared_ptr<FileSequenceSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -80,8 +80,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FFmpegSettingsWidget();
@@ -90,8 +90,8 @@ namespace tl
             virtual ~FFmpegSettingsWidget();
 
             static std::shared_ptr<FFmpegSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -112,8 +112,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             USDSettingsWidget();
@@ -122,8 +122,8 @@ namespace tl
             virtual ~USDSettingsWidget();
 
             static std::shared_ptr<USDSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -143,8 +143,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileBrowserSettingsWidget();
@@ -153,8 +153,8 @@ namespace tl
             virtual ~FileBrowserSettingsWidget();
 
             static std::shared_ptr<FileBrowserSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -173,8 +173,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             PerformanceSettingsWidget();
@@ -183,8 +183,8 @@ namespace tl
             virtual ~PerformanceSettingsWidget();
 
             static std::shared_ptr<PerformanceSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -203,8 +203,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             OpenGLSettingsWidget();
@@ -213,8 +213,8 @@ namespace tl
             virtual ~OpenGLSettingsWidget();
 
             static std::shared_ptr<OpenGLSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -233,8 +233,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             StyleSettingsWidget();
@@ -243,8 +243,8 @@ namespace tl
             virtual ~StyleSettingsWidget();
 
             static std::shared_ptr<StyleSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
@@ -263,8 +263,8 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             MiscSettingsWidget();
@@ -273,8 +273,8 @@ namespace tl
             virtual ~MiscSettingsWidget();
 
             static std::shared_ptr<MiscSettingsWidget> create(
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const math::Box2i&) override;
