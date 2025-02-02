@@ -8,6 +8,7 @@ set(dtk_ARGS
     -Ddtk_PYTHON=OFF
     -Ddtk_TESTS=OFF
     -Ddtk_EXAMPLES=OFF
+    -Ddtk_NFD=${TLRENDER_NFD}
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
