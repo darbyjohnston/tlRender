@@ -30,9 +30,9 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-#include <tlCore/Context.h>
 #include <tlCore/File.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 
 #include <iomanip>
@@ -48,9 +48,10 @@ namespace tl
             std::vector<std::string> names;
         };
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::io::System"),
+            _p(new Private)
         {
-            ISystem::_init("tl::io::System", context);
             TLRENDER_P();
 
             p.cache = Cache::create();
@@ -91,20 +92,16 @@ namespace tl
             }
         }
 
-        System::System() :
-            _p(new Private)
-        {}
-
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
             {
-                out = std::shared_ptr<System>(new System);
-                out->_init(context);
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
             }
             return out;
         }

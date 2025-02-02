@@ -6,7 +6,6 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/ISystem.h>
 #include <tlCore/Image.h>
@@ -53,7 +52,7 @@ namespace tl
         class ThumbnailCache : public std::enable_shared_from_this<ThumbnailCache>
         {
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             ThumbnailCache();
 
@@ -62,7 +61,7 @@ namespace tl
 
             //! Create a new thumbnail cache.
             static std::shared_ptr<ThumbnailCache> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the maximum cache size.
             size_t getMax() const;
@@ -142,7 +141,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<ThumbnailCache>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<gl::GLFWWindow>&);
 
             ThumbnailGenerator();
@@ -153,7 +152,7 @@ namespace tl
             //! Create a new thumbnail generator.
             static std::shared_ptr<ThumbnailGenerator> create(
                 const std::shared_ptr<ThumbnailCache>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<gl::GLFWWindow>& = nullptr);
 
             //! Get information.
@@ -215,16 +214,14 @@ namespace tl
         class ThumbnailSystem : public system::ISystem
         {
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            ThumbnailSystem();
+            ThumbnailSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             ~ThumbnailSystem();
 
             //! Create a new system.
             static std::shared_ptr<ThumbnailSystem> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get information.
             InfoRequest getInfo(

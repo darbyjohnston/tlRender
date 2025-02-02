@@ -34,7 +34,7 @@ namespace tl
         };
 
         void ToolButton::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ToolButton", context, parent);
@@ -50,7 +50,7 @@ namespace tl
         {}
 
         std::shared_ptr<ToolButton> ToolButton::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<ToolButton>(new ToolButton);
@@ -60,7 +60,7 @@ namespace tl
 
         std::shared_ptr<ToolButton> ToolButton::create(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolButton>(new ToolButton);

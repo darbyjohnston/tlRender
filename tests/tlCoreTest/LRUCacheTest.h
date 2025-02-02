@@ -13,10 +13,10 @@ namespace tl
         class LRUCacheTest : public tests::ITest
         {
         protected:
-            LRUCacheTest(const std::shared_ptr<system::Context>&);
+            LRUCacheTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<LRUCacheTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<LRUCacheTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

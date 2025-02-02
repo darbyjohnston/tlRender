@@ -29,7 +29,7 @@ namespace tl
         };
 
         void FloatEditSlider::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -92,7 +92,7 @@ namespace tl
         {}
 
         std::shared_ptr<FloatEditSlider> FloatEditSlider::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {

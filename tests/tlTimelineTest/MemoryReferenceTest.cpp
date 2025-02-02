@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        MemoryReferenceTest::MemoryReferenceTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::MemoryReferenceTest", context)
+        MemoryReferenceTest::MemoryReferenceTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::MemoryReferenceTest")
         {}
 
-        std::shared_ptr<MemoryReferenceTest> MemoryReferenceTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<MemoryReferenceTest> MemoryReferenceTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<MemoryReferenceTest>(new MemoryReferenceTest(context));
         }

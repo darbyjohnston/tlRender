@@ -13,10 +13,10 @@ namespace tl
         class PathTest : public tests::ITest
         {
         protected:
-            PathTest(const std::shared_ptr<system::Context>&);
+            PathTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<PathTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<PathTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

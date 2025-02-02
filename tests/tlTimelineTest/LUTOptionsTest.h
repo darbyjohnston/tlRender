@@ -13,10 +13,10 @@ namespace tl
         class LUTOptionsTest : public tests::ITest
         {
         protected:
-            LUTOptionsTest(const std::shared_ptr<system::Context>&);
+            LUTOptionsTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<LUTOptionsTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<LUTOptionsTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

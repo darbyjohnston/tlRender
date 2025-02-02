@@ -10,12 +10,12 @@ namespace tl
     {
         struct ColorModel::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::ObservableValue<timeline::OCIOOptions> > ocioOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::LUTOptions> > lutOptions;
         };
 
-        void ColorModel::_init(const std::shared_ptr<system::Context>& context)
+        void ColorModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -32,7 +32,7 @@ namespace tl
         ColorModel::~ColorModel()
         {}
 
-        std::shared_ptr<ColorModel> ColorModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<ColorModel> ColorModel::create(const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<ColorModel>(new ColorModel);
             out->_init(context);

@@ -4,7 +4,7 @@
 
 #include <tlQt/ContextObject.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #include <QTimer>
 
@@ -19,12 +19,12 @@ namespace tl
 
         struct ContextObject::Private
         {
-            std::shared_ptr<system::Context> context;
+            std::shared_ptr<dtk::Context> context;
             std::unique_ptr<QTimer> timer;
         };
 
         ContextObject::ContextObject(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
@@ -42,7 +42,7 @@ namespace tl
         ContextObject::~ContextObject()
         {}
 
-        const std::shared_ptr<system::Context>& ContextObject::context() const
+        const std::shared_ptr<dtk::Context>& ContextObject::context() const
         {
             return _p->context;
         }

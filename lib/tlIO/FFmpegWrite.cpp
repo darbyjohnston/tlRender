@@ -35,7 +35,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IWrite::_init(path, options, info, logSystem);
 
@@ -285,7 +285,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);

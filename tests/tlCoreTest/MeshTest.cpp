@@ -14,11 +14,11 @@ namespace tl
 {
     namespace core_tests
     {
-        MeshTest::MeshTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::MeshTest", context)
+        MeshTest::MeshTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::MeshTest")
         {}
 
-        std::shared_ptr<MeshTest> MeshTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<MeshTest> MeshTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<MeshTest>(new MeshTest(context));
         }

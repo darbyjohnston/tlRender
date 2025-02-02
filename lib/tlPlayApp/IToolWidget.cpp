@@ -29,7 +29,7 @@ namespace tl
             Tool tool,
             const std::string& objectName,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);

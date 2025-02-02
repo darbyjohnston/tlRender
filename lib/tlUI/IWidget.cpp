@@ -12,7 +12,7 @@ namespace tl
     {
         void IWidget::_init(
             const std::string& objectName,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             _context = context;

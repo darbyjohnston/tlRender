@@ -10,6 +10,7 @@
 
 #include <tlCore/FileInfo.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
@@ -31,8 +32,8 @@ namespace tl
     namespace timeline
     {
         std::vector<std::string> getExtensions(
-            int types,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            int types)
         {
             std::vector<std::string> out;
             //! \todo Get extensions for the Python adapters?
@@ -227,9 +228,9 @@ namespace tl
         }
 
         std::vector<file::Path> getPaths(
+            const std::shared_ptr<dtk::Context>& context,
             const file::Path& path,
-            const file::PathOptions& pathOptions,
-            const std::shared_ptr<system::Context>& context)
+            const file::PathOptions& pathOptions)
         {
             std::vector<file::Path> out;
             const auto fileInfo = file::FileInfo(path);

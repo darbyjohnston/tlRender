@@ -21,7 +21,7 @@ namespace tl
             };
 
             void GridLayouts::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -73,7 +73,7 @@ namespace tl
             {}
 
             std::shared_ptr<GridLayouts> GridLayouts::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<GridLayouts>(new GridLayouts);

@@ -19,7 +19,7 @@ namespace tl
 
         void ButtonGroup::_init(
             ButtonGroupType type,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             p.type = type;
@@ -34,7 +34,7 @@ namespace tl
 
         std::shared_ptr<ButtonGroup> ButtonGroup::create(
             ButtonGroupType type,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<ButtonGroup>(new ButtonGroup);
             out->_init(type, context);

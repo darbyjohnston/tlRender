@@ -13,10 +13,10 @@ namespace tl
         class BoxTest : public tests::ITest
         {
         protected:
-            BoxTest(const std::shared_ptr<system::Context>&);
+            BoxTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<BoxTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<BoxTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

@@ -61,7 +61,7 @@ namespace tl
 
         void MDIWidget::_init(
             const std::string& title,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MDIWidget", context, parent);
@@ -107,7 +107,7 @@ namespace tl
 
         std::shared_ptr<MDIWidget> MDIWidget::create(
             const std::string& title,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MDIWidget>(new MDIWidget);

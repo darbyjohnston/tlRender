@@ -26,7 +26,7 @@ namespace tl
         };
 
         void ColorWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ColorWidget", context, parent);
@@ -115,7 +115,7 @@ namespace tl
         {}
 
         std::shared_ptr<ColorWidget> ColorWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ColorWidget>(new ColorWidget);

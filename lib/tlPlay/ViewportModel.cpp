@@ -12,7 +12,7 @@ namespace tl
     {
         struct ViewportModel::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<Settings> settings;
             std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::DisplayOptions> > displayOptions;
@@ -20,7 +20,7 @@ namespace tl
 
         void ViewportModel::_init(
             const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -42,7 +42,7 @@ namespace tl
 
         std::shared_ptr<ViewportModel> ViewportModel::create(
             const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<ViewportModel>(new ViewportModel);
             out->_init(settings, context);

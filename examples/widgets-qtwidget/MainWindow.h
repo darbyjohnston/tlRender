@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #include <QMainWindow>
 
@@ -19,7 +19,7 @@ namespace tl
                 Q_OBJECT
 
             public:
-                MainWindow(const std::shared_ptr<system::Context>&);
+                MainWindow(const std::shared_ptr<dtk::Context>&);
             };
         }
     }

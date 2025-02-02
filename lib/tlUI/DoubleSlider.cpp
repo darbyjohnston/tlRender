@@ -31,7 +31,7 @@ namespace tl
         };
 
         void DoubleSlider::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -78,7 +78,7 @@ namespace tl
         {}
 
         std::shared_ptr<DoubleSlider> DoubleSlider::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<DoubleModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {

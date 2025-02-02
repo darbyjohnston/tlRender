@@ -53,7 +53,7 @@ namespace tl
         };
 
         void GridLayout::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::GridLayout", context, parent);
@@ -67,7 +67,7 @@ namespace tl
         {}
 
         std::shared_ptr<GridLayout> GridLayout::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<GridLayout>(new GridLayout);

@@ -23,7 +23,7 @@ namespace tl
                 const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ViewMenu();
@@ -35,7 +35,7 @@ namespace tl
                 const std::map<std::string, std::shared_ptr<ui::Action> >&,
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

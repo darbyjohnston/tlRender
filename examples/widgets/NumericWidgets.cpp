@@ -26,7 +26,7 @@ namespace tl
             };
 
             void NumericWidgets::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -146,7 +146,7 @@ namespace tl
             {}
 
             std::shared_ptr<NumericWidgets> NumericWidgets::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<NumericWidgets>(new NumericWidgets);

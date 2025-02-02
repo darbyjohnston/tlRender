@@ -16,7 +16,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Viewport();
@@ -25,7 +25,7 @@ namespace tl
             virtual ~Viewport();
 
             static std::shared_ptr<Viewport> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get whether the HUD is enabled.

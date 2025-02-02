@@ -35,7 +35,7 @@ namespace tl
 
         void BackgroundWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::BackgroundWidget", context, parent);
@@ -138,7 +138,7 @@ namespace tl
 
         std::shared_ptr<BackgroundWidget> BackgroundWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<BackgroundWidget>(new BackgroundWidget);
@@ -174,7 +174,7 @@ namespace tl
 
         void ViewTool::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
@@ -204,7 +204,7 @@ namespace tl
 
         std::shared_ptr<ViewTool> ViewTool::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewTool>(new ViewTool);

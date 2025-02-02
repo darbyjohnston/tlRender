@@ -14,11 +14,11 @@ namespace tl
 {
     namespace core_tests
     {
-        FontSystemTest::FontSystemTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::FontSystemTest", context)
+        FontSystemTest::FontSystemTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::FontSystemTest")
         {}
 
-        std::shared_ptr<FontSystemTest> FontSystemTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<FontSystemTest> FontSystemTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<FontSystemTest>(new FontSystemTest(context));
         }

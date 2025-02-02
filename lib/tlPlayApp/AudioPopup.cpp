@@ -45,7 +45,7 @@ namespace tl
 
         void AudioPopup::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidgetPopup::_init(
@@ -185,7 +185,7 @@ namespace tl
 
         std::shared_ptr<AudioPopup> AudioPopup::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioPopup>(new AudioPopup);

@@ -4,11 +4,15 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
 
 #include <dtk/core/Color.h>
 #include <dtk/core/ObservableValue.h>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -115,7 +119,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             Style();
 
@@ -124,7 +128,7 @@ namespace tl
 
             //! Create a new style.
             static std::shared_ptr<Style> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get a size role.
             int getSizeRole(SizeRole, float scale) const;

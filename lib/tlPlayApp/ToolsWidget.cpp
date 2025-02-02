@@ -32,7 +32,7 @@ namespace tl
         void ToolsWidget::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -76,7 +76,7 @@ namespace tl
         std::shared_ptr<ToolsWidget> ToolsWidget::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsWidget>(new ToolsWidget);

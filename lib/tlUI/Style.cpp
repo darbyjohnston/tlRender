@@ -154,12 +154,12 @@ namespace tl
 
         struct Style::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::ObservableValue<bool> > changed;
         };
 
         void Style::_init(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             p.context = context;
@@ -177,7 +177,7 @@ namespace tl
         {}
 
         std::shared_ptr<Style> Style::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<Style>(new Style);
             out->_init(context);

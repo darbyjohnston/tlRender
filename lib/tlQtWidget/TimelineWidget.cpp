@@ -35,7 +35,7 @@ namespace tl
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<ui::Style>& style,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             ContainerWidget(style, context, parent),
             _p(new Private)

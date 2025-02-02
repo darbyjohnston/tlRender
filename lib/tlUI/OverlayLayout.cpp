@@ -21,7 +21,7 @@ namespace tl
         };
 
         void OverlayLayout::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::OverlayLayout", context, parent);
@@ -35,7 +35,7 @@ namespace tl
         {}
 
         std::shared_ptr<OverlayLayout> OverlayLayout::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<OverlayLayout>(new OverlayLayout);

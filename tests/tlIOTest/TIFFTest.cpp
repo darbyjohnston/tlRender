@@ -17,11 +17,11 @@ namespace tl
 {
     namespace io_tests
     {
-        TIFFTest::TIFFTest(const std::shared_ptr<system::Context>& context) :
-            ITest("io_test::TIFFTest", context)
+        TIFFTest::TIFFTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "io_test::TIFFTest")
         {}
 
-        std::shared_ptr<TIFFTest> TIFFTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<TIFFTest> TIFFTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<TIFFTest>(new TIFFTest(context));
         }

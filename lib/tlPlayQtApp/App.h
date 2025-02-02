@@ -64,7 +64,7 @@ namespace tl
             App(
                 int& argc,
                 char** argv,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             virtual ~App();
 

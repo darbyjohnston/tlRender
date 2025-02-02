@@ -11,8 +11,8 @@ namespace tl
     namespace tests
     {
         ITest::ITest(
-            const std::string& name,
-            const std::shared_ptr<system::Context>& context) :
+            const std::shared_ptr<dtk::Context>& context,
+            const std::string& name) :
             _context(context),
             _name(name)
         {}

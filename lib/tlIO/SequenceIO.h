@@ -28,7 +28,7 @@ namespace tl
                 const std::vector<file::MemoryRead>&,
                 const Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             ISequenceRead();
 
@@ -74,7 +74,7 @@ namespace tl
                 const file::Path&,
                 const Info&,
                 const Options&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             ISequenceWrite();
 

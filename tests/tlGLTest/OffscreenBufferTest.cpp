@@ -16,11 +16,11 @@ namespace tl
 {
     namespace gl_tests
     {
-        OffscreenBufferTest::OffscreenBufferTest(const std::shared_ptr<system::Context>& context) :
-            ITest("gl_tests::OffscreenBufferTest", context)
+        OffscreenBufferTest::OffscreenBufferTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "gl_tests::OffscreenBufferTest")
         {}
 
-        std::shared_ptr<OffscreenBufferTest> OffscreenBufferTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<OffscreenBufferTest> OffscreenBufferTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<OffscreenBufferTest>(new OffscreenBufferTest(context));
         }
@@ -31,9 +31,9 @@ namespace tl
             try
             {
                 window = GLFWWindow::create(
+                    _context,
                     "OffscreenBufferTest",
                     math::Size2i(1, 1),
-                    _context,
                     static_cast<int>(GLFWWindowOptions::MakeCurrent));
             }
             catch (const std::exception& e)

@@ -10,13 +10,13 @@
 
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         //! OpenColorIO model data.
@@ -43,7 +43,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(OCIOModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             OCIOModel();
 
@@ -51,7 +51,7 @@ namespace tl
             ~OCIOModel();
 
             //! Create a new model.
-            static std::shared_ptr<OCIOModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<OCIOModel> create(const std::shared_ptr<dtk::Context>&);
 
             //! Observe the options.
             std::shared_ptr<dtk::IObservableValue<timeline::OCIOOptions> > observeOptions() const;

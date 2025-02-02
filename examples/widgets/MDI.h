@@ -19,7 +19,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 MDI();
@@ -28,7 +28,7 @@ namespace tl
                 ~MDI();
 
                 static std::shared_ptr<MDI> create(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::Box2i&) override;

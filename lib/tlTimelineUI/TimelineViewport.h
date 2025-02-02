@@ -20,7 +20,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineViewport();
@@ -30,7 +30,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimelineViewport> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the comparison options.

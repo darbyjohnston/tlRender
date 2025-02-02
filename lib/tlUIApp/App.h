@@ -34,8 +34,8 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::vector<std::string>&,
-                const std::shared_ptr<system::Context>&,
                 const std::string& cmdLineName,
                 const std::string& cmdLineSummary,
                 const std::vector<std::shared_ptr<app::ICmdLineArg> >& = {},

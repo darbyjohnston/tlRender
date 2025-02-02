@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        BoxTest::BoxTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::BoxTest", context)
+        BoxTest::BoxTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::BoxTest")
         {}
 
-        std::shared_ptr<BoxTest> BoxTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<BoxTest> BoxTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<BoxTest>(new BoxTest(context));
         }

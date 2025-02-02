@@ -9,11 +9,6 @@
 
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace image
     {
         //! Get font data.
@@ -76,15 +71,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(FontSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            FontSystem();
+            FontSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~FontSystem();
 
             //! Create a new system.
-            static std::shared_ptr<FontSystem> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<FontSystem> create(const std::shared_ptr<dtk::Context>&);
 
             //! Add a font.
             void addFont(const std::string& name, const uint8_t*, size_t);

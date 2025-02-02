@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             SettingsTool();
@@ -28,7 +28,7 @@ namespace tl
 
             static std::shared_ptr<SettingsTool> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

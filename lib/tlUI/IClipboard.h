@@ -4,7 +4,15 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
+#include <tlCore/Util.h>
+
+#include <memory>
+#include <string>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -17,7 +25,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             IClipboard();
 
@@ -31,7 +39,7 @@ namespace tl
             virtual void setText(const std::string&) = 0;
 
         private:
-            std::weak_ptr<system::Context> _context;
+            std::weak_ptr<dtk::Context> _context;
         };
     }
 }

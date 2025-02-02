@@ -6,7 +6,7 @@
 
 #include <tlQtQuick/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #include <iostream>
 
@@ -15,14 +15,14 @@ int main(int argc, char* argv[])
     int r = 1;
     try
     {
-        auto context = tl::system::Context::create();
+        auto context = dtk::Context::create();
         tl::qtquick::init(
-            tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
-            context);
+            context,
+            tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
-        tl::examples::player_qtquick::App app(argc, argv, context);
+        tl::examples::player_qtquick::App app(context, argc, argv);
         if (0 == app.getExit())
         {
             r = app.exec();

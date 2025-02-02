@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Icon();
@@ -27,13 +27,13 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<Icon> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Create a new widget.
             static std::shared_ptr<Icon> create(
                 const std::string& icon,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the icon.

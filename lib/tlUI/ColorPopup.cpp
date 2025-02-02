@@ -20,7 +20,7 @@ namespace tl
 
         void ColorPopup::_init(
             const dtk::Color4F& color,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidgetPopup::_init("tl::ui::ColorPopup", context, parent);
@@ -53,7 +53,7 @@ namespace tl
 
         std::shared_ptr<ColorPopup> ColorPopup::create(
             const dtk::Color4F& color,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ColorPopup>(new ColorPopup);

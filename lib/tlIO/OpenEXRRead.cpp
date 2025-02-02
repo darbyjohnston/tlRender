@@ -5,9 +5,9 @@
 #include <tlIO/OpenEXRPrivate.h>
 
 #include <tlCore/FileIO.h>
-#include <tlCore/LogSystem.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 
 #include <ImfChannelList.h>
 #include <ImfRgbaFile.h>
@@ -142,7 +142,7 @@ namespace tl
                     const std::string& fileName,
                     const file::MemoryRead* memory,
                     ChannelGrouping channelGrouping,
-                    const std::weak_ptr<log::System>& logSystemWeak)
+                    const std::shared_ptr<dtk::LogSystem>& logSystem)
                 {
                     // Open the file.
                     if (memory)
@@ -161,7 +161,6 @@ namespace tl
                     _intersectedWindow = _displayWindow.intersect(_dataWindow);
                     _fast = _displayWindow == _dataWindow;
 
-                    if (auto logSystem = logSystemWeak.lock())
                     {
                         const std::string id = dtk::Format("tl::io::exr::Read {0}").arg(this);
                         std::vector<std::string> s;
@@ -331,7 +330,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, cache, logSystem);
 
@@ -355,7 +354,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, cache, logSystem);
@@ -367,7 +366,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, cache, logSystem);
@@ -397,7 +396,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            return File(fileName, memory, _channelGrouping, _logSystem).read(fileName, time, options);
+            return File(fileName, memory, _channelGrouping, _logSystem.lock()).read(fileName, time, options);
         }
     }
 }

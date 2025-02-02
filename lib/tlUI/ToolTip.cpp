@@ -32,7 +32,7 @@ namespace tl
             const std::string& text,
             const math::Vector2i& pos,
             const std::shared_ptr<IWidget>& window,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             IPopup::_init("tl::ui::ToolTip", context, nullptr);
             TLRENDER_P();
@@ -58,7 +58,7 @@ namespace tl
             const std::string& text,
             const math::Vector2i& pos,
             const std::shared_ptr<IWidget>& window,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<ToolTip>(new ToolTip);
             out->_init(text, pos, window, context);

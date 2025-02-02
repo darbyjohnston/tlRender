@@ -45,12 +45,12 @@ namespace tl
             };
             CmdLineData cmdLine;
 
-            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         void BaseApp::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context,
             const std::string& cmdLineName,
             const std::string& cmdLineSummary,
             const std::vector<std::shared_ptr<ICmdLineArg> >& cmdLineArgs,
@@ -82,16 +82,13 @@ namespace tl
             // Setup the log.
             if (_options.log)
             {
-                p.logObserver = dtk::ListObserver<log::Item>::create(
-                    context->getSystem<log::System>()->observeLog(),
-                    [this](const std::vector<log::Item>& value)
+                p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                    context->getSystem<dtk::LogSystem>()->observeLogItems(),
+                    [this](const std::vector<dtk::LogItem>& value)
                     {
-                        const size_t options =
-                            static_cast<size_t>(log::StringConvert::Time) |
-                            static_cast<size_t>(log::StringConvert::Prefix);
                         for (const auto& i : value)
                         {
-                            _print("[LOG] " + toString(i, options));
+                            _print("[LOG] " + toString(i));
                         }
                     },
                     dtk::ObserverAction::Suppress);
@@ -105,7 +102,7 @@ namespace tl
         BaseApp::~BaseApp()
         {}
 
-        const std::shared_ptr<system::Context>& BaseApp::getContext() const
+        const std::shared_ptr<dtk::Context>& BaseApp::getContext() const
         {
             return _context;
         }
@@ -120,7 +117,7 @@ namespace tl
             return _p->cmdLine.name;
         }
 
-        void BaseApp::_log(const std::string& value, log::Type type)
+        void BaseApp::_log(const std::string& value, dtk::LogType type)
         {
             _context->log(_p->cmdLine.name, value, type);
         }

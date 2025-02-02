@@ -33,7 +33,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -129,7 +129,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineMenu>(new TimelineMenu);

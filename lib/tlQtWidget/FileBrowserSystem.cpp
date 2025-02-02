@@ -8,6 +8,8 @@
 
 #include <tlCore/File.h>
 
+#include <dtk/core/Context.h>
+
 #include <QFileDialog>
 
 #if defined(TLRENDER_NFD)
@@ -25,19 +27,20 @@ namespace tl
             QStringList extensions;
         };
 
-        void FileBrowserSystem::_init(const std::shared_ptr<system::Context>& context)
+        FileBrowserSystem::FileBrowserSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::ui::FileBrowserSystem"),
+            _p(new Private)
         {
-            ISystem::_init("tl::ui::FileBrowserSystem", context);
             TLRENDER_P();
 
             p.path = file::getCWD();
 
             std::vector<std::string> extensions;
             for (const auto& i : timeline::getExtensions(
+                context,
                 static_cast<int>(io::FileType::Movie) |
                 static_cast<int>(io::FileType::Sequence) |
-                static_cast<int>(io::FileType::Audio),
-                context))
+                static_cast<int>(io::FileType::Audio)))
             {
                 p.extensions.push_back(QString::fromUtf8(i.c_str()));
             }
@@ -47,10 +50,6 @@ namespace tl
 #endif // TLRENDER_NFD
         }
 
-        FileBrowserSystem::FileBrowserSystem() :
-            _p(new Private)
-        {}
-
         FileBrowserSystem::~FileBrowserSystem()
         {
 #if defined(TLRENDER_NFD)
@@ -58,10 +57,14 @@ namespace tl
 #endif // TLRENDER_NFD
         }
 
-        std::shared_ptr<FileBrowserSystem> FileBrowserSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<FileBrowserSystem> FileBrowserSystem::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<FileBrowserSystem>(new FileBrowserSystem);
-            out->_init(context);
+            auto out = context->getSystem<FileBrowserSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<FileBrowserSystem>(new FileBrowserSystem(context));
+                context->addSystem(out);
+            }
             return out;
         }
 

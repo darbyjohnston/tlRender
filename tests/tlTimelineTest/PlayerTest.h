@@ -15,10 +15,10 @@ namespace tl
         class PlayerTest : public tests::ITest
         {
         protected:
-            PlayerTest(const std::shared_ptr<system::Context>&);
+            PlayerTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<PlayerTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<PlayerTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

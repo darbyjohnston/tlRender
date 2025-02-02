@@ -37,7 +37,7 @@ namespace tl
 
         void Splitter::_init(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Splitter", context, parent);
@@ -58,7 +58,7 @@ namespace tl
 
         std::shared_ptr<Splitter> Splitter::create(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Splitter>(new Splitter);

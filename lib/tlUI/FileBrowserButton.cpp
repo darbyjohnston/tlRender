@@ -7,6 +7,7 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/ThumbnailSystem.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <ctime>
@@ -62,7 +63,7 @@ namespace tl
         void Button::_init(
             const file::FileInfo& fileInfo,
             const FileBrowserOptions& options,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ListButton", context, parent);
@@ -159,7 +160,7 @@ namespace tl
         std::shared_ptr<Button> Button::create(
             const file::FileInfo& fileInfo,
             const FileBrowserOptions& options,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Button>(new Button);

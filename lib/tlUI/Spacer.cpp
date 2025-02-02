@@ -23,7 +23,7 @@ namespace tl
 
         void Spacer::_init(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Spacer", context, parent);
@@ -40,7 +40,7 @@ namespace tl
 
         std::shared_ptr<Spacer> Spacer::create(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Spacer>(new Spacer);

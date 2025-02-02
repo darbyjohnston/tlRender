@@ -12,7 +12,7 @@ namespace tl
 {
     namespace timelineui
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             tl::timeline::init(context);
             tl::ui::init(context);

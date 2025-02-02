@@ -9,8 +9,10 @@
 #include <tlIO/System.h>
 
 #include <dtk/core/Assert.h>
+#include <dtk/core/Context.h>
 #include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 #include <dtk/core/String.h>
 
 namespace tl
@@ -48,8 +50,8 @@ namespace tl
         }
 
         void Timeline::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             TLRENDER_P();
@@ -200,9 +202,9 @@ namespace tl
             }
         }
 
-        const std::weak_ptr<system::Context>& Timeline::getContext() const
+        std::shared_ptr<dtk::Context> Timeline::getContext() const
         {
-            return _p->context;
+            return _p->context.lock();
         }
         
         const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& Timeline::getTimeline() const

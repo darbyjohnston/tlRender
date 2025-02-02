@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        LUTOptionsTest::LUTOptionsTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::LUTOptionsTest", context)
+        LUTOptionsTest::LUTOptionsTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::LUTOptionsTest")
         {}
 
-        std::shared_ptr<LUTOptionsTest> LUTOptionsTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<LUTOptionsTest> LUTOptionsTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<LUTOptionsTest>(new LUTOptionsTest(context));
         }

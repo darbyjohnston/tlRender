@@ -28,7 +28,7 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<ui::ThumbnailGenerator>,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             AudioClipItem();
@@ -44,7 +44,7 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<ui::ThumbnailGenerator>,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setScale(double) override;

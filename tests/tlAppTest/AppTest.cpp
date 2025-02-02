@@ -21,11 +21,11 @@ namespace tl
 {
     namespace app_tests
     {
-        AppTest::AppTest(const std::shared_ptr<system::Context>& context) :
-            ITest("AppTest::AppTest", context)
+        AppTest::AppTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "AppTest::AppTest")
         {}
 
-        std::shared_ptr<AppTest> AppTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<AppTest> AppTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<AppTest>(new AppTest(context));
         }
@@ -87,12 +87,12 @@ namespace tl
             class App : public BaseApp
             {
                 void _init(
-                    const std::vector<std::string>& args,
-                    const std::shared_ptr<system::Context>& context)
+                    const std::shared_ptr<dtk::Context>& context,
+                    const std::vector<std::string>& args)
                 {
                     BaseApp::_init(
-                        args,
                         context,
+                        args,
                         "test",
                         "Test application.",
                         {
@@ -124,11 +124,11 @@ namespace tl
 
             public:
                 static std::shared_ptr<App> create(
-                    const std::vector<std::string>& args,
-                    const std::shared_ptr<system::Context>& context)
+                    const std::shared_ptr<dtk::Context>& context,
+                    const std::vector<std::string>& args)
                 {
                     auto out = std::shared_ptr<App>(new App);
-                    out->_init(args, context);
+                    out->_init(context, args);
                     return out;
                 }
                 
@@ -148,16 +148,17 @@ namespace tl
         void AppTest::_app()
         {
             {
-                auto app = App::create({ "app" }, _context);
+                auto app = App::create(_context, { "app" });
                 DTK_ASSERT(app->getContext());
                 DTK_ASSERT(1 == app->getExit());
             }
             {
-                auto app = App::create({ "app", "-h" }, _context);
+                auto app = App::create(_context, { "app", "-h" });
                 DTK_ASSERT(1 == app->getExit());
             }
             {
                 auto app = App::create(
+                    _context,
                     {
                         "app",
                         "directory",
@@ -166,8 +167,7 @@ namespace tl
                         "10",
                         "-listSort",
                         "Extension"
-                     },
-                    _context);
+                     });
                 DTK_ASSERT(0 == app->getExit());
                 DTK_ASSERT(file::Type::Directory == app->getInput());
                 DTK_ASSERT("output" == app->getOutput());
@@ -175,7 +175,7 @@ namespace tl
                 DTK_ASSERT(file::ListSort::Extension == app->getListSortOption());
             }
             {
-                auto app = App::create({ "app", "directory", "-log" }, _context);
+                auto app = App::create(_context, { "app", "directory", "-log" });
                 for (size_t i = 0; i < 3; ++i)
                 {
                     _context->log(
@@ -188,21 +188,21 @@ namespace tl
             }
             try
             {
-                auto app = App::create({ "app", "input" }, _context);
+                auto app = App::create(_context, { "app", "input" });
                 DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
             try
             {
-                auto app = App::create({ "app", "input", "-int" }, _context);
+                auto app = App::create(_context, { "app", "input", "-int" });
                 DTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
             try
             {
-                auto app = App::create({ "app", "input", "-listSort" }, _context);
+                auto app = App::create(_context, { "app", "input", "-listSort" });
                 DTK_ASSERT(false);
             }
             catch (const std::exception&)

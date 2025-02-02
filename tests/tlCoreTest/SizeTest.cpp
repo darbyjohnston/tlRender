@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        SizeTest::SizeTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::SizeTest", context)
+        SizeTest::SizeTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::SizeTest")
         {}
 
-        std::shared_ptr<SizeTest> SizeTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<SizeTest> SizeTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<SizeTest>(new SizeTest(context));
         }

@@ -35,7 +35,7 @@ namespace tl
         };
 
         void CheckBox::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::CheckBox", context, parent);
@@ -52,7 +52,7 @@ namespace tl
         {}
 
         std::shared_ptr<CheckBox> CheckBox::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<CheckBox>(new CheckBox);
@@ -62,7 +62,7 @@ namespace tl
 
         std::shared_ptr<CheckBox> CheckBox::create(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CheckBox>(new CheckBox);

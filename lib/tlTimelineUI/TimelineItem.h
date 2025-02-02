@@ -43,7 +43,7 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<gl::GLFWWindow>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineItem();
@@ -60,7 +60,7 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<gl::GLFWWindow>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set whether the timeline is editable.

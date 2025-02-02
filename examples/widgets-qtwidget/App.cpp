@@ -13,9 +13,9 @@ namespace tl
         namespace widgets_qtwidget
         {
             App::App(
+                const std::shared_ptr<dtk::Context>& context,
                 int& argc,
-                char** argv,
-                const std::shared_ptr<system::Context>& context) :
+                char** argv) :
                 QApplication(argc, argv)
             {
                 setStyle("Fusion");

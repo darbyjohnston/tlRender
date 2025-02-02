@@ -5,8 +5,6 @@ set(HEADERS
     AudioSystem.h
     Box.h
     BoxInline.h
-    Context.h
-    ContextInline.h
     File.h
     FileIO.h
     FileIOInline.h
@@ -18,14 +16,12 @@ set(HEADERS
     FontSystemInline.h
     HDR.h
     HDRInline.h
-    ICoreSystem.h
-    ICoreSystemInline.h
     ISystem.h
     Image.h
     ImageInline.h
+    Init.h
     LRUCache.h
     LRUCacheInline.h
-    LogSystem.h
     Math.h
     MathInline.h
     Matrix.h
@@ -54,16 +50,14 @@ set(SOURCE
     AudioResample.cpp
     AudioSystem.cpp
     Box.cpp
-    Context.cpp
     FileIO.cpp
     FileInfo.cpp
     FileLogSystem.cpp
     FontSystem.cpp
     HDR.cpp
-    ICoreSystem.cpp
     ISystem.cpp
     Image.cpp
-    LogSystem.cpp
+    Init.cpp
     Matrix.cpp
     Memory.cpp
     Mesh.cpp

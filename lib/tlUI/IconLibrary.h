@@ -4,10 +4,14 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
 #include <tlCore/Image.h>
 
 #include <future>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -19,7 +23,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(IconLibrary);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             IconLibrary();
 
@@ -28,7 +32,7 @@ namespace tl
 
             //! Create a new icon library.
             static std::shared_ptr<IconLibrary> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Request an icon.
             std::future<std::shared_ptr<image::Image> > request(

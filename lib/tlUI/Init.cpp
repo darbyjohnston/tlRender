@@ -10,27 +10,18 @@
 
 #include <tlIO/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
     namespace ui
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             tl::io::init(context);
-            if (!context->getSystem<FileBrowserSystem>())
-            {
-                context->addSystem(FileBrowserSystem::create(context));
-            }
-            if (!context->getSystem<MessageDialogSystem>())
-            {
-                context->addSystem(MessageDialogSystem::create(context));
-            }
-            if (!context->getSystem<ThumbnailSystem>())
-            {
-                context->addSystem(ThumbnailSystem::create(context));
-            }
+            FileBrowserSystem::create(context);
+            MessageDialogSystem::create(context);
+            ThumbnailSystem::create(context);
         }
     }
 }

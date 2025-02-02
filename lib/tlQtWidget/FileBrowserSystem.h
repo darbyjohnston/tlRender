@@ -20,16 +20,14 @@ namespace tl
             TLRENDER_NON_COPYABLE(FileBrowserSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            FileBrowserSystem();
+            FileBrowserSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~FileBrowserSystem();
 
             //! Create a new system.
             static std::shared_ptr<FileBrowserSystem> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Open the file browser.
             void open(

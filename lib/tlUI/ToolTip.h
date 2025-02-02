@@ -20,7 +20,7 @@ namespace tl
                 const std::string& text,
                 const math::Vector2i& pos,
                 const std::shared_ptr<IWidget>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             ToolTip();
 
@@ -32,7 +32,7 @@ namespace tl
                 const std::string& text,
                 const math::Vector2i& pos,
                 const std::shared_ptr<IWidget>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             void close() override;
 

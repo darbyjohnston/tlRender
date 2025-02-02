@@ -18,11 +18,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        UtilTest::UtilTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::UtilTest", context)
+        UtilTest::UtilTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::UtilTest")
         {}
 
-        std::shared_ptr<UtilTest> UtilTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<UtilTest> UtilTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<UtilTest>(new UtilTest(context));
         }
@@ -47,19 +47,19 @@ namespace tl
         void UtilTest::_extensions()
         {
             for (const auto& i : getExtensions(
+                _context,
                 static_cast<int>(io::FileType::Movie) |
                 static_cast<int>(io::FileType::Sequence) |
-                static_cast<int>(io::FileType::Audio),
-                _context))
+                static_cast<int>(io::FileType::Audio)))
             {
                 std::stringstream ss;
                 ss << "Timeline extension: " << i;
                 _print(ss.str());
             }
             for (const auto& path : getPaths(
+                _context,
                 file::Path(TLRENDER_SAMPLE_DATA),
-                file::PathOptions(),
-                _context))
+                file::PathOptions()))
             {
                 _print(dtk::Format("Path: {0}").arg(path.get()));
             }

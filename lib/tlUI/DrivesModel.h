@@ -10,13 +10,13 @@
 
 #include <string>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace ui
     {
         //! File system drives model.
@@ -25,7 +25,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(DrivesModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             DrivesModel();
 
@@ -34,7 +34,7 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<DrivesModel> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Observe the list of drives.
             std::shared_ptr<dtk::IObservableList<std::string> > observeDrives() const;

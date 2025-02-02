@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/ISystem.h>
+#include <tlCore/Util.h>
 
 namespace tl
 {
@@ -16,15 +17,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(GLFWSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-            
-            GLFWSystem();
+            GLFWSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~GLFWSystem();
 
             //! Create a new system.
-            static std::shared_ptr<GLFWSystem> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<GLFWSystem> create(const std::shared_ptr<dtk::Context>&);
         
         private:
             TLRENDER_PRIVATE();

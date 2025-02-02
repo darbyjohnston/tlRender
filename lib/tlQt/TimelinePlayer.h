@@ -118,19 +118,19 @@ namespace tl
                 NOTIFY cacheInfoChanged)
 
             void _init(
-                const std::shared_ptr<timeline::Player>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<timeline::Player>&);
 
         public:
             TimelinePlayer(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
-                const std::shared_ptr<system::Context>&,
                 QObject* parent = nullptr);
 
             virtual ~TimelinePlayer();
             
             //! Get the context.
-            const std::weak_ptr<system::Context>& context() const;
+            std::shared_ptr<dtk::Context> context() const;
 
             //! Get the timeline player.
             const std::shared_ptr<timeline::Player>& player() const;

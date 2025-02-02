@@ -7,7 +7,6 @@
 #include <tlTimeline/Audio.h>
 #include <tlTimeline/Video.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/Path.h>
 
 #include <dtk/core/ObservableValue.h>
@@ -15,6 +14,11 @@
 #include <opentimelineio/timeline.h>
 
 #include <future>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -57,17 +61,17 @@ namespace tl
         //! Create a new timeline from a path. The path can point to an .otio
         //! file, .otioz file, movie file, or image sequence.
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
+            const std::shared_ptr<dtk::Context>&,
             const file::Path&,
-            const std::shared_ptr<system::Context>&,
             const Options& = Options());
 
         //! Create a new timeline from a path and audio path. The file name
         //! can point to an .otio file, .otioz file, movie file, or image
         //! sequence.
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
+            const std::shared_ptr<dtk::Context>&,
             const file::Path& path,
             const file::Path& audioPath,
-            const std::shared_ptr<system::Context>&,
             const Options& = Options());
 
         //! Video request.
@@ -91,8 +95,8 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
-                const std::shared_ptr<system::Context>&,
                 const Options&);
 
             Timeline();
@@ -102,43 +106,43 @@ namespace tl
 
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
+                const std::shared_ptr<dtk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
-                const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string&,
-                const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
             //! Create a new timeline from a path. The path can point to an
             //! .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
+                const std::shared_ptr<dtk::Context>&,
                 const file::Path&,
-                const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
             //! Create a new timeline from a file name and audio file name.
             //! The file name can point to an .otio file, movie file, or
             //! image sequence.
             static std::shared_ptr<Timeline> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& fileName,
                 const std::string& audioFilename,
-                const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
             //! Create a new timeline from a path and audio path. The path can
             //! point to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
+                const std::shared_ptr<dtk::Context>&,
                 const file::Path& path,
                 const file::Path& audioPath,
-                const std::shared_ptr<system::Context>&,
                 const Options& = Options());
 
             //! Get the context.
-            const std::weak_ptr<system::Context>& getContext() const;
+            std::shared_ptr<dtk::Context> getContext() const;
 
             //! Get the timeline.
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& getTimeline() const;

@@ -13,10 +13,10 @@ namespace tl
         class PPMTest : public tests::ITest
         {
         protected:
-            PPMTest(const std::shared_ptr<system::Context>&);
+            PPMTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<PPMTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<PPMTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

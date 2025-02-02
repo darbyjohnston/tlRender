@@ -12,7 +12,7 @@ namespace tl
     {
         struct FilesModel::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > files;
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<FilesModelItem> > > a;
             std::shared_ptr<dtk::ObservableValue<int> > aIndex;
@@ -24,7 +24,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<timeline::CompareTimeMode> > compareTime;
         };
 
-        void FilesModel::_init(const std::shared_ptr<system::Context>& context)
+        void FilesModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -48,7 +48,7 @@ namespace tl
         FilesModel::~FilesModel()
         {}
 
-        std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<FilesModel>(new FilesModel);
             out->_init(context);

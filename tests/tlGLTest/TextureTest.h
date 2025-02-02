@@ -13,10 +13,10 @@ namespace tl
         class TextureTest : public tests::ITest
         {
         protected:
-            TextureTest(const std::shared_ptr<system::Context>&);
+            TextureTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<TextureTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<TextureTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

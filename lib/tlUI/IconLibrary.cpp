@@ -9,6 +9,7 @@
 
 #include <tlCore/LRUCache.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 namespace
@@ -150,7 +151,7 @@ namespace tl
 
         struct IconLibrary::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             
             std::map<std::pair<std::string, int>, std::vector<uint8_t> > iconData;
             
@@ -185,7 +186,7 @@ namespace tl
             Thread thread;
         };
         
-        void IconLibrary::_init(const std::shared_ptr<system::Context>& context)
+        void IconLibrary::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             p.context = context;
@@ -420,7 +421,7 @@ namespace tl
         }
 
         std::shared_ptr<IconLibrary> IconLibrary::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<IconLibrary>(new IconLibrary);
             out->_init(context);

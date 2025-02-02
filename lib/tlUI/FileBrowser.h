@@ -38,7 +38,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& path,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileBrowser();
@@ -49,7 +49,7 @@ namespace tl
             //! Create a new dialog.
             static std::shared_ptr<FileBrowser> create(
                 const std::string& path,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the callback.
@@ -77,16 +77,14 @@ namespace tl
             TLRENDER_NON_COPYABLE(FileBrowserSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            FileBrowserSystem();
+            FileBrowserSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~FileBrowserSystem();
 
             //! Create a new system.
             static std::shared_ptr<FileBrowserSystem> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Open the file browser.
             void open(

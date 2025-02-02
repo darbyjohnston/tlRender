@@ -178,8 +178,8 @@ namespace tl
         };
 
         void Window::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& name,
-            const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<Window>& share)
         {
             IWindow::_init("tl::ui::Window", context, nullptr);
@@ -193,9 +193,9 @@ namespace tl
             p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(image::PixelType::RGBA_U8);
 
             p.glfwWindow = gl::GLFWWindow::create(
+                context,
                 name,
                 p.windowSize->get(),
-                context,
                 static_cast<int>(gl::GLFWWindowOptions::DoubleBuffer) |
                 static_cast<int>(gl::GLFWWindowOptions::MakeCurrent),
                 share ? share->getGLFWWindow() : nullptr);
@@ -306,12 +306,12 @@ namespace tl
         }
 
         std::shared_ptr<Window> Window::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& name,
-            const std::shared_ptr<system::Context>& context,
             const std::shared_ptr<Window>& share)
         {
             auto out = std::shared_ptr<Window>(new Window);
-            out->_init(name, context, share);
+            out->_init(context, name, share);
             return out;
         }
 

@@ -9,6 +9,7 @@
 #include <tlIO/System.h>
 
 #include <dtk/core/Assert.h>
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 

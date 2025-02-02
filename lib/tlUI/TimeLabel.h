@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimeLabel();
@@ -34,7 +34,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<TimeLabel> create(
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the time units model.

@@ -44,7 +44,7 @@ namespace tl
 
         void OCIOWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::OCIOWidget", context, parent);
@@ -179,7 +179,7 @@ namespace tl
 
         std::shared_ptr<OCIOWidget> OCIOWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<OCIOWidget>(new OCIOWidget);
@@ -211,7 +211,7 @@ namespace tl
 
         void LUTWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::LUTWidget", context, parent);
@@ -297,7 +297,7 @@ namespace tl
 
         std::shared_ptr<LUTWidget> LUTWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<LUTWidget>(new LUTWidget);
@@ -329,7 +329,7 @@ namespace tl
 
         void ColorWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::ColorWidget", context, parent);
@@ -497,7 +497,7 @@ namespace tl
 
         std::shared_ptr<ColorWidget> ColorWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ColorWidget>(new ColorWidget);
@@ -528,7 +528,7 @@ namespace tl
 
         void LevelsWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::LevelsWidget", context, parent);
@@ -668,7 +668,7 @@ namespace tl
 
         std::shared_ptr<LevelsWidget> LevelsWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<LevelsWidget>(new LevelsWidget);
@@ -699,7 +699,7 @@ namespace tl
 
         void EXRDisplayWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::EXRDisplayWidget", context, parent);
@@ -822,7 +822,7 @@ namespace tl
 
         std::shared_ptr<EXRDisplayWidget> EXRDisplayWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<EXRDisplayWidget>(new EXRDisplayWidget);
@@ -853,7 +853,7 @@ namespace tl
 
         void SoftClipWidget::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::SoftClipWidget", context, parent);
@@ -912,7 +912,7 @@ namespace tl
 
         std::shared_ptr<SoftClipWidget> SoftClipWidget::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SoftClipWidget>(new SoftClipWidget);
@@ -945,7 +945,7 @@ namespace tl
 
         void ColorTool::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
@@ -997,7 +997,7 @@ namespace tl
 
         std::shared_ptr<ColorTool> ColorTool::create(
             const std::shared_ptr<App>&app,
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<ColorTool>(new ColorTool);

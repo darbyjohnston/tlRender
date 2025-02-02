@@ -28,7 +28,7 @@ namespace tl
         void RowLayout::_init(
             Orientation orientation,
             const std::string& objectName,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
@@ -45,7 +45,7 @@ namespace tl
 
         std::shared_ptr<RowLayout> RowLayout::create(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<RowLayout>(new RowLayout);
@@ -250,7 +250,7 @@ namespace tl
         }
 
         void HorizontalLayout::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             RowLayout::_init(
@@ -267,7 +267,7 @@ namespace tl
         {}
 
         std::shared_ptr<HorizontalLayout> HorizontalLayout::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<HorizontalLayout>(new HorizontalLayout);
@@ -276,7 +276,7 @@ namespace tl
         }
 
         void VerticalLayout::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             RowLayout::_init(
@@ -293,7 +293,7 @@ namespace tl
         {}
 
         std::shared_ptr<VerticalLayout> VerticalLayout::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VerticalLayout>(new VerticalLayout);

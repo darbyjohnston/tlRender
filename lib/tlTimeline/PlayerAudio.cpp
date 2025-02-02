@@ -6,6 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -27,7 +28,7 @@ namespace tl
             TLRENDER_P();
             if (p.audioDevice->setIfChanged(value))
             {
-                if (auto context = getContext().lock())
+                if (auto context = getContext())
                 {
                     p.audioInit(context);
                 }
@@ -205,7 +206,7 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        void Player::Private::audioInit(const std::shared_ptr<system::Context>& context)
+        void Player::Private::audioInit(const std::shared_ptr<dtk::Context>& context)
         {
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
@@ -303,7 +304,7 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "Cannot open audio device: " << SDL_GetError();
-                    context->log("tl::timeline::Player", ss.str(), log::Type::Error);
+                    context->log("tl::timeline::Player", ss.str(), dtk::LogType::Error);
                 }
             }
 #endif // TLRENDER_SDL2

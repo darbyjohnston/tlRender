@@ -100,7 +100,7 @@ namespace tl
 
         void App::_init(
             const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             const std::string appName = "tlplay";
@@ -147,7 +147,7 @@ namespace tl
 
         std::shared_ptr<App> App::create(
             const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<App>(new App);
             out->_init(argv, context);

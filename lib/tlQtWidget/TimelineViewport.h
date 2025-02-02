@@ -29,7 +29,7 @@ namespace tl
         public:
             TimelineViewport(
                 const std::shared_ptr<ui::Style>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
             virtual ~TimelineViewport();

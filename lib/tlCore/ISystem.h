@@ -4,34 +4,29 @@
 
 #pragma once
 
-#include <tlCore/LogSystem.h>
+#include <dtk/core/ISystem.h>
+#include <dtk/core/LogSystem.h>
 
 namespace tl
 {
-    namespace log
-    {
-        class LogSystem;
-    }
-
     namespace system
     {
         //! Base class for systems.
-        class ISystem : public ICoreSystem
+        class ISystem : public dtk::ISystem
         {
         protected:
-            void _init(
-                const std::string& name,
-                const std::shared_ptr<Context>&);
-            ISystem();
+            ISystem(
+                const std::shared_ptr<dtk::Context>&,
+                const std::string& name);
 
         public:
             virtual ~ISystem();
 
         protected:
-            void _log(const std::string&, log::Type = log::Type::Message);
+            void _log(const std::string&, dtk::LogType = dtk::LogType::Message);
 
         private:
-            std::weak_ptr<log::System> _logSystem;
+            std::weak_ptr<dtk::LogSystem> _logSystem;
         };
     }
 }

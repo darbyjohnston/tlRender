@@ -21,7 +21,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ColorWidget();
@@ -31,7 +31,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<ColorWidget> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the color.

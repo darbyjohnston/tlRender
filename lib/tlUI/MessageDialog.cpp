@@ -10,6 +10,8 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/Spacer.h>
 
+#include <dtk/core/Context.h>
+
 namespace tl
 {
     namespace ui
@@ -23,7 +25,7 @@ namespace tl
             protected:
                 void _init(
                     const std::string&,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 MessageWidget();
@@ -33,7 +35,7 @@ namespace tl
 
                 static std::shared_ptr<MessageWidget> create(
                     const std::string&,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setCallback(const std::function<void(bool)>&);
@@ -52,7 +54,7 @@ namespace tl
 
             void MessageWidget::_init(
                 const std::string& text,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init("tl::ui::MessageWidget", context, parent);
@@ -109,7 +111,7 @@ namespace tl
 
             std::shared_ptr<MessageWidget> MessageWidget::create(
                 const std::string& text,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MessageWidget>(new MessageWidget);
@@ -144,7 +146,7 @@ namespace tl
 
         void MessageDialog::_init(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IDialog::_init("tl::ui::MessageDialog", context, parent);
@@ -171,7 +173,7 @@ namespace tl
 
         std::shared_ptr<MessageDialog> MessageDialog::create(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MessageDialog>(new MessageDialog);
@@ -189,22 +191,22 @@ namespace tl
             std::shared_ptr<MessageDialog> dialog;
         };
 
-        void MessageDialogSystem::_init(const std::shared_ptr<system::Context>& context)
-        {
-            ISystem::_init("tl::ui::MessageDialogSystem", context);
-        }
-
-        MessageDialogSystem::MessageDialogSystem() :
+        MessageDialogSystem::MessageDialogSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::ui::MessageDialogSystem"),
             _p(new Private)
         {}
 
         MessageDialogSystem::~MessageDialogSystem()
         {}
 
-        std::shared_ptr<MessageDialogSystem> MessageDialogSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<MessageDialogSystem> MessageDialogSystem::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<MessageDialogSystem>(new MessageDialogSystem);
-            out->_init(context);
+            auto out = context->getSystem<MessageDialogSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<MessageDialogSystem>(new MessageDialogSystem(context));
+                context->addSystem(out);
+            }
             return out;
         }
 

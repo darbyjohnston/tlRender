@@ -7,8 +7,9 @@
 #include <tlPlay/Settings.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/Context.h>
 #include <tlCore/Math.h>
+
+#include <dtk/core/Context.h>
 
 namespace tl
 {
@@ -28,7 +29,7 @@ namespace tl
 
         void AudioModel::_init(
             const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -72,7 +73,7 @@ namespace tl
 
         std::shared_ptr<AudioModel> AudioModel::create(
             const std::shared_ptr<Settings>& settings,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<AudioModel>(new AudioModel);
             out->_init(settings, context);

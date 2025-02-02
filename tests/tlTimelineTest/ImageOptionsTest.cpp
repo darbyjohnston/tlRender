@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        ImageOptionsTest::ImageOptionsTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::ImageOptionsTest", context)
+        ImageOptionsTest::ImageOptionsTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::ImageOptionsTest")
         {}
 
-        std::shared_ptr<ImageOptionsTest> ImageOptionsTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<ImageOptionsTest> ImageOptionsTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<ImageOptionsTest>(new ImageOptionsTest(context));
         }

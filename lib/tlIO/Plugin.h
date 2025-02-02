@@ -11,13 +11,13 @@
 #include <future>
 #include <set>
 
+namespace dtk
+{
+    class LogSystem;
+}
+
 namespace tl
 {
-    namespace log
-    {
-        class System;
-    }
-
     namespace io
     {
         //! Options.
@@ -36,7 +36,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const std::shared_ptr<Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             IIO();
 
@@ -50,7 +50,7 @@ namespace tl
             file::Path _path;
             Options _options;
             std::shared_ptr<Cache> _cache;
-            std::weak_ptr<log::System> _logSystem;
+            std::weak_ptr<dtk::LogSystem> _logSystem;
         };
 
         //! Base class for readers.
@@ -62,7 +62,7 @@ namespace tl
                 const std::vector<file::MemoryRead>&,
                 const Options&,
                 const std::shared_ptr<Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             IRead();
 
@@ -97,7 +97,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const Info&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             IWrite();
 
@@ -124,7 +124,7 @@ namespace tl
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
                 const std::shared_ptr<Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             IPlugin();
 
@@ -166,7 +166,7 @@ namespace tl
             bool _isWriteCompatible(const image::Info&, const Options&) const;
 
             std::shared_ptr<Cache> _cache;
-            std::weak_ptr<log::System> _logSystem;
+            std::weak_ptr<dtk::LogSystem> _logSystem;
 
         private:
             TLRENDER_PRIVATE();

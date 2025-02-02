@@ -24,7 +24,7 @@ namespace tl
             protected:
                 void _init(
                     const std::vector<std::string>&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&);
 
                 App();
 
@@ -34,7 +34,7 @@ namespace tl
                 //! Create a new application.
                 static std::shared_ptr<App> create(
                     const std::vector<std::string>&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&);
             };
         }
     }

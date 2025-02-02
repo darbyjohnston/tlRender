@@ -13,10 +13,10 @@ namespace tl
         class ShaderTest : public tests::ITest
         {
         protected:
-            ShaderTest(const std::shared_ptr<system::Context>&);
+            ShaderTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<ShaderTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<ShaderTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

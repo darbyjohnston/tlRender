@@ -9,13 +9,13 @@
 
 struct GLFWwindow;
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace gl
     {
         //! GLFW window options.
@@ -34,9 +34,9 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& name,
                 const math::Size2i&,
-                const std::shared_ptr<system::Context>&,
                 int options,
                 const std::shared_ptr<GLFWWindow>& share);
             
@@ -47,9 +47,9 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<GLFWWindow> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& name,
                 const math::Size2i&,
-                const std::shared_ptr<system::Context>&,
                 int options =
                     static_cast<int>(GLFWWindowOptions::Visible) |
                     static_cast<int>(GLFWWindowOptions::DoubleBuffer) |

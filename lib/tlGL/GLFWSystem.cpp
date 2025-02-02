@@ -6,10 +6,10 @@
 
 #include <tlGL/GL.h>
 
-#include <tlCore/Context.h>
-#include <tlCore/LogSystem.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -33,9 +33,10 @@ namespace tl
             bool glfwInit = false;
         };
         
-        void GLFWSystem::_init(const std::shared_ptr<system::Context>& context)
+        GLFWSystem::GLFWSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::gl::GLFWSystem"),
+            _p(new Private)
         {
-            ISystem::_init("tl::gl::GLFWSystem", context);
             TLRENDER_P();
             
             // Initialize GLFW.
@@ -50,15 +51,10 @@ namespace tl
                 //! \todo Only log the error for now so that non-OpenGL
                 //! tests can run.
                 //throw std::runtime_error("Cannot initialize GLFW");
-                auto logSystem = context->getSystem<log::System>();
-                logSystem->print("tl::gl::GLFWSystem", "Cannot initialize GLFW", log::Type::Error);
+                _log("Cannot initialize GLFW", dtk::LogType::Error);
             }
             p.glfwInit = true;
         }
-        
-        GLFWSystem::GLFWSystem() :
-            _p(new Private)
-        {}
 
         GLFWSystem::~GLFWSystem()
         {
@@ -69,10 +65,14 @@ namespace tl
             }
         }
 
-        std::shared_ptr<GLFWSystem> GLFWSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<GLFWSystem> GLFWSystem::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<GLFWSystem>(new GLFWSystem);
-            out->_init(context);
+            auto out = context->getSystem<GLFWSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<GLFWSystem>(new GLFWSystem(context));
+                context->addSystem(out);
+            }
             return out;
         }
     }

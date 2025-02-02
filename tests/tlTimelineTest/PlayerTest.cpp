@@ -24,11 +24,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        PlayerTest::PlayerTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::PlayerTest", context)
+        PlayerTest::PlayerTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::PlayerTest")
         {}
 
-        std::shared_ptr<PlayerTest> PlayerTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<PlayerTest> PlayerTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<PlayerTest>(new PlayerTest(context));
         }
@@ -63,8 +63,8 @@ namespace tl
                 try
                 {
                     _print(dtk::Format("Timeline: {0}").arg(path.get()));
-                    auto timeline = Timeline::create(path.get(), _context);
-                    auto player = Player::create(timeline, _context);
+                    auto timeline = Timeline::create(_context, path.get());
+                    auto player = Player::create(_context, timeline);
                     DTK_ASSERT(player->getTimeline());
                     _player(player);
                 }
@@ -78,10 +78,10 @@ namespace tl
                 try
                 {
                     _print(dtk::Format("Memory timeline: {0}").arg(path.get()));
-                    auto otioTimeline = timeline::create(path, _context);
+                    auto otioTimeline = timeline::create(_context, path);
                     toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
-                    auto timeline = Timeline::create(otioTimeline, _context);
-                    auto player = Player::create(timeline, _context);
+                    auto timeline = Timeline::create(_context, otioTimeline);
+                    auto player = Player::create(_context, timeline);
                     _player(player);
                 }
                 catch (const std::exception& e)

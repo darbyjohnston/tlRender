@@ -36,7 +36,7 @@ namespace tl
 
             bool hasAudio() const;
             void playbackReset(const OTIO_NS::RationalTime&);
-            void audioInit(const std::shared_ptr<system::Context>&);
+            void audioInit(const std::shared_ptr<dtk::Context>&);
             void audioReset(const OTIO_NS::RationalTime&);
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             void sdlCallback(uint8_t* stream, int len);
@@ -47,7 +47,7 @@ namespace tl
 #endif // TLRENDER_SDL2
 #endif // TLRENDER_SDL2
 
-            void log(const std::shared_ptr<system::Context>&);
+            void log(const std::shared_ptr<dtk::Context>&);
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;

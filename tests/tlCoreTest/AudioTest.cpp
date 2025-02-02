@@ -15,11 +15,11 @@ namespace tl
 {
     namespace core_tests
     {
-        AudioTest::AudioTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::AudioTest", context)
+        AudioTest::AudioTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::AudioTest")
         {}
 
-        std::shared_ptr<AudioTest> AudioTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<AudioTest> AudioTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<AudioTest>(new AudioTest(context));
         }

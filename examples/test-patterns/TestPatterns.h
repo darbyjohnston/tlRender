@@ -18,9 +18,9 @@ namespace tl
 
             protected:
                 void _init(
+                    const std::shared_ptr<dtk::Context>&,
                     const std::string&,
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const math::Size2i&);
 
                 ITestPattern();
 
@@ -34,7 +34,7 @@ namespace tl
                     const OTIO_NS::RationalTime&) = 0;
 
             protected:
-                std::weak_ptr<system::Context> _context;
+                std::weak_ptr<dtk::Context> _context;
                 std::string _name;
                 math::Size2i _size;
             };
@@ -43,8 +43,8 @@ namespace tl
             {
             protected:
                 void _init(
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const math::Size2i&);
 
             public:
                 virtual ~CountTestPattern();
@@ -52,8 +52,8 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<CountTestPattern> create(
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const math::Size2i&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
@@ -70,8 +70,8 @@ namespace tl
             {
             protected:
                 void _init(
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const math::Size2i&);
 
             public:
                 virtual ~SwatchesTestPattern();
@@ -79,8 +79,8 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<SwatchesTestPattern> create(
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const math::Size2i&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
@@ -98,8 +98,8 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<GridTestPattern> create(
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const math::Size2i&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
@@ -110,9 +110,9 @@ namespace tl
             {
             public:
                 static std::shared_ptr<ITestPattern> create(
+                    const std::shared_ptr<dtk::Context>&,
                     const std::string& name,
-                    const math::Size2i&,
-                    const std::shared_ptr<system::Context>&);
+                    const math::Size2i&);
             };
         }
     }

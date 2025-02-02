@@ -21,7 +21,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             SeparateAudioDialog();
@@ -30,7 +30,7 @@ namespace tl
             virtual ~SeparateAudioDialog();
 
             static std::shared_ptr<SeparateAudioDialog> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the callback.

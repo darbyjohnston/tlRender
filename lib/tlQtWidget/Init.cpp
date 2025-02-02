@@ -10,9 +10,9 @@
 
 #include <tlTimelineUI/Init.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 #include <dtk/core/Format.h>
 
@@ -32,22 +32,16 @@ namespace tl
     namespace qtwidget
     {
         void init(
-            qt::DefaultSurfaceFormat defaultSurfaceFormat,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            qt::DefaultSurfaceFormat defaultSurfaceFormat)
         {
             timelineui::init(context);
-            qt::init(defaultSurfaceFormat, context);
-            if (!context->getSystem<System>())
-            {
-                context->addSystem(System::create(context));
-            }
-            if (!context->getSystem<FileBrowserSystem>())
-            {
-                context->addSystem(FileBrowserSystem::create(context));
-            }
+            qt::init(context, defaultSurfaceFormat);
+            System::create(context);
+            FileBrowserSystem::create(context);
         }
 
-        void initFonts(const std::shared_ptr<system::Context>& context)
+        void initFonts(const std::shared_ptr<dtk::Context>& context)
         {
             std::vector<std::string> fontFamilyList;
             for (const auto& i : std::vector<std::string>(
@@ -70,23 +64,23 @@ namespace tl
                 dtk::Format("Added Qt application fonts: {0}").arg(dtk::join(fontFamilyList, ", ")));
         }
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::qtwidget::System")
         {
-            ISystem::_init("tl::qtwidget::System", context);
-
             qtInitResources();
         }
-
-        System::System()
-        {}
 
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
+            }
             return out;
         }
     }

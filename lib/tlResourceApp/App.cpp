@@ -13,12 +13,12 @@ namespace tl
     namespace resource
     {
         void App::_init(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             BaseApp::_init(
-                argv,
                 context,
+                argv,
                 "tlresource",
                 "Convert a resource file to a source file.",
                 {
@@ -45,11 +45,11 @@ namespace tl
         {}
 
         std::shared_ptr<App> App::create(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argv, context);
+            out->_init(context, argv);
             return out;
         }
 

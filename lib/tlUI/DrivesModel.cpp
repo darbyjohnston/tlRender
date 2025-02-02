@@ -37,7 +37,7 @@ namespace tl
             std::shared_ptr<time::Timer> timer;
         };
 
-        void DrivesModel::_init(const std::shared_ptr<system::Context>& context)
+        void DrivesModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -92,7 +92,7 @@ namespace tl
         }
 
         std::shared_ptr<DrivesModel> DrivesModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<DrivesModel>(new DrivesModel);
             out->_init(context);

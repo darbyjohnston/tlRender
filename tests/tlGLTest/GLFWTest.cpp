@@ -16,11 +16,11 @@ namespace tl
 {
     namespace gl_tests
     {
-        GLFWTest::GLFWTest(const std::shared_ptr<system::Context>& context) :
-            ITest("gl_tests::GLFWTest", context)
+        GLFWTest::GLFWTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "gl_tests::GLFWTest")
         {}
 
-        std::shared_ptr<GLFWTest> GLFWTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<GLFWTest> GLFWTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<GLFWTest>(new GLFWTest(context));
         }
@@ -31,9 +31,9 @@ namespace tl
             try
             {
                 window = GLFWWindow::create(
+                    _context,
                     "GLFWTest",
                     math::Size2i(1, 1),
-                    _context,
                     static_cast<int>(GLFWWindowOptions::MakeCurrent));
             }
             catch (const std::exception& e)

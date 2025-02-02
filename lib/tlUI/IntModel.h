@@ -4,10 +4,15 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
 #include <tlCore/Range.h>
+#include <tlCore/Util.h>
 
 #include <dtk/core/ObservableValue.h>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -18,7 +23,7 @@ namespace tl
         {
             TLRENDER_NON_COPYABLE(IntModel);
 
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
         protected:
             IntModel();
@@ -28,7 +33,7 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<IntModel> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! \name Value
             ///@{

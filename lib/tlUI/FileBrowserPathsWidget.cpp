@@ -35,7 +35,7 @@ namespace tl
         };
 
         void PathsWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::PathsWidget", context, parent);
@@ -101,7 +101,7 @@ namespace tl
         {}
 
         std::shared_ptr<PathsWidget> PathsWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PathsWidget>(new PathsWidget);
@@ -145,7 +145,7 @@ namespace tl
 
         void PathsWidget::_createButton(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             TLRENDER_P();

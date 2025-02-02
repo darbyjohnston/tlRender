@@ -32,7 +32,7 @@ namespace tl
 
         void FileBrowser::_init(
             const std::string& path,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IDialog::_init("tl::ui::FileBrowser", context, parent);
@@ -59,7 +59,7 @@ namespace tl
 
         std::shared_ptr<FileBrowser> FileBrowser::create(
             const std::string& path,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileBrowser>(new FileBrowser);

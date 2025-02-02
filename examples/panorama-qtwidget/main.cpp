@@ -9,6 +9,8 @@
 #include <tlQt/ContextObject.h>
 #include <tlQt/TimelinePlayer.h>
 
+#include <dtk/core/Context.h>
+
 #include <QApplication>
 
 #include <iostream>
@@ -16,10 +18,10 @@
 int main(int argc, char* argv[])
 {
     // Initialize.
-    auto context = tl::system::Context::create();
+    auto context = dtk::Context::create();
     tl::qtwidget::init(
-        tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
-        context);
+        context,
+        tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);
 #if (QT_VERSION < QT_VERSION_CHECK(6, 5, 0))
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -42,13 +44,13 @@ int main(int argc, char* argv[])
             new tl::qt::ContextObject(context));
 
         // Create the timeline.
-        auto timeline = tl::timeline::Timeline::create(argv[1], context);
+        auto timeline = tl::timeline::Timeline::create(context, argv[1]);
 
         // Create the timeline player.
         QSharedPointer<tl::qt::TimelinePlayer> player(
             new tl::qt::TimelinePlayer(
-                tl::timeline::Player::create(timeline, context),
-                context));
+                context,
+                tl::timeline::Player::create(context, timeline)));
 
         // Create the panorama timeline viewport.
         auto timelineViewport = new tl::examples::panorama_qtwidget::PanoramaTimelineViewport(context);

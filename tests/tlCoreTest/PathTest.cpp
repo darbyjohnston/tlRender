@@ -17,11 +17,11 @@ namespace tl
 {
     namespace core_tests
     {
-        PathTest::PathTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::PathTest", context)
+        PathTest::PathTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::PathTest")
         {}
 
-        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<PathTest>(new PathTest(context));
         }

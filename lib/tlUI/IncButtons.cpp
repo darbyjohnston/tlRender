@@ -22,7 +22,7 @@ namespace tl
         };
 
         void IncButton::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::IncButton", context, parent);
@@ -38,7 +38,7 @@ namespace tl
         {}
 
         std::shared_ptr<IncButton> IncButton::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IncButton>(new IncButton);
@@ -110,7 +110,7 @@ namespace tl
         }
 
         void IncButtons::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::IncButtons", context, parent);
@@ -129,7 +129,7 @@ namespace tl
         {}
 
         std::shared_ptr<IncButtons> IncButtons::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IncButtons>(new IncButtons);
@@ -180,7 +180,7 @@ namespace tl
 
         void IntIncButtons::_init(
             const std::shared_ptr<IntModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
@@ -227,7 +227,7 @@ namespace tl
 
         std::shared_ptr<IntIncButtons> IntIncButtons::create(
             const std::shared_ptr<IntModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<IntIncButtons>(new IntIncButtons);
@@ -258,7 +258,7 @@ namespace tl
 
         void FloatIncButtons::_init(
             const std::shared_ptr<FloatModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
@@ -305,7 +305,7 @@ namespace tl
 
         std::shared_ptr<FloatIncButtons> FloatIncButtons::create(
             const std::shared_ptr<FloatModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FloatIncButtons>(new FloatIncButtons);
@@ -336,7 +336,7 @@ namespace tl
 
         void DoubleIncButtons::_init(
             const std::shared_ptr<DoubleModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IncButtons::_init(context, parent);
@@ -383,7 +383,7 @@ namespace tl
 
         std::shared_ptr<DoubleIncButtons> DoubleIncButtons::create(
             const std::shared_ptr<DoubleModel>& model,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<DoubleIncButtons>(new DoubleIncButtons);

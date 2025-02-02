@@ -17,6 +17,8 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Shader.h>
 
+#include <dtk/core/Context.h>
+
 #include <QClipboard>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -37,7 +39,7 @@ namespace tl
                 TLRENDER_NON_COPYABLE(ContainerWindow);
 
             public:
-                void _init(const std::shared_ptr<system::Context>& context)
+                void _init(const std::shared_ptr<dtk::Context>& context)
                 {
                     IWindow::_init("tl::qtwidget::ContainerWindow", context, nullptr);
                 }
@@ -50,7 +52,7 @@ namespace tl
                 {}
 
                 static std::shared_ptr<ContainerWindow> create(
-                    const std::shared_ptr<system::Context>& context)
+                    const std::shared_ptr<dtk::Context>& context)
                 {
                     auto out = std::shared_ptr<ContainerWindow>(new ContainerWindow);
                     out->_init(context);
@@ -102,7 +104,7 @@ namespace tl
                 TLRENDER_NON_COPYABLE(Clipboard);
 
             public:
-                void _init(const std::shared_ptr<system::Context>& context)
+                void _init(const std::shared_ptr<dtk::Context>& context)
                 {
                     IClipboard::_init(context);
                 }
@@ -115,7 +117,7 @@ namespace tl
                 {}
 
                 static std::shared_ptr<Clipboard> create(
-                    const std::shared_ptr<system::Context>& context)
+                    const std::shared_ptr<dtk::Context>& context)
                 {
                     auto out = std::shared_ptr<Clipboard>(new Clipboard);
                     out->_init(context);
@@ -138,7 +140,7 @@ namespace tl
 
         struct ContainerWidget::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
             std::shared_ptr<image::FontSystem> fontSystem;
@@ -157,7 +159,7 @@ namespace tl
 
         ContainerWidget::ContainerWidget(
             const std::shared_ptr<ui::Style>& style,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)
@@ -300,7 +302,7 @@ namespace tl
                         context->log(
                             "tl::qtwidget::TimelineWidget",
                             e.what(),
-                            log::Type::Error);
+                            dtk::LogType::Error);
                     }
                 }
             }
@@ -361,7 +363,7 @@ namespace tl
                         context->log(
                             "tl::qtwidget::ContainerWidget",
                             e.what(),
-                            log::Type::Error);
+                            dtk::LogType::Error);
                     }
                 }
             }

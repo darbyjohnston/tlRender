@@ -28,7 +28,7 @@ namespace tl
 
         void TimeEdit::_init(
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimeEdit", context, parent);
@@ -95,7 +95,7 @@ namespace tl
 
         std::shared_ptr<TimeEdit> TimeEdit::create(
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimeEdit>(new TimeEdit);

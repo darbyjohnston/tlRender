@@ -15,11 +15,11 @@ namespace tl
 {
     namespace io_tests
     {
-        DPXTest::DPXTest(const std::shared_ptr<system::Context>& context) :
-            ITest("io_tests::DPXTest", context)
+        DPXTest::DPXTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "io_tests::DPXTest")
         {}
 
-        std::shared_ptr<DPXTest> DPXTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<DPXTest> DPXTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<DPXTest>(new DPXTest(context));
         }

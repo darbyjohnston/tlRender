@@ -14,6 +14,7 @@
 #include <tlTimeline/Edit.h>
 #include <tlTimeline/Util.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -28,7 +29,7 @@ namespace tl
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<gl::GLFWWindow>& window,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             const OTIO_NS::TimeRange timeRange = player->getTimeRange();
@@ -214,7 +215,7 @@ namespace tl
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<gl::GLFWWindow>& window,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);

@@ -4,31 +4,31 @@
 
 #pragma once
 
-#include <tlCore/LogSystem.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/ISystem.h>
 
 namespace tl
 {
     namespace file
     {
         //! File logging system.
-        class FileLogSystem : public system::ICoreSystem
+        class FileLogSystem : public dtk::ISystem
         {
             TLRENDER_NON_COPYABLE(FileLogSystem);
 
         protected:
-            void _init(
-                const std::string& fileName,
-                const std::shared_ptr<system::Context>&);
-
-            FileLogSystem();
+            FileLogSystem(
+                const std::shared_ptr<dtk::Context>&,
+                const std::string& fileName);
 
         public:
             virtual ~FileLogSystem();
 
             //! Create a new system.
             static std::shared_ptr<FileLogSystem> create(
-                const std::string& fileName,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::string& fileName);
 
         private:
             TLRENDER_PRIVATE();

@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             GroupBox();
@@ -27,13 +27,13 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<GroupBox> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Create a new widget.
             static std::shared_ptr<GroupBox> create(
                 const std::string& text,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the text.

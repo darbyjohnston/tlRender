@@ -34,7 +34,7 @@ namespace tl
         };
 
         void ViewportColorWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play::ViewportColorWidget", context, parent);
@@ -83,7 +83,7 @@ namespace tl
         {}
 
         std::shared_ptr<ViewportColorWidget> ViewportColorWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewportColorWidget>(new ViewportColorWidget);

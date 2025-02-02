@@ -53,7 +53,7 @@ namespace tl
         };
 
         void Viewport::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             TimelineViewport::_init(context, parent);
@@ -126,7 +126,7 @@ namespace tl
         {}
 
         std::shared_ptr<Viewport> Viewport::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Viewport>(new Viewport);

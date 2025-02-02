@@ -20,7 +20,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& text,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             MessageDialog();
@@ -31,7 +31,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<MessageDialog> create(
                 const std::string& text,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the callback.
@@ -47,15 +47,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(MessageDialogSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            MessageDialogSystem();
+            MessageDialogSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~MessageDialogSystem();
 
             //! Create a new system.
-            static std::shared_ptr<MessageDialogSystem> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<MessageDialogSystem> create(const std::shared_ptr<dtk::Context>&);
 
             //! Open the message dialog.
             void open(

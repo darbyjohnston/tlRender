@@ -17,8 +17,8 @@ namespace tl
     {
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions(
-            int types,
-            const std::shared_ptr<system::Context>&);
+            const std::shared_ptr<dtk::Context>&,
+            int types);
 
         //! Convert frames to ranges.
         std::vector<OTIO_NS::TimeRange> toRanges(std::vector<OTIO_NS::RationalTime>);
@@ -64,9 +64,9 @@ namespace tl
 
         //! Get a list of paths to open from the given path.
         std::vector<file::Path> getPaths(
+            const std::shared_ptr<dtk::Context>&,
             const file::Path&,
-            const file::PathOptions&,
-            const std::shared_ptr<system::Context>&);
+            const file::PathOptions&);
 
         //! Get an absolute path.
         file::Path getPath(

@@ -13,10 +13,10 @@ namespace tl
         class MatrixTest : public tests::ITest
         {
         protected:
-            MatrixTest(const std::shared_ptr<system::Context>&);
+            MatrixTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<MatrixTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<MatrixTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

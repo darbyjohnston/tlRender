@@ -167,7 +167,7 @@ namespace tl
 
         void MainWindow::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             Window::_init("tlplay", context, nullptr);
             TLRENDER_P();
@@ -694,7 +694,7 @@ namespace tl
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
             out->_init(app, context);

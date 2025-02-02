@@ -23,7 +23,7 @@ namespace tl
         };
 
         void StatusBar::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -59,7 +59,7 @@ namespace tl
         {}
 
         std::shared_ptr<StatusBar> StatusBar::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<StatusBar>(new StatusBar);

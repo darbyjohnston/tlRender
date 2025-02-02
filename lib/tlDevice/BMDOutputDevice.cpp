@@ -14,8 +14,8 @@
 #include <tlGL/Util.h>
 
 #include <tlCore/AudioResample.h>
-#include <tlCore/Context.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <algorithm>
@@ -51,7 +51,7 @@ namespace tl
 
         struct OutputDevice::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::ObservableValue<DeviceConfig> > config;
             std::shared_ptr<dtk::ObservableValue<bool> > enabled;
             std::shared_ptr<dtk::ObservableValue<bool> > active;
@@ -130,7 +130,7 @@ namespace tl
             Thread thread;
         };
 
-        void OutputDevice::_init(const std::shared_ptr<system::Context>& context)
+        void OutputDevice::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -143,9 +143,9 @@ namespace tl
             p.videoFrameDelay = dtk::ObservableValue<int>::create(bmd::videoFrameDelay);
 
             p.window = gl::GLFWWindow::create(
+                context,
                 "tl::bmd::OutputDevice",
                 math::Size2i(1, 1),
-                context,
                 static_cast<int>(gl::GLFWWindowOptions::None));
             p.thread.running = true;
             p.thread.thread = std::thread(
@@ -173,7 +173,7 @@ namespace tl
         }
 
         std::shared_ptr<OutputDevice> OutputDevice::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<OutputDevice>(new OutputDevice);
             out->_init(context);
@@ -711,7 +711,7 @@ namespace tl
                                 context->log(
                                     "tl::bmd::OutputDevice",
                                     e.what(),
-                                    log::Type::Error);
+                                    dtk::LogType::Error);
                             }
                         }
                     }
@@ -751,7 +751,7 @@ namespace tl
                             context->log(
                                 "tl::bmd::OutputDevice",
                                 e.what(),
-                                log::Type::Error);
+                                dtk::LogType::Error);
                         }
                     }
                 }

@@ -4,7 +4,7 @@
 
 #include <tlCore/Timer.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
@@ -22,7 +22,7 @@ namespace tl
             std::chrono::steady_clock::time_point start;
         };
 
-        void Timer::_init(const std::shared_ptr<system::Context>& context)
+        void Timer::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             if (auto system = context->getSystem<TimerSystem>())
@@ -39,7 +39,7 @@ namespace tl
         {}
 
         std::shared_ptr<Timer> Timer::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<Timer>(new Timer);
             out->_init(context);
@@ -127,12 +127,8 @@ namespace tl
             std::vector<std::weak_ptr<Timer> > timers;
         };
 
-        void TimerSystem::_init(const std::shared_ptr<system::Context>& context)
-        {
-            ISystem::_init("tl::time::TimerSystem", context);
-        }
-
-        TimerSystem::TimerSystem() :
+        TimerSystem::TimerSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::time::TimerSystem"),
             _p(new Private)
         {}
 
@@ -140,13 +136,13 @@ namespace tl
         {}
 
         std::shared_ptr<TimerSystem> TimerSystem::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = context->getSystem<TimerSystem>();
             if (!out)
             {
-                out = std::shared_ptr<TimerSystem>(new TimerSystem);
-                out->_init(context);
+                out = std::shared_ptr<TimerSystem>(new TimerSystem(context));
+                context->addSystem(out);
             }
             return out;
         }

@@ -10,13 +10,13 @@
 
 #include <memory>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace qt
     {
         //! Context object.
@@ -26,13 +26,13 @@ namespace tl
 
         public:
             ContextObject(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 QObject* parent = nullptr);
 
             virtual ~ContextObject();
 
             //! Get the context.
-            const std::shared_ptr<system::Context>& context() const;
+            const std::shared_ptr<dtk::Context>& context() const;
 
         private:
             void _timerCallback();

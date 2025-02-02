@@ -30,7 +30,7 @@ namespace tl
         };
 
         void Icon::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Icon", context, parent);
@@ -45,7 +45,7 @@ namespace tl
         {}
 
         std::shared_ptr<Icon> Icon::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<Icon>(new Icon);
@@ -55,7 +55,7 @@ namespace tl
 
         std::shared_ptr<Icon> Icon::create(
             const std::string& icon,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Icon>(new Icon);

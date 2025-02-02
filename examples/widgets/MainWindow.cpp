@@ -35,7 +35,7 @@ namespace tl
                 std::shared_ptr<ui::StackLayout> stackLayout;
             };
 
-            void MainWindow::_init(const std::shared_ptr<system::Context>& context)
+            void MainWindow::_init(const std::shared_ptr<dtk::Context>& context)
             {
                 Window::_init("widgets", context, nullptr);
                 TLRENDER_P();
@@ -113,7 +113,7 @@ namespace tl
             {}
 
             std::shared_ptr<MainWindow> MainWindow::create(
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context)
             {
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
                 out->_init(context);

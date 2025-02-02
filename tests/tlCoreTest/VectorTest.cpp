@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        VectorTest::VectorTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::VectorTest", context)
+        VectorTest::VectorTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::VectorTest")
         {}
 
-        std::shared_ptr<VectorTest> VectorTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<VectorTest> VectorTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<VectorTest>(new VectorTest(context));
         }

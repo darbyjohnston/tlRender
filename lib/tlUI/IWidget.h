@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& objectName,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IWidget();
@@ -267,7 +267,7 @@ namespace tl
             void _setMousePress(bool, int button = -1, int modifiers = -1);
             virtual void _releaseMouse();
 
-            std::weak_ptr<system::Context> _context;
+            std::weak_ptr<dtk::Context> _context;
             std::string _objectName;
             ColorRole _backgroundRole = ColorRole::None;
             float _displayScale = 1.F;

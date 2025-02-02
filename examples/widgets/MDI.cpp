@@ -21,7 +21,7 @@ namespace tl
             };
 
             void MDI::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -50,7 +50,7 @@ namespace tl
             {}
 
             std::shared_ptr<MDI> MDI::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MDI>(new MDI);

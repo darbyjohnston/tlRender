@@ -6,7 +6,7 @@
 
 #include <tlQtWidget/FileBrowserSystem.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #include <QBoxLayout>
 #include <QLineEdit>
@@ -18,13 +18,13 @@ namespace tl
     {
         struct FileWidget::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             QString fileName;
             QLineEdit* lineEdit = nullptr;
         };
 
         FileWidget::FileWidget(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             QWidget(parent),
             _p(new Private)

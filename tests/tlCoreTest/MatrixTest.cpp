@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        MatrixTest::MatrixTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::MatrixTest", context)
+        MatrixTest::MatrixTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::MatrixTest")
         {}
 
-        std::shared_ptr<MatrixTest> MatrixTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<MatrixTest> MatrixTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<MatrixTest>(new MatrixTest(context));
         }

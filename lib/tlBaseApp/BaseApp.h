@@ -6,7 +6,7 @@
 
 #include <tlBaseApp/CmdLine.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #if defined(_WINDOWS)
 #define TLRENDER_MAIN() \
@@ -44,8 +44,8 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::vector<std::string>&,
-                const std::shared_ptr<system::Context>&,
                 const std::string& cmdLineName,
                 const std::string& cmdLineSummary,
                 const std::vector<std::shared_ptr<ICmdLineArg> >& = {},
@@ -57,7 +57,7 @@ namespace tl
             virtual ~BaseApp() = 0;
 
             //! Get the context.
-            const std::shared_ptr<system::Context>& getContext() const;
+            const std::shared_ptr<dtk::Context>& getContext() const;
 
             //! Get the exit code.
             int getExit() const;
@@ -65,13 +65,13 @@ namespace tl
         protected:
             const std::string& _getCmdLineName() const;
 
-            void _log(const std::string&, log::Type = log::Type::Message);
+            void _log(const std::string&, dtk::LogType = dtk::LogType::Message);
 
             void _print(const std::string&);
             void _printNewline();
             void _printError(const std::string&);
 
-            std::shared_ptr<system::Context> _context;
+            std::shared_ptr<dtk::Context> _context;
             Options _options;
             int _exit = 0;
 

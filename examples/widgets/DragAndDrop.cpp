@@ -41,7 +41,7 @@ namespace tl
 
             void DragAndDropWidget::_init(
                 int number,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(
@@ -72,7 +72,7 @@ namespace tl
 
             std::shared_ptr<DragAndDropWidget> DragAndDropWidget::create(
                 int number,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<DragAndDropWidget>(new DragAndDropWidget);
@@ -232,7 +232,7 @@ namespace tl
             };
 
             void DragAndDrop::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -267,7 +267,7 @@ namespace tl
             {}
 
             std::shared_ptr<DragAndDrop> DragAndDrop::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<DragAndDrop>(new DragAndDrop);

@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ColorSwatch();
@@ -27,7 +27,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<ColorSwatch> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the color.

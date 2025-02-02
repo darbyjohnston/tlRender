@@ -22,8 +22,8 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& name,
-                const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<Window>& share);
 
             Window();
@@ -33,8 +33,8 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<Window> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& name,
-                const std::shared_ptr<system::Context>&,
                 const std::shared_ptr<Window>& share = nullptr);
 
             //! Get the window size.

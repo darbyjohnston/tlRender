@@ -19,7 +19,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 ContainerWidget();
@@ -28,7 +28,7 @@ namespace tl
                 virtual ~ContainerWidget();
 
                 static std::shared_ptr<ContainerWidget> create(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::Box2i&) override;
@@ -36,7 +36,7 @@ namespace tl
             };
 
             void ContainerWidget::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init("tl::ui::ContainerWidget", context, parent);
@@ -51,7 +51,7 @@ namespace tl
             {}
 
             std::shared_ptr<ContainerWidget> ContainerWidget::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ContainerWidget>(new ContainerWidget);
@@ -97,7 +97,7 @@ namespace tl
 
         void IWidgetPopup::_init(
             const std::string& objectName,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IPopup::_init(objectName, context, parent);

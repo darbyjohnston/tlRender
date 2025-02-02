@@ -9,13 +9,13 @@
 
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         //! Color model.
@@ -24,7 +24,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(ColorModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             ColorModel();
 
@@ -32,7 +32,7 @@ namespace tl
             ~ColorModel();
 
             //! Create a new model.
-            static std::shared_ptr<ColorModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<ColorModel> create(const std::shared_ptr<dtk::Context>&);
 
             //! Get the OpenColorIO options.
             const timeline::OCIOOptions& getOCIOOptions() const;

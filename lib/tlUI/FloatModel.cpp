@@ -20,7 +20,7 @@ namespace tl
             float defaultValue = 0.F;
         };
 
-        void FloatModel::_init(const std::shared_ptr<system::Context>&)
+        void FloatModel::_init(const std::shared_ptr<dtk::Context>&)
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<float>::create(0.F);
@@ -36,7 +36,7 @@ namespace tl
         {}
 
         std::shared_ptr<FloatModel> FloatModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<FloatModel>(new FloatModel);
             out->_init(context);

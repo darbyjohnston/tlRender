@@ -21,7 +21,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IncButton();
@@ -31,7 +31,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<IncButton> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void sizeHintEvent(const SizeHintEvent&) override;
@@ -48,7 +48,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IncButtons();
@@ -58,7 +58,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<IncButtons> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the increment callback.
@@ -83,7 +83,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<IntModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IntIncButtons();
@@ -94,7 +94,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<IntIncButtons> create(
                 const std::shared_ptr<IntModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the model.
@@ -114,7 +114,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<FloatModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FloatIncButtons();
@@ -125,7 +125,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<FloatIncButtons> create(
                 const std::shared_ptr<FloatModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the model.
@@ -146,7 +146,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<DoubleModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             DoubleIncButtons();
@@ -157,7 +157,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<DoubleIncButtons> create(
                 const std::shared_ptr<DoubleModel>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the model.

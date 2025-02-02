@@ -8,19 +8,16 @@
 
 #include <tlGL/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
     namespace io
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             gl::init(context);
-            if (!context->getSystem<System>())
-            {
-                context->addSystem(System::create(context));
-            }
+            System::create(context);
         }
     }
 }

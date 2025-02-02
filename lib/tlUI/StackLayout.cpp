@@ -22,7 +22,7 @@ namespace tl
         };
 
         void StackLayout::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::StackLayout", context, parent);
@@ -36,7 +36,7 @@ namespace tl
         {}
 
         std::shared_ptr<StackLayout> StackLayout::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<StackLayout>(new StackLayout);

@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             SystemLogTool();
@@ -33,7 +33,7 @@ namespace tl
 
             static std::shared_ptr<SystemLogTool> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

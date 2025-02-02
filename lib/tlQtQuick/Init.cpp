@@ -8,7 +8,7 @@
 
 #include <tlQt/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
@@ -16,45 +16,42 @@ namespace tl
     {
         namespace
         {
-            std::shared_ptr<system::Context> _context;
+            std::shared_ptr<dtk::Context> _context;
         }
 
         void init(
-            qt::DefaultSurfaceFormat defaultSurfaceFormat,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            qt::DefaultSurfaceFormat defaultSurfaceFormat)
         {
-            qt::init(defaultSurfaceFormat, context);
-            if (!context->getSystem<System>())
-            {
-                context->addSystem(System::create(context));
-            }
-        }
+            qt::init(context, defaultSurfaceFormat);
+            System::create(context);
+         }
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::qtquick::System")
         {
-            ISystem::_init("tl::qtquick::System", context);
-
             _context = context;
 
             qmlRegisterType<GLFramebufferObject>("tlQtQuick", 1, 0, "GLFramebufferObject");
         }
-
-        System::System()
-        {}
 
         System::~System()
         {
             _context.reset();
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
+            }
             return out;
         }
 
-        const std::shared_ptr<system::Context>& getContext()
+        const std::shared_ptr<dtk::Context>& getContext()
         {
             return _context;
         }

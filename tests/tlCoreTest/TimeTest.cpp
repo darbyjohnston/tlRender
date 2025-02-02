@@ -17,11 +17,11 @@ namespace tl
 {
     namespace core_tests
     {
-        TimeTest::TimeTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::TimeTest", context)
+        TimeTest::TimeTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::TimeTest")
         {}
 
-        std::shared_ptr<TimeTest> TimeTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<TimeTest> TimeTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<TimeTest>(new TimeTest(context));
         }

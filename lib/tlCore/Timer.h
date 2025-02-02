@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlCore/Util.h>
+
 #include <tlCore/ISystem.h>
 
 namespace tl
@@ -16,7 +18,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(Timer);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             Timer();
 
@@ -25,7 +27,7 @@ namespace tl
 
             //! Create a new timer.
             static std::shared_ptr<Timer> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Does the timer repeat?
             bool isRepeating() const;
@@ -66,15 +68,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(TimerSystem);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            TimerSystem();
+            TimerSystem(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~TimerSystem();
 
             static std::shared_ptr<TimerSystem> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             void addTimer(const std::shared_ptr<Timer>&);
 

@@ -27,7 +27,7 @@ namespace tl
         };
 
         void ScrollWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             ScrollType scrollType,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -139,7 +139,7 @@ namespace tl
         {}
 
         std::shared_ptr<ScrollWidget> ScrollWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             ScrollType scrollType,
             const std::shared_ptr<IWidget>& parent)
         {

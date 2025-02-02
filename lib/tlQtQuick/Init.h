@@ -19,8 +19,8 @@ namespace tl
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
         void init(
-            qt::DefaultSurfaceFormat,
-            const std::shared_ptr<system::Context>&);
+            const std::shared_ptr<dtk::Context>&,
+            qt::DefaultSurfaceFormat);
 
         //! Qt Quick system.
         class System : public system::ISystem
@@ -28,21 +28,19 @@ namespace tl
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            System();
+            System(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~System();
 
             //! Create a new system.
             static std::shared_ptr<System> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
         };
 
         //! Get the context singleton.
         //!
         //! \todo What's a better way to get the context to QML objects?
-        const std::shared_ptr<system::Context>& getContext();
+        const std::shared_ptr<dtk::Context>& getContext();
     }
 }

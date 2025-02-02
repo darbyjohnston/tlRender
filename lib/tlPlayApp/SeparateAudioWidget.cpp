@@ -29,7 +29,7 @@ namespace tl
         };
 
         void SeparateAudioWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -104,7 +104,7 @@ namespace tl
         {}
 
         std::shared_ptr<SeparateAudioWidget> SeparateAudioWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<SeparateAudioWidget>(new SeparateAudioWidget);

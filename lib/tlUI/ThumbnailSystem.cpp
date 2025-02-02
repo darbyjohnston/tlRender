@@ -17,6 +17,7 @@
 #include <tlCore/AudioResample.h>
 #include <tlCore/LRUCache.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -40,7 +41,7 @@ namespace tl
             std::mutex mutex;
         };
 
-        void ThumbnailCache::_init(const std::shared_ptr<system::Context>& context)
+        void ThumbnailCache::_init(const std::shared_ptr<dtk::Context>& context)
         {
             _maxUpdate();
         }
@@ -53,7 +54,7 @@ namespace tl
         {}
 
         std::shared_ptr<ThumbnailCache> ThumbnailCache::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<ThumbnailCache>(new ThumbnailCache);
             out->_init(context);
@@ -219,7 +220,7 @@ namespace tl
 
         struct ThumbnailGenerator::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<ThumbnailCache> cache;
             std::shared_ptr<gl::GLFWWindow> window;
             uint64_t requestId = 0;
@@ -310,7 +311,7 @@ namespace tl
 
         void ThumbnailGenerator::_init(
             const std::shared_ptr<ThumbnailCache>& cache,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<gl::GLFWWindow>& window)
         {
             TLRENDER_P();
@@ -323,9 +324,9 @@ namespace tl
             if (!p.window)
             {
                 p.window = gl::GLFWWindow::create(
+                    context,
                     "tl::ui::ThumbnailGenerator",
                     math::Size2i(1, 1),
-                    context,
                     static_cast<int>(gl::GLFWWindowOptions::None));
             }
 
@@ -414,7 +415,7 @@ namespace tl
 
         std::shared_ptr<ThumbnailGenerator> ThumbnailGenerator::create(
             const std::shared_ptr<ThumbnailCache>& cache,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<gl::GLFWWindow>& window)
         {
             auto out = std::shared_ptr<ThumbnailGenerator>(new ThumbnailGenerator);
@@ -771,8 +772,8 @@ namespace tl
                                 timeline::Options timelineOptions;
                                 timelineOptions.ioOptions = request->options;
                                 auto timeline = timeline::Timeline::create(
-                                    request->path,
                                     context,
+                                    request->path,
                                     timelineOptions);
                                 const auto info = timeline->getIOInfo();
                                 const auto videoData = timeline->getVideo(
@@ -1067,26 +1068,27 @@ namespace tl
             std::shared_ptr<ThumbnailGenerator> generator;
         };
 
-        void ThumbnailSystem::_init(const std::shared_ptr<system::Context>& context)
+        ThumbnailSystem::ThumbnailSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::ui::ThumbnailSystem"),
+            _p(new Private)
         {
-            ISystem::_init("tl::ui::ThumbnailSystem", context);
             TLRENDER_P();
             p.cache = ThumbnailCache::create(context);
             p.generator = ThumbnailGenerator::create(p.cache, context);
         }
 
-        ThumbnailSystem::ThumbnailSystem() :
-            _p(new Private)
-        {}
-
         ThumbnailSystem::~ThumbnailSystem()
         {}
 
         std::shared_ptr<ThumbnailSystem> ThumbnailSystem::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<ThumbnailSystem>(new ThumbnailSystem);
-            out->_init(context);
+            auto out = context->getSystem<ThumbnailSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<ThumbnailSystem>(new ThumbnailSystem(context));
+                context->addSystem(out);
+            }
             return out;
         }
 

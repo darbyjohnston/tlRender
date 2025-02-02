@@ -4,10 +4,14 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
 #include <tlCore/Time.h>
 
 #include <dtk/core/ObservableValue.h>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -48,7 +52,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(ITimeUnitsModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             ITimeUnitsModel();
 
@@ -71,7 +75,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(TimeUnitsModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             TimeUnitsModel();
 
@@ -80,7 +84,7 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<TimeUnitsModel> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the time units.
             TimeUnits getTimeUnits() const;

@@ -30,7 +30,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Settings>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             AudioModel();
 
@@ -40,7 +40,7 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<AudioModel> create(
                 const std::shared_ptr<Settings>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the output devices.
             const std::vector<audio::DeviceID>& getDevices();

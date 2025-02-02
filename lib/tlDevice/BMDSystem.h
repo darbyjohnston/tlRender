@@ -20,15 +20,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            System();
+            System(const std::shared_ptr<dtk::Context>&);
 
         public:
             ~System() override;
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
 
             //! Observe the device information.
             std::shared_ptr<dtk::IObservableList<DeviceInfo> > observeDeviceInfo() const;

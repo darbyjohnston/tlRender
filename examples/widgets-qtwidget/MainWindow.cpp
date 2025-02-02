@@ -15,7 +15,7 @@ namespace tl
     {
         namespace widgets_qtwidget
         {
-            MainWindow::MainWindow(const std::shared_ptr<system::Context>& context)
+            MainWindow::MainWindow(const std::shared_ptr<dtk::Context>& context)
             {
                 auto tabWidget = new QTabWidget;
                 tabWidget->addTab(new FloatEditSlider, "FloatEditSlider");

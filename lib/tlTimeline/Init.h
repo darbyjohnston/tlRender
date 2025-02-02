@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlCore/ISystem.h>
+#include <tlCore/Util.h>
 
 namespace tl
 {
@@ -12,7 +13,7 @@ namespace tl
     namespace timeline
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(const std::shared_ptr<dtk::Context>&);
 
         //! Timeline system.
         class System : public system::ISystem
@@ -20,15 +21,13 @@ namespace tl
             TLRENDER_NON_COPYABLE(System);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            System();
+            System(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~System();
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
         };
     }
 }

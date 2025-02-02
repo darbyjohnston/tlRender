@@ -6,8 +6,7 @@
 
 #include <tlDevice/BMDOutputDevice.h>
 
-#include <tlCore/Context.h>
-
+#include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 #include <dtk/core/Format.h>
 
@@ -30,7 +29,7 @@ namespace tl
     {
         struct System::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::ObservableList<DeviceInfo> > deviceInfo;
             struct Mutex
             {
@@ -42,9 +41,11 @@ namespace tl
             std::atomic<bool> running;
         };
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::bmd::System"),
+            _p(new Private)
         {
-            ISystem::_init("tl::bmd::System", context);
+            
             TLRENDER_P();
 
             p.context = context;
@@ -214,10 +215,6 @@ namespace tl
                 });
         }
 
-        System::System() :
-            _p(new Private)
-        {}
-
         System::~System()
         {
             TLRENDER_P();
@@ -228,10 +225,14 @@ namespace tl
             }
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
+            }
             return out;
         }
 

@@ -20,7 +20,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             ToolsActions();
 
@@ -29,7 +29,7 @@ namespace tl
 
             static std::shared_ptr<ToolsActions> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

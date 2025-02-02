@@ -17,7 +17,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             StatusBar();
@@ -27,7 +27,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<StatusBar> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the clicked callback.

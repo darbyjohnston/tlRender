@@ -22,7 +22,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             WindowActions();
 
@@ -32,7 +32,7 @@ namespace tl
             static std::shared_ptr<WindowActions> create(
                 const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

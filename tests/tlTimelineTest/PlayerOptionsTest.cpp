@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        PlayerOptionsTest::PlayerOptionsTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::PlayerOptionsTest", context)
+        PlayerOptionsTest::PlayerOptionsTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::PlayerOptionsTest")
         {}
 
-        std::shared_ptr<PlayerOptionsTest> PlayerOptionsTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<PlayerOptionsTest> PlayerOptionsTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<PlayerOptionsTest>(new PlayerOptionsTest(context));
         }

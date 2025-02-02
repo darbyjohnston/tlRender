@@ -8,8 +8,7 @@
 #include <tlGL/Mesh.h>
 #include <tlGL/Util.h>
 
-#include <tlCore/Context.h>
-
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <array>
@@ -313,11 +312,12 @@ namespace tl
         }
 #endif // TLRENDER_OCIO
 
-        void Render::_init(
-            const std::shared_ptr<system::Context>& context,
-            const std::shared_ptr<TextureCache>& textureCache)
+        Render::Render(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<TextureCache>& textureCache) :
+            IRender(context),
+            _p(new Private)
         {
-            IRender::_init(context);
             TLRENDER_P();
 
             p.textureCache = textureCache;
@@ -335,20 +335,14 @@ namespace tl
             p.logTimer = std::chrono::steady_clock::now();
         }
 
-        Render::Render() :
-            _p(new Private)
-        {}
-
         Render::~Render()
         {}
 
         std::shared_ptr<Render> Render::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<TextureCache>& textureCache)
         {
-            auto out = std::shared_ptr<Render>(new Render);
-            out->_init(context, textureCache);
-            return out;
+            return std::shared_ptr<Render>(new Render(context, textureCache));
         }
 
         const std::shared_ptr<TextureCache>& Render::getTextureCache() const

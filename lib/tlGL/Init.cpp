@@ -9,7 +9,9 @@
 #include <tlGL/GLFWSystem.h>
 #endif // TLRENDER_GLFW
 
-#include <tlCore/Context.h>
+#include <tlCore/Init.h>
+
+#include <dtk/core/Context.h>
 
 #if defined(TLRENDER_GLFW)
 #define GLFW_INCLUDE_NONE
@@ -20,13 +22,11 @@ namespace tl
 {
     namespace gl
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
+            tl::init(context);
 #if defined(TLRENDER_GLFW)
-            if (!context->getSystem<GLFWSystem>())
-            {
-                context->addSystem(GLFWSystem::create(context));
-            }
+            GLFWSystem::create(context);
 #endif // TLRENDER_GLFW
         }
 

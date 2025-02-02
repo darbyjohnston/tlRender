@@ -16,7 +16,7 @@ namespace tl
         {
             void App::_init(
                 const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context)
             {
                 ui_app::App::_init(
                     argv,
@@ -44,7 +44,7 @@ namespace tl
 
             std::shared_ptr<App> App::create(
                 const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context)
             {
                 auto out = std::shared_ptr<App>(new App);
                 out->_init(argv, context);

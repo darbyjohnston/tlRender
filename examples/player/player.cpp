@@ -14,12 +14,12 @@ namespace tl
         namespace player
         {
             void App::_init(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 ui_app::App::_init(
-                    argv,
                     context,
+                    argv,
                     "player",
                     "Example player application.",
                     {
@@ -35,11 +35,11 @@ namespace tl
                     return;
                 }
 
-                auto timeline = timeline::Timeline::create(file::Path(_fileName), context);
-                _player = timeline::Player::create(timeline, context);
+                auto timeline = timeline::Timeline::create(context, file::Path(_fileName));
+                _player = timeline::Player::create(context, timeline);
                 _player->setPlayback(timeline::Playback::Forward);
 
-                _window = ui_app::Window::create("player", context);
+                _window = ui_app::Window::create(context, "player");
                 addWindow(_window);
 
                 auto viewport = timelineui::TimelineViewport::create(context, _window);
@@ -58,11 +58,11 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argv, context);
+                out->_init(context, argv);
                 return out;
             }
 
@@ -79,9 +79,9 @@ int main(int argc, char* argv[])
     int r = 1;
     try
     {
-        auto context = tl::system::Context::create();
+        auto context = dtk::Context::create();
         tl::timelineui::init(context);
-        auto app = tl::examples::player::App::create(tl::app::convert(argc, argv), context);
+        auto app = tl::examples::player::App::create(context, tl::app::convert(argc, argv));
         r = app->run();
     }
     catch (const std::exception& e)

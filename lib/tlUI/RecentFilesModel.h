@@ -9,13 +9,13 @@
 #include <dtk/core/ObservableList.h>
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace ui
     {
         //! Recent files model.
@@ -24,7 +24,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(RecentFilesModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             RecentFilesModel();
 
@@ -33,7 +33,7 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<RecentFilesModel> create(
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the maximum number of recent files.
             size_t getRecentMax() const;

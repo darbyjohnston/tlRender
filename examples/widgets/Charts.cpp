@@ -20,7 +20,7 @@ namespace tl
             };
 
             void Charts::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -66,7 +66,7 @@ namespace tl
             {}
 
             std::shared_ptr<Charts> Charts::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<Charts>(new Charts);

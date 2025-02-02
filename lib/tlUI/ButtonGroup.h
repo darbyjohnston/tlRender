@@ -27,7 +27,7 @@ namespace tl
         protected:
             void _init(
                 ButtonGroupType,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             ButtonGroup();
 
@@ -37,7 +37,7 @@ namespace tl
             //! Create a new button group.
             static std::shared_ptr<ButtonGroup> create(
                 ButtonGroupType,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the buttons in the group.
             const std::vector<std::shared_ptr<IButton> >& getButtons() const;

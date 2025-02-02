@@ -4,9 +4,10 @@
 
 #include <tlCore/FileLogSystem.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/FileIO.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Context.h>
 
 #include <atomic>
 #include <mutex>
@@ -25,11 +26,11 @@ namespace tl
         {
             std::string fileName;
 
-            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
 
             struct Mutex
             {
-                std::vector<log::Item> items;
+                std::vector<dtk::LogItem> items;
                 std::mutex mutex;
             };
             Mutex mutex;
@@ -42,18 +43,19 @@ namespace tl
             Thread thread;
         };
 
-        void FileLogSystem::_init(
-            const std::string& fileName,
-            const std::shared_ptr<system::Context>& context)
+        FileLogSystem::FileLogSystem(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::string& fileName) :
+            ISystem(context, "tl::file:::FileLogSystem"),
+            _p(new Private)
         {
-            ICoreSystem::_init("tl::file:::FileLogSystem", context);
             TLRENDER_P();
 
             p.fileName = fileName;
 
-            p.logObserver = dtk::ListObserver<log::Item>::create(
-                context->getSystem<log::System>()->observeLog(),
-                [this](const std::vector<log::Item>& value)
+            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                context->getLogSystem()->observeLogItems(),
+                [this](const std::vector<dtk::LogItem>& value)
                 {
                     std::unique_lock<std::mutex> lock(_p->mutex.mutex);
                     _p->mutex.items.insert(
@@ -74,7 +76,7 @@ namespace tl
                     {
                         const auto t0 = std::chrono::steady_clock::now();
 
-                        std::vector<log::Item> items;
+                        std::vector<dtk::LogItem> items;
                         {
                             std::unique_lock<std::mutex> lock(p.mutex.mutex);
                             std::swap(p.mutex.items, items);
@@ -82,19 +84,16 @@ namespace tl
                         {
                             auto io = file::FileIO::create(p.fileName, file::Mode::Append);
                             io->seek(io->getSize());
-                            const size_t options =
-                                static_cast<size_t>(log::StringConvert::Time) |
-                                static_cast<size_t>(log::StringConvert::Prefix);
                             for (const auto& item : items)
                             {
-                                io->write(log::toString(item, options) + "\n");
+                                io->write(dtk::toString(item) + "\n");
                             }
                         }
 
                         const auto t1 = std::chrono::steady_clock::now();
                         time::sleep(timeout, t0, t1);
                     }
-                    std::vector<log::Item> items;
+                    std::vector<dtk::LogItem> items;
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         std::swap(p.mutex.items, items);
@@ -102,20 +101,13 @@ namespace tl
                     {
                         auto io = file::FileIO::create(p.fileName, file::Mode::Append);
                         io->seek(io->getSize());
-                        const size_t options =
-                            static_cast<size_t>(log::StringConvert::Time) |
-                            static_cast<size_t>(log::StringConvert::Prefix);
                         for (const auto& item : items)
                         {
-                            io->write(log::toString(item, options) + "\n");
+                            io->write(dtk::toString(item) + "\n");
                         }
                     }
                 });
         }
-
-        FileLogSystem::FileLogSystem() :
-            _p(new Private)
-        {}
 
         FileLogSystem::~FileLogSystem()
         {
@@ -128,14 +120,14 @@ namespace tl
         }
 
         std::shared_ptr<FileLogSystem> FileLogSystem::create(
-            const std::string& fileName,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::string& fileName)
         {
             auto out = context->getSystem<FileLogSystem>();
             if (!out)
             {
-                out = std::shared_ptr<FileLogSystem>(new FileLogSystem);
-                out->_init(fileName, context);
+                out = std::shared_ptr<FileLogSystem>(new FileLogSystem(context, fileName));
+                context->addSystem(out);
             }
             return out;
         }

@@ -13,10 +13,10 @@ namespace tl
         class OffscreenBufferTest : public tests::ITest
         {
         protected:
-            OffscreenBufferTest(const std::shared_ptr<system::Context>&);
+            OffscreenBufferTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<OffscreenBufferTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<OffscreenBufferTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

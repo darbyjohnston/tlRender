@@ -4,8 +4,9 @@
 
 #include <tlCore/FontSystem.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/LRUCache.h>
+
+#include <dtk/core/Context.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -73,9 +74,10 @@ namespace tl
             memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
 
-        void FontSystem::_init(const std::shared_ptr<system::Context>& context)
+        FontSystem::FontSystem(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::image::FontSystem"),
+            _p(new Private)
         {
-            ISystem::_init("tl::image::FontSystem", context);
             TLRENDER_P();
 
             try
@@ -104,13 +106,9 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                _log(e.what(), log::Type::Error);
+                _log(e.what(), dtk::LogType::Error);
             }
         }
-
-        FontSystem::FontSystem() :
-            _p(new Private)
-        {}
 
         FontSystem::~FontSystem()
         {
@@ -125,10 +123,14 @@ namespace tl
             }
         }
 
-        std::shared_ptr<FontSystem> FontSystem::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<FontSystem> FontSystem::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<FontSystem>(new FontSystem);
-            out->_init(context);
+            auto out = context->getSystem<FontSystem>();
+            if (!out)
+            {
+                out = std::shared_ptr<FontSystem>(new FontSystem(context));
+                context->addSystem(out);
+            }
             return out;
         }
 
@@ -145,7 +147,7 @@ namespace tl
                 &p.ftFaces[name]);
             if (ftError)
             {
-                _log("Cannot create font", log::Type::Error);
+                _log("Cannot create font", dtk::LogType::Error);
             }
         }
 
@@ -169,7 +171,7 @@ namespace tl
                 FT_Error ftError = FT_Set_Pixel_Sizes(i->second, 0, info.size);
                 if (ftError)
                 {
-                    _log("Cannot set pixel sizes", log::Type::Error);
+                    _log("Cannot set pixel sizes", dtk::LogType::Error);
                 }
                 out.ascender = i->second->size->metrics.ascender / 64;
                 out.descender = i->second->size->metrics.descender / 64;
@@ -192,7 +194,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                _log(e.what(), log::Type::Error);
+                _log(e.what(), dtk::LogType::Error);
             }
             return out;
         }
@@ -212,7 +214,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                _log(e.what(), log::Type::Error);
+                _log(e.what(), dtk::LogType::Error);
             }
             return out;
         }
@@ -233,7 +235,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                _log(e.what(), log::Type::Error);
+                _log(e.what(), dtk::LogType::Error);
             }
             return out;
         }

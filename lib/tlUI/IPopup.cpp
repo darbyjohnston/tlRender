@@ -10,7 +10,7 @@ namespace tl
     {
         void IPopup::_init(
             const std::string& objectName,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);

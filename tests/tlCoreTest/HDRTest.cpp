@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        HDRTest::HDRTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::HDRTest", context)
+        HDRTest::HDRTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::HDRTest")
         {}
 
-        std::shared_ptr<HDRTest> HDRTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<HDRTest> HDRTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<HDRTest>(new HDRTest(context));
         }

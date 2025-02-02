@@ -20,7 +20,7 @@ namespace tl
         };
 
         void MenuBar::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MenuBar", context, parent);
@@ -37,7 +37,7 @@ namespace tl
         {}
 
         std::shared_ptr<MenuBar> MenuBar::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MenuBar>(new MenuBar);

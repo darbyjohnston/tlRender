@@ -49,7 +49,7 @@ namespace tl
                 double seconds,
                 const OTIO_NS::TimeRange&);
 
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
             std::shared_ptr<dtk::ObservableValue<bool> > timelineChanges;
             file::Path path;

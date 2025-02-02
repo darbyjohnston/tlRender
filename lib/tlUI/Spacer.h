@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 Orientation,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Spacer();
@@ -29,7 +29,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<Spacer> create(
                 Orientation,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the size role.

@@ -6,17 +6,17 @@
 
 #include <memory>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     //! Hardware devices
     namespace device
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(const std::shared_ptr<dtk::Context>&);
     }
 }

@@ -13,10 +13,10 @@ namespace tl
         class HDRTest : public tests::ITest
         {
         protected:
-            HDRTest(const std::shared_ptr<system::Context>&);
+            HDRTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<HDRTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<HDRTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

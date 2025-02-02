@@ -30,7 +30,7 @@ namespace tl
         };
 
         OpenSeparateAudioDialog::OpenSeparateAudioDialog(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             QDialog(parent),
             _p(new Private)

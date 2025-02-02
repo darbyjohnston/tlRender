@@ -21,7 +21,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 MenuButton();
@@ -30,7 +30,7 @@ namespace tl
                 virtual ~MenuButton();
 
                 static std::shared_ptr<MenuButton> create(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setShortcut(Key, int modifiers = 0);
@@ -93,7 +93,7 @@ namespace tl
             };
 
             void MenuButton::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IButton::_init("tl::ui::MenuButton", context, parent);
@@ -114,7 +114,7 @@ namespace tl
             {}
 
             std::shared_ptr<MenuButton> MenuButton::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MenuButton>(new MenuButton);
@@ -489,7 +489,7 @@ namespace tl
         };
 
         void Menu::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IMenuPopup::_init("tl::ui::Menu", context, parent);
@@ -507,7 +507,7 @@ namespace tl
         {}
 
         std::shared_ptr<Menu> Menu::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Menu>(new Menu);

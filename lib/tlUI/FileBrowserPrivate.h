@@ -20,7 +20,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             PathsWidget();
@@ -29,7 +29,7 @@ namespace tl
             virtual ~PathsWidget();
 
             static std::shared_ptr<PathsWidget> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setCallback(const std::function<void(const std::string&)>&);
@@ -42,7 +42,7 @@ namespace tl
         private:
             void _createButton(
                 const std::string&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             void _pathsUpdate();
@@ -58,7 +58,7 @@ namespace tl
             void _init(
                 const file::FileInfo&,
                 const FileBrowserOptions&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Button();
@@ -69,7 +69,7 @@ namespace tl
             static std::shared_ptr<Button> create(
                 const file::FileInfo&,
                 const FileBrowserOptions&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             const std::vector<int>& getTextWidths() const;
@@ -93,7 +93,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             DirectoryWidget();
@@ -102,7 +102,7 @@ namespace tl
             virtual ~DirectoryWidget();
 
             static std::shared_ptr<DirectoryWidget> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setPath(const std::string&);
@@ -131,7 +131,7 @@ namespace tl
         protected:
             void _init(
                 const std::string&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileBrowserWidget();
@@ -141,7 +141,7 @@ namespace tl
 
             static std::shared_ptr<FileBrowserWidget> create(
                 const std::string&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setCallback(const std::function<void(const file::FileInfo&)>&);

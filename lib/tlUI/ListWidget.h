@@ -19,7 +19,7 @@ namespace tl
         protected:
             void _init(
                 ButtonGroupType,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ListWidget();
@@ -30,7 +30,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<ListWidget> create(
                 ButtonGroupType,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the items.

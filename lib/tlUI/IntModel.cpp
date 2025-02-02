@@ -20,7 +20,7 @@ namespace tl
             int defaultValue = 0;
         };
 
-        void IntModel::_init(const std::shared_ptr<system::Context>&)
+        void IntModel::_init(const std::shared_ptr<dtk::Context>&)
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<int>::create(0);
@@ -36,7 +36,7 @@ namespace tl
         {}
 
         std::shared_ptr<IntModel> IntModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<IntModel>(new IntModel);
             out->_init(context);

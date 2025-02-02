@@ -18,7 +18,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<FloatModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -29,7 +29,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<FloatEditSlider> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<FloatModel>& = nullptr,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

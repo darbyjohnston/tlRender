@@ -12,7 +12,8 @@
 #include <tlGL/OffscreenBuffer.h>
 #include <tlGL/Util.h>
 
-#include <tlCore/LogSystem.h>
+#include <dtk/core/Context.h>
+#include <dtk/core/LogSystem.h>
 
 namespace tl
 {
@@ -73,7 +74,7 @@ namespace tl
         };
 
         void TimelineViewport::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimelineViewport", context, parent);
@@ -100,7 +101,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineViewport> TimelineViewport::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineViewport>(new TimelineViewport);
@@ -530,7 +531,7 @@ namespace tl
                     {
                         if (auto context = _context.lock())
                         {
-                            context->log("tl::timelineui::TimelineViewport", e.what(), log::Type::Error);
+                            context->log("tl::timelineui::TimelineViewport", e.what(), dtk::LogType::Error);
                         }
                     }
                 }

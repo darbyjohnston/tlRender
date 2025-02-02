@@ -24,7 +24,7 @@ namespace tl
                 Tool,
                 const std::string& objectName,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             IToolWidget();

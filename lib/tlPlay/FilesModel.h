@@ -11,13 +11,13 @@
 #include <dtk/core/ObservableList.h>
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         //! Files model item.
@@ -36,7 +36,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(FilesModel);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             FilesModel();
 
@@ -44,7 +44,7 @@ namespace tl
             ~FilesModel();
 
             //! Create a new model.
-            static std::shared_ptr<FilesModel> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<FilesModel> create(const std::shared_ptr<dtk::Context>&);
 
             //! Get the files.
             const std::vector<std::shared_ptr<FilesModelItem> >& getFiles() const;

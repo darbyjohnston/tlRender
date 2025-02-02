@@ -13,10 +13,10 @@ namespace tl
         class MathTest : public tests::ITest
         {
         protected:
-            MathTest(const std::shared_ptr<system::Context>&);
+            MathTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<MathTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<MathTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

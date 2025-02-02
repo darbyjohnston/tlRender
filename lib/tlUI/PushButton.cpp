@@ -35,7 +35,7 @@ namespace tl
         };
 
         void PushButton::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::PushButton", context, parent);
@@ -50,7 +50,7 @@ namespace tl
         {}
 
         std::shared_ptr<PushButton> PushButton::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<PushButton>(new PushButton);
@@ -60,7 +60,7 @@ namespace tl
 
         std::shared_ptr<PushButton> PushButton::create(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PushButton>(new PushButton);

@@ -69,7 +69,7 @@ namespace tl
 
         void TimelineWidget::_init(
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimelineWidget", context, parent);
@@ -91,9 +91,9 @@ namespace tl
             p.displayOptions = dtk::ObservableValue<DisplayOptions>::create();
 
             p.window = gl::GLFWWindow::create(
+                context,
                 "tl::timelineui::TimelineWidget",
                 math::Size2i(1, 1),
-                context,
                 static_cast<int>(gl::GLFWWindowOptions::None));
 
             p.scrollWidget = ui::ScrollWidget::create(
@@ -113,7 +113,7 @@ namespace tl
 
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineWidget>(new TimelineWidget);

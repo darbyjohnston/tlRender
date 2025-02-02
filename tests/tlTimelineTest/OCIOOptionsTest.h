@@ -13,10 +13,10 @@ namespace tl
         class OCIOOptionsTest : public tests::ITest
         {
         protected:
-            OCIOOptionsTest(const std::shared_ptr<system::Context>&);
+            OCIOOptionsTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<OCIOOptionsTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<OCIOOptionsTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

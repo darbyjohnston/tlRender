@@ -12,11 +12,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        IRenderTest::IRenderTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::IRenderTest", context)
+        IRenderTest::IRenderTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::IRenderTest")
         {}
 
-        std::shared_ptr<IRenderTest> IRenderTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<IRenderTest> IRenderTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<IRenderTest>(new IRenderTest(context));
         }

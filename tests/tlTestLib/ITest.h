@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Context.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/Context.h>
 
 #include <functional>
 #include <memory>
@@ -21,8 +23,8 @@ namespace tl
 
         protected:
             ITest(
-                const std::string& name,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&,
+                const std::string& name);
 
         public:
             virtual ~ITest() = 0;
@@ -40,7 +42,7 @@ namespace tl
             void _print(const std::string&);
             void _printError(const std::string&);
 
-            std::shared_ptr<system::Context> _context;
+            std::shared_ptr<dtk::Context> _context;
             std::string _name;
         };
     }

@@ -21,7 +21,7 @@ namespace tl
         void TimelineActions::_init(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -216,7 +216,7 @@ namespace tl
         std::shared_ptr<TimelineActions> TimelineActions::create(
             const std::shared_ptr<MainWindow>& mainWindow,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<TimelineActions>(new TimelineActions);
             out->_init(mainWindow, app, context);

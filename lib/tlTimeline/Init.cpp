@@ -8,8 +8,7 @@
 
 #include <tlIO/Init.h>
 
-#include <tlCore/Context.h>
-
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <opentimelineio/typeRegistry.h>
@@ -18,18 +17,15 @@ namespace tl
 {
     namespace timeline
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             io::init(context);
-            if (!context->getSystem<System>())
-            {
-                context->addSystem(System::create(context));
-            }
+            System::create(context);
         }
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::timeline::System")
         {
-            ISystem::_init("tl::timeline::System", context);
             const std::vector<std::pair<std::string, bool> > registerTypes
             {
                 {
@@ -65,16 +61,17 @@ namespace tl
             }
         }
 
-        System::System()
-        {}
-
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(context);
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
+            }
             return out;
         }
     }

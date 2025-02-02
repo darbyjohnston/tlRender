@@ -9,13 +9,13 @@
 
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         class Settings;
@@ -28,7 +28,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<Settings>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             RenderModel();
 
@@ -38,7 +38,7 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<RenderModel> create(
                 const std::shared_ptr<Settings>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get the image options.
             const timeline::ImageOptions& getImageOptions() const;

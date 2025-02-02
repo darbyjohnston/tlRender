@@ -17,11 +17,11 @@ namespace tl
 {
     namespace gl_tests
     {
-        TextureTest::TextureTest(const std::shared_ptr<system::Context>& context) :
-            ITest("gl_tests::TextureTest", context)
+        TextureTest::TextureTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "gl_tests::TextureTest")
         {}
 
-        std::shared_ptr<TextureTest> TextureTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<TextureTest> TextureTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<TextureTest>(new TextureTest(context));
         }
@@ -32,9 +32,9 @@ namespace tl
             try
             {
                 window = GLFWWindow::create(
+                    _context,
                     "TextureTest",
                     math::Size2i(1, 1),
-                    _context,
                     static_cast<int>(GLFWWindowOptions::MakeCurrent));
             }
             catch (const std::exception& e)

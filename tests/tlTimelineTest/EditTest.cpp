@@ -18,11 +18,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        EditTest::EditTest(const std::shared_ptr<system::Context>& context) :
-            ITest("timeline_tests::EditTest", context)
+        EditTest::EditTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "timeline_tests::EditTest")
         {}
 
-        std::shared_ptr<EditTest> EditTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<EditTest> EditTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<EditTest>(new EditTest(context));
         }
@@ -255,8 +255,8 @@ namespace tl
                 for (const auto toMemoryReference : { ToMemoryReference::Shared, ToMemoryReference::Raw })
                 {
                     auto otioTimeline = timeline::create(
-                        file::Path(TLRENDER_SAMPLE_DATA, otio),
-                        _context);
+                        _context,
+                        file::Path(TLRENDER_SAMPLE_DATA, otio));
                     auto track = dynamic_cast<OTIO_NS::Track*>(otioTimeline->tracks()->children()[0].value);
                     track->append_child(new OTIO_NS::Clip(
                         "Video",
@@ -310,8 +310,8 @@ namespace tl
             for (const auto otioz : { "SingleClip.otioz", "SingleClipSeq.otioz" })
             {
                 auto otioTimeline = timeline::create(
-                    file::Path(TLRENDER_SAMPLE_DATA, otioz),
-                    _context);
+                    _context,
+                    file::Path(TLRENDER_SAMPLE_DATA, otioz));
                 auto track = dynamic_cast<OTIO_NS::Track*>(otioTimeline->tracks()->children()[0].value);
                 track->append_child(new OTIO_NS::Clip(
                     "Video",

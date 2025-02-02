@@ -4,6 +4,8 @@
 
 #include <tlIO/Plugin.h>
 
+#include <dtk/core/LogSystem.h>
+
 namespace tl
 {
     namespace io
@@ -12,7 +14,7 @@ namespace tl
             const file::Path& path,
             const Options& options,
             const std::shared_ptr<Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             _path = path;
             _options = options;
@@ -31,7 +33,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const Options& options,
             const std::shared_ptr<Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, cache, logSystem);
             _memory = memory;
@@ -61,7 +63,7 @@ namespace tl
             const file::Path& path,
             const Options& options,
             const Info& info,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, nullptr, logSystem);
             _info = info;
@@ -84,7 +86,7 @@ namespace tl
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
             const std::shared_ptr<Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             TLRENDER_P();
             _cache = cache;

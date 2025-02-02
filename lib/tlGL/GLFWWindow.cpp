@@ -7,9 +7,9 @@
 #include <tlGL/GL.h>
 #include <tlGL/Init.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/Vector.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #define GLFW_INCLUDE_NONE
@@ -56,7 +56,7 @@ namespace tl
 
         struct GLFWWindow::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             GLFWwindow* glfwWindow = nullptr;
             bool gladInit = true;
             math::Size2i size;
@@ -81,9 +81,9 @@ namespace tl
         };
         
         void GLFWWindow::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& name,
             const math::Size2i& size,
-            const std::shared_ptr<system::Context>& context,
             int options,
             const std::shared_ptr<GLFWWindow>& share)
         {
@@ -176,14 +176,14 @@ namespace tl
         }
 
         std::shared_ptr<GLFWWindow> GLFWWindow::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& name,
             const math::Size2i& size,
-            const std::shared_ptr<system::Context>& context,
             int options,
             const std::shared_ptr<GLFWWindow>& share)
         {
             auto out = std::shared_ptr<GLFWWindow>(new GLFWWindow);
-            out->_init(name, size, context, options, share);
+            out->_init(context, name, size, options, share);
             return out;
         }
 

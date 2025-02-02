@@ -9,7 +9,7 @@ namespace tl
     namespace ui
     {
         void IClipboard::_init(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             _context = context;
         }

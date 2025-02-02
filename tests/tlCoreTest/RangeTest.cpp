@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        RangeTest::RangeTest(const std::shared_ptr<system::Context>& context) :
-            ITest("core_tests::RangeTest", context)
+        RangeTest::RangeTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "core_tests::RangeTest")
         {}
 
-        std::shared_ptr<RangeTest> RangeTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<RangeTest> RangeTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<RangeTest>(new RangeTest(context));
         }

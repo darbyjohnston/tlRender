@@ -12,10 +12,14 @@
 #include <tlTimeline/RenderOptions.h>
 #include <tlTimeline/Video.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/Mesh.h>
 #include <tlCore/Size.h>
+
+namespace dtk
+{
+    class Context;
+}
 
 namespace tl
 {
@@ -25,9 +29,7 @@ namespace tl
         class IRender : public std::enable_shared_from_this<IRender>
         {
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
-
-            IRender();
+            IRender(const std::shared_ptr<dtk::Context>&);
 
         public:
             virtual ~IRender() = 0;
@@ -125,7 +127,7 @@ namespace tl
                 const BackgroundOptions& = BackgroundOptions()) = 0;
 
         protected:
-            std::weak_ptr<system::Context> _context;
+            std::weak_ptr<dtk::Context> _context;
         };
     }
 }

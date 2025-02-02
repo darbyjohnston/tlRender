@@ -29,7 +29,7 @@ namespace tl
         };
 
         void IntEdit::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -98,7 +98,7 @@ namespace tl
         {}
 
         std::shared_ptr<IntEdit> IntEdit::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IntModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {

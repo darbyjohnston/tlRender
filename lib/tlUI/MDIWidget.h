@@ -37,7 +37,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& title,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             MDIWidget();
@@ -48,7 +48,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<MDIWidget> create(
                 const std::string& title,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the title.

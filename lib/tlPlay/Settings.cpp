@@ -4,10 +4,11 @@
 
 #include <tlPlay/Settings.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/File.h>
 #include <tlCore/FileIO.h>
-#include <tlCore/LogSystem.h>
+
+#include <dtk/core/Context.h>
+#include <dtk/core/LogSystem.h>
 
 #include <dtk/core/Format.h>
 
@@ -20,7 +21,7 @@ namespace tl
         void Settings::_init(
             const std::string fileName,
             bool reset,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             _context = context;
             _fileName = fileName;
@@ -42,7 +43,7 @@ namespace tl
         std::shared_ptr<Settings> Settings::create(
             const std::string fileName,
             bool reset,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<Settings>(new Settings);
             out->_init(fileName, reset, context);
@@ -86,7 +87,7 @@ namespace tl
                             dtk::Format("Cannot read settings file: {0}: {1}").
                             arg(_fileName).
                             arg(e.what()),
-                            log::Type::Error);
+                            dtk::LogType::Error);
                     }
                 }
             }
@@ -109,7 +110,7 @@ namespace tl
                         dtk::Format("Cannot write settings file: {0}: {1}").
                         arg(_fileName).
                         arg(e.what()),
-                        log::Type::Error);
+                        dtk::LogType::Error);
                 }
             }
         }

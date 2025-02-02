@@ -14,7 +14,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableList<file::Path> > recent;
         };
 
-        void RecentFilesModel::_init(const std::shared_ptr<system::Context>& context)
+        void RecentFilesModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             p.recentMax = dtk::ObservableValue<size_t>::create(10);
@@ -29,7 +29,7 @@ namespace tl
         {}
 
         std::shared_ptr<RecentFilesModel> RecentFilesModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<RecentFilesModel>(new RecentFilesModel);
             out->_init(context);

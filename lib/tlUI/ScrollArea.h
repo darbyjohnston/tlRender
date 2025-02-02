@@ -28,7 +28,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 ScrollType,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -39,7 +39,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<ScrollArea> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 ScrollType = ScrollType::Both,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

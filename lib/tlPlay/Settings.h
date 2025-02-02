@@ -12,13 +12,13 @@
 
 #include <string>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play
     {
         class App;
@@ -32,7 +32,7 @@ namespace tl
             void _init(
                 const std::string fileName,
                 bool reset,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             Settings();
 
@@ -43,7 +43,7 @@ namespace tl
             static std::shared_ptr<Settings> create(
                 const std::string fileName,
                 bool reset,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             //! Get a value.
             template<typename T>
@@ -67,7 +67,7 @@ namespace tl
             void _read();
             void _write();
 
-            std::weak_ptr<system::Context> _context;
+            std::weak_ptr<dtk::Context> _context;
             std::string _fileName;
             nlohmann::json _defaultValues;
             nlohmann::json _values;

@@ -26,7 +26,7 @@ namespace tl
 
         public:
             OpenSeparateAudioDialog(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
             virtual ~OpenSeparateAudioDialog();

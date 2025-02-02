@@ -13,10 +13,10 @@ namespace tl
         class IRenderTest : public tests::ITest
         {
         protected:
-            IRenderTest(const std::shared_ptr<system::Context>&);
+            IRenderTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<IRenderTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<IRenderTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             FileActions();
 
@@ -32,7 +32,7 @@ namespace tl
 
             static std::shared_ptr<FileActions> create(
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<system::Context>&);
+                const std::shared_ptr<dtk::Context>&);
 
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 

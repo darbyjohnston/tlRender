@@ -23,7 +23,7 @@ namespace tl
             protected:
                 void _init(
                     const std::vector<ComboBoxItem>&,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 ComboBoxMenu();
@@ -33,7 +33,7 @@ namespace tl
 
                 static std::shared_ptr<ComboBoxMenu> create(
                     const std::vector<ComboBoxItem>&,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setCallback(const std::function<void(int)>&);
@@ -46,7 +46,7 @@ namespace tl
 
             void ComboBoxMenu::_init(
                 const std::vector<ComboBoxItem>& items,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IMenuPopup::_init("tl::ui::ComboBoxMenu", context, parent);
@@ -92,7 +92,7 @@ namespace tl
 
             std::shared_ptr<ComboBoxMenu> ComboBoxMenu::create(
                 const std::vector<ComboBoxItem>& items,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ComboBoxMenu>(new ComboBoxMenu);
@@ -158,7 +158,7 @@ namespace tl
         };
 
         void ComboBox::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ComboBox", context, parent);
@@ -175,7 +175,7 @@ namespace tl
         {}
 
         std::shared_ptr<ComboBox> ComboBox::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<ComboBox>(new ComboBox);
@@ -185,7 +185,7 @@ namespace tl
 
         std::shared_ptr<ComboBox> ComboBox::create(
             const std::vector<std::string>& items,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ComboBox>(new ComboBox);

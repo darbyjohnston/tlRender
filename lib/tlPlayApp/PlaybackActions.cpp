@@ -22,7 +22,7 @@ namespace tl
 
         void PlaybackActions::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -288,7 +288,7 @@ namespace tl
 
         std::shared_ptr<PlaybackActions> PlaybackActions::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<PlaybackActions>(new PlaybackActions);
             out->_init(app, context);

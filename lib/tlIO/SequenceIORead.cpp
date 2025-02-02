@@ -5,9 +5,9 @@
 #include <tlIO/SequenceIOReadPrivate.h>
 
 #include <tlCore/File.h>
-#include <tlCore/LogSystem.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 
 #include <cstring>
 #include <sstream>
@@ -21,7 +21,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, cache, logSystem);
             TLRENDER_P();
@@ -80,7 +80,7 @@ namespace tl
                             logSystem->print(id, dtk::Format("{0}: {1}").
                                 arg(_path.get()).
                                 arg(e.what()),
-                                log::Type::Error);
+                                dtk::LogType::Error);
                         }
                     }
                     _finishRequests();

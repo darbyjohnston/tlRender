@@ -13,10 +13,10 @@ namespace tl
         class ImageOptionsTest : public tests::ITest
         {
         protected:
-            ImageOptionsTest(const std::shared_ptr<system::Context>&);
+            ImageOptionsTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<ImageOptionsTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<ImageOptionsTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

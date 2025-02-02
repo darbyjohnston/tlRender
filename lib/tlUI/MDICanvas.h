@@ -19,7 +19,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             MDICanvas();
@@ -29,7 +29,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<MDICanvas> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Add a widget to the canvas.

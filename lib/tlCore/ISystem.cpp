@@ -4,28 +4,24 @@
 
 #include <tlCore/ISystem.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
     namespace system
     {
-        void ISystem::_init(
-            const std::string& name,
-            const std::shared_ptr<Context>& context)
+        ISystem::ISystem(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::string& name) :
+            dtk::ISystem(context, name)
         {
-            ICoreSystem::_init(name, context);
-
-            _logSystem = context->getSystem<log::System>();
+            _logSystem = context->getSystem<dtk::LogSystem>();
 
             if (auto logSystem = _logSystem.lock())
             {
                 logSystem->print(name, "Create");
             }
         }
-
-        ISystem::ISystem()
-        {}
 
         ISystem::~ISystem()
         {
@@ -35,7 +31,7 @@ namespace tl
             }
         }
 
-        void ISystem::_log(const std::string& value, log::Type type)
+        void ISystem::_log(const std::string& value, dtk::LogType type)
         {
             if (auto logSystem = _logSystem.lock())
             {

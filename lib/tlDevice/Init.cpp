@@ -10,20 +10,17 @@
 
 #include <tlTimeline/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
     namespace device
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             timeline::init(context);
 #if defined(TLRENDER_BMD)
-            if (!context->getSystem<bmd::System>())
-            {
-                context->addSystem(bmd::System::create(context));
-            }
+            bmd::System::create(context);
 #endif // TLRENDER_BMD
         }
     }

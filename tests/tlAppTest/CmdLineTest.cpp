@@ -12,11 +12,11 @@ namespace tl
 {
     namespace app_tests
     {
-        CmdLineTest::CmdLineTest(const std::shared_ptr<system::Context>& context) :
-            ITest("AppTest::CmdLineTest", context)
+        CmdLineTest::CmdLineTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "AppTest::CmdLineTest")
         {}
 
-        std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<CmdLineTest> CmdLineTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<CmdLineTest>(new CmdLineTest(context));
         }

@@ -9,6 +9,7 @@
 
 #include <tlIO/System.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 
 namespace tl
@@ -34,7 +35,7 @@ namespace tl
         };
 
         void DirectoryWidget::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
@@ -80,7 +81,7 @@ namespace tl
         {}
 
         std::shared_ptr<DirectoryWidget> DirectoryWidget::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<DirectoryWidget>(new DirectoryWidget);

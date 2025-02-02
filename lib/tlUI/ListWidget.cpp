@@ -30,7 +30,7 @@ namespace tl
 
         void ListWidget::_init(
             ButtonGroupType type,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ListWidget", context, parent);
@@ -63,7 +63,7 @@ namespace tl
 
         std::shared_ptr<ListWidget> ListWidget::create(
             ButtonGroupType type,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ListWidget>(new ListWidget);

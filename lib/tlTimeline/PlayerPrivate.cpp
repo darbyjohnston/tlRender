@@ -6,6 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -535,7 +536,7 @@ namespace tl
             noAudio.start = time;
         }
 
-        void Player::Private::log(const std::shared_ptr<system::Context>& context)
+        void Player::Private::log(const std::shared_ptr<dtk::Context>& context)
         {
             const std::string id = dtk::Format("tl::timeline::Player {0}").arg(this);
 

@@ -21,14 +21,14 @@ namespace tl
         namespace player_qtquick
         {
             App::App(
+                const std::shared_ptr<dtk::Context>& context,
                 int& argc,
-                char** argv,
-                const std::shared_ptr<system::Context>& context) :
+                char** argv) :
                 QGuiApplication(argc, argv)
             {
                 BaseApp::_init(
-                    app::convert(argc, argv),
                     context,
+                    app::convert(argc, argv),
                     "player-qtquick",
                     "Example Qt Quick player application.",
                     {
@@ -54,9 +54,9 @@ namespace tl
                 _timeObject.reset(new qt::TimeObject(_timeUnitsModel, this));
 
                 // Open the input file.
-                auto timeline = timeline::Timeline::create(_input, context);
-                auto player = timeline::Player::create(timeline, context);
-                _timelinePlayer.reset(new qt::TimelinePlayer(player, context));
+                auto timeline = timeline::Timeline::create(context, _input);
+                auto player = timeline::Player::create(context, timeline);
+                _timelinePlayer.reset(new qt::TimelinePlayer(context, player));
 
                 // Load the QML.
                 _qmlEngine.reset(new QQmlApplicationEngine);

@@ -35,7 +35,7 @@ namespace tl
         void SecondaryWindow::_init(
             const std::shared_ptr<ui_app::Window>& window,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             const bool shareContexts = app->getSettings()->getValue<bool>("OpenGL/ShareContexts");
             Window::_init("tlplay 2", context, shareContexts ? window : nullptr);
@@ -119,7 +119,7 @@ namespace tl
         std::shared_ptr<SecondaryWindow> SecondaryWindow::create(
             const std::shared_ptr<ui_app::Window>& window,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<SecondaryWindow>(new SecondaryWindow);
             out->_init(window, app, context);

@@ -16,7 +16,7 @@ namespace tl
         namespace panorama_qtwidget
         {
             PanoramaTimelineViewport::PanoramaTimelineViewport(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 QWidget* parent) :
                 QOpenGLWidget(parent)
             {

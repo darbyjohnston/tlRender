@@ -6,6 +6,7 @@
 
 #include <tlCore/Math.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <cmath>
@@ -17,9 +18,9 @@ namespace tl
         namespace test_patterns
         {
             void ITestPattern::_init(
+                const std::shared_ptr<dtk::Context>& context,
                 const std::string& name,
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const math::Size2i& size)
             {
                 _context = context;
                 _name = name;
@@ -38,10 +39,10 @@ namespace tl
             }
 
             void CountTestPattern::_init(
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const math::Size2i& size)
             {
-                ITestPattern::_init(getClassName(), size, context);
+                ITestPattern::_init(context, getClassName(), size);
 
                 auto fontSystem = context->getSystem<image::FontSystem>();
                 _secondsFontInfo = image::FontInfo(
@@ -64,11 +65,11 @@ namespace tl
             }
 
             std::shared_ptr<CountTestPattern> CountTestPattern::create(
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const math::Size2i& size)
             {
                 auto out = std::shared_ptr<CountTestPattern>(new CountTestPattern);
-                out->_init(size, context);
+                out->_init(context, size);
                 return out;
             }
 
@@ -176,10 +177,10 @@ namespace tl
             }
 
             void SwatchesTestPattern::_init(
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const math::Size2i& size)
             {
-                ITestPattern::_init(getClassName(), size, context);
+                ITestPattern::_init(context, getClassName(), size);
 
                 const image::Info info(_size.w, 1, image::PixelType::L_F32);
                 _gradient = image::Image::create(info);
@@ -199,11 +200,11 @@ namespace tl
             }
 
             std::shared_ptr<SwatchesTestPattern> SwatchesTestPattern::create(
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const math::Size2i& size)
             {
                 auto out = std::shared_ptr<SwatchesTestPattern>(new SwatchesTestPattern);
-                out->_init(size, context);
+                out->_init(context, size);
                 return out;
             }
 
@@ -241,11 +242,11 @@ namespace tl
             }
 
             std::shared_ptr<GridTestPattern> GridTestPattern::create(
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const math::Size2i& size)
             {
                 auto out = std::shared_ptr<GridTestPattern>(new GridTestPattern);
-                out->_init(getClassName(), size, context);
+                out->_init(context, getClassName(), size);
                 return out;
             }
 
@@ -306,22 +307,22 @@ namespace tl
             }
 
             std::shared_ptr<ITestPattern> TestPatternFactory::create(
+                const std::shared_ptr<dtk::Context>& context,
                 const std::string& name,
-                const math::Size2i& size,
-                const std::shared_ptr<system::Context>& context)
+                const math::Size2i& size)
             {
                 std::shared_ptr<ITestPattern> out;
                 if (name == CountTestPattern::getClassName())
                 {
-                    out = CountTestPattern::create(size, context);
+                    out = CountTestPattern::create(context, size);
                 }
                 else if (name == SwatchesTestPattern::getClassName())
                 {
-                    out = SwatchesTestPattern::create(size, context);
+                    out = SwatchesTestPattern::create(context, size);
                 }
                 else if (name == GridTestPattern::getClassName())
                 {
-                    out = GridTestPattern::create(size, context);
+                    out = GridTestPattern::create(context, size);
                 }
                 return out;
             };

@@ -47,7 +47,7 @@ namespace tl
 
         void DevicesTool::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
@@ -385,7 +385,7 @@ namespace tl
 
         std::shared_ptr<DevicesTool> DevicesTool::create(
             const std::shared_ptr<App>&app,
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<DevicesTool>(new DevicesTool);

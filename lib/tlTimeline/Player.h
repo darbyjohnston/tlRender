@@ -85,8 +85,8 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<system::Context>&,
                 const PlayerOptions&);
 
             Player();
@@ -96,12 +96,12 @@ namespace tl
 
             //! Create a new timeline player.
             static std::shared_ptr<Player> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<Timeline>&,
-                const std::shared_ptr<system::Context>&,
                 const PlayerOptions& = PlayerOptions());
 
             //! Get the context.
-            const std::weak_ptr<system::Context>& getContext() const;
+            std::shared_ptr<dtk::Context> getContext() const;
 
             //! Get the timeline.
             const std::shared_ptr<Timeline>& getTimeline() const;
@@ -169,7 +169,7 @@ namespace tl
             ///@{
 
             //! Get the current time.
-            OTIO_NS::RationalTime getCurrentTime() const;
+            const OTIO_NS::RationalTime& getCurrentTime() const;
 
             //! Observe the current time.
             std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > observeCurrentTime() const;
@@ -201,7 +201,7 @@ namespace tl
             ///@{
 
             //! Get the in/out points range.
-            OTIO_NS::TimeRange getInOutRange() const;
+            const OTIO_NS::TimeRange& getInOutRange() const;
 
             //! Observe the in/out points range.
             std::shared_ptr<dtk::IObservableValue<OTIO_NS::TimeRange> > observeInOutRange() const;

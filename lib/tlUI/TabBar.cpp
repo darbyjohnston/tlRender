@@ -23,7 +23,7 @@ namespace tl
         };
 
         void TabBar::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TabBar", context, parent);
@@ -52,7 +52,7 @@ namespace tl
         {}
 
         std::shared_ptr<TabBar> TabBar::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TabBar>(new TabBar);

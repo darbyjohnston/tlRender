@@ -56,7 +56,6 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BoxTest.h>
-#include <tlCoreTest/ContextTest.h>
 #include <tlCoreTest/FileIOTest.h>
 #include <tlCoreTest/FileInfoTest.h>
 #include <tlCoreTest/FileTest.h>
@@ -64,7 +63,6 @@
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/LRUCacheTest.h>
-#include <tlCoreTest/LogSystemTest.h>
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
@@ -77,7 +75,7 @@
 
 #include <tlTimeline/Init.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 #include <iostream>
 #include <vector>
@@ -87,11 +85,10 @@ using namespace tl::tests;
 
 void coreTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
     tests.push_back(core_tests::AudioTest::create(context));
     tests.push_back(core_tests::BoxTest::create(context));
-    tests.push_back(core_tests::ContextTest::create(context));
     tests.push_back(core_tests::FileIOTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));
     tests.push_back(core_tests::FileTest::create(context));
@@ -99,7 +96,6 @@ void coreTests(
     tests.push_back(core_tests::HDRTest::create(context));
     tests.push_back(core_tests::ImageTest::create(context));
     tests.push_back(core_tests::LRUCacheTest::create(context));
-    tests.push_back(core_tests::LogSystemTest::create(context));
     tests.push_back(core_tests::MathTest::create(context));
     tests.push_back(core_tests::MatrixTest::create(context));
     tests.push_back(core_tests::MemoryTest::create(context));
@@ -113,7 +109,7 @@ void coreTests(
 
 void glTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
 #if defined(TLRENDER_GLFW)
     tests.push_back(gl_tests::GLFWTest::create(context));
@@ -126,7 +122,7 @@ void glTests(
 
 void ioTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
     tests.push_back(io_tests::CineonTest::create(context));
     tests.push_back(io_tests::DPXTest::create(context));
@@ -155,7 +151,7 @@ void ioTests(
 
 void timelineTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
     tests.push_back(timeline_tests::CompareOptionsTest::create(context));
     tests.push_back(timeline_tests::DisplayOptionsTest::create(context));
@@ -173,7 +169,7 @@ void timelineTests(
 
 void appTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
     tests.push_back(app_tests::AppTest::create(context));
     tests.push_back(app_tests::CmdLineTest::create(context));
@@ -181,7 +177,7 @@ void appTests(
 
 void qtTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<system::Context>& context)
+    const std::shared_ptr<dtk::Context>& context)
 {
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     tests.push_back(qt_tests::TimeObjectTest::create(context));
@@ -190,7 +186,7 @@ void qtTests(
 
 int main(int argc, char* argv[])
 {
-    auto context = system::Context::create();
+    auto context = dtk::Context::create();
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     qt::init(
         qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
@@ -199,16 +195,13 @@ int main(int argc, char* argv[])
     timeline::init(context);
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
-    auto logObserver = dtk::ListObserver<log::Item>::create(
-        context->getSystem<log::System>()->observeLog(),
-        [](const std::vector<log::Item>& value)
+    auto logObserver = dtk::ListObserver<dtk::LogItem>::create(
+        context->getSystem<dtk::LogSystem>()->observeLogItems(),
+        [](const std::vector<dtk::LogItem>& value)
         {
-            const size_t options =
-                static_cast<size_t>(log::StringConvert::Time) |
-                static_cast<size_t>(log::StringConvert::Prefix);
             for (const auto& i : value)
             {
-                std::cout << "[LOG] " << toString(i, options) << std::endl;
+                std::cout << "[LOG] " << toString(i) << std::endl;
             }
         },
         dtk::ObserverAction::Suppress);

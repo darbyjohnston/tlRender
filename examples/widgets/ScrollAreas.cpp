@@ -28,7 +28,7 @@ namespace tl
 
             void ScrollAreasWidget::_init(
                 const math::Vector2i& cellCount,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(
@@ -50,7 +50,7 @@ namespace tl
 
             std::shared_ptr<ScrollAreasWidget> ScrollAreasWidget::create(
                 const math::Vector2i& cellCount,
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ScrollAreasWidget>(new ScrollAreasWidget);
@@ -140,7 +140,7 @@ namespace tl
             };
 
             void ScrollAreas::_init(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IExampleWidget::_init(
@@ -180,7 +180,7 @@ namespace tl
             {}
 
             std::shared_ptr<ScrollAreas> ScrollAreas::create(
-                const std::shared_ptr<system::Context>& context,
+                const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ScrollAreas>(new ScrollAreas);

@@ -19,11 +19,11 @@ namespace tl
 {
     namespace io_tests
     {
-        FFmpegTest::FFmpegTest(const std::shared_ptr<system::Context>& context) :
-            ITest("io_tests::FFmpegTest", context)
+        FFmpegTest::FFmpegTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "io_tests::FFmpegTest")
         {}
 
-        std::shared_ptr<FFmpegTest> FFmpegTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<FFmpegTest> FFmpegTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<FFmpegTest>(new FFmpegTest(context));
         }

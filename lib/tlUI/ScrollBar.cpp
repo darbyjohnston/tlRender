@@ -34,7 +34,7 @@ namespace tl
 
         void ScrollBar::_init(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ScrollBar", context, parent);
@@ -56,7 +56,7 @@ namespace tl
 
         std::shared_ptr<ScrollBar> ScrollBar::create(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ScrollBar>(new ScrollBar);

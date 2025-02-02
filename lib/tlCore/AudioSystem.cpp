@@ -4,9 +4,7 @@
 
 #include <tlCore/AudioSystem.h>
 
-#include <tlCore/Context.h>
-#include <tlCore/LogSystem.h>
-
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -75,9 +73,10 @@ namespace tl
             Thread thread;
         };
 
-        void System::_init(const std::shared_ptr<system::Context>& context)
+        System::System(const std::shared_ptr<dtk::Context>& context) :
+            ISystem(context, "tl::audio::System"),
+            _p(new Private)
         {
-            ISystem::_init("tl::audio::System", context);
             TLRENDER_P();
 
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
@@ -90,7 +89,7 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << "Cannot initialize SDL2";
-                _log(ss.str(), log::Type::Error);
+                _log(ss.str(), dtk::LogType::Error);
             }
             if (p.init)
             {
@@ -137,10 +136,6 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        System::System() :
-            _p(new Private)
-        {}
-
         System::~System()
         {
             TLRENDER_P();
@@ -154,13 +149,13 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
             {
-                out = std::shared_ptr<System>(new System);
-                out->_init(context);
+                out = std::shared_ptr<System>(new System(context));
+                context->addSystem(out);
             }
             return out;
         }

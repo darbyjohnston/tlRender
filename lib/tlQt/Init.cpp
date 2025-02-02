@@ -9,8 +9,9 @@
 
 #include <tlTimeline/Init.h>
 
-#include <tlCore/Context.h>
 #include <tlCore/Mesh.h>
+
+#include <dtk/core/Context.h>
 
 #include <QSurfaceFormat>
 
@@ -19,24 +20,18 @@ namespace tl
     namespace qt
     {
         void init(
-            DefaultSurfaceFormat defaultSurfaceFormat,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            DefaultSurfaceFormat defaultSurfaceFormat)
         {
             timeline::init(context);
-            if (!context->getSystem<System>())
-            {
-                context->addSystem(System::create(
-                    defaultSurfaceFormat,
-                    context));
-            }
+            System::create(context, defaultSurfaceFormat);
         }
 
-        void System::_init(
-            DefaultSurfaceFormat defaultSurfaceFormat,
-            const std::shared_ptr<system::Context>& context)
+        System::System(
+            const std::shared_ptr<dtk::Context>& context,
+            DefaultSurfaceFormat defaultSurfaceFormat) :
+            ISystem(context, "tl::qt::System")
         {
-            ISystem::_init("tl::qt::System", context);
-
             qRegisterMetaType<OTIO_NS::RationalTime>("OTIO_NS::RationalTime");
             qRegisterMetaType<OTIO_NS::TimeRange>("OTIO_NS::TimeRange");
             qRegisterMetaType<std::vector<OTIO_NS::TimeRange> >("std::vector<OTIO_NS::TimeRange>");
@@ -46,12 +41,6 @@ namespace tl
             qRegisterMetaType<audio::DeviceInfo>("tl::audio::DeviceInfo");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<audio::DataType>();
-#endif // QT_VERSION
-
-            qRegisterMetaType<log::Item>("tl::log::Item");
-            qRegisterMetaType<log::Type>("tl::log::Type");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<log::Type>();
 #endif // QT_VERSION
 
             qRegisterMetaType<file::Mode>("tl::file::Mode");
@@ -147,18 +136,19 @@ namespace tl
             }
         }
 
-        System::System()
-        {}
-
         System::~System()
         {}
 
         std::shared_ptr<System> System::create(
-            DefaultSurfaceFormat defaultSurfaceFormat,
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            DefaultSurfaceFormat defaultSurfaceFormat)
         {
-            auto out = std::shared_ptr<System>(new System);
-            out->_init(defaultSurfaceFormat, context);
+            auto out = context->getSystem<System>();
+            if (!out)
+            {
+                out = std::shared_ptr<System>(new System(context, defaultSurfaceFormat));
+                context->addSystem(out);
+            }
             return out;
         }
     }

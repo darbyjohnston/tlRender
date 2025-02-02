@@ -5,9 +5,8 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <dtk/core/Error.h>
-#include <dtk/core/String.h>
-
 #include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <cstdlib>
 
@@ -119,7 +118,7 @@ namespace tl
             return out;
         }
 
-        void ITimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
+        void ITimeUnitsModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             _timeUnitsChanged = dtk::ObservableValue<bool>::create();
         }
@@ -140,7 +139,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<TimeUnits> > timeUnits;
         };
 
-        void TimeUnitsModel::_init(const std::shared_ptr<system::Context>& context)
+        void TimeUnitsModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
             ITimeUnitsModel::_init(context);
@@ -155,7 +154,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeUnitsModel> TimeUnitsModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<TimeUnitsModel>(new TimeUnitsModel);
             out->_init(context);

@@ -22,6 +22,7 @@
 
 #include <tlCore/File.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
 #include <list>
@@ -62,7 +63,7 @@ namespace tl
 
         void FileBrowserWidget::_init(
             const std::string& path,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::FileBrowserWidget", context, parent);
@@ -327,7 +328,7 @@ namespace tl
 
         std::shared_ptr<FileBrowserWidget> FileBrowserWidget::create(
             const std::string& path,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileBrowserWidget>(new FileBrowserWidget);

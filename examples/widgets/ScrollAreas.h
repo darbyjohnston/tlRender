@@ -18,7 +18,7 @@ namespace tl
             protected:
                 void _init(
                     const math::Vector2i& cellCount,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 ScrollAreasWidget();
@@ -28,7 +28,7 @@ namespace tl
 
                 static std::shared_ptr<ScrollAreasWidget> create(
                     const math::Vector2i& cellCount,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
@@ -46,7 +46,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 ScrollAreas();
@@ -55,7 +55,7 @@ namespace tl
                 ~ScrollAreas();
 
                 static std::shared_ptr<ScrollAreas> create(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::Box2i&) override;

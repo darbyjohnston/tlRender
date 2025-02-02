@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 const dtk::Color4F&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ColorPopup();
@@ -29,7 +29,7 @@ namespace tl
             //! Create a new popup.
             static std::shared_ptr<ColorPopup> create(
                 const dtk::Color4F&,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the callback.

@@ -19,7 +19,7 @@ namespace tl
             void _init(
                 Orientation,
                 const std::string& objectName,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             RowLayout();
@@ -30,7 +30,7 @@ namespace tl
             //! Create a new layout.
             static std::shared_ptr<RowLayout> create(
                 Orientation,
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the margin role.
@@ -55,7 +55,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             HorizontalLayout();
@@ -65,7 +65,7 @@ namespace tl
 
             //! Create a new layout.
             static std::shared_ptr<HorizontalLayout> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
@@ -76,7 +76,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             VerticalLayout();
@@ -86,7 +86,7 @@ namespace tl
 
             //! Create a new layout.
             static std::shared_ptr<VerticalLayout> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
     }

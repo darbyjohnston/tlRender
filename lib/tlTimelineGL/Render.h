@@ -26,18 +26,16 @@ namespace tl
             TLRENDER_NON_COPYABLE(Render);
 
         protected:
-            void _init(
-                const std::shared_ptr<system::Context>&,
+            Render(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<TextureCache>&);
-
-            Render();
 
         public:
             virtual ~Render();
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<TextureCache>& = nullptr);
 
             //! Get the texture cache.

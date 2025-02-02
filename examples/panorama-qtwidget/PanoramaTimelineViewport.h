@@ -33,7 +33,7 @@ namespace tl
 
             public:
                 PanoramaTimelineViewport(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     QWidget* parent = nullptr);
 
                 //! Set the OpenColorIO options.
@@ -59,7 +59,7 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
 
             private:
-                std::weak_ptr<system::Context> _context;
+                std::weak_ptr<dtk::Context> _context;
                 timeline::OCIOOptions _ocioOptions;
                 timeline::LUTOptions _lutOptions;
                 timeline::ImageOptions _imageOptions;

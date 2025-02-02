@@ -20,7 +20,7 @@ namespace tl
 
         void Divider::_init(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Divider", context, parent);
@@ -45,7 +45,7 @@ namespace tl
 
         std::shared_ptr<Divider> Divider::create(
             Orientation orientation,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Divider>(new Divider);

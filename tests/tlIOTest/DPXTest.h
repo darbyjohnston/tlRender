@@ -13,10 +13,10 @@ namespace tl
         class DPXTest : public tests::ITest
         {
         protected:
-            DPXTest(const std::shared_ptr<system::Context>&);
+            DPXTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<DPXTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<DPXTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
 

@@ -32,7 +32,7 @@ namespace tl
             protected:
                 void _init(
                     int number,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 DragAndDropWidget();
@@ -42,7 +42,7 @@ namespace tl
 
                 static std::shared_ptr<DragAndDropWidget> create(
                     int number,
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::Box2i&) override;
@@ -70,7 +70,7 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 DragAndDrop();
@@ -79,7 +79,7 @@ namespace tl
                 ~DragAndDrop();
 
                 static std::shared_ptr<DragAndDrop> create(
-                    const std::shared_ptr<system::Context>&,
+                    const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const math::Box2i&) override;

@@ -1,7 +1,6 @@
 set(HEADERS
     AudioTest.h
     BoxTest.h
-    ContextTest.h
     FileIOTest.h
     FileInfoTest.h
     FileTest.h
@@ -9,7 +8,6 @@ set(HEADERS
     HDRTest.h
     ImageTest.h
     LRUCacheTest.h
-    LogSystemTest.h
     MathTest.h
     MatrixTest.h
     MemoryTest.h
@@ -23,7 +21,6 @@ set(HEADERS
 set(SOURCE
     AudioTest.cpp
     BoxTest.cpp
-    ContextTest.cpp
     FileIOTest.cpp
     FileInfoTest.cpp
     FileTest.cpp
@@ -31,7 +28,6 @@ set(SOURCE
     HDRTest.cpp
     ImageTest.cpp
     LRUCacheTest.cpp
-    LogSystemTest.cpp
     MathTest.cpp
     MatrixTest.cpp
     MemoryTest.cpp

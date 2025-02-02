@@ -13,10 +13,10 @@ namespace tl
         class GLFWTest : public tests::ITest
         {
         protected:
-            GLFWTest(const std::shared_ptr<system::Context>&);
+            GLFWTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<GLFWTest> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<GLFWTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

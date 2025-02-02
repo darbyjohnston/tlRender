@@ -36,8 +36,8 @@ namespace tl
                 {}
 
                 static std::shared_ptr<Clipboard> create(
-                    GLFWwindow* glfwWindow,
-                    const std::shared_ptr<system::Context>& context)
+                    const std::shared_ptr<dtk::Context>& context,
+                    GLFWwindow* glfwWindow)
                 {
                     auto out = std::shared_ptr<Clipboard>(new Clipboard);
                     out->_init(context);
@@ -82,8 +82,8 @@ namespace tl
         };
 
         void App::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::vector<std::string>& argv,
-            const std::shared_ptr<system::Context>& context,
             const std::string& cmdLineName,
             const std::string& cmdLineSummary,
             const std::vector<std::shared_ptr<app::ICmdLineArg> >& cmdLineArgs,
@@ -109,8 +109,8 @@ namespace tl
                     { "-fullscreen", "-fs" },
                     "Enable full screen mode."));
             app::BaseApp::_init(
-                argv,
                 context,
+                argv,
                 cmdLineName,
                 cmdLineSummary,
                 cmdLineArgs,
@@ -123,7 +123,7 @@ namespace tl
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
             p.fontSystem = context->getSystem<image::FontSystem>();
-            p.clipboard = Clipboard::create(nullptr, _context);
+            p.clipboard = Clipboard::create(_context, nullptr);
         }
 
         App::App() :

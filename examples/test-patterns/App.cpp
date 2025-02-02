@@ -30,19 +30,19 @@ namespace tl
         namespace test_patterns
         {
             void App::_init(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 BaseApp::_init(
-                    argv,
                     context,
+                    argv,
                     "test-patterns",
                     "Example test patterns application.");
 
                 _window = gl::GLFWWindow::create(
+                    context,
                     "test-patterns",
                     math::Size2i(1, 1),
-                    context,
                     static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
             }
 
@@ -53,11 +53,11 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<system::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argv, context);
+                out->_init(context, argv);
                 return out;
             }
 
@@ -135,7 +135,7 @@ namespace tl
 
                             // Render the test pattern.
                             auto render = timeline_gl::Render::create(_context);
-                            auto pattern = TestPatternFactory::create(name, size, _context);
+                            auto pattern = TestPatternFactory::create(_context, name, size);
                             for (double i = ioInfo.videoTime.start_time().value(); i < ioInfo.videoTime.duration().value(); i = i + 1.0)
                             {
                                 const OTIO_NS::RationalTime time(i, 24.0);

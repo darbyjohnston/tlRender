@@ -31,7 +31,7 @@ namespace tl
         };
 
         void FloatSlider::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -78,7 +78,7 @@ namespace tl
         {}
 
         std::shared_ptr<FloatSlider> FloatSlider::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<FloatModel>& model,
             const std::shared_ptr<IWidget>& parent)
         {

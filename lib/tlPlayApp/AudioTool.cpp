@@ -26,7 +26,7 @@ namespace tl
 
         void AudioTool::_init(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IToolWidget::_init(
@@ -79,7 +79,7 @@ namespace tl
 
         std::shared_ptr<AudioTool> AudioTool::create(
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioTool>(new AudioTool);

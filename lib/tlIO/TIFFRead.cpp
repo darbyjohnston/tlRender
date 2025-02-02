@@ -303,7 +303,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, cache, logSystem);
         }
@@ -320,7 +320,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, cache, logSystem);
@@ -332,7 +332,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, cache, logSystem);

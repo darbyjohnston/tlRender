@@ -18,11 +18,11 @@ namespace tl
 {
     namespace io_tests
     {
-        OpenEXRTest::OpenEXRTest(const std::shared_ptr<system::Context>& context) :
-            ITest("io_tests::OpenEXRTest", context)
+        OpenEXRTest::OpenEXRTest(const std::shared_ptr<dtk::Context>& context) :
+            ITest(context, "io_tests::OpenEXRTest")
         {}
 
-        std::shared_ptr<OpenEXRTest> OpenEXRTest::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<OpenEXRTest> OpenEXRTest::create(const std::shared_ptr<dtk::Context>& context)
         {
             return std::shared_ptr<OpenEXRTest>(new OpenEXRTest(context));
         }

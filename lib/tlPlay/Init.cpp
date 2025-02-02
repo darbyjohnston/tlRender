@@ -12,7 +12,7 @@ namespace tl
 {
     namespace play
     {
-        void init(const std::shared_ptr<system::Context>& context)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             tl::timelineui::init(context);
             device::init(context);

@@ -5,7 +5,6 @@
 #include <tlIO/SequenceIO.h>
 
 #include <tlCore/File.h>
-#include <tlCore/LogSystem.h>
 
 #include <cstring>
 #include <sstream>
@@ -29,7 +28,7 @@ namespace tl
             const file::Path& path,
             const Info& info,
             const Options& options,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IWrite::_init(path, options, info, logSystem);
 

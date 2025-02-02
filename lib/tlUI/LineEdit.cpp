@@ -126,7 +126,7 @@ namespace tl
         };
 
         void LineEdit::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::LineEdit", context, parent);
@@ -145,7 +145,7 @@ namespace tl
         {}
 
         std::shared_ptr<LineEdit> LineEdit::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<LineEdit>(new LineEdit);

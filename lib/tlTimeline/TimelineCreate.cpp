@@ -12,6 +12,7 @@
 #include <tlCore/File.h>
 #include <tlCore/FileInfo.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -34,12 +35,12 @@ namespace tl
         namespace
         {
             file::Path getAudioPath(
+                const std::shared_ptr<dtk::Context>& context,
                 const file::Path& path,
                 const FileSequenceAudio& fileSequenceAudio,
                 const std::string& fileSequenceAudioFileName,
                 const std::string& fileSequenceAudioDirectory,
-                const file::PathOptions& pathOptions,
-                const std::shared_ptr<system::Context>& context)
+                const file::PathOptions& pathOptions)
             {
                 file::Path out;
                 auto ioSystem = context->getSystem<io::System>();
@@ -351,17 +352,17 @@ namespace tl
         }
 
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
+            const std::shared_ptr<dtk::Context>& context,
             const file::Path& path,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
-            return create(path, file::Path(), context, options);
+            return create(context, path, file::Path(), options);
         }
 
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
+            const std::shared_ptr<dtk::Context>& context,
             const file::Path& inputPath,
             const file::Path& inputAudioPath,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> out;
@@ -402,12 +403,12 @@ namespace tl
                     {
                         // Check for an associated audio file.
                         audioPath = getAudioPath(
+                            context,
                             path,
                             options.fileSequenceAudio,
                             options.fileSequenceAudioFileName,
                             options.fileSequenceAudioDirectory,
-                            options.pathOptions,
-                            context);
+                            options.pathOptions);
                     }
                 }
 
@@ -570,69 +571,69 @@ namespace tl
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& timeline,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            out->_init(timeline, context, options);
+            out->_init(context, timeline, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& fileName,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto otioTimeline = timeline::create(
-                file::Path(fileName, options.pathOptions),
                 context,
+                file::Path(fileName, options.pathOptions),
                 options);
-            out->_init(otioTimeline, context, options);
+            out->_init(context, otioTimeline, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::shared_ptr<dtk::Context>& context,
             const file::Path& path,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
-            auto otioTimeline = timeline::create(path, context, options);
-            out->_init(otioTimeline, context, options);
+            auto otioTimeline = timeline::create(context, path, options);
+            out->_init(context, otioTimeline, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& fileName,
             const std::string& audioFileName,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto otioTimeline = timeline::create(
+                context,
                 file::Path(fileName, options.pathOptions),
                 file::Path(audioFileName, options.pathOptions),
-                context,
                 options);
-            out->_init(otioTimeline, context, options);
+            out->_init(context, otioTimeline, options);
             return out;
         }
 
         std::shared_ptr<Timeline> Timeline::create(
+            const std::shared_ptr<dtk::Context>& context,
             const file::Path& path,
             const file::Path& audioPath,
-            const std::shared_ptr<system::Context>& context,
             const Options& options)
         {
             auto out = std::shared_ptr<Timeline>(new Timeline);
             auto otioTimeline = timeline::create(
+                context,
                 path,
                 audioPath,
-                context,
                 options);
-            out->_init(otioTimeline, context, options);
+            out->_init(context, otioTimeline, options);
             return out;
         }
     }

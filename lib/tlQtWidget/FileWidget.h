@@ -10,13 +10,13 @@
 
 #include <memory>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace qtwidget
     {
         //! File widget.
@@ -26,7 +26,7 @@ namespace tl
 
         public:
             FileWidget(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
             virtual ~FileWidget();

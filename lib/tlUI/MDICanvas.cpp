@@ -31,7 +31,7 @@ namespace tl
         };
 
         void MDICanvas::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MDICanvas", context, parent);
@@ -48,7 +48,7 @@ namespace tl
         {}
 
         std::shared_ptr<MDICanvas> MDICanvas::create(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<MDICanvas>(new MDICanvas);

@@ -4,10 +4,9 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
-#include <tlCore/LogSystem.h>
-
 #include <dtk/core/Assert.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 
 extern "C"
 {
@@ -69,7 +68,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, cache, logSystem);
 
@@ -175,7 +174,7 @@ namespace tl
                                         logSystem->print(id, dtk::Format("{0}: {1}").
                                             arg(_path.get()).
                                             arg(e.what()),
-                                            log::Type::Error);
+                                            dtk::LogType::Error);
                                     }
                                 }
                             });
@@ -192,7 +191,7 @@ namespace tl
                             logSystem->print(id, dtk::Format("{0}: {1}").
                                 arg(_path.get()).
                                 arg(e.what()),
-                                log::Type::Error);
+                                dtk::LogType::Error);
                         }
                     }
 
@@ -232,7 +231,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, cache, logSystem);
@@ -244,7 +243,7 @@ namespace tl
             const std::vector<file::MemoryRead>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, cache, logSystem);

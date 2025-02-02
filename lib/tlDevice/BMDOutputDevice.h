@@ -29,7 +29,7 @@ namespace tl
             TLRENDER_NON_COPYABLE(OutputDevice);
 
         protected:
-            void _init(const std::shared_ptr<system::Context>&);
+            void _init(const std::shared_ptr<dtk::Context>&);
 
             OutputDevice();
 
@@ -37,7 +37,7 @@ namespace tl
             ~OutputDevice();
 
             //! Create a new output device.
-            static std::shared_ptr<OutputDevice> create(const std::shared_ptr<system::Context>&);
+            static std::shared_ptr<OutputDevice> create(const std::shared_ptr<dtk::Context>&);
 
             //! Get the device configuration.
             DeviceConfig getConfig() const;

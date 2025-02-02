@@ -20,7 +20,7 @@ namespace tl
                 const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             Read();
 
@@ -32,7 +32,7 @@ namespace tl
                 const file::Path&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
@@ -40,7 +40,7 @@ namespace tl
                 const std::vector<file::MemoryRead>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
         protected:
             io::Info _getInfo(
@@ -61,7 +61,7 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             Write();
 
@@ -73,7 +73,7 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
         protected:
             void _writeVideo(
@@ -89,7 +89,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             Plugin();
 
@@ -97,7 +97,7 @@ namespace tl
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             std::shared_ptr<io::IRead> read(
                 const file::Path&,

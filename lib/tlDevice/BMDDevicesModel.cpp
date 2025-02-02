@@ -6,7 +6,7 @@
 
 #include <tlDevice/BMDSystem.h>
 
-#include <tlCore/Context.h>
+#include <dtk/core/Context.h>
 
 namespace tl
 {
@@ -44,7 +44,7 @@ namespace tl
         };
 
         void DevicesModel::_init(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -72,7 +72,7 @@ namespace tl
         {}
 
         std::shared_ptr<DevicesModel> DevicesModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
             out->_init(context);

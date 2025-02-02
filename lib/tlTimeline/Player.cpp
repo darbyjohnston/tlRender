@@ -6,6 +6,7 @@
 
 #include <tlTimeline/Util.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
@@ -36,8 +37,8 @@ namespace tl
         TLRENDER_ENUM_SERIALIZE_IMPL(TimeAction);
 
         void Player::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<Timeline>& timeline,
-            const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
             TLRENDER_P();
@@ -107,7 +108,7 @@ namespace tl
                 {
                     if (auto player = weak.lock())
                     {
-                        if (auto context = player->getContext().lock())
+                        if (auto context = player->getContext())
                         {
                             player->_p->audioInit(context);
                         }
@@ -121,7 +122,7 @@ namespace tl
                     {
                         if (audio::DeviceID() == player->_p->audioDevice->get())
                         {
-                            if (auto context = player->getContext().lock())
+                            if (auto context = player->getContext())
                             {
                                 player->_p->audioInit(context);
                             }
@@ -176,16 +177,16 @@ namespace tl
         }
 
         std::shared_ptr<Player> Player::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<Timeline>& timeline,
-            const std::shared_ptr<system::Context>& context,
             const PlayerOptions& playerOptions)
         {
             auto out = std::shared_ptr<Player>(new Player);
-            out->_init(timeline, context, playerOptions);
+            out->_init(context, timeline, playerOptions);
             return out;
         }
 
-        const std::weak_ptr<system::Context>& Player::getContext() const
+        std::shared_ptr<dtk::Context> Player::getContext() const
         {
             return _p->timeline->getContext();
         }
@@ -366,7 +367,7 @@ namespace tl
             _p->loop->setIfChanged(value);
         }
 
-        OTIO_NS::RationalTime Player::getCurrentTime() const
+        const OTIO_NS::RationalTime& Player::getCurrentTime() const
         {
             return _p->currentTime->get();
         }
@@ -484,7 +485,7 @@ namespace tl
             timeAction(TimeAction::FrameNext);
         }
 
-        OTIO_NS::TimeRange Player::getInOutRange() const
+        const OTIO_NS::TimeRange& Player::getInOutRange() const
         {
             return _p->inOutRange->get();
         }
@@ -871,7 +872,7 @@ namespace tl
                 if (diff.count() > 10.0)
                 {
                     p.thread.logTimer = t1;
-                    if (auto context = getContext().lock())
+                    if (auto context = getContext())
                     {
                         p.log(context);
                     }

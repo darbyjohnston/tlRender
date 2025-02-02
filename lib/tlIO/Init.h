@@ -6,17 +6,17 @@
 
 #include <memory>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     //! Video, audio, and image I/O
     namespace io
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<system::Context>&);
+        void init(const std::shared_ptr<dtk::Context>&);
     }
 }

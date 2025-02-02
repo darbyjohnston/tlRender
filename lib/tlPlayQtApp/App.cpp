@@ -124,7 +124,7 @@ namespace tl
         App::App(
             int& argc,
             char** argv,
-            const std::shared_ptr<system::Context>& context) :
+            const std::shared_ptr<dtk::Context>& context) :
             QApplication(argc, argv),
             _p(new Private)
         {

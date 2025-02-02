@@ -16,7 +16,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ViewportColorWidget();
@@ -25,7 +25,7 @@ namespace tl
             virtual ~ViewportColorWidget();
 
             static std::shared_ptr<ViewportColorWidget> create(
-                const std::shared_ptr<system::Context>&,
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setColor(const dtk::Color4F&);

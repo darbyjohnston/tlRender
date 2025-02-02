@@ -28,7 +28,7 @@ namespace tl
 
         void IDialog::_init(
             const std::string& objectName,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IPopup::_init(objectName, context, parent);

@@ -23,9 +23,9 @@ namespace tl
 
             public:
                 App(
+                    const std::shared_ptr<dtk::Context>&,
                     int& argc,
-                    char** argv,
-                    const std::shared_ptr<system::Context>&);
+                    char** argv);
 
             private:
                 QScopedPointer<qt::ContextObject> _contextObject;

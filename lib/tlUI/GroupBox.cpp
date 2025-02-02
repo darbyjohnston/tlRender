@@ -37,7 +37,7 @@ namespace tl
         };
 
         void GroupBox::_init(
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::GroupBox", context, parent);
@@ -51,7 +51,7 @@ namespace tl
         {}
 
         std::shared_ptr<GroupBox> GroupBox::create(
-            const std::shared_ptr<system::Context>&context,
+            const std::shared_ptr<dtk::Context>&context,
             const std::shared_ptr<IWidget>&parent)
         {
             auto out = std::shared_ptr<GroupBox>(new GroupBox);
@@ -61,7 +61,7 @@ namespace tl
 
         std::shared_ptr<GroupBox> GroupBox::create(
             const std::string& text,
-            const std::shared_ptr<system::Context>& context,
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<GroupBox>(new GroupBox);

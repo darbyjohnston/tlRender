@@ -4,8 +4,7 @@
 
 #include <tlPlay/OCIOModel.h>
 
-#include <tlCore/Context.h>
-
+#include <dtk/core/Context.h>
 #include <dtk/core/OS.h>
 
 #if defined(TLRENDER_OCIO)
@@ -42,7 +41,7 @@ namespace tl
 
         struct OCIOModel::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
 #if defined(TLRENDER_OCIO)
             OCIO_NAMESPACE::ConstConfigRcPtr ocioConfig;
 #endif // TLRENDER_OCIO
@@ -50,7 +49,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<OCIOModelData> > data;
         };
 
-        void OCIOModel::_init(const std::shared_ptr<system::Context>& context)
+        void OCIOModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
             TLRENDER_P();
 
@@ -82,7 +81,7 @@ namespace tl
                 {
                     if (const auto context = p.context.lock())
                     {
-                        context->log(std::string(), e.what(), log::Type::Error);
+                        context->log(std::string(), e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -96,7 +95,7 @@ namespace tl
         OCIOModel::~OCIOModel()
         {}
 
-        std::shared_ptr<OCIOModel> OCIOModel::create(const std::shared_ptr<system::Context>& context)
+        std::shared_ptr<OCIOModel> OCIOModel::create(const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<OCIOModel>(new OCIOModel);
             out->_init(context);

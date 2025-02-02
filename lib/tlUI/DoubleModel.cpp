@@ -20,7 +20,7 @@ namespace tl
             double defaultValue = 0.0;
         };
 
-        void DoubleModel::_init(const std::shared_ptr<system::Context>&)
+        void DoubleModel::_init(const std::shared_ptr<dtk::Context>&)
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<double>::create(0.0);
@@ -36,7 +36,7 @@ namespace tl
         {}
 
         std::shared_ptr<DoubleModel> DoubleModel::create(
-            const std::shared_ptr<system::Context>& context)
+            const std::shared_ptr<dtk::Context>& context)
         {
             auto out = std::shared_ptr<DoubleModel>(new DoubleModel);
             out->_init(context);
