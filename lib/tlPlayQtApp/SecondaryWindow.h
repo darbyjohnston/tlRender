@@ -25,9 +25,7 @@ namespace tl
             Q_OBJECT
 
         public:
-            SecondaryWindow(
-                App*,
-                QWidget* parent = nullptr);
+            SecondaryWindow(App*, QWidget* parent = nullptr);
 
             virtual ~SecondaryWindow();
 
