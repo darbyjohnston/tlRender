@@ -13,9 +13,11 @@ TLRENDER_MAIN()
     int r = 1;
     try
     {
-        auto context = tl::system::Context::create();
+        auto context = dtk::Context::create();
         tl::io::init(context);
-        auto app = tl::resource::App::create(tl::app::convert(argc, argv), context);
+        auto app = tl::resource::App::create(
+            context,
+            tl::app::convert(argc, argv));
         r = app->run();
     }
     catch(const std::exception& e)

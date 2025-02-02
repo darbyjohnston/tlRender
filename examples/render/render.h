@@ -40,8 +40,8 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::vector<std::string>&,
-                    const std::shared_ptr<dtk::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::vector<std::string>&);
 
                 App();
 
@@ -50,8 +50,8 @@ namespace tl
 
                 //! Create a new application.
                 static std::shared_ptr<App> create(
-                    const std::vector<std::string>&,
-                    const std::shared_ptr<dtk::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::vector<std::string>&);
 
                 //! Run the application.
                 int run();

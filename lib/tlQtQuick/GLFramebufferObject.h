@@ -17,7 +17,7 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                tl::timeline::VideoData video
+                std::vector<tl::timeline::VideoData> video
                 READ video
                 WRITE setVideo)
 
@@ -27,13 +27,13 @@ namespace tl
             virtual ~GLFramebufferObject();
 
             //! Get the video data.
-            const timeline::VideoData& video() const;
+            const std::vector<timeline::VideoData>& video() const;
 
             Renderer* createRenderer() const override;
 
         public Q_SLOTS:
             //! Set the video data.
-            void setVideo(const tl::timeline::VideoData&);
+            void setVideo(const std::vector<tl::timeline::VideoData>&);
 
         private:
             TLRENDER_PRIVATE();

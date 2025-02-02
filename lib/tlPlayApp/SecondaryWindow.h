@@ -21,9 +21,9 @@ namespace tl
 
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<ui_app::Window>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<App>&);
 
             SecondaryWindow();
 
@@ -31,9 +31,9 @@ namespace tl
             virtual ~SecondaryWindow();
 
             static std::shared_ptr<SecondaryWindow> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<ui_app::Window>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<App>&);
 
             //! Set the view.
             void setView(

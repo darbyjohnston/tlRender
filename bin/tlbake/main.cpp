@@ -13,9 +13,9 @@ TLRENDER_MAIN()
     int r = 1;
     try
     {
-        auto context = tl::system::Context::create();
+        auto context = dtk::Context::create();
         tl::timeline::init(context);
-        auto app = tl::bake::App::create(tl::app::convert(argc, argv), context);
+        auto app = tl::bake::App::create(context, tl::app::convert(argc, argv));
         r = app->run();
     }
     catch(const std::exception& e)

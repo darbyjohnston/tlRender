@@ -8,6 +8,7 @@
 
 #include <tlTimeline/Timeline.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 
 #include <QBoxLayout>
@@ -22,7 +23,7 @@ namespace tl
     {
         struct OpenSeparateAudioDialog::Private
         {
-            std::weak_ptr<system::Context> context;
+            std::weak_ptr<dtk::Context> context;
             QString videoFileName;
             QString audioFileName;
             QLineEdit* videoLineEdit = nullptr;

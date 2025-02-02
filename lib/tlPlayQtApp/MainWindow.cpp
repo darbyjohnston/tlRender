@@ -127,7 +127,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -510,17 +510,17 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.logObserver = dtk::ListObserver<log::Item>::create(
-                context->getLogSystem()->observeLog(),
-                [this](const std::vector<log::Item>& value)
+            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                context->getLogSystem()->observeLogItems(),
+                [this](const std::vector<dtk::LogItem>& value)
                 {
                     for (const auto& i : value)
                     {
                         switch (i.type)
                         {
-                        case log::Type::Error:
+                        case dtk::LogType::Error:
                             _p->statusBar->showMessage(
-                                QString::fromUtf8(log::toString(i).c_str()),
+                                QString::fromUtf8(dtk::toString(i).c_str()),
                                 errorTimeout);
                             break;
                         default: break;

@@ -50,9 +50,12 @@ namespace tl
                     QOpenGLFramebufferObject* fbo = framebufferObject();
                     const math::Size2i size(fbo->width(), fbo->height());
                     _render->begin(size);
-                    _render->drawVideo(
-                        { _videoData },
-                        { math::Box2i(0, 0, size.w, size.h) });
+                    if (!_videoData.empty())
+                    {
+                        _render->drawVideo(
+                            { _videoData.front() },
+                            { math::Box2i(0, 0, size.w, size.h) });
+                    }
                     _render->end();
 
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
@@ -68,14 +71,14 @@ namespace tl
             private:
                 const GLFramebufferObject* _framebufferObject = nullptr;
                 bool _init = false;
-                timeline::VideoData _videoData;
+                std::vector<timeline::VideoData> _videoData;
                 std::shared_ptr<timeline::IRender> _render;
             };
         }
 
         struct GLFramebufferObject::Private
         {
-            timeline::VideoData videoData;
+            std::vector<timeline::VideoData> videoData;
         };
 
         GLFramebufferObject::GLFramebufferObject(QQuickItem* parent) :
@@ -88,7 +91,7 @@ namespace tl
         GLFramebufferObject::~GLFramebufferObject()
         {}
 
-        const timeline::VideoData& GLFramebufferObject::video() const
+        const std::vector<timeline::VideoData>& GLFramebufferObject::video() const
         {
             return _p->videoData;
         }
@@ -98,7 +101,7 @@ namespace tl
             return new qtquick::Renderer(this);
         }
 
-        void GLFramebufferObject::setVideo(const timeline::VideoData& value)
+        void GLFramebufferObject::setVideo(const std::vector<timeline::VideoData>& value)
         {
             _p->videoData = value;
             update();

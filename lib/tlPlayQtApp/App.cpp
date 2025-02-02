@@ -122,9 +122,9 @@ namespace tl
         };
 
         App::App(
+            const std::shared_ptr<dtk::Context>& context,
             int& argc,
-            char** argv,
-            const std::shared_ptr<dtk::Context>& context) :
+            char** argv) :
             QApplication(argc, argv),
             _p(new Private)
         {
@@ -134,8 +134,8 @@ namespace tl
             const std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName = play::settingsName(appName, appDocsPath);
             BaseApp::_init(
-                app::convert(argc, argv),
                 context,
+                app::convert(argc, argv),
                 appName,
                 "Example Qt playback application.",
                 play::getCmdLineArgs(p.options),
@@ -244,7 +244,7 @@ namespace tl
             file::PathOptions pathOptions;
             pathOptions.maxNumberDigits = p.settings->getValue<size_t>("FileSequence/MaxDigits");
             for (const auto& path :
-                timeline::getPaths(file::Path(fileName.toUtf8().data()), pathOptions, _context))
+                timeline::getPaths(_context, file::Path(fileName.toUtf8().data()), pathOptions))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
                 item->path = path;
@@ -331,7 +331,7 @@ namespace tl
             {
                 logFileName2 = p.options.logFileName;
             }
-            p.fileLogSystem = file::FileLogSystem::create(logFileName2, _context);
+            p.fileLogSystem = file::FileLogSystem::create(_context, logFileName2);
         }
 
         void App::_settingsInit(const std::string& settingsFileName)
@@ -907,8 +907,8 @@ namespace tl
                         options.pathOptions.maxNumberDigits =
                             p.settings->getValue<size_t>("FileSequence/MaxDigits");
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
-                            timeline::create(files[i]->path, _context, options) :
-                            timeline::create(files[i]->path, files[i]->audioPath, _context, options);
+                            timeline::create(_context, files[i]->path, options) :
+                            timeline::create(_context, files[i]->path, files[i]->audioPath, options);
                         if (0)
                         {
                             timeline::toMemoryReferences(
@@ -917,7 +917,7 @@ namespace tl
                                 timeline::ToMemoryReference::Shared,
                                 options.pathOptions);
                         }
-                        timelines[i] = timeline::Timeline::create(otioTimeline, _context, options);
+                        timelines[i] = timeline::Timeline::create(_context, otioTimeline, options);
                         for (const auto& video : timelines[i]->getIOInfo().video)
                         {
                             files[i]->videoLayers.push_back(video.name);
@@ -925,7 +925,7 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        _log(e.what(), log::Type::Error);
+                        _log(e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -965,13 +965,13 @@ namespace tl
                                 playerOptions.audioBufferFrameCount =
                                     p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
                                 player.reset(new qt::TimelinePlayer(
-                                    timeline::Player::create(timeline, _context, playerOptions),
                                     _context,
+                                    timeline::Player::create(_context, timeline, playerOptions),
                                     this));
                             }
                             catch (const std::exception& e)
                             {
-                                _log(e.what(), log::Type::Error);
+                                _log(e.what(), dtk::LogType::Error);
                             }
                         }
                     }

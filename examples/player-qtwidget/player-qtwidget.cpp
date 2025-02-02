@@ -57,6 +57,7 @@ int main(int argc, char* argv[])
             context);
         timelineViewport->setPlayer(player);
         timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
+        timelineViewport->resize(1280, 720);
         timelineViewport->show();
 
         // Start playback.

@@ -7,6 +7,8 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/ThumbnailSystem.h>
 
+#include <dtk/core/Context.h>
+
 namespace tl
 {
     namespace play_app

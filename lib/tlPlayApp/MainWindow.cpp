@@ -166,10 +166,10 @@ namespace tl
         };
 
         void MainWindow::_init(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
-            Window::_init("tlplay", context, nullptr);
+            Window::_init(context, "tlplay", nullptr);
             TLRENDER_P();
 
             setBackgroundRole(ui::ColorRole::Window);
@@ -693,11 +693,11 @@ namespace tl
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
-            out->_init(app, context);
+            out->_init(context, app);
             return out;
         }
 

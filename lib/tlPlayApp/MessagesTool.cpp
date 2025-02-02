@@ -11,6 +11,7 @@
 #include <tlUI/ScrollWidget.h>
 #include <tlUI/ToolButton.h>
 
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
@@ -31,7 +32,7 @@ namespace tl
             std::shared_ptr<ui::ToolButton> copyButton;
             std::shared_ptr<ui::ToolButton> clearButton;
             std::shared_ptr<ui::VerticalLayout> layout;
-            std::shared_ptr<dtk::ListObserver<tl::log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         void MessagesTool::_init(
@@ -92,17 +93,17 @@ namespace tl
                 _p->label->setText(std::string());
                 });
 
-            p.logObserver = dtk::ListObserver<tl::log::Item>::create(
-                context->getSystem<tl::log::System>()->observeLog(),
-                [this](const std::vector<log::Item>& value)
+            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                context->getLogSystem()->observeLogItems(),
+                [this](const std::vector<dtk::LogItem>& value)
                 {
                     for (const auto& i : value)
                     {
                         switch (i.type)
                         {
-                        case log::Type::Warning:
-                        case log::Type::Error:
-                            _p->messages.push_back(log::toString(i));
+                        case dtk::LogType::Warning:
+                        case dtk::LogType::Error:
+                            _p->messages.push_back(dtk::toString(i));
                             break;
                         default: break;
                         }

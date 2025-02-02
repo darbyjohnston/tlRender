@@ -27,7 +27,7 @@ namespace tl
             QListWidget* listWidget = nullptr;
             QToolButton* copyButton = nullptr;
             QToolButton* clearButton = nullptr;
-            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         MessagesTool::MessagesTool(App* app, QWidget* parent) :
@@ -64,17 +64,17 @@ namespace tl
             widget->setLayout(layout);
             addWidget(widget);
 
-            p.logObserver = dtk::ListObserver<log::Item>::create(
-                app->getContext()->getLogSystem()->observeLog(),
-                [this](const std::vector<log::Item>& value)
+            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                app->getContext()->getLogSystem()->observeLogItems(),
+                [this](const std::vector<dtk::LogItem>& value)
                 {
                     for (const auto& i : value)
                     {
                         switch (i.type)
                         {
-                        case log::Type::Warning:
-                        case log::Type::Error:
-                            _p->listWidget->addItem(QString::fromUtf8(log::toString(i).c_str()));
+                        case dtk::LogType::Warning:
+                        case dtk::LogType::Error:
+                            _p->listWidget->addItem(QString::fromUtf8(dtk::toString(i).c_str()));
                             break;
                         default: break;
                         }

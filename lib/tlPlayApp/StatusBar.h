@@ -39,7 +39,7 @@ namespace tl
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
 
         private:
-            void _widgetUpdate(const std::vector<log::Item>&);
+            void _widgetUpdate(const std::vector<dtk::LogItem>&);
 
             TLRENDER_PRIVATE();
         };

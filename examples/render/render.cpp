@@ -28,12 +28,12 @@ namespace tl
         namespace render
         {
             void App::_init(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<dtk::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 BaseApp::_init(
-                    argv,
                     context,
+                    argv,
                     "render",
                     "Example rendering application.",
                     {
@@ -116,11 +116,11 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<dtk::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argv, context);
+                out->_init(context, argv);
                 return out;
             }
 
@@ -129,12 +129,12 @@ namespace tl
                 if (0 == _exit)
                 {
                     // Read the timelines.
-                    auto timeline = timeline::Timeline::create(_input, _context);
-                    _player = timeline::Player::create(timeline, _context);
+                    auto timeline = timeline::Timeline::create(_context, _input);
+                    _player = timeline::Player::create(_context, timeline);
                     std::vector<std::shared_ptr <timeline::Timeline> > compare;
                     if (!_options.compareFileName.empty())
                     {
-                        compare.push_back(timeline::Timeline::create(_options.compareFileName, _context));
+                        compare.push_back(timeline::Timeline::create(_context, _options.compareFileName));
                     }
                     _player->setCompare(compare);
                     _videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
@@ -147,9 +147,9 @@ namespace tl
 
                     // Create the window.
                     _window = gl::GLFWWindow::create(
+                        _context,
                         "render",
-                        _options.windowSize,
-                        _context);
+                        _options.windowSize);
                     _frameBufferSize = _window->getFrameBufferSize();
                     _contentScale = _window->getContentScale();
                     _window->setFullScreen(_options.fullscreen);

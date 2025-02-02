@@ -15,12 +15,12 @@ namespace tl
         namespace widgets
         {
             void App::_init(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<dtk::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 ui_app::App::_init(
-                    argv,
                     context,
+                    argv,
                     "widgets",
                     "Example widgets application.");
                 if (_exit != 0)
@@ -43,11 +43,11 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                const std::vector<std::string>& argv,
-                const std::shared_ptr<dtk::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
-                out->_init(argv, context);
+                out->_init(context, argv);
                 return out;
             }
         }

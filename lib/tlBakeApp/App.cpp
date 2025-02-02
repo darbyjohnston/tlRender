@@ -24,12 +24,12 @@ namespace tl
     namespace bake
     {
         void App::_init(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             BaseApp::_init(
-                argv,
                 context,
+                argv,
                 "tlbake",
                 "Render a timeline to a movie or image sequence.",
                 {
@@ -171,11 +171,11 @@ namespace tl
         {}
 
         std::shared_ptr<App> App::create(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argv, context);
+            out->_init(context, argv);
             return out;
         }
 
@@ -187,15 +187,15 @@ namespace tl
 
                 // Create the window.
                 _window = gl::GLFWWindow::create(
-                    "test-patterns",
-                    math::Size2i(1, 1),
                     _context,
+                    "tlbake",
+                    math::Size2i(1, 1),
                     static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
 
                 // Read the timeline.
                 timeline::Options options;
                 options.ioOptions = _getIOOptions();
-                _timeline = timeline::Timeline::create(_input, _context, options);
+                _timeline = timeline::Timeline::create(_context, _input, options);
                 _timeRange = _timeline->getTimeRange();
                 _print(dtk::Format("Timeline range: {0}-{1}").
                     arg(_timeRange.start_time().value()).

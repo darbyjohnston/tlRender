@@ -10,13 +10,13 @@
 
 #include <memory>
 
+namespace dtk
+{
+    class Context;
+}
+
 namespace tl
 {
-    namespace system
-    {
-        class Context;
-    }
-
     namespace play_qt
     {
         //! Open with separate audio dialog.

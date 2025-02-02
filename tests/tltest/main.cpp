@@ -189,8 +189,8 @@ int main(int argc, char* argv[])
     auto context = dtk::Context::create();
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     qt::init(
-        qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile,
-        context);
+        context,
+        qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);
 #else // TLRENDER_QT5 || TLRENDER_QT6
     timeline::init(context);
 #endif // TLRENDER_QT5 || TLRENDER_QT6

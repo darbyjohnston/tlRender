@@ -9,6 +9,8 @@
 
 #include <tlCore/Timer.h>
 
+#include <dtk/core/Context.h>
+
 namespace tl
 {
     namespace play_app
@@ -19,7 +21,7 @@ namespace tl
             std::shared_ptr<ui::HorizontalLayout> layout;
             std::shared_ptr<time::Timer> timer;
             std::function<void(void)> clickedCallback;
-            std::shared_ptr<dtk::ListObserver<log::Item> > logObserver;
+            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         void StatusBar::_init(
@@ -43,9 +45,9 @@ namespace tl
 
             p.timer = time::Timer::create(context);
 
-            p.logObserver = dtk::ListObserver<log::Item>::create(
-                context->getLogSystem()->observeLog(),
-                [this](const std::vector<log::Item>& value)
+            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
+                context->getLogSystem()->observeLogItems(),
+                [this](const std::vector<dtk::LogItem>& value)
                 {
                     _widgetUpdate(value);
                 });
@@ -84,16 +86,16 @@ namespace tl
             _sizeHint = _p->layout->getSizeHint();
         }
 
-        void StatusBar::_widgetUpdate(const std::vector<log::Item>& value)
+        void StatusBar::_widgetUpdate(const std::vector<dtk::LogItem>& value)
         {
             TLRENDER_P();
             for (const auto& i : value)
             {
                 switch (i.type)
                 {
-                case log::Type::Error:
+                case dtk::LogType::Error:
                 {
-                    const std::string s = log::toString(i);
+                    const std::string s = dtk::toString(i);
                     p.label->setText(s);
                     p.label->setToolTip(s);
                     p.timer->start(

@@ -99,8 +99,8 @@ namespace tl
         };
 
         void App::_init(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             TLRENDER_P();
             const std::string appName = "tlplay";
@@ -108,8 +108,8 @@ namespace tl
             const std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName = play::settingsName(appName, appDocsPath);
             ui_app::App::_init(
-                argv,
                 context,
+                argv,
                 appName,
                 "Playback application.",
                 play::getCmdLineArgs(p.options),
@@ -146,11 +146,11 @@ namespace tl
         }
 
         std::shared_ptr<App> App::create(
-            const std::vector<std::string>& argv,
-            const std::shared_ptr<dtk::Context>& context)
+            const std::shared_ptr<dtk::Context>& context,
+            const std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
-            out->_init(argv, context);
+            out->_init(context, argv);
             return out;
         }
 
@@ -189,7 +189,7 @@ namespace tl
             TLRENDER_P();
             file::PathOptions pathOptions;
             pathOptions.maxNumberDigits = p.settings->getValue<size_t>("FileSequence/MaxDigits");
-            for (const auto& i : timeline::getPaths(path, pathOptions, _context))
+            for (const auto& i : timeline::getPaths(_context, path, pathOptions))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
                 item->path = i;
@@ -282,9 +282,9 @@ namespace tl
                     }
 #endif // __APPLE__
                     p.secondaryWindow = SecondaryWindow::create(
+                        _context,
                         p.mainWindow,
-                        std::dynamic_pointer_cast<App>(shared_from_this()),
-                        _context);
+                        std::dynamic_pointer_cast<App>(shared_from_this()));
                     addWindow(p.secondaryWindow);
                     if (secondaryScreen != -1)
                     {
@@ -348,7 +348,7 @@ namespace tl
             {
                 logFileName2 = p.options.logFileName;
             }
-            p.fileLogSystem = file::FileLogSystem::create(logFileName2, _context);
+            p.fileLogSystem = file::FileLogSystem::create(_context, logFileName2);
         }
 
         void App::_settingsInit(const std::string& settingsFileName)
@@ -709,8 +709,8 @@ namespace tl
             p.secondaryWindowActive = dtk::ObservableValue<bool>::create(false);
 
             p.mainWindow = MainWindow::create(
-                std::dynamic_pointer_cast<App>(shared_from_this()),
-                _context);
+                _context,
+                std::dynamic_pointer_cast<App>(shared_from_this()));
             addWindow(p.mainWindow);
             p.mainWindow->setWindowSize(
                 _uiOptions.windowSize.isValid() ?
@@ -915,9 +915,9 @@ namespace tl
                         options.pathOptions.maxNumberDigits =
                             p.settings->getValue<size_t>("FileSequence/MaxDigits");
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
-                            timeline::create(files[i]->path, _context, options) :
-                            timeline::create(files[i]->path, files[i]->audioPath, _context, options);
-                        timelines[i] = timeline::Timeline::create(otioTimeline, _context, options);
+                            timeline::create(_context, files[i]->path, options) :
+                            timeline::create(_context, files[i]->path, files[i]->audioPath, options);
+                        timelines[i] = timeline::Timeline::create(_context, otioTimeline, options);
                         for (const auto& video : timelines[i]->getIOInfo().video)
                         {
                             files[i]->videoLayers.push_back(video.name);
@@ -925,7 +925,7 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        _log(e.what(), log::Type::Error);
+                        _log(e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -963,11 +963,11 @@ namespace tl
                                 playerOptions.cache.readBehind = time::invalidTime;
                                 playerOptions.audioBufferFrameCount =
                                     p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
-                                player = timeline::Player::create(timeline, _context, playerOptions);
+                                player = timeline::Player::create(_context, timeline, playerOptions);
                             }
                             catch (const std::exception& e)
                             {
-                                _log(e.what(), log::Type::Error);
+                                _log(e.what(), dtk::LogType::Error);
                             }
                         }
                     }
