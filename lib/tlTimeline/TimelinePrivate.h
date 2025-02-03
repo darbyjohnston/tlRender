@@ -8,7 +8,7 @@
 
 #include <tlIO/Plugin.h>
 
-#include <tlCore/LRUCache.h>
+#include <dtk/core/LRUCache.h>
 
 #include <opentimelineio/clip.h>
 
@@ -55,7 +55,7 @@ namespace tl
             file::Path path;
             file::Path audioPath;
             Options options;
-            memory::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
+            dtk::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
             uint64_t requestId = 0;

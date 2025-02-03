@@ -6,7 +6,6 @@ set(HEADERS
     FontSystemTest.h
     HDRTest.h
     ImageTest.h
-    LRUCacheTest.h
     MathTest.h
     MatrixTest.h
     MemoryTest.h
@@ -25,7 +24,6 @@ set(SOURCE
     FontSystemTest.cpp
     HDRTest.cpp
     ImageTest.cpp
-    LRUCacheTest.cpp
     MathTest.cpp
     MatrixTest.cpp
     MemoryTest.cpp

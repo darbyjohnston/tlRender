@@ -15,10 +15,10 @@
 #include <tlGL/OffscreenBuffer.h>
 
 #include <tlCore/AudioResample.h>
-#include <tlCore/LRUCache.h>
 
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LRUCache.h>
 #include <dtk/core/String.h>
 
 #include <sstream>
@@ -35,9 +35,9 @@ namespace tl
         struct ThumbnailCache::Private
         {
             size_t max = 1000;
-            memory::LRUCache<std::string, io::Info> info;
-            memory::LRUCache<std::string, std::shared_ptr<image::Image> > thumbnails;
-            memory::LRUCache<std::string, std::shared_ptr<geom::TriangleMesh2> > waveforms;
+            dtk::LRUCache<std::string, io::Info> info;
+            dtk::LRUCache<std::string, std::shared_ptr<image::Image> > thumbnails;
+            dtk::LRUCache<std::string, std::shared_ptr<geom::TriangleMesh2> > waveforms;
             std::mutex mutex;
         };
 
@@ -292,7 +292,7 @@ namespace tl
             {
                 std::shared_ptr<timeline_gl::Render> render;
                 std::shared_ptr<gl::OffscreenBuffer> buffer;
-                memory::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
+                dtk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -301,7 +301,7 @@ namespace tl
 
             struct WaveformThread
             {
-                memory::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
+                dtk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;

@@ -4,9 +4,8 @@
 
 #include <tlCore/FontSystem.h>
 
-#include <tlCore/LRUCache.h>
-
 #include <dtk/core/Context.h>
+#include <dtk/core/LRUCache.h>
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
@@ -71,7 +70,7 @@ namespace tl
             FT_Library ftLibrary = nullptr;
             std::map<std::string, FT_Face> ftFaces;
             std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
-            memory::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
+            dtk::LRUCache<GlyphInfo, std::shared_ptr<Glyph> > glyphCache;
         };
 
         FontSystem::FontSystem(const std::shared_ptr<dtk::Context>& context) :

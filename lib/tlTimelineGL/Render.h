@@ -8,7 +8,7 @@
 
 #include <tlGL/Texture.h>
 
-#include <tlCore/LRUCache.h>
+#include <dtk/core/LRUCache.h>
 
 namespace tl
 {
@@ -16,7 +16,7 @@ namespace tl
     namespace timeline_gl
     {
         //! Texture cache.
-        typedef memory::LRUCache<
+        typedef dtk::LRUCache<
             std::shared_ptr<image::Image>,
             std::vector<std::shared_ptr<gl::Texture> > > TextureCache;
 

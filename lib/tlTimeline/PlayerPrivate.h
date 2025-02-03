@@ -9,7 +9,6 @@
 #include <tlTimeline/Util.h>
 
 #include <tlCore/AudioResample.h>
-#include <tlCore/LRUCache.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>

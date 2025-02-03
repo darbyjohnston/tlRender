@@ -18,8 +18,6 @@ set(HEADERS
     Image.h
     ImageInline.h
     Init.h
-    LRUCache.h
-    LRUCacheInline.h
     Math.h
     MathInline.h
     Matrix.h

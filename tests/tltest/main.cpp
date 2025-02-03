@@ -61,7 +61,6 @@
 #include <tlCoreTest/FontSystemTest.h>
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/ImageTest.h>
-#include <tlCoreTest/LRUCacheTest.h>
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
 #include <tlCoreTest/MemoryTest.h>
@@ -93,7 +92,6 @@ void coreTests(
     tests.push_back(core_tests::FontSystemTest::create(context));
     tests.push_back(core_tests::HDRTest::create(context));
     tests.push_back(core_tests::ImageTest::create(context));
-    tests.push_back(core_tests::LRUCacheTest::create(context));
     tests.push_back(core_tests::MathTest::create(context));
     tests.push_back(core_tests::MatrixTest::create(context));
     tests.push_back(core_tests::MemoryTest::create(context));

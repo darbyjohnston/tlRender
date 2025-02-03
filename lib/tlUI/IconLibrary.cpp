@@ -7,10 +7,9 @@
 #include <tlIO/PNG.h>
 #include <tlIO/System.h>
 
-#include <tlCore/LRUCache.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LRUCache.h>
 
 namespace
 {
@@ -178,7 +177,7 @@ namespace tl
             struct Thread
             {
                 std::shared_ptr<io::IPlugin> plugin;
-                memory::LRUCache<CacheKey, std::shared_ptr<image::Image> > cache;
+                dtk::LRUCache<CacheKey, std::shared_ptr<image::Image> > cache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
