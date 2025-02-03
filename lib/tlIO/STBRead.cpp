@@ -55,7 +55,7 @@ namespace tl
                                     .arg(fileName)
                                     .arg("Unsupported image type"));
                         }
-                        _info.layout.endian = memory::Endian::MSB;
+                        _info.layout.endian = dtk::Endian::MSB;
                     }
                     else
                     {
@@ -81,7 +81,7 @@ namespace tl
                                     .arg(fileName)
                                     .arg("Unsupported image type"));
                         }
-                        _info.layout.endian = memory::Endian::MSB;
+                        _info.layout.endian = dtk::Endian::MSB;
                     }
                 }
 

@@ -164,7 +164,7 @@ namespace tl
                 std::stringstream ss(option->second);
                 ss >> data;
             }
-            out.layout.endian = Data::Binary == data ? memory::Endian::MSB : memory::getEndian();
+            out.layout.endian = Data::Binary == data ? dtk::Endian::MSB : dtk::getEndian();
             return out;
         }
 

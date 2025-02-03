@@ -1034,7 +1034,7 @@ namespace tl
 
             auto ioSystem = _context->getSystem<io::System>();
             ioSystem->getCache()->setMax(
-                p.settings->getValue<size_t>("Cache/Size") * memory::gigabyte);
+                p.settings->getValue<size_t>("Cache/Size") * dtk::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
             cacheOptions.readAhead = OTIO_NS::RationalTime(

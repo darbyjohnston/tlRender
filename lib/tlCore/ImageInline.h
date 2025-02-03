@@ -99,7 +99,7 @@ namespace tl
         inline Layout::Layout()
         {}
 
-        inline Layout::Layout(const Mirror& mirror, int alignment, memory::Endian endian) :
+        inline Layout::Layout(const Mirror& mirror, int alignment, dtk::Endian endian) :
             mirror(mirror),
             alignment(alignment),
             endian(endian)

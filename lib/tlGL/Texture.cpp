@@ -290,7 +290,7 @@ namespace tl
 #if defined(TLRENDER_API_GL_4_1)
             if (options.pbo &&
                 1 == p.info.layout.alignment &&
-                memory::getEndian() == p.info.layout.endian)
+                dtk::getEndian() == p.info.layout.endian)
             {
                 glGenBuffers(1, &p.pbo);
                 glBindBuffer(GL_PIXEL_UNPACK_BUFFER, p.pbo);
@@ -393,7 +393,7 @@ namespace tl
                     const auto& info = data->getInfo();
                     glBindTexture(GL_TEXTURE_2D, p.id);
                     glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
                     glTexSubImage2D(
                         GL_TEXTURE_2D,
                         0,
@@ -414,7 +414,7 @@ namespace tl
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
 #if defined(TLRENDER_API_GL_4_1)
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
 #endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,
@@ -446,7 +446,7 @@ namespace tl
                     const auto& info = data->getInfo();
                     glBindTexture(GL_TEXTURE_2D, p.id);
                     glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
                     glTexSubImage2D(
                         GL_TEXTURE_2D,
                         0,
@@ -467,7 +467,7 @@ namespace tl
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
 #if defined(TLRENDER_API_GL_4_1)
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
 #endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,
@@ -498,7 +498,7 @@ namespace tl
                     glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
                     glBindTexture(GL_TEXTURE_2D, p.id);
                     glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
-                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                    glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
                     glTexSubImage2D(
                         GL_TEXTURE_2D,
                         0,
@@ -518,7 +518,7 @@ namespace tl
                 glBindTexture(GL_TEXTURE_2D, p.id);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, info.layout.alignment);
 #if defined(TLRENDER_API_GL_4_1)
-                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != memory::getEndian());
+                glPixelStorei(GL_UNPACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
 #endif // TLRENDER_API_GL_4_1
                 glTexSubImage2D(
                     GL_TEXTURE_2D,

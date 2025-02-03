@@ -85,7 +85,7 @@ namespace tl
                             arg("Incomplete file"));
                     }
 
-                    _info.layout.endian = _data != Data::ASCII ? memory::Endian::MSB : memory::getEndian();
+                    _info.layout.endian = _data != Data::ASCII ? dtk::Endian::MSB : dtk::getEndian();
                 }
 
                 Data getData() const

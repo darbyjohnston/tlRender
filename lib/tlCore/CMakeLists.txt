@@ -22,8 +22,6 @@ set(HEADERS
     MathInline.h
     Matrix.h
     MatrixInline.h
-    Memory.h
-    MemoryInline.h
     Mesh.h
     MeshInline.h
     Path.h
@@ -54,7 +52,6 @@ set(SOURCE
     Image.cpp
     Init.cpp
     Matrix.cpp
-    Memory.cpp
     Mesh.cpp
     Path.cpp
     Random.cpp

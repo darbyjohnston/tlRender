@@ -112,20 +112,20 @@ namespace tl
             // File size.
             std::string label;
             const uint64_t size = fileInfo.getSize();
-            if (size < memory::megabyte)
+            if (size < dtk::megabyte)
             {
                 label = dtk::Format("{0}KB").
-                    arg(size / static_cast<float>(memory::kilobyte), 2);
+                    arg(size / static_cast<float>(dtk::kilobyte), 2);
             }
-            else if (size < memory::gigabyte)
+            else if (size < dtk::gigabyte)
             {
                 label = dtk::Format("{0}MB").
-                    arg(size / static_cast<float>(memory::megabyte), 2);
+                    arg(size / static_cast<float>(dtk::megabyte), 2);
             }
             else
             {
                 label = dtk::Format("{0}GB").
-                    arg(size / static_cast<float>(memory::gigabyte), 2);
+                    arg(size / static_cast<float>(dtk::gigabyte), 2);
             }
             p.labels.push_back(label);
 

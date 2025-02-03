@@ -117,7 +117,7 @@ namespace tl
                     bitDepth = 8;
                 }
 
-                if (bitDepth >= 16 && memory::Endian::LSB == memory::getEndian())
+                if (bitDepth >= 16 && dtk::Endian::LSB == dtk::getEndian())
                 {
                     png_set_swap(png);
                 }

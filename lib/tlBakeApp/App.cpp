@@ -347,7 +347,7 @@ namespace tl
             }
             {
                 std::stringstream ss;
-                ss << _options.usdDiskCache * memory::gigabyte;
+                ss << _options.usdDiskCache * dtk::gigabyte;
                 out["USD/diskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
@@ -374,7 +374,7 @@ namespace tl
             // Write the frame.
             glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
 #if defined(TLRENDER_API_GL_4_1)
-            glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != memory::getEndian());
+            glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != dtk::getEndian());
 #endif // TLRENDER_API_GL_4_1
             const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
             const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);

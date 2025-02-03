@@ -25,7 +25,7 @@ namespace tl
             image::PixelType colorBuffer = image::PixelType::RGBA_U8;
 
             //! Texture cache byte count.
-            size_t textureCacheByteCount = memory::gigabyte / 4;
+            size_t textureCacheByteCount = dtk::gigabyte / 4;
 
             bool operator == (const RenderOptions&) const;
             bool operator != (const RenderOptions&) const;

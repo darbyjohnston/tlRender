@@ -62,7 +62,7 @@ namespace tl
                 break;
             default: break;
             }
-            out.layout.endian = memory::Endian::MSB;
+            out.layout.endian = dtk::Endian::MSB;
             return out;
         }
 

@@ -5,9 +5,10 @@
 #pragma once
 
 #include <tlCore/Box.h>
-#include <tlCore/Memory.h>
 #include <tlCore/Range.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Memory.h>
 
 #include <half.h>
 
@@ -220,13 +221,13 @@ namespace tl
         public:
             Layout();
             Layout(
-                const Mirror&  mirror,
-                int            alignment = 1,
-                memory::Endian endian    = memory::getEndian());
+                const Mirror& mirror,
+                int           alignment = 1,
+                dtk::Endian   endian    = dtk::getEndian());
 
-            Mirror         mirror;
-            int            alignment = 1;
-            memory::Endian endian    = memory::getEndian();
+            Mirror      mirror;
+            int         alignment = 1;
+            dtk::Endian endian    = dtk::getEndian();
 
             constexpr bool operator == (const Layout&) const;
             constexpr bool operator != (const Layout&) const;

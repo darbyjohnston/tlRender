@@ -67,7 +67,7 @@ namespace tl
                     PNG_FILTER_TYPE_DEFAULT);
                 png_write_info(png, *pngInfo);
 
-                if (bitDepth > 8 && memory::Endian::LSB == memory::getEndian())
+                if (bitDepth > 8 && dtk::Endian::LSB == dtk::getEndian())
                 {
                     png_set_swap(png);
                 }

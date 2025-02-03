@@ -8,7 +8,6 @@ set(HEADERS
     ImageTest.h
     MathTest.h
     MatrixTest.h
-    MemoryTest.h
     MeshTest.h
     PathTest.h
     RangeTest.h
@@ -26,7 +25,6 @@ set(SOURCE
     ImageTest.cpp
     MathTest.cpp
     MatrixTest.cpp
-    MemoryTest.cpp
     MeshTest.cpp
     PathTest.cpp
     RangeTest.cpp

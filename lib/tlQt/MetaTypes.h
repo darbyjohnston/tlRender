@@ -20,8 +20,6 @@ Q_DECLARE_METATYPE(tl::image::PixelType);
 Q_DECLARE_METATYPE(tl::image::Size);
 Q_DECLARE_METATYPE(tl::image::VideoLevels);
 
-Q_DECLARE_METATYPE(tl::memory::Endian);
-
 Q_DECLARE_METATYPE(tl::io::FileType);
 
 Q_DECLARE_METATYPE(tl::timeline::AlphaBlend);

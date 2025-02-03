@@ -116,7 +116,7 @@ namespace tl
                     _io = memory ?
                         dtk::FileIO::create(fileName, *memory) :
                         dtk::FileIO::create(fileName, dtk::FileMode::Read);
-                    _io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
+                    _io->setEndianConversion(dtk::getEndian() != dtk::Endian::MSB);
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
                     {
@@ -174,7 +174,7 @@ namespace tl
                             arg(fileName).
                             arg("Unsupported image type"));
                     }
-                    _info.layout.endian = memory::Endian::MSB;
+                    _info.layout.endian = dtk::Endian::MSB;
                 }
 
                 const image::Info& getInfo() const

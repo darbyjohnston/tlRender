@@ -106,55 +106,55 @@ namespace tl
         {
             void convertEndian(Header& header)
             {
-                memory::endian(&header.file.imageOffset, 1, 4);
-                memory::endian(&header.file.size, 1, 4);
-                memory::endian(&header.file.dittoKey, 1, 4);
-                memory::endian(&header.file.headerSize, 1, 4);
-                memory::endian(&header.file.industryHeaderSize, 1, 4);
-                memory::endian(&header.file.userHeaderSize, 1, 4);
-                memory::endian(&header.file.encryptionKey, 1, 4);
+                dtk::endian(&header.file.imageOffset, 1, 4);
+                dtk::endian(&header.file.size, 1, 4);
+                dtk::endian(&header.file.dittoKey, 1, 4);
+                dtk::endian(&header.file.headerSize, 1, 4);
+                dtk::endian(&header.file.industryHeaderSize, 1, 4);
+                dtk::endian(&header.file.userHeaderSize, 1, 4);
+                dtk::endian(&header.file.encryptionKey, 1, 4);
 
-                memory::endian(&header.image.orient, 1, 2);
-                memory::endian(&header.image.elemSize, 1, 2);
-                memory::endian(&header.image.size, 2, 4);
+                dtk::endian(&header.image.orient, 1, 2);
+                dtk::endian(&header.image.elemSize, 1, 2);
+                dtk::endian(&header.image.size, 2, 4);
                 for (size_t i = 0; i < 8; ++i)
                 {
-                    memory::endian(&header.image.elem[i].dataSign, 1, 4);
-                    memory::endian(&header.image.elem[i].lowData, 1, 4);
-                    memory::endian(&header.image.elem[i].lowQuantity, 1, 4);
-                    memory::endian(&header.image.elem[i].highData, 1, 4);
-                    memory::endian(&header.image.elem[i].highQuantity, 1, 4);
-                    memory::endian(&header.image.elem[i].packing, 1, 2);
-                    memory::endian(&header.image.elem[i].encoding, 1, 2);
-                    memory::endian(&header.image.elem[i].dataOffset, 1, 4);
-                    memory::endian(&header.image.elem[i].linePadding, 1, 4);
-                    memory::endian(&header.image.elem[i].elemPadding, 1, 4);
+                    dtk::endian(&header.image.elem[i].dataSign, 1, 4);
+                    dtk::endian(&header.image.elem[i].lowData, 1, 4);
+                    dtk::endian(&header.image.elem[i].lowQuantity, 1, 4);
+                    dtk::endian(&header.image.elem[i].highData, 1, 4);
+                    dtk::endian(&header.image.elem[i].highQuantity, 1, 4);
+                    dtk::endian(&header.image.elem[i].packing, 1, 2);
+                    dtk::endian(&header.image.elem[i].encoding, 1, 2);
+                    dtk::endian(&header.image.elem[i].dataOffset, 1, 4);
+                    dtk::endian(&header.image.elem[i].linePadding, 1, 4);
+                    dtk::endian(&header.image.elem[i].elemPadding, 1, 4);
                 }
 
-                memory::endian(&header.source.offset, 2, 4);
-                memory::endian(&header.source.center, 2, 4);
-                memory::endian(&header.source.size, 2, 4);
-                memory::endian(&header.source.border, 4, 2);
-                memory::endian(&header.source.pixelAspect, 2, 4);
-                memory::endian(&header.source.scanSize, 2, 4);
+                dtk::endian(&header.source.offset, 2, 4);
+                dtk::endian(&header.source.center, 2, 4);
+                dtk::endian(&header.source.size, 2, 4);
+                dtk::endian(&header.source.border, 4, 2);
+                dtk::endian(&header.source.pixelAspect, 2, 4);
+                dtk::endian(&header.source.scanSize, 2, 4);
 
-                memory::endian(&header.film.frame, 1, 4);
-                memory::endian(&header.film.sequence, 1, 4);
-                memory::endian(&header.film.hold, 1, 4);
-                memory::endian(&header.film.frameRate, 1, 4);
-                memory::endian(&header.film.shutter, 1, 4);
+                dtk::endian(&header.film.frame, 1, 4);
+                dtk::endian(&header.film.sequence, 1, 4);
+                dtk::endian(&header.film.hold, 1, 4);
+                dtk::endian(&header.film.frameRate, 1, 4);
+                dtk::endian(&header.film.shutter, 1, 4);
 
-                memory::endian(&header.tv.timecode, 1, 4);
-                memory::endian(&header.tv.userBits, 1, 4);
-                memory::endian(&header.tv.sampleRate, 2, 4);
-                memory::endian(&header.tv.frameRate, 1, 4);
-                memory::endian(&header.tv.timeOffset, 1, 4);
-                memory::endian(&header.tv.gamma, 1, 4);
-                memory::endian(&header.tv.blackLevel, 1, 4);
-                memory::endian(&header.tv.blackGain, 1, 4);
-                memory::endian(&header.tv.breakpoint, 1, 4);
-                memory::endian(&header.tv.whiteLevel, 1, 4);
-                memory::endian(&header.tv.integrationTimes, 1, 4);
+                dtk::endian(&header.tv.timecode, 1, 4);
+                dtk::endian(&header.tv.userBits, 1, 4);
+                dtk::endian(&header.tv.sampleRate, 2, 4);
+                dtk::endian(&header.tv.frameRate, 1, 4);
+                dtk::endian(&header.tv.timeOffset, 1, 4);
+                dtk::endian(&header.tv.gamma, 1, 4);
+                dtk::endian(&header.tv.blackLevel, 1, 4);
+                dtk::endian(&header.tv.blackGain, 1, 4);
+                dtk::endian(&header.tv.breakpoint, 1, 4);
+                dtk::endian(&header.tv.whiteLevel, 1, 4);
+                dtk::endian(&header.tv.integrationTimes, 1, 4);
             }
 
             bool isValid(const uint8_t* in)
@@ -189,14 +189,14 @@ namespace tl
             io->read(&out.file, sizeof(Header::File));
 
             // Check the magic number.
-            memory::Endian fileEndian = memory::Endian::First;
+            dtk::Endian fileEndian = dtk::Endian::First;
             if (0 == memcmp(&out.file.magic, magic[0], 4))
             {
-                fileEndian = memory::Endian::MSB;
+                fileEndian = dtk::Endian::MSB;
             }
             else if (0 == memcmp(&out.file.magic, magic[1], 4))
             {
-                fileEndian = memory::Endian::LSB;
+                fileEndian = dtk::Endian::LSB;
             }
             else
             {
@@ -213,11 +213,11 @@ namespace tl
 
             // Flip the endian of the data if necessary.
             image::Info imageInfo;
-            if (fileEndian != memory::getEndian())
+            if (fileEndian != dtk::getEndian())
             {
                 io->setEndianConversion(true);
                 convertEndian(out);
-                imageInfo.layout.endian = memory::opposite(memory::getEndian());
+                imageInfo.layout.endian = dtk::opposite(dtk::getEndian());
             }
 
             // Image information.
@@ -857,21 +857,21 @@ namespace tl
                 header.tv.integrationTimes = std::stof(i->second);
             }
 
-            memory::Endian fileEndian = memory::getEndian();
+            dtk::Endian fileEndian = dtk::getEndian();
             switch (endian)
             {
-            case Endian::MSB: fileEndian = memory::Endian::MSB; break;
-            case Endian::LSB: fileEndian = memory::Endian::LSB; break;
+            case Endian::MSB: fileEndian = dtk::Endian::MSB; break;
+            case Endian::LSB: fileEndian = dtk::Endian::LSB; break;
             default: break;
             }
-            if (fileEndian != memory::getEndian())
+            if (fileEndian != dtk::getEndian())
             {
                 io->setEndianConversion(true);
                 convertEndian(header);
             }
             std::memcpy(
                 &header.file.magic,
-                memory::Endian::MSB == fileEndian ? magic[0] : magic[1],
+                dtk::Endian::MSB == fileEndian ? magic[0] : magic[1],
                 4);
             io->write(&header.file, sizeof(Header::File));
             io->write(&header.image, sizeof(Header::Image));

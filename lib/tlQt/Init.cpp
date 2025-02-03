@@ -62,11 +62,6 @@ namespace tl
 
             qRegisterMetaType<math::Size2i>("tl::math::Size2i");
 
-            qRegisterMetaType<memory::Endian>("tl::memory::Endian");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<memory::Endian>();
-#endif // QT_VERSION
-
             qRegisterMetaType<io::FileType>("tl::io::FileType");
             qRegisterMetaType<io::Info>("tl::io::Info");
             qRegisterMetaType<io::VideoData>("tl::io::VideoData");

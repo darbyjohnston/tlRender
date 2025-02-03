@@ -63,7 +63,6 @@
 #include <tlCoreTest/ImageTest.h>
 #include <tlCoreTest/MathTest.h>
 #include <tlCoreTest/MatrixTest.h>
-#include <tlCoreTest/MemoryTest.h>
 #include <tlCoreTest/MeshTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/RangeTest.h>
@@ -94,7 +93,6 @@ void coreTests(
     tests.push_back(core_tests::ImageTest::create(context));
     tests.push_back(core_tests::MathTest::create(context));
     tests.push_back(core_tests::MatrixTest::create(context));
-    tests.push_back(core_tests::MemoryTest::create(context));
     tests.push_back(core_tests::MeshTest::create(context));
     tests.push_back(core_tests::PathTest::create(context));
     tests.push_back(core_tests::RangeTest::create(context));

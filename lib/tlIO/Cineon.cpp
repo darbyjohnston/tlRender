@@ -144,36 +144,36 @@ namespace tl
         {
             void convertEndian(Header& header)
             {
-                memory::endian(&header.file.imageOffset, 1, 4);
-                memory::endian(&header.file.headerSize, 1, 4);
-                memory::endian(&header.file.industryHeaderSize, 1, 4);
-                memory::endian(&header.file.userHeaderSize, 1, 4);
-                memory::endian(&header.file.size, 1, 4);
+                dtk::endian(&header.file.imageOffset, 1, 4);
+                dtk::endian(&header.file.headerSize, 1, 4);
+                dtk::endian(&header.file.industryHeaderSize, 1, 4);
+                dtk::endian(&header.file.userHeaderSize, 1, 4);
+                dtk::endian(&header.file.size, 1, 4);
 
                 for (uint8_t i = 0; i < 8; ++i)
                 {
-                    memory::endian(&header.image.channel[i].size, 2, 4);
-                    memory::endian(&header.image.channel[i].lowData, 1, 4);
-                    memory::endian(&header.image.channel[i].lowQuantity, 1, 4);
-                    memory::endian(&header.image.channel[i].highData, 1, 4);
-                    memory::endian(&header.image.channel[i].highQuantity, 1, 4);
+                    dtk::endian(&header.image.channel[i].size, 2, 4);
+                    dtk::endian(&header.image.channel[i].lowData, 1, 4);
+                    dtk::endian(&header.image.channel[i].lowQuantity, 1, 4);
+                    dtk::endian(&header.image.channel[i].highData, 1, 4);
+                    dtk::endian(&header.image.channel[i].highQuantity, 1, 4);
                 }
 
-                memory::endian(&header.image.white, 2, 4);
-                memory::endian(&header.image.red, 2, 4);
-                memory::endian(&header.image.green, 2, 4);
-                memory::endian(&header.image.blue, 2, 4);
-                memory::endian(&header.image.linePadding, 1, 4);
-                memory::endian(&header.image.channelPadding, 1, 4);
+                dtk::endian(&header.image.white, 2, 4);
+                dtk::endian(&header.image.red, 2, 4);
+                dtk::endian(&header.image.green, 2, 4);
+                dtk::endian(&header.image.blue, 2, 4);
+                dtk::endian(&header.image.linePadding, 1, 4);
+                dtk::endian(&header.image.channelPadding, 1, 4);
 
-                memory::endian(&header.source.offset, 2, 4);
-                memory::endian(&header.source.inputPitch, 2, 4);
-                memory::endian(&header.source.gamma, 1, 4);
+                dtk::endian(&header.source.offset, 2, 4);
+                dtk::endian(&header.source.inputPitch, 2, 4);
+                dtk::endian(&header.source.gamma, 1, 4);
 
-                memory::endian(&header.film.prefix, 1, 4);
-                memory::endian(&header.film.count, 1, 4);
-                memory::endian(&header.film.frame, 1, 4);
-                memory::endian(&header.film.frameRate, 1, 4);
+                dtk::endian(&header.film.prefix, 1, 4);
+                dtk::endian(&header.film.count, 1, 4);
+                dtk::endian(&header.film.frame, 1, 4);
+                dtk::endian(&header.film.frameRate, 1, 4);
             }
 
             bool isValid(const uint8_t* in)
@@ -244,7 +244,7 @@ namespace tl
             {
                 io->setEndianConversion(true);
                 cineon::convertEndian(out);
-                imageInfo.layout.endian = memory::opposite(memory::getEndian());
+                imageInfo.layout.endian = dtk::opposite(dtk::getEndian());
             }
 
             // Image information.
@@ -564,7 +564,7 @@ namespace tl
             }
 
             // Write the header.
-            const bool convertEndian = memory::getEndian() != memory::Endian::MSB;
+            const bool convertEndian = dtk::getEndian() != dtk::Endian::MSB;
             io->setEndianConversion(convertEndian);
             if (convertEndian)
             {
@@ -641,7 +641,7 @@ namespace tl
             }
             out.layout.mirror.y = true;
             out.layout.alignment = 4;
-            out.layout.endian = memory::Endian::MSB;
+            out.layout.endian = dtk::Endian::MSB;
             return out;
         }
 

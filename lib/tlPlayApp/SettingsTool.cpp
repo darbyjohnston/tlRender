@@ -580,7 +580,7 @@ namespace tl
             p.diskCacheEdit->setCallback(
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/diskCacheByteCount", value * memory::gigabyte);
+                    _p->settings->setValue("USD/diskCacheByteCount", value * dtk::gigabyte);
                 });
         }
 
@@ -649,7 +649,7 @@ namespace tl
             if ("USD/diskCacheByteCount" == name || name.empty())
             {
                 p.diskCacheEdit->setValue(
-                    p.settings->getValue<size_t>("USD/diskCacheByteCount") / memory::gigabyte);
+                    p.settings->getValue<size_t>("USD/diskCacheByteCount") / dtk::gigabyte);
             }
         }
 #endif // TLRENDER_USD

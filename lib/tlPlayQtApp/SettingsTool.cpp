@@ -464,7 +464,7 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/diskCacheByteCount", value * memory::gigabyte);
+                    _p->settings->setValue("USD/diskCacheByteCount", value * dtk::gigabyte);
                 });
         }
 
@@ -515,7 +515,7 @@ namespace tl
                 QSignalBlocker signalBlocker(p.diskCacheSpinBox);
                 p.diskCacheSpinBox->setValue(
                     p.settings->getValue<size_t>("USD/diskCacheByteCount") /
-                    memory::gigabyte);
+                    dtk::gigabyte);
             }
         }
 #endif // TLRENDER_USD
