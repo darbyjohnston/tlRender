@@ -16,11 +16,11 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName, const file::MemoryRead* memory)
+                File(const std::string& fileName, const dtk::InMemoryFile* memory)
                 {
                     _io = memory ?
-                        file::FileIO::create(fileName, *memory) :
-                        file::FileIO::create(fileName, file::Mode::Read);
+                        dtk::FileIO::create(fileName, *memory) :
+                        dtk::FileIO::create(fileName, dtk::FileMode::Read);
 
                     char magic[] = { 0, 0, 0 };
                     _io->read(magic, 2);
@@ -47,14 +47,14 @@ namespace tl
                     _data = (2 == ppmType || 3 == ppmType) ? Data::ASCII : Data::Binary;
 
                     char tmp[dtk::cStringSize] = "";
-                    file::readWord(_io, tmp, dtk::cStringSize);
+                    dtk::readWord(_io, tmp, dtk::cStringSize);
                     const int w = std::stoi(tmp);
-                    file::readWord(_io, tmp, dtk::cStringSize);
+                    dtk::readWord(_io, tmp, dtk::cStringSize);
                     const int h = std::stoi(tmp);
                     _info.size.w = w;
                     _info.size.h = h;
 
-                    file::readWord(_io, tmp, dtk::cStringSize);
+                    dtk::readWord(_io, tmp, dtk::cStringSize);
                     const int maxValue = std::stoi(tmp);
                     size_t channelCount = 0;
                     switch (ppmType)
@@ -132,7 +132,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<file::FileIO> _io;
+                std::shared_ptr<dtk::FileIO> _io;
                 Data _data = Data::First;
                 image::Info _info;
             };
@@ -140,7 +140,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -169,7 +169,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -181,7 +181,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -193,7 +193,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

@@ -227,7 +227,7 @@ namespace tl
                     out = dynamic_cast<OTIO_NS::Timeline*>(
                         OTIO_NS::Timeline::from_json_string(buf.data(), errorStatus));
 
-                    auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(fileName, dtk::FileMode::Read);
                     for (auto clip : out->find_children<OTIO_NS::Clip>())
                     {
                         if (auto externalReference =

@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::weak_ptr<dtk::LogSystem>&);
 
             Render();
 
@@ -33,7 +33,7 @@ namespace tl
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<log::System>&);
+                const std::weak_ptr<dtk::LogSystem>&);
             
             //! Get information.
             std::future<io::Info> getInfo(

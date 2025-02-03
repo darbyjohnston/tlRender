@@ -4,13 +4,13 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <tlCore/Error.h>
+#include <dtk/core/Error.h>
 
 namespace tl
 {
     namespace usd
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             DrawMode,
             "Points",
             "Wireframe",
@@ -20,7 +20,7 @@ namespace tl
             "GeomOnly",
             "GeomFlat",
             "GeomSmooth");
-        TLRENDER_ENUM_SERIALIZE_IMPL(DrawMode);
+        DTK_ENUM_SERIALIZE_IMPL(DrawMode);
 
         struct Plugin::Private
         {
@@ -31,7 +31,7 @@ namespace tl
         
         void Plugin::_init(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::weak_ptr<dtk::LogSystem>& logSystem)
         {
             IPlugin::_init(
                 "USD",
@@ -56,7 +56,7 @@ namespace tl
 
         std::shared_ptr<Plugin> Plugin::create(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::weak_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(cache, logSystem);

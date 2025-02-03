@@ -82,14 +82,14 @@ namespace tl
                 const Options& options)
             {
                 std::vector<uint8_t> memoryData;
-                std::vector<file::MemoryRead> memory;
+                std::vector<dtk::InMemoryFile> memory;
                 std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
                     read = plugin->read(path, memory, options);
                 }
                 else
@@ -125,19 +125,19 @@ namespace tl
                 const Options& options)
             {
                 {
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     const size_t size = fileIO->getSize();
                     fileIO.reset();
-                    file::truncate(path.get(), size / 2);
+                    dtk::truncateFile(path.get(), size / 2);
                 }
                 std::vector<uint8_t> memoryData;
-                std::vector<file::MemoryRead> memory;
+                std::vector<dtk::InMemoryFile> memory;
                 if (memoryIO)
                 {
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory, options);
                 //! \bug This causes the test to hang.

@@ -18,7 +18,7 @@ namespace tl
     {
         void ISequenceRead::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -77,10 +77,10 @@ namespace tl
                             const std::string id = dtk::Format("tl::io::ISequenceRead ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
-                            logSystem->print(id, dtk::Format("{0}: {1}").
+                            const std::string s = dtk::Format("{0}: {1}").
                                 arg(_path.get()).
-                                arg(e.what()),
-                                dtk::LogType::Error);
+                                arg(e.what());
+                            logSystem->print(id, s, dtk::LogType::Error);
                         }
                     }
                     _finishRequests();

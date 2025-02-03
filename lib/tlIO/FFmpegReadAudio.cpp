@@ -12,7 +12,7 @@ namespace tl
     {
         ReadAudio::ReadAudio(
             const std::string& fileName,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             double videoRate,
             const Options& options) :
             _fileName(fileName),

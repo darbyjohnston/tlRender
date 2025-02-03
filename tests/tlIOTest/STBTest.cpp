@@ -51,14 +51,14 @@ namespace tl
                 bool memoryIO)
             {
                 std::vector<uint8_t> memoryData;
-                std::vector<file::MemoryRead> memory;
+                std::vector<dtk::InMemoryFile> memory;
                 std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
                     read = plugin->read(path, memory);
                 }
                 else
@@ -84,19 +84,19 @@ namespace tl
                 bool memoryIO)
             {
                 {
-                    auto io = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto io = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     const size_t size = io->getSize();
                     io.reset();
-                    file::truncate(path.get(), size / 2);
+                    dtk::truncateFile(path.get(), size / 2);
                 }
                 std::vector<uint8_t> memoryData;
-                std::vector<file::MemoryRead> memory;
+                std::vector<dtk::InMemoryFile> memory;
                 if (memoryIO)
                 {
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(file::MemoryRead(memoryData.data(), memoryData.size()));
+                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory);
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();

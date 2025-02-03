@@ -6,7 +6,7 @@
 
 #include <tlIO/Cache.h>
 
-#include <tlCore/FileIO.h>
+#include <dtk/core/FileIO.h>
 
 #include <future>
 #include <set>
@@ -59,7 +59,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const Options&,
                 const std::shared_ptr<Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -86,7 +86,7 @@ namespace tl
             virtual void cancelRequests() = 0;
 
         protected:
-            std::vector<file::MemoryRead> _memory;
+            std::vector<dtk::InMemoryFile> _memory;
         };
 
         //! Base class for writers.
@@ -148,7 +148,7 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const Options& = Options()) = 0;
 
             //! Get information for writing.

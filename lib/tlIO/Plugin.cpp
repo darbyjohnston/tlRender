@@ -30,7 +30,7 @@ namespace tl
 
         void IRead::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const Options& options,
             const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)

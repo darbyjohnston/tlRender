@@ -17,7 +17,7 @@ namespace tl
             void pngMemoryRead(png_structp png_ptr, png_bytep outBytes, png_size_t byteCountToRead)
             {
                 png_voidp io_ptr = png_get_io_ptr(png_ptr);
-                file::MemoryRead* memory = static_cast<file::MemoryRead*>(io_ptr);
+                dtk::InMemoryFile* memory = static_cast<dtk::InMemoryFile*>(io_ptr);
                 if (byteCountToRead > memory->size)
                 {
                     png_error(png_ptr, "Cannot read");
@@ -29,7 +29,7 @@ namespace tl
 
             bool pngOpen(
                 FILE* f,
-                file::MemoryRead* memory,
+                dtk::InMemoryFile* memory,
                 png_structp png,
                 png_infop* pngInfo,
                 png_infop* pngInfoEnd,
@@ -150,7 +150,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const file::MemoryRead* memory)
+                    const dtk::InMemoryFile* memory)
                 {
                     _png.p = png_create_read_struct(
                         PNG_LIBPNG_VER_STRING,
@@ -260,7 +260,7 @@ namespace tl
 
                 PNGData          _png;
                 FilePointer      _f;
-                file::MemoryRead _memory;
+                dtk::InMemoryFile _memory;
                 ErrorStruct      _error;
                 size_t           _scanlineSize = 0;
                 image::Info    _info;
@@ -269,7 +269,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -298,7 +298,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -310,7 +310,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -322,7 +322,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

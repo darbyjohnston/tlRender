@@ -4,8 +4,6 @@
 
 #include <tlIO/OpenEXRPrivate.h>
 
-#include <tlCore/FileIO.h>
-
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
 
@@ -21,7 +19,7 @@ namespace tl
     {
         struct IStream::Private
         {
-            std::shared_ptr<file::FileIO> f;
+            std::shared_ptr<dtk::FileIO> f;
             const uint8_t* p = nullptr;
             uint64_t size = 0;
             uint64_t pos = 0;
@@ -32,7 +30,7 @@ namespace tl
             _p(new Private)
         {
             TLRENDER_P();
-            p.f = file::FileIO::create(fileName, file::Mode::Read);
+            p.f = dtk::FileIO::create(fileName, dtk::FileMode::Read);
             p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
         }
@@ -140,18 +138,18 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const file::MemoryRead* memory,
+                    const dtk::InMemoryFile* memory,
                     ChannelGrouping channelGrouping,
                     const std::shared_ptr<dtk::LogSystem>& logSystem)
                 {
                     // Open the file.
                     if (memory)
                     {
-                        _s.reset(new IStream(fileName.c_str(), memory->p, memory->size));
+                        _s.reset(new IStream(fileName, memory->p, memory->size));
                     }
                     else
                     {
-                        _s.reset(new IStream(fileName.c_str()));
+                        _s.reset(new IStream(fileName));
                     }
                     _f.reset(new Imf::InputFile(*_s));
 
@@ -327,7 +325,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -363,7 +361,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -375,7 +373,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out = File(fileName, memory, _channelGrouping, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
@@ -392,7 +390,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {

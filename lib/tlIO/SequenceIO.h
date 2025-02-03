@@ -25,7 +25,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const Options&,
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -44,10 +44,10 @@ namespace tl
         protected:
             virtual Info _getInfo(
                 const std::string& fileName,
-                const file::MemoryRead*) = 0;
+                const dtk::InMemoryFile*) = 0;
             virtual VideoData _readVideo(
                 const std::string& fileName,
-                const file::MemoryRead*,
+                const dtk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const Options&) = 0;
 

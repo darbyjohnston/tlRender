@@ -211,7 +211,7 @@ namespace tl
 
         } // namespace
 
-        Header read(const std::shared_ptr<file::FileIO>& io, io::Info& info)
+        Header read(const std::shared_ptr<dtk::FileIO>& io, io::Info& info)
         {
             Header out;
 
@@ -229,7 +229,7 @@ namespace tl
             else
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Bad magic number"));
             }
 
@@ -254,7 +254,7 @@ namespace tl
             if (!out.image.channels)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("No image channels"));
             }
             uint8_t i = 1;
@@ -273,7 +273,7 @@ namespace tl
             if (i < out.image.channels)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Unsupported image channels"));
             }
             switch (out.image.channels)
@@ -293,26 +293,26 @@ namespace tl
             if (image::PixelType::None == imageInfo.pixelType)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Unsupported bit depth"));
             }
             if (isValid(&out.image.linePadding) && out.image.linePadding)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Unsupported line padding"));
             }
             if (isValid(&out.image.channelPadding) && out.image.channelPadding)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Unsupported channel padding"));
             }
 
             if (io->getSize() - out.file.imageOffset != image::getDataByteCount(imageInfo))
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getFileName()).
+                    arg(io->getPath()).
                     arg("Incomplete file"));
             }
             switch (static_cast<Orient>(out.image.orient))
@@ -427,7 +427,7 @@ namespace tl
             return out;
         }
 
-        void write(const std::shared_ptr<file::FileIO>& io, const io::Info& info)
+        void write(const std::shared_ptr<dtk::FileIO>& io, const io::Info& info)
         {
             Header header;
 
@@ -581,7 +581,7 @@ namespace tl
             io->write(&header.film, sizeof(Header::Film));
         }
 
-        void finishWrite(const std::shared_ptr<file::FileIO>& io)
+        void finishWrite(const std::shared_ptr<dtk::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
             io->setPos(20);
@@ -620,7 +620,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _cache, _logSystem.lock());

@@ -4,10 +4,9 @@
 
 #include <tlCore/FileLogSystem.h>
 
-#include <tlCore/FileIO.h>
-#include <tlCore/Time.h>
-
 #include <dtk/core/Context.h>
+#include <dtk/core/FileIO.h>
+#include <dtk/core/Time.h>
 
 #include <atomic>
 #include <mutex>
@@ -70,7 +69,7 @@ namespace tl
                 {
                     TLRENDER_P();
                     {
-                        auto io = file::FileIO::create(p.fileName, file::Mode::Write);
+                        auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Write);
                     }
                     while (p.thread.running)
                     {
@@ -82,7 +81,7 @@ namespace tl
                             std::swap(p.mutex.items, items);
                         }
                         {
-                            auto io = file::FileIO::create(p.fileName, file::Mode::Append);
+                            auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Append);
                             io->seek(io->getSize());
                             for (const auto& item : items)
                             {
@@ -91,7 +90,7 @@ namespace tl
                         }
 
                         const auto t1 = std::chrono::steady_clock::now();
-                        time::sleep(timeout, t0, t1);
+                        dtk::sleep(timeout, t0, t1);
                     }
                     std::vector<dtk::LogItem> items;
                     {
@@ -99,7 +98,7 @@ namespace tl
                         std::swap(p.mutex.items, items);
                     }
                     {
-                        auto io = file::FileIO::create(p.fileName, file::Mode::Append);
+                        auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Append);
                         io->seek(io->getSize());
                         for (const auto& item : items)
                         {

@@ -43,11 +43,7 @@ namespace tl
             QMetaType::registerComparators<audio::DataType>();
 #endif // QT_VERSION
 
-            qRegisterMetaType<file::Mode>("tl::file::Mode");
             qRegisterMetaType<file::PathOptions>("tl::file::PathOptions");
-#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<file::Mode>();
-#endif // QT_VERSION
 
             qRegisterMetaType<geom::Triangle2>("tl::geom::Triangle2");
             qRegisterMetaType<geom::Triangle3>("tl::geom::Triangle3");

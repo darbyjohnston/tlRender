@@ -162,13 +162,13 @@ namespace tl
             bool               terminate);
 
         //! Read a header.
-        Header read(const std::shared_ptr<file::FileIO>&, io::Info&);
+        Header read(const std::shared_ptr<dtk::FileIO>&, io::Info&);
 
         //! Write a header.
-        void write(const std::shared_ptr<file::FileIO>&, const io::Info&);
+        void write(const std::shared_ptr<dtk::FileIO>&, const io::Info&);
 
         //! Finish writing the header.
-        void finishWrite(const std::shared_ptr<file::FileIO>&);
+        void finishWrite(const std::shared_ptr<dtk::FileIO>&);
 
         //! Cineon reader.
         class Read : public io::ISequenceRead
@@ -176,7 +176,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -196,7 +196,7 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -204,10 +204,10 @@ namespace tl
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const file::MemoryRead*) override;
+                const dtk::InMemoryFile*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const file::MemoryRead*,
+                const dtk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const io::Options&) override;
         };
@@ -263,7 +263,7 @@ namespace tl
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options& = io::Options()) override;
             image::Info getWriteInfo(
                 const image::Info&,

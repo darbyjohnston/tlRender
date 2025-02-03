@@ -5,8 +5,9 @@
 #include <tlCoreTest/FileInfoTest.h>
 
 #include <tlCore/File.h>
-#include <tlCore/FileIO.h>
 #include <tlCore/FileInfo.h>
+
+#include <dtk/core/FileIO.h>
 
 #include <cstdio>
 #include <sstream>
@@ -49,7 +50,7 @@ namespace tl
             {
                 const Path path("tmp");
                 {
-                    FileIO::create(path.get(), Mode::Write);
+                    dtk::FileIO::create(path.get(), dtk::FileMode::Write);
                 }
                 const FileInfo f(path);
                 DTK_ASSERT(path == f.getPath());
@@ -134,18 +135,18 @@ namespace tl
             
             std::string tmp = createTempDir();
             mkdir(file::Path(tmp, "dir").get());
-            FileIO::create(file::Path(tmp, "file.txt").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.1.exr").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.2.exr").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.3.exr").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.1.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.2.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.3.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.0001.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.0002.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "render.0003.tif").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "movie.1.mov").get(), Mode::Write);
-            FileIO::create(file::Path(tmp, "movie.2.mov").get(), Mode::Write);
+            dtk::FileIO::create(file::Path(tmp, "file.txt").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.1.exr").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.2.exr").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.3.exr").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.1.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.2.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.3.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.0001.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.0002.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "render.0003.tif").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "movie.1.mov").get(), dtk::FileMode::Write);
+            dtk::FileIO::create(file::Path(tmp, "movie.2.mov").get(), dtk::FileMode::Write);
             
             {
                 std::vector<FileInfo> list;

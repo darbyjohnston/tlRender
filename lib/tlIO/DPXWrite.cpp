@@ -42,7 +42,7 @@ namespace tl
             const std::shared_ptr<image::Image>& image,
             const io::Options&)
         {
-            auto io = file::FileIO::create(fileName, file::Mode::Write);
+            auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
 
             io::Info info;
             const auto& imageInfo = image->getInfo();

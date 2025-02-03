@@ -6,8 +6,6 @@ set(HEADERS
     Box.h
     BoxInline.h
     File.h
-    FileIO.h
-    FileIOInline.h
     FileInfo.h
     FileInfoInline.h
     FileInfoPrivate.h
@@ -50,7 +48,6 @@ set(SOURCE
     AudioResample.cpp
     AudioSystem.cpp
     Box.cpp
-    FileIO.cpp
     FileInfo.cpp
     FileLogSystem.cpp
     FontSystem.cpp
@@ -70,14 +67,12 @@ set(SOURCE
     Vector.cpp)
 if (WIN32)
     list(APPEND SOURCE
-        FileIOWin32.cpp
         FileInfoWin32.cpp
         FileWin32.cpp
         PathWin32.cpp
         TimeWin32.cpp)
 else()
     list(APPEND SOURCE
-        FileIOUnix.cpp
         FileInfoUnix.cpp
         FileUnix.cpp
         PathUnix.cpp

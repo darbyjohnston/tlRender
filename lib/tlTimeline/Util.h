@@ -6,7 +6,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <tlCore/FileIO.h>
+#include <dtk/core/FileIO.h>
 
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>
@@ -81,7 +81,7 @@ namespace tl
             file::PathOptions);
 
         //! Get a memory read for a media reference.
-        std::vector<file::MemoryRead> getMemoryRead(
+        std::vector<dtk::InMemoryFile> getMemoryRead(
             const OTIO_NS::MediaReference*);
 
         //! Convert to memory references.

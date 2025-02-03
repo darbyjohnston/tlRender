@@ -6,11 +6,12 @@
 
 #include <tlIO/IO.h>
 
-#include <tlCore/FileIO.h>
 #include <tlCore/ISystem.h>
 #include <tlCore/Image.h>
 #include <tlCore/Mesh.h>
 #include <tlCore/Path.h>
+
+#include <dtk/core/FileIO.h>
 
 #include <future>
 
@@ -163,7 +164,7 @@ namespace tl
             //! Get information.
             InfoRequest getInfo(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options& = io::Options());
 
             //! Get a video thumbnail.
@@ -176,7 +177,7 @@ namespace tl
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 int height,
                 const OTIO_NS::RationalTime& = time::invalidTime,
                 const io::Options& = io::Options());
@@ -191,7 +192,7 @@ namespace tl
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const math::Size2i&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());

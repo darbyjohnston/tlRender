@@ -337,14 +337,14 @@ namespace tl
             return out;
         }
 
-        std::vector<file::MemoryRead> getMemoryRead(
+        std::vector<dtk::InMemoryFile> getMemoryRead(
             const OTIO_NS::MediaReference* ref)
         {
-            std::vector<file::MemoryRead> out;
+            std::vector<dtk::InMemoryFile> out;
             if (auto rawMemoryReference =
                 dynamic_cast<const RawMemoryReference*>(ref))
             {
-                out.push_back(file::MemoryRead(
+                out.push_back(dtk::InMemoryFile(
                     rawMemoryReference->memory(),
                     rawMemoryReference->memory_size()));
             }
@@ -353,7 +353,7 @@ namespace tl
             {
                 if (const auto& memory = sharedMemoryReference->memory())
                 {
-                    out.push_back(file::MemoryRead(
+                    out.push_back(dtk::InMemoryFile(
                         memory->data(),
                         memory->size()));
                 }
@@ -367,7 +367,7 @@ namespace tl
                 const size_t memory_sizes_size = memory_sizes.size();
                 for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
                 {
-                    out.push_back(file::MemoryRead(memory[i], memory_sizes[i]));
+                    out.push_back(dtk::InMemoryFile(memory[i], memory_sizes[i]));
                 }
             }
             else if (auto sharedMemorySequenceReference =
@@ -377,7 +377,7 @@ namespace tl
                 {
                     if (memory)
                     {
-                        out.push_back(file::MemoryRead(memory->data(), memory->size()));
+                        out.push_back(dtk::InMemoryFile(memory->data(), memory->size()));
                     }
                 }
             }
@@ -405,7 +405,7 @@ namespace tl
                     const auto path = getPath(ref->target_url(), directory, pathOptions);
 
                     // Read the external reference into memory.
-                    auto fileIO = file::FileIO::create(path.get(), file::Mode::Read);
+                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
                     const size_t size = fileIO->getSize();
 
                     // Replace the external reference with a memory reference.
@@ -461,7 +461,7 @@ namespace tl
                         ++frame)
                     {
                         const auto fileName = path.get(frame);
-                        auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
+                        auto fileIO = dtk::FileIO::create(fileName, dtk::FileMode::Read);
                         const size_t size = fileIO->getSize();
                         switch (toMemoryReference)
                         {
@@ -769,7 +769,7 @@ namespace tl
                 const std::string& fileName,
                 const std::string& fileNameInZip)
             {
-                /*auto fileIO = file::FileIO::create(fileName, file::Mode::Read);
+                /*auto fileIO = dtk::FileIO::create(fileName, dtk::FileMode::Read);
                 std::vector<uint8_t> buf(fileIO->getSize());
                 fileIO->read(buf.data(), buf.size());
                 mz_zip_file fileInfo;

@@ -5,8 +5,8 @@
 #include <tlCoreTest/FileTest.h>
 
 #include <tlCore/File.h>
-#include <tlCore/FileIO.h>
 
+#include <dtk/core/FileIO.h>
 #include <dtk/core/Format.h>
 
 using namespace tl::file;
@@ -35,7 +35,7 @@ namespace tl
         {
             const std::string fileName = "File Test";
             {
-                FileIO::create(fileName, Mode::Write);
+                dtk::FileIO::create(fileName, dtk::FileMode::Write);
             }
             DTK_ASSERT(exists(fileName));
             DTK_ASSERT(rm(fileName));

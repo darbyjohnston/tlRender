@@ -4,8 +4,7 @@
 
 #include <tlResourceApp/App.h>
 
-#include <tlCore/FileIO.h>
-
+#include <dtk/core/FileIO.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -59,13 +58,13 @@ namespace tl
             {
                 _startTime = std::chrono::steady_clock::now();
 
-                auto inputIO = file::FileIO::create(_input, file::Mode::Read);
+                auto inputIO = dtk::FileIO::create(_input, dtk::FileMode::Read);
                 const size_t size = inputIO->getSize();
                 std::vector<uint8_t> data;
                 data.resize(size);
                 inputIO->readU8(data.data(), size);
 
-                auto outputIO = file::FileIO::create(_output, file::Mode::Write);
+                auto outputIO = dtk::FileIO::create(_output, dtk::FileMode::Write);
                 outputIO->write(dtk::Format("const std::vector<uint8_t> {0} = {\n").arg(_varName));
                 const size_t columns = 15;
                 for (size_t i = 0; i < size; i += columns)

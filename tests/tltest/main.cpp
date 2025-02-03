@@ -56,7 +56,6 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/BoxTest.h>
-#include <tlCoreTest/FileIOTest.h>
 #include <tlCoreTest/FileInfoTest.h>
 #include <tlCoreTest/FileTest.h>
 #include <tlCoreTest/FontSystemTest.h>
@@ -89,7 +88,6 @@ void coreTests(
 {
     tests.push_back(core_tests::AudioTest::create(context));
     tests.push_back(core_tests::BoxTest::create(context));
-    tests.push_back(core_tests::FileIOTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));
     tests.push_back(core_tests::FileTest::create(context));
     tests.push_back(core_tests::FontSystemTest::create(context));

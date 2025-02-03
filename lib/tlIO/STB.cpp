@@ -42,7 +42,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create( path, memory, options, _cache, _logSystem.lock());

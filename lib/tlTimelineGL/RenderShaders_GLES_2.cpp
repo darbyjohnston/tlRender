@@ -4,7 +4,7 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <tlCore/StringFormat.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -235,7 +235,7 @@ namespace tl
 
         std::string imageFragmentSource()
         {
-            return string::Format(
+            return dtk::Format(
                 "precision mediump float;\n"
                 "\n"
                 "varying vec2 fTexture;\n"
@@ -291,7 +291,7 @@ namespace tl
             const std::string& lut,
             timeline::LUTOrder lutOrder)
         {
-             return string::Format(
+             return dtk::Format(
                 "precision mediump float;\n"
                 "\n"
                 "varying vec2 fTexture;\n"

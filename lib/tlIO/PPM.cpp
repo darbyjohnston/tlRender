@@ -39,7 +39,7 @@ namespace tl
         {
             template<typename T>
             void _readASCII(
-                const std::shared_ptr<file::FileIO>& io,
+                const std::shared_ptr<dtk::FileIO>& io,
                 uint8_t* out,
                 size_t                               size)
             {
@@ -47,7 +47,7 @@ namespace tl
                 T* outP = reinterpret_cast<T*>(out);
                 for (int i = 0; i < size; ++i)
                 {
-                    file::readWord(io, tmp, dtk::cStringSize);
+                    dtk::readWord(io, tmp, dtk::cStringSize);
                     const int value = std::atoi(tmp);
                     outP[i] = value;
                 }
@@ -56,7 +56,7 @@ namespace tl
         } // namespace
 
         void readASCII(
-            const std::shared_ptr<file::FileIO>& io,
+            const std::shared_ptr<dtk::FileIO>& io,
             uint8_t* out,
             size_t                               size,
             size_t                               bitDepth)
@@ -135,7 +135,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _cache, _logSystem.lock());

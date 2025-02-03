@@ -20,7 +20,7 @@ namespace tl
         {
             std::string clipName;
             file::Path path;
-            std::vector<file::MemoryRead> memoryRead;
+            std::vector<dtk::InMemoryFile> memoryRead;
             std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData

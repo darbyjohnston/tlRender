@@ -62,7 +62,7 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const Options& = Options());
 
             //! Create a writer for the given path.

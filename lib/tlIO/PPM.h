@@ -6,8 +6,6 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/FileIO.h>
-
 #include <dtk/core/Util.h>
 
 namespace tl
@@ -38,7 +36,7 @@ namespace tl
 
         //! Read PPM file ASCII data.
         void readASCII(
-            const std::shared_ptr<file::FileIO>& io,
+            const std::shared_ptr<dtk::FileIO>& io,
             uint8_t* out,
             size_t size,
             size_t componentSize);
@@ -56,7 +54,7 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -76,7 +74,7 @@ namespace tl
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
@@ -84,10 +82,10 @@ namespace tl
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const file::MemoryRead*) override;
+                const dtk::InMemoryFile*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const file::MemoryRead*,
+                const dtk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const io::Options&) override;
         };
@@ -142,7 +140,7 @@ namespace tl
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
             image::Info getWriteInfo(
                 const image::Info&,

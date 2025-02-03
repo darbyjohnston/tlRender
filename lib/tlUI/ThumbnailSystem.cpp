@@ -229,7 +229,7 @@ namespace tl
             {
                 uint64_t id = 0;
                 file::Path path;
-                std::vector<file::MemoryRead> memoryRead;
+                std::vector<dtk::InMemoryFile> memoryRead;
                 io::Options options;
                 std::promise<io::Info> promise;
             };
@@ -238,7 +238,7 @@ namespace tl
             {
                 uint64_t id = 0;
                 file::Path path;
-                std::vector<file::MemoryRead> memoryRead;
+                std::vector<dtk::InMemoryFile> memoryRead;
                 int height = 0;
                 OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
@@ -249,7 +249,7 @@ namespace tl
             {
                 uint64_t id = 0;
                 file::Path path;
-                std::vector<file::MemoryRead> memoryRead;
+                std::vector<dtk::InMemoryFile> memoryRead;
                 math::Size2i size;
                 OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 io::Options options;
@@ -432,7 +432,7 @@ namespace tl
 
         InfoRequest ThumbnailGenerator::getInfo(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead,
+            const std::vector<dtk::InMemoryFile>& memoryRead,
             const io::Options& options)
         {
             TLRENDER_P();
@@ -476,7 +476,7 @@ namespace tl
 
         ThumbnailRequest ThumbnailGenerator::getThumbnail(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead,
+            const std::vector<dtk::InMemoryFile>& memoryRead,
             int height,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
@@ -526,7 +526,7 @@ namespace tl
 
         WaveformRequest ThumbnailGenerator::getWaveform(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memoryRead,
+            const std::vector<dtk::InMemoryFile>& memoryRead,
             const math::Size2i& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)

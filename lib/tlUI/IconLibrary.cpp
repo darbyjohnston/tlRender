@@ -371,7 +371,7 @@ namespace tl
                                             arg(dpi);
                                         (*i)->reader = p.thread.plugin->read(
                                             file::Path(name),
-                                            { file::MemoryRead(j->second.data(), j->second.size()) });
+                                            { dtk::InMemoryFile(j->second.data(), j->second.size()) });
                                         if ((*i)->reader)
                                         {
                                             const auto ioInfo = (*i)->reader->getInfo().get();

@@ -6,8 +6,9 @@
 
 #include <tlCore/File.h>
 #include <tlCore/LRUCache.h>
-#include <tlCore/LogSystem.h>
-#include <tlCore/StringFormat.h>
+
+#include <dtk/core/Format.h>
+#include <dtk/core/LogSystem.h>
 
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
@@ -39,7 +40,7 @@ namespace tl
         struct Render::Private
         {
             std::shared_ptr<io::Cache> cache;
-            std::weak_ptr<log::System> logSystem;
+            std::weak_ptr<dtk::LogSystem> logSystem;
 
             GLFWwindow* glfwWindow = nullptr;
             
@@ -99,7 +100,7 @@ namespace tl
         
         void Render::_init(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::weak_ptr<dtk::LogSystem>& logSystem)
         {
             TLRENDER_P();
 
@@ -148,10 +149,10 @@ namespace tl
                 }
                 logSystem->print(
                     "tl::usd::Render",
-                    string::Format(
+                    dtk::Format(
                         "\n"
                         "    Renderers: {0}").
-                    arg(string::join(renderers, ", ")));
+                    arg(dtk::join(renderers, ", ")));
             }
         }
 
@@ -175,7 +176,7 @@ namespace tl
 
         std::shared_ptr<Render> Render::create(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<log::System>& logSystem)
+            const std::weak_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Render>(new Render);
             out->_init(cache, logSystem);
@@ -405,7 +406,7 @@ namespace tl
                     }
                     logSystem->print(
                         "tl::usd::Render",
-                        string::Format(
+                        dtk::Format(
                             "\n"
                             "    File name: {0}\n"
                             "    Time code: {1}-{2}:{3}\n"
@@ -418,7 +419,7 @@ namespace tl
                         arg(stage->GetTimeCodesPerSecond()).
                         arg(engine->GetGPUEnabled()).
                         arg(renderer).
-                        arg(string::join(aovs, ", ")));
+                        arg(dtk::join(aovs, ", ")));
                 }
             }
         }
@@ -489,7 +490,7 @@ namespace tl
                     {
                         logSystem->print(
                             "tl::usd::Render",
-                            string::Format(
+                            dtk::Format(
                                 "\n"
                                 "    Temp directory: {0}\n"
                                 "    Disk cache: {1}GB").
@@ -606,10 +607,10 @@ namespace tl
                             //std::cout << e.what() << std::endl;
                             if (auto logSystem = p.logSystem.lock())
                             {
-                                const std::string id = string::Format("tl::usd::Render ({0}: {1})").
+                                const std::string id = dtk::Format("tl::usd::Render ({0}: {1})").
                                     arg(__FILE__).
                                     arg(__LINE__);
-                                logSystem->print(id, e.what(), log::Type::Error);
+                                logSystem->print(id, e.what(), dtk::LogType::Error);
                             }
                         }
 
@@ -813,7 +814,7 @@ namespace tl
                             if (diskCacheByteCount > 0 && image)
                             {
                                 auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
-                                diskCacheItem->fileName = string::Format("{0}/{1}.img").
+                                diskCacheItem->fileName = dtk::Format("{0}/{1}.img").
                                     arg(p.thread.tempDir).
                                     arg(diskCacheItem);
                                 //std::cout << "write temp file: " << diskCacheItem->fileName << std::endl;
@@ -832,10 +833,10 @@ namespace tl
                         //std::cout << e.what() << std::endl;
                         if (auto logSystem = p.logSystem.lock())
                         {
-                            const std::string id = string::Format("tl::usd::Render ({0}: {1})").
+                            const std::string id = dtk::Format("tl::usd::Render ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
-                            logSystem->print(id, e.what(), log::Type::Error);
+                            logSystem->print(id, e.what(), dtk::LogType::Error);
                         }
                     }
 
@@ -865,7 +866,7 @@ namespace tl
                             }
                             logSystem->print(
                                 "tl::usd::Render",
-                                string::Format(
+                                dtk::Format(
                                     "\n"
                                     "    Requests: {0}\n"
                                     "    Stage cache: {1}/{2}\n"

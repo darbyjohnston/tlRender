@@ -4,10 +4,8 @@
 
 #include <tlPlay/Settings.h>
 
-#include <tlCore/File.h>
-#include <tlCore/FileIO.h>
-
 #include <dtk/core/Context.h>
+#include <dtk/core/FileIO.h>
 #include <dtk/core/LogSystem.h>
 
 #include <dtk/core/Format.h>
@@ -66,12 +64,12 @@ namespace tl
 
         void Settings::_read()
         {
-            if (file::exists(_fileName))
+            if (std::filesystem::exists(_fileName))
             {
                 try
                 {
-                    auto io = file::FileIO::create(_fileName, file::Mode::Read);
-                    const std::string contents = file::readContents(io);
+                    auto io = dtk::FileIO::create(_fileName, dtk::FileMode::Read);
+                    const std::string contents = dtk::read(io);
                     const auto values = nlohmann::json::parse(contents);
                     for (auto i = values.begin(); i != values.end(); ++i)
                     {
@@ -97,7 +95,7 @@ namespace tl
         {
             try
             {
-                auto io = file::FileIO::create(_fileName, file::Mode::Write);
+                auto io = dtk::FileIO::create(_fileName, dtk::FileMode::Write);
                 const std::string contents = _values.dump(4);
                 io->write(contents.c_str(), contents.size());
             }

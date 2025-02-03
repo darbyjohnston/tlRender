@@ -111,11 +111,11 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName, const file::MemoryRead* memory)
+                File(const std::string& fileName, const dtk::InMemoryFile* memory)
                 {
                     _io = memory ?
-                        file::FileIO::create(fileName, *memory) :
-                        file::FileIO::create(fileName, file::Mode::Read);
+                        dtk::FileIO::create(fileName, *memory) :
+                        dtk::FileIO::create(fileName, dtk::FileMode::Read);
                     _io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
@@ -267,7 +267,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<file::FileIO> _io;
+                std::shared_ptr<dtk::FileIO> _io;
                 Header _header;
                 image::Info _info;
                 std::vector<uint32_t> _rleOffset;
@@ -277,7 +277,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -306,7 +306,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -318,7 +318,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -330,7 +330,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

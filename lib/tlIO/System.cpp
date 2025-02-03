@@ -188,7 +188,7 @@ namespace tl
 
         std::shared_ptr<IRead> System::read(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const Options& options)
         {
             const std::string extension = dtk::toLower(path.getExtension());

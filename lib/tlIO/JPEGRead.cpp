@@ -106,7 +106,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const file::MemoryRead* memory)
+                    const dtk::InMemoryFile* memory)
                 {
                     std::memset(&_jpeg.decompress, 0, sizeof(jpeg_decompress_struct));
 
@@ -232,7 +232,7 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -261,7 +261,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -273,7 +273,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out = File(fileName, memory).getInfo();
             out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
@@ -284,7 +284,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

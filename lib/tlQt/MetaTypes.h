@@ -9,15 +9,12 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/FileIO.h>
 #include <tlCore/FontSystem.h>
 #include <tlCore/Image.h>
 
 #include <QMetaType>
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
-
-Q_DECLARE_METATYPE(tl::file::Mode);
 
 Q_DECLARE_METATYPE(tl::image::PixelType);
 Q_DECLARE_METATYPE(tl::image::Size);

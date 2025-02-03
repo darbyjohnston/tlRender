@@ -96,7 +96,7 @@ namespace tl
                         image::U8Range.getMax() :
                         image::U16Range.getMax();
 
-                    auto io = file::FileIO::create(fileName, file::Mode::Write);
+                    auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
                     io->setEndianConversion(memory::getEndian() != memory::Endian::MSB);
                     io->writeU16(header.magic);
                     io->writeU8(header.storage);

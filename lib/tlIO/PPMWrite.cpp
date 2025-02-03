@@ -29,7 +29,7 @@ namespace tl
                     }
                     char magic[] = "P \n";
                     magic[1] = '0' + ppmType;
-                    auto io = file::FileIO::create(fileName, file::Mode::Write);
+                    auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
                     io->write(magic, 3);
 
                     std::stringstream ss;

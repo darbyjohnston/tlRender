@@ -12,7 +12,7 @@ namespace tl
     {
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -41,7 +41,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -53,12 +53,12 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out;
             auto io = memory ?
-                file::FileIO::create(fileName, *memory) :
-                file::FileIO::create(fileName, file::Mode::Read);
+                dtk::FileIO::create(fileName, *memory) :
+                dtk::FileIO::create(fileName, dtk::FileMode::Read);
             const auto header = read(io, out);
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Film Frame Rate");
@@ -74,7 +74,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {
@@ -82,8 +82,8 @@ namespace tl
             out.time = time;
 
             auto io = memory ?
-                file::FileIO::create(fileName, *memory) :
-                file::FileIO::create(fileName, file::Mode::Read);
+                dtk::FileIO::create(fileName, *memory) :
+                dtk::FileIO::create(fileName, dtk::FileMode::Read);
             io::Info info;
             read(io, info);
 

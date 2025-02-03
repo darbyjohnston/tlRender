@@ -24,7 +24,7 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName, const file::MemoryRead* memory)
+                File(const std::string& fileName, const dtk::InMemoryFile* memory)
                 {
                     int res = 0, w = 0, h = 0, n = 0, bits = 8;
 
@@ -136,13 +136,13 @@ namespace tl
 
             private:
                 image::Info _info;
-                const file::MemoryRead* _memory;
+                const dtk::InMemoryFile* _memory;
             };
         }
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -171,7 +171,7 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
@@ -183,7 +183,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const file::MemoryRead* memory)
+            const dtk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -195,7 +195,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const file::MemoryRead* memory,
+            const dtk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

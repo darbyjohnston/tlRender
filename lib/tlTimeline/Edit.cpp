@@ -6,6 +6,8 @@
 
 #include <tlTimeline/MemoryReference.h>
 
+#include <dtk/core/FileIO.h>
+
 namespace tl
 {
     namespace timeline
@@ -203,7 +205,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<file::FileIO> _file_io;
+                std::shared_ptr<dtk::FileIO> _file_io;
             };
 
             class ZipMemorySequenceData : public RawMemorySequenceData
@@ -238,7 +240,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<file::FileIO> _file_io;
+                std::shared_ptr<dtk::FileIO> _file_io;
             };
         }
 
