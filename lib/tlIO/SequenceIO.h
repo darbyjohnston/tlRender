@@ -63,7 +63,7 @@ namespace tl
             void _finishRequests();
             void _cancelRequests();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Base class for image sequence writers.
@@ -94,7 +94,7 @@ namespace tl
                 const Options&) = 0;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

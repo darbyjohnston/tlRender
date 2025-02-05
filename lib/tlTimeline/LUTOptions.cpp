@@ -22,11 +22,10 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             LUTOrder,
             "PostColorConfig",
             "PreColorConfig");
-        TLRENDER_ENUM_SERIALIZE_IMPL(LUTOrder);
 
         std::vector<std::string> getLUTFormatNames()
         {

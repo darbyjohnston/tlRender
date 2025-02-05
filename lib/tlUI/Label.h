@@ -15,7 +15,7 @@ namespace tl
         //! \todo Add text wrapping.
         class Label : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Label);
+            DTK_NON_COPYABLE(Label);
 
         protected:
             void _init(
@@ -56,7 +56,7 @@ namespace tl
 
         private:
             void _textUpdate();
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

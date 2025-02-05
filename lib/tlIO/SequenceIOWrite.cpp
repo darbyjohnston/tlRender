@@ -32,7 +32,7 @@ namespace tl
         {
             IWrite::_init(path, options, info, logSystem);
 
-            TLRENDER_P();
+            DTK_P();
 
             const auto i = options.find("SequenceIO/DefaultSpeed");
             if (i != options.end())

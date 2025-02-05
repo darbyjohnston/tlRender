@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Range.h>
+#include <dtk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -182,8 +181,7 @@ namespace tl
             Count,
             First = Home
         };
-        TLRENDER_ENUM(UserPath);
-        TLRENDER_ENUM_SERIALIZE(UserPath);
+        DTK_ENUM(UserPath);
 
         //! Get a user path.
         std::string getUserPath(UserPath);

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Color.h>
 #include <dtk/core/FontSystem.h>
 #include <dtk/core/ObservableValue.h>
@@ -113,7 +111,7 @@ namespace tl
         //! Style.
         class Style : public std::enable_shared_from_this<Style>
         {
-            TLRENDER_NON_COPYABLE(Style);
+            DTK_NON_COPYABLE(Style);
 
         protected:
             void _init(
@@ -163,7 +161,7 @@ namespace tl
             std::map<ColorRole, dtk::Color4F> _colorRoles;
             std::map<FontRole, dtk::FontInfo> _fontRoles;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! \name Serialize

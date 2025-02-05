@@ -72,7 +72,7 @@ namespace tl
 
         void GroupBox::setText(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.text)
                 return;
             p.text = value;
@@ -84,7 +84,7 @@ namespace tl
 
         void GroupBox::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -97,7 +97,7 @@ namespace tl
         void GroupBox::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             dtk::Box2I g = value;
             g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
             g = dtk::margin(g, -(p.size.border + p.size.margin));
@@ -111,7 +111,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -145,7 +145,7 @@ namespace tl
         void GroupBox::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -157,7 +157,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
 

@@ -35,7 +35,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.typeComboBox = new QComboBox;
             for (const auto& i : timeline::getBackgroundLabels())
@@ -112,7 +112,7 @@ namespace tl
 
         void BackgroundWidget::_optionsUpdate(const timeline::BackgroundOptions & value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
             p.color0Swatch->setColor(value.color0);
             p.color1Swatch->setColor(value.color1);
@@ -128,7 +128,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.backgroundWidget = new BackgroundWidget(app);
 

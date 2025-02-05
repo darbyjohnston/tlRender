@@ -36,7 +36,7 @@ namespace tl
                 "tl::play_app::CompareToolBar",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
 
@@ -115,7 +115,7 @@ namespace tl
 
         void CompareToolBar::_compareUpdate(const timeline::CompareOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.buttonGroup->setChecked(static_cast<int>(value.mode), true);
         }
     }

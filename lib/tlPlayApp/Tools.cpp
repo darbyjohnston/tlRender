@@ -14,7 +14,7 @@ namespace tl
 {
     namespace play_app
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Tool,
             "Files",
             "View",
@@ -25,7 +25,6 @@ namespace tl
             "Settings",
             "Messages",
             "SystemLog");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Tool);
 
         std::string getText(Tool value)
         {
@@ -101,7 +100,7 @@ namespace tl
 
         void ToolsModel::_init()
         {
-            TLRENDER_P();
+            DTK_P();
             p.activeTool = dtk::ObservableValue<int>::create(-1);
         }
 

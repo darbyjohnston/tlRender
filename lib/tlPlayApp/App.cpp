@@ -102,7 +102,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::vector<std::string>& argv)
         {
-            TLRENDER_P();
+            DTK_P();
             const std::string appName = "tlplay";
             const std::string appDocsPath = play::appDocsPath();
             const std::string logFileName = play::logFileName(appName, appDocsPath);
@@ -136,7 +136,7 @@ namespace tl
 
         App::~App()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.settings)
             {
                 auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
@@ -156,7 +156,7 @@ namespace tl
 
         void App::openDialog()
         {
-            TLRENDER_P();
+            DTK_P();
             auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
             fileBrowserSystem->open(
                 p.mainWindow,
@@ -168,7 +168,7 @@ namespace tl
 
         void App::openSeparateAudioDialog()
         {
-            TLRENDER_P();
+            DTK_P();
             p.separateAudioDialog = SeparateAudioDialog::create(_context);
             p.separateAudioDialog->open(p.mainWindow);
             p.separateAudioDialog->setCallback(
@@ -186,7 +186,7 @@ namespace tl
 
         void App::open(const file::Path& path, const file::Path& audioPath)
         {
-            TLRENDER_P();
+            DTK_P();
             file::PathOptions pathOptions;
             pathOptions.maxNumberDigits = p.settings->getValue<size_t>("FileSequence/MaxDigits");
             for (const auto& i : timeline::getPaths(_context, path, pathOptions))
@@ -254,7 +254,7 @@ namespace tl
 
         void App::setSecondaryWindow(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.secondaryWindowActive->setIfChanged(value))
             {
                 if (value)
@@ -327,7 +327,7 @@ namespace tl
 
         void App::_tick()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto player = p.player->get())
             {
                 player->tick();
@@ -342,7 +342,7 @@ namespace tl
 
         void App::_fileLogInit(const std::string& logFileName)
         {
-            TLRENDER_P();
+            DTK_P();
             std::string logFileName2 = logFileName;
             if (!p.options.logFileName.empty())
             {
@@ -353,7 +353,7 @@ namespace tl
 
         void App::_settingsInit(const std::string& settingsFileName)
         {
-            TLRENDER_P();
+            DTK_P();
             if (!p.options.settingsFileName.empty())
             {
                 p.settingsFileName = p.options.settingsFileName;
@@ -429,7 +429,7 @@ namespace tl
 
         void App::_modelsInit()
         {
-            TLRENDER_P();
+            DTK_P();
             
             p.filesModel = play::FilesModel::create(_context);
 
@@ -448,7 +448,7 @@ namespace tl
 
         void App::_devicesInit()
         {
-            TLRENDER_P();
+            DTK_P();
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice = bmd::OutputDevice::create(_context);
             p.bmdDevicesModel = bmd::DevicesModel::create(_context);
@@ -473,7 +473,7 @@ namespace tl
 
         void App::_observersInit()
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
 
@@ -571,7 +571,7 @@ namespace tl
                 p.bmdDevicesModel->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     bmd::DeviceConfig config;
                     config.deviceIndex = value.deviceIndex - 1;
                     config.displayModeIndex = value.displayModeIndex - 1;
@@ -667,7 +667,7 @@ namespace tl
 
         void App::_inputFilesInit()
         {
-            TLRENDER_P();
+            DTK_P();
             if (!p.options.fileName.empty())
             {
                 if (!p.options.compareFileName.empty())
@@ -704,7 +704,7 @@ namespace tl
 
         void App::_windowsInit()
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.secondaryWindowActive = dtk::ObservableValue<bool>::create(false);
 
@@ -751,7 +751,7 @@ namespace tl
 
         io::Options App::_getIOOptions() const
         {
-            TLRENDER_P();
+            DTK_P();
             io::Options out;
 
             out["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").
@@ -809,7 +809,7 @@ namespace tl
 
         void App::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto split = dtk::split(name, '/');
             if (!split.empty() || name.empty())
             {
@@ -882,7 +882,7 @@ namespace tl
 
         void App::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
         {
-            TLRENDER_P();
+            DTK_P();
 
             std::vector<std::shared_ptr<timeline::Timeline> > timelines(files.size());
             for (size_t i = 0; i < files.size(); ++i)
@@ -936,7 +936,7 @@ namespace tl
 
         void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& activeFiles)
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<timeline::Player> player;
             if (!activeFiles.empty())
             {
@@ -1002,7 +1002,7 @@ namespace tl
 
         void App::_layersUpdate(const std::vector<int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto player = p.player->get())
             {
                 int videoLayer = 0;
@@ -1030,7 +1030,7 @@ namespace tl
 
         void App::_cacheUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto ioSystem = _context->getSystem<io::System>();
             ioSystem->getCache()->setMax(
@@ -1051,7 +1051,7 @@ namespace tl
 
         void App::_viewUpdate(const dtk::V2I& pos, double zoom, bool frame)
         {
-            TLRENDER_P();
+            DTK_P();
             float scale = 1.F;
             const dtk::Box2I& g = p.mainWindow->getViewport()->getGeometry();
             if (p.secondaryWindow)
@@ -1076,7 +1076,7 @@ namespace tl
 
         void App::_audioUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const float volume = p.audioModel->getVolume();
             const bool mute = p.audioModel->isMuted();
             const std::vector<bool> channelMute = p.audioModel->getChannelMute();

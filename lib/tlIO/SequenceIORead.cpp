@@ -24,7 +24,7 @@ namespace tl
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, cache, logSystem);
-            TLRENDER_P();
+            DTK_P();
 
             const std::string& number = path.getNumber();
             if (!number.empty())
@@ -60,7 +60,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this, path]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     try
                     {
                         p.info = _getInfo(
@@ -101,7 +101,7 @@ namespace tl
 
         std::future<Info> ISequenceRead::getInfo()
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             auto future = request->promise.get_future();
             bool valid = false;
@@ -128,7 +128,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
             request->options = merge(options, _options);
@@ -160,7 +160,7 @@ namespace tl
 
         void ISequenceRead::_finish()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -170,7 +170,7 @@ namespace tl
 
         void ISequenceRead::_thread()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.logTimer = std::chrono::steady_clock::now();
             while (p.thread.running)
             {
@@ -325,7 +325,7 @@ namespace tl
 
         void ISequenceRead::_finishRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             for (auto& request : p.thread.videoRequestsInProgress)
             {
                 VideoData data;
@@ -341,7 +341,7 @@ namespace tl
 
         void ISequenceRead::_cancelRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {

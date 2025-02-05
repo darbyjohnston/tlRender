@@ -22,7 +22,7 @@ namespace tl
         //! Button group.
         class ButtonGroup : public std::enable_shared_from_this<ButtonGroup>
         {
-            TLRENDER_NON_COPYABLE(ButtonGroup);
+            DTK_NON_COPYABLE(ButtonGroup);
 
         protected:
             void _init(
@@ -58,7 +58,7 @@ namespace tl
             void setCheckedCallback(const std::function<void(int, bool)>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

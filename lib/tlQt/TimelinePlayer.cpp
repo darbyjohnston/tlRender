@@ -52,7 +52,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<timeline::Player>& player)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.player = player;
 

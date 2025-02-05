@@ -76,7 +76,7 @@ namespace tl
 
         void Label::setText(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.text)
                 return;
             p.text = value;
@@ -89,7 +89,7 @@ namespace tl
 
         void Label::setTextRole(ColorRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.textRole)
                 return;
             p.textRole = value;
@@ -98,7 +98,7 @@ namespace tl
 
         void Label::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -109,7 +109,7 @@ namespace tl
 
         void Label::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -123,7 +123,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -150,7 +150,7 @@ namespace tl
         void Label::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -162,7 +162,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
@@ -197,7 +197,7 @@ namespace tl
         
         void Label::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const auto lines = dtk::split(
                 p.text,
                 { '\n', '\r' },

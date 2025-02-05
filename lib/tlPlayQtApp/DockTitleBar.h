@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <QWidget>
 
@@ -35,7 +35,7 @@ namespace tl
             void paintEvent(QPaintEvent*) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

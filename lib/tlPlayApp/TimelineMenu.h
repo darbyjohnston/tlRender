@@ -16,7 +16,7 @@ namespace tl
         //! Timeline menu.
         class TimelineMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(TimelineMenu);
+            DTK_NON_COPYABLE(TimelineMenu);
 
         protected:
             void _init(
@@ -43,7 +43,7 @@ namespace tl
         private:
             void _thumbnailsSizeUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

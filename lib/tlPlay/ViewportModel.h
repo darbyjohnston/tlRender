@@ -23,7 +23,7 @@ namespace tl
         //! Viewport model.
         class ViewportModel : public std::enable_shared_from_this<ViewportModel>
         {
-            TLRENDER_NON_COPYABLE(ViewportModel);
+            DTK_NON_COPYABLE(ViewportModel);
 
         protected:
             void _init(
@@ -59,7 +59,7 @@ namespace tl
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

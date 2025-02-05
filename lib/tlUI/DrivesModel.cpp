@@ -39,7 +39,7 @@ namespace tl
 
         void DrivesModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.drives = dtk::ObservableList<std::string>::create();
 
@@ -47,7 +47,7 @@ namespace tl
             p.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     while (p.running)
                     {
                         const auto t0 = std::chrono::steady_clock::now();
@@ -67,7 +67,7 @@ namespace tl
                 timeout,
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     std::vector<std::string> drives;
                     {
                         std::lock_guard<std::mutex> lock(p.mutex.mutex);
@@ -83,7 +83,7 @@ namespace tl
 
         DrivesModel::~DrivesModel()
         {
-            TLRENDER_P();
+            DTK_P();
             p.running = false;
             if (p.thread.joinable())
             {

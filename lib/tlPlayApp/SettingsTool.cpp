@@ -50,7 +50,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::CacheSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -142,7 +142,7 @@ namespace tl
 
         void CacheSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Cache/Size" == name || name.empty())
             {
                 p.cacheSize->setValue(
@@ -181,7 +181,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FileSequenceSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -311,7 +311,7 @@ namespace tl
 
         void FileSequenceSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FileSequence/Audio" == name || name.empty())
             {
                 p.audioComboBox->setCurrentIndex(static_cast<int>(
@@ -362,7 +362,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FFmpegSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -439,7 +439,7 @@ namespace tl
 
         void FFmpegSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
             {
                 p.yuvToRGBCheckBox->setChecked(
@@ -477,7 +477,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::USDSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -615,7 +615,7 @@ namespace tl
 
         void USDSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("USD/renderWidth" == name || name.empty())
             {
                 p.renderWidthEdit->setValue(
@@ -670,7 +670,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::FileBrowserSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -731,7 +731,7 @@ namespace tl
 
         void FileBrowserSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FileBrowser/NativeFileDialog" == name || name.empty())
             {
                 p.nativeFileDialogCheckBox->setChecked(
@@ -757,7 +757,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::PerformanceSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -850,7 +850,7 @@ namespace tl
 
         void PerformanceSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Performance/AudioBufferFrameCount" == name || name.empty())
             {
                 p.audioBufferFramesEdit->setValue(
@@ -884,7 +884,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::OpenGLSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -948,7 +948,7 @@ namespace tl
 
         void OpenGLSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("OpenGL/ShareContexts" == name || name.empty())
             {
                 p.shareContextsCheckBox->setChecked(
@@ -972,7 +972,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::StyleSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -1035,7 +1035,7 @@ namespace tl
 
         void StyleSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Style/Palette" == name || name.empty())
             {
                 p.paletteComboBox->setCurrentIndex(static_cast<int>(
@@ -1059,7 +1059,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play_app::MiscSettingsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->getSettings();
 
@@ -1120,7 +1120,7 @@ namespace tl
 
         void MiscSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Misc/ToolTipsEnabled" == name || name.empty())
             {
                 p.toolTipsEnabledCheckBox->setChecked(
@@ -1146,7 +1146,7 @@ namespace tl
                 Tool::Settings,
                 "tl::play_app::SettingsTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             auto cacheWidget = CacheSettingsWidget::create(context, app);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(context, app);

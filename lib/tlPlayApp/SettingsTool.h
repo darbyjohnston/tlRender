@@ -13,7 +13,7 @@ namespace tl
         //! Settings tool.
         class SettingsTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(SettingsTool);
+            DTK_NON_COPYABLE(SettingsTool);
 
         protected:
             void _init(
@@ -32,7 +32,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

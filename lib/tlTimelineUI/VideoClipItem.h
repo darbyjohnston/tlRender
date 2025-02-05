@@ -65,7 +65,7 @@ namespace tl
 
             void _cancelRequests();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

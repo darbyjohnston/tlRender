@@ -36,7 +36,7 @@ namespace tl
             void setVideo(const std::vector<tl::timeline::VideoData>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

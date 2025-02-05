@@ -17,7 +17,7 @@ namespace tl
 {
     namespace ui
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             MDIResize,
             "North",
             "NorthEast",
@@ -27,7 +27,6 @@ namespace tl
             "SouthWest",
             "West",
             "NorthWest");
-        TLRENDER_ENUM_SERIALIZE_IMPL(MDIResize);
 
         struct MDIWidget::Private
         {
@@ -65,7 +64,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MDIWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             _setMouseHover(true);
             _setMousePress(true);
@@ -122,7 +121,7 @@ namespace tl
 
         void MDIWidget::setWidget(const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.widget)
             {
                 p.widget->setParent(nullptr);
@@ -159,7 +158,7 @@ namespace tl
         void MDIWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const int margin = std::max(p.size.handle, p.size.shadow);
             const dtk::Box2I g = dtk::margin(
                 value,
@@ -216,7 +215,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -237,7 +236,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I& g = _geometry;
             const int margin = std::max(p.size.handle, p.size.shadow);
             const dtk::Box2I g2 = dtk::margin(g, -margin, -p.size.handle, -margin, -margin);
@@ -266,7 +265,7 @@ namespace tl
         void MDIWidget::mouseLeaveEvent()
         {
             IWidget::mouseLeaveEvent();
-            TLRENDER_P();
+            DTK_P();
             if (p.mouse.resize != MDIResize::None)
             {
                 p.mouse.resize = MDIResize::None;
@@ -277,7 +276,7 @@ namespace tl
         void MDIWidget::mouseMoveEvent(MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (!_mouse.press)
             {
                 MDIResize resize = MDIResize::None;
@@ -314,7 +313,7 @@ namespace tl
         void MDIWidget::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (p.pressCallback)
             {
                 p.pressCallback(true);
@@ -324,7 +323,7 @@ namespace tl
         void MDIWidget::mouseReleaseEvent(MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (p.pressCallback)
             {
                 p.pressCallback(false);

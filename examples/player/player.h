@@ -17,7 +17,7 @@ namespace tl
             //! Example player application.
             class App : public ui_app::App
             {
-                TLRENDER_NON_COPYABLE(App);
+                DTK_NON_COPYABLE(App);
 
             protected:
                 void _init(

@@ -14,7 +14,7 @@ namespace tl
         //! Integer value slider.
         class IntSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IntSlider);
+            DTK_NON_COPYABLE(IntSlider);
 
         protected:
             void _init(
@@ -76,7 +76,7 @@ namespace tl
             int _posToValue(int) const;
             int _valueToPos(int) const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -13,7 +13,7 @@ namespace tl
         //! Color swatch widget.
         class ColorSwatch : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ColorSwatch);
+            DTK_NON_COPYABLE(ColorSwatch);
 
         protected:
             void _init(
@@ -52,7 +52,7 @@ namespace tl
         private:
             void _showPopup();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

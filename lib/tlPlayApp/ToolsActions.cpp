@@ -22,7 +22,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             const auto enums = getToolEnums();

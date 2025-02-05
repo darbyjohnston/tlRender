@@ -100,7 +100,7 @@ namespace tl
             void _timerUpdate();
             void _styleUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

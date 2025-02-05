@@ -39,7 +39,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::BackgroundWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.typeComboBox = ui::ComboBox::create(
                 timeline::getBackgroundLabels(),
@@ -160,7 +160,7 @@ namespace tl
 
         void BackgroundWidget::_optionsUpdate(const timeline::BackgroundOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
             p.color0Swatch->setColor(value.color0);
             p.color1Swatch->setColor(value.color1);
@@ -183,7 +183,7 @@ namespace tl
                 Tool::View,
                 "tl::play_app::ViewTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.backgroundWidget = BackgroundWidget::create(context, app);
 

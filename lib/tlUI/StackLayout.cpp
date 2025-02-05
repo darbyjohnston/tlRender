@@ -51,7 +51,7 @@ namespace tl
 
         void StackLayout::setCurrentIndex(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.currentIndex)
                 return;
             p.currentIndex = value;
@@ -73,7 +73,7 @@ namespace tl
 
         void StackLayout::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -85,7 +85,7 @@ namespace tl
         void StackLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
             _childrenClipRect = g;
             for (const auto& child : _children)
@@ -108,7 +108,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -129,7 +129,7 @@ namespace tl
 
         std::shared_ptr<IWidget> StackLayout::_getCurrentWidget() const
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<IWidget> out;
             int i = 0;
             for (const auto& child : _children)

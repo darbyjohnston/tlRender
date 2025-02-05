@@ -15,7 +15,7 @@ namespace tl
         //! Audio popup.
         class AudioPopup : public ui::IWidgetPopup
         {
-            TLRENDER_NON_COPYABLE(AudioPopup);
+            DTK_NON_COPYABLE(AudioPopup);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

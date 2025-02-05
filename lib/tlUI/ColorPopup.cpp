@@ -24,7 +24,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidgetPopup::_init("tl::ui::ColorPopup", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.widget = ColorWidget::create(context);
             p.widget->setColor(color);

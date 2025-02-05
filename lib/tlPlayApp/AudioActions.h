@@ -15,7 +15,7 @@ namespace tl
         //! Audio actions.
         class AudioActions : public std::enable_shared_from_this<AudioActions>
         {
-            TLRENDER_NON_COPYABLE(AudioActions);
+            DTK_NON_COPYABLE(AudioActions);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

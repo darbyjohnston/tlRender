@@ -72,7 +72,7 @@ namespace tl
         {
             IRead::_init(path, memory, options, cache, logSystem);
 
-            TLRENDER_P();
+            DTK_P();
 
             auto i = options.find("FFmpeg/YUVToRGBConversion");
             if (i != options.end())
@@ -128,7 +128,7 @@ namespace tl
             p.videoThread.thread = std::thread(
                 [this, path]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     try
                     {
                         p.readVideo = std::make_shared<ReadVideo>(
@@ -158,7 +158,7 @@ namespace tl
                         p.audioThread.thread = std::thread(
                             [this, path]
                             {
-                                TLRENDER_P();
+                                DTK_P();
                                 try
                                 {
                                     _audioThread();
@@ -214,7 +214,7 @@ namespace tl
 
         Read::~Read()
         {
-            TLRENDER_P();
+            DTK_P();
             p.videoThread.running = false;
             p.audioThread.running = false;
             if (p.videoThread.thread.joinable())
@@ -252,7 +252,7 @@ namespace tl
 
         std::future<io::Info> Read::getInfo()
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             auto future = request->promise.get_future();
             bool valid = false;
@@ -279,7 +279,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
             request->options = io::merge(options, _options);
@@ -308,7 +308,7 @@ namespace tl
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->timeRange = timeRange;
             request->options = io::merge(options, _options);
@@ -341,7 +341,7 @@ namespace tl
 
         void Read::_videoThread()
         {
-            TLRENDER_P();
+            DTK_P();
             p.videoThread.currentTime = p.info.videoTime.start_time();
             p.readVideo->start();
             p.videoThread.logTimer = std::chrono::steady_clock::now();
@@ -462,7 +462,7 @@ namespace tl
 
         void Read::_audioThread()
         {
-            TLRENDER_P();
+            DTK_P();
             p.audioThread.currentTime = p.info.audioTime.start_time();
             p.readAudio->start();
             p.audioThread.logTimer = std::chrono::steady_clock::now();
@@ -600,7 +600,7 @@ namespace tl
 
         void Read::_cancelVideoRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {
@@ -620,7 +620,7 @@ namespace tl
 
         void Read::_cancelAudioRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::AudioRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);

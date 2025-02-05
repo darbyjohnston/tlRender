@@ -51,7 +51,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

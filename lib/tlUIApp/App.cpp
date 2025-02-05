@@ -25,7 +25,7 @@ namespace tl
 
             class Clipboard : public ui::IClipboard
             {
-                TLRENDER_NON_COPYABLE(Clipboard);
+                DTK_NON_COPYABLE(Clipboard);
 
             public:
                 Clipboard()
@@ -89,7 +89,7 @@ namespace tl
             const std::vector<std::shared_ptr<app::ICmdLineArg> >& cmdLineArgs,
             const std::vector<std::shared_ptr<app::ICmdLineOption> >& cmdLineOptions)
         {
-            TLRENDER_P();
+            DTK_P();
             if (const GLFWvidmode* monitorMode = glfwGetVideoMode(
                 glfwGetPrimaryMonitor()))
             {
@@ -135,7 +135,7 @@ namespace tl
 
         int App::run()
         {
-            TLRENDER_P();
+            DTK_P();
             while (0 == _exit && p.running && !p.windows.empty())
             {
                 const auto t0 = std::chrono::steady_clock::now();
@@ -192,7 +192,7 @@ namespace tl
 
         void App::addWindow(const std::shared_ptr<Window>& window)
         {
-            TLRENDER_P();
+            DTK_P();
             window->setClipboard(p.clipboard);
             p.windows.push_back(window);
 
@@ -212,7 +212,7 @@ namespace tl
 
         void App::removeWindow(const std::shared_ptr<Window>& window)
         {
-            TLRENDER_P();
+            DTK_P();
             p.windowsToRemove.push_back(window);
         }
 
@@ -225,7 +225,7 @@ namespace tl
             bool enabled,
             const ui::TickEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool parentsVisible = visible && widget->isVisible(false);
             const bool parentsEnabled = enabled && widget->isEnabled(false);
             for (const auto& child : widget->getChildren())
@@ -241,7 +241,7 @@ namespace tl
 
         void App::_removeWindow(const std::shared_ptr<Window>&window)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto i = std::find(p.windows.begin(), p.windows.end(), window);
             if (i != p.windows.end())
             {

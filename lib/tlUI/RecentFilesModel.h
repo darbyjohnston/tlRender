@@ -21,7 +21,7 @@ namespace tl
         //! Recent files model.
         class RecentFilesModel : public std::enable_shared_from_this<RecentFilesModel>
         {
-            TLRENDER_NON_COPYABLE(RecentFilesModel);
+            DTK_NON_COPYABLE(RecentFilesModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -57,7 +57,7 @@ namespace tl
             void addRecent(const file::Path&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

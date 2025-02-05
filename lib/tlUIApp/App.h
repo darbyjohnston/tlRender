@@ -30,7 +30,7 @@ namespace tl
         //! Base class for user interface applications.
         class App : public app::BaseApp
         {
-            TLRENDER_NON_COPYABLE(App);
+            DTK_NON_COPYABLE(App);
 
         protected:
             void _init(
@@ -78,7 +78,7 @@ namespace tl
         private:
             void _removeWindow(const std::shared_ptr<Window>&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

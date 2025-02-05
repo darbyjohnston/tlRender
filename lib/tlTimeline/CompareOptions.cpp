@@ -16,7 +16,7 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             CompareMode,
             "A",
             "B",
@@ -26,10 +26,11 @@ namespace tl
             "Horizontal",
             "Vertical",
             "Tile");
-        TLRENDER_ENUM_SERIALIZE_IMPL(CompareMode);
 
-        TLRENDER_ENUM_IMPL(CompareTimeMode, "Relative", "Absolute");
-        TLRENDER_ENUM_SERIALIZE_IMPL(CompareTimeMode);
+        DTK_ENUM_IMPL(
+            CompareTimeMode,
+            "Relative",
+            "Absolute");
 
         std::vector<dtk::Box2I> getBoxes(CompareMode mode, const std::vector<dtk::ImageInfo>& infos)
         {

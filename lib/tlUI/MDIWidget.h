@@ -26,13 +26,12 @@ namespace tl
             Count,
             First = North
         };
-        TLRENDER_ENUM(MDIResize);
-        TLRENDER_ENUM_SERIALIZE(MDIResize);
+        DTK_ENUM(MDIResize);
 
         //! MDI widget.
         class MDIWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(MDIWidget);
+            DTK_NON_COPYABLE(MDIWidget);
 
         protected:
             void _init(
@@ -78,7 +77,7 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

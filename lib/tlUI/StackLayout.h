@@ -13,7 +13,7 @@ namespace tl
         //! Stack layout.
         class StackLayout : public IWidget
         {
-            TLRENDER_NON_COPYABLE(StackLayout);
+            DTK_NON_COPYABLE(StackLayout);
 
         protected:
             void _init(
@@ -52,7 +52,7 @@ namespace tl
 
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

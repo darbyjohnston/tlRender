@@ -39,7 +39,7 @@ namespace tl
         {
             const bool shareContexts = app->getSettings()->getValue<bool>("OpenGL/ShareContexts");
             Window::_init(context, "tlplay 2", shareContexts ? window : nullptr);
-            TLRENDER_P();
+            DTK_P();
 
             p.viewport = timelineui::TimelineViewport::create(context);
             p.viewport->setParent(shared_from_this());
@@ -107,7 +107,7 @@ namespace tl
 
         SecondaryWindow::~SecondaryWindow()
         {
-            TLRENDER_P();
+            DTK_P();
             _makeCurrent();
             auto i = std::find(_children.begin(), _children.end(), p.viewport);
             if (i != _children.end())
@@ -131,7 +131,7 @@ namespace tl
             double zoom,
             bool frame)
         {
-            TLRENDER_P();
+            DTK_P();
             p.viewport->setViewPosAndZoom(pos, zoom);
             p.viewport->setFrameView(frame);
         }

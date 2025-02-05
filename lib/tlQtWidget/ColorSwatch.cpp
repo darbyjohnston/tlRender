@@ -36,7 +36,7 @@ namespace tl
 
         void ColorSwatch::setSwatchSize(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.swatchSize)
                 return;
             p.swatchSize = value;
@@ -50,13 +50,13 @@ namespace tl
 
         QSize ColorSwatch::minimumSizeHint() const
         {
-            TLRENDER_P();
+            DTK_P();
             return QSize(p.swatchSize, p.swatchSize);
         }
 
         void ColorSwatch::setColor(const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.color)
                 return;
             p.color = value;
@@ -66,14 +66,14 @@ namespace tl
 
         void ColorSwatch::paintEvent(QPaintEvent*)
         {
-            TLRENDER_P();
+            DTK_P();
             QPainter painter(this);
             painter.fillRect(0, 0, width(), height(), toQt(p.color));
         }
 
         void ColorSwatch::mousePressEvent(QMouseEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.editable)
             {
                 event->accept();
@@ -87,7 +87,7 @@ namespace tl
 
         void ColorSwatch::mouseReleaseEvent(QMouseEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.editable)
             {
                 event->accept();

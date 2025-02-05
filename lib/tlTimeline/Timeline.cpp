@@ -24,13 +24,12 @@ namespace tl
             const size_t readCacheMax = 10;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             FileSequenceAudio,
             "None",
             "BaseName",
             "FileName",
             "Directory");
-        TLRENDER_ENUM_SERIALIZE_IMPL(FileSequenceAudio);
 
         bool Options::operator == (const Options& other) const
         {
@@ -54,7 +53,7 @@ namespace tl
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
             const Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto logSystem = context->getLogSystem();
             {
@@ -178,7 +177,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     p.thread.logTimer = std::chrono::steady_clock::now();
                     while (p.thread.running)
                     {
@@ -194,7 +193,7 @@ namespace tl
 
         Timeline::~Timeline()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -219,7 +218,7 @@ namespace tl
 
         void Timeline::setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.otioTimeline = value;
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             if (!p.mutex.stopped)
@@ -257,7 +256,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::VideoRequest>();
             request->id = p.requestId;
@@ -290,7 +289,7 @@ namespace tl
             double seconds,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::AudioRequest>();
             request->id = p.requestId;
@@ -321,7 +320,7 @@ namespace tl
 
         void Timeline::cancelRequests(const std::vector<uint64_t>& ids)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             {
                 auto i = p.mutex.videoRequests.begin();
@@ -357,7 +356,7 @@ namespace tl
 
         void Timeline::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             bool otioTimelineChanged = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);

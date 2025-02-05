@@ -16,7 +16,7 @@ namespace tl
 
         void RecentFilesModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             p.recentMax = dtk::ObservableValue<size_t>::create(10);
             p.recent = dtk::ObservableList<file::Path>::create();
         }
@@ -48,7 +48,7 @@ namespace tl
 
         void RecentFilesModel::setRecentMax(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.recentMax->setIfChanged(value))
             {
                 if (p.recent->getSize() > p.recentMax->get())
@@ -75,7 +75,7 @@ namespace tl
 
         void RecentFilesModel::setRecent(const std::vector<file::Path>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto recent = value;
             while (recent.size() > p.recentMax->get())
             {
@@ -86,7 +86,7 @@ namespace tl
 
         void RecentFilesModel::addRecent(const file::Path& value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto recent = p.recent->get();
             auto i = recent.begin();
             while (i != recent.end())

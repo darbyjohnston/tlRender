@@ -15,7 +15,7 @@ namespace tl
         //! Base class for popup widgets.
         class IWidgetPopup : public IPopup
         {
-            TLRENDER_NON_COPYABLE(IWidgetPopup);
+            DTK_NON_COPYABLE(IWidgetPopup);
 
         protected:
             void _init(
@@ -53,7 +53,7 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

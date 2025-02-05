@@ -67,7 +67,7 @@ namespace tl
 
         void ThumbnailCache::setMax(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.max)
                 return;
             p.max = value;
@@ -76,14 +76,14 @@ namespace tl
 
         size_t ThumbnailCache::getSize() const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.getSize() + p.thumbnails.getSize() + p.waveforms.getSize();
         }
 
         float ThumbnailCache::getPercentage() const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return
                 (p.info.getSize() + p.thumbnails.getSize() + p.waveforms.getSize()) /
@@ -105,21 +105,21 @@ namespace tl
 
         void ThumbnailCache::addInfo(const std::string& key, const io::Info& info)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.info.add(key, info);
         }
 
         bool ThumbnailCache::containsInfo(const std::string& key)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.contains(key);
         }
 
         bool ThumbnailCache::getInfo(const std::string& key, io::Info& info) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.get(key, info);
         }
@@ -145,14 +145,14 @@ namespace tl
             const std::string& key,
             const std::shared_ptr<dtk::Image>& thumbnail)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.thumbnails.add(key, thumbnail);
         }
 
         bool ThumbnailCache::containsThumbnail(const std::string& key)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.thumbnails.contains(key);
         }
@@ -161,7 +161,7 @@ namespace tl
             const std::string& key,
             std::shared_ptr<dtk::Image>& thumbnail) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.thumbnails.get(key, thumbnail);
         }
@@ -187,14 +187,14 @@ namespace tl
             const std::string& key,
             const std::shared_ptr<dtk::TriMesh2F>& waveform)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.waveforms.add(key, waveform);
         }
 
         bool ThumbnailCache::containsWaveform(const std::string& key)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.waveforms.contains(key);
         }
@@ -203,14 +203,14 @@ namespace tl
             const std::string& key,
             std::shared_ptr<dtk::TriMesh2F>& waveform) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.waveforms.get(key, waveform);
         }
 
         void ThumbnailCache::_maxUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.info.setMax(p.max);
             p.thumbnails.setMax(p.max);
@@ -313,7 +313,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<dtk::gl::Window>& window)
         {
-            TLRENDER_P();
+            DTK_P();
             
             p.context = context;
 
@@ -333,7 +333,7 @@ namespace tl
             p.infoThread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     while (p.infoThread.running)
                     {
                         _infoRun();
@@ -350,7 +350,7 @@ namespace tl
             p.thumbnailThread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     p.window->makeCurrent();
                     if (auto context = p.context.lock())
                     {
@@ -375,7 +375,7 @@ namespace tl
             p.waveformThread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     while (p.waveformThread.running)
                     {
                         _waveformRun();
@@ -394,7 +394,7 @@ namespace tl
 
         ThumbnailGenerator::~ThumbnailGenerator()
         {
-            TLRENDER_P();
+            DTK_P();
             p.infoThread.running = false;
             if (p.infoThread.thread.joinable())
             {
@@ -434,7 +434,7 @@ namespace tl
             const std::vector<dtk::InMemoryFile>& memoryRead,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = p.requestId;
@@ -480,7 +480,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::ThumbnailRequest>();
             request->id = p.requestId;
@@ -530,7 +530,7 @@ namespace tl
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::WaveformRequest>();
             request->id = p.requestId;
@@ -566,7 +566,7 @@ namespace tl
 
         void ThumbnailGenerator::cancelRequests(const std::vector<uint64_t>& ids)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
                 auto i = p.infoMutex.requests.begin();
@@ -619,7 +619,7 @@ namespace tl
 
         void ThumbnailGenerator::_infoRun()
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<Private::InfoRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
@@ -671,7 +671,7 @@ namespace tl
 
         void ThumbnailGenerator::_thumbnailRun()
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<Private::ThumbnailRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
@@ -948,7 +948,7 @@ namespace tl
 
         void ThumbnailGenerator::_waveformRun()
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<Private::WaveformRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);
@@ -1021,7 +1021,7 @@ namespace tl
 
         void ThumbnailGenerator::_infoCancel()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
@@ -1035,7 +1035,7 @@ namespace tl
 
         void ThumbnailGenerator::_thumbnailCancel()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::ThumbnailRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
@@ -1049,7 +1049,7 @@ namespace tl
 
         void ThumbnailGenerator::_waveformCancel()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::WaveformRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);
@@ -1071,7 +1071,7 @@ namespace tl
             ISystem(context, "tl::ui::ThumbnailSystem"),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.cache = ThumbnailCache::create(context);
             p.generator = ThumbnailGenerator::create(p.cache, context);
         }

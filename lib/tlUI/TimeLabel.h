@@ -18,7 +18,7 @@ namespace tl
         //! Time label.
         class TimeLabel : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TimeLabel);
+            DTK_NON_COPYABLE(TimeLabel);
 
         protected:
             void _init(
@@ -59,7 +59,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

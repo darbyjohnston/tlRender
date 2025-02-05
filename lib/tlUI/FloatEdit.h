@@ -14,7 +14,7 @@ namespace tl
         //! Floating point number editor.
         class FloatEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FloatEdit);
+            DTK_NON_COPYABLE(FloatEdit);
 
         protected:
             void _init(
@@ -71,7 +71,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

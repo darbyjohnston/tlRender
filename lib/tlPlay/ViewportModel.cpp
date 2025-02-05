@@ -22,14 +22,14 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<Settings>& settings)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
             p.settings = settings;
 
             p.settings->setDefaultValue("Viewport/Background", timeline::BackgroundOptions());
             p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
-                p.settings->getValue< timeline::BackgroundOptions>("Viewport/Background"));
+                p.settings->getValue<timeline::BackgroundOptions>("Viewport/Background"));
             p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create();
         }
 

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Range.h>
 #include <dtk/core/Vector.h>
 #include <dtk/core/Util.h>

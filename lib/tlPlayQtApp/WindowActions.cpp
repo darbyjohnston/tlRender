@@ -28,7 +28,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 

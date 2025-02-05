@@ -36,7 +36,7 @@ namespace tl
             QDialog(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 
@@ -120,7 +120,7 @@ namespace tl
 
         void OpenSeparateAudioDialog::_browseVideoCallback()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = p.context.lock())
             {
                 if (auto fileBrowserSystem = context->getSystem<qtwidget::FileBrowserSystem>())
@@ -142,13 +142,13 @@ namespace tl
 
         void OpenSeparateAudioDialog::_audioLineEditCallback(const QString& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.audioFileName = value.toUtf8().data();
         }
 
         void OpenSeparateAudioDialog::_browseAudioCallback()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = p.context.lock())
             {
                 if (auto fileBrowserSystem = context->getSystem<qtwidget::FileBrowserSystem>())

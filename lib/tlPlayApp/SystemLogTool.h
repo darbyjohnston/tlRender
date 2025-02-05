@@ -18,7 +18,7 @@ namespace tl
         //! new log items are received.
         class SystemLogTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(SystemLogTool);
+            DTK_NON_COPYABLE(SystemLogTool);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

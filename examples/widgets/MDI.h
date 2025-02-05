@@ -15,7 +15,7 @@ namespace tl
             //! MDI example.
             class MDI : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(MDI);
+                DTK_NON_COPYABLE(MDI);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

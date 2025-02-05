@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ObservableValue.h>
 #include <dtk/core/Range.h>
 
@@ -21,7 +19,7 @@ namespace tl
         //! Double precision floating point value model.
         class DoubleModel : public std::enable_shared_from_this<DoubleModel>
         {
-            TLRENDER_NON_COPYABLE(DoubleModel);
+            DTK_NON_COPYABLE(DoubleModel);
 
             void _init(const std::shared_ptr<dtk::Context>&);
 
@@ -116,7 +114,7 @@ namespace tl
             ///@}
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -44,7 +44,7 @@ namespace tl
         //! Application.
         class App : public ui_app::App
         {
-            TLRENDER_NON_COPYABLE(App);
+            DTK_NON_COPYABLE(App);
 
         protected:
             void _init(
@@ -135,7 +135,7 @@ namespace tl
             void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

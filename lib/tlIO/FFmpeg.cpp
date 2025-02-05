@@ -25,7 +25,7 @@ namespace tl
 {
     namespace ffmpeg
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Profile,
             "None",
             "H264",
@@ -35,7 +35,6 @@ namespace tl
             "ProRes_HQ",
             "ProRes_4444",
             "ProRes_XQ");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Profile);
 
         AVRational swap(AVRational value)
         {

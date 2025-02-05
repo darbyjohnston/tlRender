@@ -40,8 +40,7 @@ namespace tl
             Count,
             First = Stop
         };
-        TLRENDER_ENUM(Playback);
-        TLRENDER_ENUM_SERIALIZE(Playback);
+        DTK_ENUM(Playback);
 
         //! Playback loop modes.
         enum class Loop
@@ -53,8 +52,7 @@ namespace tl
             Count,
             First = Loop
         };
-        TLRENDER_ENUM(Loop);
-        TLRENDER_ENUM_SERIALIZE(Loop);
+        DTK_ENUM(Loop);
 
         //! Time actions.
         enum class TimeAction
@@ -75,13 +73,12 @@ namespace tl
             Count,
             First = Start
         };
-        TLRENDER_ENUM(TimeAction);
-        TLRENDER_ENUM_SERIALIZE(TimeAction);
+        DTK_ENUM(TimeAction);
 
         //! Timeline player.
         class Player : public std::enable_shared_from_this<Player>
         {
-            TLRENDER_NON_COPYABLE(Player);
+            DTK_NON_COPYABLE(Player);
 
         protected:
             void _init(
@@ -371,7 +368,7 @@ namespace tl
         private:
             void _thread();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

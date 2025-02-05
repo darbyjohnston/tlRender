@@ -15,7 +15,7 @@ namespace tl
         //! Render actions.
         class RenderActions : public std::enable_shared_from_this<RenderActions>
         {
-            TLRENDER_NON_COPYABLE(RenderActions);
+            DTK_NON_COPYABLE(RenderActions);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

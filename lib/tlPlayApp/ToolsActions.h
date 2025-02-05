@@ -15,7 +15,7 @@ namespace tl
         //! Tools actions.
         class ToolsActions : public std::enable_shared_from_this<ToolsActions>
         {
-            TLRENDER_NON_COPYABLE(ToolsActions);
+            DTK_NON_COPYABLE(ToolsActions);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

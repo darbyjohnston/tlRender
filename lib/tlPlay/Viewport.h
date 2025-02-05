@@ -12,7 +12,7 @@ namespace tl
     {
         class Viewport : public timelineui::TimelineViewport
         {
-            TLRENDER_NON_COPYABLE(Viewport);
+            DTK_NON_COPYABLE(Viewport);
 
         protected:
             void _init(
@@ -49,7 +49,7 @@ namespace tl
             void _colorPickersUpdate();
             void _colorWidgetsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

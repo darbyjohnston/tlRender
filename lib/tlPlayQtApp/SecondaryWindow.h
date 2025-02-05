@@ -36,7 +36,7 @@ namespace tl
                 bool            frame);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

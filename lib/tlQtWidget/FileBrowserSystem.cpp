@@ -31,7 +31,7 @@ namespace tl
             ISystem(context, "tl::ui::FileBrowserSystem"),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.path = file::getCWD();
 
@@ -72,7 +72,7 @@ namespace tl
             QWidget* window,
             const std::function<void(const file::Path&)>& callback)
         {
-            TLRENDER_P();
+            DTK_P();
             bool native = p.native;
 #if defined(TLRENDER_NFD)
             if (native)

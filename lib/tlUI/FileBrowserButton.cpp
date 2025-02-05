@@ -67,7 +67,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::ui::ListButton", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setButtonRole(ColorRole::None);
             setAcceptsKeyFocus(true);
@@ -143,7 +143,7 @@ namespace tl
 
         Button::~Button()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto thumbnailSystem = p.thumbnailSystem.lock())
             {
                 if (p.info.request.future.valid())
@@ -184,7 +184,7 @@ namespace tl
             const TickEvent& event)
         {
             IButton::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (p.info.request.future.valid() &&
                 p.info.request.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
@@ -205,7 +205,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -258,7 +258,7 @@ namespace tl
         void Button::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (!clipped)
             {
                 if (p.options.thumbnails)
@@ -312,7 +312,7 @@ namespace tl
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();

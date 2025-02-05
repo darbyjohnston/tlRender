@@ -183,7 +183,7 @@ namespace tl
             const std::shared_ptr<Window>& share)
         {
             IWindow::_init("tl::ui::Window", context, nullptr);
-            TLRENDER_P();
+            DTK_P();
 
             p.windowSize = dtk::ObservableValue<dtk::Size2I>::create(dtk::Size2I(1920, 1080));
             p.visible = dtk::ObservableValue<bool>::create(false);
@@ -251,7 +251,7 @@ namespace tl
             p.glWindow->setKeyCallback(
                 [this](int key, int scanCode, int action, int modifiers)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     p.modifiers = modifiers;
                     switch (action)
                     {
@@ -353,7 +353,7 @@ namespace tl
 
         void Window::setFullScreen(bool value, int screen)
         {
-            TLRENDER_P();
+            DTK_P();
             p.glWindow->setFullScreen(value, screen);
             p.fullScreen->setIfChanged(value);
         }
@@ -370,7 +370,7 @@ namespace tl
 
         void Window::setFloatOnTop(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.glWindow->setFloatOnTop(value);
             p.floatOnTop->setIfChanged(value);
         }
@@ -416,7 +416,7 @@ namespace tl
         void Window::setVisible(bool value)
         {
             IWindow::setVisible(value);
-            TLRENDER_P();
+            DTK_P();
             if (p.visible->setIfChanged(value))
             {
                 if (value)
@@ -436,7 +436,7 @@ namespace tl
             const ui::TickEvent& event)
         {
             IWindow::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
 
             if (_hasSizeUpdate(shared_from_this()))
             {
@@ -622,7 +622,7 @@ namespace tl
 
         void Window::_makeCurrent()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.glWindow)
             {
                 p.glWindow->makeCurrent();
@@ -631,7 +631,7 @@ namespace tl
 
         void Window::_doneCurrent()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.glWindow)
             {
                 p.glWindow->doneCurrent();

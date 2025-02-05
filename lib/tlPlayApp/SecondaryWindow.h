@@ -17,7 +17,7 @@ namespace tl
         //! Secondary window.
         class SecondaryWindow : public ui_app::Window
         {
-            TLRENDER_NON_COPYABLE(SecondaryWindow);
+            DTK_NON_COPYABLE(SecondaryWindow);
 
         protected:
             void _init(
@@ -42,7 +42,7 @@ namespace tl
                 bool            frame);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

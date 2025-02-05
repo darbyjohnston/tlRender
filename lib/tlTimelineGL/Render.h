@@ -17,7 +17,7 @@ namespace tl
         //! OpenGL renderer.
         class Render : public timeline::IRender
         {
-            TLRENDER_NON_COPYABLE(Render);
+            DTK_NON_COPYABLE(Render);
 
         protected:
             void _init(
@@ -154,7 +154,7 @@ namespace tl
                 const std::shared_ptr<dtk::ImageOptions>&,
                 const timeline::DisplayOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

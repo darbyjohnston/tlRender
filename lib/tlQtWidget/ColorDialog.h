@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Color.h>
+#include <dtk/core/Util.h>
 
 #include <QDialog>
 
@@ -30,7 +29,7 @@ namespace tl
             const dtk::Color4F& color() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

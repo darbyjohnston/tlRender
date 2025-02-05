@@ -88,7 +88,7 @@ namespace tl
             const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            TLRENDER_P();
+            DTK_P();
             _cache = cache;
             _logSystem = logSystem;
             p.name = name;

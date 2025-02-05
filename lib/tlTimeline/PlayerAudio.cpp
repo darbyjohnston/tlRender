@@ -25,7 +25,7 @@ namespace tl
 
         void Player::setAudioDevice(const audio::DeviceID& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.audioDevice->setIfChanged(value))
             {
                 if (auto context = getContext())
@@ -47,7 +47,7 @@ namespace tl
 
         void Player::setVolume(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.volume->setIfChanged(dtk::clamp(value, 0.F, 1.F)))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
@@ -67,7 +67,7 @@ namespace tl
 
         void Player::setMute(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.mute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
@@ -87,7 +87,7 @@ namespace tl
 
         void Player::setChannelMute(const std::vector<bool>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.channelMute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
@@ -107,7 +107,7 @@ namespace tl
 
         void Player::setAudioOffset(double value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.audioOffset->setIfChanged(value))
             {
                 {

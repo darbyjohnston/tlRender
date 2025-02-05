@@ -66,7 +66,7 @@ namespace tl
 
         void Icon::setIcon(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.icon)
                 return;
             p.icon = value;
@@ -78,7 +78,7 @@ namespace tl
 
         void Icon::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -92,7 +92,7 @@ namespace tl
             const TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (p.iconFuture.valid() &&
                 p.iconFuture.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
@@ -106,7 +106,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -138,7 +138,7 @@ namespace tl
         void Icon::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
             }
@@ -149,7 +149,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = margin(_geometry, -p.size.margin);
             if (p.iconImage)
             {

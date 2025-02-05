@@ -16,7 +16,7 @@ namespace tl
         //! Timeline actions.
         class TimelineActions : public std::enable_shared_from_this<TimelineActions>
         {
-            TLRENDER_NON_COPYABLE(TimelineActions);
+            DTK_NON_COPYABLE(TimelineActions);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

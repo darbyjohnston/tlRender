@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -25,8 +25,7 @@ namespace tl
             Count,
             First = PostColorConfig
         };
-        TLRENDER_ENUM(LUTOrder);
-        TLRENDER_ENUM_SERIALIZE(LUTOrder);
+        DTK_ENUM(LUTOrder);
 
         //! LUT options.
         struct LUTOptions

@@ -14,7 +14,7 @@ namespace tl
         //! Floating point value editor and slider.
         class FloatEditSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FloatEditSlider);
+            DTK_NON_COPYABLE(FloatEditSlider);
 
         protected:
             void _init(
@@ -70,7 +70,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

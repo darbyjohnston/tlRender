@@ -36,13 +36,13 @@ namespace tl
                 void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
 
             //! Scroll areas.
             class ScrollAreas : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(ScrollAreas);
+                DTK_NON_COPYABLE(ScrollAreas);
 
             protected:
                 void _init(
@@ -62,7 +62,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

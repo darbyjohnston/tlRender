@@ -33,7 +33,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             _app = app;
             p.tool = tool;

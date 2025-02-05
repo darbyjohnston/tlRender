@@ -13,7 +13,7 @@ namespace tl
         //! Base class for buttons.
         class IButton : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IButton);
+            DTK_NON_COPYABLE(IButton);
 
         protected:
             void _init(
@@ -101,7 +101,7 @@ namespace tl
             std::function<void(bool)> _checkedCallback;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

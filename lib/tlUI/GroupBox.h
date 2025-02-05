@@ -13,7 +13,7 @@ namespace tl
         //! Group box.
         class GroupBox : public IWidget
         {
-            TLRENDER_NON_COPYABLE(GroupBox);
+            DTK_NON_COPYABLE(GroupBox);
 
         protected:
             void _init(
@@ -48,7 +48,7 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

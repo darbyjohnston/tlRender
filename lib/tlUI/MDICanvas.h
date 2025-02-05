@@ -15,7 +15,7 @@ namespace tl
         //! \todo Add support for maximizing MDI widgets.
         class MDICanvas : public IWidget
         {
-            TLRENDER_NON_COPYABLE(MDICanvas);
+            DTK_NON_COPYABLE(MDICanvas);
 
         protected:
             void _init(
@@ -44,7 +44,7 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

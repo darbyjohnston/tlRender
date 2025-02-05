@@ -27,7 +27,7 @@ namespace tl
 
             class DragAndDropWidget : public ui::IWidget
             {
-                TLRENDER_NON_COPYABLE(DragAndDropWidget);
+                DTK_NON_COPYABLE(DragAndDropWidget);
 
             protected:
                 void _init(
@@ -60,13 +60,13 @@ namespace tl
             private:
                 void _textUpdate();
 
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
 
             //! Drag and drop.
             class DragAndDrop : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(DragAndDrop);
+                DTK_NON_COPYABLE(DragAndDrop);
 
             protected:
                 void _init(
@@ -86,7 +86,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

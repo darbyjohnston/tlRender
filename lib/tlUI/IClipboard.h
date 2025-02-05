@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <memory>
 #include <string>
@@ -21,7 +21,7 @@ namespace tl
         //! Base class for clipboards.
         class IClipboard : public std::enable_shared_from_this<IClipboard>
         {
-            TLRENDER_NON_COPYABLE(IClipboard);
+            DTK_NON_COPYABLE(IClipboard);
 
         protected:
             void _init(

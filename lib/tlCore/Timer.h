@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <tlCore/ISystem.h>
 
 namespace tl
@@ -15,7 +13,7 @@ namespace tl
         //! Timer.
         class Timer : public std::enable_shared_from_this<Timer>
         {
-            TLRENDER_NON_COPYABLE(Timer);
+            DTK_NON_COPYABLE(Timer);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -59,13 +57,13 @@ namespace tl
             void tick();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Timer system.
         class TimerSystem : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(TimerSystem);
+            DTK_NON_COPYABLE(TimerSystem);
 
         protected:
             TimerSystem(const std::shared_ptr<dtk::Context>&);
@@ -82,7 +80,7 @@ namespace tl
             std::chrono::milliseconds getTickTime() const override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

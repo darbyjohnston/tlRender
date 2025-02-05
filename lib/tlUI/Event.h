@@ -240,8 +240,7 @@ namespace tl
             Count,
             First = Unknown
         };
-        TLRENDER_ENUM(Key);
-        TLRENDER_ENUM_SERIALIZE(Key);
+        DTK_ENUM(Key);
 
         //! Get a keyboard shortcut label.
         std::string getLabel(Key, int modifiers = 0);

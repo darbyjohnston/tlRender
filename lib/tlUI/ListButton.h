@@ -13,7 +13,7 @@ namespace tl
         //! List button.
         class ListButton : public IButton
         {
-            TLRENDER_NON_COPYABLE(ListButton);
+            DTK_NON_COPYABLE(ListButton);
 
         protected:
             void _init(
@@ -49,7 +49,7 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

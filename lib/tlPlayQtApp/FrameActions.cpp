@@ -29,7 +29,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.actions["Start"] = new QAction(parent);
             p.actions["Start"]->setText(tr("Go To Start"));
@@ -249,14 +249,14 @@ namespace tl
 
         void FrameActions::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
-            TLRENDER_P();
+            DTK_P();
             p.player = player;
             _actionsUpdate();
         }
 
         void FrameActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             QList<QString> keys = p.actions.keys();
             for (auto i : keys)
             {

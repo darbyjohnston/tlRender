@@ -14,7 +14,7 @@ namespace tl
     {
         class OCIOWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(OCIOWidget);
+            DTK_NON_COPYABLE(OCIOWidget);
 
         protected:
             void _init(
@@ -36,12 +36,12 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class LUTWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(LUTWidget);
+            DTK_NON_COPYABLE(LUTWidget);
 
         protected:
             void _init(
@@ -63,12 +63,12 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class ColorWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(ColorWidget);
+            DTK_NON_COPYABLE(ColorWidget);
 
         protected:
             void _init(
@@ -90,12 +90,12 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class LevelsWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(LevelsWidget);
+            DTK_NON_COPYABLE(LevelsWidget);
 
         protected:
             void _init(
@@ -117,12 +117,12 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class EXRDisplayWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(EXRDisplayWidget);
+            DTK_NON_COPYABLE(EXRDisplayWidget);
 
         protected:
             void _init(
@@ -144,12 +144,12 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class SoftClipWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(SoftClipWidget);
+            DTK_NON_COPYABLE(SoftClipWidget);
 
         protected:
             void _init(
@@ -171,7 +171,7 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

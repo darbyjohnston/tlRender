@@ -38,7 +38,7 @@ namespace tl
             void MainWindow::_init(const std::shared_ptr<dtk::Context>& context)
             {
                 Window::_init(context, "widgets", nullptr);
-                TLRENDER_P();
+                DTK_P();
 
                 setBackgroundRole(ui::ColorRole::Window);
 

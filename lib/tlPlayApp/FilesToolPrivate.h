@@ -14,7 +14,7 @@ namespace tl
     {
         class FileButton : public ui::IButton
         {
-            TLRENDER_NON_COPYABLE(FileButton);
+            DTK_NON_COPYABLE(FileButton);
 
         protected:
             void _init(
@@ -43,7 +43,7 @@ namespace tl
             void keyReleaseEvent(ui::KeyEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

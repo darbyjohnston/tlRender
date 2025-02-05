@@ -35,7 +35,7 @@ namespace tl
 
             class ContainerWindow : public ui::IWindow
             {
-                TLRENDER_NON_COPYABLE(ContainerWindow);
+                DTK_NON_COPYABLE(ContainerWindow);
 
             public:
                 void _init(const std::shared_ptr<dtk::Context>& context)
@@ -100,7 +100,7 @@ namespace tl
 
             class Clipboard : public ui::IClipboard
             {
-                TLRENDER_NON_COPYABLE(Clipboard);
+                DTK_NON_COPYABLE(Clipboard);
 
             public:
                 void _init(const std::shared_ptr<dtk::Context>& context)
@@ -163,7 +163,7 @@ namespace tl
             QOpenGLWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 
@@ -202,7 +202,7 @@ namespace tl
 
         void ContainerWidget::setWidget(const std::shared_ptr<ui::IWidget>& widget)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.widget)
             {
                 p.widget->setParent(nullptr);
@@ -221,7 +221,7 @@ namespace tl
 
         void ContainerWidget::setInputEnabled(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.inputEnabled)
                 return;
             p.inputEnabled = value;
@@ -230,7 +230,7 @@ namespace tl
 
         QSize ContainerWidget::minimumSizeHint() const
         {
-            TLRENDER_P();
+            DTK_P();
             dtk::Size2I sizeHint;
             if (p.widget)
             {
@@ -254,7 +254,7 @@ namespace tl
 
         void ContainerWidget::initializeGL()
         {
-            TLRENDER_P();
+            DTK_P();
             initializeOpenGLFunctions();
             dtk::gl::initGLAD();
             if (auto context = p.context.lock())
@@ -310,7 +310,7 @@ namespace tl
 
         void ContainerWidget::resizeGL(int w, int h)
         {
-            TLRENDER_P();
+            DTK_P();
             _setGeometry();
             p.vao.reset();
             p.vbo.reset();
@@ -318,7 +318,7 @@ namespace tl
 
         void ContainerWidget::paintGL()
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Size2I renderSize(_toUI(width()), _toUI(height()));
             if (_hasDrawUpdate(p.window))
             {
@@ -418,7 +418,7 @@ namespace tl
         void ContainerWidget::enterEvent(QEnterEvent* event)
 #endif // QT_VERSION
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 event->accept();
@@ -432,7 +432,7 @@ namespace tl
 
         void ContainerWidget::leaveEvent(QEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 event->accept();
@@ -464,7 +464,7 @@ namespace tl
 
         void ContainerWidget::mousePressEvent(QMouseEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 event->accept();
@@ -487,7 +487,7 @@ namespace tl
 
         void ContainerWidget::mouseReleaseEvent(QMouseEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 event->accept();
@@ -508,7 +508,7 @@ namespace tl
 
         void ContainerWidget::mouseMoveEvent(QMouseEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 event->accept();
@@ -519,7 +519,7 @@ namespace tl
 
         void ContainerWidget::wheelEvent(QWheelEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled)
             {
                 const auto now = std::chrono::steady_clock::now();
@@ -632,7 +632,7 @@ namespace tl
 
         void ContainerWidget::keyPressEvent(QKeyEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled &&
                 p.window->key(
                     fromQtKey(event->key()),
@@ -649,7 +649,7 @@ namespace tl
 
         void ContainerWidget::keyReleaseEvent(QKeyEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inputEnabled &&
                 p.window->key(
                     fromQtKey(event->key()),
@@ -666,7 +666,7 @@ namespace tl
 
         bool ContainerWidget::event(QEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             bool out = QOpenGLWidget::event(event);
             if (event->type() == QEvent::StyleChange)
             {
@@ -701,7 +701,7 @@ namespace tl
 
         void ContainerWidget::_tickEvent()
         {
-            TLRENDER_P();
+            DTK_P();
             ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
             _tickEvent(_p->window, true, true, tickEvent);
         }
@@ -712,7 +712,7 @@ namespace tl
             bool enabled,
             const ui::TickEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool parentsVisible = visible && widget->isVisible(false);
             const bool parentsEnabled = enabled && widget->isEnabled(false);
             for (const auto& child : widget->getChildren())
@@ -745,7 +745,7 @@ namespace tl
 
         void ContainerWidget::_sizeHintEvent()
         {
-            TLRENDER_P();
+            DTK_P();
             const float devicePixelRatio = window()->devicePixelRatio();
             ui::SizeHintEvent sizeHintEvent(
                 p.style,
@@ -768,14 +768,14 @@ namespace tl
 
         void ContainerWidget::_setGeometry()
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I geometry(0, 0, _toUI(width()), _toUI(height()));
             p.window->setGeometry(geometry);
         }
 
         void ContainerWidget::_clipEvent()
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I geometry(0, 0, _toUI(width()), _toUI(height()));
             _clipEvent(p.window, geometry, false);
         }
@@ -854,7 +854,7 @@ namespace tl
 
         void ContainerWidget::_inputUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             setMouseTracking(p.inputEnabled);
             setFocusPolicy(p.inputEnabled ? Qt::StrongFocus : Qt::NoFocus);
             if (!p.inputEnabled)
@@ -884,7 +884,7 @@ namespace tl
 
         void ContainerWidget::_styleUpdate()
         {
-            /*TLRENDER_P();
+            /*DTK_P();
             const auto palette = this->palette();
             p.style->setColorRole(
                 ui::ColorRole::Window,

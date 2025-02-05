@@ -15,7 +15,7 @@ namespace tl
         //! Base class for windows.
         class IWindow : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IWindow);
+            DTK_NON_COPYABLE(IWindow);
 
         protected:
             IWindow();
@@ -70,7 +70,7 @@ namespace tl
                 const std::shared_ptr<IWidget>&,
                 std::list<std::shared_ptr<IWidget> >&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

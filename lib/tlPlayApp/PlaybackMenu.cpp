@@ -32,7 +32,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
             addItem(p.actions["Stop"]);
@@ -93,7 +93,7 @@ namespace tl
 
         void PlaybackMenu::_setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.playbackObserver.reset();
             p.loopObserver.reset();
             p.player = value;
@@ -116,7 +116,7 @@ namespace tl
 
         void PlaybackMenu::_playbackUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::map<timeline::Playback, bool> values;
             for (const auto& value : timeline::getPlaybackEnums())
             {
@@ -133,7 +133,7 @@ namespace tl
 
         void PlaybackMenu::_loopUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::map<timeline::Loop, bool> values;
             for (const auto& value : timeline::getLoopEnums())
             {

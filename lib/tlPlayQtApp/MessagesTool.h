@@ -23,7 +23,7 @@ namespace tl
             virtual ~MessagesTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Messages tool dock widget.

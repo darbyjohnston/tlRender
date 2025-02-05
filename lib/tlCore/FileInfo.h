@@ -22,8 +22,7 @@ namespace tl
             Count,
             First = File
         };
-        TLRENDER_ENUM(Type);
-        TLRENDER_ENUM_SERIALIZE(Type);
+        DTK_ENUM(Type);
 
         //! File permissions.
         enum class Permissions
@@ -80,8 +79,7 @@ namespace tl
             Count,
             First = Name
         };
-        TLRENDER_ENUM(ListSort);
-        TLRENDER_ENUM_SERIALIZE(ListSort);
+        DTK_ENUM(ListSort);
 
         //! Directory list options.
         struct ListOptions

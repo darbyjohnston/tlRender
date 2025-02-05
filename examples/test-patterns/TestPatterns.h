@@ -14,7 +14,7 @@ namespace tl
         {
             class ITestPattern : public std::enable_shared_from_this<ITestPattern>
             {
-                TLRENDER_NON_COPYABLE(ITestPattern);
+                DTK_NON_COPYABLE(ITestPattern);
 
             protected:
                 void _init(

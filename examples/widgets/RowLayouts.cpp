@@ -29,7 +29,7 @@ namespace tl
                     "tl::examples::widgets::RowLayouts",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 std::vector<std::shared_ptr<ui::Label> > labels;
                 for (size_t i = 0; i < 6; ++i)

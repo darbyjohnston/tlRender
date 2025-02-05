@@ -14,7 +14,7 @@ namespace tl
         //! Double precision floating point number editor.
         class DoubleEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(DoubleEdit);
+            DTK_NON_COPYABLE(DoubleEdit);
 
         protected:
             void _init(
@@ -71,7 +71,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

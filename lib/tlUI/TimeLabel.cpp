@@ -49,7 +49,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimeLabel", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
@@ -96,7 +96,7 @@ namespace tl
 
         void TimeLabel::setValue(const OTIO_NS::RationalTime& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value.strictly_equal(p.value))
                 return;
             p.value = value;
@@ -105,7 +105,7 @@ namespace tl
 
         void TimeLabel::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -116,7 +116,7 @@ namespace tl
 
         void TimeLabel::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -129,7 +129,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -157,7 +157,7 @@ namespace tl
         void TimeLabel::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -169,7 +169,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
@@ -196,7 +196,7 @@ namespace tl
 
         void TimeLabel::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.text = std::string();
             p.format = std::string();
             if (p.timeUnitsModel)

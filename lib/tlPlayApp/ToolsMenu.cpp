@@ -25,7 +25,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
 

@@ -39,7 +39,7 @@ namespace tl
                 "tl::play_app::ToolsWidget",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.toolWidgets[Tool::Audio] = AudioTool::create(context, app);
             p.toolWidgets[Tool::Color] = ColorTool::create(context, app);

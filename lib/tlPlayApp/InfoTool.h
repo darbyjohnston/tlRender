@@ -17,7 +17,7 @@ namespace tl
         //! Information tool.
         class InfoTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(InfoTool);
+            DTK_NON_COPYABLE(InfoTool);
 
         protected:
             void _init(
@@ -38,7 +38,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -80,7 +80,7 @@ namespace tl
             int row,
             int column)
         {
-            TLRENDER_P();
+            DTK_P();
             p.gridPos[child].row = row;
             p.gridPos[child].column = column;
             _updates |= Update::Size;
@@ -89,7 +89,7 @@ namespace tl
 
         void GridLayout::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -99,7 +99,7 @@ namespace tl
 
         void GridLayout::setSpacingRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.spacingRole)
                 return;
             p.spacingRole = value;
@@ -110,7 +110,7 @@ namespace tl
         void GridLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
 
@@ -231,7 +231,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -274,7 +274,7 @@ namespace tl
 
         void GridLayout::childRemovedEvent(const ChildEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto i = p.gridPos.find(event.child);
             if (i != p.gridPos.end())
             {

@@ -25,7 +25,7 @@ namespace tl
             virtual ~AudioDeviceWidget();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Audio offset widget.
@@ -39,7 +39,7 @@ namespace tl
             virtual ~AudioOffsetWidget();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Audio tool.
@@ -53,7 +53,7 @@ namespace tl
             virtual ~AudioTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Audio tool dock widget.

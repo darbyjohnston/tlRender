@@ -13,7 +13,7 @@ namespace tl
         //! Row layout.
         class RowLayout : public IWidget
         {
-            TLRENDER_NON_COPYABLE(RowLayout);
+            DTK_NON_COPYABLE(RowLayout);
 
         protected:
             void _init(
@@ -45,13 +45,13 @@ namespace tl
             void childRemovedEvent(const ChildEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Horizontal layout.
         class HorizontalLayout : public RowLayout
         {
-            TLRENDER_NON_COPYABLE(HorizontalLayout);
+            DTK_NON_COPYABLE(HorizontalLayout);
 
         protected:
             void _init(
@@ -72,7 +72,7 @@ namespace tl
         //! Vertical layout.
         class VerticalLayout : public RowLayout
         {
-            TLRENDER_NON_COPYABLE(VerticalLayout);
+            DTK_NON_COPYABLE(VerticalLayout);
 
         protected:
             void _init(

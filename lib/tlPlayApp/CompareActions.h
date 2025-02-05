@@ -15,7 +15,7 @@ namespace tl
         //! Compare actions.
         class CompareActions : public std::enable_shared_from_this<CompareActions>
         {
-            TLRENDER_NON_COPYABLE(CompareActions);
+            DTK_NON_COPYABLE(CompareActions);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

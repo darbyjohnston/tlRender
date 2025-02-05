@@ -56,7 +56,7 @@ namespace tl
             void _playerUpdate(const QSharedPointer<qt::TimelinePlayer>&);
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

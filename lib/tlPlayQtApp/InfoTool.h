@@ -32,7 +32,7 @@ namespace tl
             void setInfo(const io::Info&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Information tool dock widget.

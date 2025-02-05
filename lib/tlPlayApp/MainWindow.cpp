@@ -170,7 +170,7 @@ namespace tl
             const std::shared_ptr<App>& app)
         {
             Window::_init(context, "tlplay", nullptr);
-            TLRENDER_P();
+            DTK_P();
 
             setBackgroundRole(ui::ColorRole::Window);
 
@@ -651,7 +651,7 @@ namespace tl
 
         MainWindow::~MainWindow()
         {
-            TLRENDER_P();
+            DTK_P();
             dtk::Size2I windowSize = _geometry.size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
@@ -742,7 +742,7 @@ namespace tl
 
         void MainWindow::keyPressEvent(ui::KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             event.accept = p.menuBar->shortcut(event.key, event.modifiers);
         }
 
@@ -753,7 +753,7 @@ namespace tl
 
         void MainWindow::_drop(const std::vector<std::string>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto app = p.app.lock())
             {
                 for (const auto& i : value)
@@ -765,7 +765,7 @@ namespace tl
 
         void MainWindow::_playerUpdate(const std::shared_ptr<timeline::Player>& value)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.speedObserver.reset();
             p.playbackObserver.reset();
@@ -814,7 +814,7 @@ namespace tl
 
         void MainWindow::_showSpeedPopup()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
@@ -860,7 +860,7 @@ namespace tl
 
         void MainWindow::_showAudioPopup()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 if (auto app = p.app.lock())
@@ -893,7 +893,7 @@ namespace tl
 
         void MainWindow::_windowOptionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const auto& windowOptions = p.windowOptions->get();
 
             p.fileToolBar->setVisible(windowOptions.fileToolBar);
@@ -931,7 +931,7 @@ namespace tl
 
         void MainWindow::_infoUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::string text;
             std::string toolTip;
             if (p.player)

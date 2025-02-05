@@ -13,7 +13,7 @@ namespace tl
         //! Speed popup.
         class SpeedPopup : public ui::IMenuPopup
         {
-            TLRENDER_NON_COPYABLE(SpeedPopup);
+            DTK_NON_COPYABLE(SpeedPopup);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
         private:
             void _menuUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

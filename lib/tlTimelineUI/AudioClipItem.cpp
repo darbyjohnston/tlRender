@@ -59,7 +59,7 @@ namespace tl
                 itemData,
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
@@ -79,7 +79,7 @@ namespace tl
 
         AudioClipItem::~AudioClipItem()
         {
-            TLRENDER_P();
+            DTK_P();
             _cancelRequests();
         }
 
@@ -110,7 +110,7 @@ namespace tl
         {
             const bool changed = value != _scale;
             IBasicItem::setScale(value);
-            TLRENDER_P();
+            DTK_P();
             if (changed)
             {
                 _cancelRequests();
@@ -126,7 +126,7 @@ namespace tl
                 value.waveformHeight != _displayOptions.waveformHeight ||
                 value.waveformPrim != _displayOptions.waveformPrim;
             IBasicItem::setDisplayOptions(value);
-            TLRENDER_P();
+            DTK_P();
             if (thumbnailsChanged)
             {
                 _cancelRequests();
@@ -140,7 +140,7 @@ namespace tl
             const ui::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
 
             // Check if the I/O information is finished.
             if (p.infoRequest.future.valid() &&
@@ -180,7 +180,7 @@ namespace tl
         void AudioClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IBasicItem::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
             p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
             if (_displayOptions.thumbnails)
             {
@@ -191,7 +191,7 @@ namespace tl
         void AudioClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IBasicItem::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipRect == p.size.clipRect)
                 return;
             p.size.clipRect = clipRect;
@@ -217,7 +217,7 @@ namespace tl
             const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I g = _getInsideGeometry();
             const int m = _getMargin();
@@ -322,7 +322,7 @@ namespace tl
 
         void AudioClipItem::_cancelRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             std::vector<uint64_t> ids;
             if (p.infoRequest.future.valid())
             {

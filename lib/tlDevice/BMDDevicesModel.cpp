@@ -46,7 +46,7 @@ namespace tl
         void DevicesModel::_init(
             const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.data = dtk::ObservableValue<DevicesModelData>::create();
 
@@ -86,7 +86,7 @@ namespace tl
 
         void DevicesModel::setDeviceIndex(int index)
         {
-            TLRENDER_P();
+            DTK_P();
             if (index == p.deviceIndex)
                 return;
             p.deviceIndex = index;
@@ -95,7 +95,7 @@ namespace tl
 
         void DevicesModel::setDisplayModeIndex(int index)
         {
-            TLRENDER_P();
+            DTK_P();
             if (index == p.displayModeIndex)
                 return;
             p.displayModeIndex = index;
@@ -104,7 +104,7 @@ namespace tl
 
         void DevicesModel::setPixelTypeIndex(int index)
         {
-            TLRENDER_P();
+            DTK_P();
             if (index == p.pixelTypeIndex)
                 return;
             p.pixelTypeIndex = index;
@@ -113,7 +113,7 @@ namespace tl
 
         void DevicesModel::setDeviceEnabled(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.deviceEnabled)
                 return;
             p.deviceEnabled = value;
@@ -122,7 +122,7 @@ namespace tl
 
         void DevicesModel::setBoolOptions(const BoolOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.boolOptions)
                 return;
             p.boolOptions = value;
@@ -131,7 +131,7 @@ namespace tl
 
         void DevicesModel::setVideoLevels(dtk::VideoLevels value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.videoLevels)
                 return;
             p.videoLevels = value;
@@ -140,7 +140,7 @@ namespace tl
 
         void DevicesModel::setHDRMode(HDRMode value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.hdrMode)
                 return;
             p.hdrMode = value;
@@ -149,7 +149,7 @@ namespace tl
 
         void DevicesModel::setHDRData(const image::HDRData& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.hdrData)
                 return;
             p.hdrData = value;
@@ -158,7 +158,7 @@ namespace tl
 
         void DevicesModel::_update()
         {
-            TLRENDER_P();
+            DTK_P();
 
             DevicesModelData data;
 

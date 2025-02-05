@@ -33,7 +33,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.deviceComboBox = new QComboBox;
 
@@ -103,7 +103,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.slider = new qtwidget::FloatEditSlider;
             p.slider->setRange(dtk::RangeF(-1.F, 1.F));
@@ -143,7 +143,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.deviceWidget = new AudioDeviceWidget(app);
             p.offsetWidget = new AudioOffsetWidget(app);

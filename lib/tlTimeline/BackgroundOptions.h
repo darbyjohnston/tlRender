@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Color.h>
 #include <dtk/core/Size.h>
+#include <dtk/core/Util.h>
 
 namespace tl
 {
@@ -23,8 +22,7 @@ namespace tl
             Count,
             First = Solid
         };
-        TLRENDER_ENUM(Background);
-        TLRENDER_ENUM_SERIALIZE(Background);
+        DTK_ENUM(Background);
 
         //! Background options.
         struct BackgroundOptions

@@ -107,7 +107,7 @@ namespace tl
 
         void PieChart::setData(const std::vector<PieChartData>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.data)
                 return;
             p.data = value;
@@ -117,7 +117,7 @@ namespace tl
 
         void PieChart::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -128,7 +128,7 @@ namespace tl
 
         void PieChart::setSizeMult(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.sizeMult)
                 return;
             p.sizeMult = value;
@@ -140,7 +140,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -247,7 +247,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 

@@ -15,7 +15,7 @@ namespace tl
             //! Grid layouts.
             class GridLayouts : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(GridLayouts);
+                DTK_NON_COPYABLE(GridLayouts);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

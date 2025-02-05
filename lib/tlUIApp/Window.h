@@ -21,7 +21,7 @@ namespace tl
         //! Window.
         class Window : public ui::IWindow
         {
-            TLRENDER_NON_COPYABLE(Window);
+            DTK_NON_COPYABLE(Window);
 
         protected:
             void _init(
@@ -111,7 +111,7 @@ namespace tl
                 const dtk::Box2I&,
                 const ui::DrawEvent&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

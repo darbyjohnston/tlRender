@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Image.h>
 
 #include <QAction>
@@ -43,7 +41,7 @@ namespace tl
         private:
             void _actionsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

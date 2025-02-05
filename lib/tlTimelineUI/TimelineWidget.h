@@ -16,7 +16,7 @@ namespace tl
         //! side of the timeline widget.
         class TimelineWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(TimelineWidget);
+            DTK_NON_COPYABLE(TimelineWidget);
 
         protected:
             void _init(
@@ -204,7 +204,7 @@ namespace tl
             void _scrollUpdate();
             void _timelineUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

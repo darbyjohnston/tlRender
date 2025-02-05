@@ -14,7 +14,7 @@ namespace tl
         //! Floating point value slider.
         class FloatSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FloatSlider);
+            DTK_NON_COPYABLE(FloatSlider);
 
         protected:
             void _init(
@@ -76,7 +76,7 @@ namespace tl
             float _posToValue(int) const;
             int _valueToPos(float) const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

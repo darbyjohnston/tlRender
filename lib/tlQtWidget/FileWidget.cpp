@@ -29,7 +29,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 
@@ -97,7 +97,7 @@ namespace tl
 
         void FileWidget::setFile(const QString& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fileName)
                 return;
             p.fileName = value;
@@ -112,7 +112,7 @@ namespace tl
 
         void FileWidget::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.lineEdit);
                 p.lineEdit->setText(p.fileName);

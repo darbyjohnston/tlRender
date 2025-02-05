@@ -17,14 +17,14 @@ namespace tl
         RenderSizeState::RenderSizeState(const std::shared_ptr<IRender>& render) :
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.render = render;
             p.size = render->getRenderSize();
         }
 
         RenderSizeState::~RenderSizeState()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->setRenderSize(p.size);
         }
 
@@ -37,14 +37,14 @@ namespace tl
         ViewportState::ViewportState(const std::shared_ptr<IRender>& render) :
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.render = render;
             p.viewport = render->getViewport();
         }
 
         ViewportState::~ViewportState()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->setViewport(p.viewport);
         }
 
@@ -57,14 +57,14 @@ namespace tl
         ClipRectEnabledState::ClipRectEnabledState(const std::shared_ptr<IRender>& render) :
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.render = render;
             p.clipRectEnabled = render->getClipRectEnabled();
         }
 
         ClipRectEnabledState::~ClipRectEnabledState()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->setClipRectEnabled(p.clipRectEnabled);
         }
 
@@ -77,14 +77,14 @@ namespace tl
         ClipRectState::ClipRectState(const std::shared_ptr<IRender>& render) :
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.render = render;
             p.clipRect = render->getClipRect();
         }
 
         ClipRectState::~ClipRectState()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->setClipRect(p.clipRect);
         }
 
@@ -102,14 +102,14 @@ namespace tl
         TransformState::TransformState(const std::shared_ptr<IRender>& render) :
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.render = render;
             p.transform = render->getTransform();
         }
 
         TransformState::~TransformState()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->setTransform(p.transform);
         }
         

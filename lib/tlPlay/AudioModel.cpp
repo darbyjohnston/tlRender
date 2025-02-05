@@ -31,7 +31,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<Settings>& settings)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = settings;
 

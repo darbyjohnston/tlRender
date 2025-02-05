@@ -13,7 +13,7 @@ namespace tl
 {
     namespace audio
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             DataType,
             "None",
             "S8",
@@ -21,7 +21,6 @@ namespace tl
             "S32",
             "F32",
             "F64");
-        TLRENDER_ENUM_SERIALIZE_IMPL(DataType);
 
         size_t getByteCount(DataType value)
         {

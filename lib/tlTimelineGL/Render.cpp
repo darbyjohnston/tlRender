@@ -59,7 +59,7 @@ namespace tl
             const std::shared_ptr<dtk::gl::TextureCache>& textureCache)
         {
             IRender::_init(context);
-            TLRENDER_P();
+            DTK_P();
             p.baseRender = dtk::gl::Render::create(context, textureCache);
         }
 
@@ -88,7 +88,7 @@ namespace tl
             const dtk::Size2I& renderSize,
             const dtk::RenderOptions& renderOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.baseRender->begin(renderSize, renderOptions);
 
@@ -134,7 +134,7 @@ namespace tl
 
         void Render::end()
         {
-            TLRENDER_P();
+            DTK_P();
             p.baseRender->end();
         }
 
@@ -163,7 +163,7 @@ namespace tl
 
         void Render::setOCIOOptions(const timeline::OCIOOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.ocioOptions)
                 return;
 
@@ -352,7 +352,7 @@ namespace tl
 
         void Render::setLUTOptions(const timeline::LUTOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.lutOptions)
                 return;
 
@@ -577,7 +577,7 @@ namespace tl
 
         void Render::_displayShader()
         {
-            TLRENDER_P();
+            DTK_P();
             if (!p.shaders["display"])
             {
                 std::string ocioDef;

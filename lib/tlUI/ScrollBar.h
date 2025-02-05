@@ -13,7 +13,7 @@ namespace tl
         //! Scroll bar.
         class ScrollBar : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ScrollBar);
+            DTK_NON_COPYABLE(ScrollBar);
 
         protected:
             void _init(
@@ -58,7 +58,7 @@ namespace tl
             int _getScrollPosMax() const;
             float _getScrollScale() const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

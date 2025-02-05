@@ -37,7 +37,7 @@ namespace tl
         //! Audio system.
         class System : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(System);
+            DTK_NON_COPYABLE(System);
 
         protected:
             System(const std::shared_ptr<dtk::Context>&);
@@ -72,7 +72,7 @@ namespace tl
 
             void _run();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

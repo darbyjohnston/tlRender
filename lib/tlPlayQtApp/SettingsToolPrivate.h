@@ -23,7 +23,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! File sequence settings widget.
@@ -39,7 +39,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
 #if defined(TLRENDER_FFMPEG)
@@ -56,7 +56,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 #endif // TLRENDER_FFMPEG
 
@@ -74,7 +74,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 #endif // TLRENDER_USD
 
@@ -91,7 +91,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Performance settings widget.
@@ -107,7 +107,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Miscellaneous settings widget.
@@ -123,7 +123,7 @@ namespace tl
         private:
             void _settingsUpdate(const std::string&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

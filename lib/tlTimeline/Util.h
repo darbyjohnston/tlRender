@@ -38,8 +38,7 @@ namespace tl
             Count,
             First = Forward
         };
-        TLRENDER_ENUM(CacheDirection);
-        TLRENDER_ENUM_SERIALIZE(CacheDirection);
+        DTK_ENUM(CacheDirection);
 
         //! Loop the cache time range.
         std::vector<OTIO_NS::TimeRange> loopCache(
@@ -93,8 +92,7 @@ namespace tl
             Count,
             First = Shared
         };
-        TLRENDER_ENUM(ToMemoryReference);
-        TLRENDER_ENUM_SERIALIZE(ToMemoryReference);
+        DTK_ENUM(ToMemoryReference);
 
         //! Convert media references to memory references for testing.
         void toMemoryReferences(

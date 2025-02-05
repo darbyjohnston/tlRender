@@ -70,7 +70,7 @@ namespace tl
                 itemData,
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.label = label;
             p.colorRole = colorRole;
@@ -90,7 +90,7 @@ namespace tl
         {
             const bool changed = value != _displayOptions;
             IItem::setDisplayOptions(value);
-            TLRENDER_P();
+            DTK_P();
             if (changed)
             {
                 _textUpdate();
@@ -101,7 +101,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IItem::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -140,7 +140,7 @@ namespace tl
         void IBasicItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IItem::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.labelGlyphs.clear();
@@ -153,7 +153,7 @@ namespace tl
             const ui::DrawEvent& event)
         {
             IItem::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
             ui::ColorRole colorRole = getSelectRole();
@@ -249,7 +249,7 @@ namespace tl
 
         void IBasicItem::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.durationLabel = _getDurationLabel(_timeRange.duration());
             p.size.textInit = true;
             _updates |= ui::Update::Size;

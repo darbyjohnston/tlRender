@@ -16,8 +16,7 @@ set(HEADERS
     PathInline.h
     Time.h
     TimeInline.h
-    Timer.h
-    Util.h)
+    Timer.h)
 
 set(SOURCE
     Audio.cpp

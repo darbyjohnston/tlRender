@@ -36,7 +36,7 @@ namespace tl
                 "tl::play_app::SeparateAudioWidget",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             setHStretch(ui::Stretch::Expanding);
             _setMouseHover(true);

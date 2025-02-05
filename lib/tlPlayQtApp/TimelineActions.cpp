@@ -31,7 +31,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.mainWindow = mainWindow;
 
@@ -276,7 +276,7 @@ namespace tl
 
         void TimelineActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.actions["Input"]);
                 const auto options = p.mainWindow->timelineWidget()->itemOptions();

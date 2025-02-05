@@ -18,7 +18,7 @@ namespace tl
         //! Base class for widgets.
         class IWidget : public std::enable_shared_from_this<IWidget>
         {
-            TLRENDER_NON_COPYABLE(IWidget);
+            DTK_NON_COPYABLE(IWidget);
 
         protected:
             void _init(

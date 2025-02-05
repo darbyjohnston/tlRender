@@ -18,7 +18,7 @@ namespace tl
         {
             class ComboBoxMenu : public IMenuPopup
             {
-                TLRENDER_NON_COPYABLE(ComboBoxMenu);
+                DTK_NON_COPYABLE(ComboBoxMenu);
 
             protected:
                 void _init(
@@ -196,7 +196,7 @@ namespace tl
 
         void ComboBox::setItems(const std::vector<ComboBoxItem>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.items)
                 return;
             p.items = value;
@@ -217,7 +217,7 @@ namespace tl
 
         void ComboBox::setItems(const std::vector<std::string>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             std::vector<ComboBoxItem> items;
             for (const auto& s : value)
             {
@@ -228,7 +228,7 @@ namespace tl
 
         void ComboBox::setCurrentIndex(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             const int tmp = dtk::clamp(
                 value,
                 0,
@@ -259,7 +259,7 @@ namespace tl
 
         void ComboBox::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -274,7 +274,7 @@ namespace tl
             const TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (_displayScale != p.iconScale)
             {
                 p.iconScale = _displayScale;
@@ -315,7 +315,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -376,7 +376,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
@@ -479,7 +479,7 @@ namespace tl
         void ComboBox::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             _click();
             _updates |= Update::Draw;
         }
@@ -492,7 +492,7 @@ namespace tl
 
         void ComboBox::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (0 == event.modifiers)
             {
                 switch (event.key)
@@ -528,7 +528,7 @@ namespace tl
 
         ComboBoxItem ComboBox::_getItem(int value) const
         {
-            TLRENDER_P();
+            DTK_P();
             ComboBoxItem out;
             if (value >= 0 && value < static_cast<int>(p.items.size()))
             {
@@ -539,7 +539,7 @@ namespace tl
 
         void ComboBox::_click()
         {
-            TLRENDER_P();
+            DTK_P();
             takeKeyFocus();
             if (auto context = _context.lock())
             {
@@ -582,7 +582,7 @@ namespace tl
 
         void ComboBox::_commitIndex(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             const int currentIndex = p.currentIndex;
             setCurrentIndex(value);
             if (p.currentIndex != currentIndex)

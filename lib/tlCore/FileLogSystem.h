@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ISystem.h>
 
 namespace tl
@@ -15,7 +13,7 @@ namespace tl
         //! File logging system.
         class FileLogSystem : public dtk::ISystem
         {
-            TLRENDER_NON_COPYABLE(FileLogSystem);
+            DTK_NON_COPYABLE(FileLogSystem);
 
         protected:
             FileLogSystem(
@@ -31,7 +29,7 @@ namespace tl
                 const std::string& fileName);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

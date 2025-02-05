@@ -13,7 +13,7 @@ namespace tl
         //! Divider widget.
         class Divider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Divider);
+            DTK_NON_COPYABLE(Divider);
 
         protected:
             void _init(
@@ -35,7 +35,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

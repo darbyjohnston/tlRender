@@ -26,7 +26,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.swatch = new ColorSwatch;
             p.swatch->setSwatchSize(40);
@@ -105,7 +105,7 @@ namespace tl
 
         void ColorWidget::setColor(const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.color)
                 return;
             p.color = value;
@@ -115,7 +115,7 @@ namespace tl
 
         void ColorWidget::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.swatch);
                 p.swatch->setColor(p.color);

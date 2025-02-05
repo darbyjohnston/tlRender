@@ -15,7 +15,7 @@ namespace tl
         //! Audio tool.
         class AudioTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(AudioTool);
+            DTK_NON_COPYABLE(AudioTool);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

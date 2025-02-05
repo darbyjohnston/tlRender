@@ -18,7 +18,7 @@ namespace tl
         //! Compare tool bar.
         class CompareToolBar : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(CompareToolBar);
+            DTK_NON_COPYABLE(CompareToolBar);
 
         protected:
             void _init(
@@ -44,7 +44,7 @@ namespace tl
         private:
             void _compareUpdate(const timeline::CompareOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

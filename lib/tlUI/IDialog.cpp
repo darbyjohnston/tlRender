@@ -43,7 +43,7 @@ namespace tl
 
         void IDialog::open(const std::shared_ptr<IWindow>& window)
         {
-            TLRENDER_P();
+            DTK_P();
             p.open = true;
             setParent(window);
             takeKeyFocus();
@@ -56,7 +56,7 @@ namespace tl
 
         void IDialog::close()
         {
-            TLRENDER_P();
+            DTK_P();
             p.open = false;
             setParent(nullptr);
             if (p.closeCallback)
@@ -73,7 +73,7 @@ namespace tl
         void IDialog::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             if (!_children.empty())
             {
                 const dtk::Box2I g = dtk::margin(value, -p.size.margin);
@@ -101,7 +101,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IPopup::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -117,7 +117,7 @@ namespace tl
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             //event.render->drawRect(
             //    _geometry,
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));

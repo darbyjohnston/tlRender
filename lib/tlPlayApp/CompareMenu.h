@@ -17,7 +17,7 @@ namespace tl
         //! Compare menu.
         class CompareMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(CompareMenu);
+            DTK_NON_COPYABLE(CompareMenu);
 
         protected:
             void _init(
@@ -46,7 +46,7 @@ namespace tl
             void _compareUpdate(const timeline::CompareOptions&);
             void _compareTimeUpdate(timeline::CompareTimeMode);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -13,7 +13,7 @@ namespace tl
     {
         class SeparateAudioWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(SeparateAudioWidget);
+            DTK_NON_COPYABLE(SeparateAudioWidget);
 
         protected:
             void _init(
@@ -39,7 +39,7 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

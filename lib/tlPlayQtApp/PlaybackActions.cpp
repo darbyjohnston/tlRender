@@ -32,7 +32,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -295,7 +295,7 @@ namespace tl
 
         void PlaybackActions::_playbackCallback(timeline::Playback value)
         {
-            TLRENDER_P();
+            DTK_P();
             const QSignalBlocker blocker(p.actionGroups["Playback"]);
             for (auto action : p.actionGroups["Playback"]->actions())
             {
@@ -309,7 +309,7 @@ namespace tl
 
         void PlaybackActions::_loopCallback(timeline::Loop value)
         {
-            TLRENDER_P();
+            DTK_P();
             const QSignalBlocker blocker(p.actionGroups["Loop"]);
             for (auto action : p.actionGroups["Loop"]->actions())
             {
@@ -323,7 +323,7 @@ namespace tl
 
         void PlaybackActions::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.player)
             {
                 disconnect(
@@ -357,7 +357,7 @@ namespace tl
 
         void PlaybackActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             QList<QString> keys = p.actions.keys();
             for (auto i : keys)

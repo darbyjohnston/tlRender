@@ -189,7 +189,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             float radius = 0.F;
             float x = 0.F;
@@ -304,7 +304,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             if (videoData.size() > 1 && boxes.size() > 1)
             {
@@ -410,7 +410,7 @@ namespace tl
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
-            TLRENDER_P();
+            DTK_P();
             if (!videoData.empty() && !boxes.empty())
             {
                 const dtk::Size2I offscreenBufferSize(
@@ -612,7 +612,7 @@ namespace tl
             const std::shared_ptr<dtk::ImageOptions>& imageOptions,
             const timeline::DisplayOptions& displayOptions)
         {
-            TLRENDER_P();
+            DTK_P();
             
             GLint viewportPrev[4] = { 0, 0, 0, 0 };
             glGetIntegerv(GL_VIEWPORT, viewportPrev);

@@ -14,7 +14,7 @@ namespace tl
         //! List widget.
         class ListWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ListWidget);
+            DTK_NON_COPYABLE(ListWidget);
 
         protected:
             void _init(
@@ -52,7 +52,7 @@ namespace tl
             void _widgetUpdate();
             void _searchUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

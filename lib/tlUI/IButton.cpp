@@ -45,7 +45,7 @@ namespace tl
 
         void IButton::setCheckable(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.checkable)
                 return;
             p.checkable = value;
@@ -63,7 +63,7 @@ namespace tl
 
         void IButton::setChecked(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == _checked)
                 return;
             _checked = value;
@@ -90,7 +90,7 @@ namespace tl
 
         void IButton::setIcon(const std::string& icon)
         {
-            TLRENDER_P();
+            DTK_P();
             _icon = icon;
             p.iconInit = true;
             _iconImage.reset();
@@ -98,7 +98,7 @@ namespace tl
 
         void IButton::setCheckedIcon(const std::string& icon)
         {
-            TLRENDER_P();
+            DTK_P();
             _checkedIcon = icon;
             p.checkedIconInit = true;
             _checkedIconImage.reset();
@@ -122,7 +122,7 @@ namespace tl
 
         void IButton::setRepeatClick(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.repeatClick = value;
         }
 
@@ -152,7 +152,7 @@ namespace tl
             const TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (_mouse.press && p.repeatClick)
             {
                 const float duration = p.repeatClickInit ? .4F : .02F;
@@ -170,7 +170,7 @@ namespace tl
         void IButton::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (_displayScale != p.iconScale)
             {
                 p.iconScale = _displayScale;
@@ -214,7 +214,7 @@ namespace tl
         void IButton::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (acceptsKeyFocus())
             {
                 takeKeyFocus();
@@ -243,7 +243,7 @@ namespace tl
 
         void IButton::_click()
         {
-            TLRENDER_P();
+            DTK_P();
             if (_clickedCallback)
             {
                 _clickedCallback();

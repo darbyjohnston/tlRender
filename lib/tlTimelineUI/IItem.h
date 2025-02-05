@@ -176,7 +176,7 @@ namespace tl
             std::shared_ptr<ItemData> _data;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

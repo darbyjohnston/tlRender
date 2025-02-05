@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Range.h>
+#include <dtk/core/Util.h>
 
 #include <limits>
 #include <list>
@@ -35,8 +34,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(DataType);
-        TLRENDER_ENUM_SERIALIZE(DataType);
+        DTK_ENUM(DataType);
 
         typedef int8_t   S8_T;
         typedef int16_t S16_T;
@@ -125,7 +123,7 @@ namespace tl
         //! Audio data.
         class Audio : public std::enable_shared_from_this<Audio>
         {
-            TLRENDER_NON_COPYABLE(Audio);
+            DTK_NON_COPYABLE(Audio);
 
         protected:
             void _init(const Info&, size_t sampleCount);

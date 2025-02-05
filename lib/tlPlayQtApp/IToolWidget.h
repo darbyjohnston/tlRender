@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <QVBoxLayout>
 #include <QWidget>

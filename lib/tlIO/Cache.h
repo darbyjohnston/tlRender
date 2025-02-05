@@ -34,7 +34,7 @@ namespace tl
         //! I/O cache.
         class Cache : public std::enable_shared_from_this<Cache>
         {
-            TLRENDER_NON_COPYABLE(Cache);
+            DTK_NON_COPYABLE(Cache);
 
         protected:
             void _init();
@@ -83,7 +83,7 @@ namespace tl
         private:
             void _maxUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

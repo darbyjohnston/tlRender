@@ -17,7 +17,7 @@ namespace tl
         //! Playback menu.
         class PlaybackMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(PlaybackMenu);
+            DTK_NON_COPYABLE(PlaybackMenu);
 
         protected:
             void _init(
@@ -42,7 +42,7 @@ namespace tl
             void _playbackUpdate();
             void _loopUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -22,7 +22,7 @@ namespace tl
         //! Base class for popup menus.
         class IMenuPopup : public IPopup
         {
-            TLRENDER_NON_COPYABLE(IMenuPopup);
+            DTK_NON_COPYABLE(IMenuPopup);
 
         protected:
             void _init(
@@ -63,7 +63,7 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

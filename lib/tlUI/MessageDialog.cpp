@@ -20,7 +20,7 @@ namespace tl
         {
             class MessageWidget : public IWidget
             {
-                TLRENDER_NON_COPYABLE(MessageWidget);
+                DTK_NON_COPYABLE(MessageWidget);
 
             protected:
                 void _init(
@@ -150,7 +150,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IDialog::_init("tl::ui::MessageDialog", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.widget = MessageWidget::create(text, context, shared_from_this());
 
@@ -215,7 +215,7 @@ namespace tl
             const std::shared_ptr<IWindow>& window,
             const std::function<void(bool)>& callback)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 p.dialog = MessageDialog::create(text, context);

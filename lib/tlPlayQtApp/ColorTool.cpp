@@ -48,7 +48,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
@@ -149,7 +149,7 @@ namespace tl
 
         void OCIOWidget::_widgetUpdate(const play::OCIOModelData& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.enabled);
@@ -209,7 +209,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
@@ -278,7 +278,7 @@ namespace tl
 
         void LUTWidget::_widgetUpdate(const tl::timeline::LUTOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.enabled);
@@ -315,7 +315,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
@@ -447,7 +447,7 @@ namespace tl
 
         void ColorWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.color.enabled);
@@ -494,7 +494,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
@@ -601,7 +601,7 @@ namespace tl
 
         void LevelsWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.levels.enabled);
@@ -643,7 +643,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
@@ -738,7 +738,7 @@ namespace tl
 
         void EXRDisplayWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.exrDisplay.enabled);
@@ -773,7 +773,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
@@ -819,7 +819,7 @@ namespace tl
 
         void SoftClipWidget::_widgetUpdate(const timeline::DisplayOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.enabledCheckBox);
                 p.enabledCheckBox->setChecked(value.softClip.enabled);
@@ -844,7 +844,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.ocioWidget = new OCIOWidget(app);
             p.lutWidget = new LUTWidget(app);

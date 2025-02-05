@@ -13,7 +13,7 @@ namespace tl
         //! Grid layout.
         class GridLayout : public IWidget
         {
-            TLRENDER_NON_COPYABLE(GridLayout);
+            DTK_NON_COPYABLE(GridLayout);
 
         protected:
             void _init(
@@ -47,7 +47,7 @@ namespace tl
             void childRemovedEvent(const ChildEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

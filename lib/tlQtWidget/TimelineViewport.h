@@ -115,7 +115,7 @@ namespace tl
             void colorPickerChanged(const dtk::Color4F&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

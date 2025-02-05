@@ -27,7 +27,7 @@ namespace tl
             virtual ~DevicesTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Devices tool dock widget.

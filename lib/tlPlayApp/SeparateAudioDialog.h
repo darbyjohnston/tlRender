@@ -17,7 +17,7 @@ namespace tl
         //! Separate audio dialog.
         class SeparateAudioDialog : public ui::IDialog
         {
-            TLRENDER_NON_COPYABLE(SeparateAudioDialog);
+            DTK_NON_COPYABLE(SeparateAudioDialog);
 
         protected:
             void _init(
@@ -39,7 +39,7 @@ namespace tl
                 const file::Path&)>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

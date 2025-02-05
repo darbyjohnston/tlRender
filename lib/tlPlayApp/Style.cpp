@@ -11,11 +11,10 @@ namespace tl
 {
     namespace play_app
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             StylePalette,
             "Dark",
             "Light");
-        TLRENDER_ENUM_SERIALIZE_IMPL(StylePalette);
 
         std::map<ui::ColorRole, dtk::Color4F> getStylePalette(StylePalette value)
         {

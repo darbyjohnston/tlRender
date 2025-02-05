@@ -15,7 +15,7 @@ namespace tl
             //! Basic widgets.
             class BasicWidgets : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(BasicWidgets);
+                DTK_NON_COPYABLE(BasicWidgets);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

@@ -52,7 +52,7 @@ namespace tl
                 "tl::play_app::AudioPopup",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.volumeSlider = ui::IntEditSlider::create(context);
             p.volumeSlider->setRange(dtk::RangeI(0, 100));
@@ -195,7 +195,7 @@ namespace tl
 
         void AudioPopup::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.channelMuteCheckBoxes.size() != p.info.channelCount)
             {
                 for (const auto& checkBox : p.channelMuteCheckBoxes)

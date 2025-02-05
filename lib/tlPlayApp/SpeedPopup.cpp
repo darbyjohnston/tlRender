@@ -33,7 +33,7 @@ namespace tl
                 "tl::play_app::SpeedPopup",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.speeds =
             {
@@ -101,7 +101,7 @@ namespace tl
 
         void SpeedPopup::_menuUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             auto children = p.layout->getChildren();
             for (const auto& child : children)
             {

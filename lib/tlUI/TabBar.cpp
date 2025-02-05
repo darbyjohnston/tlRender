@@ -27,7 +27,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TabBar", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.buttonGroup = ButtonGroup::create(ButtonGroupType::Radio, context);
 
@@ -62,7 +62,7 @@ namespace tl
 
         void TabBar::setTabs(const std::vector<std::string>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.tabs)
                 return;
             p.tabs = value;
@@ -72,7 +72,7 @@ namespace tl
 
         void TabBar::addTab(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.tabs.push_back(value);
             if (p.currentTab < 0)
             {
@@ -83,7 +83,7 @@ namespace tl
 
         void TabBar::clearTabs()
         {
-            TLRENDER_P();
+            DTK_P();
             p.tabs.clear();
             p.currentTab = -1;
             _widgetUpdate();
@@ -96,7 +96,7 @@ namespace tl
 
         void TabBar::setCurrentTab(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             const int tmp = dtk::clamp(value, 0, static_cast<int>(p.tabs.size()) - 1);
             if (tmp == _p->currentTab)
                 return;
@@ -123,7 +123,7 @@ namespace tl
 
         void TabBar::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.buttonGroup->clearButtons();
             p.buttons.clear();
             auto children = p.layout->getChildren();

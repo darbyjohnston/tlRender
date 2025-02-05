@@ -34,7 +34,7 @@ namespace tl
             void _compareUpdate(const timeline::CompareOptions&);
             void _thumbnailsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Files tool dock widget.

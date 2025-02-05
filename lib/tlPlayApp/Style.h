@@ -19,8 +19,7 @@ namespace tl
             Count,
             First = Dark
         };
-        TLRENDER_ENUM(StylePalette);
-        TLRENDER_ENUM_SERIALIZE(StylePalette);
+        DTK_ENUM(StylePalette);
 
         //! Get the style palette.
         std::map<ui::ColorRole, dtk::Color4F> getStylePalette(StylePalette);

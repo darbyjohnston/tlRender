@@ -21,7 +21,7 @@ namespace tl
                 "tl::play_app::SeparateAudioDialog",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.widget = SeparateAudioWidget::create(
                 context,

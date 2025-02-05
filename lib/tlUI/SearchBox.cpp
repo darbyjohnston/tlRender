@@ -26,7 +26,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::SearchBox", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.lineEdit = LineEdit::create(context);
             p.lineEdit->setHStretch(Stretch::Expanding);

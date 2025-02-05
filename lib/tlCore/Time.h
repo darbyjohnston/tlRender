@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <opentimelineio/version.h>
 
 #include <opentime/rationalTime.h>

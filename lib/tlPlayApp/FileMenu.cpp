@@ -40,7 +40,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -135,7 +135,7 @@ namespace tl
         void FileMenu::close()
         {
             Menu::close();
-            TLRENDER_P();
+            DTK_P();
             for (const auto& menu : p.menus)
             {
                 menu.second->close();
@@ -145,7 +145,7 @@ namespace tl
         void FileMenu::_filesUpdate(
             const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
 
             setItemEnabled(p.actions["Close"], !value.empty());
             setItemEnabled(p.actions["CloseAll"], !value.empty());
@@ -174,7 +174,7 @@ namespace tl
 
         void FileMenu::_aUpdate(const std::shared_ptr<play::FilesModelItem>& value)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.menus["Layers"]->clear();
             p.layersItems.clear();
@@ -204,7 +204,7 @@ namespace tl
 
         void FileMenu::_aIndexUpdate(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (int i = 0; i < p.currentItems.size(); ++i)
             {
                 p.menus["Current"]->setItemChecked(p.currentItems[i], i == value);
@@ -213,7 +213,7 @@ namespace tl
 
         void FileMenu::_layersUpdate(const std::vector<int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto app = p.app.lock())
             {
                 auto a = app->getFilesModel()->getA();
@@ -226,7 +226,7 @@ namespace tl
 
         void FileMenu::_recentUpdate(const std::vector<file::Path>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.menus["Recent"]->clear();
             if (!value.empty())
             {

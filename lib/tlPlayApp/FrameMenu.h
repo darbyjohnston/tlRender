@@ -18,7 +18,7 @@ namespace tl
         //! Frame menu.
         class FrameMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(FrameMenu);
+            DTK_NON_COPYABLE(FrameMenu);
 
         protected:
             void _init(
@@ -39,7 +39,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

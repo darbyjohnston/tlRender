@@ -35,7 +35,7 @@ namespace tl
                     "tl::examples::widgets::ScrollAreasWidget", 
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
                 p.cellCount = cellCount;
                 p.textSize.resize(p.cellCount.x * p.cellCount.y);
                 p.glyphs.resize(p.cellCount.x * p.cellCount.y);
@@ -61,7 +61,7 @@ namespace tl
             void ScrollAreasWidget::sizeHintEvent(const ui::SizeHintEvent& event)
             {
                 IWidget::sizeHintEvent(event);
-                TLRENDER_P();
+                DTK_P();
                 p.margin = event.style->getSizeRole(ui::SizeRole::MarginLarge, _displayScale);
                 const std::string format = dtk::Format("{0}, {1}").
                     arg(ui::format(p.cellCount.x)).
@@ -76,7 +76,7 @@ namespace tl
             void ScrollAreasWidget::clipEvent(const dtk::Box2I& clipRect, bool clipped)
             {
                 IWidget::clipEvent(clipRect, clipped);
-                TLRENDER_P();
+                DTK_P();
                 if (clipped)
                 {
                     for (auto& i : p.glyphs)
@@ -91,7 +91,7 @@ namespace tl
                 const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
-                TLRENDER_P();
+                DTK_P();
 
                 const dtk::Box2I& g = _geometry;
 
@@ -147,7 +147,7 @@ namespace tl
                     "tl::examples::widgets::ScrollAreas",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 auto widget0 = ScrollAreasWidget::create(dtk::V2I(10, 1), context);
                 auto scrollWidget0 = ui::ScrollWidget::create(context, ui::ScrollType::Horizontal);

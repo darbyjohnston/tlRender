@@ -38,7 +38,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::play::ViewportColorWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setBackgroundRole(ui::ColorRole::Window);
 
@@ -93,7 +93,7 @@ namespace tl
 
         void ViewportColorWidget::setColor(const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.color)
                 return;
             p.color = value;
@@ -103,14 +103,14 @@ namespace tl
         void ViewportColorWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             p.layout->setGeometry(dtk::margin(value, -p.size.border));
         }
 
         void ViewportColorWidget::sizeHintEvent(const ui::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
             p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
             p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
             _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
@@ -119,7 +119,7 @@ namespace tl
         void ViewportColorWidget::drawEvent(const dtk::Box2I& drawRect, const ui::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             
             const dtk::Box2I& g = getGeometry();
             event.render->drawMesh(
@@ -139,7 +139,7 @@ namespace tl
 
         void ViewportColorWidget::_colorUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.swatch->setColor(p.color);
             p.label->setText(
                 dtk::Format(

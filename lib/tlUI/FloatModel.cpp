@@ -22,7 +22,7 @@ namespace tl
 
         void FloatModel::_init(const std::shared_ptr<dtk::Context>&)
         {
-            TLRENDER_P();
+            DTK_P();
             p.value = dtk::ObservableValue<float>::create(0.F);
             p.range = dtk::ObservableValue<dtk::RangeF>::create(dtk::RangeF(0.F, 1.F));
             p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
@@ -50,7 +50,7 @@ namespace tl
 
         void FloatModel::setValue(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::RangeF& range = p.range->get();
             const float tmp = dtk::clamp(value, range.min(), range.max());
             _p->value->setIfChanged(tmp);
@@ -68,7 +68,7 @@ namespace tl
 
         void FloatModel::setRange(const dtk::RangeF& range)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.range->setIfChanged(range))
             {
                 setValue(p.value->get());
@@ -92,13 +92,13 @@ namespace tl
 
         void FloatModel::incrementStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() + p.step);
         }
 
         void FloatModel::decrementStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() - p.step);
         }
 
@@ -114,13 +114,13 @@ namespace tl
 
         void FloatModel::incrementLargeStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() + p.largeStep);
         }
 
         void FloatModel::decrementLargeStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() - p.largeStep);
         }
 

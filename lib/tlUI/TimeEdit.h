@@ -18,7 +18,7 @@ namespace tl
         //! Time value editor.
         class TimeEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TimeEdit);
+            DTK_NON_COPYABLE(TimeEdit);
 
         protected:
             void _init(
@@ -63,7 +63,7 @@ namespace tl
             void _commitValue(const OTIO_NS::RationalTime&);
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

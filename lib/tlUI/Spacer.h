@@ -13,7 +13,7 @@ namespace tl
         //! Spacer.
         class Spacer : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Spacer);
+            DTK_NON_COPYABLE(Spacer);
 
         protected:
             void _init(
@@ -38,7 +38,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

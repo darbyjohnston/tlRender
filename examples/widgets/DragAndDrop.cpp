@@ -48,7 +48,7 @@ namespace tl
                     "tl::examples::widgets::DragAndDropWidget",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 _setMouseHover(true);
                 _setMousePress(true);
@@ -89,7 +89,7 @@ namespace tl
             void DragAndDropWidget::sizeHintEvent(const ui::SizeHintEvent& event)
             {
                 IWidget::sizeHintEvent(event);
-                TLRENDER_P();
+                DTK_P();
                 p.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
                 p.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
                 _sizeHint = p.label->getSizeHint();
@@ -100,7 +100,7 @@ namespace tl
                 const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
-                TLRENDER_P();
+                DTK_P();
                 const dtk::Box2I& g = _geometry;
 
                 event.render->drawMesh(
@@ -148,7 +148,7 @@ namespace tl
             void DragAndDropWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
             {
                 IWidget::mouseMoveEvent(event);
-                TLRENDER_P();
+                DTK_P();
                 if (_mouse.press)
                 {
                     const float length = dtk::length(event.pos - _mouse.pressPos);
@@ -190,7 +190,7 @@ namespace tl
 
             void DragAndDropWidget::dragEnterEvent(ui::DragAndDropEvent& event)
             {
-                TLRENDER_P();
+                DTK_P();
                 event.accept = true;
                 p.dropTarget = true;
                 _updates |= ui::Update::Draw;
@@ -198,7 +198,7 @@ namespace tl
 
             void DragAndDropWidget::dragLeaveEvent(ui::DragAndDropEvent& event)
             {
-                TLRENDER_P();
+                DTK_P();
                 event.accept = true;
                 p.dropTarget = false;
                 _updates |= ui::Update::Draw;
@@ -206,7 +206,7 @@ namespace tl
 
             void DragAndDropWidget::dropEvent(ui::DragAndDropEvent& event)
             {
-                TLRENDER_P();
+                DTK_P();
                 if (auto data = std::dynamic_pointer_cast<DragAndDropData>(event.data))
                 {
                     event.accept = true;
@@ -219,7 +219,7 @@ namespace tl
 
             void DragAndDropWidget::_textUpdate()
             {
-                TLRENDER_P();
+                DTK_P();
                 std::stringstream ss;
                 ss << std::setfill('0') << std::setw(3) << p.number;
                 p.label->setText(ss.str());
@@ -239,7 +239,7 @@ namespace tl
                     "tl::examples::widgets::DragAndDrop",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 p.layout = ui::GridLayout::create(context, shared_from_this());
                 p.layout->setMarginRole(ui::SizeRole::Margin);

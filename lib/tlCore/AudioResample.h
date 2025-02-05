@@ -13,7 +13,7 @@ namespace tl
         //! Resample audio data.
         class AudioResample
         {
-            TLRENDER_NON_COPYABLE(AudioResample);
+            DTK_NON_COPYABLE(AudioResample);
 
         protected:
             void _init(
@@ -43,7 +43,7 @@ namespace tl
             void flush();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

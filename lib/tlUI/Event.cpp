@@ -119,7 +119,7 @@ namespace tl
             return dtk::join(out, '+');
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Key,
             "Unknown",
             "Space",
@@ -209,7 +209,6 @@ namespace tl
             "RightControl",
             "RightAlt",
             "RightSuper");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Key);
 
         std::string getLabel(Key key, int modifiers)
         {

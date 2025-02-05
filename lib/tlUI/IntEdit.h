@@ -14,7 +14,7 @@ namespace tl
         //! Integer number editor.
         class IntEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IntEdit);
+            DTK_NON_COPYABLE(IntEdit);
 
         protected:
             void _init(
@@ -68,7 +68,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

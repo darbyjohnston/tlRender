@@ -15,13 +15,19 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(Playback, "Stop", "Forward", "Reverse");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Playback);
+        DTK_ENUM_IMPL(
+            Playback,
+            "Stop",
+            "Forward",
+            "Reverse");
 
-        TLRENDER_ENUM_IMPL(Loop, "Loop", "Once", "Ping-Pong");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Loop);
+        DTK_ENUM_IMPL(
+            Loop,
+            "Loop",
+            "Once",
+            "Ping-Pong");
 
-        TLRENDER_ENUM_IMPL(TimeAction,
+        DTK_ENUM_IMPL(TimeAction,
             "Start",
             "End",
             "FramePrev",
@@ -34,14 +40,13 @@ namespace tl
             "JumpBack10s",
             "JumpForward1s",
             "JumpForward10s");
-        TLRENDER_ENUM_SERIALIZE_IMPL(TimeAction);
 
         void Player::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<Timeline>& timeline,
             const PlayerOptions& playerOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto logSystem = context->getLogSystem();
             {
@@ -155,7 +160,7 @@ namespace tl
 
         Player::~Player()
         {
-            TLRENDER_P();
+            DTK_P();
             p.running = false;
             if (p.thread.thread.joinable())
             {
@@ -243,7 +248,7 @@ namespace tl
 
         void Player::setSpeed(double value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.speed->setIfChanged(value))
             {
                 {
@@ -270,7 +275,7 @@ namespace tl
 
         void Player::setPlayback(Playback value)
         {
-            TLRENDER_P();
+            DTK_P();
 
             // Update the frame for loop modes.
             switch (p.loop->get())
@@ -384,7 +389,7 @@ namespace tl
 
         void Player::seek(const OTIO_NS::RationalTime& time)
         {
-            TLRENDER_P();
+            DTK_P();
 
             // Loop the time.
             const auto tmp = loop(
@@ -413,7 +418,7 @@ namespace tl
 
         void Player::timeAction(TimeAction time)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto& currentTime = p.currentTime->get();
             switch (time)
             {
@@ -497,7 +502,7 @@ namespace tl
 
         void Player::setInOutRange(const OTIO_NS::TimeRange& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.inOutRange->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -508,7 +513,7 @@ namespace tl
 
         void Player::setInPoint()
         {
-            TLRENDER_P();
+            DTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time(
                 p.currentTime->get(),
                 p.inOutRange->get().end_time_exclusive()));
@@ -516,7 +521,7 @@ namespace tl
 
         void Player::resetInPoint()
         {
-            TLRENDER_P();
+            DTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time(
                 p.timeRange.start_time(),
                 p.inOutRange->get().end_time_exclusive()));
@@ -524,7 +529,7 @@ namespace tl
 
         void Player::setOutPoint()
         {
-            TLRENDER_P();
+            DTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
                 p.currentTime->get()));
@@ -532,7 +537,7 @@ namespace tl
 
         void Player::resetOutPoint()
         {
-            TLRENDER_P();
+            DTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
                 p.timeRange.end_time_inclusive()));
@@ -550,7 +555,7 @@ namespace tl
 
         void Player::setCompare(const std::vector<std::shared_ptr<Timeline> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.compare->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -572,7 +577,7 @@ namespace tl
 
         void Player::setCompareTime(CompareTimeMode value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.compareTime->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -594,7 +599,7 @@ namespace tl
 
         void Player::setIOOptions(const io::Options& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.ioOptions->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -616,7 +621,7 @@ namespace tl
 
         void Player::setVideoLayer(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.videoLayer->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -638,7 +643,7 @@ namespace tl
 
         void Player::setCompareVideoLayers(const std::vector<int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.compareVideoLayers->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -670,7 +675,7 @@ namespace tl
 
         void Player::setCacheOptions(const PlayerCacheOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.cacheOptions->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -685,7 +690,7 @@ namespace tl
 
         void Player::clearCache()
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.clearRequests = true;
             p.mutex.clearCache = true;
@@ -693,7 +698,7 @@ namespace tl
 
         void Player::tick()
         {
-            TLRENDER_P();
+            DTK_P();
 
             // Tick the timeline.
             p.timeline->tick();
@@ -756,7 +761,7 @@ namespace tl
 
         void Player::_thread()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.cacheTimer = std::chrono::steady_clock::now();
             p.thread.logTimer = std::chrono::steady_clock::now();
             while (p.running)

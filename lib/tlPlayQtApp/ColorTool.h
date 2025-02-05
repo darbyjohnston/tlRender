@@ -29,7 +29,7 @@ namespace tl
         private:
             void _widgetUpdate(const play::OCIOModelData&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! LUT widget.
@@ -45,7 +45,7 @@ namespace tl
         private:
             void _widgetUpdate(const tl::timeline::LUTOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Color widget.
@@ -61,7 +61,7 @@ namespace tl
         private:
             void _widgetUpdate(const timeline::DisplayOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Levels widget.
@@ -77,7 +77,7 @@ namespace tl
         private:
             void _widgetUpdate(const timeline::DisplayOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! EXR display widget.
@@ -93,7 +93,7 @@ namespace tl
         private:
             void _widgetUpdate(const timeline::DisplayOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Soft clip widget.
@@ -109,7 +109,7 @@ namespace tl
         private:
             void _widgetUpdate(const timeline::DisplayOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Color tool.
@@ -123,7 +123,7 @@ namespace tl
             virtual ~ColorTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Color tool dock widget.

@@ -24,7 +24,7 @@ namespace tl
 
         void Timer::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto system = context->getSystem<TimerSystem>())
             {
                 system->addTimer(shared_from_this());
@@ -60,7 +60,7 @@ namespace tl
             const std::chrono::microseconds& timeout,
             const std::function<void(void)>& callback)
         {
-            TLRENDER_P();
+            DTK_P();
             p.active = true;
             p.timeout = timeout;
             p.callback = callback;
@@ -73,7 +73,7 @@ namespace tl
                 const std::chrono::steady_clock::time_point&,
                 const std::chrono::microseconds&)>& callback)
         {
-            TLRENDER_P();
+            DTK_P();
             p.active = true;
             p.timeout = timeout;
             p.callback2 = callback;
@@ -97,7 +97,7 @@ namespace tl
 
         void Timer::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             const auto now = std::chrono::steady_clock::now();
             if (now >= (p.start + p.timeout))
             {
@@ -154,7 +154,7 @@ namespace tl
 
         void TimerSystem::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             auto i = p.timers.begin();
             while (i != p.timers.end())
             {

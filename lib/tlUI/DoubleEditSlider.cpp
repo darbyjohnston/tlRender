@@ -34,7 +34,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::DoubleEditSlider", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setHStretch(Stretch::Expanding);
 

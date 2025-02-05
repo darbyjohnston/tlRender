@@ -17,7 +17,7 @@ namespace tl
         //! File menu.
         class FileMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(FileMenu);
+            DTK_NON_COPYABLE(FileMenu);
 
         protected:
             void _init(
@@ -47,7 +47,7 @@ namespace tl
             void _layersUpdate(const std::vector<int>&);
             void _recentUpdate(const std::vector<file::Path>&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

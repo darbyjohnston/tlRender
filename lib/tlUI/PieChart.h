@@ -30,7 +30,7 @@ namespace tl
         //! Pie chart widget.
         class PieChart : public IWidget
         {
-            TLRENDER_NON_COPYABLE(PieChart);
+            DTK_NON_COPYABLE(PieChart);
 
         protected:
             void _init(
@@ -60,7 +60,7 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

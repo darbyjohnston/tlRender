@@ -41,7 +41,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Splitter", context, parent);
-            TLRENDER_P();
+            DTK_P();
             _hStretch = Stretch::Expanding;
             _vStretch = Stretch::Expanding;
             _setMouseHover(true);
@@ -73,7 +73,7 @@ namespace tl
 
         void Splitter::setSplit(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.split)
                 return;
             p.split = value;
@@ -83,7 +83,7 @@ namespace tl
 
         void Splitter::setSpacingRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.spacingRole)
                 return;
             p.spacingRole = value;
@@ -95,7 +95,7 @@ namespace tl
         void Splitter::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
 
@@ -179,7 +179,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -197,7 +197,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
@@ -228,7 +228,7 @@ namespace tl
 
         void Splitter::mouseLeaveEvent()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.mouse.hoverHandle != -1)
             {
                 p.mouse.hoverHandle = -1;
@@ -238,7 +238,7 @@ namespace tl
 
         void Splitter::mouseMoveEvent(MouseMoveEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             event.accept = true;
             if (p.mouse.pressedHandle != -1)
             {
@@ -282,7 +282,7 @@ namespace tl
 
         void Splitter::mousePressEvent(MouseClickEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             p.mouse.pressedHandle = -1;
             for (size_t i = 0; i < p.size.handleGeometry.size(); ++i)
             {
@@ -298,7 +298,7 @@ namespace tl
 
         void Splitter::mouseReleaseEvent(MouseClickEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             event.accept = true;
             p.mouse.pressedHandle = -1;
             _updates |= Update::Draw;
@@ -307,7 +307,7 @@ namespace tl
         void Splitter::_releaseMouse()
         {
             IWidget::_releaseMouse();
-            TLRENDER_P();
+            DTK_P();
             if (p.mouse.hoverHandle || p.mouse.pressedHandle)
             {
                 p.mouse.hoverHandle = -1;

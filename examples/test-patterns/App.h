@@ -22,7 +22,7 @@ namespace tl
             //! Application.
             class App : public app::BaseApp
             {
-                TLRENDER_NON_COPYABLE(App);
+                DTK_NON_COPYABLE(App);
 
             protected:
                 void _init(

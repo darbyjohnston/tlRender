@@ -39,7 +39,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::PathsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setBackgroundRole(ColorRole::Base);
 
@@ -73,7 +73,7 @@ namespace tl
             p.buttonGroup->setClickedCallback(
                 [this](int value)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     if (value >= 0 && value < p.paths.size())
                     {
                         const std::string& path = p.paths[value];
@@ -116,7 +116,7 @@ namespace tl
 
         void PathsWidget::setRecentFilesModel(const std::shared_ptr<RecentFilesModel>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.recentObserver.reset();
             p.recentFilesModel = value;
             if (p.recentFilesModel)
@@ -148,7 +148,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            TLRENDER_P();
+            DTK_P();
             auto button = ListButton::create(context);
             button->setText(text);
             button->setParent(parent);
@@ -158,7 +158,7 @@ namespace tl
 
         void PathsWidget::_pathsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             
             p.paths.clear();
             for (auto layout : p.layouts)

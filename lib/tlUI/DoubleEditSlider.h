@@ -14,7 +14,7 @@ namespace tl
         //! Double precision floating point value editor and slider.
         class DoubleEditSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(DoubleEditSlider);
+            DTK_NON_COPYABLE(DoubleEditSlider);
 
         protected:
             void _init(
@@ -70,7 +70,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

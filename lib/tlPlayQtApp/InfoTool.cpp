@@ -37,7 +37,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.tagsModel = new TagsModel(this);
             p.tagsProxyModel = new QSortFilterProxyModel(this);
@@ -78,7 +78,7 @@ namespace tl
 
         void InfoTool::setInfo(const io::Info& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.tagsModel->setTags(value.tags);
         }
 

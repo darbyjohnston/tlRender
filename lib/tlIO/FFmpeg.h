@@ -33,8 +33,7 @@ namespace tl
 
             Count
         };
-        TLRENDER_ENUM(Profile);
-        TLRENDER_ENUM_SERIALIZE(Profile);
+        DTK_ENUM(Profile);
 
         //! Number of threads.
         const size_t threadCount = 0;
@@ -116,7 +115,7 @@ namespace tl
             void _cancelVideoRequests();
             void _cancelAudioRequests();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! FFmpeg writer.
@@ -149,7 +148,7 @@ namespace tl
         private:
             void _encodeVideo(AVFrame*);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! FFmpeg Plugin

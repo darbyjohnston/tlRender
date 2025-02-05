@@ -13,7 +13,7 @@ namespace tl
         //! Bellows widget.
         class Bellows : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Bellows);
+            DTK_NON_COPYABLE(Bellows);
 
         protected:
             void _init(
@@ -52,7 +52,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

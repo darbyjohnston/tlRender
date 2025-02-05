@@ -46,7 +46,7 @@ namespace tl
                 Tool::SystemLog,
                 "tl::play_app::SystemLogTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.label = ui::Label::create(context);
             p.label->setFontRole(ui::FontRole::Mono);

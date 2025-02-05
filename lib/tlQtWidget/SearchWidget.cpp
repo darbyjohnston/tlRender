@@ -22,7 +22,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.lineEdit = new QLineEdit;
             p.lineEdit->setToolTip(tr("Search"));
@@ -69,7 +69,7 @@ namespace tl
 
         void SearchWidget::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.clearButton->setEnabled(!p.lineEdit->text().isEmpty());
         }
     }

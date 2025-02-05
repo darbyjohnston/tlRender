@@ -15,7 +15,7 @@ namespace tl
         //! Color tool.
         class ColorTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(ColorTool);
+            DTK_NON_COPYABLE(ColorTool);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

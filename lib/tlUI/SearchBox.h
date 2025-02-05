@@ -13,7 +13,7 @@ namespace tl
         //! Search box widget.
         class SearchBox : public IWidget
         {
-            TLRENDER_NON_COPYABLE(SearchBox);
+            DTK_NON_COPYABLE(SearchBox);
 
         protected:
             void _init(
@@ -40,7 +40,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

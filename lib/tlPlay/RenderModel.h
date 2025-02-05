@@ -4,11 +4,8 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
-#include <dtk/core/RenderOptions.h>
-
 #include <dtk/core/ObservableValue.h>
+#include <dtk/core/RenderOptions.h>
 
 namespace dtk
 {
@@ -24,7 +21,7 @@ namespace tl
         //! Render model.
         class RenderModel : public std::enable_shared_from_this<RenderModel>
         {
-            TLRENDER_NON_COPYABLE(RenderModel);
+            DTK_NON_COPYABLE(RenderModel);
 
         protected:
             void _init(
@@ -60,7 +57,7 @@ namespace tl
             void setColorBuffer(dtk::ImageType);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

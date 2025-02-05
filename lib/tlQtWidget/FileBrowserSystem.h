@@ -17,7 +17,7 @@ namespace tl
         //! File browser system.
         class FileBrowserSystem : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(FileBrowserSystem);
+            DTK_NON_COPYABLE(FileBrowserSystem);
 
         protected:
             FileBrowserSystem(const std::shared_ptr<dtk::Context>&);
@@ -47,7 +47,7 @@ namespace tl
             void setPath(const std::string&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

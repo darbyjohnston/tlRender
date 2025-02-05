@@ -120,7 +120,7 @@ namespace tl
             void _trackEnabledCallback(bool);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

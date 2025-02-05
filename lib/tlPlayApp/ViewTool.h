@@ -17,7 +17,7 @@ namespace tl
         //! \todo Add a background grid.
         class ViewTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(ViewTool);
+            DTK_NON_COPYABLE(ViewTool);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

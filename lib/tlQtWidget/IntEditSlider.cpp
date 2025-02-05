@@ -33,7 +33,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.spinBox = new QSpinBox;
             p.spinBox->setFont(QFont("Noto Mono"));
@@ -100,7 +100,7 @@ namespace tl
 
         void IntEditSlider::setRange(const dtk::RangeI& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.range)
                 return;
             p.range = value;
@@ -110,7 +110,7 @@ namespace tl
 
         void IntEditSlider::setValue(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.value)
                 return;
             p.value = value;
@@ -120,7 +120,7 @@ namespace tl
 
         void IntEditSlider::setDefaultValue(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.defaultValue)
                 return;
             p.defaultValue = value;
@@ -129,7 +129,7 @@ namespace tl
 
         void IntEditSlider::setSingleStep(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.singleStep)
                 return;
             p.singleStep = value;
@@ -138,7 +138,7 @@ namespace tl
 
         void IntEditSlider::setPageStep(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.pageStep)
                 return;
             p.pageStep = value;
@@ -147,7 +147,7 @@ namespace tl
 
         void IntEditSlider::setOrientation(Qt::Orientation value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.orientation)
                 return;
             p.orientation = value;
@@ -156,7 +156,7 @@ namespace tl
 
         void IntEditSlider::_layoutUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             if (p.layout)
             {
@@ -198,7 +198,7 @@ namespace tl
 
         void IntEditSlider::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.spinBox);
                 p.spinBox->setRange(p.range.min(), p.range.max());

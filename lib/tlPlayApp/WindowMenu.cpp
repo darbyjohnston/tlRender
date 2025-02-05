@@ -32,7 +32,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
 
@@ -131,7 +131,7 @@ namespace tl
         void WindowMenu::close()
         {
             Menu::close();
-            TLRENDER_P();
+            DTK_P();
             for (const auto menu : p.menus)
             {
                 menu.second->close();

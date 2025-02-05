@@ -21,7 +21,7 @@ namespace tl
         //! Color model.
         class ColorModel : public std::enable_shared_from_this<ColorModel>
         {
-            TLRENDER_NON_COPYABLE(ColorModel);
+            DTK_NON_COPYABLE(ColorModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -53,7 +53,7 @@ namespace tl
             void setLUTOptions(const timeline::LUTOptions&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

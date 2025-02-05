@@ -39,7 +39,7 @@ namespace tl
                     "tl::examples::widgets::BasicWidgets",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 auto pushButton0 = ui::PushButton::create(context);
                 pushButton0->setText("Click");

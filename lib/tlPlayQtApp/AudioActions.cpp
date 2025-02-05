@@ -26,7 +26,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -103,7 +103,7 @@ namespace tl
 
         void AudioActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.actions["Mute"]);
                 p.actions["Mute"]->setChecked(p.app->audioModel()->isMuted());

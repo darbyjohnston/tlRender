@@ -17,7 +17,7 @@ namespace tl
         //! \todo Add support for displaying pixel types like U8, U16, etc.?
         class ColorWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ColorWidget);
+            DTK_NON_COPYABLE(ColorWidget);
 
         protected:
             void _init(
@@ -49,7 +49,7 @@ namespace tl
         private:
             void _colorUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

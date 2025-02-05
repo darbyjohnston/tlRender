@@ -136,7 +136,7 @@ namespace tl
         private:
             void _maxUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Thumbnail generator.
@@ -211,7 +211,7 @@ namespace tl
             void _thumbnailCancel();
             void _waveformCancel();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Thumbnail system.
@@ -253,7 +253,7 @@ namespace tl
             const std::shared_ptr<ThumbnailCache>& getCache() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

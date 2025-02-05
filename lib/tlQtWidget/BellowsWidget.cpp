@@ -23,7 +23,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.button = new BellowsButton;
 
@@ -48,7 +48,7 @@ namespace tl
 
         void BellowsWidget::setWidget(QWidget* widget)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.widget)
             {
                 delete p.widget;
@@ -88,7 +88,7 @@ namespace tl
 
         void BellowsWidget::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.widget)
             {
                 p.widget->setVisible(p.button->isOpen());

@@ -15,7 +15,7 @@ namespace tl
         //! Status bar widget.
         class StatusBar : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(StatusBar);
+            DTK_NON_COPYABLE(StatusBar);
 
         protected:
             void _init(
@@ -43,7 +43,7 @@ namespace tl
         private:
             void _widgetUpdate(const std::vector<dtk::LogItem>&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

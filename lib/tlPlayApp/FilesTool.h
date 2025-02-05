@@ -17,7 +17,7 @@ namespace tl
         //! Files tool.
         class FilesTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(FilesTool);
+            DTK_NON_COPYABLE(FilesTool);
 
         protected:
             void _init(
@@ -42,7 +42,7 @@ namespace tl
             void _layersUpdate(const std::vector<int>&);
             void _compareUpdate(const timeline::CompareOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -16,7 +16,7 @@ namespace tl
         //! \todo Automatically open/close sub menus.
         class Menu : public IMenuPopup
         {
-            TLRENDER_NON_COPYABLE(Menu);
+            DTK_NON_COPYABLE(Menu);
 
         protected:
             void _init(
@@ -55,7 +55,7 @@ namespace tl
             bool shortcut(Key, int);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

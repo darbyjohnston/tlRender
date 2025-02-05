@@ -27,8 +27,7 @@ namespace tl
             Count,
             First = A
         };
-        TLRENDER_ENUM(CompareMode);
-        TLRENDER_ENUM_SERIALIZE(CompareMode);
+        DTK_ENUM(CompareMode);
 
         //! Comparison time mode.
         enum class CompareTimeMode
@@ -39,8 +38,7 @@ namespace tl
             Count,
             First = Relative
         };
-        TLRENDER_ENUM(CompareTimeMode);
-        TLRENDER_ENUM_SERIALIZE(CompareTimeMode);
+        DTK_ENUM(CompareTimeMode);
 
         //! Comparison options.
         struct CompareOptions

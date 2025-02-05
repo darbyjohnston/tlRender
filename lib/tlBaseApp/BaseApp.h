@@ -40,7 +40,7 @@ namespace tl
         //! Base class for applications.
         class BaseApp : public std::enable_shared_from_this<BaseApp>
         {
-            TLRENDER_NON_COPYABLE(BaseApp);
+            DTK_NON_COPYABLE(BaseApp);
 
         protected:
             void _init(
@@ -79,7 +79,7 @@ namespace tl
             int _parseCmdLine();
             void _printCmdLineHelp();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

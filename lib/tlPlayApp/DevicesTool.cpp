@@ -56,7 +56,7 @@ namespace tl
                 Tool::Devices,
                 "tl::play_app::DevicesTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
 #if defined(TLRENDER_BMD)
             p.enabledCheckBox = ui::CheckBox::create(context);
@@ -331,7 +331,7 @@ namespace tl
                 app->getBMDDevicesModel()->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     p.enabledCheckBox->setChecked(value.deviceEnabled);
 
                     p.deviceComboBox->setItems(value.devices);

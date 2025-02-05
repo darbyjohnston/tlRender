@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ObservableValue.h>
 #include <dtk/core/Range.h>
 
@@ -21,7 +19,7 @@ namespace tl
         //! Integer value model.
         class IntModel : public std::enable_shared_from_this<IntModel>
         {
-            TLRENDER_NON_COPYABLE(IntModel);
+            DTK_NON_COPYABLE(IntModel);
 
             void _init(const std::shared_ptr<dtk::Context>&);
 
@@ -116,7 +114,7 @@ namespace tl
             ///@}
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

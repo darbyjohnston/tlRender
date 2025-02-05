@@ -36,8 +36,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(FileSequenceAudio);
-        TLRENDER_ENUM_SERIALIZE(FileSequenceAudio);
+        DTK_ENUM(FileSequenceAudio);
 
         //! Timeline options.
         struct Options
@@ -91,7 +90,7 @@ namespace tl
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {
-            TLRENDER_NON_COPYABLE(Timeline);
+            DTK_NON_COPYABLE(Timeline);
 
         protected:
             void _init(
@@ -196,7 +195,7 @@ namespace tl
             void tick();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

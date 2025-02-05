@@ -110,11 +110,10 @@ namespace tl
             return out;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             CacheDirection,
             "Forward",
             "Reverse");
-        TLRENDER_ENUM_SERIALIZE_IMPL(CacheDirection);
 
         std::vector<OTIO_NS::TimeRange> loopCache(
             const OTIO_NS::TimeRange& value,
@@ -384,11 +383,10 @@ namespace tl
             return out;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             ToMemoryReference,
             "Shared",
             "Raw");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ToMemoryReference);
 
         void toMemoryReferences(
             OTIO_NS::Timeline* otioTimeline,

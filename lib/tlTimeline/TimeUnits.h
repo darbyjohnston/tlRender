@@ -27,8 +27,7 @@ namespace tl
             Count,
             First = Frames
         };
-        TLRENDER_ENUM(TimeUnits);
-        TLRENDER_ENUM_SERIALIZE(TimeUnits);
+        DTK_ENUM(TimeUnits);
 
         //! Convert a time value to text.
         std::string timeToText(const OTIO_NS::RationalTime&, timeline::TimeUnits);
@@ -49,7 +48,7 @@ namespace tl
         //! Base class for time units models.
         class ITimeUnitsModel : public std::enable_shared_from_this<ITimeUnitsModel>
         {
-            TLRENDER_NON_COPYABLE(ITimeUnitsModel);
+            DTK_NON_COPYABLE(ITimeUnitsModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -72,7 +71,7 @@ namespace tl
         //! Time units model.
         class TimeUnitsModel : public ITimeUnitsModel
         {
-            TLRENDER_NON_COPYABLE(TimeUnitsModel);
+            DTK_NON_COPYABLE(TimeUnitsModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -97,7 +96,7 @@ namespace tl
 
             std::string getLabel(const OTIO_NS::RationalTime&) const override;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Context.h>
 
 #include <functional>
@@ -19,7 +17,7 @@ namespace tl
     {
         class ITest : public std::enable_shared_from_this<ITest>
         {
-            TLRENDER_NON_COPYABLE(ITest);
+            DTK_NON_COPYABLE(ITest);
 
         protected:
             ITest(

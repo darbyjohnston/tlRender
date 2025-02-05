@@ -34,7 +34,7 @@ namespace tl
                     "tl::examples::widgets::NumericWidgets",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 const std::vector<dtk::RangeI> intRanges =
                 {

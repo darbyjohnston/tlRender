@@ -42,7 +42,7 @@ namespace tl
         //! BMD devices model.
         class DevicesModel : public std::enable_shared_from_this<DevicesModel>
         {
-            TLRENDER_NON_COPYABLE(DevicesModel);
+            DTK_NON_COPYABLE(DevicesModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -86,7 +86,7 @@ namespace tl
         private:
             void _update();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

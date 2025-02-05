@@ -38,7 +38,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -267,7 +267,7 @@ namespace tl
 
         void FileActions::_recentUpdate(const std::vector<file::Path>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& i : p.actionGroups["Recent"]->actions())
             {
                 delete i;
@@ -287,7 +287,7 @@ namespace tl
 
         void FileActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             const auto& files = p.app->filesModel()->observeFiles()->get();
             const size_t count = files.size();

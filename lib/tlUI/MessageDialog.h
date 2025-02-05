@@ -15,7 +15,7 @@ namespace tl
         //!  dialog.
         class MessageDialog : public IDialog
         {
-            TLRENDER_NON_COPYABLE(MessageDialog);
+            DTK_NON_COPYABLE(MessageDialog);
 
         protected:
             void _init(
@@ -38,13 +38,13 @@ namespace tl
             void setCallback(const std::function<void(bool)>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! File browser system.
         class MessageDialogSystem : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(MessageDialogSystem);
+            DTK_NON_COPYABLE(MessageDialogSystem);
 
         protected:
             MessageDialogSystem(const std::shared_ptr<dtk::Context>&);
@@ -62,7 +62,7 @@ namespace tl
                 const std::function<void(bool)>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

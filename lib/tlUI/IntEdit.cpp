@@ -34,7 +34,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::IntEdit", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.model = model;
             if (!p.model)
@@ -166,7 +166,7 @@ namespace tl
 
         void IntEdit::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (isEnabled() && p.model)
             {
                 switch (event.key)
@@ -199,7 +199,7 @@ namespace tl
 
         void IntEdit::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::string text;
             std::string format;
             if (p.model)

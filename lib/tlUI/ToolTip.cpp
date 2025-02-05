@@ -35,7 +35,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context)
         {
             IPopup::_init("tl::ui::ToolTip", context, nullptr);
-            TLRENDER_P();
+            DTK_P();
 
             p.pos = pos;
 
@@ -73,7 +73,7 @@ namespace tl
         void ToolTip::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             dtk::Size2I sizeHint = p.label->getSizeHint();
             std::list<dtk::Box2I> boxes;
             boxes.push_back(dtk::Box2I(
@@ -123,7 +123,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IPopup::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -139,7 +139,7 @@ namespace tl
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             //event.render->drawRect(
             //    _geometry,
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));

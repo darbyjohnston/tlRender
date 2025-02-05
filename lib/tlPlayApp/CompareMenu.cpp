@@ -31,7 +31,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
             p.actions = actions;
@@ -103,7 +103,7 @@ namespace tl
         void CompareMenu::close()
         {
             Menu::close();
-            TLRENDER_P();
+            DTK_P();
             for (const auto& menu : p.menus)
             {
                 menu.second->close();
@@ -113,7 +113,7 @@ namespace tl
         void CompareMenu::_filesUpdate(
             const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
 
             setItemEnabled(p.actions["Next"], value.size() > 1);
             setItemEnabled(p.actions["Prev"], value.size() > 1);
@@ -145,7 +145,7 @@ namespace tl
 
         void CompareMenu::_bUpdate(const std::vector<int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (int i = 0; i < p.bActions.size(); ++i)
             {
                 const auto j = std::find(value.begin(), value.end(), i);
@@ -157,7 +157,7 @@ namespace tl
 
         void CompareMenu::_compareUpdate(const timeline::CompareOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto enums = timeline::getCompareModeEnums();
             const auto labels = timeline::getCompareModeLabels();
             for (size_t i = 0; i < enums.size(); ++i)
@@ -168,7 +168,7 @@ namespace tl
 
         void CompareMenu::_compareTimeUpdate(timeline::CompareTimeMode value)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto enums = timeline::getCompareTimeModeEnums();
             const auto labels = timeline::getCompareTimeModeLabels();
             for (size_t i = 0; i < enums.size(); ++i)

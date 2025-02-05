@@ -187,7 +187,7 @@ namespace tl
         
         void IconLibrary::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             p.context = context;
             
             p.iconData[std::make_pair("Audio", 96)] = Audio_96_png;
@@ -317,7 +317,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     while (p.thread.running)
                     {
                         std::list<std::shared_ptr<Private::Request> > requests;
@@ -411,7 +411,7 @@ namespace tl
 
         IconLibrary::~IconLibrary()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -431,7 +431,7 @@ namespace tl
             const std::string& name,
             float displayScale)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::Request>();
             request->name = name;
             request->displayScale = displayScale;
@@ -458,7 +458,7 @@ namespace tl
         
         void IconLibrary::cancelRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::Request> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);

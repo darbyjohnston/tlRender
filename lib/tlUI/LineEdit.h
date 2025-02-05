@@ -16,7 +16,7 @@ namespace tl
         //! \todo Double click to select text.
         class LineEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(LineEdit);
+            DTK_NON_COPYABLE(LineEdit);
 
         protected:
             void _init(
@@ -80,7 +80,7 @@ namespace tl
 
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

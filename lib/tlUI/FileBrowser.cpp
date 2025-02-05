@@ -36,7 +36,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IDialog::_init("tl::ui::FileBrowser", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.widget = FileBrowserWidget::create(
                 path,

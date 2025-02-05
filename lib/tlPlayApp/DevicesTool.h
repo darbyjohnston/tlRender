@@ -15,7 +15,7 @@ namespace tl
         //! Devices tool.
         class DevicesTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(DevicesTool);
+            DTK_NON_COPYABLE(DevicesTool);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

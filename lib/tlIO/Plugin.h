@@ -29,7 +29,7 @@ namespace tl
         //! Base class for readers and writers.
         class IIO : public std::enable_shared_from_this<IIO>
         {
-            TLRENDER_NON_COPYABLE(IIO);
+            DTK_NON_COPYABLE(IIO);
 
         protected:
             void _init(
@@ -117,7 +117,7 @@ namespace tl
         //! Base class for I/O plugins.
         class IPlugin : public std::enable_shared_from_this<IPlugin>
         {
-            TLRENDER_NON_COPYABLE(IPlugin);
+            DTK_NON_COPYABLE(IPlugin);
 
         protected:
             void _init(
@@ -169,7 +169,7 @@ namespace tl
             std::weak_ptr<dtk::LogSystem> _logSystem;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -18,7 +18,7 @@ namespace tl
         //! Tools tool bar.
         class ToolsToolBar : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(ToolsToolBar);
+            DTK_NON_COPYABLE(ToolsToolBar);
 
         protected:
             void _init(
@@ -42,7 +42,7 @@ namespace tl
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

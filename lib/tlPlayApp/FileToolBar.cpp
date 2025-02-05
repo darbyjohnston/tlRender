@@ -32,7 +32,7 @@ namespace tl
                 "tl::play_app::FileToolBar",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
 
@@ -121,7 +121,7 @@ namespace tl
         void FileToolBar::_filesUpdate(
             const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.buttons["Close"]->setEnabled(!value.empty());
             p.buttons["CloseAll"]->setEnabled(!value.empty());
         }

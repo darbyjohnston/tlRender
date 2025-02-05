@@ -38,7 +38,7 @@ namespace tl
                 Tool::Info,
                 "tl::play_app::InfoTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.searchBox = ui::SearchBox::create(context);
             p.searchBox->setHStretch(ui::Stretch::Expanding);
@@ -94,7 +94,7 @@ namespace tl
 
         void InfoTool::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             auto children = p.layout->getChildren();
             for (const auto& child : children)
             {

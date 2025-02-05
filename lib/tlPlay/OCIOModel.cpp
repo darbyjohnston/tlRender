@@ -51,7 +51,7 @@ namespace tl
 
         void OCIOModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 
@@ -109,7 +109,7 @@ namespace tl
 
         void OCIOModel::setOptions(const timeline::OCIOOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool changed = value.fileName != p.options->get().fileName;
 #if defined(TLRENDER_OCIO)
             if (changed)
@@ -139,7 +139,7 @@ namespace tl
 
         void OCIOModel::setEnabled(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto options = p.options->get();
             options.enabled = value;
             p.options->setIfChanged(options);
@@ -148,7 +148,7 @@ namespace tl
 
         void OCIOModel::setConfig(const std::string& fileName)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool changed = fileName != p.options->get().fileName;
 #if defined(TLRENDER_OCIO)
             if (changed)
@@ -185,7 +185,7 @@ namespace tl
 
         void OCIOModel::setInputIndex(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto data = p.data->get();
             if (value >= 0 && value < data.inputs.size())
             {
@@ -211,7 +211,7 @@ namespace tl
 
         void OCIOModel::setDisplayIndex(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto data = p.data->get();
             if (value >= 0 && value < data.displays.size())
             {
@@ -233,7 +233,7 @@ namespace tl
 
         void OCIOModel::setViewIndex(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             auto data = p.data->get();
             if (value >= 0 && value < data.views.size())
             {
@@ -251,7 +251,7 @@ namespace tl
 
         void OCIOModel::setLookIndex(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto& looks = p.data->get().looks;
             if (value >= 0 && value < looks.size())
             {
@@ -264,7 +264,7 @@ namespace tl
 
         OCIOModelData OCIOModel::_getData(const timeline::OCIOOptions& options) const
         {
-            TLRENDER_P();
+            DTK_P();
             OCIOModelData out;
             out.enabled = options.enabled;
             out.fileName = options.fileName;

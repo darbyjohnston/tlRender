@@ -33,7 +33,7 @@ namespace tl
         //! File browser.
         class FileBrowser : public IDialog
         {
-            TLRENDER_NON_COPYABLE(FileBrowser);
+            DTK_NON_COPYABLE(FileBrowser);
 
         protected:
             void _init(
@@ -68,13 +68,13 @@ namespace tl
             void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! File browser system.
         class FileBrowserSystem : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(FileBrowserSystem);
+            DTK_NON_COPYABLE(FileBrowserSystem);
 
         protected:
             FileBrowserSystem(const std::shared_ptr<dtk::Context>&);
@@ -113,7 +113,7 @@ namespace tl
             const std::shared_ptr<RecentFilesModel>& getRecentFilesModel() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! \name Serialize

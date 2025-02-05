@@ -15,11 +15,10 @@ namespace tl
 {
     namespace file
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Type,
             "File",
             "Directory");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Type);
 
         FileInfo::FileInfo()
         {}
@@ -51,13 +50,12 @@ namespace tl
             }
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             ListSort,
             "Name",
             "Extension",
             "Size",
             "Time");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ListSort);
 
         bool ListOptions::operator == (const ListOptions& other) const
         {

@@ -34,7 +34,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ScrollArea", context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.scrollType = scrollType;
         }
 
@@ -72,7 +72,7 @@ namespace tl
 
         void ScrollArea::setScrollPos(const dtk::V2I& value, bool clamp)
         {
-            TLRENDER_P();
+            DTK_P();
             dtk::V2I tmp = value;
             if (clamp)
             {
@@ -99,7 +99,7 @@ namespace tl
 
         void ScrollArea::setBorder(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.border)
                 return;
             p.border = value;
@@ -110,7 +110,7 @@ namespace tl
         void ScrollArea::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = dtk::margin(value, -p.size.border);
             _childrenClipRect = g;
 
@@ -172,7 +172,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -212,7 +212,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
 

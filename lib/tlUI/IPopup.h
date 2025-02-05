@@ -13,7 +13,7 @@ namespace tl
         //! Base class for popups.
         class IPopup : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IPopup);
+            DTK_NON_COPYABLE(IPopup);
 
         protected:
             void _init(

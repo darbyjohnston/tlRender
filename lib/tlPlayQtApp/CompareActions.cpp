@@ -38,7 +38,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -260,7 +260,7 @@ namespace tl
 
         void CompareActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             for (auto i : p.actionGroups["B"]->actions())
             {

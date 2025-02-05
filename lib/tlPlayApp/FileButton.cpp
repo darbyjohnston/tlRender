@@ -50,7 +50,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IButton::_init("tl::play_app::FileButton", context, parent);
-            TLRENDER_P();
+            DTK_P();
             const std::string s = dtk::elide(item->path.get(-1, file::PathType::FileName));
             setText(s);
             setCheckable(true);
@@ -83,7 +83,7 @@ namespace tl
             const ui::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (p.draw.thumbnailRequest.future.valid() &&
                 p.draw.thumbnailRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
@@ -97,7 +97,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -154,7 +154,7 @@ namespace tl
         void FileButton::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IButton::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -166,7 +166,7 @@ namespace tl
             const ui::DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
@@ -229,7 +229,7 @@ namespace tl
 
         void FileButton::keyPressEvent(ui::KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (0 == event.modifiers)
             {
                 switch (event.key)

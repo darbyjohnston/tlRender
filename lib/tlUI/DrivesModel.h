@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ObservableList.h>
 
 #include <string>
@@ -22,7 +20,7 @@ namespace tl
         //! File system drives model.
         class DrivesModel : public std::enable_shared_from_this<DrivesModel>
         {
-            TLRENDER_NON_COPYABLE(DrivesModel);
+            DTK_NON_COPYABLE(DrivesModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -40,7 +38,7 @@ namespace tl
             std::shared_ptr<dtk::IObservableList<std::string> > observeDrives() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

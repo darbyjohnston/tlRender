@@ -18,11 +18,10 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Transition,
             "None",
             "Dissolve");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Transition);
 
         Transition toTransition(const std::string& value)
         {

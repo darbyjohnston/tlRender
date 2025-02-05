@@ -20,7 +20,7 @@ namespace tl
         //! Qt Quick system.
         class System : public system::ISystem
         {
-            TLRENDER_NON_COPYABLE(System);
+            DTK_NON_COPYABLE(System);
 
         protected:
             System(const std::shared_ptr<dtk::Context>&);

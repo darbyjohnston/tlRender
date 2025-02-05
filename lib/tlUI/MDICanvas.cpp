@@ -60,7 +60,7 @@ namespace tl
             const std::string& title,
             const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<MDIWidget> out;
             if (auto context = _context.lock())
             {
@@ -171,7 +171,7 @@ namespace tl
         void MDICanvas::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I& g = _geometry;
             dtk::V2I pos = g.min + p.size.spacing;
             while (!p.newWidgets.empty())
@@ -204,7 +204,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {

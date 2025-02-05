@@ -66,7 +66,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -220,7 +220,7 @@ namespace tl
 
         void FilesTool::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
         {
-            TLRENDER_P();
+            DTK_P();
 
             for (auto i : p.aButtons)
             {
@@ -310,7 +310,7 @@ namespace tl
 
         void FilesTool::_aUpdate(const std::shared_ptr<play::FilesModelItem>& item)
         {
-            TLRENDER_P();
+            DTK_P();
             for (size_t i = 0; i < p.items.size() && i < p.aButtons.size(); ++i)
             {
                 QSignalBlocker signalBlocker(p.aButtons[i]);
@@ -320,7 +320,7 @@ namespace tl
 
         void FilesTool::_bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& items)
         {
-            TLRENDER_P();
+            DTK_P();
             for (size_t i = 0; i < p.items.size() && i < p.bButtons.size(); ++i)
             {
                 QSignalBlocker signalBlocker(p.bButtons[i]);
@@ -332,7 +332,7 @@ namespace tl
 
         void FilesTool::_layersUpdate(const std::vector<int>& values)
         {
-            TLRENDER_P();
+            DTK_P();
             for (size_t i = 0; i < p.items.size() && i < values.size(); ++i)
             {
                 QSignalBlocker signalBlocker(p.layerComboBoxes[i]);
@@ -342,7 +342,7 @@ namespace tl
 
         void FilesTool::_compareUpdate(const timeline::CompareOptions& options)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker signalBlocker(p.wipeXSlider);
                 p.wipeXSlider->setValue(options.wipeCenter.x);
@@ -363,7 +363,7 @@ namespace tl
 
         void FilesTool::_thumbnailsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             auto i = p.thumbnailRequests.begin();
             while (i != p.thumbnailRequests.end())
             {

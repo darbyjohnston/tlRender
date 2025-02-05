@@ -15,7 +15,7 @@ namespace tl
         //! Messages tool.
         class MessagesTool : public IToolWidget
         {
-            TLRENDER_NON_COPYABLE(MessagesTool);
+            DTK_NON_COPYABLE(MessagesTool);
 
         protected:
             void _init(
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

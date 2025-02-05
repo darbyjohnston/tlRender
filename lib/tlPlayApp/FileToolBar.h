@@ -18,7 +18,7 @@ namespace tl
         //! File tool bar.
         class FileToolBar : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(FileToolBar);
+            DTK_NON_COPYABLE(FileToolBar);
 
         protected:
             void _init(
@@ -45,7 +45,7 @@ namespace tl
             void _filesUpdate(
                 const std::vector<std::shared_ptr<play::FilesModelItem> >&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

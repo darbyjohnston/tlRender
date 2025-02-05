@@ -13,7 +13,7 @@ namespace tl
         //! Icon widget.
         class Icon : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Icon);
+            DTK_NON_COPYABLE(Icon);
 
         protected:
             void _init(
@@ -51,7 +51,7 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -38,7 +38,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.spinBox = new QDoubleSpinBox;
             p.spinBox->setFont(QFont("Noto Mono"));
@@ -105,7 +105,7 @@ namespace tl
 
         void FloatEditSlider::setRange(const dtk::RangeF& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.range)
                 return;
             p.range = value;
@@ -115,7 +115,7 @@ namespace tl
 
         void FloatEditSlider::setValue(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.value)
                 return;
             p.value = value;
@@ -125,7 +125,7 @@ namespace tl
 
         void FloatEditSlider::setDefaultValue(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.defaultValue)
                 return;
             p.defaultValue = value;
@@ -134,7 +134,7 @@ namespace tl
 
         void FloatEditSlider::setSingleStep(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.singleStep)
                 return;
             p.singleStep = value;
@@ -143,7 +143,7 @@ namespace tl
 
         void FloatEditSlider::setPageStep(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.pageStep)
                 return;
             p.pageStep = value;
@@ -152,7 +152,7 @@ namespace tl
 
         void FloatEditSlider::setOrientation(Qt::Orientation value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.orientation)
                 return;
             p.orientation = value;
@@ -161,7 +161,7 @@ namespace tl
 
         void FloatEditSlider::_layoutUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             if (p.layout)
             {
@@ -204,7 +204,7 @@ namespace tl
 
         void FloatEditSlider::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 QSignalBlocker blocker(p.spinBox);
                 p.spinBox->setRange(p.range.min(), p.range.max());

@@ -51,7 +51,7 @@ namespace tl
                 Tool::Files,
                 "tl::play_app::FilesTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.aButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
             p.bButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Check, context);
@@ -224,7 +224,7 @@ namespace tl
 
         void FilesTool::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.aButtonGroup->clearButtons();
             p.bButtonGroup->clearButtons();
             p.layerComboBoxes.clear();
@@ -293,7 +293,7 @@ namespace tl
 
         void FilesTool::_aUpdate(const std::shared_ptr<play::FilesModelItem>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& button : p.aButtons)
             {
                 button.second->setChecked(button.first == value);
@@ -302,7 +302,7 @@ namespace tl
 
         void FilesTool::_bUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& button : p.bButtons)
             {
                 const auto i = std::find(value.begin(), value.end(), button.first);
@@ -312,7 +312,7 @@ namespace tl
 
         void FilesTool::_layersUpdate(const std::vector<int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (size_t i = 0; i < value.size() && i < p.layerComboBoxes.size(); ++i)
             {
                 p.layerComboBoxes[i]->setCurrentIndex(value[i]);
@@ -321,7 +321,7 @@ namespace tl
 
         void FilesTool::_compareUpdate(const timeline::CompareOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.wipeXSlider->setValue(value.wipeCenter.x);
             p.wipeYSlider->setValue(value.wipeCenter.y);
             p.wipeRotationSlider->setValue(value.wipeRotation);

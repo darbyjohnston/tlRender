@@ -24,7 +24,7 @@ namespace tl
             QDialog(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             setWindowTitle(tr("Color Picker"));
 

@@ -39,7 +39,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::DirectoryWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setBackgroundRole(ColorRole::Base);
 
@@ -51,7 +51,7 @@ namespace tl
             p.buttonGroup->setClickedCallback(
                 [this](int value)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     if (value >= 0 &&
                         value < p.buttons.size())
                     {
@@ -91,7 +91,7 @@ namespace tl
 
         void DirectoryWidget::setPath(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.path)
                 return;
             p.path = value;
@@ -110,7 +110,7 @@ namespace tl
 
         void DirectoryWidget::setOptions(const FileBrowserOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.options)
                 return;
             p.options = value;
@@ -125,7 +125,7 @@ namespace tl
         void DirectoryWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             std::vector<int> columns;
             for (const auto& button : p.buttons)
             {
@@ -159,7 +159,7 @@ namespace tl
         void DirectoryWidget::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             p.size.spacing = event.style->getSizeRole(SizeRole::Spacing, _displayScale);
 
@@ -200,7 +200,7 @@ namespace tl
 
         void DirectoryWidget::_directoryUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& button : p.buttons)
             {
                 button->setParent(nullptr);

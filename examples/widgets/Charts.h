@@ -15,7 +15,7 @@ namespace tl
             //! Charts.
             class Charts : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(Charts);
+                DTK_NON_COPYABLE(Charts);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

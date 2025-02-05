@@ -481,7 +481,7 @@ namespace tl
         private:
             void _timerCallback();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

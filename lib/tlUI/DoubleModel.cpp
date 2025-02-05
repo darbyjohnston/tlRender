@@ -22,7 +22,7 @@ namespace tl
 
         void DoubleModel::_init(const std::shared_ptr<dtk::Context>&)
         {
-            TLRENDER_P();
+            DTK_P();
             p.value = dtk::ObservableValue<double>::create(0.0);
             p.range = dtk::ObservableValue<dtk::RangeD>::create(dtk::RangeD(0.0, 1.0));
             p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
@@ -50,7 +50,7 @@ namespace tl
 
         void DoubleModel::setValue(double value)
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::RangeD& range = p.range->get();
             const double tmp = dtk::clamp(value, range.min(), range.max());
             _p->value->setIfChanged(tmp);
@@ -68,7 +68,7 @@ namespace tl
 
         void DoubleModel::setRange(const dtk::RangeD& range)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.range->setIfChanged(range))
             {
                 setValue(p.value->get());
@@ -92,13 +92,13 @@ namespace tl
 
         void DoubleModel::incrementStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() + p.step);
         }
 
         void DoubleModel::decrementStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() - p.step);
         }
 
@@ -114,13 +114,13 @@ namespace tl
 
         void DoubleModel::incrementLargeStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() + p.largeStep);
         }
 
         void DoubleModel::decrementLargeStep()
         {
-            TLRENDER_P();
+            DTK_P();
             setValue(p.value->get() - p.largeStep);
         }
 

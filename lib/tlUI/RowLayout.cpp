@@ -32,7 +32,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.orientation = orientation;
         }
 
@@ -55,7 +55,7 @@ namespace tl
 
         void RowLayout::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -65,7 +65,7 @@ namespace tl
 
         void RowLayout::setSpacingRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.spacingRole)
                 return;
             p.spacingRole = value;
@@ -76,7 +76,7 @@ namespace tl
         void RowLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
             _childrenClipRect = g;
             std::vector<dtk::Size2I> sizeHints;
@@ -181,7 +181,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {

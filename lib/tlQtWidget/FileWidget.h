@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <QWidget>
 
@@ -45,7 +45,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

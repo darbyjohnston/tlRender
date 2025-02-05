@@ -55,7 +55,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -278,7 +278,7 @@ namespace tl
                 app->bmdDevicesModel()->observeData(),
                 [this](const bmd::DevicesModelData& value)
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     {
                         QSignalBlocker blocker(p.enabledCheckBox);
                         p.enabledCheckBox->setChecked(value.deviceEnabled);

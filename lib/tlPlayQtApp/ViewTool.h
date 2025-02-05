@@ -27,7 +27,7 @@ namespace tl
         private:
             void _optionsUpdate(const timeline::BackgroundOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! View tool.
@@ -41,7 +41,7 @@ namespace tl
             virtual ~ViewTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! View tool dock widget.

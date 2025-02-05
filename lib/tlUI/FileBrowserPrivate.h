@@ -16,7 +16,7 @@ namespace tl
     {
         class PathsWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(PathsWidget);
+            DTK_NON_COPYABLE(PathsWidget);
 
         protected:
             void _init(
@@ -47,12 +47,12 @@ namespace tl
 
             void _pathsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class Button : public IButton
         {
-            TLRENDER_NON_COPYABLE(Button);
+            DTK_NON_COPYABLE(Button);
 
         protected:
             void _init(
@@ -84,12 +84,12 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class DirectoryWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(DirectoryWidget);
+            DTK_NON_COPYABLE(DirectoryWidget);
 
         protected:
             void _init(
@@ -121,12 +121,12 @@ namespace tl
         private:
             void _directoryUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         class FileBrowserWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FileBrowserWidget);
+            DTK_NON_COPYABLE(FileBrowserWidget);
 
         protected:
             void _init(
@@ -165,7 +165,7 @@ namespace tl
             void _pathUpdate();
             void _optionsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -34,7 +34,7 @@ namespace tl
             IToolWidget(app, parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.listWidget = new QListWidget;
             p.listWidget->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);

@@ -56,7 +56,7 @@ namespace tl
             const std::vector<std::shared_ptr<ICmdLineArg> >& cmdLineArgs,
             const std::vector<std::shared_ptr<ICmdLineOption> >& cmdLineOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             _context = context;
 
@@ -139,7 +139,7 @@ namespace tl
 
         int BaseApp::_parseCmdLine()
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& i : p.cmdLine.options)
             {
                 try
@@ -194,7 +194,7 @@ namespace tl
 
         void BaseApp::_printCmdLineHelp()
         {
-            TLRENDER_P();
+            DTK_P();
             _print("\n" + p.cmdLine.name + "\n");
             _print("    " + p.cmdLine.summary + "\n");
             _print("Usage:\n");

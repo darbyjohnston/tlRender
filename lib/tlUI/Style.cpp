@@ -158,7 +158,7 @@ namespace tl
         void Style::_init(
             const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             p.context = context;
             _sizeRoles = defaultSizeRoles();
             _colorRoles = defaultColorRoles();
@@ -183,7 +183,7 @@ namespace tl
 
         void Style::setSizeRole(SizeRole role, int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_sizeRoles[role] == value)
                 return;
             _sizeRoles[role] = value;
@@ -192,7 +192,7 @@ namespace tl
 
         void Style::setSizeRoles(const std::map<SizeRole, int>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_sizeRoles == value)
                 return;
             _sizeRoles = value;
@@ -201,7 +201,7 @@ namespace tl
 
         void Style::setColorRole(ColorRole role, const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_colorRoles[role] == value)
                 return;
             _colorRoles[role] = value;
@@ -210,7 +210,7 @@ namespace tl
 
         void Style::setColorRoles(const std::map<ColorRole, dtk::Color4F>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_colorRoles == value)
                 return;
             _colorRoles = value;
@@ -219,7 +219,7 @@ namespace tl
 
         void Style::setFontRole(FontRole role, const dtk::FontInfo& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_fontRoles[role] == value)
                 return;
             _fontRoles[role] = value;
@@ -228,7 +228,7 @@ namespace tl
 
         void Style::setFontRoles(const std::map<FontRole, dtk::FontInfo>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (_fontRoles == value)
                 return;
             _fontRoles = value;

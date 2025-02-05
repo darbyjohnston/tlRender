@@ -49,7 +49,7 @@ namespace tl
         void IncButton::sizeHintEvent(const SizeHintEvent& event)
         {
             IButton::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             //p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
 
@@ -68,7 +68,7 @@ namespace tl
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
 
@@ -185,7 +185,7 @@ namespace tl
         {
             IncButtons::_init(context, parent);
             setObjectName("tl::ui::IntIncButtons");
-            TLRENDER_P();
+            DTK_P();
 
             p.model = model;
 
@@ -242,7 +242,7 @@ namespace tl
 
         void IntIncButtons::_modelUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const int value = p.model->getValue();
             const dtk::RangeI& range = p.model->getRange();
             _incButton->setEnabled(value < range.max());
@@ -263,7 +263,7 @@ namespace tl
         {
             IncButtons::_init(context, parent);
             setObjectName("tl::ui::FloatIncButtons");
-            TLRENDER_P();
+            DTK_P();
 
             p.model = model;
 
@@ -320,7 +320,7 @@ namespace tl
 
         void FloatIncButtons::_modelUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const float value = p.model->getValue();
             const dtk::RangeF& range = p.model->getRange();
             _incButton->setEnabled(value < range.max());
@@ -341,7 +341,7 @@ namespace tl
         {
             IncButtons::_init(context, parent);
             setObjectName("tl::ui::DoubleIncButtons");
-            TLRENDER_P();
+            DTK_P();
 
             p.model = model;
 
@@ -398,7 +398,7 @@ namespace tl
 
         void DoubleIncButtons::_modelUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const double value = p.model->getValue();
             const dtk::RangeD& range = p.model->getRange();
             _incButton->setEnabled(value < range.max());

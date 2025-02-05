@@ -48,7 +48,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::OCIOWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
@@ -215,7 +215,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::LUTWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
@@ -333,7 +333,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::ColorWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
@@ -532,7 +532,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::LevelsWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
@@ -703,7 +703,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::EXRDisplayWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
@@ -857,7 +857,7 @@ namespace tl
             const std::shared_ptr<ui::IWidget>& parent)
         {
             ui::IWidget::_init("tl::play_app::SoftClipWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
@@ -954,7 +954,7 @@ namespace tl
                 Tool::Color,
                 "tl::play_app::ColorTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.ocioWidget = OCIOWidget::create(context, app);
             p.lutWidget = LUTWidget::create(context, app);

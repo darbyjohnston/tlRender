@@ -17,7 +17,7 @@ namespace tl
         //! Button for incrementing a value.
         class IncButton : public IButton
         {
-            TLRENDER_NON_COPYABLE(IncButton);
+            DTK_NON_COPYABLE(IncButton);
 
         protected:
             void _init(
@@ -38,13 +38,13 @@ namespace tl
             void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Buttons for incrementing and decrementing a value.
         class IncButtons : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IncButtons);
+            DTK_NON_COPYABLE(IncButtons);
 
         protected:
             void _init(
@@ -78,7 +78,7 @@ namespace tl
         //! Buttons for incrementing and decrementing an integer value.
         class IntIncButtons : public IncButtons
         {
-            TLRENDER_NON_COPYABLE(IntIncButtons);
+            DTK_NON_COPYABLE(IntIncButtons);
 
         protected:
             void _init(
@@ -103,13 +103,13 @@ namespace tl
         private:
             void _modelUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Buttons for incrementing and decrementing a floating point value.
         class FloatIncButtons : public IncButtons
         {
-            TLRENDER_NON_COPYABLE(FloatIncButtons);
+            DTK_NON_COPYABLE(FloatIncButtons);
 
         protected:
             void _init(
@@ -134,14 +134,14 @@ namespace tl
         private:
             void _modelUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Buttons for incrementing and decrementing a double precision
         //! floating point value.
         class DoubleIncButtons : public IncButtons
         {
-            TLRENDER_NON_COPYABLE(DoubleIncButtons);
+            DTK_NON_COPYABLE(DoubleIncButtons);
 
         protected:
             void _init(
@@ -166,7 +166,7 @@ namespace tl
         private:
             void _modelUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

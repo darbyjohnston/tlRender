@@ -13,7 +13,7 @@ namespace tl
         //! Tab bar widget.
         class TabBar : public IWidget
         {
-            TLRENDER_NON_COPYABLE(TabBar);
+            DTK_NON_COPYABLE(TabBar);
 
         protected:
             void _init(
@@ -54,7 +54,7 @@ namespace tl
         private:
             void _widgetUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

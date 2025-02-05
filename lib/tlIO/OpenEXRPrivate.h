@@ -75,7 +75,7 @@ namespace tl
         //! Input stream.
         class IStream : public Imf::IStream
         {
-            TLRENDER_NON_COPYABLE(IStream);
+            DTK_NON_COPYABLE(IStream);
 
         public:
             IStream(const std::string& fileName);
@@ -90,7 +90,7 @@ namespace tl
             void seekg(uint64_t pos) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
    }
 }

@@ -71,7 +71,7 @@ namespace tl
             void _vaidatorUpdate();
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

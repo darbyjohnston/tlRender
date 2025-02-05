@@ -29,7 +29,7 @@ namespace tl
                     "tl::examples::widgets::MDI",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 p.canvas = ui::MDICanvas::create(context, shared_from_this());
 

@@ -17,7 +17,7 @@ namespace tl
         {
             class MenuButton : public IButton
             {
-                TLRENDER_NON_COPYABLE(MenuButton);
+                DTK_NON_COPYABLE(MenuButton);
 
             protected:
                 void _init(
@@ -492,7 +492,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IMenuPopup::_init("tl::ui::Menu", context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.layout = VerticalLayout::create(context);
             p.layout->setSpacingRole(SizeRole::None);
             setWidget(p.layout);
@@ -516,7 +516,7 @@ namespace tl
 
         void Menu::addItem(const std::shared_ptr<Action>& item)
         {
-            TLRENDER_P();
+            DTK_P();
             p.items.push_back(item);
             if (auto context = _context.lock())
             {
@@ -551,7 +551,7 @@ namespace tl
 
         void Menu::setItemChecked(const std::shared_ptr<Action>& item, bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto i = std::find(p.items.begin(), p.items.end(), item);
             if (i != p.items.end())
             {
@@ -566,7 +566,7 @@ namespace tl
 
         void Menu::setItemEnabled(const std::shared_ptr<Action>& item, bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             const auto i = p.buttons.find(item);
             if (i != p.buttons.end())
             {
@@ -576,7 +576,7 @@ namespace tl
 
         std::shared_ptr<Menu> Menu::addSubMenu(const std::string& text)
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<Menu> out;
             if (auto context = _context.lock())
             {
@@ -606,7 +606,7 @@ namespace tl
 
         void Menu::addDivider()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 auto divider = Divider::create(Orientation::Horizontal, context);
@@ -616,7 +616,7 @@ namespace tl
 
         void Menu::clear()
         {
-            TLRENDER_P();
+            DTK_P();
             p.items.clear();
             for (auto button : p.buttons)
             {
@@ -627,7 +627,7 @@ namespace tl
 
         bool Menu::shortcut(Key shortcut, int modifiers)
         {
-            TLRENDER_P();
+            DTK_P();
             bool out = false;
             for (const auto& item : p.items)
             {

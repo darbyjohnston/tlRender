@@ -32,7 +32,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::TimeEdit", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
@@ -115,7 +115,7 @@ namespace tl
 
         void TimeEdit::setValue(const OTIO_NS::RationalTime& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value.strictly_equal(p.value))
                 return;
             p.value = value;
@@ -151,7 +151,7 @@ namespace tl
 
         void TimeEdit::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
@@ -192,7 +192,7 @@ namespace tl
 
         void TimeEdit::_commitValue(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             OTIO_NS::RationalTime tmp = time::invalidTime;
             opentime::ErrorStatus errorStatus;
             if (p.timeUnitsModel)
@@ -220,7 +220,7 @@ namespace tl
 
         void TimeEdit::_commitValue(const OTIO_NS::RationalTime& value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.value = value;
             _textUpdate();
             if (p.callback)
@@ -231,7 +231,7 @@ namespace tl
 
         void TimeEdit::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::string text;
             std::string format;
             if (p.timeUnitsModel)

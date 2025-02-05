@@ -48,7 +48,7 @@ namespace tl
             ISystem(context, "tl::file:::FileLogSystem"),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.fileName = fileName;
 
@@ -67,7 +67,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     {
                         auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Write);
                     }
@@ -110,7 +110,7 @@ namespace tl
 
         FileLogSystem::~FileLogSystem()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {

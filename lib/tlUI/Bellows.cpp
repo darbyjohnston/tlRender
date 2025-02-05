@@ -24,7 +24,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Bellows", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.button = ListButton::create(context);
             p.button->setCheckable(true);
@@ -79,7 +79,7 @@ namespace tl
 
         void Bellows::setWidget(const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.widget)
                 return;
             if (p.widget)
@@ -103,7 +103,7 @@ namespace tl
 
         void Bellows::setOpen(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.button->setChecked(value);
             if (p.widget)
             {

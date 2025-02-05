@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -24,8 +24,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(Transition);
-        TLRENDER_ENUM_SERIALIZE(Transition);
+        DTK_ENUM(Transition);
 
         //! Convert to a transition.
         Transition toTransition(const std::string&);

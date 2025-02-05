@@ -44,8 +44,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(PixelType);
-        TLRENDER_ENUM_SERIALIZE(PixelType);
+        DTK_ENUM(PixelType);
 
         //! Get the number of bytes used to store a row of pixel data.
         size_t getRowByteCount(int, PixelType);
@@ -76,8 +75,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(Option);
-        TLRENDER_ENUM_SERIALIZE(Option);
+        DTK_ENUM(Option);
 
         //! Device boolean options.
         typedef std::map<Option, bool> BoolOptions;
@@ -104,8 +102,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(HDRMode);
-        TLRENDER_ENUM_SERIALIZE(HDRMode);
+        DTK_ENUM(HDRMode);
 
         //! Get HDR data from timeline video data.
         std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData&);

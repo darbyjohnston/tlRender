@@ -48,7 +48,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -106,7 +106,7 @@ namespace tl
 
         void CacheSettingsWidget::_settingsUpdate(const std::string& name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Cache/Size" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.cacheSizeSpinBox);
@@ -144,7 +144,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -233,7 +233,7 @@ namespace tl
 
         void FileSequenceSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FileSequence/Audio" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.audioComboBox);
@@ -281,7 +281,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -329,7 +329,7 @@ namespace tl
 
         void FFmpegSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.yuvToRGBConversionCheckBox);
@@ -365,7 +365,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -473,7 +473,7 @@ namespace tl
 
         void USDSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("USD/renderWidth" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.renderWidthSpinBox);
@@ -533,7 +533,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -567,7 +567,7 @@ namespace tl
 
         void FileBrowserSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("FileBrowser/NativeFileDialog" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
@@ -591,7 +591,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -652,7 +652,7 @@ namespace tl
 
         void PerformanceSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Performance/AudioBufferFrameCount" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);
@@ -686,7 +686,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.settings = app->settings();
 
@@ -720,7 +720,7 @@ namespace tl
 
         void MiscSettingsWidget::_settingsUpdate(const std::string & name)
         {
-            TLRENDER_P();
+            DTK_P();
             if ("Misc/ToolTipsEnabled" == name || name.empty())
             {
                 QSignalBlocker signalBlocker(p.toolTipsCheckBox);

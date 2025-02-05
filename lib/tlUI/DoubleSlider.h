@@ -14,7 +14,7 @@ namespace tl
         //! Double precision floating point slider.
         class DoubleSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(DoubleSlider);
+            DTK_NON_COPYABLE(DoubleSlider);
 
         protected:
             void _init(
@@ -76,7 +76,7 @@ namespace tl
             double _posToValue(int) const;
             int _valueToPos(double) const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

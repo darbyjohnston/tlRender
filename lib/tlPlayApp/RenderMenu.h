@@ -16,7 +16,7 @@ namespace tl
         //! Render menu.
         class RenderMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(RenderMenu);
+            DTK_NON_COPYABLE(RenderMenu);
 
         protected:
             void _init(
@@ -39,7 +39,7 @@ namespace tl
             void close() override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

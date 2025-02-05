@@ -15,7 +15,7 @@ namespace tl
             //! Main window.
             class MainWindow : public ui_app::Window
             {
-                TLRENDER_NON_COPYABLE(MainWindow);
+                DTK_NON_COPYABLE(MainWindow);
 
             protected:
                 void _init(const std::shared_ptr<dtk::Context>&);
@@ -31,7 +31,7 @@ namespace tl
                 void setGeometry(const dtk::Box2I&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

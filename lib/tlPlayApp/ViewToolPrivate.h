@@ -14,7 +14,7 @@ namespace tl
     {
         class BackgroundWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(BackgroundWidget);
+            DTK_NON_COPYABLE(BackgroundWidget);
 
         protected:
             void _init(
@@ -38,7 +38,7 @@ namespace tl
         private:
             void _optionsUpdate(const timeline::BackgroundOptions&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

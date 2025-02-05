@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ObservableValue.h>
 
 #include <nlohmann/json.hpp>
@@ -26,7 +24,7 @@ namespace tl
         //! Settings.
         class Settings : public std::enable_shared_from_this<Settings>
         {
-            TLRENDER_NON_COPYABLE(Settings);
+            DTK_NON_COPYABLE(Settings);
 
         protected:
             void _init(

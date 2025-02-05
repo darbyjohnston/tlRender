@@ -21,8 +21,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(ChannelGrouping);
-        TLRENDER_ENUM_SERIALIZE(ChannelGrouping);
+        DTK_ENUM(ChannelGrouping);
 
         //! Compression types.
         enum class Compression
@@ -41,8 +40,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(Compression);
-        TLRENDER_ENUM_SERIALIZE(Compression);
+        DTK_ENUM(Compression);
 
         //! OpenEXR reader.
         class Read : public io::ISequenceRead

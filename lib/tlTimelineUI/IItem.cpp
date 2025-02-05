@@ -130,7 +130,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(objectName, context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             _timeRange = timeRange;
             _trimmedRange = trimmedRange;
@@ -189,7 +189,7 @@ namespace tl
 
         void IItem::setSelectRole(ui::ColorRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.selectRole)
                 return;
             p.selectRole = value;

@@ -13,7 +13,7 @@ namespace tl
         //! Overlay layout.
         class OverlayLayout : public IWidget
         {
-            TLRENDER_NON_COPYABLE(OverlayLayout);
+            DTK_NON_COPYABLE(OverlayLayout);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

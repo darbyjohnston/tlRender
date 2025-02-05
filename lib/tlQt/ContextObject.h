@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <QObject>
 
@@ -37,7 +37,7 @@ namespace tl
         private:
             void _timerCallback();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

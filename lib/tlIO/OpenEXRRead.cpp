@@ -29,7 +29,7 @@ namespace tl
             Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.f = dtk::FileIO::create(fileName, dtk::FileMode::Read);
             p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
@@ -39,7 +39,7 @@ namespace tl
             Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
             p.p = memoryP;
             p.size = memorySize;
         }
@@ -54,7 +54,7 @@ namespace tl
 
         char* IStream::readMemoryMapped(int n)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
                 throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
@@ -70,7 +70,7 @@ namespace tl
 
         bool IStream::read(char c[], int n)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
                 throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
@@ -94,7 +94,7 @@ namespace tl
 
         void IStream::seekg(uint64_t pos)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.f)
             {
                 p.f->setPos(pos);

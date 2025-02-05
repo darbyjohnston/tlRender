@@ -15,7 +15,7 @@ namespace tl
             //! Row layouts.
             class RowLayouts : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(RowLayouts);
+                DTK_NON_COPYABLE(RowLayouts);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

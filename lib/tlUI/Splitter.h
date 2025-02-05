@@ -13,7 +13,7 @@ namespace tl
         //! Splitter widget.
         class Splitter : public IWidget
         {
-            TLRENDER_NON_COPYABLE(Splitter);
+            DTK_NON_COPYABLE(Splitter);
 
         protected:
             void _init(
@@ -54,7 +54,7 @@ namespace tl
             void _releaseMouse() override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

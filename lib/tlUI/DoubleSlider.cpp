@@ -36,7 +36,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::DoubleSlider", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setAcceptsKeyFocus(true);
             setHStretch(Stretch::Expanding);
@@ -136,7 +136,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -161,7 +161,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
 
@@ -228,7 +228,7 @@ namespace tl
         void DoubleSlider::mouseMoveEvent(MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (_mouse.press && p.model)
             {
                 p.model->setValue(_posToValue(_mouse.pos.x));
@@ -238,7 +238,7 @@ namespace tl
         void DoubleSlider::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (p.model)
             {
                 p.model->setValue(_posToValue(_mouse.pos.x));
@@ -255,7 +255,7 @@ namespace tl
 
         void DoubleSlider::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (isEnabled() && p.model && 0 == event.modifiers)
             {
                 switch (event.key)
@@ -305,7 +305,7 @@ namespace tl
 
         dtk::Box2I DoubleSlider::_getSliderGeometry() const
         {
-            TLRENDER_P();
+            DTK_P();
             return dtk::margin(_geometry,
                 -(p.size.border * 3 + p.size.handle / 2),
                 -(p.size.border * 3),
@@ -315,7 +315,7 @@ namespace tl
 
         double DoubleSlider::_posToValue(int pos) const
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = _getSliderGeometry();
             const double v = (pos - g.x()) / static_cast<double>(g.w());
             double out = 0.0;
@@ -329,7 +329,7 @@ namespace tl
 
         int DoubleSlider::_valueToPos(double value) const
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = _getSliderGeometry();
             double v = 0.0;
             if (p.model)

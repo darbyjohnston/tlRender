@@ -15,7 +15,7 @@ namespace tl
         //! Tools menu.
         class ToolsMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(ToolsMenu);
+            DTK_NON_COPYABLE(ToolsMenu);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

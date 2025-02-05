@@ -15,7 +15,7 @@ namespace tl
             //! Base class for example widgets.
             class IExampleWidget : public ui::IWidget
             {
-                TLRENDER_NON_COPYABLE(IExampleWidget);
+                DTK_NON_COPYABLE(IExampleWidget);
 
             protected:
                 void _init(

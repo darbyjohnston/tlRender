@@ -21,7 +21,7 @@ namespace tl
             ButtonGroupType type,
             const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             p.type = type;
         }
 
@@ -48,7 +48,7 @@ namespace tl
 
         void ButtonGroup::addButton(const std::shared_ptr<IButton>& button)
         {
-            TLRENDER_P();
+            DTK_P();
             switch (p.type)
             {
             case ButtonGroupType::Click:
@@ -117,13 +117,13 @@ namespace tl
 
         void ButtonGroup::clearButtons()
         {
-            TLRENDER_P();
+            DTK_P();
             p.buttons.clear();
         }
 
         void ButtonGroup::setChecked(int index, bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             switch (p.type)
             {
             case ButtonGroupType::Check:

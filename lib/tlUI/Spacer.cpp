@@ -27,7 +27,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::Spacer", context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.orientation = orientation;
         }
 
@@ -50,7 +50,7 @@ namespace tl
 
         void Spacer::setSizeRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.sizeRole)
                 return;
             p.sizeRole = value;
@@ -62,7 +62,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {

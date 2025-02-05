@@ -130,7 +130,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::LineEdit", context, parent);
-            TLRENDER_P();
+            DTK_P();
             setAcceptsKeyFocus(true);
             _setMouseHover(true);
             _setMousePress(true);
@@ -160,7 +160,7 @@ namespace tl
 
         void LineEdit::setText(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.text)
                 return;
             p.text = value;
@@ -185,7 +185,7 @@ namespace tl
 
         void LineEdit::setFormat(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.format)
                 return;
             p.format = value;
@@ -199,7 +199,7 @@ namespace tl
 
         void LineEdit::setFontRole(FontRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -209,7 +209,7 @@ namespace tl
 
         void LineEdit::setVisible(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool changed = value != _visible;
             IWidget::setVisible(value);
             if (changed && !_visible)
@@ -224,7 +224,7 @@ namespace tl
 
         void LineEdit::setEnabled(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             const bool changed = value != _enabled;
             IWidget::setEnabled(value);
             if (changed && !_enabled)
@@ -243,7 +243,7 @@ namespace tl
             const TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (hasKeyFocus())
             {
                 const auto now = std::chrono::steady_clock::now();
@@ -266,7 +266,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -298,7 +298,7 @@ namespace tl
         void LineEdit::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -311,7 +311,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I g = _getAlignGeometry();
             const bool enabled = isEnabled();
@@ -396,7 +396,7 @@ namespace tl
         void LineEdit::mouseMoveEvent(MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (_mouse.press)
             {
                 const int cursorPos = _getCursorPos(event.pos);
@@ -418,7 +418,7 @@ namespace tl
         void LineEdit::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             const int cursorPos = _getCursorPos(event.pos);
             if (cursorPos != p.cursorPos)
             {
@@ -439,7 +439,7 @@ namespace tl
         void LineEdit::keyFocusEvent(bool value)
         {
             IWidget::keyFocusEvent(value);
-            TLRENDER_P();
+            DTK_P();
             if (!value)
             {
                 p.selection.clear();
@@ -457,7 +457,7 @@ namespace tl
 
         void LineEdit::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             switch (event.key)
             {
             case Key::Up:
@@ -711,7 +711,7 @@ namespace tl
 
         void LineEdit::textEvent(TextEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             event.accept = true;
             if (p.selection.isValid())
             {
@@ -748,7 +748,7 @@ namespace tl
 
         int LineEdit::_getCursorPos(const dtk::V2I& value)
         {
-            TLRENDER_P();
+            DTK_P();
             int out = 0;
             const dtk::Box2I g = _getAlignGeometry();
             const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
@@ -774,7 +774,7 @@ namespace tl
 
         void LineEdit::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.size.textInit = true;
             _updates |= Update::Size;
             _updates |= Update::Draw;

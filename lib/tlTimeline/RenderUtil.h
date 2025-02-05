@@ -19,7 +19,7 @@ namespace tl
             ~RenderSizeState();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Set and restore the viewport.
@@ -31,7 +31,7 @@ namespace tl
             ~ViewportState();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Set and restore whether the clipping rectangle is enabled.
@@ -43,7 +43,7 @@ namespace tl
             ~ClipRectEnabledState();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Set and restore the clipping rectangle.
@@ -57,7 +57,7 @@ namespace tl
             const dtk::Box2I& getClipRect() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Set and restore the transform.
@@ -69,7 +69,7 @@ namespace tl
             ~TransformState();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! Get a box with the given aspect ratio that fits within

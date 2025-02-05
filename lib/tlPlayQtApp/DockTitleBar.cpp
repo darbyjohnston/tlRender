@@ -26,7 +26,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.iconLabel = new QLabel;
 

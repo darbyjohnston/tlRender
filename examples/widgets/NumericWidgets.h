@@ -15,7 +15,7 @@ namespace tl
             //! Numeric widgets.
             class NumericWidgets : public IExampleWidget
             {
-                TLRENDER_NON_COPYABLE(NumericWidgets);
+                DTK_NON_COPYABLE(NumericWidgets);
 
             protected:
                 void _init(
@@ -35,7 +35,7 @@ namespace tl
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:
-                TLRENDER_PRIVATE();
+                DTK_PRIVATE();
             };
         }
     }

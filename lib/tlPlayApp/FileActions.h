@@ -18,7 +18,7 @@ namespace tl
         //! directory.
         class FileActions : public std::enable_shared_from_this<FileActions>
         {
-            TLRENDER_NON_COPYABLE(FileActions);
+            DTK_NON_COPYABLE(FileActions);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

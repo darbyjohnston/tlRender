@@ -15,7 +15,7 @@ namespace tl
         //! File edit widget.
         class FileEdit : public IWidget
         {
-            TLRENDER_NON_COPYABLE(FileEdit);
+            DTK_NON_COPYABLE(FileEdit);
 
         protected:
             void _init(
@@ -47,7 +47,7 @@ namespace tl
         private:
             void _openDialog();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

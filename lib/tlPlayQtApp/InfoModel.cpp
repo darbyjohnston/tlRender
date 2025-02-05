@@ -29,7 +29,7 @@ namespace tl
 
         void TagsModel::setTags(const dtk::ImageTags& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.tags)
                 return;
             p.tags = value;
@@ -56,7 +56,7 @@ namespace tl
 
         QVariant TagsModel::data(const QModelIndex& index, int role) const
         {
-            TLRENDER_P();
+            DTK_P();
             QVariant out;
             if (index.isValid() &&
                 index.row() >= 0 &&

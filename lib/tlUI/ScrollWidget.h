@@ -13,7 +13,7 @@ namespace tl
         //! Scroll widget.
         class ScrollWidget : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ScrollWidget);
+            DTK_NON_COPYABLE(ScrollWidget);
 
         protected:
             void _init(
@@ -75,7 +75,7 @@ namespace tl
             int getLineStep() const;
             int getPageStep() const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

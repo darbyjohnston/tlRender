@@ -12,7 +12,7 @@ namespace tl
     {
         class ViewportColorWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(ViewportColorWidget);
+            DTK_NON_COPYABLE(ViewportColorWidget);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
         private:
             void _colorUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

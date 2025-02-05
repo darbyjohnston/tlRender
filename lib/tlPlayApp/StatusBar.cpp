@@ -32,7 +32,7 @@ namespace tl
                 "tl::play_app::StatusBar",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             _setMouseHover(true);
             _setMousePress(true);
@@ -88,7 +88,7 @@ namespace tl
 
         void StatusBar::_widgetUpdate(const std::vector<dtk::LogItem>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             for (const auto& i : value)
             {
                 switch (i.type)
@@ -121,7 +121,7 @@ namespace tl
         void StatusBar::mouseReleaseEvent(ui::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
-            TLRENDER_P();
+            DTK_P();
             event.accept = true;
             if (p.clickedCallback)
             {

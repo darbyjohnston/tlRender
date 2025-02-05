@@ -58,7 +58,7 @@ namespace tl
 
         void ColorSwatch::setColor(const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.color)
                 return;
             p.color = value;
@@ -67,7 +67,7 @@ namespace tl
 
         void ColorSwatch::setEditable(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.editable)
                 return;
             p.editable = value;
@@ -82,7 +82,7 @@ namespace tl
 
         void ColorSwatch::setSizeRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.sizeRole)
                 return;
             p.sizeRole = value;
@@ -95,7 +95,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -112,7 +112,7 @@ namespace tl
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I& g = _geometry;
             event.render->drawMesh(
                 border(g, p.size.border),
@@ -125,7 +125,7 @@ namespace tl
         void ColorSwatch::mousePressEvent(MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            TLRENDER_P();
+            DTK_P();
             if (p.editable)
             {
                 _showPopup();
@@ -134,7 +134,7 @@ namespace tl
 
         void ColorSwatch::_showPopup()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 if (!p.popup)

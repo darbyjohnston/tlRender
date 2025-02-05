@@ -23,14 +23,13 @@ namespace tl
 {
     namespace exr
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             ChannelGrouping,
             "None",
             "Known",
             "All");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ChannelGrouping);
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Compression,
             "None",
             "RLE",
@@ -42,7 +41,6 @@ namespace tl
             "B44A",
             "DWAA",
             "DWAB");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Compression);
 
         Channel::Channel()
         {}

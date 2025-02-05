@@ -33,7 +33,7 @@ namespace tl
         //! Files model.
         class FilesModel : public std::enable_shared_from_this<FilesModel>
         {
-            TLRENDER_NON_COPYABLE(FilesModel);
+            DTK_NON_COPYABLE(FilesModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -168,7 +168,7 @@ namespace tl
             std::vector<std::shared_ptr<FilesModelItem> > _getActive() const;
             std::vector<int> _getLayers() const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

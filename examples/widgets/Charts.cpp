@@ -28,7 +28,7 @@ namespace tl
                     "tl::examples::widgets::Charts",
                     context,
                     parent);
-                TLRENDER_P();
+                DTK_P();
 
                 auto pieChart0 = ui::PieChart::create(context);
                 pieChart0->setData(

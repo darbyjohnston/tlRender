@@ -39,7 +39,7 @@ namespace tl
         {
             IWrite::_init(path, options, info, logSystem);
 
-            TLRENDER_P();
+            DTK_P();
 
             p.fileName = path.get();
             if (info.video.empty())
@@ -243,7 +243,7 @@ namespace tl
 
         Write::~Write()
         {
-            TLRENDER_P();
+            DTK_P();
 
             if (p.opened)
             {
@@ -297,7 +297,7 @@ namespace tl
             const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
-            TLRENDER_P();
+            DTK_P();
 
             const auto& info = image->getInfo();
             av_image_fill_arrays(
@@ -355,7 +355,7 @@ namespace tl
 
         void Write::_encodeVideo(AVFrame* frame)
         {
-            TLRENDER_P();
+            DTK_P();
 
             int r = avcodec_send_frame(p.avCodecContext, frame);
             if (r < 0)

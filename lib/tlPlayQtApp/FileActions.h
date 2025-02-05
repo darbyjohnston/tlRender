@@ -36,7 +36,7 @@ namespace tl
             void _recentUpdate(const std::vector<file::Path>&);
             void _actionsUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

@@ -15,7 +15,7 @@ namespace tl
         //! Menu bar.
         class MenuBar : public IWidget
         {
-            TLRENDER_NON_COPYABLE(MenuBar);
+            DTK_NON_COPYABLE(MenuBar);
 
         protected:
             void _init(
@@ -44,7 +44,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

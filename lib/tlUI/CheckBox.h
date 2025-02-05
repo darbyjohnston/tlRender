@@ -13,7 +13,7 @@ namespace tl
         //! Check box.
         class CheckBox : public IButton
         {
-            TLRENDER_NON_COPYABLE(CheckBox);
+            DTK_NON_COPYABLE(CheckBox);
 
         protected:
             void _init(
@@ -46,7 +46,7 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

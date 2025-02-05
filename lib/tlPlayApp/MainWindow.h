@@ -45,7 +45,7 @@ namespace tl
         //! Main window.
         class MainWindow : public ui_app::Window
         {
-            TLRENDER_NON_COPYABLE(MainWindow);
+            DTK_NON_COPYABLE(MainWindow);
 
         protected:
             void _init(
@@ -94,7 +94,7 @@ namespace tl
             void _windowOptionsUpdate();
             void _infoUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! \name Serialize

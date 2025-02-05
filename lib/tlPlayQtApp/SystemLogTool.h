@@ -23,7 +23,7 @@ namespace tl
             virtual ~SystemLogTool();
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! System log tool dock widget.

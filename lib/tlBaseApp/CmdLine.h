@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
+#include <dtk/core/Util.h>
 
 #include <memory>
 #include <sstream>
@@ -18,7 +18,7 @@ namespace tl
         //! Base class for command line options.
         class ICmdLineOption : public std::enable_shared_from_this<ICmdLineOption>
         {
-            TLRENDER_NON_COPYABLE(ICmdLineOption);
+            DTK_NON_COPYABLE(ICmdLineOption);
 
         protected:
             ICmdLineOption(

@@ -22,7 +22,7 @@ namespace tl
                 frameRate == other.frameRate;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             PixelType,
             "None",
             "8BitBGRA",
@@ -33,7 +33,6 @@ namespace tl
             //"10BitYUV",
             "12BitRGB",
             "12BitRGBLE");
-        TLRENDER_ENUM_SERIALIZE_IMPL(PixelType);
 
         size_t getRowByteCount(int size, PixelType pixelType)
         {
@@ -82,11 +81,10 @@ namespace tl
             return !(*this == other);
         }
         
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Option,
             "None",
             "444SDIVideoOutput");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Option);
 
         bool DeviceConfig::operator == (const DeviceConfig& other) const
         {
@@ -102,12 +100,11 @@ namespace tl
             return !(*this == other);
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             HDRMode,
             "None",
             "FromFile",
             "Custom");
-        TLRENDER_ENUM_SERIALIZE_IMPL(HDRMode);
 
         std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData& videoData)
         {

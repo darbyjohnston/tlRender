@@ -13,7 +13,7 @@ namespace tl
         //! Color popup.
         class ColorPopup : public IWidgetPopup
         {
-            TLRENDER_NON_COPYABLE(ColorPopup);
+            DTK_NON_COPYABLE(ColorPopup);
 
         protected:
             void _init(
@@ -36,7 +36,7 @@ namespace tl
             void setCallback(const std::function<void(const dtk::Color4F&)>&);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

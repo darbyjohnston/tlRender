@@ -77,7 +77,7 @@ namespace tl
             ISystem(context, "tl::audio::System"),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 #if defined(TLRENDER_SDL2)
@@ -138,7 +138,7 @@ namespace tl
 
         System::~System()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -187,7 +187,7 @@ namespace tl
 
         void System::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             std::vector<DeviceInfo> devices;
             DeviceInfo defaultDevice;
             {
@@ -242,7 +242,7 @@ namespace tl
 
         std::vector<DeviceInfo> System::_getDevices()
         {
-            TLRENDER_P();
+            DTK_P();
             std::vector<DeviceInfo> out;
 #if defined(TLRENDER_SDL2)
             const int count = SDL_GetNumAudioDevices(0);
@@ -298,7 +298,7 @@ namespace tl
 
         void System::_run()
         {
-            TLRENDER_P();
+            DTK_P();
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
             const std::vector<DeviceInfo> devices = _getDevices();

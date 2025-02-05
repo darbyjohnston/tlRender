@@ -16,7 +16,7 @@ namespace tl
         //! Window actions.
         class WindowActions : public std::enable_shared_from_this<WindowActions>
         {
-            TLRENDER_NON_COPYABLE(WindowActions);
+            DTK_NON_COPYABLE(WindowActions);
 
         protected:
             void _init(
@@ -37,7 +37,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

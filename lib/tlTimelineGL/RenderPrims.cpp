@@ -15,7 +15,7 @@ namespace tl
             const dtk::Box2I& box,
             const dtk::Color4F& color)
         {
-            TLRENDER_P();
+            DTK_P();
             p.shaders["texture"]->bind();
             p.shaders["texture"]->setUniform("color", color);
             p.shaders["texture"]->setUniform("textureSampler", 0);

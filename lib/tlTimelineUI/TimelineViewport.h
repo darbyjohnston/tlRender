@@ -16,7 +16,7 @@ namespace tl
         //! Timeline viewport.
         class TimelineViewport : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(TimelineViewport);
+            DTK_NON_COPYABLE(TimelineViewport);
 
         protected:
             void _init(
@@ -141,7 +141,7 @@ namespace tl
 
             void _droppedFramesUpdate(const OTIO_NS::RationalTime&);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

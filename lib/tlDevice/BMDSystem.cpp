@@ -46,7 +46,7 @@ namespace tl
             _p(new Private)
         {
             
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 
@@ -56,7 +56,7 @@ namespace tl
             p.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
 
 #if defined(_WINDOWS)
                     CoInitialize(NULL);
@@ -217,7 +217,7 @@ namespace tl
 
         System::~System()
         {
-            TLRENDER_P();
+            DTK_P();
             p.running = false;
             if (p.thread.joinable())
             {
@@ -243,7 +243,7 @@ namespace tl
 
         void System::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             std::vector<DeviceInfo> deviceInfo;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);

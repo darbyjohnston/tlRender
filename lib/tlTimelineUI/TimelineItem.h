@@ -135,7 +135,7 @@ namespace tl
             void _tracksUpdate();
             void _textUpdate();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

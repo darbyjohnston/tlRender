@@ -48,7 +48,7 @@ namespace tl
 
         void TimeSpinBox::setTimeObject(qt::TimeObject* timeObject)
         {
-            TLRENDER_P();
+            DTK_P();
             if (timeObject == p.timeObject)
                 return;
             if (p.timeObject)
@@ -85,7 +85,7 @@ namespace tl
 
         void TimeSpinBox::stepBy(int steps)
         {
-            TLRENDER_P();
+            DTK_P();
             p.value += OTIO_NS::RationalTime(steps, p.value.rate());
             Q_EMIT valueChanged(p.value);
             _textUpdate();
@@ -98,7 +98,7 @@ namespace tl
 
         void TimeSpinBox::setValue(const OTIO_NS::RationalTime& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value.value() == p.value.value() &&
                 value.rate() == p.value.rate())
                 return;
@@ -109,7 +109,7 @@ namespace tl
 
         void TimeSpinBox::setTimeUnits(timeline::TimeUnits value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.timeUnits)
                 return;
             p.timeUnits = value;
@@ -126,7 +126,7 @@ namespace tl
 
         QSize TimeSpinBox::minimumSizeHint() const
         {
-            TLRENDER_P();
+            DTK_P();
             ensurePolished();
             int h = lineEdit()->minimumSizeHint().height();
             const QFontMetrics fm(fontMetrics());
@@ -141,7 +141,7 @@ namespace tl
 
         void TimeSpinBox::_lineEditCallback()
         {
-            TLRENDER_P();
+            DTK_P();
             opentime::ErrorStatus errorStatus;
             const OTIO_NS::RationalTime time = timeline::textToTime(
                 lineEdit()->text().toUtf8().data(),
@@ -158,7 +158,7 @@ namespace tl
 
         void TimeSpinBox::_vaidatorUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.validator)
             {
                 p.validator->setParent(nullptr);
@@ -172,7 +172,7 @@ namespace tl
 
         void TimeSpinBox::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             const std::string s = timeline::timeToText(p.value, p.timeUnits);
             lineEdit()->setText(QString::fromUtf8(s.c_str()));
         }

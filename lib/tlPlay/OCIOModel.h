@@ -6,8 +6,6 @@
 
 #include <tlTimeline/OCIOOptions.h>
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/ObservableValue.h>
 
 namespace dtk
@@ -40,7 +38,7 @@ namespace tl
         //! OpenColorIO model.
         class OCIOModel : public std::enable_shared_from_this<OCIOModel>
         {
-            TLRENDER_NON_COPYABLE(OCIOModel);
+            DTK_NON_COPYABLE(OCIOModel);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -83,7 +81,7 @@ namespace tl
         private:
             OCIOModelData _getData(const timeline::OCIOOptions&) const;
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

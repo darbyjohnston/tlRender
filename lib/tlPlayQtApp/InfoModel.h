@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Image.h>
 
 #include <QAbstractTableModel>
@@ -40,7 +38,7 @@ namespace tl
             QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

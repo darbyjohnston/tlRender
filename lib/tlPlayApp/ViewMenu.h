@@ -16,7 +16,7 @@ namespace tl
         //! View menu.
         class ViewMenu : public ui::Menu
         {
-            TLRENDER_NON_COPYABLE(ViewMenu);
+            DTK_NON_COPYABLE(ViewMenu);
 
         protected:
             void _init(
@@ -39,7 +39,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

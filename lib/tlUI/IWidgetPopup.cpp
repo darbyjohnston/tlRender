@@ -15,7 +15,7 @@ namespace tl
         {
             class ContainerWidget : public IWidget
             {
-                TLRENDER_NON_COPYABLE(ContainerWidget);
+                DTK_NON_COPYABLE(ContainerWidget);
 
             protected:
                 void _init(
@@ -101,7 +101,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IPopup::_init(objectName, context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.containerWidget = ContainerWidget::create(context, shared_from_this());
         }
 
@@ -116,7 +116,7 @@ namespace tl
             const std::shared_ptr<IWindow>& window,
             const dtk::Box2I& buttonGeometry)
         {
-            TLRENDER_P();
+            DTK_P();
             p.buttonGeometry = buttonGeometry;
             p.open = true;
             setParent(window);
@@ -130,7 +130,7 @@ namespace tl
 
         void IWidgetPopup::close()
         {
-            TLRENDER_P();
+            DTK_P();
             p.open = false;
             setParent(nullptr);
             if (p.closeCallback)
@@ -146,7 +146,7 @@ namespace tl
 
         void IWidgetPopup::setPopupRole(ColorRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.popupRole)
                 return;
             p.popupRole = value;
@@ -155,7 +155,7 @@ namespace tl
 
         void IWidgetPopup::setWidget(const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.widget)
             {
                 p.widget->setParent(nullptr);
@@ -170,7 +170,7 @@ namespace tl
         void IWidgetPopup::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             dtk::Size2I sizeHint = p.containerWidget->getSizeHint();
             std::list<dtk::Box2I> boxes;
             boxes.push_back(dtk::Box2I(
@@ -219,7 +219,7 @@ namespace tl
         void IWidgetPopup::sizeHintEvent(const SizeHintEvent& event)
         {
             IPopup::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
             p.size.border = event.style->getSizeRole(SizeRole::Border, _displayScale);
             p.size.shadow = event.style->getSizeRole(SizeRole::Shadow, _displayScale);
         }
@@ -229,7 +229,7 @@ namespace tl
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
             //event.render->drawRect(
             //    _geometry,
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));

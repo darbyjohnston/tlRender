@@ -32,7 +32,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::FileEdit", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             setHStretch(Stretch::Expanding);
 
@@ -99,7 +99,7 @@ namespace tl
 
         void FileEdit::setPath(const file::Path& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.path)
                 return;
             p.path = value;
@@ -130,7 +130,7 @@ namespace tl
 
         void FileEdit::_openDialog()
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto context = _context.lock())
             {
                 if (auto fileBrowserSystem = context->getSystem<FileBrowserSystem>())

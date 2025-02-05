@@ -34,7 +34,7 @@ namespace tl
                 "tl::play_app::ToolsToolBar",
                 context,
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.actions = actions;
 

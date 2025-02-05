@@ -134,7 +134,7 @@ namespace tl
             QMainWindow(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
 
@@ -675,7 +675,7 @@ namespace tl
 
         MainWindow::~MainWindow()
         {
-            TLRENDER_P();
+            DTK_P();
             auto settings = p.app->settings();
             settings->setValue("MainWindow/Size", dtk::Size2I(width(), height()));
             settings->setValue("MainWindow/FloatOnTop", p.floatOnTop);
@@ -744,7 +744,7 @@ namespace tl
 
         void MainWindow::dropEvent(QDropEvent* event)
         {
-            TLRENDER_P();
+            DTK_P();
             const QMimeData* mimeData = event->mimeData();
             if (mimeData->hasUrls())
             {
@@ -769,20 +769,20 @@ namespace tl
 
         void MainWindow::_currentTimeCallback(const OTIO_NS::RationalTime& value)
         {
-            TLRENDER_P();
+            DTK_P();
             const QSignalBlocker blocker(p.currentTimeSpinBox);
             p.currentTimeSpinBox->setValue(value);
         }
 
         void MainWindow::_volumeCallback(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             p.app->audioModel()->setVolume(value / static_cast<float>(sliderSteps));
         }
 
         void MainWindow::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.player)
             {
                 disconnect(
@@ -827,7 +827,7 @@ namespace tl
 
         void MainWindow::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
 
             qtwidget::setFloatOnTop(p.floatOnTop, this);
 

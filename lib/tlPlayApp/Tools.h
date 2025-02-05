@@ -30,8 +30,7 @@ namespace tl
             Count,
             First = Audio
         };
-        TLRENDER_ENUM(Tool);
-        TLRENDER_ENUM_SERIALIZE(Tool);
+        DTK_ENUM(Tool);
 
         //! Get the tool text.
         std::string getText(Tool);
@@ -48,7 +47,7 @@ namespace tl
         //! Tools model.
         class ToolsModel : public std::enable_shared_from_this<ToolsModel>
         {
-            TLRENDER_NON_COPYABLE(ToolsModel);
+            DTK_NON_COPYABLE(ToolsModel);
 
         protected:
             void _init();
@@ -71,7 +70,7 @@ namespace tl
             void setActiveTool(int);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

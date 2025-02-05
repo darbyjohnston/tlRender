@@ -24,7 +24,7 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.actions["Frame"] = std::make_shared<ui::Action>(

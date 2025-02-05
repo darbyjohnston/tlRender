@@ -35,7 +35,7 @@ namespace tl
                 Tool::Audio,
                 "tl::play_app::AudioTool",
                 parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.syncOffsetSlider = ui::DoubleEditSlider::create(context);
             p.syncOffsetSlider->setRange(dtk::RangeD(-1.0, 1.0));

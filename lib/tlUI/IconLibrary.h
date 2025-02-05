@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlCore/Util.h>
-
 #include <dtk/core/Image.h>
 
 #include <future>
@@ -22,7 +20,7 @@ namespace tl
         //! Icon library.
         class IconLibrary : public std::enable_shared_from_this<IconLibrary>
         {
-            TLRENDER_NON_COPYABLE(IconLibrary);
+            DTK_NON_COPYABLE(IconLibrary);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -45,7 +43,7 @@ namespace tl
             void cancelRequests();
             
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

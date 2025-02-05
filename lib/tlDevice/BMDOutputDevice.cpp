@@ -132,7 +132,7 @@ namespace tl
 
         void OutputDevice::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
             p.config = dtk::ObservableValue<DeviceConfig>::create();
@@ -151,7 +151,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     p.window->makeCurrent();
                     _run();
                     p.window->doneCurrent();
@@ -164,7 +164,7 @@ namespace tl
 
         OutputDevice::~OutputDevice()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -192,7 +192,7 @@ namespace tl
 
         void OutputDevice::setConfig(const DeviceConfig& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.config->setIfChanged(value))
             {
                 {
@@ -215,7 +215,7 @@ namespace tl
 
         void OutputDevice::setEnabled(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (p.enabled->setIfChanged(value))
             {
                 {
@@ -271,7 +271,7 @@ namespace tl
             double          zoom,
             bool            frame)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.viewPos = position;
@@ -283,7 +283,7 @@ namespace tl
 
         void OutputDevice::setOCIOOptions(const timeline::OCIOOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.ocioOptions = value;
@@ -293,7 +293,7 @@ namespace tl
 
         void OutputDevice::setLUTOptions(const timeline::LUTOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.lutOptions = value;
@@ -303,7 +303,7 @@ namespace tl
 
         void OutputDevice::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.imageOptions = value;
@@ -313,7 +313,7 @@ namespace tl
 
         void OutputDevice::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.displayOptions = value;
@@ -323,7 +323,7 @@ namespace tl
 
         void OutputDevice::setHDR(HDRMode hdrMode, const image::HDRData& hdrData)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.hdrMode = hdrMode;
@@ -334,7 +334,7 @@ namespace tl
 
         void OutputDevice::setCompareOptions(const timeline::CompareOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.compareOptions = value;
@@ -344,7 +344,7 @@ namespace tl
 
         void OutputDevice::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.backgroundOptions = value;
@@ -354,7 +354,7 @@ namespace tl
 
         void OutputDevice::setOverlay(const std::shared_ptr<dtk::Image>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.overlay = value;
@@ -364,7 +364,7 @@ namespace tl
 
         void OutputDevice::setVolume(float value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.volume = value;
@@ -374,7 +374,7 @@ namespace tl
 
         void OutputDevice::setMute(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.mute = value;
@@ -384,7 +384,7 @@ namespace tl
 
         void OutputDevice::setChannelMute(const std::vector<bool>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.channelMute = value;
@@ -394,7 +394,7 @@ namespace tl
 
         void OutputDevice::setAudioOffset(double value)
         {
-            TLRENDER_P();
+            DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
                 p.mutex.audioOffset = value;
@@ -404,7 +404,7 @@ namespace tl
 
         void OutputDevice::setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.player)
                 return;
 
@@ -534,7 +534,7 @@ namespace tl
 
         void OutputDevice::tick()
         {
-            TLRENDER_P();
+            DTK_P();
             bool active = false;
             dtk::Size2I size = p.size->get();
             FrameRate frameRate = p.frameRate->get();
@@ -551,7 +551,7 @@ namespace tl
 
         void OutputDevice::_run()
         {
-            TLRENDER_P();
+            DTK_P();
 
             DeviceConfig config;
             bool enabled = false;
@@ -803,7 +803,7 @@ namespace tl
             FrameRate& frameRate,
             int videoFrameDelay)
         {
-            TLRENDER_P();
+            DTK_P();
             if (config.deviceIndex != -1 &&
                 config.displayModeIndex != -1 &&
                 config.pixelType != PixelType::None)
@@ -995,7 +995,7 @@ namespace tl
             const timeline::CompareOptions& compareOptions,
             const timeline::BackgroundOptions& backgroundOptions)
         {
-            TLRENDER_P();
+            DTK_P();
 
             // Create the offscreen buffer.
             const dtk::Size2I renderSize = timeline::getRenderSize(
@@ -1093,7 +1093,7 @@ namespace tl
 
         void OutputDevice::_read()
         {
-            TLRENDER_P();
+            DTK_P();
 
             auto dlVideoFrame = std::make_shared<DLVideoFrameWrapper>();
             if (p.thread.dl->output->CreateVideoFrame(

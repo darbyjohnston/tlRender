@@ -45,7 +45,7 @@ namespace tl
 
         void OverlayLayout::setMarginRole(SizeRole value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -57,7 +57,7 @@ namespace tl
         void OverlayLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             const dtk::Box2I g = margin(_geometry, -p.size.margin);
             _childrenClipRect = g;
             for (const auto& child : _children)
@@ -70,7 +70,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {

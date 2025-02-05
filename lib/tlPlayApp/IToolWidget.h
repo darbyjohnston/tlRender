@@ -17,7 +17,7 @@ namespace tl
         //! Base class for tool widgets.
         class IToolWidget : public ui::IWidget
         {
-            TLRENDER_NON_COPYABLE(IToolWidget);
+            DTK_NON_COPYABLE(IToolWidget);
 
         protected:
             void _init(
@@ -41,7 +41,7 @@ namespace tl
             std::weak_ptr<App> _app;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

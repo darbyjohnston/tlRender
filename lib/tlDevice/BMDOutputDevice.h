@@ -26,7 +26,7 @@ namespace tl
         //! BMD output device.
         class OutputDevice : public std::enable_shared_from_this<OutputDevice>
         {
-            TLRENDER_NON_COPYABLE(OutputDevice);
+            DTK_NON_COPYABLE(OutputDevice);
 
         protected:
             void _init(const std::shared_ptr<dtk::Context>&);
@@ -147,7 +147,7 @@ namespace tl
                 const timeline::BackgroundOptions&);
             void _read();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

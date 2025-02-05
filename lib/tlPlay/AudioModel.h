@@ -20,7 +20,7 @@ namespace tl
         //! Audio model.
         class AudioModel : public std::enable_shared_from_this<AudioModel>
         {
-            TLRENDER_NON_COPYABLE(AudioModel);
+            DTK_NON_COPYABLE(AudioModel);
 
         protected:
             void _init(
@@ -95,7 +95,7 @@ namespace tl
             void setSyncOffset(double);
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

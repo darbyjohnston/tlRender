@@ -25,7 +25,7 @@ namespace tl
         //! \todo What happens when an empty combo box is clicked?
         class ComboBox : public IWidget
         {
-            TLRENDER_NON_COPYABLE(ComboBox);
+            DTK_NON_COPYABLE(ComboBox);
 
         protected:
             void _init(
@@ -86,7 +86,7 @@ namespace tl
 
             void _commitIndex(int);
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

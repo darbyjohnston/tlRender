@@ -36,7 +36,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::FloatEdit", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.model = model;
             if (!p.model)
@@ -151,7 +151,7 @@ namespace tl
 
         void FloatEdit::setPrecision(int value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.precision)
                 return;
             p.precision = value;
@@ -177,7 +177,7 @@ namespace tl
 
         void FloatEdit::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (isEnabled() && p.model && 0 == event.modifiers)
             {
                 switch (event.key)
@@ -210,7 +210,7 @@ namespace tl
 
         void FloatEdit::_textUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::string text;
             std::string format;
             if (p.model)

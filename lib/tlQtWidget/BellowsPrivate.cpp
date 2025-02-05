@@ -22,7 +22,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
             setBackgroundRole(QPalette::Button);
@@ -61,7 +61,7 @@ namespace tl
 
         void BellowsButton::setOpen(bool value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.open)
                 return;
             p.open = value;
@@ -82,7 +82,7 @@ namespace tl
 
         void BellowsButton::_widgetUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.iconLabel->setPixmap(
                 p.open ?
                 QPixmap(":/Icons/BellowsOpen.svg") :

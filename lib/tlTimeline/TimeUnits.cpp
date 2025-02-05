@@ -14,12 +14,11 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             TimeUnits,
             "Frames",
             "Seconds",
             "Timecode");
-        TLRENDER_ENUM_SERIALIZE_IMPL(TimeUnits);
 
         std::string timeToText(const OTIO_NS::RationalTime& time, timeline::TimeUnits units)
         {
@@ -141,7 +140,7 @@ namespace tl
 
         void TimeUnitsModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
             ITimeUnitsModel::_init(context);
             p.timeUnits = dtk::ObservableValue<TimeUnits>::create(TimeUnits::Timecode);
         }

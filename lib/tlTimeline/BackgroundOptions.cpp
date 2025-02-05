@@ -11,12 +11,11 @@ namespace tl
 {
     namespace timeline
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             Background,
             "Solid",
             "Checkers",
             "Gradient");
-        TLRENDER_ENUM_SERIALIZE_IMPL(Background);
 
         void to_json(nlohmann::json& json, const BackgroundOptions& in)
         {

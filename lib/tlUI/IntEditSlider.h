@@ -14,7 +14,7 @@ namespace tl
         //! Integer value editor and slider.
         class IntEditSlider : public IWidget
         {
-            TLRENDER_NON_COPYABLE(IntEditSlider);
+            DTK_NON_COPYABLE(IntEditSlider);
 
         protected:
             void _init(
@@ -67,7 +67,7 @@ namespace tl
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

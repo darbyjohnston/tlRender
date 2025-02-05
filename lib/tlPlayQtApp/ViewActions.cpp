@@ -34,7 +34,7 @@ namespace tl
             QObject(parent),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.app = app;
             p.mainWindow = mainWindow;
@@ -240,7 +240,7 @@ namespace tl
 
         void ViewActions::_actionsUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.actions["Frame"]->setChecked(p.mainWindow->viewport()->hasFrameView());
 
             auto viewportModel = p.app->viewportModel();

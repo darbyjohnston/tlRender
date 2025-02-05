@@ -30,7 +30,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::ColorWidget", context, parent);
-            TLRENDER_P();
+            DTK_P();
 
             p.swatch = ColorSwatch::create(context);
             p.swatch->setSizeRole(SizeRole::SwatchLarge);
@@ -130,7 +130,7 @@ namespace tl
 
         void ColorWidget::setColor(const dtk::Color4F& value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.color)
                 return;
             p.color = value;
@@ -157,7 +157,7 @@ namespace tl
 
         void ColorWidget::_colorUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             p.swatch->setColor(p.color);
             p.sliders["Red"]->setValue(p.color.r);
             p.sliders["Green"]->setValue(p.color.g);

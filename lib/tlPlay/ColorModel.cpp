@@ -17,7 +17,7 @@ namespace tl
 
         void ColorModel::_init(const std::shared_ptr<dtk::Context>& context)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.context = context;
 

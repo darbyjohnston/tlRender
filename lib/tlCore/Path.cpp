@@ -378,12 +378,11 @@ namespace tl
             return out;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             UserPath,
             "Home",
             "Desktop",
             "Documents",
             "Downloads");
-        TLRENDER_ENUM_SERIALIZE_IMPL(UserPath);
     }
 }

@@ -73,7 +73,7 @@ namespace tl
         {
             const bool changed = value != _text;
             IButton::setText(value);
-            TLRENDER_P();
+            DTK_P();
             if (changed)
             {
                 p.size.textInit = true;
@@ -86,7 +86,7 @@ namespace tl
         {
             const bool changed = value != _fontRole;
             IButton::setFontRole(value);
-            TLRENDER_P();
+            DTK_P();
             if (changed)
             {
                 p.size.textInit = true;
@@ -99,7 +99,7 @@ namespace tl
         {
             const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
 
             if (displayScaleChanged || p.size.sizeInit)
             {
@@ -156,7 +156,7 @@ namespace tl
         void ToolButton::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IButton::clipEvent(clipRect, clipped);
-            TLRENDER_P();
+            DTK_P();
             if (clipped)
             {
                 p.draw.glyphs.clear();
@@ -168,7 +168,7 @@ namespace tl
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
-            TLRENDER_P();
+            DTK_P();
 
             const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
@@ -249,7 +249,7 @@ namespace tl
 
         void ToolButton::keyPressEvent(KeyEvent& event)
         {
-            TLRENDER_P();
+            DTK_P();
             if (0 == event.modifiers)
             {
                 switch (event.key)

@@ -24,7 +24,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init("tl::ui::MenuBar", context, parent);
-            TLRENDER_P();
+            DTK_P();
             p.layout = HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(SizeRole::None);
         }
@@ -49,7 +49,7 @@ namespace tl
             const std::string& text,
             const std::shared_ptr<Menu>& menu)
         {
-            TLRENDER_P();
+            DTK_P();
             p.menus.push_back(menu);
             if (auto context = _context.lock())
             {
@@ -110,7 +110,7 @@ namespace tl
 
         bool MenuBar::shortcut(Key shortcut, int modifiers)
         {
-            TLRENDER_P();
+            DTK_P();
             bool out = false;
             if (shortcut != Key::Unknown)
             {
@@ -128,14 +128,14 @@ namespace tl
         void MenuBar::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            TLRENDER_P();
+            DTK_P();
             p.layout->setGeometry(value);
         }
 
         void MenuBar::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            TLRENDER_P();
+            DTK_P();
             _sizeHint = p.layout->getSizeHint();
         }
     }

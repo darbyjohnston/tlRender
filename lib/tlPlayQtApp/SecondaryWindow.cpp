@@ -42,7 +42,7 @@ namespace tl
             QWidget(parent),
             _p(new  Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             setAttribute(Qt::WA_DeleteOnClose);
 
@@ -126,7 +126,7 @@ namespace tl
 
         SecondaryWindow::~SecondaryWindow()
         {
-            TLRENDER_P();
+            DTK_P();
             const dtk::Size2I size(width(), height());
             p.app->settings()->setValue("SecondaryWindow/Size", size);
         }
@@ -136,7 +136,7 @@ namespace tl
             double          zoom,
             bool            frame)
         {
-            TLRENDER_P();
+            DTK_P();
             p.viewport->setViewPosAndZoom(pos, zoom);
             p.viewport->setFrameView(frame);
         }

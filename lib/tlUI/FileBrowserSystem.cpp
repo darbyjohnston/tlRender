@@ -31,7 +31,7 @@ namespace tl
             ISystem(context, "tl::ui::FileBrowserSystem"),
             _p(new Private)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.path = file::getCWD();
             p.recentFilesModel = RecentFilesModel::create(context);
@@ -63,7 +63,7 @@ namespace tl
             const std::shared_ptr<IWindow>& window,
             const std::function<void(const file::FileInfo&)>& callback)
         {
-            TLRENDER_P();
+            DTK_P();
             bool native = p.native;
 #if defined(TLRENDER_NFD)
             if (native)

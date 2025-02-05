@@ -104,7 +104,7 @@ namespace tl
 
         void Cache::setMax(size_t value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.max)
                 return;
             p.max = value;
@@ -113,14 +113,14 @@ namespace tl
 
         size_t Cache::getSize() const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.getSize() + p.audio.getSize();
         }
 
         float Cache::getPercentage() const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return
                 (p.video.getSize() + p.audio.getSize()) /
@@ -129,7 +129,7 @@ namespace tl
 
         void Cache::addVideo(const std::string& key, const VideoData& videoData)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.add(
                 key,
@@ -139,21 +139,21 @@ namespace tl
 
         bool Cache::containsVideo(const std::string& key) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.contains(key);
         }
 
         bool Cache::getVideo(const std::string& key, VideoData& videoData) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.get(key, videoData);
         }
 
         void Cache::addAudio(const std::string& key, const AudioData& audioData)
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.audio.add(
                 key,
@@ -163,21 +163,21 @@ namespace tl
 
         bool Cache::containsAudio(const std::string& key) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.audio.contains(key);
         }
 
         bool Cache::getAudio(const std::string& key, AudioData& audioData) const
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.audio.get(key, audioData);
         }
 
         void Cache::clear()
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.clear();
             p.audio.clear();
@@ -185,7 +185,7 @@ namespace tl
 
         void Cache::_maxUpdate()
         {
-            TLRENDER_P();
+            DTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.setMax(p.max * .9F);
             p.audio.setMax(p.max * .1F);

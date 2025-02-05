@@ -50,7 +50,7 @@ namespace tl
 
         void IWindow::setKeyFocus(const std::shared_ptr<IWidget>&value)
         {
-            TLRENDER_P();
+            DTK_P();
             if (value == p.keyFocus.lock())
                 return;
             if (auto widget = p.keyFocus.lock())
@@ -80,7 +80,7 @@ namespace tl
         {
             const bool changed = value != _visible;
             IWidget::setVisible(value);
-            TLRENDER_P();
+            DTK_P();
             if (changed && !_visible)
             {
                 if (auto hover = p.hover.lock())
@@ -128,7 +128,7 @@ namespace tl
             const TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            TLRENDER_P();
+            DTK_P();
             if (p.inside)
             {
                 if (!p.mousePress.lock())
@@ -171,7 +171,7 @@ namespace tl
         void IWindow::drawOverlayEvent(const dtk::Box2I& clipRect, const DrawEvent& event)
         {
             IWidget::drawOverlayEvent(clipRect, event);
-            TLRENDER_P();
+            DTK_P();
             if (p.dndCursor)
             {
                 event.render->drawImage(
@@ -190,7 +190,7 @@ namespace tl
             bool press,
             int modifiers)
         {
-            TLRENDER_P();
+            DTK_P();
             p.keyEvent.key = key;
             p.keyEvent.modifiers = modifiers;
             p.keyEvent.pos = p.cursorPos;
@@ -251,7 +251,7 @@ namespace tl
 
         void IWindow::_text(const std::string& value)
         {
-            TLRENDER_P();
+            DTK_P();
             TextEvent event(value);
 
             // Send event to the focused widget.
@@ -285,7 +285,7 @@ namespace tl
 
         void IWindow::_cursorEnter(bool enter)
         {
-            TLRENDER_P();
+            DTK_P();
             p.inside = enter;
             if (!enter)
             {
@@ -295,7 +295,7 @@ namespace tl
 
         void IWindow::_cursorPos(const dtk::V2I& pos)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.cursorPosPrev = p.cursorPos;
             p.cursorPos = pos;
@@ -390,7 +390,7 @@ namespace tl
 
         void IWindow::_mouseButton(int button, bool press, int modifiers)
         {
-            TLRENDER_P();
+            DTK_P();
             p.mouseClickEvent.button = button;
             p.mouseClickEvent.modifiers = modifiers;
             p.mouseClickEvent.pos = p.cursorPos;
@@ -453,7 +453,7 @@ namespace tl
 
         void IWindow::_scroll(const dtk::V2F& value, int modifiers)
         {
-            TLRENDER_P();
+            DTK_P();
             ScrollEvent event(value, modifiers, p.cursorPos);
             auto widgets = _getUnderCursor(p.cursorPos);
             for (auto i = widgets.begin(); i != widgets.end(); ++i)
@@ -494,7 +494,7 @@ namespace tl
         std::list<std::shared_ptr<IWidget> > IWindow::_getUnderCursor(
             const dtk::V2I& pos)
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<IWidget> > out;
             _getUnderCursor(shared_from_this(), pos, out);
             return out;
@@ -521,7 +521,7 @@ namespace tl
 
         void IWindow::_setHover(const std::shared_ptr<IWidget>& hover)
         {
-            TLRENDER_P();
+            DTK_P();
             if (auto widget = p.hover.lock())
             {
                 if (hover != widget)
@@ -568,7 +568,7 @@ namespace tl
 
         std::shared_ptr<IWidget> IWindow::_keyFocusNext(const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<IWidget> out;
             if (!_children.empty())
             {
@@ -600,7 +600,7 @@ namespace tl
 
         std::shared_ptr<IWidget> IWindow::_keyFocusPrev(const std::shared_ptr<IWidget>& value)
         {
-            TLRENDER_P();
+            DTK_P();
             std::shared_ptr<IWidget> out;
             if (!_children.empty())
             {
