@@ -32,23 +32,19 @@ namespace tl
 
             p.app = app;
 
-            const std::vector<image::Size> sizes =
+            const std::vector<dtk::Size2I> sizes =
             {
-                image::Size(1280, 720),
-                image::Size(1280, 720),
-                image::Size(1920, 1080)
+                dtk::Size2I(1280, 720),
+                dtk::Size2I(1920, 1080),
+                dtk::Size2I(3840, 2160)
             };
-            for (const auto& i : sizes)
-            {
-                const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
-                p.actions[key] = new QAction(parent);
-                p.actions[key]->setData(QVariant::fromValue<image::Size>(i));
-                p.actions[key]->setText(QString("%1x%2").arg(i.w).arg(i.h));
-            }
             p.actionGroups["Resize"] = new QActionGroup(this);
-            for (auto i : sizes)
+            for (const auto& size : sizes)
             {
-                const QString key = QString("Resize/%1x%2").arg(i.w).arg(i.h);
+                const QString key = QString("Resize/%1x%2").arg(size.w).arg(size.h);
+                p.actions[key] = new QAction(parent);
+                p.actions[key]->setData(QVariant::fromValue<dtk::Size2I>(size));
+                p.actions[key]->setText(QString("%1x%2").arg(size.w).arg(size.h));
                 p.actionGroups["Resize"]->addAction(p.actions[key]);
             }
 
@@ -90,7 +86,7 @@ namespace tl
                 &QActionGroup::triggered,
                 [this](QAction* action)
                 {
-                    Q_EMIT resize(action->data().value<image::Size>());
+                    Q_EMIT resize(action->data().value<dtk::Size2I>());
                 });
 
             connect(

@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/Image.h>
 
 #include <QAbstractTableModel>
 

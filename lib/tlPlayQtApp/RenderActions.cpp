@@ -23,7 +23,7 @@ namespace tl
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
         };
 
         RenderActions::RenderActions(App* app, QObject* parent) :
@@ -36,17 +36,17 @@ namespace tl
 
             p.actions["VideoLevels/FromFile"] = new QAction(this);
             p.actions["VideoLevels/FromFile"]->setData(
-                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::FromFile));
+                QVariant::fromValue<dtk::InputVideoLevels>(dtk::InputVideoLevels::FromFile));
             p.actions["VideoLevels/FromFile"]->setCheckable(true);
             p.actions["VideoLevels/FromFile"]->setText(tr("From File"));
             p.actions["VideoLevels/FullRange"] = new QAction(this);
             p.actions["VideoLevels/FullRange"]->setData(
-                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::FullRange));
+                QVariant::fromValue<dtk::InputVideoLevels>(dtk::InputVideoLevels::FullRange));
             p.actions["VideoLevels/FullRange"]->setCheckable(true);
             p.actions["VideoLevels/FullRange"]->setText(tr("Full Range"));
             p.actions["VideoLevels/LegalRange"] = new QAction(this);
             p.actions["VideoLevels/LegalRange"]->setData(
-                QVariant::fromValue<timeline::InputVideoLevels>(timeline::InputVideoLevels::LegalRange));
+                QVariant::fromValue<dtk::InputVideoLevels>(dtk::InputVideoLevels::LegalRange));
             p.actions["VideoLevels/LegalRange"]->setCheckable(true);
             p.actions["VideoLevels/LegalRange"]->setText(tr("Legal Range"));
             p.actionGroups["VideoLevels"] = new QActionGroup(this);
@@ -55,15 +55,15 @@ namespace tl
             p.actionGroups["VideoLevels"]->addAction(p.actions["VideoLevels/LegalRange"]);
 
             p.actions["AlphaBlend/None"] = new QAction(this);
-            p.actions["AlphaBlend/None"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::None));
+            p.actions["AlphaBlend/None"]->setData(QVariant::fromValue<dtk::AlphaBlend>(dtk::AlphaBlend::None));
             p.actions["AlphaBlend/None"]->setCheckable(true);
             p.actions["AlphaBlend/None"]->setText(tr("None"));
             p.actions["AlphaBlend/Straight"] = new QAction(this);
-            p.actions["AlphaBlend/Straight"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::Straight));
+            p.actions["AlphaBlend/Straight"]->setData(QVariant::fromValue<dtk::AlphaBlend>(dtk::AlphaBlend::Straight));
             p.actions["AlphaBlend/Straight"]->setCheckable(true);
             p.actions["AlphaBlend/Straight"]->setText(tr("Straight"));
             p.actions["AlphaBlend/Premultiplied"] = new QAction(this);
-            p.actions["AlphaBlend/Premultiplied"]->setData(QVariant::fromValue<timeline::AlphaBlend>(timeline::AlphaBlend::Premultiplied));
+            p.actions["AlphaBlend/Premultiplied"]->setData(QVariant::fromValue<dtk::AlphaBlend>(dtk::AlphaBlend::Premultiplied));
             p.actions["AlphaBlend/Premultiplied"]->setCheckable(true);
             p.actions["AlphaBlend/Premultiplied"]->setText(tr("Premultiplied"));
             p.actionGroups["AlphaBlend"] = new QActionGroup(this);
@@ -112,7 +112,7 @@ namespace tl
                 [app](QAction* action)
                 {
                     auto options = app->renderModel()->getImageOptions();
-                    options.videoLevels = action->data().value<timeline::InputVideoLevels>();
+                    options.videoLevels = action->data().value<dtk::InputVideoLevels>();
                     app->renderModel()->setImageOptions(options);
                 });
 
@@ -122,7 +122,7 @@ namespace tl
                 [app](QAction* action)
                 {
                     auto options = app->renderModel()->getImageOptions();
-                    options.alphaBlend = action->data().value<timeline::AlphaBlend>();
+                    options.alphaBlend = action->data().value<dtk::AlphaBlend>();
                     app->renderModel()->setImageOptions(options);
                 });
 
@@ -135,9 +135,9 @@ namespace tl
                         action->data().value<dtk::ImageType>());
                 });
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions&)
+                [this](const dtk::ImageOptions&)
                 {
                     _actionsUpdate();
                 });
@@ -165,7 +165,7 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["VideoLevels"]);
                 for (auto action : p.actionGroups["VideoLevels"]->actions())
                 {
-                    if (action->data().value<timeline::InputVideoLevels>() == imageOptions.videoLevels)
+                    if (action->data().value<dtk::InputVideoLevels>() == imageOptions.videoLevels)
                     {
                         action->setChecked(true);
                         break;
@@ -176,7 +176,7 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["AlphaBlend"]);
                 for (auto action : p.actionGroups["AlphaBlend"]->actions())
                 {
-                    if (action->data().value<timeline::AlphaBlend>() == imageOptions.alphaBlend)
+                    if (action->data().value<dtk::AlphaBlend>() == imageOptions.alphaBlend)
                     {
                         action->setChecked(true);
                         break;

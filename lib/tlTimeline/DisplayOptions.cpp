@@ -14,14 +14,6 @@ namespace tl
 {
     namespace timeline
     {
-        DTK_ENUM_IMPL(
-            Channels,
-            "Color",
-            "Red",
-            "Green",
-            "Blue",
-            "Alpha");
-
         dtk::M44F brightness(const dtk::V3F& value)
         {
             return dtk::M44F(

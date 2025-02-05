@@ -4,7 +4,7 @@
 
 #include "PanoramaTimelineViewport.h"
 
-#include <tlGL/Init.h>
+#include <dtk/gl/Init.h>
 
 #include <QMouseEvent>
 #include <QSurfaceFormat>
@@ -45,7 +45,7 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::setImageOptions(const timeline::ImageOptions& value)
+            void PanoramaTimelineViewport::setImageOptions(const dtk::ImageOptions& value)
             {
                 if (value == _imageOptions)
                     return;
@@ -68,7 +68,7 @@ namespace tl
                 if (_player)
                 {
                     const auto& ioInfo = _player->ioInfo();
-                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : image::Size();
+                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : dtk::Size2I();
                     _videoData = _player->currentVideo();
                     connect(
                         _player.get(),
@@ -87,19 +87,19 @@ namespace tl
             void PanoramaTimelineViewport::initializeGL()
             {
                 initializeOpenGLFunctions();
-                gl::initGLAD();
+                dtk::gl::initGLAD();
 
                 try
                 {
                     // Create the sphere mesh.
-                    _sphereMesh = geom::sphere(10.F, 100, 100);
-                    auto vboData = convert(
+                    _sphereMesh = dtk::sphere(10.F, 100, 100);
+                    auto vboData = dtk::gl::convert(
                         _sphereMesh,
-                        gl::VBOType::Pos3_F32_UV_U16,
+                        dtk::gl::VBOType::Pos3_F32_UV_U16,
                         dtk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
-                    _sphereVBO = gl::VBO::create(_sphereMesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
+                    _sphereVBO = dtk::gl::VBO::create(_sphereMesh.triangles.size() * 3, dtk::gl::VBOType::Pos3_F32_UV_U16);
                     _sphereVBO->copy(vboData);
-                    _sphereVAO = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
+                    _sphereVAO = dtk::gl::VAO::create(dtk::gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
 
                     // Create the renderer.
                     if (auto context = _context.lock())
@@ -145,7 +145,7 @@ namespace tl
                         "{\n"
                         "    fColor = texture(textureSampler, fTexture);\n"
                         "}\n";
-                    _shader = gl::Shader::create(vertexSource, fragmentSource);
+                    _shader = dtk::gl::Shader::create(vertexSource, fragmentSource);
                 }
                 catch (const std::exception& e)
                 {
@@ -160,17 +160,17 @@ namespace tl
                 {
                     // Create the offscreen buffer.
                     dtk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
-                    gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = dtk::ImageType::RGBA_F32;
-                    if (gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
+                    dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = dtk::ImageType::RGBA_F32;
+                    if (dtk::gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
                     {
-                        _buffer = gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
+                        _buffer = dtk::gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
                     }
 
                     // Render the video data into the offscreen buffer.
                     if (_buffer)
                     {
-                        gl::OffscreenBufferBinding binding(_buffer);
+                        dtk::gl::OffscreenBufferBinding binding(_buffer);
                         _render->begin(offscreenBufferSize);
                         _render->setOCIOOptions(_ocioOptions);
                         _render->setLUTOptions(_lutOptions);
@@ -202,11 +202,11 @@ namespace tl
                     static_cast<GLsizei>(windowSize.h));
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
-                math::Matrix4x4f vm;
-                vm = vm * math::translate(dtk::V3F(0.F, 0.F, 0.F));
-                vm = vm * math::rotateX(_cameraRotation.x);
-                vm = vm * math::rotateY(_cameraRotation.y);
-                const auto pm = math::perspective(
+                dtk::M44F vm;
+                vm = vm * dtk::translate(dtk::V3F(0.F, 0.F, 0.F));
+                vm = vm * dtk::rotateX(_cameraRotation.x);
+                vm = vm * dtk::rotateY(_cameraRotation.y);
+                const auto pm = dtk::perspective(
                     _cameraFOV,
                     windowSize.w / static_cast<float>(windowSize.h > 0 ? windowSize.h : 1),
                     .1F,

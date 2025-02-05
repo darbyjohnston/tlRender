@@ -8,15 +8,14 @@
 
 #include <tlIO/System.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
-#include <tlGL/Util.h>
-
 #include <tlCore/File.h>
-#include <tlCore/Math.h>
 #include <tlCore/Time.h>
 
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Util.h>
+#include <dtk/gl/Window.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/Math.h>
 #include <dtk/core/String.h>
 
 namespace tl
@@ -56,7 +55,7 @@ namespace tl
                         { "-outputPixelType", "-op" },
                         "Output pixel type.",
                         std::string(),
-                        dtk::join(image::getPixelTypeLabels(), ", ")),
+                        dtk::join(dtk::getImageTypeLabels(), ", ")),
                     app::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.fileName,
                         { "-ocio" },
@@ -186,11 +185,11 @@ namespace tl
                 _startTime = std::chrono::steady_clock::now();
 
                 // Create the window.
-                _window = gl::GLFWWindow::create(
+                _window = dtk::gl::Window::create(
                     _context,
                     "tlbake",
                     dtk::Size2I(1, 1),
-                    static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
+                    static_cast<int>(dtk::gl::WindowOptions::MakeCurrent));
 
                 // Read the timeline.
                 timeline::Options options;
@@ -226,9 +225,9 @@ namespace tl
 
                 // Create the renderer.
                 _render = timeline_gl::Render::create(_context);
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = gl::offscreenColorDefault;
-                _buffer = gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
+                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = dtk::gl::offscreenColorDefault;
+                _buffer = dtk::gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
 
                 // Create the writer.
                 _writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(_output));
@@ -239,17 +238,17 @@ namespace tl
                 io::Info ioInfo;
                 _outputInfo.size.w = _renderSize.w;
                 _outputInfo.size.h = _renderSize.h;
-                _outputInfo.pixelType = _options.outputPixelType != dtk::ImageType::None ?
+                _outputInfo.type = _options.outputPixelType != dtk::ImageType::None ?
                     _options.outputPixelType :
-                    info.video[0].pixelType;
+                    info.video[0].type;
                 _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
-                if (dtk::ImageType::None == _outputInfo.pixelType)
+                if (dtk::ImageType::None == _outputInfo.type)
                 {
-                    _outputInfo.pixelType = dtk::ImageType::RGB_U8;
+                    _outputInfo.type = dtk::ImageType::RGB_U8;
                 }
                 _print(dtk::Format("Output info: {0} {1}").
                     arg(_outputInfo.size).
-                    arg(_outputInfo.pixelType));
+                    arg(_outputInfo.type));
                 _outputImage = dtk::Image::create(_outputInfo);
                 ioInfo.video.push_back(_outputInfo);
                 ioInfo.videoTime = _timeRange;
@@ -260,7 +259,7 @@ namespace tl
                 }
 
                 // Start the main loop.
-                gl::OffscreenBufferBinding binding(_buffer);
+                dtk::gl::OffscreenBufferBinding binding(_buffer);
                 while (_running)
                 {
                     _tick();
@@ -376,8 +375,8 @@ namespace tl
 #if defined(dtk_API_GL_4_1)
             glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != dtk::getEndian());
 #endif // dtk_API_GL_4_1
-            const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
-            const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
+            const GLenum format = dtk::gl::getReadPixelsFormat(_outputInfo.type);
+            const GLenum type = dtk::gl::getReadPixelsType(_outputInfo.type);
             if (GL_NONE == format || GL_NONE == type)
             {
                 throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));

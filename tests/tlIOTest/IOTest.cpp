@@ -73,11 +73,11 @@ namespace tl
                     return nullptr;
                 }
 
-                image::Info getWriteInfo(
-                    const image::Info&,
+                dtk::ImageInfo getWriteInfo(
+                    const dtk::ImageInfo&,
                     const io::Options& = io::Options()) const override
                 {
-                    return image::Info();
+                    return dtk::ImageInfo();
                 }
 
                 std::shared_ptr<IWrite> write(

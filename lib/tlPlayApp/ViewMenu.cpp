@@ -81,16 +81,16 @@ namespace tl
                 {
                     setItemChecked(
                         _p->actions["Red"],
-                        timeline::Channels::Red == value.channels);
+                        dtk::ChannelDisplay::Red == value.channels);
                     setItemChecked(
                         _p->actions["Green"],
-                        timeline::Channels::Green == value.channels);
+                        dtk::ChannelDisplay::Green == value.channels);
                     setItemChecked(
                         _p->actions["Blue"],
-                        timeline::Channels::Blue == value.channels);
+                        dtk::ChannelDisplay::Blue == value.channels);
                     setItemChecked(
                         _p->actions["Alpha"],
-                        timeline::Channels::Alpha == value.channels);
+                        dtk::ChannelDisplay::Alpha == value.channels);
 
                     setItemChecked(
                         _p->actions["MirrorHorizontal"],

@@ -4,15 +4,6 @@
 
 #include <tlBaseApp/BaseApp.h>
 
-#include <tlGL/OffscreenBuffer.h>
-
-#include <tlTimeline/IRender.h>
-#include <tlTimeline/Timeline.h>
-
-#include <tlIO/IO.h>
-
-struct GLFWwindow;
-
 namespace tl
 {
     //! tlresource application

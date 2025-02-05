@@ -2,8 +2,6 @@ set(HEADERS
     CompareOptionsTest.h
     DisplayOptionsTest.h
     EditTest.h
-    IRenderTest.h
-    ImageOptionsTest.h
     LUTOptionsTest.h
     MemoryReferenceTest.h
     OCIOOptionsTest.h
@@ -16,8 +14,6 @@ set(SOURCE
     CompareOptionsTest.cpp
     DisplayOptionsTest.cpp
     EditTest.cpp
-    IRenderTest.cpp
-    ImageOptionsTest.cpp
     LUTOptionsTest.cpp
     MemoryReferenceTest.cpp
     OCIOOptionsTest.cpp

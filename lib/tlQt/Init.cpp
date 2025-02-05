@@ -53,7 +53,7 @@ namespace tl
 
             qRegisterMetaType<timeline::AudioData>("tl::timeline::AudioData");
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
-            qRegisterMetaType<timeline::Channels>("tl::timeline::Channels");
+            qRegisterMetaType<dtk::ChannelDisplay>("tl::dtk::ChannelDisplay");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareTimeMode>("tl::timeline::CompareTimeMode");
@@ -75,7 +75,7 @@ namespace tl
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<timeline::Channels>();
+            QMetaType::registerComparators<dtk::ChannelDisplay>();
             QMetaType::registerComparators<timeline::CompareMode>();
             QMetaType::registerComparators<timeline::CompareTimeMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();

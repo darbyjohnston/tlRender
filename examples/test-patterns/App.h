@@ -4,13 +4,16 @@
 
 #include <tlBaseApp/BaseApp.h>
 
-namespace tl
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     namespace examples
     {
         //! Example test patterns application.
@@ -39,7 +42,7 @@ namespace tl
                 int run();
 
             private:
-                std::shared_ptr<gl::GLFWWindow> _window;
+                std::shared_ptr<dtk::gl::Window> _window;
             };
         }
     }

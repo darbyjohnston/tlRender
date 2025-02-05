@@ -122,7 +122,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
@@ -484,9 +484,9 @@ namespace tl
                     _widgetUpdate();
                 });
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions&)
+                [this](const dtk::ImageOptions&)
                 {
                     _widgetUpdate();
                 });
@@ -531,7 +531,7 @@ namespace tl
             connect(
                 p.windowActions,
                 &WindowActions::resize,
-                [this](const image::Size& size)
+                [this](const dtk::Size2I& size)
                 {
                     resize(size.w, size.h);
                 });

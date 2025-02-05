@@ -82,8 +82,8 @@ namespace tl
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
                         displayOptions.channels = value ?
-                            timeline::Channels::Red :
-                            timeline::Channels::Color;
+                            dtk::ChannelDisplay::Red :
+                            dtk::ChannelDisplay::Color;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -98,8 +98,8 @@ namespace tl
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
                         displayOptions.channels = value ?
-                            timeline::Channels::Green :
-                            timeline::Channels::Color;
+                            dtk::ChannelDisplay::Green :
+                            dtk::ChannelDisplay::Color;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -114,8 +114,8 @@ namespace tl
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
                         displayOptions.channels = value ?
-                            timeline::Channels::Blue :
-                            timeline::Channels::Color;
+                            dtk::ChannelDisplay::Blue :
+                            dtk::ChannelDisplay::Color;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -130,8 +130,8 @@ namespace tl
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
                         displayOptions.channels = value ?
-                            timeline::Channels::Alpha :
-                            timeline::Channels::Color;
+                            dtk::ChannelDisplay::Alpha :
+                            dtk::ChannelDisplay::Color;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });

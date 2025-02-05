@@ -70,7 +70,7 @@ namespace tl
             _p->viewport->setLUTOptions(value);
         }
 
-        void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        void TimelineViewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
             _p->viewport->setImageOptions(value);
         }

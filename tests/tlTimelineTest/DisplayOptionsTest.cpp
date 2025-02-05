@@ -27,9 +27,6 @@ namespace tl
         void DisplayOptionsTest::run()
         {
             {
-                _enum<Channels>("Channels", getChannelsEnums);
-            }
-            {
                 Color color;
                 color.enabled = true;
                 DTK_ASSERT(color == color);
@@ -81,7 +78,7 @@ namespace tl
             }
             {
                 DisplayOptions displayOptions;
-                displayOptions.channels = Channels::Red;
+                displayOptions.channels = dtk::ChannelDisplay::Red;
                 DTK_ASSERT(displayOptions == displayOptions);
                 DTK_ASSERT(displayOptions != DisplayOptions());
             }

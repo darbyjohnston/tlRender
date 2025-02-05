@@ -45,10 +45,10 @@
 
 #include <tlCore/AudioSystem.h>
 #include <tlCore/FileLogSystem.h>
-#include <tlCore/Math.h>
 #include <tlCore/Time.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/Math.h>
 
 #include <QPointer>
 #include <QScreen>
@@ -91,7 +91,7 @@ namespace tl
 #if defined(TLRENDER_BMD)
             std::shared_ptr<bmd::DevicesModel> bmdDevicesModel;
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
-            image::VideoLevels bmdOutputVideoLevels = image::VideoLevels::First;
+            dtk::VideoLevels bmdOutputVideoLevels = dtk::VideoLevels::First;
 #endif // TLRENDER_BMD
             std::unique_ptr<QTimer> timer;
 
@@ -115,7 +115,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
 #endif // TLRENDER_BMD
@@ -642,9 +642,9 @@ namespace tl
                 {
                     _p->bmdOutputDevice->setLUTOptions(value);
                 });
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 p.renderModel->observeImageOptions(),
-                [this](const timeline::ImageOptions& value)
+                [this](const dtk::ImageOptions& value)
                 {
                     _p->bmdOutputDevice->setImageOptions({ value });
                 });
@@ -1059,7 +1059,7 @@ namespace tl
         {
             TLRENDER_P();
             float scale = 1.F;
-            const dtk::Size2I& size = p.mainWindow->viewport()->getGeometry().getSize() *
+            const dtk::Size2I& size = p.mainWindow->viewport()->getGeometry().size() *
                 p.mainWindow->devicePixelRatio();
             if (p.secondaryWindow)
             {

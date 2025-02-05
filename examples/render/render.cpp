@@ -6,13 +6,12 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
-
-#include <tlCore/Math.h>
 #include <tlCore/Time.h>
 
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Window.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/Math.h>
 #include <dtk/core/String.h>
 
 #define GLFW_INCLUDE_NONE
@@ -146,7 +145,7 @@ namespace tl
                         });
 
                     // Create the window.
-                    _window = gl::GLFWWindow::create(
+                    _window = dtk::gl::Window::create(
                         _context,
                         "render",
                         _options.windowSize);
@@ -401,13 +400,13 @@ namespace tl
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const dtk::Size2I viewportSize = box.getSize();
-                const float viewportAspect = viewportSize.getAspect();
+                const dtk::Size2I viewportSize = box.size();
+                const float viewportAspect = dtk::aspectRatio(viewportSize);
                 const dtk::Size2I renderSize = timeline::getRenderSize(
                     compareOptions.mode,
                     _videoData);
-                const float renderSizeAspect = renderSize.getAspect();
-                image::Size transformSize;
+                const float renderSizeAspect = dtk::aspectRatio(renderSize);
+                dtk::Size2I transformSize;
                 dtk::V2F transformOffset;
                 if (renderSizeAspect > 1.F)
                 {
@@ -429,16 +428,16 @@ namespace tl
                 _render->setClipRect(box);
                 _render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
 
-                _render->setTransform(math::ortho(
+                _render->setTransform(dtk::ortho(
                     0.F,
                     static_cast<float>(transformSize.w),
                     static_cast<float>(transformSize.h),
                     0.F,
                     -1.F,
                     1.F) *
-                    math::translate(dtk::V3F(transformOffset.x, transformOffset.y, 0.F)) *
-                    math::rotateZ(rotation) *
-                    math::translate(dtk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
+                    dtk::translate(dtk::V3F(transformOffset.x, transformOffset.y, 0.F)) *
+                    dtk::rotateZ(rotation) *
+                    dtk::translate(dtk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
                     timeline::getBoxes(compareOptions.mode, _videoData),
@@ -448,7 +447,7 @@ namespace tl
 
                 if (_hud)
                 {
-                    _render->setTransform(math::ortho(
+                    _render->setTransform(dtk::ortho(
                         0.F,
                         static_cast<float>(viewportSize.w),
                         static_cast<float>(viewportSize.h),
@@ -467,7 +466,8 @@ namespace tl
                         dtk::Color4F(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),
-                        dtk::V2I(fontSize / 5, fontMetrics.ascender),
+                        fontMetrics,
+                        dtk::V2I(fontSize / 5, 0),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
 

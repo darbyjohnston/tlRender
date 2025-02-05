@@ -45,7 +45,7 @@ namespace tl
                 const std::shared_ptr<io::IPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
-                const image::Info& imageInfo,
+                const dtk::ImageInfo& imageInfo,
                 const dtk::ImageTags& tags,
                 const Options& options)
             {
@@ -221,11 +221,11 @@ namespace tl
                 false,
                 true
             };
-            const std::vector<image::Size> sizes =
+            const std::vector<dtk::Size2I> sizes =
             {
-                image::Size(16, 16),
-                image::Size(1, 1),
-                image::Size(0, 0)
+                dtk::Size2I(16, 16),
+                dtk::Size2I(1, 1),
+                dtk::Size2I(0, 0)
             };
             const std::vector<std::pair<std::string, std::string> > options =
             {
@@ -252,13 +252,13 @@ namespace tl
                 {
                     for (const auto& size : sizes)
                     {
-                        for (const auto& pixelType : image::getPixelTypeEnums())
+                        for (const auto pixelType : dtk::getImageTypeEnums())
                         {
                             for (const auto& option : options)
                             {
                                 Options options;
                                 options[option.first] = option.second;
-                                const auto imageInfo = plugin->getWriteInfo(image::Info(size, pixelType));
+                                const auto imageInfo = plugin->getWriteInfo(dtk::ImageInfo(size, pixelType));
                                 if (imageInfo.isValid())
                                 {
                                     file::Path path;

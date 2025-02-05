@@ -60,7 +60,7 @@ namespace tl
             void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the image options.
-            void setImageOptions(const std::vector<timeline::ImageOptions>&);
+            void setImageOptions(const std::vector<dtk::ImageOptions>&);
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);

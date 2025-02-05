@@ -32,7 +32,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
@@ -109,9 +109,9 @@ namespace tl
                     _p->viewport->setBackgroundOptions(value);
                 });
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->renderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions& value)
+                [this](const dtk::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });

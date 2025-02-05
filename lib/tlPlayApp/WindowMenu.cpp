@@ -7,6 +7,8 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
+#include <dtk/core/Format.h>
+
 namespace tl
 {
     namespace play_app
@@ -36,26 +38,25 @@ namespace tl
 
             p.menus["Resize"] = addSubMenu("Resize");
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            auto action = std::make_shared<ui::Action>(
-                "1280x720",
-                [mainWindowWeak]
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
+            const std::vector<dtk::Size2I> sizes =
+            {
+                dtk::Size2I(1280, 720),
+                dtk::Size2I(1920, 1080),
+                dtk::Size2I(3840, 2160)
+            };
+            for (const auto size : sizes)
+            {
+                auto action = std::make_shared<ui::Action>(
+                    dtk::Format("{0}x{1}").arg(size.w).arg(size.h),
+                    [mainWindowWeak, size]
                     {
-                        mainWindow->setWindowSize(dtk::Size2I(1280, 720));
-                    }
-                });
-            p.menus["Resize"]->addItem(action);
-            action = std::make_shared<ui::Action>(
-                "1920x1080",
-                [mainWindowWeak]
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        mainWindow->setWindowSize(dtk::Size2I(1920, 1080));
-                    }
-                });
-            p.menus["Resize"]->addItem(action);
+                        if (auto mainWindow = mainWindowWeak.lock())
+                        {
+                            mainWindow->setWindowSize(size);
+                        }
+                    });
+                p.menus["Resize"]->addItem(action);
+            }
 
             addDivider();
             addItem(p.actions["FullScreen"]);

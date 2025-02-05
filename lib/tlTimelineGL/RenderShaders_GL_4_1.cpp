@@ -104,7 +104,7 @@ namespace tl
                 "in vec2 fTexture;\n"
                 "out vec4 outColor;\n"
                 "\n"
-                "// enum tl::timeline::Channels\n"
+                "// enum tl::dtk::ChannelDisplay\n"
                 "const uint Channels_Color = 0;\n"
                 "const uint Channels_Red   = 1;\n"
                 "const uint Channels_Green = 2;\n"

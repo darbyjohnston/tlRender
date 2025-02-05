@@ -4,10 +4,9 @@
 
 #include "TestPatterns.h"
 
-#include <tlCore/Math.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/Math.h>
 
 #include <cmath>
 
@@ -115,7 +114,7 @@ namespace tl
                     for (int i = 0; i < resolution; ++i)
                     {
                         const float f = i / static_cast<float>(resolution - 1);
-                        const float a = f * math::pi2;
+                        const float a = f * dtk::pi2;
                         const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
                         mesh.v.push_back(dtk::V2F(
                             _size.w / 2.F + std::cos(a) * r,
@@ -134,7 +133,6 @@ namespace tl
                         dtk::Vertex2(1 + 1) }));
                     render->drawMesh(
                         mesh,
-                        dtk::V2I(),
                         dtk::Color4F(.2F, .2F, .2F));
 
                     mesh.v.clear();
@@ -146,7 +144,7 @@ namespace tl
                     {
                         const float v = frames / time.rate();
                         const float f = i / static_cast<float>(resolution - 1);
-                        const float a = v * f * math::pi2 - math::pi / 2.F;
+                        const float a = v * f * dtk::pi2 - dtk::pi / 2.F;
                         const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
                         mesh.v.push_back(dtk::V2F(
                             _size.w / 2.F + std::cos(a) * r,
@@ -183,7 +181,7 @@ namespace tl
             {
                 ITestPattern::_init(context, getClassName(), size);
 
-                const image::Info info(_size.w, 1, dtk::ImageType::L_F32);
+                const dtk::ImageInfo info(_size.w, 1, dtk::ImageType::L_F32);
                 _gradient = dtk::Image::create(info);
                 float* data = reinterpret_cast<float*>(_gradient->getData());
                 for (float* p = data, v = 0.F; p < data + _size.w; ++p, v += 1.F / _size.w)
@@ -280,7 +278,6 @@ namespace tl
                     }
                     render->drawMesh(
                         mesh,
-                        dtk::V2I(),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
                 {
@@ -302,7 +299,6 @@ namespace tl
                     }
                     render->drawMesh(
                         mesh,
-                        dtk::V2I(),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
             }

@@ -8,11 +8,9 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/Mesh.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
-
-#include <tlCore/Mesh.h>
+#include <dtk/gl/Mesh.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Shader.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -43,7 +41,7 @@ namespace tl
                 void setLUTOptions(const timeline::LUTOptions&);
 
                 //! Set the image options.
-                void setImageOptions(const timeline::ImageOptions&);
+                void setImageOptions(const dtk::ImageOptions&);
 
                 //! Set the timeline player.
                 void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);
@@ -62,17 +60,17 @@ namespace tl
                 std::weak_ptr<dtk::Context> _context;
                 timeline::OCIOOptions _ocioOptions;
                 timeline::LUTOptions _lutOptions;
-                timeline::ImageOptions _imageOptions;
+                dtk::ImageOptions _imageOptions;
                 QSharedPointer<qt::TimelinePlayer> _player;
-                image::Size _videoSize;
+                dtk::Size2I _videoSize;
                 std::vector<timeline::VideoData> _videoData;
                 dtk::V2F _cameraRotation;
                 float _cameraFOV = 45.F;
-                geom::TriangleMesh3 _sphereMesh;
-                std::shared_ptr<gl::VBO> _sphereVBO;
-                std::shared_ptr<gl::VAO> _sphereVAO;
-                std::shared_ptr<gl::Shader> _shader;
-                std::shared_ptr<gl::OffscreenBuffer> _buffer;
+                dtk::TriMesh3F _sphereMesh;
+                std::shared_ptr<dtk::gl::VBO> _sphereVBO;
+                std::shared_ptr<dtk::gl::VAO> _sphereVAO;
+                std::shared_ptr<dtk::gl::Shader> _shader;
+                std::shared_ptr<dtk::gl::OffscreenBuffer> _buffer;
                 std::shared_ptr<timeline_gl::Render> _render;
                 dtk::V2I _mousePosPrev;
             };

@@ -7,13 +7,16 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
-namespace tl
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     namespace examples
     {
         //! Example rendering application.
@@ -82,7 +85,7 @@ namespace tl
 
                 std::shared_ptr<timeline::Player> _player;
 
-                std::shared_ptr<gl::GLFWWindow> _window;
+                std::shared_ptr<dtk::gl::Window> _window;
                 dtk::Size2I _frameBufferSize;
                 dtk::V2F _contentScale = dtk::V2F(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;

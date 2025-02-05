@@ -4,8 +4,6 @@
 
 #include <tlBaseApp/BaseApp.h>
 
-#include <tlGL/OffscreenBuffer.h>
-
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Timeline.h>
 
@@ -20,13 +18,18 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-namespace tl
+#include <dtk/gl/OffscreenBuffer.h>
+
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     //! tlbake application
     namespace bake
     {
@@ -96,15 +99,15 @@ namespace tl
 
             std::shared_ptr<timeline::Timeline> _timeline;
             dtk::Size2I _renderSize;
-            image::Info _outputInfo;
+            dtk::ImageInfo _outputInfo;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             OTIO_NS::RationalTime _inputTime = time::invalidTime;
             OTIO_NS::RationalTime _outputTime = time::invalidTime;
 
-            std::shared_ptr<gl::GLFWWindow> _window;
+            std::shared_ptr<dtk::gl::Window> _window;
             std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
-            std::shared_ptr<gl::OffscreenBuffer> _buffer;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> _buffer;
 
             std::shared_ptr<io::IPlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;

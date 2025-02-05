@@ -12,20 +12,6 @@ namespace tl
 {
     namespace timeline
     {
-        //! Channels.
-        enum class Channels
-        {
-            Color,
-            Red,
-            Green,
-            Blue,
-            Alpha,
-
-            Count,
-            First = Color
-        };
-        DTK_ENUM(Channels);
-
         //! Color values.
         struct Color
         {
@@ -98,14 +84,14 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            Channels          channels     = Channels::Color;
-            dtk::ImageMirror  mirror;
-            Color             color;
-            Levels            levels;
-            EXRDisplay        exrDisplay;
-            SoftClip          softClip;
-            dtk::ImageFilters imageFilters;
-            dtk::VideoLevels  videoLevels  = dtk::VideoLevels::FullRange;
+            dtk::ChannelDisplay channels     = dtk::ChannelDisplay::Color;
+            dtk::ImageMirror    mirror;
+            Color               color;
+            Levels              levels;
+            EXRDisplay          exrDisplay;
+            SoftClip            softClip;
+            dtk::ImageFilters   imageFilters;
+            dtk::VideoLevels    videoLevels  = dtk::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

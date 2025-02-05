@@ -372,7 +372,7 @@ namespace tl
                 {
                     if (auto image = i->second.future.get())
                     {
-                        if (dtk::ImageType::RGBA_U8 == image->getPixelType())
+                        if (dtk::ImageType::RGBA_U8 == image->getType())
                         {
                             const int w = image->getWidth();
                             const int h = image->getHeight();

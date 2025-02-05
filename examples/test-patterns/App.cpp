@@ -8,13 +8,12 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Util.h>
-
 #include <tlIO/System.h>
 
+#include <dtk/gl/GL.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Util.h>
+#include <dtk/gl/Window.h>
 #include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>
@@ -39,11 +38,11 @@ namespace tl
                     "test-patterns",
                     "Example test patterns application.");
 
-                _window = gl::GLFWWindow::create(
+                _window = dtk::gl::Window::create(
                     context,
                     "test-patterns",
                     dtk::Size2I(1, 1),
-                    static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
+                    static_cast<int>(dtk::gl::WindowOptions::MakeCurrent));
             }
 
             App::App()
@@ -108,12 +107,12 @@ namespace tl
                             {
                                 throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
-                            image::Info info;
+                            dtk::ImageInfo info;
                             info.size.w = size.w;
                             info.size.h = size.h;
-                            info.pixelType = dtk::ImageType::RGB_U10;
+                            info.type = dtk::ImageType::RGB_U10;
                             info = writerPlugin->getWriteInfo(info);
-                            if (dtk::ImageType::None == info.pixelType)
+                            if (dtk::ImageType::None == info.type)
                             {
                                 throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
@@ -127,10 +126,10 @@ namespace tl
                             }
 
                             // Create the offscreen buffer.
-                            gl::OffscreenBufferOptions offscreenBufferOptions;
-                            offscreenBufferOptions.colorType = dtk::ImageType::RGBA_F32;
-                            auto buffer = gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                            gl::OffscreenBufferBinding binding(buffer);
+                            dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                            offscreenBufferOptions.color = dtk::ImageType::RGBA_F32;
+                            auto buffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                            dtk::gl::OffscreenBufferBinding binding(buffer);
                             auto image = dtk::Image::create(info);
 
                             // Render the test pattern.
@@ -149,8 +148,8 @@ namespace tl
 #if defined(dtk_API_GL_4_1)
                                 glPixelStorei(GL_PACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
 #endif // dtk_API_GL_4_1
-                                const GLenum format = gl::getReadPixelsFormat(info.pixelType);
-                                const GLenum type = gl::getReadPixelsType(info.pixelType);
+                                const GLenum format = dtk::gl::getReadPixelsFormat(info.type);
+                                const GLenum type = dtk::gl::getReadPixelsType(info.type);
                                 if (GL_NONE == format || GL_NONE == type)
                                 {
                                     throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));

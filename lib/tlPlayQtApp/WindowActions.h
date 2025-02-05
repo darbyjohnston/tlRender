@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/Image.h>
 
 #include <QAction>
 #include <QObject>
@@ -36,7 +38,7 @@ namespace tl
 
         Q_SIGNALS:
             //! This signal is emitted to resize the window.
-            void resize(const tl::image::Size&);
+            void resize(const dtk::Size2I&);
 
         private:
             void _actionsUpdate();

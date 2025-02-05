@@ -208,7 +208,7 @@ namespace tl
                 const std::vector<dtk::Box2I> trackGeom = p.timelineWidget->getTrackGeom();
                 for (int i = 0; i < trackGeom.size(); ++i)
                 {
-                    if (trackGeom[i].contains(pos))
+                    if (dtk::contains(trackGeom[i], pos))
                     {
                         p.currentTrack = i;
 

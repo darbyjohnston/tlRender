@@ -69,7 +69,7 @@ namespace tl
             p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI video output"));
 
             p.videoLevelsComboBox = new QComboBox;
-            for (const auto& i : image::getVideoLevelsLabels())
+            for (const auto& i : dtk::getVideoLevelsLabels())
             {
                 p.videoLevelsComboBox->addItem(QString::fromUtf8(i.c_str()));
             }
@@ -193,7 +193,7 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->app->bmdDevicesModel()->setVideoLevels(static_cast<image::VideoLevels>(value));
+                    _p->app->bmdDevicesModel()->setVideoLevels(static_cast<dtk::VideoLevels>(value));
                 });
 
             connect(
@@ -242,7 +242,7 @@ namespace tl
                 [this](double value)
                 {
                     auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.displayMasteringLuminance = dtk::RangeF(value, hdrData.displayMasteringLuminance.getMax());
+                    hdrData.displayMasteringLuminance = dtk::RangeF(value, hdrData.displayMasteringLuminance.max());
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
@@ -251,7 +251,7 @@ namespace tl
                 [this](double value)
                 {
                     auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.displayMasteringLuminance = dtk::RangeF(hdrData.displayMasteringLuminance.getMin(), value);
+                    hdrData.displayMasteringLuminance = dtk::RangeF(hdrData.displayMasteringLuminance.min(), value);
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
@@ -344,12 +344,12 @@ namespace tl
                     }
                     {
                         QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.first);
-                        p.masteringLuminanceSpinBoxes.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
+                        p.masteringLuminanceSpinBoxes.first->setValue(value.hdrData.displayMasteringLuminance.min());
                         p.masteringLuminanceSpinBoxes.first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                     {
                         QSignalBlocker blocker(p.masteringLuminanceSpinBoxes.second);
-                        p.masteringLuminanceSpinBoxes.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
+                        p.masteringLuminanceSpinBoxes.second->setValue(value.hdrData.displayMasteringLuminance.max());
                         p.masteringLuminanceSpinBoxes.second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
                     {

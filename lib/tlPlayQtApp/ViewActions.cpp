@@ -57,22 +57,22 @@ namespace tl
             p.actions["ZoomOut"]->setText(tr("Zoom Out"));
 
             p.actions["Channels/Red"] = new QAction(this);
-            p.actions["Channels/Red"]->setData(QVariant::fromValue<timeline::Channels>(timeline::Channels::Red));
+            p.actions["Channels/Red"]->setData(QVariant::fromValue<dtk::ChannelDisplay>(dtk::ChannelDisplay::Red));
             p.actions["Channels/Red"]->setCheckable(true);
             p.actions["Channels/Red"]->setText(tr("Red Channel"));
             p.actions["Channels/Red"]->setShortcut(QKeySequence(Qt::Key_R));
             p.actions["Channels/Green"] = new QAction(this);
-            p.actions["Channels/Green"]->setData(QVariant::fromValue<timeline::Channels>(timeline::Channels::Green));
+            p.actions["Channels/Green"]->setData(QVariant::fromValue<dtk::ChannelDisplay>(dtk::ChannelDisplay::Green));
             p.actions["Channels/Green"]->setCheckable(true);
             p.actions["Channels/Green"]->setText(tr("Green Channel"));
             p.actions["Channels/Green"]->setShortcut(QKeySequence(Qt::Key_G));
             p.actions["Channels/Blue"] = new QAction(this);
-            p.actions["Channels/Blue"]->setData(QVariant::fromValue<timeline::Channels>(timeline::Channels::Blue));
+            p.actions["Channels/Blue"]->setData(QVariant::fromValue<dtk::ChannelDisplay>(dtk::ChannelDisplay::Blue));
             p.actions["Channels/Blue"]->setCheckable(true);
             p.actions["Channels/Blue"]->setText(tr("Blue Channel"));
             p.actions["Channels/Blue"]->setShortcut(QKeySequence(Qt::Key_B));
             p.actions["Channels/Alpha"] = new QAction(this);
-            p.actions["Channels/Alpha"]->setData(QVariant::fromValue<timeline::Channels>(timeline::Channels::Alpha));
+            p.actions["Channels/Alpha"]->setData(QVariant::fromValue<dtk::ChannelDisplay>(dtk::ChannelDisplay::Alpha));
             p.actions["Channels/Alpha"]->setCheckable(true);
             p.actions["Channels/Alpha"]->setText(tr("Alpha Channel"));
             p.actions["Channels/Alpha"]->setShortcut(QKeySequence(Qt::Key_A));
@@ -92,11 +92,11 @@ namespace tl
             p.actions["MirrorY"]->setCheckable(true);
 
             p.actions["MinifyFilter/Nearest"] = new QAction(this);
-            p.actions["MinifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
+            p.actions["MinifyFilter/Nearest"]->setData(QVariant::fromValue<dtk::ImageFilter>(dtk::ImageFilter::Nearest));
             p.actions["MinifyFilter/Nearest"]->setCheckable(true);
             p.actions["MinifyFilter/Nearest"]->setText(tr("Nearest"));
             p.actions["MinifyFilter/Linear"] = new QAction(this);
-            p.actions["MinifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
+            p.actions["MinifyFilter/Linear"]->setData(QVariant::fromValue<dtk::ImageFilter>(dtk::ImageFilter::Linear));
             p.actions["MinifyFilter/Linear"]->setCheckable(true);
             p.actions["MinifyFilter/Linear"]->setText(tr("Linear"));
             p.actionGroups["MinifyFilter"] = new QActionGroup(this);
@@ -104,11 +104,11 @@ namespace tl
             p.actionGroups["MinifyFilter"]->addAction(p.actions["MinifyFilter/Linear"]);
 
             p.actions["MagnifyFilter/Nearest"] = new QAction(this);
-            p.actions["MagnifyFilter/Nearest"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Nearest));
+            p.actions["MagnifyFilter/Nearest"]->setData(QVariant::fromValue<dtk::ImageFilter>(dtk::ImageFilter::Nearest));
             p.actions["MagnifyFilter/Nearest"]->setCheckable(true);
             p.actions["MagnifyFilter/Nearest"]->setText(tr("Nearest"));
             p.actions["MagnifyFilter/Linear"] = new QAction(this);
-            p.actions["MagnifyFilter/Linear"]->setData(QVariant::fromValue<timeline::ImageFilter>(timeline::ImageFilter::Linear));
+            p.actions["MagnifyFilter/Linear"]->setData(QVariant::fromValue<dtk::ImageFilter>(dtk::ImageFilter::Linear));
             p.actions["MagnifyFilter/Linear"]->setCheckable(true);
             p.actions["MagnifyFilter/Linear"]->setText(tr("Linear"));
             p.actionGroups["MagnifyFilter"] = new QActionGroup(this);
@@ -151,9 +151,9 @@ namespace tl
                 [app](QAction* action)
                 {
                     auto options = app->viewportModel()->getDisplayOptions();
-                    options.channels = action->data().value<timeline::Channels>() != options.channels ?
-                        action->data().value<timeline::Channels>() :
-                        timeline::Channels::Color;
+                    options.channels = action->data().value<dtk::ChannelDisplay>() != options.channels ?
+                        action->data().value<dtk::ChannelDisplay>() :
+                        dtk::ChannelDisplay::Color;
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
@@ -182,7 +182,7 @@ namespace tl
                 [app](QAction* action)
                 {
                     auto options = app->viewportModel()->getDisplayOptions();
-                    options.imageFilters.minify = action->data().value<timeline::ImageFilter>();
+                    options.imageFilters.minify = action->data().value<dtk::ImageFilter>();
                     app->viewportModel()->setDisplayOptions(options);
                 });
             connect(
@@ -191,7 +191,7 @@ namespace tl
                 [app](QAction* action)
                 {
                     auto options = app->viewportModel()->getDisplayOptions();
-                    options.imageFilters.magnify = action->data().value<timeline::ImageFilter>();
+                    options.imageFilters.magnify = action->data().value<dtk::ImageFilter>();
                     app->viewportModel()->setDisplayOptions(options);
                 });
 
@@ -253,7 +253,7 @@ namespace tl
                 p.actions["Channels/Alpha"]->setChecked(false);
                 for (auto action : p.actionGroups["Channels"]->actions())
                 {
-                    if (action->data().value<timeline::Channels>() == displayOptions.channels)
+                    if (action->data().value<dtk::ChannelDisplay>() == displayOptions.channels)
                     {
                         action->setChecked(true);
                         break;
@@ -272,7 +272,7 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["MinifyFilter"]);
                 for (auto action : p.actionGroups["MinifyFilter"]->actions())
                 {
-                    if (action->data().value<timeline::ImageFilter>() == displayOptions.imageFilters.minify)
+                    if (action->data().value<dtk::ImageFilter>() == displayOptions.imageFilters.minify)
                     {
                         action->setChecked(true);
                         break;
@@ -283,7 +283,7 @@ namespace tl
                 QSignalBlocker blocker(p.actionGroups["MagnifyFilter"]);
                 for (auto action : p.actionGroups["MagnifyFilter"]->actions())
                 {
-                    if (action->data().value<timeline::ImageFilter>() == displayOptions.imageFilters.magnify)
+                    if (action->data().value<dtk::ImageFilter>() == displayOptions.imageFilters.magnify)
                     {
                         action->setChecked(true);
                         break;
