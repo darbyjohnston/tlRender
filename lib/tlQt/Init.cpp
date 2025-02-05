@@ -74,7 +74,6 @@ namespace tl
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<dtk::ChannelDisplay>();
             QMetaType::registerComparators<timeline::CompareMode>();
             QMetaType::registerComparators<timeline::CompareTimeMode>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();
