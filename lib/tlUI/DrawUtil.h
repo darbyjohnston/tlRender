@@ -4,37 +4,36 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
-#include <tlCore/Mesh.h>
-
 #include <dtk/core/Color.h>
+#include <dtk/core/Image.h>
+#include <dtk/core/Mesh.h>
 
 namespace tl
 {
     namespace ui
     {
         //! Create a mesh for drawing a rectangle.
-        geom::TriangleMesh2 rect(
-            const math::Box2i&,
+        dtk::TriMesh2F rect(
+            const dtk::Box2I&,
             int cornerRadius = 0,
             size_t resolution = 8);
 
         //! Create a mesh for drawing a circle.
-        geom::TriangleMesh2 circle(
-            const math::Vector2i&,
+        dtk::TriMesh2F circle(
+            const dtk::V2I&,
             int radius = 0,
             size_t resolution = 120);
 
         //! Create a mesh for drawing a border.
-        geom::TriangleMesh2 border(
-            const math::Box2i&,
+        dtk::TriMesh2F border(
+            const dtk::Box2I&,
             int width,
             int radius = 0,
             size_t resolution = 8);
 
         //! Create a mesh for drawing a shadow.
-        geom::TriangleMesh2 shadow(
-            const math::Box2i&,
+        dtk::TriMesh2F shadow(
+            const dtk::Box2I&,
             int cornerRadius,
             const float alpha = .2F,
             size_t resolution = 8);

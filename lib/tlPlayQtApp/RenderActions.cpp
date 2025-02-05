@@ -19,7 +19,7 @@ namespace tl
         struct RenderActions::Private
         {
             App* app = nullptr;
-            std::vector<image::PixelType> colorBuffers;
+            std::vector<dtk::ImageType> colorBuffers;
             QMap<QString, QAction*> actions;
             QMap<QString, QActionGroup*> actionGroups;
             QScopedPointer<QMenu> menu;
@@ -71,9 +71,9 @@ namespace tl
             p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Straight"]);
             p.actionGroups["AlphaBlend"]->addAction(p.actions["AlphaBlend/Premultiplied"]);
 
-            p.colorBuffers.push_back(image::PixelType::RGBA_U8);
-            p.colorBuffers.push_back(image::PixelType::RGBA_F16);
-            p.colorBuffers.push_back(image::PixelType::RGBA_F32);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
             p.actionGroups["ColorBuffer"] = new QActionGroup(this);
             for (auto type : p.colorBuffers)
             {
@@ -82,7 +82,7 @@ namespace tl
                 QString name = QString::fromUtf8("ColorBuffer/");
                 name.append(QString::fromUtf8(ss.str().c_str()));
                 p.actions[name] = new QAction(this);
-                p.actions[name]->setData(QVariant::fromValue<image::PixelType>(type));
+                p.actions[name]->setData(QVariant::fromValue<dtk::ImageType>(type));
                 p.actions[name]->setCheckable(true);
                 p.actions[name]->setText(QString::fromUtf8(ss.str().c_str()));
                 p.actionGroups["ColorBuffer"]->addAction(p.actions[name]);
@@ -132,7 +132,7 @@ namespace tl
                 [app](QAction* action)
                 {
                     app->renderModel()->setColorBuffer(
-                        action->data().value<image::PixelType>());
+                        action->data().value<dtk::ImageType>());
                 });
 
             p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
@@ -184,11 +184,11 @@ namespace tl
                 }
             }
             {
-                const image::PixelType colorBuffer = renderModel->getColorBuffer();
+                const dtk::ImageType colorBuffer = renderModel->getColorBuffer();
                 QSignalBlocker blocker(p.actionGroups["ColorBuffer"]);
                 for (auto action : p.actionGroups["ColorBuffer"]->actions())
                 {
-                    if (action->data().value<image::PixelType>() == colorBuffer)
+                    if (action->data().value<dtk::ImageType>() == colorBuffer)
                     {
                         action->setChecked(true);
                         break;

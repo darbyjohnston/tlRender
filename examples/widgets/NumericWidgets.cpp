@@ -36,65 +36,65 @@ namespace tl
                     parent);
                 TLRENDER_P();
 
-                const std::vector<math::IntRange> intRanges =
+                const std::vector<dtk::RangeI> intRanges =
                 {
-                    math::IntRange(0, 10),
-                    math::IntRange(0, 100),
-                    math::IntRange(0, 1000),
-                    math::IntRange(100, 200),
-                    math::IntRange(-100, 200),
-                    math::IntRange(-100, -200)
+                    dtk::RangeI(0, 10),
+                    dtk::RangeI(0, 100),
+                    dtk::RangeI(0, 1000),
+                    dtk::RangeI(100, 200),
+                    dtk::RangeI(-100, 200),
+                    dtk::RangeI(-100, -200)
                 };
                 std::vector<std::shared_ptr<ui::Label> > intLabels;
                 std::vector<std::shared_ptr<ui::IntEditSlider> > intEdits;
                 for (const auto& i : intRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.min()).arg(i.max()));
                     intLabels.push_back(label);
                     auto edit = ui::IntEditSlider::create(context);
                     edit->setRange(i);
                     intEdits.push_back(edit);
                 }
 
-                const std::vector<math::FloatRange> floatRanges =
+                const std::vector<dtk::RangeF> floatRanges =
                 {
-                    math::FloatRange(0.F, 1.F),
-                    math::FloatRange(0.F, 10.F),
-                    math::FloatRange(0.F, 100.F),
-                    math::FloatRange(0.F, 1000.F),
-                    math::FloatRange(100.F, 200.F),
-                    math::FloatRange(-100.F, 200.F),
-                    math::FloatRange(-100.F, -200.F)
+                    dtk::RangeF(0.F, 1.F),
+                    dtk::RangeF(0.F, 10.F),
+                    dtk::RangeF(0.F, 100.F),
+                    dtk::RangeF(0.F, 1000.F),
+                    dtk::RangeF(100.F, 200.F),
+                    dtk::RangeF(-100.F, 200.F),
+                    dtk::RangeF(-100.F, -200.F)
                 };
                 std::vector<std::shared_ptr<ui::Label> > floatLabels;
                 std::vector<std::shared_ptr<ui::FloatEditSlider> > floatEdits;
                 for (const auto& i : floatRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.min()).arg(i.max()));
                     floatLabels.push_back(label);
                     auto edit = ui::FloatEditSlider::create(context);
                     edit->setRange(i);
                     floatEdits.push_back(edit);
                 }
 
-                const std::vector<math::DoubleRange> doubleRanges =
+                const std::vector<dtk::RangeD> doubleRanges =
                 {
-                    math::DoubleRange(0.0, 1.0),
-                    math::DoubleRange(0.0, 10.0),
-                    math::DoubleRange(0.0, 100.0),
-                    math::DoubleRange(0.0, 1000.0),
-                    math::DoubleRange(100.0, 200.0),
-                    math::DoubleRange(-100.0, 200.0),
-                    math::DoubleRange(-100.0, -200.0)
+                    dtk::RangeD(0.0, 1.0),
+                    dtk::RangeD(0.0, 10.0),
+                    dtk::RangeD(0.0, 100.0),
+                    dtk::RangeD(0.0, 1000.0),
+                    dtk::RangeD(100.0, 200.0),
+                    dtk::RangeD(-100.0, 200.0),
+                    dtk::RangeD(-100.0, -200.0)
                 };
                 std::vector<std::shared_ptr<ui::Label> > doubleLabels;
                 std::vector<std::shared_ptr<ui::DoubleEditSlider> > doubleEdits;
                 for (const auto& i : doubleRanges)
                 {
                     auto label = ui::Label::create(context);
-                    label->setText(dtk::Format("{0} - {1}:").arg(i.getMin()).arg(i.getMax()));
+                    label->setText(dtk::Format("{0} - {1}:").arg(i.min()).arg(i.max()));
                     doubleLabels.push_back(label);
                     auto edit = ui::DoubleEditSlider::create(context);
                     edit->setRange(i);
@@ -154,7 +154,7 @@ namespace tl
                 return out;
             }
 
-            void NumericWidgets::setGeometry(const math::Box2i& value)
+            void NumericWidgets::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

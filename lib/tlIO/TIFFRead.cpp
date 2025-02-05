@@ -136,7 +136,7 @@ namespace tl
                     _sampleDepth = tiffSampleDepth;
                     _scanlineSize = tiffWidth * tiffSamples * tiffSampleDepth / 8;
 
-                    image::PixelType pixelType = image::PixelType::None;
+                    dtk::ImageType pixelType = dtk::ImageType::None;
                     switch (tiffPhotometric)
                     {
                     case PHOTOMETRIC_MINISWHITE:
@@ -146,20 +146,20 @@ namespace tl
                             break;
                         if (SAMPLEFORMAT_IEEEFP == tiffSampleFormat)
                         {
-                            pixelType = image::getFloatType(tiffSamples, tiffSampleDepth);
+                            pixelType = io::getFloatType(tiffSamples, tiffSampleDepth);
                         }
                         else
                         {
-                            pixelType = image::getIntType(tiffSamples, tiffSampleDepth);
+                            pixelType = io::getIntType(tiffSamples, tiffSampleDepth);
                         }
                         break;
                     }
-                    if (image::PixelType::None == pixelType)
+                    if (dtk::ImageType::None == pixelType)
                     {
                         throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    image::Info imageInfo(tiffWidth, tiffHeight, pixelType);
+                    dtk::ImageInfo imageInfo(tiffWidth, tiffHeight, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
@@ -206,7 +206,7 @@ namespace tl
                     io::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = image::Image::create(info);
+                    out.image = dtk::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     if (_planar)

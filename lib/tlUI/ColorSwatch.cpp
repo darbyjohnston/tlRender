@@ -108,18 +108,17 @@ namespace tl
         }
 
         void ColorSwatch::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             event.render->drawMesh(
                 border(g, p.size.border),
-                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
             event.render->drawRect(
-                g.margin(-p.size.border),
+                dtk::margin(g, -p.size.border),
                 p.color);
         }
 

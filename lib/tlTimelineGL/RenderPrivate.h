@@ -6,10 +6,11 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/Mesh.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
-#include <tlGL/TextureAtlas.h>
+#include <dtk/gl/Mesh.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Render.h>
+#include <dtk/gl/Shader.h>
+#include <dtk/gl/TextureAtlas.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -27,11 +28,7 @@ namespace tl
     {
         std::string vertexSource();
         std::string meshFragmentSource();
-        std::string colorMeshVertexSource();
-        std::string colorMeshFragmentSource();
-        std::string textFragmentSource();
         std::string textureFragmentSource();
-        std::string imageFragmentSource();
         std::string displayFragmentSource(
             const std::string& ocioDef,
             const std::string& ocio,
@@ -39,21 +36,6 @@ namespace tl
             const std::string& lut,
             timeline::LUTOrder);
         std::string differenceFragmentSource();
-
-        std::vector<std::shared_ptr<gl::Texture> > getTextures(
-            const image::Info&,
-            const timeline::ImageFilters&,
-            size_t offset = 0);
-
-        void copyTextures(
-            const std::shared_ptr<image::Image>&,
-            const std::vector<std::shared_ptr<gl::Texture> >&,
-            size_t offset = 0);
-
-        void setActiveTextures(
-            const image::Info& info,
-            const std::vector<std::shared_ptr<gl::Texture> >&,
-            size_t offset = 0);
 
 #if defined(TLRENDER_OCIO)
         struct OCIOTexture
@@ -98,10 +80,10 @@ namespace tl
 
         struct Render::Private
         {
-            math::Size2i renderSize;
+            std::shared_ptr<dtk::gl::Render> baseRender;
+
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
-            timeline::RenderOptions renderOptions;
 
 #if defined(TLRENDER_OCIO)
             //! \todo Add a cache for OpenColorIO data.
@@ -109,36 +91,10 @@ namespace tl
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 
-            math::Box2i viewport;
-            math::Matrix4x4f transform;
-            bool clipRectEnabled = false;
-            math::Box2i clipRect;
-
-            std::map<std::string, std::shared_ptr<gl::Shader> > shaders;
-            std::map<std::string, std::shared_ptr<gl::OffscreenBuffer> > buffers;
-            std::shared_ptr<TextureCache> textureCache;
-            std::shared_ptr<gl::TextureAtlas> glyphTextureAtlas;
-            std::map<image::GlyphInfo, gl::TextureAtlasID> glyphIDs;
-            std::map<std::string, std::shared_ptr<gl::VBO> > vbos;
-            std::map<std::string, std::shared_ptr<gl::VAO> > vaos;
-
-            std::chrono::steady_clock::time_point timer;
-            struct Stats
-            {
-                int time = 0;
-                size_t rects = 0;
-                size_t meshes = 0;
-                size_t meshTriangles = 0;
-                size_t text = 0;
-                size_t textTriangles = 0;
-                size_t textures = 0;
-                size_t images = 0;
-            };
-            Stats currentStats;
-            std::list<Stats> stats;
-            std::chrono::steady_clock::time_point logTimer;
-
-            void drawTextMesh(const geom::TriangleMesh2&);
+            std::map<std::string, std::shared_ptr<dtk::gl::Shader> > shaders;
+            std::map<std::string, std::shared_ptr<dtk::gl::OffscreenBuffer> > buffers;
+            std::map<std::string, std::shared_ptr<dtk::gl::VBO> > vbos;
+            std::map<std::string, std::shared_ptr<dtk::gl::VAO> > vaos;
         };
     }
 }

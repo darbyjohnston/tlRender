@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Range.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Range.h>
 
 #include <limits>
 #include <list>
@@ -43,17 +44,17 @@ namespace tl
         typedef float   F32_T;
         typedef double  F64_T;
 
-        const math::Range<S8_T> S8Range(
+        const dtk::Range<S8_T> S8Range(
             std::numeric_limits<S8_T>::min(),
             std::numeric_limits<S8_T>::max());
-        const math::Range<S16_T> S16Range(
+        const dtk::Range<S16_T> S16Range(
             std::numeric_limits<S16_T>::min(),
             std::numeric_limits<S16_T>::max());
-        const math::Range<S32_T> S32Range(
+        const dtk::Range<S32_T> S32Range(
             std::numeric_limits<S32_T>::min(),
             std::numeric_limits<S32_T>::max());
-        const math::Range<F32_T> F32Range(-1.F, 1.F);
-        const math::Range<F64_T> F64Range(-1.F, 1.F);
+        const dtk::Range<F32_T> F32Range(-1.F, 1.F);
+        const dtk::Range<F64_T> F64Range(-1.F, 1.F);
 
         //! Get the byte count for the given data type.
         size_t getByteCount(DataType);

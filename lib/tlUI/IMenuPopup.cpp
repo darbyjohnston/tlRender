@@ -32,7 +32,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::Box2i&) override;
+                void setGeometry(const dtk::Box2I&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
             };
 
@@ -60,7 +60,7 @@ namespace tl
                 return out;
             }
 
-            void ContainerWidget::setGeometry(const math::Box2i& value)
+            void ContainerWidget::setGeometry(const dtk::Box2I& value)
             {
                 IWidget::setGeometry(value);
                 if (!_children.empty())
@@ -83,7 +83,7 @@ namespace tl
         {
             MenuPopupStyle popupStyle = MenuPopupStyle::Menu;
             ColorRole popupRole = ColorRole::Window;
-            math::Box2i buttonGeometry;
+            dtk::Box2I buttonGeometry;
             bool open = false;
             std::function<void(void)> closeCallback;
             std::shared_ptr<IWidget> widget;
@@ -123,7 +123,7 @@ namespace tl
 
         void IMenuPopup::open(
             const std::shared_ptr<IWindow>& window,
-            const math::Box2i& buttonGeometry)
+            const dtk::Box2I& buttonGeometry)
         {
             TLRENDER_P();
             p.buttonGeometry = buttonGeometry;
@@ -175,43 +175,43 @@ namespace tl
             p.scrollWidget->setWidget(p.widget);
         }
 
-        void IMenuPopup::setGeometry(const math::Box2i& value)
+        void IMenuPopup::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
-            math::Size2i sizeHint = p.containerWidget->getSizeHint();
-            std::list<math::Box2i> boxes;
+            dtk::Size2I sizeHint = p.containerWidget->getSizeHint();
+            std::list<dtk::Box2I> boxes;
             switch (p.popupStyle)
             {
             case MenuPopupStyle::Menu:
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.min.x,
                     p.buttonGeometry.max.y + 1,
                     std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.max.x + 1 - sizeHint.w,
                     p.buttonGeometry.max.y + 1,
                     std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.min.x,
                     p.buttonGeometry.min.y - sizeHint.h,
                     std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.max.x + 1 - sizeHint.w,
                     p.buttonGeometry.min.y - sizeHint.h,
                     std::max(sizeHint.w, p.buttonGeometry.w()),
                     sizeHint.h));
                 break;
             case MenuPopupStyle::SubMenu:
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.max.x,
                     p.buttonGeometry.min.y,
                     sizeHint.w,
                     sizeHint.h));
-                boxes.push_back(math::Box2i(
+                boxes.push_back(dtk::Box2I(
                     p.buttonGeometry.min.x - sizeHint.w,
                     p.buttonGeometry.min.y,
                     sizeHint.w,
@@ -221,13 +221,13 @@ namespace tl
             }
             struct Intersect
             {
-                math::Box2i original;
-                math::Box2i intersected;
+                dtk::Box2I original;
+                dtk::Box2I intersected;
             };
             std::vector<Intersect> intersect;
             for (const auto& box : boxes)
             {
-                intersect.push_back({ box, box.intersect(value) });
+                intersect.push_back({ box, dtk::intersect(box, value) });
             }
             std::stable_sort(
                 intersect.begin(),
@@ -235,10 +235,10 @@ namespace tl
                 [](const Intersect& a, const Intersect& b)
                 {
                     return
-                        a.intersected.getSize().getArea() >
-                        b.intersected.getSize().getArea();
+                        dtk::area(a.intersected.size()) >
+                        dtk::area(b.intersected.size());
                 });
-            math::Box2i g = intersect.front().intersected;
+            dtk::Box2I g = intersect.front().intersected;
             p.containerWidget->setGeometry(g);
         }
 
@@ -256,7 +256,7 @@ namespace tl
         }
 
         void IMenuPopup::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
@@ -264,17 +264,16 @@ namespace tl
             //event.render->drawRect(
             //    _geometry,
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));
-            const math::Box2i& g = p.containerWidget->getGeometry();
+            const dtk::Box2I& g = p.containerWidget->getGeometry();
             if (g.isValid())
             {
-                const math::Box2i g2(
+                const dtk::Box2I g2(
                     g.min.x - p.size.shadow,
                     g.min.y,
                     g.w() + p.size.shadow * 2,
                     g.h() + p.size.shadow);
                 event.render->drawColorMesh(
                     shadow(g2, p.size.shadow),
-                    math::Vector2i(),
                     dtk::Color4F(1.F, 1.F, 1.F));
 
                 event.render->drawRect(g, event.style->getColorRole(p.popupRole));

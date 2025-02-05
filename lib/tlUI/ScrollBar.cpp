@@ -122,23 +122,22 @@ namespace tl
         }
 
         void ScrollBar::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i g = _getBorderGeometry();
+            const dtk::Box2I g = _getBorderGeometry();
 
             event.render->drawMesh(
                 border(g, p.size.border),
-                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
 
             const int scrollPosMax = _getScrollPosMax();
             if (scrollPosMax > 0)
             {
-                const math::Box2i g2 = _getHandleGeometry();
+                const dtk::Box2I g2 = _getHandleGeometry();
                 event.render->drawRect(
                     g2,
                     event.style->getColorRole(ColorRole::Button));
@@ -191,7 +190,7 @@ namespace tl
                 default: break;
                 }
                 const int scrollPosMax = _getScrollPosMax();
-                const int scrollPosClamped = math::clamp(scrollPos, 0, scrollPosMax);
+                const int scrollPosClamped = dtk::clamp(scrollPos, 0, scrollPosMax);
                 if (scrollPosClamped != p.scrollPos)
                 {
                     p.scrollPos = scrollPosClamped;
@@ -209,8 +208,8 @@ namespace tl
         {
             IWidget::mousePressEvent(event);
             TLRENDER_P();
-            const math::Box2i g = _getHandleGeometry();
-            if (!g.contains(event.pos))
+            const dtk::Box2I g = _getHandleGeometry();
+            if (!dtk::contains(g, event.pos))
             {
                 int scrollPos = 0;
                 const float s = _getScrollScale();
@@ -225,7 +224,7 @@ namespace tl
                 default: break;
                 }
                 const int scrollPosMax = _getScrollPosMax();
-                const int scrollPosClamped = math::clamp(scrollPos, 0, scrollPosMax);
+                const int scrollPosClamped = dtk::clamp(scrollPos, 0, scrollPosMax);
                 if (scrollPosClamped != p.scrollPos)
                 {
                     p.scrollPos = scrollPosClamped;
@@ -247,29 +246,29 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        math::Box2i ScrollBar::_getBorderGeometry() const
+        dtk::Box2I ScrollBar::_getBorderGeometry() const
         {
             TLRENDER_P();
-            math::Box2i out;
-            const math::Box2i& g = _geometry;
+            dtk::Box2I out;
+            const dtk::Box2I& g = _geometry;
             switch (p.orientation)
             {
             case Orientation::Horizontal:
-                out = g.margin(0, p.size.border, 0, 0);
+                out = dtk::margin(g, 0, p.size.border, 0, 0);
                 break;
             case Orientation::Vertical:
-                out = g.margin(p.size.border, 0, 0, 0);
+                out = dtk::margin(g, p.size.border, 0, 0, 0);
                 break;
             default: break;
             }
             return out;
         }
 
-        math::Box2i ScrollBar::_getHandleGeometry() const
+        dtk::Box2I ScrollBar::_getHandleGeometry() const
         {
             TLRENDER_P();
-            math::Box2i out;
-            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
+            dtk::Box2I out;
+            const dtk::Box2I g = dtk::margin(_getBorderGeometry(), -p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -279,7 +278,7 @@ namespace tl
                     static_cast<int>(g.w() / static_cast<float>(p.scrollSize) * g.w()),
                     p.size.handle * 2);
                 const int x = p.scrollPos / static_cast<float>(w) * (g.w() - w2);
-                out = math::Box2i(
+                out = dtk::Box2I(
                     g.x() + x,
                     g.y(),
                     w2,
@@ -293,7 +292,7 @@ namespace tl
                     static_cast<int>(g.h() / static_cast<float>(p.scrollSize) * g.h()),
                     p.size.handle * 2);
                 const int y = p.scrollPos / static_cast<float>(h) * (g.h() - h2);
-                out = math::Box2i(
+                out = dtk::Box2I(
                     g.x(),
                     g.y() + y,
                     g.w(),
@@ -309,7 +308,7 @@ namespace tl
         {
             TLRENDER_P();
             int out = 0;
-            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
+            const dtk::Box2I g = dtk::margin(_getBorderGeometry(), -p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:
@@ -327,7 +326,7 @@ namespace tl
         {
             TLRENDER_P();
             float out = 0.F;
-            const math::Box2i g = _getBorderGeometry().margin(-p.size.border);
+            const dtk::Box2I g = dtk::margin(_getBorderGeometry(), -p.size.border);
             switch (p.orientation)
             {
             case Orientation::Horizontal:

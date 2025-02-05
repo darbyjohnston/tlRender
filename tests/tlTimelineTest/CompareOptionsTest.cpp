@@ -56,34 +56,34 @@ namespace tl
                 {
                     auto boxes = getBoxes(mode, sizes);
                     DTK_ASSERT(2 == boxes.size());
-                    DTK_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
-                    DTK_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[1]);
+                    DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
+                    DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[1]);
                     auto renderSize = getRenderSize(mode, sizes);
-                    DTK_ASSERT(math::Size2i(1920, 1080) == renderSize);
+                    DTK_ASSERT(dtk::Size2I(1920, 1080) == renderSize);
                 }
 
                 auto boxes = getBoxes(CompareMode::Horizontal, sizes);
                 DTK_ASSERT(2 == boxes.size());
-                DTK_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
-                DTK_ASSERT(math::Box2i(1920, 0, 1920, 1080) == boxes[1]);
+                DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
+                DTK_ASSERT(dtk::Box2I(1920, 0, 1920, 1080) == boxes[1]);
                 auto renderSize = getRenderSize(CompareMode::Horizontal, sizes);
-                DTK_ASSERT(math::Size2i(1920 * 2, 1080) == renderSize);
+                DTK_ASSERT(dtk::Size2I(1920 * 2, 1080) == renderSize);
 
                 boxes = getBoxes(CompareMode::Vertical, sizes);
                 DTK_ASSERT(2 == boxes.size());
-                DTK_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
-                DTK_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[1]);
+                DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
+                DTK_ASSERT(dtk::Box2I(0, 1080, 1920, 1080) == boxes[1]);
                 renderSize = getRenderSize(CompareMode::Vertical, sizes);
-                DTK_ASSERT(math::Size2i(1920, 1080 * 2) == renderSize);
+                DTK_ASSERT(dtk::Size2I(1920, 1080 * 2) == renderSize);
 
                 boxes = getBoxes(CompareMode::Tile, sizes);
                 DTK_ASSERT(4 == boxes.size());
-                DTK_ASSERT(math::Box2i(0, 0, 1920, 1080) == boxes[0]);
-                DTK_ASSERT(math::Box2i(1920, 0, 1920, 1080) == boxes[1]);
-                DTK_ASSERT(math::Box2i(0, 1080, 1920, 1080) == boxes[2]);
-                DTK_ASSERT(math::Box2i(1920, 1080, 1920, 1080) == boxes[3]);
+                DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
+                DTK_ASSERT(dtk::Box2I(1920, 0, 1920, 1080) == boxes[1]);
+                DTK_ASSERT(dtk::Box2I(0, 1080, 1920, 1080) == boxes[2]);
+                DTK_ASSERT(dtk::Box2I(1920, 1080, 1920, 1080) == boxes[3]);
                 renderSize = getRenderSize(CompareMode::Tile, sizes	);
-                DTK_ASSERT(math::Size2i(1920 * 2, 1080 * 2) == renderSize);
+                DTK_ASSERT(dtk::Size2I(1920 * 2, 1080 * 2) == renderSize);
             }
             {
                 const auto time = getCompareTime(

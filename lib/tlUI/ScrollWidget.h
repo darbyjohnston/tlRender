@@ -36,19 +36,19 @@ namespace tl
             void setWidget(const std::shared_ptr<IWidget>&);
 
             //! Get the viewport geometry.
-            math::Box2i getViewport() const;
+            dtk::Box2I getViewport() const;
 
             //! Get the scroll size.
-            const math::Vector2i& getScrollSize() const;
+            const dtk::V2I& getScrollSize() const;
 
             //! Get the scroll position.
-            const math::Vector2i& getScrollPos() const;
+            const dtk::V2I& getScrollPos() const;
 
             //! Set the scroll position.
-            void setScrollPos(const math::Vector2i&, bool clamp = true);
+            void setScrollPos(const dtk::V2I&, bool clamp = true);
 
             //! Set the scroll position callback.
-            void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
+            void setScrollPosCallback(const std::function<void(const dtk::V2I&)>&);
 
             //! Get whether the scroll bars are visible.
             bool areScrollBarsVisible() const;
@@ -65,7 +65,7 @@ namespace tl
             //! Set the margin role.
             void setMarginRole(SizeRole);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void scrollEvent(ScrollEvent&) override;
             void keyPressEvent(KeyEvent&) override;

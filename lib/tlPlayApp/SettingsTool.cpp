@@ -55,15 +55,15 @@ namespace tl
             p.settings = app->getSettings();
 
             p.cacheSize = ui::IntEdit::create(context);
-            p.cacheSize->setRange(math::IntRange(0, 1024));
+            p.cacheSize->setRange(dtk::RangeI(0, 1024));
 
             p.readAhead = ui::DoubleEdit::create(context);
-            p.readAhead->setRange(math::DoubleRange(0.0, 60.0));
+            p.readAhead->setRange(dtk::RangeD(0.0, 60.0));
             p.readAhead->setStep(1.0);
             p.readAhead->setLargeStep(10.0);
 
             p.readBehind = ui::DoubleEdit::create(context);
-            p.readBehind->setRange(math::DoubleRange(0.0, 60.0));
+            p.readBehind->setRange(dtk::RangeD(0.0, 60.0));
             p.readBehind->setStep(1.0);
             p.readBehind->setLargeStep(10.0);
 
@@ -128,7 +128,7 @@ namespace tl
             return out;
         }
 
-        void CacheSettingsWidget::setGeometry(const math::Box2i& value)
+        void CacheSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -199,10 +199,10 @@ namespace tl
             p.maxDigitsEdit = ui::IntEdit::create(context);
 
             p.defaultSpeedEdit = ui::DoubleEdit::create(context);
-            p.defaultSpeedEdit->setRange(math::DoubleRange(1.0, 120.0));
+            p.defaultSpeedEdit->setRange(dtk::RangeD(1.0, 120.0));
 
             p.threadsEdit = ui::IntEdit::create(context);
-            p.threadsEdit->setRange(math::IntRange(1, 64));
+            p.threadsEdit->setRange(dtk::RangeI(1, 64));
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -297,7 +297,7 @@ namespace tl
             return out;
         }
 
-        void FileSequenceSettingsWidget::setGeometry(const math::Box2i& value)
+        void FileSequenceSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -369,7 +369,7 @@ namespace tl
             p.yuvToRGBCheckBox = ui::CheckBox::create(context);
 
             p.threadsEdit = ui::IntEdit::create(context);
-            p.threadsEdit->setRange(math::IntRange(0, 64));
+            p.threadsEdit->setRange(dtk::RangeI(0, 64));
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -425,7 +425,7 @@ namespace tl
             return out;
         }
 
-        void FFmpegSettingsWidget::setGeometry(const math::Box2i& value)
+        void FFmpegSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -482,7 +482,7 @@ namespace tl
             p.settings = app->getSettings();
 
             p.renderWidthEdit = ui::IntEdit::create(context);
-            p.renderWidthEdit->setRange(math::IntRange(1, 8192));
+            p.renderWidthEdit->setRange(dtk::RangeI(1, 8192));
 
             p.complexitySlider = ui::FloatEditSlider::create(context);
 
@@ -494,10 +494,10 @@ namespace tl
             p.sRGBCheckBox = ui::CheckBox::create(context);
 
             p.stageCacheEdit = ui::IntEdit::create(context);
-            p.stageCacheEdit->setRange(math::IntRange(0, 10));
+            p.stageCacheEdit->setRange(dtk::RangeI(0, 10));
 
             p.diskCacheEdit = ui::IntEdit::create(context);
-            p.diskCacheEdit->setRange(math::IntRange(0, 1024));
+            p.diskCacheEdit->setRange(dtk::RangeI(0, 1024));
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -601,7 +601,7 @@ namespace tl
             return out;
         }
 
-        void USDSettingsWidget::setGeometry(const math::Box2i& value)
+        void USDSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -717,7 +717,7 @@ namespace tl
             return out;
         }
 
-        void FileBrowserSettingsWidget::setGeometry(const math::Box2i& value)
+        void FileBrowserSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -762,15 +762,15 @@ namespace tl
             p.settings = app->getSettings();
 
             p.audioBufferFramesEdit = ui::IntEdit::create(context);
-            p.audioBufferFramesEdit->setRange(math::IntRange(1, 1000000));
+            p.audioBufferFramesEdit->setRange(dtk::RangeI(1, 1000000));
             p.audioBufferFramesEdit->setStep(256);
             p.audioBufferFramesEdit->setLargeStep(1024);
 
             p.videoRequestsEdit = ui::IntEdit::create(context);
-            p.videoRequestsEdit->setRange(math::IntRange(1, 64));
+            p.videoRequestsEdit->setRange(dtk::RangeI(1, 64));
 
             p.audioRequestsEdit = ui::IntEdit::create(context);
-            p.audioRequestsEdit->setRange(math::IntRange(1, 64));
+            p.audioRequestsEdit->setRange(dtk::RangeI(1, 64));
 
             p.layout = ui::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -836,7 +836,7 @@ namespace tl
             return out;
         }
 
-        void PerformanceSettingsWidget::setGeometry(const math::Box2i& value)
+        void PerformanceSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -934,7 +934,7 @@ namespace tl
             return out;
         }
 
-        void OpenGLSettingsWidget::setGeometry(const math::Box2i& value)
+        void OpenGLSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -1021,7 +1021,7 @@ namespace tl
             return out;
         }
 
-        void StyleSettingsWidget::setGeometry(const math::Box2i& value)
+        void StyleSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -1106,7 +1106,7 @@ namespace tl
             return out;
         }
 
-        void MiscSettingsWidget::setGeometry(const math::Box2i& value)
+        void MiscSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -32,7 +32,7 @@ namespace tl
             std::function<void(double)> callback;
             
             std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::DoubleRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeD> > rangeObserver;
         };
 
         void DoubleEdit::_init(
@@ -85,11 +85,11 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::DoubleRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeD>::create(
                 p.model->observeRange(),
-                [this](const math::DoubleRange& value)
+                [this](const dtk::RangeD& value)
                 {
-                    _p->digits = math::digits(value.getMax());
+                    _p->digits = dtk::digits(value.max());
                     _updates |= Update::Size;
                     _textUpdate();
                 });
@@ -129,12 +129,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::DoubleRange& DoubleEdit::getRange() const
+        const dtk::RangeD& DoubleEdit::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void DoubleEdit::setRange(const math::DoubleRange& value)
+        void DoubleEdit::setRange(const dtk::RangeD& value)
         {
             _p->model->setRange(value);
         }
@@ -168,7 +168,7 @@ namespace tl
             _p->lineEdit->setFontRole(value);
         }
 
-        void DoubleEdit::setGeometry(const math::Box2i& value)
+        void DoubleEdit::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

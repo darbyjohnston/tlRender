@@ -187,7 +187,7 @@ namespace tl
             return out;
         }
 
-        void OCIOWidget::setGeometry(const math::Box2i& value)
+        void OCIOWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -305,7 +305,7 @@ namespace tl
             return out;
         }
 
-        void LUTWidget::setGeometry(const math::Box2i& value)
+        void LUTWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -338,16 +338,16 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["Add"] = ui::FloatEditSlider::create(context);
-            p.sliders["Add"]->setRange(math::FloatRange(-1.F, 1.F));
+            p.sliders["Add"]->setRange(dtk::RangeF(-1.F, 1.F));
             p.sliders["Add"]->setDefaultValue(0.F);
             p.sliders["Brightness"] = ui::FloatEditSlider::create(context);
-            p.sliders["Brightness"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Brightness"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Brightness"]->setDefaultValue(1.F);
             p.sliders["Contrast"] = ui::FloatEditSlider::create(context);
-            p.sliders["Contrast"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Contrast"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Contrast"]->setDefaultValue(1.F);
             p.sliders["Saturation"] = ui::FloatEditSlider::create(context);
-            p.sliders["Saturation"]->setRange(math::FloatRange(0.F, 4.F));
+            p.sliders["Saturation"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Saturation"]->setDefaultValue(1.F);
             p.sliders["Tint"] = ui::FloatEditSlider::create(context);
             p.sliders["Tint"]->setDefaultValue(1.F);
@@ -505,7 +505,7 @@ namespace tl
             return out;
         }
 
-        void ColorWidget::setGeometry(const math::Box2i& value)
+        void ColorWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -541,7 +541,7 @@ namespace tl
             p.sliders["InHigh"] = ui::FloatEditSlider::create(context);
             p.sliders["InHigh"]->setDefaultValue(1.F);
             p.sliders["Gamma"] = ui::FloatEditSlider::create(context);
-            p.sliders["Gamma"]->setRange(math::FloatRange(.1F, 4.F));
+            p.sliders["Gamma"]->setRange(dtk::RangeF(.1F, 4.F));
             p.sliders["Gamma"]->setDefaultValue(1.F);
             p.sliders["OutLow"] = ui::FloatEditSlider::create(context);
             p.sliders["OutLow"]->setDefaultValue(0.F);
@@ -676,7 +676,7 @@ namespace tl
             return out;
         }
 
-        void LevelsWidget::setGeometry(const math::Box2i& value)
+        void LevelsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -708,15 +708,15 @@ namespace tl
             p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
 
             p.sliders["Exposure"] = ui::FloatEditSlider::create(context);
-            p.sliders["Exposure"]->setRange(math::FloatRange(-10.F, 10.F));
+            p.sliders["Exposure"]->setRange(dtk::RangeF(-10.F, 10.F));
             p.sliders["Exposure"]->setDefaultValue(0.F);
             p.sliders["Defog"] = ui::FloatEditSlider::create(context);
             p.sliders["Defog"]->setDefaultValue(0.F);
             p.sliders["KneeLow"] = ui::FloatEditSlider::create(context);
-            p.sliders["KneeLow"]->setRange(math::FloatRange(-3.F, 3.F));
+            p.sliders["KneeLow"]->setRange(dtk::RangeF(-3.F, 3.F));
             p.sliders["KneeLow"]->setDefaultValue(0.F);
             p.sliders["KneeHigh"] = ui::FloatEditSlider::create(context);
-            p.sliders["KneeHigh"]->setRange(math::FloatRange(3.5F, 7.5F));
+            p.sliders["KneeHigh"]->setRange(dtk::RangeF(3.5F, 7.5F));
             p.sliders["KneeHigh"]->setDefaultValue(5.F);
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
@@ -830,7 +830,7 @@ namespace tl
             return out;
         }
 
-        void EXRDisplayWidget::setGeometry(const math::Box2i& value)
+        void EXRDisplayWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -920,7 +920,7 @@ namespace tl
             return out;
         }
 
-        void SoftClipWidget::setGeometry(const math::Box2i& value)
+        void SoftClipWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

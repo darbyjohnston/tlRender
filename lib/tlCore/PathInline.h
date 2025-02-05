@@ -58,7 +58,7 @@ namespace tl
             return _padding;
         }
 
-        inline const math::IntRange& Path::getSequence() const
+        inline const dtk::RangeI& Path::getSequence() const
         {
             return _sequence;
         }
@@ -79,7 +79,7 @@ namespace tl
 
         inline bool Path::isSequence() const
         {
-            return _sequence.getMin() != _sequence.getMax();
+            return _sequence.min() != _sequence.max();
         }
 
         inline const std::string& Path::getExtension() const

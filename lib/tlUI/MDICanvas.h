@@ -37,7 +37,7 @@ namespace tl
                 const std::string& title,
                 const std::shared_ptr<IWidget>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;

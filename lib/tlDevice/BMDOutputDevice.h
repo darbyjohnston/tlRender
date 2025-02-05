@@ -64,10 +64,10 @@ namespace tl
             std::shared_ptr<dtk::IObservableValue<bool> > observeActive() const;
 
             //! Get the video size.
-            const math::Size2i& getSize() const;
+            const dtk::Size2I& getSize() const;
 
             //! Observe the video size.
-            std::shared_ptr<dtk::IObservableValue<math::Size2i> > observeSize() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::Size2I> > observeSize() const;
 
             //! Get the frame rate.
             const FrameRate& getFrameRate() const;
@@ -83,9 +83,9 @@ namespace tl
 
             //! Set the view.
             void setView(
-                const tl::math::Vector2i& position,
-                double                    zoom,
-                bool                      frame);
+                const dtk::V2I& position,
+                double          zoom,
+                bool            frame);
 
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
@@ -94,7 +94,7 @@ namespace tl
             void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the image options.
-            void setImageOptions(const std::vector<timeline::ImageOptions>&);
+            void setImageOptions(const std::vector<dtk::ImageOptions>&);
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
@@ -109,7 +109,7 @@ namespace tl
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
             //! Set the overlay.
-            void setOverlay(const std::shared_ptr<image::Image>&);
+            void setOverlay(const std::shared_ptr<dtk::Image>&);
 
             //! Set the audio volume.
             void setVolume(float);
@@ -134,14 +134,14 @@ namespace tl
             void _createDevice(
                 const DeviceConfig&,
                 bool& active,
-                math::Size2i& size,
+                dtk::Size2I& size,
                 FrameRate& frameRate,
                 int videoFrameDelay);
             void _render(
                 const DeviceConfig&,
                 const timeline::OCIOOptions&,
                 const timeline::LUTOptions&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
                 const timeline::BackgroundOptions&);

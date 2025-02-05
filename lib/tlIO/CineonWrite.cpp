@@ -39,7 +39,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
@@ -50,7 +50,7 @@ namespace tl
             info.tags = image->getTags();
             write(io, info);
 
-            const size_t scanlineByteCount = image::getAlignedByteCount(
+            const size_t scanlineByteCount = dtk::getAlignedByteCount(
                 static_cast<size_t>(imageInfo.size.w) * 4,
                 imageInfo.layout.alignment);
             const uint8_t* imageP = image->getData() + (imageInfo.size.h - 1) * scanlineByteCount;

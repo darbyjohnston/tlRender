@@ -82,19 +82,17 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<image::Image>& image)
+                    const std::shared_ptr<dtk::Image>& image)
                 {
                     const auto& info = image->getInfo();
                     Header header;
-                    header.bytes = image::getBitDepth(info.pixelType) / 8;
+                    header.bytes = dtk::getBitDepth(info.type) / 8;
                     header.dimension = 3;
                     header.width = info.size.w;
                     header.height = info.size.h;
-                    header.channels = image::getChannelCount(info.pixelType);
+                    header.channels = dtk::getChannelCount(info.type);
                     header.pixelMin = 0;
-                    header.pixelMax = image::getBitDepth(info.pixelType) == 8 ?
-                        image::U8Range.getMax() :
-                        image::U16Range.getMax();
+                    header.pixelMax = dtk::getBitDepth(info.type) == 8 ? 255 : 65535;
 
                     auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
                     io->setEndianConversion(dtk::getEndian() != dtk::Endian::MSB);
@@ -111,14 +109,14 @@ namespace tl
                     io->write(dummy.data(), dummy.size());
                     io->setEndianConversion(false);
 
-                    auto tmp = image::Image::create(info);
+                    auto tmp = dtk::Image::create(info);
                     planarDeinterleave(
                         image->getData(),
                         tmp->getData(),
                         info.size.w,
                         info.size.h,
-                        image::getChannelCount(info.pixelType));
-                    io->write(tmp->getData(), tmp->getDataByteCount());
+                        dtk::getChannelCount(info.type));
+                    io->write(tmp->getData(), tmp->getByteCount());
                 }
             };
         }
@@ -152,7 +150,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

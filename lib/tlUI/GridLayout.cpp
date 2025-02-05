@@ -107,12 +107,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void GridLayout::setGeometry(const math::Box2i& value)
+        void GridLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            const math::Box2i g = _geometry.margin(-p.size.margin);
+            const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
 
             // Get the child size hints.
             std::vector<int> rowSizeHints;
@@ -120,7 +120,7 @@ namespace tl
             p.getSizeHints(rowSizeHints, columnSizeHints);
 
             // Get the total size.
-            math::Vector2i totalSize;
+            dtk::V2I totalSize;
             for (const auto& i : rowSizeHints)
             {
                 totalSize.y += i;
@@ -158,7 +158,7 @@ namespace tl
                     ++columnStretchCount;
                 }
             }
-            math::Vector2i stretchSize;
+            dtk::V2I stretchSize;
             if (rowStretchCount > 0)
             {
                 stretchSize.y = (g.h() -
@@ -199,7 +199,7 @@ namespace tl
             {
                 auto widget = i.first;
                 const bool visible = widget->isVisible(false);
-                math::Vector2i pos = g.min;
+                dtk::V2I pos = g.min;
                 for (int j = 0; j < i.second.row; ++j)
                 {
                     if (rowsVisible[j])
@@ -214,11 +214,11 @@ namespace tl
                         pos.x += columnSizes[j] + (visible ? p.size.spacing : 0);
                     }
                 }
-                const math::Vector2i size(
+                const dtk::V2I size(
                     columnSizes[i.second.column],
                     rowSizes[i.second.row]);
                 widget->setGeometry(align(
-                    math::Box2i(pos.x, pos.y, size.x, size.y),
+                    dtk::Box2I(pos.x, pos.y, size.x, size.y),
                     widget->getSizeHint(),
                     widget->getHStretch(),
                     widget->getVStretch(),
@@ -244,7 +244,7 @@ namespace tl
             std::vector<int> rowSizeHints;
             std::vector<int> columnSizeHints;
             p.getSizeHints(rowSizeHints, columnSizeHints);
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             for (int i : rowSizeHints)
             {
                 _sizeHint.h += i;
@@ -312,7 +312,7 @@ namespace tl
                 const bool visible = i.first->isVisible(false);
                 if (visible)
                 {
-                    const math::Size2i& sizeHint = i.first->getSizeHint();
+                    const dtk::Size2I& sizeHint = i.first->getSizeHint();
                     rows[i.second.row] = std::max(
                         rows[i.second.row],
                         sizeHint.h);

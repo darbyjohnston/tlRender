@@ -320,19 +320,19 @@ namespace tl
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.addSlider = new qtwidget::FloatEditSlider;
-            p.addSlider->setRange(math::FloatRange(-1.F, 1.F));
+            p.addSlider->setRange(dtk::RangeF(-1.F, 1.F));
             p.addSlider->setDefaultValue(0.F);
 
             p.brightnessSlider = new qtwidget::FloatEditSlider;
-            p.brightnessSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.brightnessSlider->setRange(dtk::RangeF(0.F, 4.F));
             p.brightnessSlider->setDefaultValue(1.F);
 
             p.contrastSlider = new qtwidget::FloatEditSlider;
-            p.contrastSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.contrastSlider->setRange(dtk::RangeF(0.F, 4.F));
             p.contrastSlider->setDefaultValue(1.F);
 
             p.saturationSlider = new qtwidget::FloatEditSlider;
-            p.saturationSlider->setRange(math::FloatRange(0.F, 4.F));
+            p.saturationSlider->setRange(dtk::RangeF(0.F, 4.F));
             p.saturationSlider->setDefaultValue(1.F);
 
             p.tintSlider = new qtwidget::FloatEditSlider;
@@ -505,7 +505,7 @@ namespace tl
             p.inHighSlider->setDefaultValue(1.F);
 
             p.gammaSlider = new qtwidget::FloatEditSlider;
-            p.gammaSlider->setRange(math::FloatRange(.1F, 4.F));
+            p.gammaSlider->setRange(dtk::RangeF(.1F, 4.F));
             p.gammaSlider->setDefaultValue(1.F);
 
             p.outLowSlider = new qtwidget::FloatEditSlider;
@@ -648,19 +648,19 @@ namespace tl
             p.enabledCheckBox = new QCheckBox(tr("Enabled"));
 
             p.exposureSlider = new qtwidget::FloatEditSlider;
-            p.exposureSlider->setRange(math::FloatRange(-10.F, 10.F));
+            p.exposureSlider->setRange(dtk::RangeF(-10.F, 10.F));
             p.exposureSlider->setDefaultValue(0.F);
 
             p.defogSlider = new qtwidget::FloatEditSlider;
-            p.defogSlider->setRange(math::FloatRange(0.F, .1F));
+            p.defogSlider->setRange(dtk::RangeF(0.F, .1F));
             p.defogSlider->setDefaultValue(0.F);
 
             p.kneeLowSlider = new qtwidget::FloatEditSlider;
-            p.kneeLowSlider->setRange(math::FloatRange(-3.F, 3.F));
+            p.kneeLowSlider->setRange(dtk::RangeF(-3.F, 3.F));
             p.kneeLowSlider->setDefaultValue(0.F);
 
             p.kneeHighSlider = new qtwidget::FloatEditSlider;
-            p.kneeHighSlider->setRange(math::FloatRange(3.5F, 7.5F));
+            p.kneeHighSlider->setRange(dtk::RangeF(3.5F, 7.5F));
             p.kneeHighSlider->setDefaultValue(5.F);
 
             auto layout = new QFormLayout;

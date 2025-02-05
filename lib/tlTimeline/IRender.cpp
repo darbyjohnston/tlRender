@@ -8,10 +8,6 @@ namespace tl
 {
     namespace timeline
     {
-        IRender::IRender(const std::shared_ptr<dtk::Context>& context) :
-            _context(context)
-        {}
-
         IRender::~IRender()
         {}
     }

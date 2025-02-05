@@ -43,10 +43,10 @@ namespace tl
             void setCallback(const std::function<void(int)>&);
 
             //! Get the range.
-            const math::IntRange& getRange() const;
+            const dtk::RangeI& getRange() const;
 
             //! Set the range.
-            void setRange(const math::IntRange&);
+            void setRange(const dtk::RangeI&);
 
             //! Set the step.
             void setStep(int);
@@ -61,7 +61,7 @@ namespace tl
             const std::shared_ptr<IntModel>& getModel() const;
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
@@ -71,7 +71,7 @@ namespace tl
             void keyReleaseEvent(KeyEvent&) override;
 
         private:
-            math::Box2i _getSliderGeometry() const;
+            dtk::Box2I _getSliderGeometry() const;
 
             int _posToValue(int) const;
             int _valueToPos(int) const;

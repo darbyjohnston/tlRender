@@ -47,8 +47,8 @@ namespace tl
                 bool,
                 const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

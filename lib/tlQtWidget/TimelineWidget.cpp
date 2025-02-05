@@ -204,8 +204,8 @@ namespace tl
             TLRENDER_P();
             if (auto player = p.timelineWidget->getPlayer())
             {
-                const math::Vector2i pos = _toUI(math::Vector2i(event->x(), event->y()));
-                const std::vector<math::Box2i> trackGeom = p.timelineWidget->getTrackGeom();
+                const dtk::V2I pos = _toUI(dtk::V2I(event->x(), event->y()));
+                const std::vector<dtk::Box2I> trackGeom = p.timelineWidget->getTrackGeom();
                 for (int i = 0; i < trackGeom.size(); ++i)
                 {
                     if (trackGeom[i].contains(pos))

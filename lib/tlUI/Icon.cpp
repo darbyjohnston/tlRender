@@ -15,10 +15,10 @@ namespace tl
         struct Icon::Private
         {
             std::string icon;
-            std::shared_ptr<image::Image> iconImage;
+            std::shared_ptr<dtk::Image> iconImage;
             float iconScale = 1.F;
             bool iconInit = false;
-            std::future<std::shared_ptr<image::Image> > iconFuture;
+            std::future<std::shared_ptr<dtk::Image> > iconFuture;
             SizeRole marginRole = SizeRole::None;
 
             struct SizeData
@@ -119,7 +119,7 @@ namespace tl
                 p.iconImage.reset();
                 p.iconScale = _displayScale;
                 p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
+                p.iconFuture = std::future<std::shared_ptr<dtk::Image> >();
             }
             if (!p.icon.empty() && p.iconInit)
             {
@@ -127,7 +127,7 @@ namespace tl
                 p.iconFuture = event.iconLibrary->request(p.icon, _displayScale);
             }
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             if (p.iconImage)
             {
                 _sizeHint.w = p.iconImage->getWidth();
@@ -135,7 +135,7 @@ namespace tl
             }
         }
 
-        void Icon::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void Icon::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -145,18 +145,18 @@ namespace tl
         }
 
         void Icon::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
-            const math::Box2i g = _geometry.margin(-p.size.margin);
+            const dtk::Box2I g = margin(_geometry, -p.size.margin);
             if (p.iconImage)
             {
-                const image::Size& iconSize = p.iconImage->getSize();
+                const dtk::Size2I& iconSize = p.iconImage->getSize();
                 event.render->drawImage(
                     p.iconImage,
-                    math::Box2i(
+                    dtk::Box2I(
                         g.x() + g.w() / 2 - iconSize.w / 2,
                         g.y() + g.h() / 2 - iconSize.h / 2,
                         iconSize.w,

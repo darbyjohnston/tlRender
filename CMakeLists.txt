@@ -25,8 +25,6 @@ project(
 # Build options
 
 set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
-set(TLRENDER_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
-set(TLRENDER_GLFW TRUE CACHE BOOL "Enable support for GLFW")
 set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_SDL2 TRUE CACHE BOOL "Enable support for SDL2")
@@ -72,9 +70,9 @@ endif()
 if(TLRENDER_BMD)
     add_definitions(-DTLRENDER_BMD)
 endif()
-if(TLRENDER_QT6 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+if(TLRENDER_QT6)
     add_definitions(-DTLRENDER_QT6)
-elseif(TLRENDER_QT5 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+elseif(TLRENDER_QT5)
     add_definitions(-DTLRENDER_QT5)
 endif()
 if(TLRENDER_IGNORE_PREFIX_PATH)
@@ -96,13 +94,6 @@ include_directories(
     ${PROJECT_SOURCE_DIR}/lib
     ${PROJECT_SOURCE_DIR}/etc
     ${PROJECT_SOURCE_DIR}/tests)
-if ("${TLRENDER_API}" STREQUAL "GL_4_1")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GL_4_1/include)
-elseif ("${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GL_4_1_Debug/include)
-elseif ("${TLRENDER_API}" STREQUAL "GLES_2")
-    include_directories(${PROJECT_SOURCE_DIR}/deps/glad_GLES_2/include)
-endif()
 
 if(TLRENDER_GPROF)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg")
@@ -143,8 +134,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Dependencies
 
 # Base dependencies
-find_package(Threads REQUIRED)
-find_package(OpenGL REQUIRED)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -152,14 +141,8 @@ find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
 find_package(Freetype REQUIRED)
 
-# GLFW dependency
-if(TLRENDER_GLFW)
-    find_package(glfw3 REQUIRED)
-    add_definitions(-DTLRENDER_GLFW)
-endif()
-
 # OpenColorIO dependencies
-if(TLRENDER_OCIO AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+if(TLRENDER_OCIO)
     find_package(OpenColorIO REQUIRED)
     add_definitions(-DTLRENDER_OCIO)
 endif()
@@ -232,12 +215,12 @@ endif()
 find_package(dtk REQUIRED)
 
 # Qt dependencies
-if(TLRENDER_QT6 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+if(TLRENDER_QT6)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
     find_package(Qt6 REQUIRED COMPONENTS Quick Widgets OpenGLWidgets Svg HINTS "$ENV{QTDIR}")
-elseif(TLRENDER_QT5 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+elseif(TLRENDER_QT5)
     set(CMAKE_AUTOMOC ON)
     set(CMAKE_AUTORCC ON)
     set(CMAKE_AUTOUIC ON)
@@ -246,12 +229,6 @@ endif()
 
 #-------------------------------------------------------------------------------
 # Sub-directories
-
-add_definitions(-DTLRENDER_API_${TLRENDER_API})
-if("${TLRENDER_API}" STREQUAL "GL_4_1_Debug")
-    add_definitions(-DTLRENDER_API_GL_4_1)
-endif()
-add_subdirectory(deps/glad_${TLRENDER_API})
 
 add_subdirectory(lib)
 if(TLRENDER_PROGRAMS)

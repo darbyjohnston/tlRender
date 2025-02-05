@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include <tlTimeline/ImageOptions.h>
-
-#include <tlCore/Image.h>
-#include <tlCore/Matrix.h>
+#include <dtk/core/Image.h>
+#include <dtk/core/Matrix.h>
+#include <dtk/core/RenderOptions.h>
 
 namespace tl
 {
@@ -25,39 +24,38 @@ namespace tl
             Count,
             First = Color
         };
-        TLRENDER_ENUM(Channels);
-        TLRENDER_ENUM_SERIALIZE(Channels);
+        DTK_ENUM(Channels);
 
         //! Color values.
         struct Color
         {
         public:
-            bool           enabled    = false;
-            math::Vector3f add        = math::Vector3f(0.F, 0.F, 0.F);
-            math::Vector3f brightness = math::Vector3f(1.F, 1.F, 1.F);
-            math::Vector3f contrast   = math::Vector3f(1.F, 1.F, 1.F);
-            math::Vector3f saturation = math::Vector3f(1.F, 1.F, 1.F);
-            float          tint       = 0.F;
-            bool           invert     = false;
+            bool     enabled    = false;
+            dtk::V3F add        = dtk::V3F(0.F, 0.F, 0.F);
+            dtk::V3F brightness = dtk::V3F(1.F, 1.F, 1.F);
+            dtk::V3F contrast   = dtk::V3F(1.F, 1.F, 1.F);
+            dtk::V3F saturation = dtk::V3F(1.F, 1.F, 1.F);
+            float    tint       = 0.F;
+            bool     invert     = false;
 
             bool operator == (const Color&) const;
             bool operator != (const Color&) const;
         };
 
         //! Get a brightness color matrix.
-        math::Matrix4x4f brightness(const math::Vector3f&);
+        dtk::M44F brightness(const dtk::V3F&);
 
         //! Get a contrast color matrix.
-        math::Matrix4x4f contrast(const math::Vector3f&);
+        dtk::M44F contrast(const dtk::V3F&);
 
         //! Get a saturation color matrix.
-        math::Matrix4x4f saturation(const math::Vector3f&);
+        dtk::M44F saturation(const dtk::V3F&);
 
         //! Get a tint color matrix.
-        math::Matrix4x4f tint(float);
+        dtk::M44F tint(float);
 
         //! Get a color matrix.
-        math::Matrix4x4f color(const Color&);
+        dtk::M44F color(const Color&);
 
         //! Levels values.
         struct Levels
@@ -100,14 +98,14 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            Channels           channels     = Channels::Color;
-            image::Mirror      mirror;
-            Color              color;
-            Levels             levels;
-            EXRDisplay         exrDisplay;
-            SoftClip           softClip;
-            ImageFilters       imageFilters;
-            image::VideoLevels videoLevels  = image::VideoLevels::FullRange;
+            Channels          channels     = Channels::Color;
+            dtk::ImageMirror  mirror;
+            Color             color;
+            Levels            levels;
+            EXRDisplay        exrDisplay;
+            SoftClip          softClip;
+            dtk::ImageFilters imageFilters;
+            dtk::VideoLevels  videoLevels  = dtk::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

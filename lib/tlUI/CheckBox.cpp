@@ -20,16 +20,16 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
                 int checkBox = 0;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
             DrawData draw;
         };
@@ -132,7 +132,7 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void CheckBox::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void CheckBox::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IButton::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -143,25 +143,24 @@ namespace tl
         }
 
         void CheckBox::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
 
-            const math::Box2i g2 = g.margin(-p.size.border * 2);
-            if (_mouse.press && _geometry.contains(_mouse.pos))
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
+            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
             {
                 event.render->drawRect(
                     g2,
@@ -174,18 +173,17 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            const math::Box2i g3 = g2.margin(-p.size.margin);
-            const math::Box2i checkBox(
+            const dtk::Box2I g3 = dtk::margin(g2, -p.size.margin);
+            const dtk::Box2I checkBox(
                 g3.x(),
                 g3.y() + g3.h() / 2 - p.size.checkBox / 2,
                 p.size.checkBox,
                 p.size.checkBox);
             event.render->drawMesh(
                 border(checkBox, p.size.border),
-                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
             event.render->drawRect(
-                checkBox.margin(-p.size.border),
+                dtk::margin(checkBox, -p.size.border),
                 event.style->getColorRole(_checked ? ColorRole::Checked : ColorRole::Base ));
 
             if (!_text.empty())
@@ -194,12 +192,12 @@ namespace tl
                 {
                     p.draw.glyphs = event.fontSystem->getGlyphs(_text, p.size.fontInfo);
                 }
-                const math::Vector2i pos(
+                const dtk::V2I pos(
                     g3.x() + p.size.checkBox + p.size.spacing + p.size.margin,
-                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
-                    p.size.fontMetrics.ascender);
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2);
                 event.render->drawText(
                     p.draw.glyphs,
+                    p.size.fontMetrics,
                     pos,
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :

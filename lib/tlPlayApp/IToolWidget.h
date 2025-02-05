@@ -32,7 +32,7 @@ namespace tl
         public:
             virtual ~IToolWidget() = 0;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
 
         protected:

@@ -209,7 +209,7 @@ namespace tl
                         _timeRange.duration().value() * normalized,
                         _timeRange.duration().rate())).
                     round();
-                out = math::clamp(
+                out = dtk::clamp(
                     out,
                     _timeRange.start_time(),
                     _timeRange.end_time_inclusive());
@@ -223,12 +223,12 @@ namespace tl
             return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
         }
 
-        math::Box2i IItem::_getClipRect(
-            const math::Box2i& value,
+        dtk::Box2I IItem::_getClipRect(
+            const dtk::Box2I& value,
             double scale)
         {
-            math::Box2i out;
-            const math::Vector2i c = value.getCenter();
+            dtk::Box2I out;
+            const dtk::V2I c = dtk::center(value);
             out.min.x = (value.min.x - c.x) * scale + c.x;
             out.min.y = (value.min.y - c.y) * scale + c.y;
             out.max.x = (value.max.x - c.x) * scale + c.x;

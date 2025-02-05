@@ -37,9 +37,9 @@ namespace tl
                 }
                 else
                 {
-                    const math::IntRange& sequence = path.getSequence();
-                    _startFrame = sequence.getMin();
-                    _endFrame = sequence.getMax();
+                    const dtk::RangeI& sequence = path.getSequence();
+                    _startFrame = sequence.min();
+                    _endFrame = sequence.max();
                 }
             }
 
@@ -372,12 +372,12 @@ namespace tl
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << info.video[0].size.pixelAspectRatio;
+                    ss << info.video[0].pixelAspectRatio;
                     info.tags["Video Pixel Aspect Ratio"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << info.video[0].pixelType;
+                    ss << info.video[0].type;
                     info.tags["Video Pixel Type"] = ss.str();
                 }
                 {

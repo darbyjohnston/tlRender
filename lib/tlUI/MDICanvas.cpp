@@ -25,7 +25,7 @@ namespace tl
             struct MouseData
             {
                 std::shared_ptr<IWidget> widget;
-                math::Box2i geom;
+                dtk::Box2I geom;
             };
             MouseData mouse;
         };
@@ -78,21 +78,21 @@ namespace tl
                         else
                         {
                             _p->mouse.widget.reset();
-                            _p->mouse.geom = math::Box2i();
+                            _p->mouse.geom = dtk::Box2I();
                         }
                     });
                 out->setMoveCallback(
-                    [this](const math::Vector2i& move)
+                    [this](const dtk::V2I& move)
                     {
                         if (auto widget = _p->mouse.widget)
                         {
-                            const math::Box2i& g = getGeometry();
-                            widget->setGeometry(math::Box2i(
-                                math::clamp(
+                            const dtk::Box2I& g = getGeometry();
+                            widget->setGeometry(dtk::Box2I(
+                                dtk::clamp(
                                     _p->mouse.geom.min.x + move.x,
                                     g.min.x,
                                     g.max.x + 1 - _p->mouse.geom.w()),
-                                math::clamp(
+                                dtk::clamp(
                                     _p->mouse.geom.min.y + move.y,
                                     g.min.y,
                                     g.max.y + 1 - _p->mouse.geom.h()),
@@ -101,23 +101,23 @@ namespace tl
                         }
                     });
                 out->setResizeCallback(
-                    [this](MDIResize value, const math::Vector2i& move)
+                    [this](MDIResize value, const dtk::V2I& move)
                     {
                         if (auto widget = _p->mouse.widget)
                         {
-                            const math::Size2i sizeHint = widget->getSizeHint();
-                            const math::Box2i& g = getGeometry();
-                            math::Box2i g2 = _p->mouse.geom;
+                            const dtk::Size2I sizeHint = widget->getSizeHint();
+                            const dtk::Box2I& g = getGeometry();
+                            dtk::Box2I g2 = _p->mouse.geom;
                             switch (value)
                             {
                             case MDIResize::North:
-                                g2.min.y = math::clamp(
+                                g2.min.y = dtk::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
                                     _p->mouse.geom.max.y - sizeHint.h);
                                 break;
                             case MDIResize::NorthEast:
-                                g2.min.y = math::clamp(
+                                g2.min.y = dtk::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
                                     _p->mouse.geom.max.y - sizeHint.h);
@@ -134,24 +134,24 @@ namespace tl
                                 g2.max.y = std::min(g2.max.y + move.y, g.max.y);
                                 break;
                             case MDIResize::SouthWest:
-                                g2.min.x = math::clamp(
+                                g2.min.x = dtk::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
                                     _p->mouse.geom.max.x - sizeHint.w);
                                 g2.max.y = std::min(g2.max.y + move.y, g.max.y);
                                 break;
                             case MDIResize::West:
-                                g2.min.x = math::clamp(
+                                g2.min.x = dtk::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
                                     _p->mouse.geom.max.x - sizeHint.w);
                                 break;
                             case MDIResize::NorthWest:
-                                g2.min.x = math::clamp(
+                                g2.min.x = dtk::clamp(
                                     g2.min.x + move.x,
                                     g.min.x,
                                     _p->mouse.geom.max.x - sizeHint.w);
-                                g2.min.y = math::clamp(
+                                g2.min.y = dtk::clamp(
                                     g2.min.y + move.y,
                                     g.min.y,
                                     _p->mouse.geom.max.y - sizeHint.h);
@@ -168,18 +168,18 @@ namespace tl
             return out;
         }
 
-        void MDICanvas::setGeometry(const math::Box2i& value)
+        void MDICanvas::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::Box2i& g = _geometry;
-            math::Vector2i pos = g.min + p.size.spacing;
+            const dtk::Box2I& g = _geometry;
+            dtk::V2I pos = g.min + p.size.spacing;
             while (!p.newWidgets.empty())
             {
                 if (auto widget = p.newWidgets.front().lock())
                 {
-                    const math::Size2i& sizeHint = widget->getSizeHint();
-                    widget->setGeometry(math::Box2i(
+                    const dtk::Size2I& sizeHint = widget->getSizeHint();
+                    widget->setGeometry(dtk::Box2I(
                         pos.x,
                         pos.y,
                         sizeHint.w,
@@ -190,9 +190,9 @@ namespace tl
             }
             for (const auto& child : _children)
             {
-                const math::Size2i& sizeHint = child->getSizeHint();
-                const math::Box2i& g2 = child->getGeometry();
-                child->setGeometry(math::Box2i(
+                const dtk::Size2I& sizeHint = child->getSizeHint();
+                const dtk::Box2I& g2 = child->getGeometry();
+                child->setGeometry(dtk::Box2I(
                     g2.min.x,
                     g2.min.y,
                     std::max(g2.w(), sizeHint.w),

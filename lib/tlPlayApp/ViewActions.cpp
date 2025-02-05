@@ -171,7 +171,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
-                        displayOptions.imageFilters.minify = timeline::ImageFilter::Nearest;
+                        displayOptions.imageFilters.minify = dtk::ImageFilter::Nearest;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -183,7 +183,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
-                        displayOptions.imageFilters.minify = timeline::ImageFilter::Linear;
+                        displayOptions.imageFilters.minify = dtk::ImageFilter::Linear;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -195,7 +195,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
-                        displayOptions.imageFilters.magnify = timeline::ImageFilter::Nearest;
+                        displayOptions.imageFilters.magnify = dtk::ImageFilter::Nearest;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });
@@ -207,7 +207,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto displayOptions = app->getViewportModel()->getDisplayOptions();
-                        displayOptions.imageFilters.magnify = timeline::ImageFilter::Linear;
+                        displayOptions.imageFilters.magnify = dtk::ImageFilter::Linear;
                         app->getViewportModel()->setDisplayOptions(displayOptions);
                     }
                 });

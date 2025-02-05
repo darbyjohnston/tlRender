@@ -6,8 +6,9 @@
 
 #include <tlIO/System.h>
 
-#include <tlGL/Init.h>
+#include <tlCore/Init.h>
 
+#include <dtk/gl/Init.h>
 #include <dtk/core/Context.h>
 
 namespace tl
@@ -16,7 +17,8 @@ namespace tl
     {
         void init(const std::shared_ptr<dtk::Context>& context)
         {
-            gl::init(context);
+            tl::init(context);
+            dtk::gl::init(context);
             System::create(context);
         }
     }

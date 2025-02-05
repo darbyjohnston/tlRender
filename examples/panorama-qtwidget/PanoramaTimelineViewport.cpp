@@ -96,7 +96,7 @@ namespace tl
                     auto vboData = convert(
                         _sphereMesh,
                         gl::VBOType::Pos3_F32_UV_U16,
-                        math::SizeTRange(0, _sphereMesh.triangles.size() - 1));
+                        dtk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
                     _sphereVBO = gl::VBO::create(_sphereMesh.triangles.size() * 3, gl::VBOType::Pos3_F32_UV_U16);
                     _sphereVBO->copy(vboData);
                     _sphereVAO = gl::VAO::create(gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
@@ -159,9 +159,9 @@ namespace tl
                 try
                 {
                     // Create the offscreen buffer.
-                    math::Size2i offscreenBufferSize(_videoSize.w, _videoSize.h);
+                    dtk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
                     gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                    offscreenBufferOptions.colorType = dtk::ImageType::RGBA_F32;
                     if (gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
                     {
                         _buffer = gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
@@ -176,7 +176,7 @@ namespace tl
                         _render->setLUTOptions(_lutOptions);
                         _render->drawVideo(
                             { _videoData },
-                            { math::Box2i(0, 0, _videoSize.w, _videoSize.h) },
+                            { dtk::Box2I(0, 0, _videoSize.w, _videoSize.h) },
                             { _imageOptions });
                         _render->end();
                     }
@@ -192,7 +192,7 @@ namespace tl
                 glDisable(GL_SCISSOR_TEST);
                 glDisable(GL_BLEND);
                 const float devicePixelRatio = window()->devicePixelRatio();
-                const math::Size2i windowSize(
+                const dtk::Size2I windowSize(
                     width() * devicePixelRatio,
                     height() * devicePixelRatio);
                 glViewport(
@@ -203,7 +203,7 @@ namespace tl
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
                 math::Matrix4x4f vm;
-                vm = vm * math::translate(math::Vector3f(0.F, 0.F, 0.F));
+                vm = vm * math::translate(dtk::V3F(0.F, 0.F, 0.F));
                 vm = vm * math::rotateX(_cameraRotation.x);
                 vm = vm * math::rotateY(_cameraRotation.y);
                 const auto pm = math::perspective(

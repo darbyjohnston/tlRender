@@ -7,21 +7,24 @@
 #include <tlIO/IO.h>
 
 #include <tlCore/ISystem.h>
-#include <tlCore/Image.h>
-#include <tlCore/Mesh.h>
 #include <tlCore/Path.h>
 
 #include <dtk/core/FileIO.h>
+#include <dtk/core/Image.h>
+#include <dtk/core/Mesh.h>
 
 #include <future>
 
-namespace tl
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     namespace ui
     {
         //! Information request.
@@ -37,16 +40,16 @@ namespace tl
             uint64_t id = 0;
             int height = 0;
             OTIO_NS::RationalTime time = time::invalidTime;
-            std::future<std::shared_ptr<image::Image> > future;
+            std::future<std::shared_ptr<dtk::Image> > future;
         };
 
         //! Audio waveform request.
         struct WaveformRequest
         {
             uint64_t id = 0;
-            math::Size2i size;
+            dtk::Size2I size;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
-            std::future<std::shared_ptr<geom::TriangleMesh2> > future;
+            std::future<std::shared_ptr<dtk::TriMesh2F> > future;
         };
 
         //! Thumbnail cache.
@@ -100,7 +103,7 @@ namespace tl
             //! Add a thumbnail to the cache.
             void addThumbnail(
                 const std::string& key,
-                const std::shared_ptr<image::Image>&);
+                const std::shared_ptr<dtk::Image>&);
 
             //! Get whether the cache contains a thumbnail.
             bool containsThumbnail(const std::string& key);
@@ -108,11 +111,11 @@ namespace tl
             //! Get a thumbnail from the cache.
             bool getThumbnail(
                 const std::string& key,
-                std::shared_ptr<image::Image>&) const;
+                std::shared_ptr<dtk::Image>&) const;
 
             //! Get a waveform cache key.
             static std::string getWaveformKey(
-                const math::Size2i&,
+                const dtk::Size2I&,
                 const file::Path&,
                 const OTIO_NS::TimeRange&,
                 const io::Options&);
@@ -120,7 +123,7 @@ namespace tl
             //! Add a waveform to the cache.
             void addWaveform(
                 const std::string& key,
-                const std::shared_ptr<geom::TriangleMesh2>&);
+                const std::shared_ptr<dtk::TriMesh2F>&);
 
             //! Get whether the cache contains a waveform.
             bool containsWaveform(const std::string& key);
@@ -128,7 +131,7 @@ namespace tl
             //! Get a waveform from the cache.
             bool getWaveform(
                 const std::string& key,
-                std::shared_ptr<geom::TriangleMesh2>&) const;
+                std::shared_ptr<dtk::TriMesh2F>&) const;
 
         private:
             void _maxUpdate();
@@ -143,7 +146,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<ThumbnailCache>&,
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<gl::GLFWWindow>&);
+                const std::shared_ptr<dtk::gl::Window>&);
 
             ThumbnailGenerator();
 
@@ -154,7 +157,7 @@ namespace tl
             static std::shared_ptr<ThumbnailGenerator> create(
                 const std::shared_ptr<ThumbnailCache>&,
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<gl::GLFWWindow>& = nullptr);
+                const std::shared_ptr<dtk::gl::Window>& = nullptr);
 
             //! Get information.
             InfoRequest getInfo(
@@ -185,7 +188,7 @@ namespace tl
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const math::Size2i&,
+                const dtk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 
@@ -193,7 +196,7 @@ namespace tl
             WaveformRequest getWaveform(
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
-                const math::Size2i&,
+                const dtk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 
@@ -239,7 +242,7 @@ namespace tl
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const math::Size2i&,
+                const dtk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 

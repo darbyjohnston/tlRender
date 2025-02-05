@@ -37,8 +37,8 @@ namespace tl
             std::shared_ptr<VerticalLayout> widgetLayout;
             std::shared_ptr<VerticalLayout> layout;
             std::function<void(bool)> pressCallback;
-            std::function<void(const math::Vector2i&)> moveCallback;
-            std::function<void(MDIResize, const math::Vector2i&)> resizeCallback;
+            std::function<void(const dtk::V2I&)> moveCallback;
+            std::function<void(MDIResize, const dtk::V2I&)> resizeCallback;
 
             struct SizeData
             {
@@ -47,14 +47,14 @@ namespace tl
                 int handle = 0;
                 int shadow = 0;
 
-                math::Box2i insideGeometry;
+                dtk::Box2I insideGeometry;
             };
             SizeData size;
 
             struct MouseData
             {
                 MDIResize resize = MDIResize::None;
-                std::map<MDIResize, math::Box2i> resizeBoxes;
+                std::map<MDIResize, dtk::Box2I> resizeBoxes;
             };
             MouseData mouse;
         };
@@ -141,27 +141,28 @@ namespace tl
             _p->pressCallback = value;
         }
 
-        void MDIWidget::setMoveCallback(const std::function<void(const math::Vector2i&)>& value)
+        void MDIWidget::setMoveCallback(const std::function<void(const dtk::V2I&)>& value)
         {
             _p->moveCallback = value;
         }
 
-        void MDIWidget::setResizeCallback(const std::function<void(MDIResize, const math::Vector2i&)>& value)
+        void MDIWidget::setResizeCallback(const std::function<void(MDIResize, const dtk::V2I&)>& value)
         {
             _p->resizeCallback = value;
         }
 
-        const math::Box2i& MDIWidget::getInsideGeometry() const
+        const dtk::Box2I& MDIWidget::getInsideGeometry() const
         {
             return _p->size.insideGeometry;
         }
 
-        void MDIWidget::setGeometry(const math::Box2i& value)
+        void MDIWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
             const int margin = std::max(p.size.handle, p.size.shadow);
-            const math::Box2i g = value.margin(
+            const dtk::Box2I g = dtk::margin(
+                value,
                 -(margin + p.size.border),
                 -(p.size.handle + p.size.border),
                 -(margin + p.size.border),
@@ -169,42 +170,42 @@ namespace tl
             p.size.insideGeometry = g;
             p.layout->setGeometry(g);
             p.mouse.resizeBoxes.clear();
-            p.mouse.resizeBoxes[MDIResize::North] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::North] = dtk::Box2I(
                 g.min.x + p.size.handle,
                 g.min.y - p.size.handle,
                 g.w() - p.size.handle * 2,
                 p.size.handle);
-            p.mouse.resizeBoxes[MDIResize::NorthEast] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::NorthEast] = dtk::Box2I(
                 g.max.x - p.size.handle,
                 g.min.y - p.size.handle,
                 p.size.handle * 2,
                 p.size.handle * 2);
-            p.mouse.resizeBoxes[MDIResize::East] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::East] = dtk::Box2I(
                 g.max.x,
                 g.min.y + p.size.handle,
                 p.size.handle,
                 g.h() - p.size.handle * 2);
-            p.mouse.resizeBoxes[MDIResize::SouthEast] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::SouthEast] = dtk::Box2I(
                 g.max.x - p.size.handle,
                 g.max.y - p.size.handle,
                 p.size.handle * 2,
                 p.size.handle * 2);
-            p.mouse.resizeBoxes[MDIResize::South] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::South] = dtk::Box2I(
                 g.min.x + p.size.handle,
                 g.max.y,
                 g.w() - p.size.handle * 2,
                 p.size.handle);
-            p.mouse.resizeBoxes[MDIResize::SouthWest] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::SouthWest] = dtk::Box2I(
                 g.min.x - p.size.handle,
                 g.max.y - p.size.handle,
                 p.size.handle * 2,
                 p.size.handle * 2);
-            p.mouse.resizeBoxes[MDIResize::West] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::West] = dtk::Box2I(
                 g.min.x - p.size.handle,
                 g.min.y + p.size.handle,
                 p.size.handle,
                 g.h() - p.size.handle * 2);
-            p.mouse.resizeBoxes[MDIResize::NorthWest] = math::Box2i(
+            p.mouse.resizeBoxes[MDIResize::NorthWest] = dtk::Box2I(
                 g.min.x - p.size.handle,
                 g.min.y - p.size.handle,
                 p.size.handle * 2,
@@ -232,17 +233,16 @@ namespace tl
         }
 
         void MDIWidget::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             const int margin = std::max(p.size.handle, p.size.shadow);
-            const math::Box2i g2 = g.margin(-margin, -p.size.handle, -margin, -margin);
+            const dtk::Box2I g2 = dtk::margin(g, -margin, -p.size.handle, -margin, -margin);
             event.render->drawColorMesh(
-                shadow(g2.margin(p.size.shadow, 0, p.size.shadow, p.size.shadow), p.size.shadow),
-                math::Vector2i(),
+                shadow(dtk::margin(g2, p.size.shadow, 0, p.size.shadow, p.size.shadow), p.size.shadow),
                 dtk::Color4F(1.F, 1.F, 1.F));
             if (p.mouse.resize != MDIResize::None)
             {
@@ -256,9 +256,8 @@ namespace tl
             }
             event.render->drawMesh(
                 border(g2, p.size.border),
-                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
-            const math::Box2i g3 = g2.margin(-p.size.border);
+            const dtk::Box2I g3 = dtk::margin(g2, -p.size.border);
             event.render->drawRect(
                 g3,
                 event.style->getColorRole(ColorRole::Window));
@@ -284,7 +283,7 @@ namespace tl
                 MDIResize resize = MDIResize::None;
                 for (const auto& box : p.mouse.resizeBoxes)
                 {
-                    if (box.second.contains(event.pos))
+                    if (dtk::contains(box.second, event.pos))
                     {
                         resize = box.first;
                         break;

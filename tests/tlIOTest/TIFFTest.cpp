@@ -28,10 +28,10 @@ namespace tl
         {
             void write(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 const image::Info& imageInfo,
-                const image::Tags& tags)
+                const dtk::ImageTags& tags)
             {
                 Info info;
                 info.video.push_back(imageInfo);
@@ -43,10 +43,10 @@ namespace tl
 
             void read(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
-                const image::Tags& tags)
+                const dtk::ImageTags& tags)
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<dtk::InMemoryFile> memory;
@@ -84,7 +84,7 @@ namespace tl
 
             void readError(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
             {
@@ -113,7 +113,7 @@ namespace tl
             auto system = _context->getSystem<System>();
             auto plugin = system->getPlugin<tiff::Plugin>();
 
-            const image::Tags tags =
+            const dtk::ImageTags tags =
             {
                 { "Creator", "Creator" },
                 { "Description", "Description" },
@@ -155,7 +155,7 @@ namespace tl
                                     _print(ss.str());
                                     path = file::Path(ss.str());
                                 }
-                                auto image = image::Image::create(imageInfo);
+                                auto image = dtk::Image::create(imageInfo);
                                 image->zero();
                                 image->setTags(tags);
                                 try

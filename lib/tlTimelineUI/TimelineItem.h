@@ -8,13 +8,16 @@
 
 #include <tlTimeline/Player.h>
 
-namespace tl
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     namespace timelineui
     {
         //! Track types.
@@ -42,7 +45,7 @@ namespace tl
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<gl::GLFWWindow>&,
+                const std::shared_ptr<dtk::gl::Window>&,
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -59,7 +62,7 @@ namespace tl
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<gl::GLFWWindow>&,
+                const std::shared_ptr<dtk::gl::Window>&,
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -82,13 +85,13 @@ namespace tl
             int getMinimumHeight() const;
 
             //! Get the track geometry.
-            std::vector<math::Box2i> getTrackGeom() const;
+            std::vector<dtk::Box2I> getTrackGeom() const;
 
             void setDisplayOptions(const DisplayOptions&) override;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void drawOverlayEvent(const math::Box2i&, const ui::DrawEvent&) override;
+            void drawOverlayEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;
@@ -105,28 +108,28 @@ namespace tl
             void _setTrackEnabled(int, bool);
 
             void _drawInOutPoints(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
-            math::Size2i _getLabelMaxSize(
-                const std::shared_ptr<image::FontSystem>&) const;
+            dtk::Size2I _getLabelMaxSize(
+                const std::shared_ptr<dtk::FontSystem>&) const;
             void _getTimeTicks(
-                const std::shared_ptr<image::FontSystem>&,
+                const std::shared_ptr<dtk::FontSystem>&,
                 double& seconds,
                 int& tick);
             void _drawTimeTicks(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
             void _drawFrameMarkers(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
             void _drawTimeLabels(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
             void _drawCacheInfo(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
             void _drawCurrentTime(
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
 
             void _tracksUpdate();

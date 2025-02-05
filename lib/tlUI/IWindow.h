@@ -37,28 +37,28 @@ namespace tl
                 bool parentsVisible,
                 bool parentsEnabled,
                 const TickEvent&) override;
-            void drawOverlayEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawOverlayEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         protected:
             bool _key(Key, bool press, int modifiers);
             void _text(const std::string&);
             void _cursorEnter(bool enter);
-            void _cursorPos(const math::Vector2i&);
+            void _cursorPos(const dtk::V2I&);
             void _mouseButton(int button, bool press, int modifiers);
-            void _scroll(const math::Vector2f&, int modifiers);
+            void _scroll(const dtk::V2F&, int modifiers);
 
             void _clipEventRecursive(
                 const std::shared_ptr<IWidget>&,
-                const math::Box2i&,
+                const dtk::Box2I&,
                 bool clipped);
 
             virtual void _drop(const std::vector<std::string>&);
 
         private:
-            std::list<std::shared_ptr<IWidget> > _getUnderCursor(const math::Vector2i&);
+            std::list<std::shared_ptr<IWidget> > _getUnderCursor(const dtk::V2I&);
             void _getUnderCursor(
                 const std::shared_ptr<IWidget>&,
-                const math::Vector2i&,
+                const dtk::V2I&,
                 std::list<std::shared_ptr<IWidget> >&);
 
             void _setHover(const std::shared_ptr<IWidget>&);

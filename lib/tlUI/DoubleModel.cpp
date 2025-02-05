@@ -4,7 +4,7 @@
 
 #include <tlUI/DoubleModel.h>
 
-#include <tlCore/Math.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         struct DoubleModel::Private
         {
             std::shared_ptr<dtk::ObservableValue<double> > value;
-            std::shared_ptr<dtk::ObservableValue<math::DoubleRange> > range;
+            std::shared_ptr<dtk::ObservableValue<dtk::RangeD> > range;
             double step = 0.1;
             double largeStep = 1.0;
             std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
@@ -24,7 +24,7 @@ namespace tl
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<double>::create(0.0);
-            p.range = dtk::ObservableValue<math::DoubleRange>::create(math::DoubleRange(0.0, 1.0));
+            p.range = dtk::ObservableValue<dtk::RangeD>::create(dtk::RangeD(0.0, 1.0));
             p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
@@ -51,8 +51,8 @@ namespace tl
         void DoubleModel::setValue(double value)
         {
             TLRENDER_P();
-            const math::DoubleRange& range = p.range->get();
-            const double tmp = math::clamp(value, range.getMin(), range.getMax());
+            const dtk::RangeD& range = p.range->get();
+            const double tmp = dtk::clamp(value, range.min(), range.max());
             _p->value->setIfChanged(tmp);
         }
 
@@ -61,12 +61,12 @@ namespace tl
             return _p->value;
         }
 
-        const math::DoubleRange& DoubleModel::getRange() const
+        const dtk::RangeD& DoubleModel::getRange() const
         {
             return _p->range->get();
         }
 
-        void DoubleModel::setRange(const math::DoubleRange& range)
+        void DoubleModel::setRange(const dtk::RangeD& range)
         {
             TLRENDER_P();
             if (p.range->setIfChanged(range))
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<dtk::IObservableValue<math::DoubleRange> > DoubleModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<dtk::RangeD> > DoubleModel::observeRange() const
         {
             return _p->range;
         }

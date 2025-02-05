@@ -82,11 +82,11 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void StackLayout::setGeometry(const math::Box2i& value)
+        void StackLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::Box2i g = _geometry.margin(-p.size.margin);
+            const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
             _childrenClipRect = g;
             for (const auto& child : _children)
             {
@@ -116,10 +116,10 @@ namespace tl
             }
             p.size.sizeInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             for (const auto& child : _children)
             {
-                const math::Size2i& sizeHint = child->getSizeHint();
+                const dtk::Size2I& sizeHint = child->getSizeHint();
                 _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
                 _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
             }

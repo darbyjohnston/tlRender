@@ -27,16 +27,16 @@ namespace tl
                 int margin = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
-                math::Size2i formatSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
+                dtk::Size2I formatSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
             DrawData draw;
 
@@ -154,7 +154,7 @@ namespace tl
                 p.size.margin * 2;
         }
 
-        void TimeLabel::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void TimeLabel::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -165,7 +165,7 @@ namespace tl
         }
 
         void TimeLabel::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -173,24 +173,24 @@ namespace tl
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
-            const math::Box2i g = align(
-                _geometry,
-                _sizeHint,
-                Stretch::Fixed,
-                Stretch::Fixed,
-                _hAlign,
-                _vAlign).margin(-p.size.margin);
+            const dtk::Box2I g = dtk::margin(
+                align(
+                    _geometry,
+                    _sizeHint,
+                    Stretch::Fixed,
+                    Stretch::Fixed,
+                    _hAlign,
+                    _vAlign),
+                -p.size.margin);
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
                 p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
             }
-            const math::Vector2i pos(
-                g.x(),
-                g.y() + p.size.fontMetrics.ascender);
             event.render->drawText(
                 p.draw.glyphs,
-                pos,
+                p.size.fontMetrics,
+                g.min,
                 event.style->getColorRole(ColorRole::Text));
         }
 

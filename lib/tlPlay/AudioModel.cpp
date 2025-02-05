@@ -7,9 +7,9 @@
 #include <tlPlay/Settings.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/Math.h>
 
 #include <dtk/core/Context.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -117,7 +117,7 @@ namespace tl
 
         void AudioModel::setVolume(float value)
         {
-            const float tmp = math::clamp(value, 0.F, 1.F);
+            const float tmp = dtk::clamp(value, 0.F, 1.F);
             _p->settings->setValue("Audio/Volume", tmp);
             _p->volume->setIfChanged(tmp);
         }

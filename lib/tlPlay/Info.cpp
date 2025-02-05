@@ -20,7 +20,7 @@ namespace tl
                 s.push_back(std::string(
                     dtk::Format("V: {0}, {1}").
                     arg(info.video[0].size).
-                    arg(info.video[0].pixelType)));
+                    arg(info.video[0].type)));
             }
             if (info.audio.isValid())
             {
@@ -42,7 +42,7 @@ namespace tl
                 t.push_back(std::string(
                     dtk::Format("Video: {0}, {1}").
                     arg(info.video[0].size).
-                    arg(info.video[0].pixelType)));
+                    arg(info.video[0].type)));
             }
             if (info.audio.isValid())
             {

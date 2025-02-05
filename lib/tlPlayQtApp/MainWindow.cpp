@@ -124,7 +124,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
@@ -139,7 +139,7 @@ namespace tl
             p.app = app;
 
             auto settings = app->settings();
-            settings->setDefaultValue("MainWindow/Size", math::Size2i(1920, 1080));
+            settings->setDefaultValue("MainWindow/Size", dtk::Size2I(1920, 1080));
             settings->setDefaultValue("MainWindow/FloatOnTop", false);
             settings->setDefaultValue("Timeline/Input",
                 timelineui::ItemOptions().inputEnabled);
@@ -490,9 +490,9 @@ namespace tl
                 {
                     _widgetUpdate();
                 });
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 app->renderModel()->observeColorBuffer(),
-                [this](image::PixelType)
+                [this](dtk::ImageType)
                 {
                     _widgetUpdate();
                 });
@@ -677,7 +677,7 @@ namespace tl
         {
             TLRENDER_P();
             auto settings = p.app->settings();
-            settings->setValue("MainWindow/Size", math::Size2i(width(), height()));
+            settings->setValue("MainWindow/Size", dtk::Size2I(width(), height()));
             settings->setValue("MainWindow/FloatOnTop", p.floatOnTop);
             const auto& itemOptions = p.timelineWidget->itemOptions();
             settings->setValue("Timeline/Input",

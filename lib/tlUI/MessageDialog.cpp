@@ -40,7 +40,7 @@ namespace tl
 
                 void setCallback(const std::function<void(bool)>&);
 
-                void setGeometry(const math::Box2i&) override;
+                void setGeometry(const dtk::Box2I&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
 
             private:
@@ -124,7 +124,7 @@ namespace tl
                 _callback = value;
             }
 
-            void MessageWidget::setGeometry(const math::Box2i& value)
+            void MessageWidget::setGeometry(const dtk::Box2I& value)
             {
                 IWidget::setGeometry(value);
                 _layout->setGeometry(value);

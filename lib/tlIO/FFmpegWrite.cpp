@@ -191,14 +191,14 @@ namespace tl
             {
                 throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(p.fileName));
             }
-            switch (videoInfo.pixelType)
+            switch (videoInfo.type)
             {
-            case image::PixelType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;  break;
-            case image::PixelType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;  break;
-            case image::PixelType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;   break;
-            case image::PixelType::L_U16:    p.avPixelFormatIn = AV_PIX_FMT_GRAY16; break;
-            case image::PixelType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
-            case image::PixelType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
+            case dtk::ImageType::L_U8:     p.avPixelFormatIn = AV_PIX_FMT_GRAY8;  break;
+            case dtk::ImageType::RGB_U8:   p.avPixelFormatIn = AV_PIX_FMT_RGB24;  break;
+            case dtk::ImageType::RGBA_U8:  p.avPixelFormatIn = AV_PIX_FMT_RGBA;   break;
+            case dtk::ImageType::L_U16:    p.avPixelFormatIn = AV_PIX_FMT_GRAY16; break;
+            case dtk::ImageType::RGB_U16:  p.avPixelFormatIn = AV_PIX_FMT_RGB48;  break;
+            case dtk::ImageType::RGBA_U16: p.avPixelFormatIn = AV_PIX_FMT_RGBA64; break;
             default:
                 throw std::runtime_error(dtk::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;
@@ -294,7 +294,7 @@ namespace tl
 
         void Write::writeVideo(
             const OTIO_NS::RationalTime& time,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             TLRENDER_P();
@@ -310,13 +310,13 @@ namespace tl
                 info.layout.alignment);
 
             // Flip the image vertically.
-            switch (info.pixelType)
+            switch (info.type)
             {
-            case image::PixelType::L_U8:
-            case image::PixelType::RGB_U8:
-            case image::PixelType::RGBA_U8:
+            case dtk::ImageType::L_U8:
+            case dtk::ImageType::RGB_U8:
+            case dtk::ImageType::RGBA_U8:
             {
-                const size_t channelCount = image::getChannelCount(info.pixelType);
+                const size_t channelCount = dtk::getChannelCount(info.type);
                 for (size_t i = 0; i < channelCount; i++)
                 {
                     p.avFrame2->data[i] += p.avFrame2->linesize[i] * (info.size.h - 1);
@@ -324,12 +324,12 @@ namespace tl
                 }
                 break;
             }
-            case image::PixelType::YUV_420P_U8:
-            case image::PixelType::YUV_422P_U8:
-            case image::PixelType::YUV_444P_U8:
-            case image::PixelType::YUV_420P_U16:
-            case image::PixelType::YUV_422P_U16:
-            case image::PixelType::YUV_444P_U16:
+            case dtk::ImageType::YUV_420P_U8:
+            case dtk::ImageType::YUV_422P_U8:
+            case dtk::ImageType::YUV_444P_U8:
+            case dtk::ImageType::YUV_420P_U16:
+            case dtk::ImageType::YUV_422P_U16:
+            case dtk::ImageType::YUV_444P_U16:
                 //! \bug How do we flip YUV data?
                 throw std::runtime_error(dtk::Format("{0}: Incompatible pixel type").arg(p.fileName));
                 break;

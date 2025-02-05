@@ -8,9 +8,9 @@
 
 #include <tlTimeline/RenderUtil.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Util.h>
+#include <dtk/gl/GL.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Util.h>
 
 #include <dtk/core/Context.h>
 #include <dtk/core/LogSystem.h>
@@ -25,17 +25,17 @@ namespace tl
             std::function<void(timeline::CompareOptions)> compareCallback;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
-            std::vector<timeline::ImageOptions> imageOptions;
+            std::vector<dtk::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::BackgroundOptions backgroundOptions;
-            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
-            math::Vector2i viewPos;
+            dtk::V2I viewPos;
             double viewZoom = 1.0;
             std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
-            std::function<void(const math::Vector2i&, double)> viewPosAndZoomCallback;
+            std::function<void(const dtk::V2I&, double)> viewPosAndZoomCallback;
             std::shared_ptr<dtk::ObservableValue<double> > fps;
             struct FpsData
             {
@@ -50,11 +50,11 @@ namespace tl
                 double frame = 0.0;
             };
             DroppedFramesData droppedFramesData;
-            std::vector<math::Vector2i> colorPickers;
+            std::vector<dtk::V2I> colorPickers;
             std::shared_ptr<dtk::ObservableList<dtk::Color4F> > colorPickerValues;
 
             bool doRender = false;
-            std::shared_ptr<gl::OffscreenBuffer> buffer;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
 
             enum class MouseMode
             {
@@ -65,7 +65,7 @@ namespace tl
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                math::Vector2i viewPos;
+                dtk::V2I viewPos;
             };
             MouseData mouse;
 
@@ -86,7 +86,7 @@ namespace tl
             _setMouseHover(true);
             _setMousePress(true);
 
-            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(image::PixelType::RGBA_U8);
+            p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(dtk::ImageType::RGBA_U8);
             p.frameView = dtk::ObservableValue<bool>::create(true);
             p.fps = dtk::ObservableValue<double>::create(0.0);
             p.droppedFrames = dtk::ObservableValue<size_t>::create(0);
@@ -144,7 +144,7 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        void TimelineViewport::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        void TimelineViewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
             TLRENDER_P();
             if (value == p.imageOptions)
@@ -174,17 +174,17 @@ namespace tl
             _updates |= ui::Update::Draw;
         }
 
-        image::PixelType TimelineViewport::getColorBuffer() const
+        dtk::ImageType TimelineViewport::getColorBuffer() const
         {
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<image::PixelType> > TimelineViewport::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > TimelineViewport::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }
 
-        void TimelineViewport::setColorBuffer(image::PixelType value)
+        void TimelineViewport::setColorBuffer(dtk::ImageType value)
         {
             TLRENDER_P();
             if (p.colorBuffer->setIfChanged(value))
@@ -255,7 +255,7 @@ namespace tl
             }
         }
 
-        const math::Vector2i& TimelineViewport::getViewPos() const
+        const dtk::V2I& TimelineViewport::getViewPos() const
         {
             return _p->viewPos;
         }
@@ -265,7 +265,7 @@ namespace tl
             return _p->viewZoom;
         }
 
-        void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, double zoom)
+        void TimelineViewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
         {
             TLRENDER_P();
             if (pos == p.viewPos && zoom == p.viewZoom)
@@ -281,10 +281,10 @@ namespace tl
             setFrameView(false);
         }
 
-        void TimelineViewport::setViewZoom(double zoom, const math::Vector2i& focus)
+        void TimelineViewport::setViewZoom(double zoom, const dtk::V2I& focus)
         {
             TLRENDER_P();
-            math::Vector2i pos;
+            dtk::V2I pos;
             pos.x = focus.x + (p.viewPos.x - focus.x) * (zoom / p.viewZoom);
             pos.y = focus.y + (p.viewPos.y - focus.y) * (zoom / p.viewZoom);
             setViewPosAndZoom(pos, zoom);
@@ -338,7 +338,7 @@ namespace tl
         }
 
         void TimelineViewport::setViewPosAndZoomCallback(
-            const std::function<void(const math::Vector2i&, double)>& value)
+            const std::function<void(const dtk::V2I&, double)>& value)
         {
             _p->viewPosAndZoomCallback = value;
         }
@@ -363,7 +363,7 @@ namespace tl
             return _p->droppedFrames;
         }
 
-        void TimelineViewport::setColorPickers(const std::vector<math::Vector2i>& value)
+        void TimelineViewport::setColorPickers(const std::vector<dtk::V2I>& value)
         {
             TLRENDER_P();
             if (value == p.colorPickers)
@@ -377,7 +377,7 @@ namespace tl
             return _p->colorPickerValues;
         }
 
-        void TimelineViewport::setGeometry(const math::Box2i& value)
+        void TimelineViewport::setGeometry(const dtk::Box2I& value)
         {
             const bool changed = value != _geometry;
             IWidget::setGeometry(value);
@@ -397,7 +397,7 @@ namespace tl
         }
 
         void TimelineViewport::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -408,7 +408,7 @@ namespace tl
                 _frameView();
             }
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             if (p.doRender)
             {
                 p.doRender = false;
@@ -419,36 +419,36 @@ namespace tl
                 const timeline::TransformState transformState(event.render);
                 const timeline::RenderSizeState renderSizeState(event.render);
 
-                const math::Size2i size = g.getSize();
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = p.colorBuffer->get();
+                const dtk::Size2I size = g.size();
+                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = p.colorBuffer->get();
                 if (!p.displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
                 }
-#if defined(TLRENDER_API_GL_4_1)
-                offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
-                offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-#elif defined(TLRENDER_API_GLES_2)
-                offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-#endif // TLRENDER_API_GL_4_1
-                if (gl::doCreate(p.buffer, size, offscreenBufferOptions))
+#if defined(dtk_API_GL_4_1)
+                offscreenBufferOptions.depth = dtk::gl::OffscreenDepth::_24;
+                offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
+#elif defined(dtk_API_GLES_2)
+                offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
+#endif // dtk_API_GL_4_1
+                if (dtk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
                 {
-                    p.buffer = gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    p.buffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                 }
                 if (p.buffer)
                 {
                     try
                     {
-                        gl::OffscreenBufferBinding binding(p.buffer);
+                        dtk::gl::OffscreenBufferBinding binding(p.buffer);
                         event.render->setRenderSize(size);
-                        event.render->setViewport(math::Box2i(0, 0, g.w(), g.h()));
+                        event.render->setViewport(dtk::Box2I(0, 0, g.w(), g.h()));
                         event.render->setClipRectEnabled(false);
                         event.render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
                         event.render->setOCIOOptions(p.ocioOptions);
                         event.render->setLUTOptions(p.lutOptions);
 
-                        const auto pm = math::ortho(
+                        const auto pm = dtk::ortho(
                             0.F,
                             static_cast<float>(g.w()),
                             0.F,
@@ -460,48 +460,46 @@ namespace tl
                         {
                         case timeline::Background::Solid:
                             event.render->drawRect(
-                                math::Box2i(0, 0, g.w(), g.h()),
+                                dtk::Box2I(0, 0, g.w(), g.h()),
                                 p.backgroundOptions.color0);
                             break;
                         case timeline::Background::Checkers:
                             event.render->drawColorMesh(
-                                geom::checkers(
-                                    math::Box2i(0, 0, g.w(), g.h()),
+                                dtk::checkers(
+                                    dtk::Box2I(0, 0, g.w(), g.h()),
                                     p.backgroundOptions.color0,
                                     p.backgroundOptions.color1,
                                     p.backgroundOptions.checkersSize),
-                                math::Vector2i(),
                                 dtk::Color4F(1.F, 1.F, 1.F));
                             break;
                         case timeline::Background::Gradient:
                         {
-                            math::Box2i box(0, 0, g.w(), g.h());
-                            geom::TriangleMesh2 mesh;
-                            mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
-                            mesh.v.push_back(math::Vector2f(box.max.x, box.min.y));
-                            mesh.v.push_back(math::Vector2f(box.max.x, box.max.y));
-                            mesh.v.push_back(math::Vector2f(box.min.x, box.max.y));
-                            mesh.c.push_back(math::Vector4f(
+                            dtk::Box2I box(0, 0, g.w(), g.h());
+                            dtk::TriMesh2F mesh;
+                            mesh.v.push_back(dtk::V2F(box.min.x, box.min.y));
+                            mesh.v.push_back(dtk::V2F(box.max.x, box.min.y));
+                            mesh.v.push_back(dtk::V2F(box.max.x, box.max.y));
+                            mesh.v.push_back(dtk::V2F(box.min.x, box.max.y));
+                            mesh.c.push_back(dtk::V4F(
                                 p.backgroundOptions.color0.r,
                                 p.backgroundOptions.color0.g,
                                 p.backgroundOptions.color0.b,
                                 p.backgroundOptions.color0.a));
-                            mesh.c.push_back(math::Vector4f(
+                            mesh.c.push_back(dtk::V4F(
                                 p.backgroundOptions.color1.r,
                                 p.backgroundOptions.color1.g,
                                 p.backgroundOptions.color1.b,
                                 p.backgroundOptions.color1.a));
                             mesh.triangles.push_back({
-                                geom::Vertex2(1, 0, 1),
-                                geom::Vertex2(2, 0, 1),
-                                geom::Vertex2(3, 0, 2), });
+                                dtk::Vertex2(1, 0, 1),
+                                dtk::Vertex2(2, 0, 1),
+                                dtk::Vertex2(3, 0, 2), });
                             mesh.triangles.push_back({
-                                geom::Vertex2(3, 0, 2),
-                                geom::Vertex2(4, 0, 2),
-                                geom::Vertex2(1, 0, 1), });
+                                dtk::Vertex2(3, 0, 2),
+                                dtk::Vertex2(4, 0, 2),
+                                dtk::Vertex2(1, 0, 1), });
                             event.render->drawColorMesh(
                                 mesh,
-                                math::Vector2i(),
                                 dtk::Color4F(1.F, 1.F, 1.F));
                             break;
                         }
@@ -510,9 +508,9 @@ namespace tl
 
                         if (!p.videoData.empty())
                         {
-                            math::Matrix4x4f vm;
-                            vm = vm * math::translate(math::Vector3f(p.viewPos.x, p.viewPos.y, 0.F));
-                            vm = vm * math::scale(math::Vector3f(p.viewZoom, p.viewZoom, 1.F));
+                            dtk::M44F vm;
+                            vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
+                            vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
                             event.render->setTransform(pm * vm);
                             timeline::BackgroundOptions backgroundOptions;
                             backgroundOptions.color0 = dtk::Color4F(0.F, 0.F, 0.F, 0.F);
@@ -545,11 +543,11 @@ namespace tl
 
             if (p.buffer && !p.colorPickers.empty())
             {
-                gl::OffscreenBufferBinding binding(p.buffer);
+                dtk::gl::OffscreenBufferBinding binding(p.buffer);
                 std::vector<dtk::Color4F> colors;
                 for (const auto& colorPicker : p.colorPickers)
                 {
-                    const math::Vector2i pos = colorPicker - _geometry.min;
+                    const dtk::V2I pos = colorPicker - _geometry.min;
                     std::vector<float> sample(4);
                     glPixelStorei(GL_PACK_ALIGNMENT, 1);
                     glReadPixels(
@@ -592,7 +590,7 @@ namespace tl
                     {
                         const auto& imageInfo = ioInfo.video[0];
                         p.compareOptions.wipeCenter.x = (event.pos.x - _geometry.min.x - p.viewPos.x) / p.viewZoom /
-                            static_cast<float>(imageInfo.size.w * imageInfo.size.pixelAspectRatio);
+                            static_cast<float>(imageInfo.size.w * imageInfo.pixelAspectRatio);
                         p.compareOptions.wipeCenter.y = (event.pos.y - _geometry.min.y - p.viewPos.y) / p.viewZoom /
                             static_cast<float>(imageInfo.size.h);
                         p.doRender = true;
@@ -698,29 +696,29 @@ namespace tl
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        math::Size2i TimelineViewport::_getRenderSize() const
+        dtk::Size2I TimelineViewport::_getRenderSize() const
         {
             TLRENDER_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.videoData);
         }
 
-        math::Vector2i TimelineViewport::_getViewportCenter() const
+        dtk::V2I TimelineViewport::_getViewportCenter() const
         {
-            return math::Vector2i(_geometry.w() / 2, _geometry.h() / 2);
+            return dtk::V2I(_geometry.w() / 2, _geometry.h() / 2);
         }
 
         void TimelineViewport::_frameView()
         {
             TLRENDER_P();
-            const math::Size2i viewportSize(_geometry.w(), _geometry.h());
-            const math::Size2i renderSize = _getRenderSize();
+            const dtk::Size2I viewportSize(_geometry.w(), _geometry.h());
+            const dtk::Size2I renderSize = _getRenderSize();
             double zoom = viewportSize.w / static_cast<double>(renderSize.w);
             if (zoom * renderSize.h > viewportSize.h)
             {
                 zoom = viewportSize.h / static_cast<double>(renderSize.h);
             }
-            const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
-            const math::Vector2i viewPos(
+            const dtk::V2I c(renderSize.w / 2, renderSize.h / 2);
+            const dtk::V2I viewPos(
                 viewportSize.w / 2.F - c.x * zoom,
                 viewportSize.h / 2.F - c.y * zoom);
             if (viewPos != p.viewPos || zoom != p.viewZoom)

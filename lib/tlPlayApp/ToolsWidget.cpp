@@ -84,7 +84,7 @@ namespace tl
             return out;
         }
 
-        void ToolsWidget::setGeometry(const math::Box2i & value)
+        void ToolsWidget::setGeometry(const dtk::Box2I & value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -51,7 +51,7 @@ namespace tl
 
         void ISequenceWrite::writeVideo(
             const OTIO_NS::RationalTime& time,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const Options& options)
         {
             _writeVideo(

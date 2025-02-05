@@ -55,7 +55,7 @@ namespace tl
             TLRENDER_P();
 
             p.volumeSlider = ui::IntEditSlider::create(context);
-            p.volumeSlider->setRange(math::IntRange(0, 100));
+            p.volumeSlider->setRange(dtk::RangeI(0, 100));
             p.volumeSlider->setStep(1);
             p.volumeSlider->setLargeStep(10);
             p.volumeSlider->setToolTip("Audio volume");

@@ -4,7 +4,7 @@
 
 #include <tlUI/IntModel.h>
 
-#include <tlCore/Math.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         struct IntModel::Private
         {
             std::shared_ptr<dtk::ObservableValue<int> > value;
-            std::shared_ptr<dtk::ObservableValue<math::IntRange> > range;
+            std::shared_ptr<dtk::ObservableValue<dtk::RangeI> > range;
             int step = 1;
             int largeStep = 10;
             std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
@@ -24,7 +24,7 @@ namespace tl
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<int>::create(0);
-            p.range = dtk::ObservableValue<math::IntRange>::create(math::IntRange(0, 100));
+            p.range = dtk::ObservableValue<dtk::RangeI>::create(dtk::RangeI(0, 100));
             p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
@@ -51,8 +51,8 @@ namespace tl
         void IntModel::setValue(int value)
         {
             TLRENDER_P();
-            const math::IntRange& range = p.range->get();
-            const int tmp = math::clamp(value, range.getMin(), range.getMax());
+            const dtk::RangeI& range = p.range->get();
+            const int tmp = dtk::clamp(value, range.min(), range.max());
             _p->value->setIfChanged(tmp);
         }
 
@@ -61,12 +61,12 @@ namespace tl
             return _p->value;
         }
 
-        const math::IntRange& IntModel::getRange() const
+        const dtk::RangeI& IntModel::getRange() const
         {
             return _p->range->get();
         }
 
-        void IntModel::setRange(const math::IntRange& range)
+        void IntModel::setRange(const dtk::RangeI& range)
         {
             TLRENDER_P();
             if (p.range->setIfChanged(range))
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<dtk::IObservableValue<math::IntRange> > IntModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<dtk::RangeI> > IntModel::observeRange() const
         {
             return _p->range;
         }

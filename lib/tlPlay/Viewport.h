@@ -37,7 +37,7 @@ namespace tl
             //! Set whether the HUD is enabled.
             void setHUD(bool);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void childRemovedEvent(const ui::ChildEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void mouseMoveEvent(ui::MouseMoveEvent&) override;

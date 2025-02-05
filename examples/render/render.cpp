@@ -47,7 +47,7 @@ namespace tl
                         _options.compareFileName,
                         { "-compare", "-b" },
                         "A/B comparison \"B\" file name."),
-                    app::CmdLineValueOption<math::Size2i>::create(
+                    app::CmdLineValueOption<dtk::Size2I>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
@@ -154,13 +154,13 @@ namespace tl
                     _contentScale = _window->getContentScale();
                     _window->setFullScreen(_options.fullscreen);
                     _window->setFrameBufferSizeCallback(
-                        [this](const math::Size2i& value)
+                        [this](const dtk::Size2I& value)
                         {
                             _frameBufferSize = value;
                     _renderDirty = true;
                         });
                     _window->setContentScaleCallback(
-                        [this](const math::Vector2f& value)
+                        [this](const dtk::V2F& value)
                         {
                             _contentScale = value;
                     _renderDirty = true;
@@ -292,18 +292,18 @@ namespace tl
             void App::_draw()
             {
                 const int fontSize =
-                    math::clamp(
+                    dtk::clamp(
                         ceilf(14 * _contentScale.y),
                         0.F,
                         static_cast<float>(std::numeric_limits<uint16_t>::max()));
                 const int viewportSpacing = fontSize / 2;
-                const math::Vector2i viewportSize(
+                const dtk::V2I viewportSize(
                     (_frameBufferSize.w - viewportSpacing * 2) / 3,
                     (_frameBufferSize.h - viewportSpacing * 2) / 3);
 
                 _compareOptions.mode = timeline::CompareMode::A;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         0,
                         0,
                         viewportSize.x,
@@ -313,7 +313,7 @@ namespace tl
                     0.F);
                 _compareOptions.mode = timeline::CompareMode::A;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x + viewportSpacing,
                         0,
                         viewportSize.x,
@@ -323,7 +323,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::B;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         0,
                         viewportSize.x,
@@ -334,7 +334,7 @@ namespace tl
 
                 _compareOptions.mode = timeline::CompareMode::Wipe;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         0,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -344,7 +344,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Overlay;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -354,7 +354,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Difference;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -365,7 +365,7 @@ namespace tl
 
                 _compareOptions.mode = timeline::CompareMode::Horizontal;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         0,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -375,7 +375,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Vertical;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -385,7 +385,7 @@ namespace tl
                     _rotation);
                 _compareOptions.mode = timeline::CompareMode::Tile;
                 _drawViewport(
-                    math::Box2i(
+                    dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -396,19 +396,19 @@ namespace tl
             }
 
             void App::_drawViewport(
-                const math::Box2i& box,
+                const dtk::Box2I& box,
                 uint16_t fontSize,
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const math::Size2i viewportSize = box.getSize();
+                const dtk::Size2I viewportSize = box.getSize();
                 const float viewportAspect = viewportSize.getAspect();
-                const math::Size2i renderSize = timeline::getRenderSize(
+                const dtk::Size2I renderSize = timeline::getRenderSize(
                     compareOptions.mode,
                     _videoData);
                 const float renderSizeAspect = renderSize.getAspect();
                 image::Size transformSize;
-                math::Vector2f transformOffset;
+                dtk::V2F transformOffset;
                 if (renderSizeAspect > 1.F)
                 {
                     transformSize.w = renderSize.w;
@@ -436,9 +436,9 @@ namespace tl
                     0.F,
                     -1.F,
                     1.F) *
-                    math::translate(math::Vector3f(transformOffset.x, transformOffset.y, 0.F)) *
+                    math::translate(dtk::V3F(transformOffset.x, transformOffset.y, 0.F)) *
                     math::rotateZ(rotation) *
-                    math::translate(math::Vector3f(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
+                    math::translate(dtk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
                     timeline::getBoxes(compareOptions.mode, _videoData),
@@ -456,18 +456,18 @@ namespace tl
                         -1.F,
                         1.F));
 
-                    image::FontInfo fontInfo;
+                    dtk::FontInfo fontInfo;
                     fontInfo.size = fontSize;
-                    auto fontSystem = _context->getSystem<image::FontSystem>();
+                    auto fontSystem = _context->getSystem<dtk::FontSystem>();
                     auto fontMetrics = fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.mode);
-                    math::Size2i textSize = fontSystem->getSize(text, fontInfo);
+                    dtk::Size2I textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
-                        math::Box2i(0, 0, viewportSize.w, fontMetrics.lineHeight),
+                        dtk::Box2I(0, 0, viewportSize.w, fontMetrics.lineHeight),
                         dtk::Color4F(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),
-                        math::Vector2i(fontSize / 5, fontMetrics.ascender),
+                        dtk::V2I(fontSize / 5, fontMetrics.ascender),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
 

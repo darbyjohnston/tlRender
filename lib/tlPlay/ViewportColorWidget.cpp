@@ -100,11 +100,11 @@ namespace tl
             _colorUpdate();
         }
 
-        void ViewportColorWidget::setGeometry(const math::Box2i& value)
+        void ViewportColorWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            p.layout->setGeometry(value.margin(-p.size.border));
+            p.layout->setGeometry(dtk::margin(value, -p.size.border));
         }
 
         void ViewportColorWidget::sizeHintEvent(const ui::SizeHintEvent& event)
@@ -116,26 +116,24 @@ namespace tl
             _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
         }
 
-        void ViewportColorWidget::drawEvent(const math::Box2i& drawRect, const ui::DrawEvent& event)
+        void ViewportColorWidget::drawEvent(const dtk::Box2I& drawRect, const ui::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
             
-            const math::Box2i& g = getGeometry();
+            const dtk::Box2I& g = getGeometry();
             event.render->drawMesh(
                 ui::border(g, p.size.border),
-                math::Vector2i(),
                 event.style->getColorRole(ui::ColorRole::Border));
 
-            const math::Box2i g2 = g.margin(-p.size.border);
-            geom::TriangleMesh2 mesh;
-            mesh.v.push_back(math::Vector2f(g2.min.x, g2.min.y));
-            mesh.v.push_back(math::Vector2f(g2.min.x + p.size.margin, g2.min.y));
-            mesh.v.push_back(math::Vector2f(g2.min.x, g2.min.y + p.size.margin));
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border);
+            dtk::TriMesh2F mesh;
+            mesh.v.push_back(dtk::V2F(g2.min.x, g2.min.y));
+            mesh.v.push_back(dtk::V2F(g2.min.x + p.size.margin, g2.min.y));
+            mesh.v.push_back(dtk::V2F(g2.min.x, g2.min.y + p.size.margin));
             mesh.triangles.push_back({ 1, 2, 3 });
             event.render->drawMesh(
                 mesh,
-                math::Vector2i(),
                 event.style->getColorRole(ui::ColorRole::Text));
         }
 

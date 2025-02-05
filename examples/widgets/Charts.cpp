@@ -74,7 +74,7 @@ namespace tl
                 return out;
             }
 
-            void Charts::setGeometry(const math::Box2i& value)
+            void Charts::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

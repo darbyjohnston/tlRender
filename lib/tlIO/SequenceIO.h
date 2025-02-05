@@ -83,14 +83,14 @@ namespace tl
 
             void writeVideo(
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<image::Image>&,
+                const std::shared_ptr<dtk::Image>&,
                 const Options& = Options()) override;
 
         protected:
             virtual void _writeVideo(
                 const std::string& fileName,
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<image::Image>&,
+                const std::shared_ptr<dtk::Image>&,
                 const Options&) = 0;
 
         private:

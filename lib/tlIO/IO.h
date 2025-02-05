@@ -5,8 +5,9 @@
 #pragma once
 
 #include <tlCore/Audio.h>
-#include <tlCore/Image.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Image.h>
 
 namespace tl
 {
@@ -29,7 +30,7 @@ namespace tl
         struct Info
         {
             //! Video layer information.
-            std::vector<image::Info> video;
+            std::vector<dtk::ImageInfo> video;
 
             //! Video time range.
             OTIO_NS::TimeRange videoTime = time::invalidTimeRange;
@@ -41,7 +42,7 @@ namespace tl
             OTIO_NS::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
-            image::Tags tags;
+            dtk::ImageTags tags;
 
             bool operator == (const Info&) const;
             bool operator != (const Info&) const;
@@ -54,11 +55,11 @@ namespace tl
             VideoData(
                 const OTIO_NS::RationalTime&,
                 uint16_t layer,
-                const std::shared_ptr<image::Image>&);
+                const std::shared_ptr<dtk::Image>&);
 
-            OTIO_NS::RationalTime           time = time::invalidTime;
-            uint16_t                      layer = 0;
-            std::shared_ptr<image::Image> image;
+            OTIO_NS::RationalTime       time = time::invalidTime;
+            uint16_t                    layer = 0;
+            std::shared_ptr<dtk::Image> image;
 
             bool operator == (const VideoData&) const;
             bool operator != (const VideoData&) const;
@@ -73,13 +74,20 @@ namespace tl
                 const OTIO_NS::RationalTime&,
                 const std::shared_ptr<audio::Audio>&);
 
-            OTIO_NS::RationalTime           time = time::invalidTime;
+            OTIO_NS::RationalTime         time = time::invalidTime;
             std::shared_ptr<audio::Audio> audio;
 
             bool operator == (const AudioData&) const;
             bool operator != (const AudioData&) const;
             bool operator < (const AudioData&) const;
         };
+
+        //! Get an integer image type for the given channel count and bit depth.
+        dtk::ImageType getIntType(size_t channelCount, size_t bitDepth);
+
+        //! Get a floating point image type for the given channel count and bit
+        //! depth.
+        dtk::ImageType getFloatType(size_t channelCount, size_t bitDepth);
 
         //! Options.
         typedef std::map<std::string, std::string> Options;

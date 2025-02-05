@@ -70,7 +70,7 @@ namespace tl
 
             p._444SDIVideoOutputCheckBox = ui::CheckBox::create(context);
 
-            p.videoLevelsComboBox = ui::ComboBox::create(image::getVideoLevelsLabels(), context);
+            p.videoLevelsComboBox = ui::ComboBox::create(dtk::getVideoLevelsLabels(), context);
             p.videoLevelsComboBox->setHStretch(ui::Stretch::Expanding);
 
             p.hdrModeComboBox = ui::ComboBox::create(bmd::getHDRModeLabels(), context);
@@ -82,26 +82,26 @@ namespace tl
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
                 auto min = ui::FloatEdit::create(context);
-                min->setRange(math::FloatRange(0.F, 1.F));
+                min->setRange(dtk::RangeF(0.F, 1.F));
                 min->setStep(.01F);
                 min->setLargeStep(.1F);
                 auto max = ui::FloatEdit::create(context);
-                max->setRange(math::FloatRange(0.F, 1.F));
+                max->setRange(dtk::RangeF(0.F, 1.F));
                 max->setStep(.01F);
                 max->setLargeStep(.1F);
                 p.primariesFloatEdits.push_back(std::make_pair(min, max));
             }
 
             p.masteringLuminanceFloatEdits.first = ui::FloatEdit::create(context);
-            p.masteringLuminanceFloatEdits.first->setRange(math::FloatRange(0.F, 10000.F));
+            p.masteringLuminanceFloatEdits.first->setRange(dtk::RangeF(0.F, 10000.F));
             p.masteringLuminanceFloatEdits.second = ui::FloatEdit::create(context);
-            p.masteringLuminanceFloatEdits.second->setRange(math::FloatRange(0.F, 10000.F));
+            p.masteringLuminanceFloatEdits.second->setRange(dtk::RangeF(0.F, 10000.F));
 
             p.maxCLLSlider = ui::FloatEditSlider::create(context);
-            p.maxCLLSlider->setRange(math::FloatRange(0.F, 10000.F));
+            p.maxCLLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
             p.maxFALLSlider = ui::FloatEditSlider::create(context);
-            p.maxFALLSlider->setRange(math::FloatRange(0.F, 10000.F));
+            p.maxFALLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
             auto layout = ui::VerticalLayout::create(context);
             layout->setSpacingRole(ui::SizeRole::None);
@@ -237,7 +237,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getBMDDevicesModel()->setVideoLevels(static_cast<image::VideoLevels>(value));
+                        app->getBMDDevicesModel()->setVideoLevels(static_cast<dtk::VideoLevels>(value));
                     }
                 });
 
@@ -291,7 +291,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto hdrData = app->getBMDDevicesModel()->observeData()->get().hdrData;
-                        hdrData.displayMasteringLuminance = math::FloatRange(value, hdrData.displayMasteringLuminance.getMax());
+                        hdrData.displayMasteringLuminance = dtk::RangeF(value, hdrData.displayMasteringLuminance.max());
                         app->getBMDDevicesModel()->setHDRData(hdrData);
                     }
                 });
@@ -301,7 +301,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto hdrData = app->getBMDDevicesModel()->observeData()->get().hdrData;
-                        hdrData.displayMasteringLuminance = math::FloatRange(hdrData.displayMasteringLuminance.getMin(), value);
+                        hdrData.displayMasteringLuminance = dtk::RangeF(hdrData.displayMasteringLuminance.min(), value);
                         app->getBMDDevicesModel()->setHDRData(hdrData);
                     }
                 });
@@ -363,9 +363,9 @@ namespace tl
                         p.primariesFloatEdits[i].second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
                     }
 
-                    p.masteringLuminanceFloatEdits.first->setValue(value.hdrData.displayMasteringLuminance.getMin());
+                    p.masteringLuminanceFloatEdits.first->setValue(value.hdrData.displayMasteringLuminance.min());
                     p.masteringLuminanceFloatEdits.first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
-                    p.masteringLuminanceFloatEdits.second->setValue(value.hdrData.displayMasteringLuminance.getMax());
+                    p.masteringLuminanceFloatEdits.second->setValue(value.hdrData.displayMasteringLuminance.max());
                     p.masteringLuminanceFloatEdits.second->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
 
                     p.maxCLLSlider->setValue(value.hdrData.maxCLL);

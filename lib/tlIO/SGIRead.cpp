@@ -156,7 +156,7 @@ namespace tl
                     }
                     else
                     {
-                        dataByteCount = image::getDataByteCount(_info);
+                        dataByteCount = _info.getByteCount();
                     }
                     if (dataByteCount > fileDataByteCount)
                     {
@@ -167,8 +167,8 @@ namespace tl
 
                     _info.size.w = _header.width;
                     _info.size.h = _header.height;
-                    _info.pixelType = image::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
-                    if (image::PixelType::None == _info.pixelType)
+                    _info.type = io::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
+                    if (dtk::ImageType::None == _info.type)
                     {
                         throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
@@ -177,7 +177,7 @@ namespace tl
                     _info.layout.endian = dtk::Endian::MSB;
                 }
 
-                const image::Info& getInfo() const
+                const dtk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
@@ -188,14 +188,14 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = image::Image::create(_info);
+                    out.image = dtk::Image::create(_info);
 
                     const size_t pos = _io->getPos();
                     const size_t size = _io->getSize() - pos;
-                    const size_t channels = image::getChannelCount(_info.pixelType);
-                    const size_t bytes = image::getBitDepth(_info.pixelType) / 8;
-                    const size_t dataByteCount = out.image->getDataByteCount();
-                    auto tmp = image::Image::create(_info);
+                    const size_t channels = dtk::getChannelCount(_info.type);
+                    const size_t bytes = dtk::getBitDepth(_info.type) / 8;
+                    const size_t dataByteCount = out.image->getByteCount();
+                    auto tmp = dtk::Image::create(_info);
                     if (!_header.storage)
                     {
                         _io->read(tmp->getData(), dataByteCount);
@@ -269,7 +269,7 @@ namespace tl
             private:
                 std::shared_ptr<dtk::FileIO> _io;
                 Header _header;
-                image::Info _info;
+                dtk::ImageInfo _info;
                 std::vector<uint32_t> _rleOffset;
                 std::vector<uint32_t> _rleSize;
             };

@@ -33,7 +33,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
         SecondaryWindow::SecondaryWindow(
@@ -59,9 +59,9 @@ namespace tl
 
             auto settings = app->settings();
             std::string geometry;
-            settings->setDefaultValue("SecondaryWindow/Size", math::Size2i(1920, 1080));
+            settings->setDefaultValue("SecondaryWindow/Size", dtk::Size2I(1920, 1080));
 
-            const math::Size2i size = settings->getValue<math::Size2i>("SecondaryWindow/Size");
+            const dtk::Size2I size = settings->getValue<dtk::Size2I>("SecondaryWindow/Size");
             resize(size.w, size.h);
 
             p.viewport->setPlayer(app->player());
@@ -116,9 +116,9 @@ namespace tl
                     _p->viewport->setImageOptions({ value });
                 });
 
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 app->renderModel()->observeColorBuffer(),
-                [this](image::PixelType value)
+                [this](dtk::ImageType value)
                 {
                     _p->viewport->setColorBuffer(value);
                 });
@@ -127,14 +127,14 @@ namespace tl
         SecondaryWindow::~SecondaryWindow()
         {
             TLRENDER_P();
-            const math::Size2i size(width(), height());
+            const dtk::Size2I size(width(), height());
             p.app->settings()->setValue("SecondaryWindow/Size", size);
         }
 
         void SecondaryWindow::setView(
-            const tl::math::Vector2i& pos,
-            double                    zoom,
-            bool                      frame)
+            const dtk::V2I& pos,
+            double          zoom,
+            bool            frame)
         {
             TLRENDER_P();
             p.viewport->setViewPosAndZoom(pos, zoom);

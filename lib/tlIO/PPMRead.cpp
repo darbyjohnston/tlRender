@@ -66,8 +66,8 @@ namespace tl
                     default: break;
                     }
                     const size_t bitDepth = maxValue < 256 ? 8 : 16;
-                    _info.pixelType = image::getIntType(channelCount, bitDepth);
-                    if (image::PixelType::None == _info.pixelType)
+                    _info.type = io::getIntType(channelCount, bitDepth);
+                    if (dtk::ImageType::None == _info.type)
                     {
                         throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
@@ -77,7 +77,7 @@ namespace tl
                     const size_t ioSize = _io->getSize();
                     const size_t ioPos = _io->getPos();
                     const size_t fileDataByteCount = ioSize >= ioPos ? (ioSize - ioPos) : 0;
-                    const size_t dataByteCount = image::getDataByteCount(_info);
+                    const size_t dataByteCount = _info.getByteCount();
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
                         throw std::runtime_error(dtk::Format("{0}: {1}").
@@ -93,7 +93,7 @@ namespace tl
                     return _data;
                 }
 
-                const image::Info& getInfo() const
+                const dtk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
@@ -104,15 +104,15 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = image::Image::create(_info);
+                    out.image = dtk::Image::create(_info);
 
                     uint8_t* p = out.image->getData();
                     switch (_data)
                     {
                     case Data::ASCII:
                     {
-                        const size_t channelCount = image::getChannelCount(_info.pixelType);
-                        const size_t bitDepth = image::getBitDepth(_info.pixelType);
+                        const size_t channelCount = dtk::getChannelCount(_info.type);
+                        const size_t bitDepth = dtk::getBitDepth(_info.type);
                         const std::size_t scanlineByteCount = _info.size.w * channelCount * (bitDepth / 8);
                         for (uint16_t y = 0; y < _info.size.h; ++y, p += scanlineByteCount)
                         {
@@ -122,7 +122,7 @@ namespace tl
                     }
                     case Data::Binary:
                     {
-                        _io->read(p, out.image->getDataByteCount());
+                        _io->read(p, out.image->getByteCount());
                         break;
                     }
                     default: break;
@@ -134,7 +134,7 @@ namespace tl
             private:
                 std::shared_ptr<dtk::FileIO> _io;
                 Data _data = Data::First;
-                image::Info _info;
+                dtk::ImageInfo _info;
             };
         }
 

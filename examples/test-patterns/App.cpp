@@ -42,7 +42,7 @@ namespace tl
                 _window = gl::GLFWWindow::create(
                     context,
                     "test-patterns",
-                    math::Size2i(1, 1),
+                    dtk::Size2I(1, 1),
                     static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
             }
 
@@ -66,9 +66,9 @@ namespace tl
                 if (0 == _exit)
                 {
                     for (const auto& size : {
-                        math::Size2i(1920, 1080),
-                        math::Size2i(3840, 2160),
-                        math::Size2i(4096, 2160)
+                        dtk::Size2I(1920, 1080),
+                        dtk::Size2I(3840, 2160),
+                        dtk::Size2I(4096, 2160)
                         })
                     {
                         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
@@ -111,9 +111,9 @@ namespace tl
                             image::Info info;
                             info.size.w = size.w;
                             info.size.h = size.h;
-                            info.pixelType = image::PixelType::RGB_U10;
+                            info.pixelType = dtk::ImageType::RGB_U10;
                             info = writerPlugin->getWriteInfo(info);
-                            if (image::PixelType::None == info.pixelType)
+                            if (dtk::ImageType::None == info.pixelType)
                             {
                                 throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
                             }
@@ -128,10 +128,10 @@ namespace tl
 
                             // Create the offscreen buffer.
                             gl::OffscreenBufferOptions offscreenBufferOptions;
-                            offscreenBufferOptions.colorType = image::PixelType::RGBA_F32;
+                            offscreenBufferOptions.colorType = dtk::ImageType::RGBA_F32;
                             auto buffer = gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                             gl::OffscreenBufferBinding binding(buffer);
-                            auto image = image::Image::create(info);
+                            auto image = dtk::Image::create(info);
 
                             // Render the test pattern.
                             auto render = timeline_gl::Render::create(_context);
@@ -146,9 +146,9 @@ namespace tl
 
                                 // Write the image.
                                 glPixelStorei(GL_PACK_ALIGNMENT, info.layout.alignment);
-#if defined(TLRENDER_API_GL_4_1)
+#if defined(dtk_API_GL_4_1)
                                 glPixelStorei(GL_PACK_SWAP_BYTES, info.layout.endian != dtk::getEndian());
-#endif // TLRENDER_API_GL_4_1
+#endif // dtk_API_GL_4_1
                                 const GLenum format = gl::getReadPixelsFormat(info.pixelType);
                                 const GLenum type = gl::getReadPixelsType(info.pixelType);
                                 if (GL_NONE == format || GL_NONE == type)

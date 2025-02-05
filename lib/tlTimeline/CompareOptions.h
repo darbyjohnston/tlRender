@@ -6,6 +6,8 @@
 
 #include <tlTimeline/Video.h>
 
+#include <dtk/core/Box.h>
+
 namespace tl
 {
     namespace timeline
@@ -43,26 +45,26 @@ namespace tl
         //! Comparison options.
         struct CompareOptions
         {
-            CompareMode mode = CompareMode::A;
-            math::Vector2f wipeCenter = math::Vector2f(.5F, .5F);
-            float wipeRotation = 0.F;
-            float overlay = .5F;
+            CompareMode mode         = CompareMode::A;
+            dtk::V2F    wipeCenter   = dtk::V2F(.5F, .5F);
+            float       wipeRotation = 0.F;
+            float       overlay      = .5F;
 
             bool operator == (const CompareOptions&) const;
             bool operator != (const CompareOptions&) const;
         };
 
-        //! Get the boxes for the given compare mode and sizes.
-        std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<image::Size>&);
+        //! Get the boxes for the given compare mode.
+        std::vector<dtk::Box2I> getBoxes(CompareMode, const std::vector<dtk::ImageInfo>&);
 
-        //! Get the boxes for the given compare mode and video data.
-        std::vector<math::Box2i> getBoxes(CompareMode, const std::vector<VideoData>&);
+        //! Get the boxes for the given compare mode.
+        std::vector<dtk::Box2I> getBoxes(CompareMode, const std::vector<VideoData>&);
 
-        //! Get the render size for the given compare mode and sizes.
-        math::Size2i getRenderSize(CompareMode, const std::vector<image::Size>&);
+        //! Get the render size for the given compare mode.
+        dtk::Size2I getRenderSize(CompareMode, const std::vector<dtk::ImageInfo>&);
 
-        //! Get the render size for the given compare mode and video data.
-        math::Size2i getRenderSize(CompareMode, const std::vector<VideoData>&);
+        //! Get the render size for the given compare mode.
+        dtk::Size2I getRenderSize(CompareMode, const std::vector<VideoData>&);
 
         //! Get a compare time.
         OTIO_NS::RationalTime getCompareTime(

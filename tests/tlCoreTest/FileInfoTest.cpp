@@ -68,54 +68,54 @@ namespace tl
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 2));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 2));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.0001.exr")));
                 f.sequence(FileInfo(Path("test.0002.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.0000.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.1.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(1, 1));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(1, 1));
             }
             {
                 FileInfo f(Path("test.exr"));
                 f.sequence(FileInfo(Path("test3.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(0, 0));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test3.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(3, 3));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(3, 3));
             }
             {
                 FileInfo f(Path("test0999.exr"));
                 f.sequence(FileInfo(Path("test1000.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(999, 1000));
             }
             {
                 FileInfo f(Path("0001.exr"));
                 f.sequence(FileInfo(Path("7800.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(1, 7800));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(1, 7800));
             }
             {
                 FileInfo f(Path("1000.exr"));
                 f.sequence(FileInfo(Path("0999.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == math::IntRange(999, 1000));
+                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(999, 1000));
                 DTK_ASSERT(f.getPath().getPadding() == 4);
                 std::string s = f.getPath().get(999);
                 DTK_ASSERT("0999.exr" == s);
@@ -161,7 +161,7 @@ namespace tl
                     if ("render." == path.getBaseName())
                     {
                         DTK_ASSERT(path.isSequence());
-                        DTK_ASSERT(path.getSequence() == math::IntRange(1, 3));
+                        DTK_ASSERT(path.getSequence() == dtk::RangeI(1, 3));
                     }
                 }
                 for (const auto i : { "movie.1.mov", "movie.2.mov" })

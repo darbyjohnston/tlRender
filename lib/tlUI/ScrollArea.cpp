@@ -13,10 +13,10 @@ namespace tl
         struct ScrollArea::Private
         {
             ScrollType scrollType = ScrollType::Both;
-            math::Vector2i scrollSize;
-            math::Vector2i scrollPos;
-            std::function<void(const math::Vector2i&)> scrollSizeCallback;
-            std::function<void(const math::Vector2i&)> scrollPosCallback;
+            dtk::V2I scrollSize;
+            dtk::V2I scrollPos;
+            std::function<void(const dtk::V2I&)> scrollSizeCallback;
+            std::function<void(const dtk::V2I&)> scrollPosCallback;
             bool border = true;
 
             struct SizeData
@@ -55,31 +55,31 @@ namespace tl
             return out;
         }
 
-        const math::Vector2i& ScrollArea::getScrollSize() const
+        const dtk::V2I& ScrollArea::getScrollSize() const
         {
             return _p->scrollSize;
         }
 
-        void ScrollArea::setScrollSizeCallback(const std::function<void(const math::Vector2i&)>& value)
+        void ScrollArea::setScrollSizeCallback(const std::function<void(const dtk::V2I&)>& value)
         {
             _p->scrollSizeCallback = value;
         }
 
-        const math::Vector2i& ScrollArea::getScrollPos() const
+        const dtk::V2I& ScrollArea::getScrollPos() const
         {
             return _p->scrollPos;
         }
 
-        void ScrollArea::setScrollPos(const math::Vector2i& value, bool clamp)
+        void ScrollArea::setScrollPos(const dtk::V2I& value, bool clamp)
         {
             TLRENDER_P();
-            math::Vector2i tmp = value;
+            dtk::V2I tmp = value;
             if (clamp)
             {
-                const math::Box2i g = _geometry.margin(-p.size.border);
-                tmp = math::Vector2i(
-                    math::clamp(tmp.x, 0, std::max(0, p.scrollSize.x - g.w())),
-                    math::clamp(tmp.y, 0, std::max(0, p.scrollSize.y - g.h())));
+                const dtk::Box2I g = dtk::margin(_geometry, -p.size.border);
+                tmp = dtk::V2I(
+                    dtk::clamp(tmp.x, 0, std::max(0, p.scrollSize.x - g.w())),
+                    dtk::clamp(tmp.y, 0, std::max(0, p.scrollSize.y - g.h())));
             }
             if (tmp == p.scrollPos)
                 return;
@@ -92,7 +92,7 @@ namespace tl
             }
         }
 
-        void ScrollArea::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)
+        void ScrollArea::setScrollPosCallback(const std::function<void(const dtk::V2I&)>& value)
         {
             _p->scrollPosCallback = value;
         }
@@ -107,17 +107,17 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void ScrollArea::setGeometry(const math::Box2i& value)
+        void ScrollArea::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::Box2i g = value.margin(-p.size.border);
+            const dtk::Box2I g = dtk::margin(value, -p.size.border);
             _childrenClipRect = g;
 
-            math::Vector2i scrollSize;
+            dtk::V2I scrollSize;
             for (const auto& child : _children)
             {
-                math::Size2i sizeHint = child->getSizeHint();
+                dtk::Size2I sizeHint = child->getSizeHint();
                 switch (p.scrollType)
                 {
                 case ScrollType::Horizontal:
@@ -135,7 +135,7 @@ namespace tl
                 }
                 scrollSize.x = std::max(scrollSize.x, sizeHint.w);
                 scrollSize.y = std::max(scrollSize.y, sizeHint.h);
-                const math::Box2i g2(
+                const dtk::Box2I g2(
                     g.min.x - p.scrollPos.x,
                     g.min.y - p.scrollPos.y,
                     sizeHint.w,
@@ -153,9 +153,9 @@ namespace tl
                 }
             }
 
-            const math::Vector2i scrollPos(
-                math::clamp(p.scrollPos.x, 0, std::max(0, p.scrollSize.x - g.w())),
-                math::clamp(p.scrollPos.y, 0, std::max(0, p.scrollSize.y - g.h())));
+            const dtk::V2I scrollPos(
+                dtk::clamp(p.scrollPos.x, 0, std::max(0, p.scrollSize.x - g.w())),
+                dtk::clamp(p.scrollPos.y, 0, std::max(0, p.scrollSize.y - g.h())));
             if (scrollPos != p.scrollPos)
             {
                 p.scrollPos = scrollPos;
@@ -183,10 +183,10 @@ namespace tl
             }
             p.size.sizeInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             for (const auto& child : _children)
             {
-                const math::Size2i& sizeHint = child->getSizeHint();
+                const dtk::Size2I& sizeHint = child->getSizeHint();
                 _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
                 _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
             }
@@ -208,19 +208,18 @@ namespace tl
         }
 
         void ScrollArea::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             if (p.border)
             {
                 event.render->drawMesh(
                     border(g, p.size.border),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::Border));
             }
         }

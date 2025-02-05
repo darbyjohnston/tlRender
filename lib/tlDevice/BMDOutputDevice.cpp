@@ -8,10 +8,10 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/GLFWWindow.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Texture.h>
-#include <tlGL/Util.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Texture.h>
+#include <dtk/gl/Util.h>
+#include <dtk/gl/Window.h>
 
 #include <tlCore/AudioResample.h>
 
@@ -55,7 +55,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<DeviceConfig> > config;
             std::shared_ptr<dtk::ObservableValue<bool> > enabled;
             std::shared_ptr<dtk::ObservableValue<bool> > active;
-            std::shared_ptr<dtk::ObservableValue<math::Size2i> > size;
+            std::shared_ptr<dtk::ObservableValue<dtk::Size2I> > size;
             std::shared_ptr<dtk::ObservableValue<FrameRate> > frameRate;
             std::shared_ptr<dtk::ObservableValue<int> > videoFrameDelay;
 
@@ -67,25 +67,25 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<timeline::VideoData> > videoObserver;
             std::shared_ptr<dtk::ListObserver<timeline::AudioData> > audioObserver;
 
-            std::shared_ptr<gl::GLFWWindow> window;
+            std::shared_ptr<dtk::gl::Window> window;
 
             struct Mutex
             {
                 DeviceConfig config;
                 bool enabled = false;
                 bool active = false;
-                math::Size2i size;
+                dtk::Size2I size;
                 FrameRate frameRate;
                 int videoFrameDelay = bmd::videoFrameDelay;
                 timeline::OCIOOptions ocioOptions;
                 timeline::LUTOptions lutOptions;
-                std::vector<timeline::ImageOptions> imageOptions;
+                std::vector<dtk::ImageOptions> imageOptions;
                 std::vector<timeline::DisplayOptions> displayOptions;
                 HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
                 timeline::CompareOptions compareOptions;
                 timeline::BackgroundOptions backgroundOptions;
-                math::Vector2i viewPos;
+                dtk::V2I viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
                 OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
@@ -94,7 +94,7 @@ namespace tl
                 OTIO_NS::RationalTime currentTime = time::invalidTime;
                 bool seek = false;
                 std::vector<timeline::VideoData> videoData;
-                std::shared_ptr<image::Image> overlay;
+                std::shared_ptr<dtk::Image> overlay;
                 float volume = 1.F;
                 bool mute = false;
                 std::vector<bool> channelMute;
@@ -108,19 +108,19 @@ namespace tl
             {
                 std::unique_ptr<DLWrapper> dl;
 
-                math::Size2i size;
+                dtk::Size2I size;
                 PixelType outputPixelType = PixelType::None;
                 HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
-                math::Vector2i viewPos;
+                dtk::V2I viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
                 OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 std::vector<timeline::VideoData> videoData;
-                std::shared_ptr<image::Image> overlay;
+                std::shared_ptr<dtk::Image> overlay;
 
                 std::shared_ptr<timeline::IRender> render;
-                std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
+                std::shared_ptr<dtk::gl::OffscreenBuffer> offscreenBuffer;
                 GLuint pbo = 0;
 
                 std::condition_variable cv;
@@ -138,15 +138,15 @@ namespace tl
             p.config = dtk::ObservableValue<DeviceConfig>::create();
             p.enabled = dtk::ObservableValue<bool>::create(false);
             p.active = dtk::ObservableValue<bool>::create(false);
-            p.size = dtk::ObservableValue<math::Size2i>::create();
+            p.size = dtk::ObservableValue<dtk::Size2I>::create();
             p.frameRate = dtk::ObservableValue<FrameRate>::create();
             p.videoFrameDelay = dtk::ObservableValue<int>::create(bmd::videoFrameDelay);
 
-            p.window = gl::GLFWWindow::create(
+            p.window = dtk::gl::Window::create(
                 context,
                 "tl::bmd::OutputDevice",
-                math::Size2i(1, 1),
-                static_cast<int>(gl::GLFWWindowOptions::None));
+                dtk::Size2I(1, 1),
+                static_cast<int>(dtk::gl::WindowOptions::None));
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -236,12 +236,12 @@ namespace tl
             return _p->active;
         }
 
-        const math::Size2i& OutputDevice::getSize() const
+        const dtk::Size2I& OutputDevice::getSize() const
         {
             return _p->size->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<math::Size2i> > OutputDevice::observeSize() const
+        std::shared_ptr<dtk::IObservableValue<dtk::Size2I> > OutputDevice::observeSize() const
         {
             return _p->size;
         }
@@ -267,9 +267,9 @@ namespace tl
         }
 
         void OutputDevice::setView(
-            const tl::math::Vector2i& position,
-            double                    zoom,
-            bool                      frame)
+            const dtk::V2I& position,
+            double          zoom,
+            bool            frame)
         {
             TLRENDER_P();
             {
@@ -301,7 +301,7 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
-        void OutputDevice::setImageOptions(const std::vector<timeline::ImageOptions>& value)
+        void OutputDevice::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
             TLRENDER_P();
             {
@@ -352,7 +352,7 @@ namespace tl
             p.thread.cv.notify_one();
         }
 
-        void OutputDevice::setOverlay(const std::shared_ptr<image::Image>& value)
+        void OutputDevice::setOverlay(const std::shared_ptr<dtk::Image>& value)
         {
             TLRENDER_P();
             {
@@ -536,7 +536,7 @@ namespace tl
         {
             TLRENDER_P();
             bool active = false;
-            math::Size2i size = p.size->get();
+            dtk::Size2I size = p.size->get();
             FrameRate frameRate = p.frameRate->get();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -558,7 +558,7 @@ namespace tl
             int videoFrameDelay = bmd::videoFrameDelay;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
-            std::vector<timeline::ImageOptions> imageOptions;
+            std::vector<dtk::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
             timeline::BackgroundOptions backgroundOptions;
@@ -571,7 +571,7 @@ namespace tl
             std::vector<bool> channelMute;
             double audioOffset = 0.0;
             std::vector<timeline::AudioData> audioData;
-            std::shared_ptr<image::Image> overlay;
+            std::shared_ptr<dtk::Image> overlay;
 
             if (auto context = p.context.lock())
             {
@@ -690,7 +690,7 @@ namespace tl
                     p.thread.dl.reset();
 
                     bool active = false;
-                    math::Size2i size;
+                    dtk::Size2I size;
                     FrameRate frameRate;
                     if (enabled)
                     {
@@ -799,7 +799,7 @@ namespace tl
         void OutputDevice::_createDevice(
             const DeviceConfig& config,
             bool& active,
-            math::Size2i& size,
+            dtk::Size2I& size,
             FrameRate& frameRate,
             int videoFrameDelay)
         {
@@ -990,7 +990,7 @@ namespace tl
             const DeviceConfig& config,
             const timeline::OCIOOptions& ocioOptions,
             const timeline::LUTOptions& lutOptions,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
             const timeline::BackgroundOptions& backgroundOptions)
@@ -998,34 +998,34 @@ namespace tl
             TLRENDER_P();
 
             // Create the offscreen buffer.
-            const math::Size2i renderSize = timeline::getRenderSize(
+            const dtk::Size2I renderSize = timeline::getRenderSize(
                 compareOptions.mode,
                 p.thread.videoData);
-            gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = getColorBuffer(p.thread.outputPixelType);
+            dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+            offscreenBufferOptions.color = getColorBuffer(p.thread.outputPixelType);
             if (!displayOptions.empty())
             {
                 offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
             }
-            offscreenBufferOptions.depth = gl::OffscreenDepth::_24;
-            offscreenBufferOptions.stencil = gl::OffscreenStencil::_8;
-            if (gl::doCreate(p.thread.offscreenBuffer, p.thread.size, offscreenBufferOptions))
+            offscreenBufferOptions.depth = dtk::gl::OffscreenDepth::_24;
+            offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
+            if (dtk::gl::doCreate(p.thread.offscreenBuffer, p.thread.size, offscreenBufferOptions))
             {
-                p.thread.offscreenBuffer = gl::OffscreenBuffer::create(p.thread.size, offscreenBufferOptions);
+                p.thread.offscreenBuffer = dtk::gl::OffscreenBuffer::create(p.thread.size, offscreenBufferOptions);
             }
 
             // Render the video.
             if (p.thread.offscreenBuffer)
             {
-                gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
+                dtk::gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
-                timeline::RenderOptions renderOptions;
+                dtk::RenderOptions renderOptions;
                 renderOptions.colorBuffer = getColorBuffer(p.thread.outputPixelType);
                 p.thread.render->begin(p.thread.size, renderOptions);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 
-                math::Vector2i viewPosTmp = p.thread.viewPos;
+                dtk::V2I viewPosTmp = p.thread.viewPos;
                 double viewZoomTmp = p.thread.viewZoom;
                 if (p.thread.frameView)
                 {
@@ -1034,15 +1034,15 @@ namespace tl
                     {
                         zoom = p.thread.size.h / static_cast<double>(renderSize.h);
                     }
-                    const math::Vector2i c(renderSize.w / 2, renderSize.h / 2);
+                    const dtk::V2I c(renderSize.w / 2, renderSize.h / 2);
                     viewPosTmp.x = p.thread.size.w / 2.0 - c.x * zoom;
                     viewPosTmp.y = p.thread.size.h / 2.0 - c.y * zoom;
                     viewZoomTmp = zoom;
                 }
-                math::Matrix4x4f vm;
-                vm = vm * math::translate(math::Vector3f(viewPosTmp.x, viewPosTmp.y, 0.F));
-                vm = vm * math::scale(math::Vector3f(viewZoomTmp, viewZoomTmp, 1.F));
-                const auto pm = math::ortho(
+                dtk::M44F vm;
+                vm = vm * dtk::translate(dtk::V3F(viewPosTmp.x, viewPosTmp.y, 0.F));
+                vm = vm * dtk::scale(dtk::V3F(viewZoomTmp, viewZoomTmp, 1.F));
+                const auto pm = dtk::ortho(
                     0.F,
                     static_cast<float>(p.thread.size.w),
                     0.F,
@@ -1063,11 +1063,11 @@ namespace tl
                 if (p.thread.overlay)
                 {
                     p.thread.render->setTransform(pm);
-                    timeline::ImageOptions imageOptions;
-                    imageOptions.alphaBlend = timeline::AlphaBlend::Premultiplied;
+                    dtk::ImageOptions imageOptions;
+                    imageOptions.alphaBlend = dtk::AlphaBlend::Premultiplied;
                     p.thread.render->drawImage(
                         p.thread.overlay,
-                        math::Box2i(
+                        dtk::Box2I(
                             0,
                             0,
                             p.thread.overlay->getWidth(),

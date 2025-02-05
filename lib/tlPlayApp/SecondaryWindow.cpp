@@ -26,10 +26,10 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
         void SecondaryWindow::_init(
@@ -72,9 +72,9 @@ namespace tl
                     _p->viewport->setLUTOptions(value);
                 });
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions& value)
+                [this](const dtk::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });
@@ -93,9 +93,9 @@ namespace tl
                     _p->viewport->setBackgroundOptions(value);
                 });
 
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 app->getRenderModel()->observeColorBuffer(),
-                [this](image::PixelType value)
+                [this](dtk::ImageType value)
                 {
                     _p->viewport->setColorBuffer(value);
                 });
@@ -127,7 +127,7 @@ namespace tl
         }
 
         void SecondaryWindow::setView(
-            const tl::math::Vector2i& pos,
+            const dtk::V2I& pos,
             double zoom,
             bool frame)
         {

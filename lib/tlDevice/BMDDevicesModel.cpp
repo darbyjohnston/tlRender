@@ -36,7 +36,7 @@ namespace tl
             int pixelTypeIndex = 0;
             bool deviceEnabled = true;
             BoolOptions boolOptions;
-            image::VideoLevels videoLevels = image::VideoLevels::LegalRange;
+            dtk::VideoLevels videoLevels = dtk::VideoLevels::LegalRange;
             HDRMode hdrMode = HDRMode::FromFile;
             image::HDRData hdrData;
             std::shared_ptr<dtk::ObservableValue<DevicesModelData> > data;
@@ -129,7 +129,7 @@ namespace tl
             _update();
         }
 
-        void DevicesModel::setVideoLevels(image::VideoLevels value)
+        void DevicesModel::setVideoLevels(dtk::VideoLevels value)
         {
             TLRENDER_P();
             if (value == p.videoLevels)

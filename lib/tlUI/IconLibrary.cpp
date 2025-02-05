@@ -158,7 +158,7 @@ namespace tl
             {
                 std::string name;
                 float displayScale = 1.F;
-                std::promise<std::shared_ptr<image::Image> > promise;
+                std::promise<std::shared_ptr<dtk::Image> > promise;
                 std::shared_ptr<io::IRead> reader;
                 std::future<io::VideoData> future;
             };
@@ -177,7 +177,7 @@ namespace tl
             struct Thread
             {
                 std::shared_ptr<io::IPlugin> plugin;
-                dtk::LRUCache<CacheKey, std::shared_ptr<image::Image> > cache;
+                dtk::LRUCache<CacheKey, std::shared_ptr<dtk::Image> > cache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -351,7 +351,7 @@ namespace tl
                                 dpi = 192;
                             }
 
-                            std::shared_ptr<image::Image> image;
+                            std::shared_ptr<dtk::Image> image;
                             if (p.thread.cache.get(std::make_pair((*i)->name, (*i)->displayScale), image))
                             {
                                 (*i)->promise.set_value(image);
@@ -386,7 +386,7 @@ namespace tl
                         }
                         for (const auto& request : requests)
                         {
-                            std::shared_ptr<image::Image> image;
+                            std::shared_ptr<dtk::Image> image;
                             if (request->future.valid())
                             {
                                 image = request->future.get().image;
@@ -427,7 +427,7 @@ namespace tl
             return out;
         }
 
-        std::future<std::shared_ptr<image::Image> > IconLibrary::request(
+        std::future<std::shared_ptr<dtk::Image> > IconLibrary::request(
             const std::string& name,
             float displayScale)
         {

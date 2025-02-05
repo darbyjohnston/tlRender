@@ -20,14 +20,14 @@ namespace tl
                 int size = 0;
                 int border = 0;
                 int handle = 0;
-                image::FontMetrics fontMetrics;
+                dtk::FontMetrics fontMetrics;
             };
             SizeData size;
 
             std::function<void(float)> callback;
 
             std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeF> > rangeObserver;
         };
 
         void FloatSlider::_init(
@@ -61,9 +61,9 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeF>::create(
                 p.model->observeRange(),
-                [this](const math::FloatRange&)
+                [this](const dtk::RangeF&)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
@@ -102,12 +102,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::FloatRange& FloatSlider::getRange() const
+        const dtk::RangeF& FloatSlider::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void FloatSlider::setRange(const math::FloatRange& value)
+        void FloatSlider::setRange(const dtk::RangeF& value)
         {
             _p->model->setRange(value);
         }
@@ -157,34 +157,32 @@ namespace tl
         }
 
         void FloatSlider::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
             else
             {
                 event.render->drawMesh(
-                    border(g.margin(-p.size.border), p.size.border),
-                    math::Vector2i(),
+                    border(dtk::margin(g, -p.size.border), p.size.border),
                     event.style->getColorRole(ColorRole::Border));
             }
 
             event.render->drawRect(
-                g.margin(-p.size.border * 2),
+                dtk::margin(g, -p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
-            const math::Box2i g2 = _getSliderGeometry();
+            const dtk::Box2I g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
             //    dtk::Color4F(1.F, 0.F, 0.F, .5F));
@@ -193,7 +191,7 @@ namespace tl
             {
                 pos = _valueToPos(p.model->getValue());
             }
-            const math::Box2i g3(
+            const dtk::Box2I g3(
                 pos - p.size.handle / 2,
                 g2.y(),
                 p.size.handle,
@@ -282,11 +280,11 @@ namespace tl
                     break;
                 case Key::End:
                     event.accept = true;
-                    p.model->setValue(p.model->getRange().getMin());
+                    p.model->setValue(p.model->getRange().min());
                     break;
                 case Key::Home:
                     event.accept = true;
-                    p.model->setValue(p.model->getRange().getMax());
+                    p.model->setValue(p.model->getRange().max());
                     break;
                 case Key::Escape:
                     if (hasKeyFocus())
@@ -305,10 +303,10 @@ namespace tl
             event.accept = true;
         }
 
-        math::Box2i FloatSlider::_getSliderGeometry() const
+        dtk::Box2I FloatSlider::_getSliderGeometry() const
         {
             TLRENDER_P();
-            return _geometry.margin(
+            return dtk::margin(_geometry,
                 -(p.size.border * 3 + p.size.handle / 2),
                 -(p.size.border * 3),
                 -(p.size.border * 3 + p.size.handle / 2),
@@ -318,13 +316,13 @@ namespace tl
         float FloatSlider::_posToValue(int pos) const
         {
             TLRENDER_P();
-            const math::Box2i g = _getSliderGeometry();
+            const dtk::Box2I g = _getSliderGeometry();
             const float v = (pos - g.x()) / static_cast<float>(g.w());
             float out = 0.F;
             if (p.model)
             {
-                const math::FloatRange& range = p.model->getRange();
-                out = range.getMin() + (range.getMax() - range.getMin()) * v;
+                const dtk::RangeF& range = p.model->getRange();
+                out = range.min() + (range.max() - range.min()) * v;
             }
             return out;
         }
@@ -332,15 +330,15 @@ namespace tl
         int FloatSlider::_valueToPos(float value) const
         {
             TLRENDER_P();
-            const math::Box2i g = _getSliderGeometry();
+            const dtk::Box2I g = _getSliderGeometry();
             float v = 0.F;
             if (p.model)
             {
-                const math::FloatRange& range = p.model->getRange();
-                if (range.getMin() != range.getMax())
+                const dtk::RangeF& range = p.model->getRange();
+                if (range.min() != range.max())
                 {
-                    v = (value - range.getMin()) /
-                        static_cast<float>(range.getMax() - range.getMin());
+                    v = (value - range.min()) /
+                        static_cast<float>(range.max() - range.min());
                 }
             }
             return g.x() + g.w() * v;

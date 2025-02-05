@@ -4,7 +4,7 @@
 
 #include <tlUI/LayoutUtil.h>
 
-#include <tlCore/Math.h>
+#include <dtk/core/Math.h>
 
 #include <sstream>
 
@@ -12,16 +12,16 @@ namespace tl
 {
     namespace ui
     {
-        math::Box2i align(
-            const math::Box2i&    box,
-            const math::Size2i& sizeHint,
+        dtk::Box2I align(
+            const dtk::Box2I&    box,
+            const dtk::Size2I& sizeHint,
             Stretch               hStretch,
             Stretch               vStretch,
             HAlign                hAlign,
             VAlign                vAlign)
         {
-            math::Vector2i pos;
-            math::Vector2i size;
+            dtk::V2I pos;
+            dtk::V2I size;
 
             switch (hStretch)
             {
@@ -69,14 +69,14 @@ namespace tl
                 break;
             }
 
-            return math::Box2i(pos.x, pos.y, size.x, size.y);
+            return dtk::Box2I(pos.x, pos.y, size.x, size.y);
         }
 
         std::string format(int value)
         {
             std::stringstream ss;
             ss << std::setfill('0');
-            ss << std::setw(math::digits(value));
+            ss << std::setw(dtk::digits(value));
             ss << 0;
             return ss.str();
         }
@@ -87,7 +87,7 @@ namespace tl
             ss.precision(precision);
             ss << std::fixed;
             ss << std::setfill('0');
-            ss << std::setw(math::digits(value));
+            ss << std::setw(dtk::digits(value));
             ss << 0;
             return ss.str();
         }

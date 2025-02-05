@@ -23,7 +23,7 @@ namespace tl
             std::shared_ptr<ScrollBar> horizontalScrollBar;
             std::shared_ptr<ScrollBar> verticalScrollBar;
             std::shared_ptr<GridLayout> layout;
-            std::function<void(const math::Vector2i&)> scrollPosCallback;
+            std::function<void(const dtk::V2I&)> scrollPosCallback;
         };
 
         void ScrollWidget::_init(
@@ -75,7 +75,7 @@ namespace tl
                 p.horizontalScrollBar->setScrollPosCallback(
                     [this](int value)
                     {
-                        math::Vector2i scrollPos;
+                        dtk::V2I scrollPos;
                         scrollPos.x = value;
                         if (_p->verticalScrollBar)
                         {
@@ -90,7 +90,7 @@ namespace tl
                 p.verticalScrollBar->setScrollPosCallback(
                     [this](int value)
                     {
-                        math::Vector2i scrollPos;
+                        dtk::V2I scrollPos;
                         if (_p->horizontalScrollBar)
                         {
                             scrollPos.x = _p->horizontalScrollBar->getScrollPos();
@@ -101,7 +101,7 @@ namespace tl
             }
 
             p.scrollArea->setScrollSizeCallback(
-                [this](const math::Vector2i& value)
+                [this](const dtk::V2I& value)
                 {
                     if (_p->horizontalScrollBar)
                     {
@@ -114,7 +114,7 @@ namespace tl
                 });
 
             p.scrollArea->setScrollPosCallback(
-                [this](const math::Vector2i& value)
+                [this](const dtk::V2I& value)
                 {
                     if (_p->horizontalScrollBar)
                     {
@@ -162,27 +162,27 @@ namespace tl
             }
         }
 
-        math::Box2i ScrollWidget::getViewport() const
+        dtk::Box2I ScrollWidget::getViewport() const
         {
             return _p->scrollArea->getChildrenClipRect();
         }
 
-        const math::Vector2i& ScrollWidget::getScrollSize() const
+        const dtk::V2I& ScrollWidget::getScrollSize() const
         {
             return _p->scrollArea->getScrollSize();
         }
 
-        const math::Vector2i& ScrollWidget::getScrollPos() const
+        const dtk::V2I& ScrollWidget::getScrollPos() const
         {
             return _p->scrollArea->getScrollPos();
         }
 
-        void ScrollWidget::setScrollPos(const math::Vector2i& value, bool clamp)
+        void ScrollWidget::setScrollPos(const dtk::V2I& value, bool clamp)
         {
             _p->scrollArea->setScrollPos(value, clamp);
         }
         
-        void ScrollWidget::setScrollPosCallback(const std::function<void(const math::Vector2i&)>& value)
+        void ScrollWidget::setScrollPosCallback(const std::function<void(const dtk::V2I&)>& value)
         {
             _p->scrollPosCallback = value;
         }
@@ -219,7 +219,7 @@ namespace tl
             _p->layout->setMarginRole(value);
         }
 
-        void ScrollWidget::setGeometry(const math::Box2i& value)
+        void ScrollWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -238,7 +238,7 @@ namespace tl
             if (p.scrollEventsEnabled)
             {
                 event.accept = true;
-                math::Vector2i scrollPos = getScrollPos();
+                dtk::V2I scrollPos = getScrollPos();
                 scrollPos.y -= event.value.y * getLineStep();
                 setScrollPos(scrollPos);
             }
@@ -255,7 +255,7 @@ namespace tl
                 case Key::PageUp:
                 {
                     event.accept = true;
-                    math::Vector2i scrollPos = getScrollPos();
+                    dtk::V2I scrollPos = getScrollPos();
                     scrollPos.y -= getPageStep();
                     setScrollPos(scrollPos);
                     break;
@@ -263,7 +263,7 @@ namespace tl
                 case Key::PageDown:
                 {
                     event.accept = true;
-                    math::Vector2i scrollPos = getScrollPos();
+                    dtk::V2I scrollPos = getScrollPos();
                     scrollPos.y += getPageStep();
                     setScrollPos(scrollPos);
                     break;
@@ -282,14 +282,14 @@ namespace tl
         int ScrollWidget::getLineStep() const
         {
             TLRENDER_P();
-            const math::Size2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
+            const dtk::Size2I scrollAreaSize = p.scrollArea->getGeometry().size();
             return scrollAreaSize.h / 10.F;
         }
 
         int ScrollWidget::getPageStep() const
         {
             TLRENDER_P();
-            const math::Size2i scrollAreaSize = p.scrollArea->getGeometry().getSize();
+            const dtk::Size2I scrollAreaSize = p.scrollArea->getGeometry().size();
             return scrollAreaSize.h;
         }
     }

@@ -156,7 +156,7 @@ namespace tl
                     // Get the display and data windows.
                     _displayWindow = fromImath(_f->header().displayWindow());
                     _dataWindow = fromImath(_f->header().dataWindow());
-                    _intersectedWindow = _displayWindow.intersect(_dataWindow);
+                    _intersectedWindow = dtk::intersect(_displayWindow, _dataWindow);
                     _fast = _displayWindow == _dataWindow;
 
                     {
@@ -191,28 +191,30 @@ namespace tl
                     for (size_t i = 0; i < _layers.size(); ++i)
                     {
                         const auto& layer = _layers[i];
-                        const math::Vector2i sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
+                        const dtk::V2I sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
                         if (sampling.x != 1 || sampling.y != 1)
+                        {
                             _fast = false;
+                        }
                         auto& info = _info.video[i];
                         info.name = layer.name;
                         info.size.w = _displayWindow.w();
                         info.size.h = _displayWindow.h();
-                        info.size.pixelAspectRatio = _f->header().pixelAspectRatio();
+                        info.pixelAspectRatio = _f->header().pixelAspectRatio();
                         switch (layer.channels[0].pixelType)
                         {
                         case Imf::PixelType::HALF:
-                            info.pixelType = image::getFloatType(layer.channels.size(), 16);
+                            info.type = io::getFloatType(layer.channels.size(), 16);
                             break;
                         case Imf::PixelType::FLOAT:
-                            info.pixelType = image::getFloatType(layer.channels.size(), 32);
+                            info.type = io::getFloatType(layer.channels.size(), 32);
                             break;
                         case Imf::PixelType::UINT:
-                            info.pixelType = image::getIntType(layer.channels.size(), 32);
+                            info.type = io::getIntType(layer.channels.size(), 32);
                             break;
                         default: break;
                         }
-                        if (image::PixelType::None == info.pixelType)
+                        if (dtk::ImageType::None == info.type)
                         {
                             throw std::runtime_error(dtk::Format("{0}: Unsupported image type").arg(fileName));
                         }
@@ -239,11 +241,11 @@ namespace tl
                             std::atoi(i->second.c_str()),
                             static_cast<int>(_info.video.size()) - 1);
                     }
-                    image::Info imageInfo = _info.video[layer];
-                    out.image = image::Image::create(imageInfo);
+                    dtk::ImageInfo imageInfo = _info.video[layer];
+                    out.image = dtk::Image::create(imageInfo);
                     out.image->setTags(_info.tags);
-                    const size_t channels = image::getChannelCount(imageInfo.pixelType);
-                    const size_t channelByteCount = image::getBitDepth(imageInfo.pixelType) / 8;
+                    const size_t channels = dtk::getChannelCount(imageInfo.type);
+                    const size_t channelByteCount = dtk::getBitDepth(imageInfo.type) / 8;
                     const size_t cb = channels * channelByteCount;
                     const size_t scb = imageInfo.size.w * channels * channelByteCount;
                     if (_fast)
@@ -252,7 +254,7 @@ namespace tl
                         for (size_t c = 0; c < channels; ++c)
                         {
                             const std::string& name = _layers[layer].channels[c].name;
-                            const math::Vector2i& sampling = _layers[layer].channels[c].sampling;
+                            const dtk::V2I& sampling = _layers[layer].channels[c].sampling;
                             frameBuffer.insert(
                                 name.c_str(),
                                 Imf::Slice(
@@ -274,7 +276,7 @@ namespace tl
                         for (int c = 0; c < channels; ++c)
                         {
                             const std::string& name = _layers[layer].channels[c].name;
-                            const math::Vector2i& sampling = _layers[layer].channels[c].sampling;
+                            const dtk::V2I& sampling = _layers[layer].channels[c].sampling;
                             frameBuffer.insert(
                                 name.c_str(),
                                 Imf::Slice(
@@ -314,9 +316,9 @@ namespace tl
                 ChannelGrouping                 _channelGrouping = ChannelGrouping::Known;
                 std::unique_ptr<Imf::IStream>   _s;
                 std::unique_ptr<Imf::InputFile> _f;
-                math::Box2i                    _displayWindow;
-                math::Box2i                    _dataWindow;
-                math::Box2i                    _intersectedWindow;
+                dtk::Box2I                    _displayWindow;
+                dtk::Box2I                    _dataWindow;
+                dtk::Box2I                    _intersectedWindow;
                 std::vector<Layer>              _layers;
                 bool                            _fast = false;
                 io::Info                        _info;

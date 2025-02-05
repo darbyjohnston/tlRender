@@ -28,7 +28,7 @@ namespace tl
                 static std::shared_ptr<MainWindow> create(
                     const std::shared_ptr<dtk::Context>&);
 
-                void setGeometry(const math::Box2i&) override;
+                void setGeometry(const dtk::Box2I&) override;
 
             private:
                 TLRENDER_PRIVATE();

@@ -6,7 +6,7 @@
 
 #include <tlUI/Event.h>
 
-#include <tlCore/Size.h>
+#include <dtk/core/Size.h>
 
 namespace tl
 {
@@ -23,7 +23,7 @@ namespace tl
         //! Application options.
         struct Options
         {
-            math::Size2i windowSize = math::Size2i(1920, 1080);
+            dtk::Size2I windowSize = dtk::Size2I(1920, 1080);
             bool fullscreen = false;
         };
 

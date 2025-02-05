@@ -45,9 +45,9 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::Box2i&) override;
+                void setGeometry(const dtk::Box2I&) override;
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
-                void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
+                void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
                 void mouseEnterEvent() override;
                 void mouseLeaveEvent() override;
                 void mouseMoveEvent(ui::MouseMoveEvent&) override;
@@ -82,7 +82,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
-                void setGeometry(const math::Box2i&) override;
+                void setGeometry(const dtk::Box2I&) override;
                 void sizeHintEvent(const ui::SizeHintEvent&) override;
 
             private:

@@ -17,7 +17,7 @@ namespace tl
     {
         struct IntEditSlider::Private
         {
-            math::IntRange range = math::IntRange(0, 100);
+            dtk::RangeI range = dtk::RangeI(0, 100);
             int value = 0;
             int defaultValue = -1;
             int singleStep = 1;
@@ -68,7 +68,7 @@ namespace tl
         IntEditSlider::~IntEditSlider()
         {}
 
-        const math::IntRange& IntEditSlider::range() const
+        const dtk::RangeI& IntEditSlider::range() const
         {
             return _p->range;
         }
@@ -98,7 +98,7 @@ namespace tl
             return _p->orientation;
         }
 
-        void IntEditSlider::setRange(const math::IntRange& value)
+        void IntEditSlider::setRange(const dtk::RangeI& value)
         {
             TLRENDER_P();
             if (value == p.range)
@@ -201,18 +201,18 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker blocker(p.spinBox);
-                p.spinBox->setRange(p.range.getMin(), p.range.getMax());
+                p.spinBox->setRange(p.range.min(), p.range.max());
                 p.spinBox->setValue(p.value);
                 p.spinBox->setSingleStep(p.singleStep);
             }
             {
                 QSignalBlocker blocker(p.slider);
-                p.slider->setRange(p.range.getMin(), p.range.getMax());
+                p.slider->setRange(p.range.min(), p.range.max());
                 p.slider->setValue(p.value);
                 p.slider->setSingleStep(p.singleStep);
                 p.slider->setPageStep(p.pageStep);
             }
-            p.defaultValueButton->setVisible(p.range.contains(p.defaultValue));
+            p.defaultValueButton->setVisible(dtk::contains(p.range, p.defaultValue));
             p.defaultValueButton->setEnabled(p.value != p.defaultValue);
         }
     }

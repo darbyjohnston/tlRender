@@ -164,7 +164,7 @@ namespace tl
                 }
 
                 OTIO_NS::RationalTime timeReference = time::invalidTime;
-                image::Tags tags;
+                dtk::ImageTags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
@@ -299,7 +299,7 @@ namespace tl
             return _timeRange;
         }
 
-        const image::Tags& ReadAudio::getTags() const
+        const dtk::ImageTags& ReadAudio::getTags() const
         {
             return _tags;
         }

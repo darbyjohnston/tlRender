@@ -4,9 +4,13 @@
 
 #pragma once
 
-#include <tlCore/Range.h>
 #include <tlCore/Util.h>
-#include <tlCore/Vector.h>
+
+#include <dtk/core/Range.h>
+#include <dtk/core/Vector.h>
+#include <dtk/core/Util.h>
+
+#include <nlohmann/json.hpp>
 
 #include <array>
 
@@ -24,8 +28,7 @@ namespace tl
             Count,
             First = SDR
         };
-        TLRENDER_ENUM(HDR_EOTF);
-        TLRENDER_ENUM_SERIALIZE(HDR_EOTF);
+        DTK_ENUM(HDR_EOTF);
 
         //! HDR color primaries.
         enum HDRPrimaries
@@ -38,8 +41,7 @@ namespace tl
             Count,
             First = Red
         };
-        TLRENDER_ENUM(HDRPrimaries);
-        TLRENDER_ENUM_SERIALIZE(HDRPrimaries);
+        DTK_ENUM(HDRPrimaries);
 
         //! HDR data.
         struct HDRData
@@ -47,14 +49,14 @@ namespace tl
             HDR_EOTF eotf = HDR_EOTF::SDR;
 
             //! Default Rec. 2020 color primaries (red, green, blue, white).
-            std::array<math::Vector2f, HDRPrimaries::Count> primaries =
+            std::array<dtk::V2F, HDRPrimaries::Count> primaries =
             {
-                math::Vector2f(.708F,  .292F),
-                math::Vector2f(.170F,  .797F),
-                math::Vector2f(.131F,  .046F),
-                math::Vector2f(.3127F, .3290F)
+                dtk::V2F(.708F,  .292F),
+                dtk::V2F(.170F,  .797F),
+                dtk::V2F(.131F,  .046F),
+                dtk::V2F(.3127F, .3290F)
             };
-            math::FloatRange displayMasteringLuminance = math::FloatRange(0.F, 1000.F);
+            dtk::RangeF displayMasteringLuminance = dtk::RangeF(0.F, 1000.F);
             float maxCLL  = 1000.F;
             float maxFALL = 400.F;
 

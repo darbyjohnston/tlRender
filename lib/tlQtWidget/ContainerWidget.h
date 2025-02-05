@@ -64,9 +64,9 @@ namespace tl
             bool event(QEvent*) override;
 
             int _toUI(int) const;
-            math::Vector2i _toUI(const math::Vector2i&) const;
+            dtk::V2I _toUI(const dtk::V2I&) const;
             int _fromUI(int) const;
-            math::Vector2i _fromUI(const math::Vector2i&) const;
+            dtk::V2I _fromUI(const dtk::V2I&) const;
 
         private:
             void _tickEvent();
@@ -87,13 +87,13 @@ namespace tl
             void _clipEvent();
             void _clipEvent(
                 const std::shared_ptr<ui::IWidget>&,
-                const math::Box2i&,
+                const dtk::Box2I&,
                 bool clipped);
 
             bool _hasDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
             void _drawEvent(
                 const std::shared_ptr<ui::IWidget>&,
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
 
             void _inputUpdate();

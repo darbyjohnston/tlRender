@@ -61,17 +61,17 @@ namespace tl
             void setPressCallback(const std::function<void(bool)>&);
 
             //! Set the move callback.
-            void setMoveCallback(const std::function<void(const math::Vector2i&)>&);
+            void setMoveCallback(const std::function<void(const dtk::V2I&)>&);
 
             //! Set the resize callback.
-            void setResizeCallback(const std::function<void(MDIResize, const math::Vector2i&)>&);
+            void setResizeCallback(const std::function<void(MDIResize, const dtk::V2I&)>&);
 
             //! Get the inside geometry.
-            const math::Box2i& getInsideGeometry() const;
+            const dtk::Box2I& getInsideGeometry() const;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
             void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
             void mousePressEvent(MouseClickEvent&) override;

@@ -134,7 +134,7 @@ namespace tl
             p.video.add(
                 key,
                 videoData,
-                videoData.image ? videoData.image->getDataByteCount() : 1);
+                videoData.image ? videoData.image->getByteCount() : 1);
         }
 
         bool Cache::containsVideo(const std::string& key) const

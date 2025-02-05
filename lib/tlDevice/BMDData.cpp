@@ -63,7 +63,7 @@ namespace tl
             return out;
         }
 
-        size_t getDataByteCount(const math::Size2i& size, PixelType pixelType)
+        size_t getDataByteCount(const dtk::Size2I& size, PixelType pixelType)
         {
             return getRowByteCount(size.w, pixelType) * size.h;
         }

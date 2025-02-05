@@ -48,7 +48,7 @@ namespace tl
         void Player::setVolume(float value)
         {
             TLRENDER_P();
-            if (p.volume->setIfChanged(math::clamp(value, 0.F, 1.F)))
+            if (p.volume->setIfChanged(dtk::clamp(value, 0.F, 1.F)))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                 p.audioMutex.volume = value;

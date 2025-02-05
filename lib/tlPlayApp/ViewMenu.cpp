@@ -101,17 +101,17 @@ namespace tl
 
                     _p->menus["MinifyFilter"]->setItemChecked(
                         _p->actions["MinifyNearest"],
-                        timeline::ImageFilter::Nearest == value.imageFilters.minify);
+                        dtk::ImageFilter::Nearest == value.imageFilters.minify);
                     _p->menus["MinifyFilter"]->setItemChecked(
                         _p->actions["MinifyLinear"],
-                        timeline::ImageFilter::Linear == value.imageFilters.minify);
+                        dtk::ImageFilter::Linear == value.imageFilters.minify);
 
                     _p->menus["MagnifyFilter"]->setItemChecked(
                         _p->actions["MagnifyNearest"],
-                        timeline::ImageFilter::Nearest == value.imageFilters.magnify);
+                        dtk::ImageFilter::Nearest == value.imageFilters.magnify);
                     _p->menus["MagnifyFilter"]->setItemChecked(
                         _p->actions["MagnifyLinear"],
-                        timeline::ImageFilter::Linear == value.imageFilters.magnify);
+                        dtk::ImageFilter::Linear == value.imageFilters.magnify);
                 });
         }
 

@@ -54,7 +54,7 @@ namespace tl
 
             ~ClipRectState();
 
-            const math::Box2i& getClipRect() const;
+            const dtk::Box2I& getClipRect() const;
 
         private:
             TLRENDER_PRIVATE();
@@ -71,5 +71,9 @@ namespace tl
         private:
             TLRENDER_PRIVATE();
         };
+
+        //! Get a box with the given aspect ratio that fits within
+        //! the given box.
+        dtk::Box2I getBox(float aspect, const dtk::Box2I&);
     }
 }

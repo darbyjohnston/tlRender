@@ -45,7 +45,7 @@ namespace tl
             void setScrollPosCallback(const std::function<void(int)>&);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
             void mouseMoveEvent(MouseMoveEvent&) override;
@@ -53,8 +53,8 @@ namespace tl
             void mouseReleaseEvent(MouseClickEvent&) override;
 
         private:
-            math::Box2i _getBorderGeometry() const;
-            math::Box2i _getHandleGeometry() const;
+            dtk::Box2I _getBorderGeometry() const;
+            dtk::Box2I _getHandleGeometry() const;
             int _getScrollPosMax() const;
             float _getScrollScale() const;
 

@@ -10,11 +10,10 @@
 
 #include <tlTimelineUI/Init.h>
 
-#include <tlCore/FontSystem.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 #include <dtk/core/Format.h>
+#include <dtk/resource/Resource.h>
 
 #include <QDir>
 #include <QFontDatabase>
@@ -51,7 +50,7 @@ namespace tl
                     "NotoSans-Regular"
                 }))
             {
-                const auto font = image::getFontData(i);
+                const auto font = dtk::getFontResource(i);
                 const int id = QFontDatabase::addApplicationFontFromData(
                     QByteArray(reinterpret_cast<const char*>(font.data()), font.size()));
                 for (const auto& j : QFontDatabase::applicationFontFamilies(id))

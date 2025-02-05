@@ -20,7 +20,7 @@ namespace tl
             void ITestPattern::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::string& name,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 _context = context;
                 _name = name;
@@ -40,17 +40,17 @@ namespace tl
 
             void CountTestPattern::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 ITestPattern::_init(context, getClassName(), size);
 
-                auto fontSystem = context->getSystem<image::FontSystem>();
-                _secondsFontInfo = image::FontInfo(
+                auto fontSystem = context->getSystem<dtk::FontSystem>();
+                _secondsFontInfo = dtk::FontInfo(
                     "NotoMono-Regular",
                     _size.h / 2.F);
                 _secondsFontMetrics = fontSystem->getMetrics(_secondsFontInfo);
 
-                _framesFontInfo = image::FontInfo(
+                _framesFontInfo = dtk::FontInfo(
                     "NotoMono-Regular",
                     _secondsFontInfo.size / 4.F);
                 _framesFontMetrics = fontSystem->getMetrics(_framesFontInfo);
@@ -66,7 +66,7 @@ namespace tl
 
             std::shared_ptr<CountTestPattern> CountTestPattern::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 auto out = std::shared_ptr<CountTestPattern>(new CountTestPattern);
                 out->_init(context, size);
@@ -84,32 +84,32 @@ namespace tl
                     const int frames = static_cast<int>(time.value()) % static_cast<int>(time.rate());
 
                     const std::string secondsString = dtk::Format("{0}").arg(wholeSeconds);
-                    auto fontSystem = context->getSystem<image::FontSystem>();
-                    const math::Size2i secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
-                    const math::Vector2i secondsPos(
+                    auto fontSystem = context->getSystem<dtk::FontSystem>();
+                    const dtk::Size2I secondsSize = fontSystem->getSize(secondsString, _secondsFontInfo);
+                    const dtk::V2I secondsPos(
                         _size.w / 2.F - secondsSize.w / 2.F,
                         _size.h / 2.F - secondsSize.h / 2.F);
 
                     const std::string framesString = dtk::Format("{0}").arg(frames);
-                    const math::Size2i framesSize = fontSystem->getSize(framesString, _framesFontInfo);
-                    const math::Vector2i framesPos(
+                    const dtk::Size2I framesSize = fontSystem->getSize(framesString, _framesFontInfo);
+                    const dtk::V2I framesPos(
                         _size.w / 2.F - framesSize.w / 2.F,
                         secondsPos.y + secondsSize.h);
 
                     render->drawRect(
-                        math::Box2i(0, 0, _size.w, _size.h),
+                        dtk::Box2I(0, 0, _size.w, _size.h),
                         dtk::Color4F(.1F, .1F, .1F));
 
                     /*render->drawRect(
-                        math::Box2i(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
+                        dtk::Box2I(secondsPos.x, secondsPos.y, secondsSize.x, secondsSize.y),
                         dtk::Color4F(.5F, 0.F, 0.F));
                     render->drawRect(
-                        math::Box2i(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
+                        dtk::Box2I(framesPos.x, framesPos.y, framesSize.x, framesSize.y),
                         dtk::Color4F(0.F, .5F, 0.F));*/
 
                     const size_t resolution = 100;
-                    geom::TriangleMesh2 mesh;
-                    mesh.v.push_back(math::Vector2f(
+                    dtk::TriMesh2F mesh;
+                    mesh.v.push_back(dtk::V2F(
                         _size.w / 2.F,
                         _size.h / 2.F));
                     for (int i = 0; i < resolution; ++i)
@@ -117,29 +117,29 @@ namespace tl
                         const float f = i / static_cast<float>(resolution - 1);
                         const float a = f * math::pi2;
                         const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
-                        mesh.v.push_back(math::Vector2f(
+                        mesh.v.push_back(dtk::V2F(
                             _size.w / 2.F + std::cos(a) * r,
                             _size.h / 2.F + std::sin(a) * r));
                     }
                     for (int i = 1; i < resolution; ++i)
                     {
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(1),
-                            geom::Vertex2(i + 1),
-                            geom::Vertex2(i - 1 + 1) }));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(1),
+                            dtk::Vertex2(i + 1),
+                            dtk::Vertex2(i - 1 + 1) }));
                     }
-                    mesh.triangles.push_back(geom::Triangle2({
-                        geom::Vertex2(1),
-                        geom::Vertex2(1 + resolution - 1),
-                        geom::Vertex2(1 + 1) }));
+                    mesh.triangles.push_back(dtk::Triangle2({
+                        dtk::Vertex2(1),
+                        dtk::Vertex2(1 + resolution - 1),
+                        dtk::Vertex2(1 + 1) }));
                     render->drawMesh(
                         mesh,
-                        math::Vector2i(),
+                        dtk::V2I(),
                         dtk::Color4F(.2F, .2F, .2F));
 
                     mesh.v.clear();
                     mesh.triangles.clear();
-                    mesh.v.push_back(math::Vector2f(
+                    mesh.v.push_back(dtk::V2F(
                         _size.w / 2.F,
                         _size.h / 2.F));
                     for (int i = 0; i < resolution; ++i)
@@ -148,42 +148,43 @@ namespace tl
                         const float f = i / static_cast<float>(resolution - 1);
                         const float a = v * f * math::pi2 - math::pi / 2.F;
                         const float r = secondsSize.h / 2.F + framesSize.h + 10.F;
-                        mesh.v.push_back(math::Vector2f(
+                        mesh.v.push_back(dtk::V2F(
                             _size.w / 2.F + std::cos(a) * r,
                             _size.h / 2.F + std::sin(a) * r));
                     }
                     for (int i = 1; i < resolution; ++i)
                     {
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(1),
-                            geom::Vertex2(i + 1),
-                            geom::Vertex2((i - 1) + 1) }));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(1),
+                            dtk::Vertex2(i + 1),
+                            dtk::Vertex2((i - 1) + 1) }));
                     }
                     render->drawMesh(
                         mesh,
-                        math::Vector2i(),
                         dtk::Color4F(.3F, .3F, .3F));
 
                     render->drawText(
                         fontSystem->getGlyphs(secondsString, _secondsFontInfo),
-                        math::Vector2i(secondsPos.x, secondsPos.y + _secondsFontMetrics.ascender),
+                        _secondsFontMetrics,
+                        secondsPos,
                         dtk::Color4F(1.F, 1.F, 1.F));
 
                     render->drawText(
                         fontSystem->getGlyphs(framesString, _framesFontInfo),
-                        math::Vector2i(framesPos.x, framesPos.y + _framesFontMetrics.ascender),
+                        _framesFontMetrics,
+                        framesPos,
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
             }
 
             void SwatchesTestPattern::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 ITestPattern::_init(context, getClassName(), size);
 
-                const image::Info info(_size.w, 1, image::PixelType::L_F32);
-                _gradient = image::Image::create(info);
+                const image::Info info(_size.w, 1, dtk::ImageType::L_F32);
+                _gradient = dtk::Image::create(info);
                 float* data = reinterpret_cast<float*>(_gradient->getData());
                 for (float* p = data, v = 0.F; p < data + _size.w; ++p, v += 1.F / _size.w)
                 {
@@ -201,7 +202,7 @@ namespace tl
 
             std::shared_ptr<SwatchesTestPattern> SwatchesTestPattern::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 auto out = std::shared_ptr<SwatchesTestPattern>(new SwatchesTestPattern);
                 out->_init(context, size);
@@ -227,10 +228,10 @@ namespace tl
                 for (int x = 0, i = 0; x < _size.w; x += swatchWidth, ++i)
                 {
                     render->drawRect(
-                        math::Box2i(x, 0, swatchWidth, _size.h / 2),
+                        dtk::Box2I(x, 0, swatchWidth, _size.h / 2),
                         colors[i]);
                 }
-                render->drawImage(_gradient, math::Box2i(0, _size.h / 2, _size.w, _size.h / 2));
+                render->drawImage(_gradient, dtk::Box2I(0, _size.h / 2, _size.w, _size.h / 2));
             }
 
             GridTestPattern::~GridTestPattern()
@@ -243,7 +244,7 @@ namespace tl
 
             std::shared_ptr<GridTestPattern> GridTestPattern::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 auto out = std::shared_ptr<GridTestPattern>(new GridTestPattern);
                 out->_init(context, getClassName(), size);
@@ -261,47 +262,47 @@ namespace tl
                 case 2: cellSize = 100; break;
                 }
                 {
-                    geom::TriangleMesh2 mesh;
+                    dtk::TriMesh2F mesh;
                     for (int x = 0, i = 0; x < _size.w; x += cellSize, ++i)
                     {
-                        mesh.v.push_back(math::Vector2f(x, 0.F));
-                        mesh.v.push_back(math::Vector2f(x + 1, 0.F));
-                        mesh.v.push_back(math::Vector2f(x + 1, _size.h));
-                        mesh.v.push_back(math::Vector2f(x, _size.h));
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(i * 4 + 1),
-                            geom::Vertex2(i * 4 + 2),
-                            geom::Vertex2(i * 4 + 3) }));
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(i * 4 + 3),
-                            geom::Vertex2(i * 4 + 4),
-                            geom::Vertex2(i * 4 + 1) }));
+                        mesh.v.push_back(dtk::V2F(x, 0.F));
+                        mesh.v.push_back(dtk::V2F(x + 1, 0.F));
+                        mesh.v.push_back(dtk::V2F(x + 1, _size.h));
+                        mesh.v.push_back(dtk::V2F(x, _size.h));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(i * 4 + 1),
+                            dtk::Vertex2(i * 4 + 2),
+                            dtk::Vertex2(i * 4 + 3) }));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(i * 4 + 3),
+                            dtk::Vertex2(i * 4 + 4),
+                            dtk::Vertex2(i * 4 + 1) }));
                     }
                     render->drawMesh(
                         mesh,
-                        math::Vector2i(),
+                        dtk::V2I(),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
                 {
-                    geom::TriangleMesh2 mesh;
+                    dtk::TriMesh2F mesh;
                     for (int y = 0, i = 0; y < _size.h; y += cellSize, ++i)
                     {
-                        mesh.v.push_back(math::Vector2f(0.F, y));
-                        mesh.v.push_back(math::Vector2f(_size.w, y));
-                        mesh.v.push_back(math::Vector2f(_size.w, y + 1));
-                        mesh.v.push_back(math::Vector2f(0.F, y + 1));
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(i * 4 + 1),
-                            geom::Vertex2(i * 4 + 2),
-                            geom::Vertex2(i * 4 + 3) }));
-                        mesh.triangles.push_back(geom::Triangle2({
-                            geom::Vertex2(i * 4 + 3),
-                            geom::Vertex2(i * 4 + 4),
-                            geom::Vertex2(i * 4 + 1) }));
+                        mesh.v.push_back(dtk::V2F(0.F, y));
+                        mesh.v.push_back(dtk::V2F(_size.w, y));
+                        mesh.v.push_back(dtk::V2F(_size.w, y + 1));
+                        mesh.v.push_back(dtk::V2F(0.F, y + 1));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(i * 4 + 1),
+                            dtk::Vertex2(i * 4 + 2),
+                            dtk::Vertex2(i * 4 + 3) }));
+                        mesh.triangles.push_back(dtk::Triangle2({
+                            dtk::Vertex2(i * 4 + 3),
+                            dtk::Vertex2(i * 4 + 4),
+                            dtk::Vertex2(i * 4 + 1) }));
                     }
                     render->drawMesh(
                         mesh,
-                        math::Vector2i(),
+                        dtk::V2I(),
                         dtk::Color4F(1.F, 1.F, 1.F));
                 }
             }
@@ -309,7 +310,7 @@ namespace tl
             std::shared_ptr<ITestPattern> TestPatternFactory::create(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::string& name,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
                 std::shared_ptr<ITestPattern> out;
                 if (name == CountTestPattern::getClassName())

@@ -18,8 +18,8 @@ namespace tl
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
         void RenderMenu::_init(
@@ -44,7 +44,7 @@ namespace tl
             p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendPremultiplied"]);
 
             p.menus["ColorBuffer"] = addSubMenu("Color Buffer");
-            std::vector<image::PixelType> colorBuffers =
+            std::vector<dtk::ImageType> colorBuffers =
                 actions->getColorBuffers();
             for (auto type : colorBuffers)
             {
@@ -53,34 +53,34 @@ namespace tl
                 p.menus["ColorBuffer"]->addItem(p.actions[ss.str()]);
             }
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions& value)
+                [this](const dtk::ImageOptions& value)
                 {
                     _p->menus["VideoLevels"]->setItemChecked(
                         _p->actions["FromFile"],
-                        timeline::InputVideoLevels::FromFile == value.videoLevels);
+                        dtk::InputVideoLevels::FromFile == value.videoLevels);
                     _p->menus["VideoLevels"]->setItemChecked(
                         _p->actions["FullRange"],
-                        timeline::InputVideoLevels::FullRange == value.videoLevels);
+                        dtk::InputVideoLevels::FullRange == value.videoLevels);
                     _p->menus["VideoLevels"]->setItemChecked(
                         _p->actions["LegalRange"],
-                        timeline::InputVideoLevels::LegalRange == value.videoLevels);
+                        dtk::InputVideoLevels::LegalRange == value.videoLevels);
 
                     _p->menus["AlphaBlend"]->setItemChecked(
                         _p->actions["AlphaBlendNone"],
-                        timeline::AlphaBlend::None == value.alphaBlend);
+                        dtk::AlphaBlend::None == value.alphaBlend);
                     _p->menus["AlphaBlend"]->setItemChecked(
                         _p->actions["AlphaBlendStraight"],
-                        timeline::AlphaBlend::Straight == value.alphaBlend);
+                        dtk::AlphaBlend::Straight == value.alphaBlend);
                     _p->menus["AlphaBlend"]->setItemChecked(
                         _p->actions["AlphaBlendPremultiplied"],
-                        timeline::AlphaBlend::Premultiplied == value.alphaBlend);
+                        dtk::AlphaBlend::Premultiplied == value.alphaBlend);
                 });
 
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 app->getRenderModel()->observeColorBuffer(),
-                [this, colorBuffers](image::PixelType value)
+                [this, colorBuffers](dtk::ImageType value)
                 {
                     for (auto type : colorBuffers)
                     {

@@ -12,11 +12,10 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/Init.h>
-#include <tlGL/Mesh.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Shader.h>
-
+#include <dtk/gl/Init.h>
+#include <dtk/gl/Mesh.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Shader.h>
 #include <dtk/core/Context.h>
 
 #include <QClipboard>
@@ -74,7 +73,7 @@ namespace tl
                     _cursorEnter(enter);
                 }
 
-                void cursorPos(const math::Vector2i& value)
+                void cursorPos(const dtk::V2I& value)
                 {
                     _cursorPos(value);
                 }
@@ -84,12 +83,12 @@ namespace tl
                     _mouseButton(button, press, modifiers);
                 }
 
-                void scroll(const math::Vector2f& value, int modifiers)
+                void scroll(const dtk::V2F& value, int modifiers)
                 {
                     _scroll(value, modifiers);
                 }
 
-                void setGeometry(const math::Box2i& value) override
+                void setGeometry(const dtk::Box2I& value) override
                 {
                     IWindow::setGeometry(value);
                     for (const auto& i : _children)
@@ -143,15 +142,15 @@ namespace tl
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
-            std::shared_ptr<image::FontSystem> fontSystem;
+            std::shared_ptr<dtk::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<ui::IWidget> widget;
             std::shared_ptr<ContainerWindow> window;
-            std::shared_ptr<tl::gl::Shader> shader;
-            std::shared_ptr<tl::gl::OffscreenBuffer> buffer;
-            std::shared_ptr<gl::VBO> vbo;
-            std::shared_ptr<gl::VAO> vao;
+            std::shared_ptr<dtk::gl::Shader> shader;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
+            std::shared_ptr<dtk::gl::VBO> vbo;
+            std::shared_ptr<dtk::gl::VAO> vao;
             bool inputEnabled = true;
             std::chrono::steady_clock::time_point mouseWheelTimer;
             std::unique_ptr<QTimer> timer;
@@ -177,7 +176,7 @@ namespace tl
 
             p.style = style;
             p.iconLibrary = ui::IconLibrary::create(context);
-            p.fontSystem = context->getSystem<image::FontSystem>();
+            p.fontSystem = context->getSystem<dtk::FontSystem>();
             p.clipboard = Clipboard::create(context);
             p.window = ContainerWindow::create(context);
             p.window->setClipboard(p.clipboard);
@@ -232,7 +231,7 @@ namespace tl
         QSize ContainerWidget::minimumSizeHint() const
         {
             TLRENDER_P();
-            math::Size2i sizeHint;
+            dtk::Size2I sizeHint;
             if (p.widget)
             {
                 sizeHint = p.widget->getSizeHint();
@@ -257,7 +256,7 @@ namespace tl
         {
             TLRENDER_P();
             initializeOpenGLFunctions();
-            gl::initGLAD();
+            dtk::gl::initGLAD();
             if (auto context = p.context.lock())
             {
                 try
@@ -293,7 +292,7 @@ namespace tl
                         "{\n"
                         "    fColor = texture(textureSampler, fTexture);\n"
                         "}\n";
-                    p.shader = gl::Shader::create(vertexSource, fragmentSource);
+                    p.shader = dtk::gl::Shader::create(vertexSource, fragmentSource);
                 }
                 catch (const std::exception& e)
                 {
@@ -320,18 +319,18 @@ namespace tl
         void ContainerWidget::paintGL()
         {
             TLRENDER_P();
-            const math::Size2i renderSize(_toUI(width()), _toUI(height()));
+            const dtk::Size2I renderSize(_toUI(width()), _toUI(height()));
             if (_hasDrawUpdate(p.window))
             {
                 try
                 {
                     if (renderSize.isValid())
                     {
-                        gl::OffscreenBufferOptions offscreenBufferOptions;
-                        offscreenBufferOptions.colorType = image::PixelType::RGBA_U8;
-                        if (gl::doCreate(p.buffer, renderSize, offscreenBufferOptions))
+                        dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                        offscreenBufferOptions.color = dtk::ImageType::RGBA_U8;
+                        if (dtk::gl::doCreate(p.buffer, renderSize, offscreenBufferOptions))
                         {
-                            p.buffer = gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
+                            p.buffer = dtk::gl::OffscreenBuffer::create(renderSize, offscreenBufferOptions);
                         }
                     }
                     else
@@ -341,8 +340,8 @@ namespace tl
 
                     if (p.render && p.buffer)
                     {
-                        gl::OffscreenBufferBinding binding(p.buffer);
-                        timeline::RenderOptions renderOptions;
+                        dtk::gl::OffscreenBufferBinding binding(p.buffer);
+                        dtk::RenderOptions renderOptions;
                         renderOptions.clearColor = p.style->getColorRole(ui::ColorRole::Window);
                         p.render->begin(renderSize, renderOptions);
                         ui::DrawEvent drawEvent(
@@ -351,7 +350,7 @@ namespace tl
                             p.render,
                             p.fontSystem);
                         p.render->setClipRectEnabled(true);
-                        _drawEvent(p.window, math::Box2i(renderSize), drawEvent);
+                        _drawEvent(p.window, dtk::Box2I(dtk::V2I(), renderSize), drawEvent);
                         p.render->setClipRectEnabled(false);
                         p.render->end();
                     }
@@ -379,7 +378,7 @@ namespace tl
             if (p.buffer)
             {
                 p.shader->bind();
-                const auto pm = math::ortho(
+                const auto pm = dtk::ortho(
                     0.F,
                     static_cast<float>(renderSize.w),
                     0.F,
@@ -391,19 +390,19 @@ namespace tl
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                const auto mesh = geom::box(math::Box2i(0, 0, renderSize.w, renderSize.h));
+                const auto mesh = dtk::mesh(dtk::Box2I(0, 0, renderSize.w, renderSize.h));
                 if (!p.vbo)
                 {
-                    p.vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
+                    p.vbo = dtk::gl::VBO::create(mesh.triangles.size() * 3, dtk::gl::VBOType::Pos2_F32_UV_U16);
                 }
                 if (p.vbo)
                 {
-                    p.vbo->copy(convert(mesh, gl::VBOType::Pos2_F32_UV_U16));
+                    p.vbo->copy(convert(mesh, dtk::gl::VBOType::Pos2_F32_UV_U16));
                 }
 
                 if (!p.vao && p.vbo)
                 {
-                    p.vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, p.vbo->getID());
+                    p.vao = dtk::gl::VAO::create(dtk::gl::VBOType::Pos2_F32_UV_U16, p.vbo->getID());
                 }
                 if (p.vao && p.vbo)
                 {
@@ -426,7 +425,7 @@ namespace tl
                 p.window->cursorEnter(true);
 #if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
                 p.window->cursorPos(
-                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+                    dtk::V2I(_toUI(event->x()), _toUI(event->y())));
 #endif // QT_VERSION
             }
         }
@@ -437,7 +436,7 @@ namespace tl
             if (p.inputEnabled)
             {
                 event->accept();
-                p.window->cursorPos(math::Vector2i(-1, -1));
+                p.window->cursorPos(dtk::V2I(-1, -1));
                 p.window->cursorEnter(false);
             }
         }
@@ -470,7 +469,7 @@ namespace tl
             {
                 event->accept();
                 p.window->cursorPos(
-                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+                    dtk::V2I(_toUI(event->x()), _toUI(event->y())));
                 int button = -1;
                 if (event->button() == Qt::LeftButton)
                 {
@@ -514,7 +513,7 @@ namespace tl
             {
                 event->accept();
                 p.window->cursorPos(
-                    math::Vector2i(_toUI(event->x()), _toUI(event->y())));
+                    dtk::V2I(_toUI(event->x()), _toUI(event->y())));
             }
         }
 
@@ -528,7 +527,7 @@ namespace tl
                 const float delta = event->angleDelta().y() / 8.F / 15.F;
                 p.mouseWheelTimer = now;
                 p.window->scroll(
-                    math::Vector2f(
+                    dtk::V2F(
                         event->angleDelta().x() / 8.F / 15.F,
                         event->angleDelta().y() / 8.F / 15.F),
                     fromQtModifiers(event->modifiers()));
@@ -682,7 +681,7 @@ namespace tl
             return value * devicePixelRatio;
         }
 
-        math::Vector2i ContainerWidget::_toUI(const math::Vector2i& value) const
+        dtk::V2I ContainerWidget::_toUI(const dtk::V2I& value) const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
             return value * devicePixelRatio;
@@ -694,10 +693,10 @@ namespace tl
             return devicePixelRatio > 0.F ? (value / devicePixelRatio) : 0.F;
         }
 
-        math::Vector2i ContainerWidget::_fromUI(const math::Vector2i& value) const
+        dtk::V2I ContainerWidget::_fromUI(const dtk::V2I& value) const
         {
             const float devicePixelRatio = window()->devicePixelRatio();
-            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : math::Vector2i();
+            return devicePixelRatio > 0.F ? (value / devicePixelRatio) : dtk::V2I();
         }
 
         void ContainerWidget::_tickEvent()
@@ -770,35 +769,35 @@ namespace tl
         void ContainerWidget::_setGeometry()
         {
             TLRENDER_P();
-            const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+            const dtk::Box2I geometry(0, 0, _toUI(width()), _toUI(height()));
             p.window->setGeometry(geometry);
         }
 
         void ContainerWidget::_clipEvent()
         {
             TLRENDER_P();
-            const math::Box2i geometry(0, 0, _toUI(width()), _toUI(height()));
+            const dtk::Box2I geometry(0, 0, _toUI(width()), _toUI(height()));
             _clipEvent(p.window, geometry, false);
         }
 
         void ContainerWidget::_clipEvent(
             const std::shared_ptr<ui::IWidget>& widget,
-            const math::Box2i& clipRect,
+            const dtk::Box2I& clipRect,
             bool clipped)
         {
-            const math::Box2i& g = widget->getGeometry();
-            clipped |= !g.intersects(clipRect);
+            const dtk::Box2I& g = widget->getGeometry();
+            clipped |= !dtk::intersects(g, clipRect);
             clipped |= !widget->isVisible(false);
-            const math::Box2i clipRect2 = g.intersect(clipRect);
+            const dtk::Box2I clipRect2 = dtk::intersect(g, clipRect);
             widget->clipEvent(clipRect2, clipped);
-            const math::Box2i childrenClipRect =
-                widget->getChildrenClipRect().intersect(clipRect2);
+            const dtk::Box2I childrenClipRect =
+                dtk::intersect(widget->getChildrenClipRect(), clipRect2);
             for (const auto& child : widget->getChildren())
             {
-                const math::Box2i& childGeometry = child->getGeometry();
+                const dtk::Box2I& childGeometry = child->getGeometry();
                 _clipEvent(
                     child,
-                    childGeometry.intersect(childrenClipRect),
+                    dtk::intersect(childGeometry, childrenClipRect),
                     clipped);
             }
         }
@@ -826,25 +825,25 @@ namespace tl
 
         void ContainerWidget::_drawEvent(
             const std::shared_ptr<ui::IWidget>& widget,
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
-            const math::Box2i& g = widget->getGeometry();
+            const dtk::Box2I& g = widget->getGeometry();
             if (!widget->isClipped() && g.w() > 0 && g.h() > 0)
             {
                 event.render->setClipRect(drawRect);
                 widget->drawEvent(drawRect, event);
-                const math::Box2i childrenClipRect =
-                    widget->getChildrenClipRect().intersect(drawRect);
+                const dtk::Box2I childrenClipRect =
+                    dtk::intersect(widget->getChildrenClipRect(), drawRect);
                 event.render->setClipRect(childrenClipRect);
                 for (const auto& child : widget->getChildren())
                 {
-                    const math::Box2i& childGeometry = child->getGeometry();
-                    if (childGeometry.intersects(childrenClipRect))
+                    const dtk::Box2I& childGeometry = child->getGeometry();
+                    if (dtk::intersects(childGeometry, childrenClipRect))
                     {
                         _drawEvent(
                             child,
-                            childGeometry.intersect(childrenClipRect),
+                            dtk::intersect(childGeometry, childrenClipRect),
                             event);
                     }
                 }

@@ -9,7 +9,7 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlCore/FontSystem.h>
+#include <dtk/core/FontSystem.h>
 
 namespace tl
 {
@@ -31,13 +31,13 @@ namespace tl
         {
             TickEvent();
             TickEvent(
-                const std::shared_ptr<Style>&             style,
-                const std::shared_ptr<IconLibrary>&       iconLibrary,
-                const std::shared_ptr<image::FontSystem>& fontSystem);
+                const std::shared_ptr<Style>&           style,
+                const std::shared_ptr<IconLibrary>&     iconLibrary,
+                const std::shared_ptr<dtk::FontSystem>& fontSystem);
 
-            std::shared_ptr<Style>             style;
-            std::shared_ptr<IconLibrary>       iconLibrary;
-            std::shared_ptr<image::FontSystem> fontSystem;
+            std::shared_ptr<Style>           style;
+            std::shared_ptr<IconLibrary>     iconLibrary;
+            std::shared_ptr<dtk::FontSystem> fontSystem;
         };
 
         //! Size hint event.
@@ -45,15 +45,15 @@ namespace tl
         {
             SizeHintEvent();
             SizeHintEvent(
-                const std::shared_ptr<Style>&             style,
-                const std::shared_ptr<IconLibrary>&       iconLibrary,
-                const std::shared_ptr<image::FontSystem>& fontSystem,
-                float                                     displayScale);
+                const std::shared_ptr<Style>&           style,
+                const std::shared_ptr<IconLibrary>&     iconLibrary,
+                const std::shared_ptr<dtk::FontSystem>& fontSystem,
+                float                                   displayScale);
 
-            std::shared_ptr<Style>             style;
-            std::shared_ptr<IconLibrary>       iconLibrary;
-            std::shared_ptr<image::FontSystem> fontSystem;
-            float                              displayScale = 1.F;
+            std::shared_ptr<Style>           style;
+            std::shared_ptr<IconLibrary>     iconLibrary;
+            std::shared_ptr<dtk::FontSystem> fontSystem;
+            float                            displayScale = 1.F;
         };
 
         //! Draw event.
@@ -64,12 +64,12 @@ namespace tl
                 const std::shared_ptr<Style>&             style,
                 const std::shared_ptr<IconLibrary>&       iconLibrary,
                 const std::shared_ptr<timeline::IRender>& render,
-                const std::shared_ptr<image::FontSystem>& fontSystem);
+                const std::shared_ptr<dtk::FontSystem>&   fontSystem);
 
             std::shared_ptr<Style>             style;
             std::shared_ptr<IconLibrary>       iconLibrary;
             std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<image::FontSystem> fontSystem;
+            std::shared_ptr<dtk::FontSystem>   fontSystem;
         };
 
         //! Drag and drop data.
@@ -84,15 +84,15 @@ namespace tl
         {
             MouseMoveEvent();
             MouseMoveEvent(
-                const math::Vector2i& pos,
-                const math::Vector2i& prev);
+                const dtk::V2I& pos,
+                const dtk::V2I& prev);
 
-            math::Vector2i                   pos;
-            math::Vector2i                   prev;
+            dtk::V2I                   pos;
+            dtk::V2I                   prev;
             bool                             accept = false;
             std::shared_ptr<DragAndDropData> dndData;
-            std::shared_ptr<image::Image>    dndCursor;
-            math::Vector2i                   dndCursorHotspot;
+            std::shared_ptr<dtk::Image>    dndCursor;
+            dtk::V2I                   dndCursorHotspot;
         };
 
         //! Keyboard modifiers.
@@ -122,11 +122,11 @@ namespace tl
             MouseClickEvent(
                 int                   button,
                 int                   modifiers,
-                const math::Vector2i& pos);
+                const dtk::V2I& pos);
 
             int            button    = 0;
             int            modifiers = 0;
-            math::Vector2i pos;
+            dtk::V2I pos;
             bool           accept    = false;
         };
 
@@ -135,13 +135,13 @@ namespace tl
         {
             ScrollEvent();
             ScrollEvent(
-                const math::Vector2f& value,
+                const dtk::V2F& value,
                 int                   modifiers,
-                const math::Vector2i& pos);
+                const dtk::V2I& pos);
 
-            math::Vector2f value;
+            dtk::V2F value;
             int            modifiers = 0;
-            math::Vector2i pos;
+            dtk::V2I pos;
             bool           accept    = false;
         };
 
@@ -253,11 +253,11 @@ namespace tl
             KeyEvent(
                 Key                   key,
                 int                   modifiers,
-                const math::Vector2i& pos);
+                const dtk::V2I& pos);
 
             Key            key       = Key::Unknown;
             int            modifiers = 0;
-            math::Vector2i pos;
+            dtk::V2I pos;
             bool           accept    = false;
         };
 
@@ -290,12 +290,12 @@ namespace tl
         {
             DragAndDropEvent();
             DragAndDropEvent(
-                const math::Vector2i&                   pos,
-                const math::Vector2i&                   prev,
+                const dtk::V2I&                   pos,
+                const dtk::V2I&                   prev,
                 const std::shared_ptr<DragAndDropData>& data);
 
-            math::Vector2i                   pos;
-            math::Vector2i                   prev;
+            dtk::V2I                   pos;
+            dtk::V2I                   prev;
             std::shared_ptr<DragAndDropData> data;
             bool                             accept = false;
         };

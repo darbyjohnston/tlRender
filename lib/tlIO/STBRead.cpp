@@ -46,9 +46,9 @@ namespace tl
                         res = stbi_is_16_bit_from_memory(memory->p, memory->size);
                         if (res) bits = 16;
                             
-                        _info.pixelType = image::getIntType(n, bits);
+                        _info.type = io::getIntType(n, bits);
                             
-                        if (image::PixelType::None == _info.pixelType)
+                        if (dtk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
                                 dtk::Format("{0}: {1}")
@@ -73,8 +73,8 @@ namespace tl
                         res = stbi_is_16_bit(fileName.c_str());
                         if (res) bits = 16;
                     
-                        _info.pixelType = image::getIntType(n, bits);
-                        if (image::PixelType::None == _info.pixelType)
+                        _info.type = io::getIntType(n, bits);
+                        if (dtk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
                                 dtk::Format("{0}: {1}")
@@ -85,7 +85,7 @@ namespace tl
                     }
                 }
 
-                const image::Info& getInfo() const
+                const dtk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
@@ -96,10 +96,10 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = image::Image::create(_info);
+                    out.image = dtk::Image::create(_info);
 
-                    const int channels = image::getChannelCount(_info.pixelType);
-                    const size_t bytes = image::getBitDepth(_info.pixelType) / 8;
+                    const int channels = dtk::getChannelCount(_info.type);
+                    const size_t bytes = dtk::getBitDepth(_info.type) / 8;
                     
                     stbi_set_flip_vertically_on_load(1);
 
@@ -135,7 +135,7 @@ namespace tl
                 }
 
             private:
-                image::Info _info;
+                dtk::ImageInfo _info;
                 const dtk::InMemoryFile* _memory;
             };
         }

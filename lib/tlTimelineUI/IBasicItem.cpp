@@ -26,17 +26,17 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo = image::FontInfo("", 0);
-                image::FontMetrics fontMetrics;
-                math::Size2i labelSize;
-                math::Size2i durationSize;
+                dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I labelSize;
+                dtk::Size2I durationSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > labelGlyphs;
-                std::vector<std::shared_ptr<image::Glyph> > durationGlyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > labelGlyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > durationGlyphs;
             };
             DrawData draw;
         };
@@ -110,16 +110,16 @@ namespace tl
             }
             if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
             {
-                p.size.fontInfo = image::FontInfo(
+                p.size.fontInfo = dtk::FontInfo(
                     _displayOptions.regularFont,
                     _displayOptions.fontSize * _displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
                 p.size.labelSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.label, p.size.fontInfo) :
-                    math::Size2i();
+                    dtk::Size2I();
                 p.size.durationSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.durationLabel, p.size.fontInfo) :
-                    math::Size2i();
+                    dtk::Size2I();
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
             }
@@ -137,7 +137,7 @@ namespace tl
             _sizeHint.h += p.size.border * 4;
         }
 
-        void IBasicItem::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void IBasicItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IItem::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -149,23 +149,22 @@ namespace tl
         }
 
         void IBasicItem::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
             IItem::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             ui::ColorRole colorRole = getSelectRole();
             if (colorRole != ui::ColorRole::None)
             {
                 event.render->drawMesh(
                     ui::border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(colorRole));
             }
 
-            const math::Box2i g2 = g.margin(-(p.size.border * 2));
+            const dtk::Box2I g2 = dtk::margin(g, -(p.size.border * 2));
             event.render->drawRect(
                 g2,
                 isEnabled() ?
@@ -175,17 +174,17 @@ namespace tl
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(g2.intersect(drawRect));
+            event.render->setClipRect(dtk::intersect(g2, drawRect));
 
             if (_displayOptions.clipInfo)
             {
-                const math::Box2i labelGeometry(
+                const dtk::Box2I labelGeometry(
                     g2.min.x + p.size.margin,
                     g2.min.y + p.size.margin,
                     p.size.labelSize.w,
                     p.size.fontMetrics.lineHeight);
                 const bool enabled = isEnabled();
-                if (drawRect.intersects(labelGeometry))
+                if (dtk::intersects(drawRect, labelGeometry))
                 {
                     if (!p.label.empty() && p.draw.labelGlyphs.empty())
                     {
@@ -193,25 +192,23 @@ namespace tl
                     }
                     event.render->drawText(
                         p.draw.labelGlyphs,
-                        math::Vector2i(
-                            labelGeometry.min.x,
-                            labelGeometry.min.y +
-                            p.size.fontMetrics.ascender),
+                        p.size.fontMetrics,
+                        labelGeometry.min,
                         event.style->getColorRole(
                             enabled ?
                             ui::ColorRole::Text :
                             ui::ColorRole::TextDisabled));
                 }
 
-                const math::Box2i durationGeometry(
+                const dtk::Box2I durationGeometry(
                     g2.max.x -
                     p.size.durationSize.w -
                     p.size.margin,
                     g2.min.y + p.size.margin,
                     p.size.durationSize.w,
                     p.size.fontMetrics.lineHeight);
-                if (drawRect.intersects(durationGeometry) &&
-                    !durationGeometry.intersects(labelGeometry))
+                if (dtk::intersects(drawRect, durationGeometry) &&
+                    !dtk::intersects(durationGeometry, labelGeometry))
                 {
                     if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
                     {
@@ -219,10 +216,8 @@ namespace tl
                     }
                     event.render->drawText(
                         p.draw.durationGlyphs,
-                        math::Vector2i(
-                            durationGeometry.min.x,
-                            durationGeometry.min.y +
-                            p.size.fontMetrics.ascender),
+                        p.size.fontMetrics,
+                        durationGeometry.min,
                         event.style->getColorRole(
                             enabled ?
                             ui::ColorRole::Text :
@@ -241,9 +236,9 @@ namespace tl
             return _p->size.fontMetrics.lineHeight;
         }
 
-        math::Box2i IBasicItem::_getInsideGeometry() const
+        dtk::Box2I IBasicItem::_getInsideGeometry() const
         {
-            return _geometry.margin(-(_p->size.border * 2));
+            return dtk::margin(_geometry, -(_p->size.border * 2));
         }
 
         void IBasicItem::_timeUnitsUpdate()

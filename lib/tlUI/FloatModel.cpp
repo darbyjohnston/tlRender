@@ -4,7 +4,7 @@
 
 #include <tlUI/FloatModel.h>
 
-#include <tlCore/Math.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         struct FloatModel::Private
         {
             std::shared_ptr<dtk::ObservableValue<float> > value;
-            std::shared_ptr<dtk::ObservableValue<math::FloatRange> > range;
+            std::shared_ptr<dtk::ObservableValue<dtk::RangeF> > range;
             float step = .1F;
             float largeStep = 1.F;
             std::shared_ptr<dtk::ObservableValue<bool> > hasDefaultValue;
@@ -24,7 +24,7 @@ namespace tl
         {
             TLRENDER_P();
             p.value = dtk::ObservableValue<float>::create(0.F);
-            p.range = dtk::ObservableValue<math::FloatRange>::create(math::FloatRange(0.F, 1.F));
+            p.range = dtk::ObservableValue<dtk::RangeF>::create(dtk::RangeF(0.F, 1.F));
             p.hasDefaultValue = dtk::ObservableValue<bool>::create(false);
         }
 
@@ -51,8 +51,8 @@ namespace tl
         void FloatModel::setValue(float value)
         {
             TLRENDER_P();
-            const math::FloatRange& range = p.range->get();
-            const float tmp = math::clamp(value, range.getMin(), range.getMax());
+            const dtk::RangeF& range = p.range->get();
+            const float tmp = dtk::clamp(value, range.min(), range.max());
             _p->value->setIfChanged(tmp);
         }
 
@@ -61,12 +61,12 @@ namespace tl
             return _p->value;
         }
 
-        const math::FloatRange& FloatModel::getRange() const
+        const dtk::RangeF& FloatModel::getRange() const
         {
             return _p->range->get();
         }
 
-        void FloatModel::setRange(const math::FloatRange& range)
+        void FloatModel::setRange(const dtk::RangeF& range)
         {
             TLRENDER_P();
             if (p.range->setIfChanged(range))
@@ -75,7 +75,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<dtk::IObservableValue<math::FloatRange> > FloatModel::observeRange() const
+        std::shared_ptr<dtk::IObservableValue<dtk::RangeF> > FloatModel::observeRange() const
         {
             return _p->range;
         }

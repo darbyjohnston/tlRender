@@ -80,7 +80,7 @@ namespace tl
                 return out;
             }
 
-            void DragAndDropWidget::setGeometry(const math::Box2i& value)
+            void DragAndDropWidget::setGeometry(const dtk::Box2I& value)
             {
                 IWidget::setGeometry(value);
                 _p->label->setGeometry(_geometry);
@@ -96,24 +96,23 @@ namespace tl
             }
 
             void DragAndDropWidget::drawEvent(
-                const math::Box2i& drawRect,
+                const dtk::Box2I& drawRect,
                 const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();
-                const math::Box2i& g = _geometry;
+                const dtk::Box2I& g = _geometry;
 
                 event.render->drawMesh(
                     ui::border(g, p.border),
-                    math::Vector2i(),
                     event.style->getColorRole(ui::ColorRole::Border));
 
-                const math::Box2i g2 = g.margin(-p.border);
+                const dtk::Box2I g2 = dtk::margin(g, -p.border);
                 event.render->drawRect(
                     g2,
                     event.style->getColorRole(ui::ColorRole::Button));
 
-                if (_mouse.press && _geometry.contains(_mouse.pos))
+                if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
                 {
                     event.render->drawRect(
                         g2,
@@ -152,14 +151,14 @@ namespace tl
                 TLRENDER_P();
                 if (_mouse.press)
                 {
-                    const float length = math::length(event.pos - _mouse.pressPos);
+                    const float length = dtk::length(event.pos - _mouse.pressPos);
                     if (length > p.dragLength)
                     {
                         event.dndData = std::make_shared<DragAndDropData>(p.number);
                         const int w = _geometry.w();
                         const int h = _geometry.h();
-                        event.dndCursor = image::Image::create(
-                            w, h, image::PixelType::RGBA_U8);
+                        event.dndCursor = dtk::Image::create(
+                            w, h, dtk::ImageType::RGBA_U8);
                         uint8_t* p = event.dndCursor->getData();
                         for (int y = 0; y < h; ++y)
                         {
@@ -275,7 +274,7 @@ namespace tl
                 return out;
             }
 
-            void DragAndDrop::setGeometry(const math::Box2i& value)
+            void DragAndDrop::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

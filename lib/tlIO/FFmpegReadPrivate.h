@@ -58,26 +58,26 @@ namespace tl
             ~ReadVideo();
 
             bool isValid() const;
-            const image::Info& getInfo() const;
+            const dtk::ImageInfo& getInfo() const;
             const OTIO_NS::TimeRange& getTimeRange() const;
-            const image::Tags& getTags() const;
+            const dtk::ImageTags& getTags() const;
 
             void start();
             void seek(const OTIO_NS::RationalTime&);
             bool process(const OTIO_NS::RationalTime& currentTime);
 
             bool isBufferEmpty() const;
-            std::shared_ptr<image::Image> popBuffer();
+            std::shared_ptr<dtk::Image> popBuffer();
 
         private:
             int _decode(const OTIO_NS::RationalTime& currentTime);
-            void _copy(const std::shared_ptr<image::Image>&);
+            void _copy(const std::shared_ptr<dtk::Image>&);
 
             std::string _fileName;
             Options _options;
-            image::Info _info;
+            dtk::ImageInfo _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
-            image::Tags _tags;
+            dtk::ImageTags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;
@@ -92,7 +92,7 @@ namespace tl
             AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NONE;
             AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_NONE;
             SwsContext* _swsContext = nullptr;
-            std::list<std::shared_ptr<image::Image> > _buffer;
+            std::list<std::shared_ptr<dtk::Image> > _buffer;
             bool _eof = false;
         };
 
@@ -110,7 +110,7 @@ namespace tl
             bool isValid() const;
             const audio::Info& getInfo() const;
             const OTIO_NS::TimeRange& getTimeRange() const;
-            const image::Tags& getTags() const;
+            const dtk::ImageTags& getTags() const;
 
             void start();
             void seek(const OTIO_NS::RationalTime&);
@@ -128,7 +128,7 @@ namespace tl
             Options _options;
             audio::Info _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
-            image::Tags _tags;
+            dtk::ImageTags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;

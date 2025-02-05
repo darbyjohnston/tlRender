@@ -58,7 +58,7 @@ namespace tl
                 value.primaries[2].y = .8F;
                 value.primaries[3].x = .4F;
                 value.primaries[3].y = .7F;
-                value.displayMasteringLuminance = math::FloatRange(.5F, .6F);
+                value.displayMasteringLuminance = dtk::RangeF(.5F, .6F);
                 value.maxCLL = 0.1F;
                 value.maxFALL = 0.2F;
                 nlohmann::json json;

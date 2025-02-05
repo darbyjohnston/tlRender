@@ -110,17 +110,17 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
-                math::Size2i formatSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
+                dtk::Size2I formatSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
-                std::vector<math::Box2i> glyphsBox;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
+                std::vector<dtk::Box2I> glyphsBox;
             };
             DrawData draw;
         };
@@ -295,7 +295,7 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void LineEdit::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void LineEdit::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -307,40 +307,38 @@ namespace tl
         }
 
         void LineEdit::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i g = _getAlignGeometry();
+            const dtk::Box2I g = _getAlignGeometry();
             const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
             else
             {
                 event.render->drawMesh(
-                    border(g.margin(-p.size.border), p.size.border),
-                    math::Vector2i(),
+                    border(dtk::margin(g, -p.size.border), p.size.border),
                     event.style->getColorRole(ColorRole::Border));
             }
 
             event.render->drawRect(
-                g.margin(-p.size.border * 2),
+                dtk::margin(g, -p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(g.margin(-p.size.border * 2).intersect(drawRect));
+            event.render->setClipRect(dtk::intersect(dtk::margin(g, -p.size.border * 2), drawRect));
 
-            const math::Box2i g2 = g.margin(-(p.size.border * 2 + p.size.margin));
+            const dtk::Box2I g2 = dtk::margin(g, -(p.size.border * 2 + p.size.margin));
             if (p.selection.isValid())
             {
                 const auto selection = p.selection.getSorted();
@@ -349,14 +347,13 @@ namespace tl
                 const std::string text1 = p.text.substr(0, selection.second);
                 const int x1 = event.fontSystem->getSize(text1, p.size.fontInfo).w;
                 event.render->drawRect(
-                    math::Box2i(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
+                    dtk::Box2I(g2.x() + x0, g2.y(), x1 - x0, g2.h()),
                     event.style->getColorRole(ColorRole::Checked));
             }
 
-            math::Vector2i pos(
+            dtk::V2I pos(
                 g2.x(),
-                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
-                p.size.fontMetrics.ascender);
+                g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2);
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
                 p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
@@ -364,6 +361,7 @@ namespace tl
             }
             event.render->drawText(
                 p.draw.glyphs,
+                p.size.fontMetrics,
                 pos,
                 event.style->getColorRole(enabled ?
                     ColorRole::Text :
@@ -371,7 +369,7 @@ namespace tl
             
             /*for (const auto& box : p.draw.glyphsBox)
             {
-                const math::Box2i box2(
+                const dtk::Box2I box2(
                     g2.x() + box.x(),
                     g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 + box.y(),
                     box.w(),
@@ -386,7 +384,7 @@ namespace tl
                 const std::string text = p.text.substr(0, p.cursorPos);
                 const int x = event.fontSystem->getSize(text, p.size.fontInfo).w;
                 event.render->drawRect(
-                    math::Box2i(
+                    dtk::Box2I(
                         g2.x() + x,
                         g2.y(),
                         p.size.border,
@@ -737,7 +735,7 @@ namespace tl
             _textUpdate();
         }
 
-        math::Box2i LineEdit::_getAlignGeometry() const
+        dtk::Box2I LineEdit::_getAlignGeometry() const
         {
             return align(
                 _geometry,
@@ -748,16 +746,16 @@ namespace tl
                 _vAlign);
         }
 
-        int LineEdit::_getCursorPos(const math::Vector2i& value)
+        int LineEdit::_getCursorPos(const dtk::V2I& value)
         {
             TLRENDER_P();
             int out = 0;
-            const math::Box2i g = _getAlignGeometry();
-            const math::Box2i g2 = g.margin(-p.size.border * 2);
-            const math::Vector2i pos(
-                math::clamp(value.x, g2.min.x, g2.max.x - 1),
-                math::clamp(value.y, g2.min.y, g2.max.y - 1));
-            math::Box2i box(
+            const dtk::Box2I g = _getAlignGeometry();
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
+            const dtk::V2I pos(
+                dtk::clamp(value.x, g2.min.x, g2.max.x - 1),
+                dtk::clamp(value.y, g2.min.y, g2.max.y - 1));
+            dtk::Box2I box(
                 g2.x(),
                 g2.y(),
                 0,
@@ -765,7 +763,7 @@ namespace tl
             for (const auto& glyphBox : p.draw.glyphsBox)
             {
                 box.max.x = g2.x() + glyphBox.x() + glyphBox.w();
-                if (box.contains(pos))
+                if (dtk::contains(box, pos))
                 {
                     break;
                 }

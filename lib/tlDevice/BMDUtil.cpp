@@ -273,24 +273,24 @@ namespace tl
             return out;
         }
 
-        image::PixelType getColorBuffer(PixelType value)
+        dtk::ImageType getColorBuffer(PixelType value)
         {
-            const std::array<image::PixelType, static_cast<size_t>(PixelType::Count)> data =
+            const std::array<dtk::ImageType, static_cast<size_t>(PixelType::Count)> data =
             {
-                image::PixelType::None,
-                image::PixelType::RGBA_U8,
-                image::PixelType::RGBA_U8,
-                image::PixelType::RGB_U16,
-                image::PixelType::RGB_U16,
-                image::PixelType::RGB_U16,
-                //image::PixelType::RGB_U10,
-                image::PixelType::RGB_U16,
-                image::PixelType::RGB_U16
+                dtk::ImageType::None,
+                dtk::ImageType::RGBA_U8,
+                dtk::ImageType::RGBA_U8,
+                dtk::ImageType::RGB_U16,
+                dtk::ImageType::RGB_U16,
+                dtk::ImageType::RGB_U16,
+                //dtk::ImageType::RGB_U10,
+                dtk::ImageType::RGB_U16,
+                dtk::ImageType::RGB_U16
             };
             return data[static_cast<size_t>(value)];
         }
 
-        size_t getPackPixelsSize(const math::Size2i& size, PixelType pixelType)
+        size_t getPackPixelsSize(const dtk::Size2I& size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
@@ -384,7 +384,7 @@ namespace tl
         void copyPackPixels(
             const void* inP,
             void* outP,
-            const math::Size2i& size,
+            const dtk::Size2I& size,
             PixelType pixelType)
         {
             const size_t rowByteCount = getRowByteCount(size.w, pixelType);

@@ -120,9 +120,9 @@ namespace tl
             return out;
         }
 
-        bool IPlugin::_isWriteCompatible(const image::Info& info, const Options& options) const
+        bool IPlugin::_isWriteCompatible(const dtk::ImageInfo& info, const Options& options) const
         {
-            return info.pixelType != image::PixelType::None && info == getWriteInfo(info, options);
+            return info.type != dtk::ImageType::None && info == getWriteInfo(info, options);
         }
     }
 }

@@ -50,7 +50,7 @@ namespace tl
             p.color1Swatch->setEditable(true);
 
             p.checkersSizeSlider = new qtwidget::IntEditSlider;
-            p.checkersSizeSlider->setRange(math::IntRange(10, 100));
+            p.checkersSizeSlider->setRange(dtk::RangeI(10, 100));
 
             auto layout = new QFormLayout;
             layout->addRow(tr("Type:"), p.typeComboBox);

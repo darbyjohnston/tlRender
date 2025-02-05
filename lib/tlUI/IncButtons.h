@@ -35,7 +35,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();
@@ -67,7 +67,7 @@ namespace tl
             //! Set the decrement callback.
             void setDecCallback(const std::function<void(void)>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         protected:

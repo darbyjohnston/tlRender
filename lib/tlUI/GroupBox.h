@@ -42,10 +42,10 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

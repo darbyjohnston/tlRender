@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlCore/Size.h>
 #include <tlCore/Util.h>
 
 #include <dtk/core/Color.h>
+#include <dtk/core/Size.h>
 
 namespace tl
 {
@@ -32,7 +32,7 @@ namespace tl
             Background   type         = Background::Solid;
             dtk::Color4F color0       = dtk::Color4F(0.F, 0.F, 0.F);
             dtk::Color4F color1       = dtk::Color4F(0.F, 0.F, 0.F);
-            math::Size2i checkersSize = math::Size2i(100, 100);
+            dtk::Size2I  checkersSize = dtk::Size2I(100, 100);
 
             bool operator == (const BackgroundOptions&) const;
             bool operator != (const BackgroundOptions&) const;

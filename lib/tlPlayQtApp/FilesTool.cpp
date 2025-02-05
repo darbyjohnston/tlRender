@@ -81,7 +81,7 @@ namespace tl
             p.wipeYSlider = new qtwidget::FloatEditSlider;
 
             p.wipeRotationSlider = new qtwidget::FloatEditSlider;
-            p.wipeRotationSlider->setRange(math::FloatRange(0.F, 360.F));
+            p.wipeRotationSlider->setRange(dtk::RangeF(0.F, 360.F));
 
             p.overlaySlider = new qtwidget::FloatEditSlider;
 
@@ -372,7 +372,7 @@ namespace tl
                 {
                     if (auto image = i->second.future.get())
                     {
-                        if (image::PixelType::RGBA_U8 == image->getPixelType())
+                        if (dtk::ImageType::RGBA_U8 == image->getPixelType())
                         {
                             const int w = image->getWidth();
                             const int h = image->getHeight();

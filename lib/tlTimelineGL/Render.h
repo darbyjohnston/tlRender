@@ -6,8 +6,7 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <tlGL/Texture.h>
-
+#include <dtk/gl/Render.h>
 #include <dtk/core/LRUCache.h>
 
 namespace tl
@@ -15,20 +14,17 @@ namespace tl
     //! Timeline OpenGL support
     namespace timeline_gl
     {
-        //! Texture cache.
-        typedef dtk::LRUCache<
-            std::shared_ptr<image::Image>,
-            std::vector<std::shared_ptr<gl::Texture> > > TextureCache;
-
         //! OpenGL renderer.
         class Render : public timeline::IRender
         {
             TLRENDER_NON_COPYABLE(Render);
 
         protected:
-            Render(
+            void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<TextureCache>&);
+                const std::shared_ptr<dtk::gl::TextureCache>&);
+
+            Render();
 
         public:
             virtual ~Render();
@@ -36,108 +32,126 @@ namespace tl
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<TextureCache>& = nullptr);
+                const std::shared_ptr<dtk::gl::TextureCache>& = nullptr);
 
-            //! Get the texture cache.
-            const std::shared_ptr<TextureCache>& getTextureCache() const;
+            const std::shared_ptr<dtk::gl::TextureCache>& getTextureCache() const;
 
-            void begin(
-                const math::Size2i&,
-                const timeline::RenderOptions& = timeline::RenderOptions()) override;
-            void end() override;
-
-            math::Size2i getRenderSize() const override;
-            void setRenderSize(const math::Size2i&) override;
-            math::Box2i getViewport() const override;
-            void setViewport(const math::Box2i&) override;
-            void clearViewport(const dtk::Color4F&) override;
-            bool getClipRectEnabled() const override;
-            void setClipRectEnabled(bool) override;
-            math::Box2i getClipRect() const override;
-            void setClipRect(const math::Box2i&) override;
-            math::Matrix4x4f getTransform() const override;
-            void setTransform(const math::Matrix4x4f&) override;
             void setOCIOOptions(const timeline::OCIOOptions&) override;
             void setLUTOptions(const timeline::LUTOptions&) override;
 
-            void drawRect(
-                const math::Box2i&,
-                const dtk::Color4F&) override;
-            void drawMesh(
-                const geom::TriangleMesh2&,
-                const math::Vector2i& position,
-                const dtk::Color4F&) override;
-            void drawColorMesh(
-                const geom::TriangleMesh2&,
-                const math::Vector2i& position,
-                const dtk::Color4F&) override;
-            void drawText(
-                const std::vector<std::shared_ptr<image::Glyph> >& glyphs,
-                const math::Vector2i& position,
-                const dtk::Color4F&) override;
             void drawTexture(
                 unsigned int,
-                const math::Box2i&,
-                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F)) override;
-            void drawImage(
-                const std::shared_ptr<image::Image>&,
-                const math::Box2i&,
-                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F),
-                const timeline::ImageOptions& = timeline::ImageOptions()) override;
+                const dtk::Box2I&,
+                const dtk::Color4F & = dtk::Color4F(1.F, 1.F, 1.F)) override;
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>& = {},
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
                 const timeline::CompareOptions& = timeline::CompareOptions(),
                 const timeline::BackgroundOptions& = timeline::BackgroundOptions()) override;
+
+            void begin(
+                const dtk::Size2I&,
+                const dtk::RenderOptions& = dtk::RenderOptions()) override;
+            void end() override;
+            dtk::Size2I getRenderSize() const override;
+            void setRenderSize(const dtk::Size2I&) override;
+            dtk::RenderOptions getRenderOptions() const override;
+            dtk::Box2I getViewport() const override;
+            void setViewport(const dtk::Box2I&) override;
+            void clearViewport(const dtk::Color4F&) override;
+            bool getClipRectEnabled() const override;
+            void setClipRectEnabled(bool) override;
+            dtk::Box2I getClipRect() const override;
+            void setClipRect(const dtk::Box2I&) override;
+            dtk::M44F getTransform() const override;
+            void setTransform(const dtk::M44F&) override;
+            void drawRect(
+                const dtk::Box2F&,
+                const dtk::Color4F&) override;
+            void drawRects(
+                const std::vector<dtk::Box2F>&,
+                const dtk::Color4F&) override;
+            void drawLine(
+                const dtk::V2F&,
+                const dtk::V2F&,
+                const dtk::Color4F&,
+                const dtk::LineOptions& = dtk::LineOptions()) override;
+            void drawLines(
+                const std::vector<std::pair<dtk::V2F, dtk::V2F> >&,
+                const dtk::Color4F&,
+                const dtk::LineOptions& = dtk::LineOptions()) override;
+            void drawMesh(
+                const dtk::TriMesh2F&,
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const dtk::V2F& pos = dtk::V2F()) override;
+            void drawColorMesh(
+                const dtk::TriMesh2F&,
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const dtk::V2F& pos = dtk::V2F()) override;
+            void drawText(
+                const std::vector<std::shared_ptr<dtk::Glyph> >&,
+                const dtk::FontMetrics&,
+                const dtk::V2F& position,
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F, 1.F)) override;
+            void drawImage(
+                const std::shared_ptr<dtk::Image>&,
+                const dtk::TriMesh2F&,
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const dtk::ImageOptions& = dtk::ImageOptions()) override;
+            void drawImage(
+                const std::shared_ptr<dtk::Image>&,
+                const dtk::Box2F&,
+                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const dtk::ImageOptions& = dtk::ImageOptions()) override;
 
         private:
             void _displayShader();
 
             void _drawBackground(
-                const std::vector<math::Box2i>&,
+                const std::vector<dtk::Box2I>&,
                 const timeline::BackgroundOptions&);
             void _drawVideoA(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideoB(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideoWipe(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideoOverlay(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideoDifference(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideoTile(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<math::Box2i>&,
-                const std::vector<timeline::ImageOptions>&,
+                const std::vector<dtk::Box2I>&,
+                const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&);
             void _drawVideo(
                 const timeline::VideoData&,
-                const math::Box2i&,
-                const std::shared_ptr<timeline::ImageOptions>&,
+                const dtk::Box2I&,
+                const std::shared_ptr<dtk::ImageOptions>&,
                 const timeline::DisplayOptions&);
 
             TLRENDER_PRIVATE();

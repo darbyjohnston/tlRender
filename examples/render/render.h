@@ -23,7 +23,7 @@ namespace tl
             struct Options
             {
                 std::string compareFileName;
-                math::Size2i windowSize = math::Size2i(1920, 1080);
+                dtk::Size2I windowSize = dtk::Size2I(1920, 1080);
                 bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
@@ -68,7 +68,7 @@ namespace tl
 
                 void _draw();
                 void _drawViewport(
-                    const math::Box2i&,
+                    const dtk::Box2I&,
                     uint16_t fontSize,
                     const timeline::CompareOptions&,
                     float rotation);
@@ -83,8 +83,8 @@ namespace tl
                 std::shared_ptr<timeline::Player> _player;
 
                 std::shared_ptr<gl::GLFWWindow> _window;
-                math::Size2i _frameBufferSize;
-                math::Vector2f _contentScale = math::Vector2f(1.F, 1.F);
+                dtk::Size2I _frameBufferSize;
+                dtk::V2F _contentScale = dtk::V2F(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;
                 float _rotation = 0.F;
                 bool _hud = false;

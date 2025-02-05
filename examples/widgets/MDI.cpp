@@ -58,7 +58,7 @@ namespace tl
                 return out;
             }
 
-            void MDI::setGeometry(const math::Box2i& value)
+            void MDI::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->canvas->setGeometry(value);

@@ -377,7 +377,7 @@ namespace tl
             p.pathsWidget->setRecentFilesModel(value);
         }
 
-        void FileBrowserWidget::setGeometry(const math::Box2i& value)
+        void FileBrowserWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -394,7 +394,7 @@ namespace tl
             TLRENDER_P();
             p.pathEdit->setText(p.path);
             p.directoryWidget->setPath(p.path);
-            p.directoryScrollWidget->setScrollPos(math::Vector2i(0, 0));
+            p.directoryScrollWidget->setScrollPos(dtk::V2I(0, 0));
         }
         
         void FileBrowserWidget::_optionsUpdate()

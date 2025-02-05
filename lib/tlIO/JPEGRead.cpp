@@ -144,13 +144,13 @@ namespace tl
                         }
                     }
 
-                    image::PixelType pixelType = image::getIntType(_jpeg.decompress.out_color_components, 8);
-                    if (image::PixelType::None == pixelType)
+                    dtk::ImageType pixelType = io::getIntType(_jpeg.decompress.out_color_components, 8);
+                    if (dtk::ImageType::None == pixelType)
                     {
                         throw std::runtime_error(dtk::Format("{0}: File not supported").arg(fileName));
                     }
 
-                    image::Info imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);
+                    dtk::ImageInfo imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
@@ -173,16 +173,16 @@ namespace tl
                     io::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = image::Image::create(info);
+                    out.image = dtk::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     std::size_t scanlineByteCount = 0;
-                    switch (info.pixelType)
+                    switch (info.type)
                     {
-                    case image::PixelType::L_U8:
+                    case dtk::ImageType::L_U8:
                         scanlineByteCount = info.size.w;
                         break;
-                    case image::PixelType::RGB_U8:
+                    case dtk::ImageType::RGB_U8:
                         scanlineByteCount = info.size.w * 3;
                         break;
                     default: break;

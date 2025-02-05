@@ -66,7 +66,7 @@ namespace tl
             if (value == p.tabs)
                 return;
             p.tabs = value;
-            p.currentTab = math::clamp(p.currentTab, 0, static_cast<int>(p.tabs.size()) - 1);
+            p.currentTab = dtk::clamp(p.currentTab, 0, static_cast<int>(p.tabs.size()) - 1);
             _widgetUpdate();
         }
 
@@ -97,7 +97,7 @@ namespace tl
         void TabBar::setCurrentTab(int value)
         {
             TLRENDER_P();
-            const int tmp = math::clamp(value, 0, static_cast<int>(p.tabs.size()) - 1);
+            const int tmp = dtk::clamp(value, 0, static_cast<int>(p.tabs.size()) - 1);
             if (tmp == _p->currentTab)
                 return;
             _p->currentTab = tmp;
@@ -109,7 +109,7 @@ namespace tl
             _p->callback = value;
         }
 
-        void TabBar::setGeometry(const math::Box2i& value)
+        void TabBar::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

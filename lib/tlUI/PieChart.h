@@ -57,7 +57,7 @@ namespace tl
             void setSizeMult(int);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

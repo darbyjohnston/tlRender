@@ -31,7 +31,7 @@ namespace tl
             AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
 
             const int64_t remaining = bufferData->size - bufferData->offset;
-            int bufSizeClamped = math::clamp(
+            int bufSizeClamped = dtk::clamp(
                 static_cast<int64_t>(bufSize),
                 static_cast<int64_t>(0),
                 remaining);
@@ -55,7 +55,7 @@ namespace tl
                 return bufferData->size;
             }
 
-            bufferData->offset = math::clamp(
+            bufferData->offset = dtk::clamp(
                 offset,
                 static_cast<int64_t>(0),
                 static_cast<int64_t>(bufferData->size));

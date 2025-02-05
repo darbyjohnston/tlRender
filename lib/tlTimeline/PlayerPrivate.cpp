@@ -562,7 +562,7 @@ namespace tl
             const size_t lineLength = 80;
             std::string currentTimeDisplay(lineLength, '.');
             double n = (currentTime - timeRange.start_time()).value() / timeRange.duration().value();
-            size_t index = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+            size_t index = dtk::clamp(n, 0.0, 1.0) * (lineLength - 1);
             if (index < currentTimeDisplay.size())
             {
                 currentTimeDisplay[index] = 'T';
@@ -573,9 +573,9 @@ namespace tl
             for (const auto& i : cacheInfo.videoFrames)
             {
                 n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t0 = dtk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t1 = dtk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
                     if (j < cachedVideoFramesDisplay.size())
@@ -590,9 +590,9 @@ namespace tl
             for (const auto& i : cacheInfo.audioFrames)
             {
                 double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t0 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t0 = dtk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t1 = math::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t1 = dtk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
                     if (j < cachedAudioFramesDisplay.size())

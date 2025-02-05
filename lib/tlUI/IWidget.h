@@ -74,7 +74,7 @@ namespace tl
             ///@{
 
             //! Get the size hint.
-            const math::Size2i& getSizeHint() const;
+            const dtk::Size2I& getSizeHint() const;
 
             //! Get the horizontal layout stretch.
             Stretch getHStretch() const;
@@ -110,10 +110,10 @@ namespace tl
             void setAlign(HAlign, VAlign);
 
             //! Get the geometry.
-            const math::Box2i& getGeometry() const;
+            const dtk::Box2I& getGeometry() const;
 
             //! Set the geometry.
-            virtual void setGeometry(const math::Box2i&);
+            virtual void setGeometry(const dtk::Box2I&);
 
             ///@}
 
@@ -137,7 +137,7 @@ namespace tl
 
             //! Get the clipping rect applied to the child widgets. By
             //! default this is the same as the widget geometry.
-            const math::Box2i& getChildrenClipRect() const;
+            const dtk::Box2I& getChildrenClipRect() const;
 
             ///@}
 
@@ -210,13 +210,13 @@ namespace tl
             virtual void sizeHintEvent(const SizeHintEvent&);
 
             //! Clip event.
-            virtual void clipEvent(const math::Box2i&, bool clipped);
+            virtual void clipEvent(const dtk::Box2I&, bool clipped);
 
             //! Draw event.
-            virtual void drawEvent(const math::Box2i&, const DrawEvent&);
+            virtual void drawEvent(const dtk::Box2I&, const DrawEvent&);
 
             //! Draw overlay event.
-            virtual void drawOverlayEvent(const math::Box2i&, const DrawEvent&);
+            virtual void drawOverlayEvent(const dtk::Box2I&, const DrawEvent&);
 
             //! Mouse enter event.
             virtual void mouseEnterEvent();
@@ -274,13 +274,13 @@ namespace tl
             int _updates = 0;
             std::weak_ptr<IWidget> _parent;
             std::list<std::shared_ptr<IWidget> > _children;
-            math::Size2i _sizeHint;
+            dtk::Size2I _sizeHint;
             Stretch _hStretch = Stretch::Fixed;
             Stretch _vStretch = Stretch::Fixed;
             HAlign _hAlign = HAlign::Left;
             VAlign _vAlign = VAlign::Center;
-            math::Box2i _geometry;
-            math::Box2i _childrenClipRect;
+            dtk::Box2I _geometry;
+            dtk::Box2I _childrenClipRect;
             bool _visible = true;
             bool _parentsVisible = true;
             bool _clipped = false;
@@ -289,9 +289,9 @@ namespace tl
             struct MouseData
             {
                 bool inside = false;
-                math::Vector2i pos;
+                dtk::V2I pos;
                 bool press = false;
-                math::Vector2i pressPos;
+                dtk::V2I pressPos;
             };
             MouseData _mouse;
             bool _acceptsKeyFocus = false;

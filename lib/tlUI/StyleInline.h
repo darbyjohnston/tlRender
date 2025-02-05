@@ -18,9 +18,9 @@ namespace tl
             return i != _colorRoles.end() ? i->second : dtk::Color4F();
         }
 
-        inline image::FontInfo Style::getFontRole(FontRole role, float scale) const
+        inline dtk::FontInfo Style::getFontRole(FontRole role, float scale) const
         {
-            image::FontInfo out;
+            dtk::FontInfo out;
             const auto i = _fontRoles.find(role);
             if (i != _fontRoles.end())
             {

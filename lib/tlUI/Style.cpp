@@ -14,7 +14,7 @@ namespace tl
 {
     namespace ui
     {
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             SizeRole,
             "None",
             "Margin",
@@ -35,7 +35,6 @@ namespace tl
             "SwatchLarge",
             "Shadow",
             "DragLength");
-        TLRENDER_ENUM_SERIALIZE_IMPL(SizeRole);
 
         std::map<SizeRole, int> defaultSizeRoles()
         {
@@ -61,7 +60,7 @@ namespace tl
             return out;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             ColorRole,
             "None",
 
@@ -95,7 +94,6 @@ namespace tl
             "Cyan",
             "Magenta",
             "Yellow");
-        TLRENDER_ENUM_SERIALIZE_IMPL(ColorRole);
 
         std::map<ColorRole, dtk::Color4F> defaultColorRoles()
         {
@@ -135,20 +133,19 @@ namespace tl
             return out;
         }
 
-        TLRENDER_ENUM_IMPL(
+        DTK_ENUM_IMPL(
             FontRole,
             "None",
             "Label",
             "Mono",
             "Title");
-        TLRENDER_ENUM_SERIALIZE_IMPL(FontRole);
 
-        std::map<FontRole, image::FontInfo> defaultFontRoles()
+        std::map<FontRole, dtk::FontInfo> defaultFontRoles()
         {
-            std::map<FontRole, image::FontInfo> out;
-            out[FontRole::Label] = image::FontInfo("NotoSans-Regular", 12 * 1);
-            out[FontRole::Mono] = image::FontInfo("NotoMono-Regular", 12 * 1);
-            out[FontRole::Title] = image::FontInfo("NotoSans-Regular", 16 * 1);
+            std::map<FontRole, dtk::FontInfo> out;
+            out[FontRole::Label] = dtk::FontInfo("NotoSans-Regular", 12 * 1);
+            out[FontRole::Mono] = dtk::FontInfo("NotoMono-Regular", 12 * 1);
+            out[FontRole::Title] = dtk::FontInfo("NotoSans-Regular", 16 * 1);
             return out;
         }
 
@@ -220,7 +217,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setFontRole(FontRole role, const image::FontInfo& value)
+        void Style::setFontRole(FontRole role, const dtk::FontInfo& value)
         {
             TLRENDER_P();
             if (_fontRoles[role] == value)
@@ -229,7 +226,7 @@ namespace tl
             p.changed->setAlways(true);
         }
 
-        void Style::setFontRoles(const std::map<FontRole, image::FontInfo>& value)
+        void Style::setFontRoles(const std::map<FontRole, dtk::FontInfo>& value)
         {
             TLRENDER_P();
             if (_fontRoles == value)

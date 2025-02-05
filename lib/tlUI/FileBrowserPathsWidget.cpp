@@ -131,7 +131,7 @@ namespace tl
             }
         }
 
-        void PathsWidget::setGeometry(const math::Box2i& value)
+        void PathsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

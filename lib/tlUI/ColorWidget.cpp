@@ -143,7 +143,7 @@ namespace tl
             _p->callback = value;
         }
 
-        void ColorWidget::setGeometry(const math::Box2i& value)
+        void ColorWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

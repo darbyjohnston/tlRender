@@ -53,7 +53,7 @@ namespace tl
 
             //p.size.margin = event.style->getSizeRole(SizeRole::MarginInside, _displayScale);
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             if (_iconImage)
             {
                 _sizeHint.w = _iconImage->getWidth();
@@ -64,13 +64,13 @@ namespace tl
         }
 
         void IncButton::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             const ColorRole colorRole = _checked ?
                 ColorRole::Checked :
@@ -82,7 +82,7 @@ namespace tl
                     event.style->getColorRole(colorRole));
             }
 
-            if (_mouse.press && _geometry.contains(_mouse.pos))
+            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
             {
                 event.render->drawRect(
                     g,
@@ -101,7 +101,7 @@ namespace tl
                 const auto iconSize = _iconImage->getSize();
                 event.render->drawImage(
                   _iconImage,
-                  math::Box2i(
+                  dtk::Box2I(
                       x,
                       g.y() + g.h() / 2 - iconSize.h / 2,
                       iconSize.w,
@@ -137,15 +137,15 @@ namespace tl
             return out;
         }
 
-        void IncButtons::setGeometry(const math::Box2i& value)
+        void IncButtons::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
-            _incButton->setGeometry(math::Box2i(
+            _incButton->setGeometry(dtk::Box2I(
                 value.min.x,
                 value.min.y,
                 value.w(),
                 value.h() / 2));
-            _decButton->setGeometry(math::Box2i(
+            _decButton->setGeometry(dtk::Box2I(
                 value.min.x,
                 value.max.y - value.h() / 2,
                 value.w(),
@@ -155,8 +155,8 @@ namespace tl
         void IncButtons::sizeHintEvent(const SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            const math::Size2i incSizeHint = _incButton->getSizeHint();
-            const math::Size2i decSizeHint = _decButton->getSizeHint();
+            const dtk::Size2I incSizeHint = _incButton->getSizeHint();
+            const dtk::Size2I decSizeHint = _decButton->getSizeHint();
             _sizeHint.w = std::max(incSizeHint.w, decSizeHint.w);
             _sizeHint.h = incSizeHint.h + decSizeHint.h;
         }
@@ -175,7 +175,7 @@ namespace tl
         {
             std::shared_ptr<IntModel> model;
             std::shared_ptr<dtk::ValueObserver<int> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::IntRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeI> > rangeObserver;
         };
 
         void IntIncButtons::_init(
@@ -210,9 +210,9 @@ namespace tl
                     _modelUpdate();
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::IntRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeI>::create(
                 p.model->observeRange(),
-                [this](const math::IntRange&)
+                [this](const dtk::RangeI&)
                 {
                     _modelUpdate();
                 });
@@ -244,16 +244,16 @@ namespace tl
         {
             TLRENDER_P();
             const int value = p.model->getValue();
-            const math::IntRange& range = p.model->getRange();
-            _incButton->setEnabled(value < range.getMax());
-            _decButton->setEnabled(value > range.getMin());
+            const dtk::RangeI& range = p.model->getRange();
+            _incButton->setEnabled(value < range.max());
+            _decButton->setEnabled(value > range.min());
         }
 
         struct FloatIncButtons::Private
         {
             std::shared_ptr<FloatModel> model;
             std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeF> > rangeObserver;
         };
 
         void FloatIncButtons::_init(
@@ -288,9 +288,9 @@ namespace tl
                     _modelUpdate();
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeF>::create(
                 p.model->observeRange(),
-                [this](const math::FloatRange&)
+                [this](const dtk::RangeF&)
                 {
                     _modelUpdate();
                 });
@@ -322,16 +322,16 @@ namespace tl
         {
             TLRENDER_P();
             const float value = p.model->getValue();
-            const math::FloatRange& range = p.model->getRange();
-            _incButton->setEnabled(value < range.getMax());
-            _decButton->setEnabled(value > range.getMin());
+            const dtk::RangeF& range = p.model->getRange();
+            _incButton->setEnabled(value < range.max());
+            _decButton->setEnabled(value > range.min());
         }
 
         struct DoubleIncButtons::Private
         {
             std::shared_ptr<DoubleModel> model;
             std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::DoubleRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeD> > rangeObserver;
         };
 
         void DoubleIncButtons::_init(
@@ -366,9 +366,9 @@ namespace tl
                     _modelUpdate();
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::DoubleRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeD>::create(
                 p.model->observeRange(),
-                [this](const math::DoubleRange&)
+                [this](const dtk::RangeD&)
                 {
                     _modelUpdate();
                 });
@@ -400,9 +400,9 @@ namespace tl
         {
             TLRENDER_P();
             const double value = p.model->getValue();
-            const math::DoubleRange& range = p.model->getRange();
-            _incButton->setEnabled(value < range.getMax());
-            _decButton->setEnabled(value > range.getMin());
+            const dtk::RangeD& range = p.model->getRange();
+            _incButton->setEnabled(value < range.max());
+            _decButton->setEnabled(value > range.min());
         }
     }
 }

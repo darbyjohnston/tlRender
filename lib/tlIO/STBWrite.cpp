@@ -22,11 +22,11 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<image::Image>& image)
+                    const std::shared_ptr<dtk::Image>& image)
                 {
                     const auto& info = image->getInfo();
-                    const int comp = image::getChannelCount(info.pixelType);
-                    const size_t bytes = image::getBitDepth(info.pixelType) / 8;
+                    const int comp = dtk::getChannelCount(info.type);
+                    const size_t bytes = dtk::getBitDepth(info.type) / 8;
                     if (bytes > 1)
                         throw std::runtime_error(dtk::Format("{0}: {1}").
                             arg(fileName).
@@ -99,7 +99,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

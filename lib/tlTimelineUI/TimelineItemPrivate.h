@@ -35,8 +35,8 @@ namespace tl
                 std::shared_ptr<ui::Label> label;
                 std::shared_ptr<ui::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
-                math::Size2i size;
-                math::Box2i geom;
+                dtk::Size2I size;
+                dtk::Box2I geom;
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;
@@ -48,16 +48,16 @@ namespace tl
                 int spacing = 0;
                 int border = 0;
                 int handle = 0;
-                image::FontInfo fontInfo = image::FontInfo("", 0);
-                image::FontMetrics fontMetrics;
+                dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
+                dtk::FontMetrics fontMetrics;
 
-                math::Vector2i scrollPos;
+                dtk::V2I scrollPos;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<math::Box2i> dropTargets;
+                std::vector<dtk::Box2I> dropTargets;
             };
             DrawData draw;
 
@@ -80,14 +80,14 @@ namespace tl
                 std::shared_ptr<IItem> p;
                 int index = -1;
                 int track = -1;
-                math::Box2i geometry;
+                dtk::Box2I geometry;
             };
             struct MouseItemDropTarget
             {
                 int index = -1;
                 int track = -1;
-                math::Box2i mouse;
-                math::Box2i draw;
+                dtk::Box2I mouse;
+                dtk::Box2I draw;
             };
             struct MouseData
             {
@@ -108,7 +108,7 @@ namespace tl
                 int& trackIndex) const;
 
             std::vector<MouseItemDropTarget> getDropTargets(
-                const math::Box2i& geometry,
+                const dtk::Box2I& geometry,
                 int index,
                 int track);
         };

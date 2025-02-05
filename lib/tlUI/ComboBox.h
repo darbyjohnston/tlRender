@@ -71,7 +71,7 @@ namespace tl
                 bool,
                 const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
             void mouseEnterEvent() override;
             void mouseLeaveEvent() override;
             void mousePressEvent(MouseClickEvent&) override;

@@ -11,7 +11,7 @@ namespace tl
         struct RenderSizeState::Private
         {
             std::shared_ptr<IRender> render;
-            math::Size2i size;
+            dtk::Size2I size;
         };
 
         RenderSizeState::RenderSizeState(const std::shared_ptr<IRender>& render) :
@@ -31,7 +31,7 @@ namespace tl
         struct ViewportState::Private
         {
             std::shared_ptr<IRender> render;
-            math::Box2i viewport;
+            dtk::Box2I viewport;
         };
 
         ViewportState::ViewportState(const std::shared_ptr<IRender>& render) :
@@ -71,7 +71,7 @@ namespace tl
         struct ClipRectState::Private
         {
             std::shared_ptr<IRender> render;
-            math::Box2i clipRect;
+            dtk::Box2I clipRect;
         };
 
         ClipRectState::ClipRectState(const std::shared_ptr<IRender>& render) :
@@ -88,7 +88,7 @@ namespace tl
             p.render->setClipRect(p.clipRect);
         }
 
-        const math::Box2i& ClipRectState::getClipRect() const
+        const dtk::Box2I& ClipRectState::getClipRect() const
         {
             return _p->clipRect;
         }
@@ -96,7 +96,7 @@ namespace tl
         struct TransformState::Private
         {
             std::shared_ptr<IRender> render;
-            math::Matrix4x4f transform;
+            dtk::M44F transform;
         };
 
         TransformState::TransformState(const std::shared_ptr<IRender>& render) :
@@ -112,5 +112,30 @@ namespace tl
             TLRENDER_P();
             p.render->setTransform(p.transform);
         }
+        
+        dtk::Box2I getBox(float aspect, const dtk::Box2I& box)
+        {
+            dtk::Box2I out;
+            const dtk::Size2I boxSize = box.size();
+            const float boxAspect = dtk::aspectRatio(boxSize);
+            if (boxAspect > aspect)
+            {
+                out = dtk::Box2I(
+                    box.min.x + boxSize.w / 2.F - (boxSize.h * aspect) / 2.F,
+                    box.min.y,
+                    boxSize.h * aspect,
+                    boxSize.h);
+            }
+            else
+            {
+                out = dtk::Box2I(
+                    box.min.x,
+                    box.min.y + boxSize.h / 2.F - (boxSize.w / aspect) / 2.F,
+                    boxSize.w,
+                    boxSize.w / aspect);
+            }
+            return out;
+        }
+
     }
 }

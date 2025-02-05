@@ -3,63 +3,34 @@ set(HEADERS
     AudioInline.h
     AudioResample.h
     AudioSystem.h
-    Box.h
-    BoxInline.h
     File.h
     FileInfo.h
     FileInfoInline.h
     FileInfoPrivate.h
     FileLogSystem.h
-    FontSystem.h
-    FontSystemInline.h
     HDR.h
     HDRInline.h
     ISystem.h
-    Image.h
-    ImageInline.h
     Init.h
-    Math.h
-    MathInline.h
-    Matrix.h
-    MatrixInline.h
-    Mesh.h
-    MeshInline.h
     Path.h
     PathInline.h
-    Random.h
-    RandomInline.h
-    Range.h
-    RangeInline.h
-    Size.h
-    SizeInline.h
     Time.h
     TimeInline.h
     Timer.h
-    Util.h
-    Vector.h
-    VectorInline.h)
+    Util.h)
 
 set(SOURCE
     Audio.cpp
     AudioResample.cpp
     AudioSystem.cpp
-    Box.cpp
     FileInfo.cpp
     FileLogSystem.cpp
-    FontSystem.cpp
     HDR.cpp
     ISystem.cpp
-    Image.cpp
     Init.cpp
-    Matrix.cpp
-    Mesh.cpp
     Path.cpp
-    Random.cpp
-    Range.cpp
-    Size.cpp
     Time.cpp
-    Timer.cpp
-    Vector.cpp)
+    Timer.cpp)
 if (WIN32)
     list(APPEND SOURCE
         FileInfoWin32.cpp

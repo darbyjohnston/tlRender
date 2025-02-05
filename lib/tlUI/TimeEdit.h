@@ -52,7 +52,7 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void takeKeyFocus() override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void keyPressEvent(KeyEvent&) override;

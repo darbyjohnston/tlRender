@@ -33,7 +33,7 @@ namespace tl
         {
             void write(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 const image::Info& imageInfo)
             {
@@ -46,7 +46,7 @@ namespace tl
 
             void read(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
             {
@@ -79,7 +79,7 @@ namespace tl
 
             void readError(
                 const std::shared_ptr<io::IPlugin>& plugin,
-                const std::shared_ptr<image::Image>& image,
+                const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
             {
@@ -143,7 +143,7 @@ namespace tl
                                     _print(ss.str());
                                     path = file::Path(ss.str());
                                 }
-                                auto image = image::Image::create(imageInfo);
+                                auto image = dtk::Image::create(imageInfo);
                                 image->zero();
                                 try
                                 {

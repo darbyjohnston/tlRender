@@ -151,9 +151,9 @@ namespace tl
                         TI v = 0;
                         for (size_t k = 0; k < inCount; ++k)
                         {
-                            v += math::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
+                            v += dtk::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
                         }
-                        outP[j] = math::clamp(v, min, max);
+                        outP[j] = dtk::clamp(v, min, max);
                     }
                 }
             }

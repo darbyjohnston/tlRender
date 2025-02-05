@@ -178,7 +178,7 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void IWidget::setGeometry(const math::Box2i& value)
+        void IWidget::setGeometry(const dtk::Box2I& value)
         {
             if (value == _geometry)
                 return;
@@ -281,7 +281,7 @@ namespace tl
             _updates &= ~static_cast<int>(Update::Size);
         }
 
-        void IWidget::clipEvent(const math::Box2i&, bool clipped)
+        void IWidget::clipEvent(const dtk::Box2I&, bool clipped)
         {
             if (clipped && clipped != _clipped)
             {
@@ -292,7 +292,7 @@ namespace tl
         }
 
         void IWidget::drawEvent(
-            const math::Box2i&,
+            const dtk::Box2I&,
             const DrawEvent& event)
         {
             _updates &= ~static_cast<int>(Update::Draw);
@@ -305,7 +305,7 @@ namespace tl
         }
 
         void IWidget::drawOverlayEvent(
-            const math::Box2i&,
+            const dtk::Box2I&,
             const DrawEvent&)
         {
             _updates &= ~static_cast<int>(Update::Draw);

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Range.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Range.h>
 
 #include <QWidget>
 
@@ -20,7 +21,7 @@ namespace tl
         {
             Q_OBJECT
             Q_PROPERTY(
-                tl::math::FloatRange range
+                dtk::RangeF range
                 READ range
                 WRITE setRange
                 NOTIFY rangeChanged)
@@ -54,7 +55,7 @@ namespace tl
             virtual ~FloatEditSlider();
 
             //! Get the range.
-            const math::FloatRange& range() const;
+            const dtk::RangeF& range() const;
 
             //! Get the value.
             float value() const;
@@ -73,7 +74,7 @@ namespace tl
 
         public slots:
             //! Set the range.
-            void setRange(const tl::math::FloatRange&);
+            void setRange(const dtk::RangeF&);
 
             //! Set the value.
             void setValue(float);
@@ -92,7 +93,7 @@ namespace tl
 
         Q_SIGNALS:
             //! This signal is emitted when the range is changed.
-            void rangeChanged(const tl::math::FloatRange&);
+            void rangeChanged(const dtk::RangeF&);
 
             //! This signal is emitted when the value is changed.
             void valueChanged(float);

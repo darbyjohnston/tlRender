@@ -70,15 +70,15 @@ namespace tl
             _p->closeCallback = value;
         }
 
-        void IDialog::setGeometry(const math::Box2i& value)
+        void IDialog::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
             if (!_children.empty())
             {
-                const math::Box2i g = value.margin(-p.size.margin);
-                const math::Size2i& sizeHint = _children.front()->getSizeHint();
-                math::Vector2i size;
+                const dtk::Box2I g = dtk::margin(value, -p.size.margin);
+                const dtk::Size2I& sizeHint = _children.front()->getSizeHint();
+                dtk::V2I size;
                 size.x = std::min(sizeHint.w, g.w());
                 size.y = std::min(sizeHint.h, g.h());
                 if (Stretch::Expanding == _children.front()->getHStretch())
@@ -89,7 +89,7 @@ namespace tl
                 {
                     size.y = g.h();
                 }
-                _children.front()->setGeometry(math::Box2i(
+                _children.front()->setGeometry(dtk::Box2I(
                     g.x() + g.w() / 2 - size.x / 2,
                     g.y() + g.h() / 2 - size.y / 2,
                     size.x,
@@ -113,7 +113,7 @@ namespace tl
         }
 
         void IDialog::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
@@ -123,20 +123,18 @@ namespace tl
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));
             if (!_children.empty())
             {
-                const math::Box2i g = _children.front()->getGeometry();
-                const math::Box2i g2(
+                const dtk::Box2I g = _children.front()->getGeometry();
+                const dtk::Box2I g2(
                     g.min.x - p.size.shadow,
                     g.min.y,
                     g.w() + p.size.shadow * 2,
                     g.h() + p.size.shadow);
                 event.render->drawColorMesh(
                     shadow(g2, p.size.shadow),
-                    math::Vector2i(),
                     dtk::Color4F(1.F, 1.F, 1.F));
 
                 event.render->drawMesh(
-                    border(g.margin(p.size.border), p.size.border),
-                    math::Vector2i(),
+                    border(dtk::margin(g, p.size.border), p.size.border),
                     event.style->getColorRole(ColorRole::Border));
                 
                 event.render->drawRect(g, event.style->getColorRole(ColorRole::Window));

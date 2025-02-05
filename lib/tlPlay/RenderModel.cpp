@@ -14,8 +14,8 @@ namespace tl
         {
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<Settings> settings;
-            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
-            std::shared_ptr<dtk::ObservableValue<timeline::ImageOptions> > imageOptions;
+            std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<dtk::ImageOptions> > imageOptions;
         };
 
         void RenderModel::_init(
@@ -27,10 +27,10 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
-            p.settings->setDefaultValue("Render/ColorBuffer", image::PixelType::RGBA_U8);
-            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(
-                p.settings->getValue<image::PixelType>("Render/ColorBuffer"));
-            p.imageOptions = dtk::ObservableValue<timeline::ImageOptions>::create();
+            p.settings->setDefaultValue("Render/ColorBuffer", dtk::ImageType::RGBA_U8);
+            p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(
+                p.settings->getValue<dtk::ImageType>("Render/ColorBuffer"));
+            p.imageOptions = dtk::ObservableValue<dtk::ImageOptions>::create();
         }
 
         RenderModel::RenderModel() :
@@ -49,32 +49,32 @@ namespace tl
             return out;
         }
 
-        const timeline::ImageOptions& RenderModel::getImageOptions() const
+        const dtk::ImageOptions& RenderModel::getImageOptions() const
         {
             return _p->imageOptions->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<timeline::ImageOptions> > RenderModel::observeImageOptions() const
+        std::shared_ptr<dtk::IObservableValue<dtk::ImageOptions> > RenderModel::observeImageOptions() const
         {
             return _p->imageOptions;
         }
 
-        void RenderModel::setImageOptions(const timeline::ImageOptions& value)
+        void RenderModel::setImageOptions(const dtk::ImageOptions& value)
         {
             _p->imageOptions->setIfChanged(value);
         }
 
-        image::PixelType RenderModel::getColorBuffer() const
+        dtk::ImageType RenderModel::getColorBuffer() const
         {
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<image::PixelType> > RenderModel::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > RenderModel::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }
 
-        void RenderModel::setColorBuffer(image::PixelType value)
+        void RenderModel::setColorBuffer(dtk::ImageType value)
         {
             _p->settings->setValue("Render/ColorBuffer", value);
             _p->colorBuffer->setIfChanged(value);

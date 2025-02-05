@@ -49,11 +49,11 @@ namespace tl
                 bool sizeInit = true;
                 int margin = 0;
                 int spacing = 0;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
 
                 int pieDiameter = 0;
-                math::Vector2i textSize;
+                dtk::V2I textSize;
             };
             SizeData size;
 
@@ -62,20 +62,20 @@ namespace tl
                 struct PercentageLabel
                 {
                     std::string text;
-                    math::Size2i size;
-                    math::Vector2i pos;
-                    std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                    dtk::Size2I size;
+                    dtk::V2I pos;
+                    std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
                 };
                 std::vector<PercentageLabel> percentageLabels;
-                std::vector<geom::TriangleMesh2> pieSliceMeshes;
+                std::vector<dtk::TriMesh2F> pieSliceMeshes;
                 struct TextLabel
                 {
                     std::string text;
-                    math::Size2i size;
-                    math::Vector2i pos;
-                    std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                    dtk::Size2I size;
+                    dtk::V2I pos;
+                    std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
                     dtk::Color4F color;
-                    geom::TriangleMesh2 circleMesh;
+                    dtk::TriMesh2F circleMesh;
                 };
                 std::vector<TextLabel> textLabels;
             };
@@ -171,9 +171,9 @@ namespace tl
                 const float r = p.size.fontMetrics.lineHeight * p.sizeMult / 2.F +
                     p.size.spacing +
                     label.size.w / 2.F;
-                label.pos.x = cos(math::deg2rad(d / 100.F * 360.F - 90.F)) * r -
+                label.pos.x = cos(dtk::deg2rad(d / 100.F * 360.F - 90.F)) * r -
                     label.size.w / 2;
-                label.pos.y = sin(math::deg2rad(d / 100.F * 360.F - 90.F)) * r -
+                label.pos.y = sin(dtk::deg2rad(d / 100.F * 360.F - 90.F)) * r -
                     label.size.h / 2;
                 a += p.data[i].percentage;
             }
@@ -185,26 +185,26 @@ namespace tl
             a = 0;
             for (size_t i = 0; i < p.data.size(); ++i)
             {
-                geom::TriangleMesh2& mesh = p.draw.pieSliceMeshes[i];
+                dtk::TriMesh2F& mesh = p.draw.pieSliceMeshes[i];
                 const int d = p.data[i].percentage;
                 const int inc = 2;
                 for (int i = a; i < a + d; i += inc)
                 {
                     const size_t size = mesh.v.size();
-                    mesh.v.push_back(math::Vector2f(0.F, 0.F));
-                    mesh.v.push_back(math::Vector2f(
-                        cos(math::deg2rad(i / 100.F * 360.F - 90.F)) * r,
-                        sin(math::deg2rad(i / 100.F * 360.F - 90.F)) * r));
-                    mesh.v.push_back(math::Vector2f(
-                        cos(math::deg2rad(std::min(i + inc, a + d) / 100.F * 360.F - 90.F)) * r,
-                        sin(math::deg2rad(std::min(i + inc, a + d) / 100.F * 360.F - 90.F)) * r));
+                    mesh.v.push_back(dtk::V2F(0.F, 0.F));
+                    mesh.v.push_back(dtk::V2F(
+                        cos(dtk::deg2rad(i / 100.F * 360.F - 90.F)) * r,
+                        sin(dtk::deg2rad(i / 100.F * 360.F - 90.F)) * r));
+                    mesh.v.push_back(dtk::V2F(
+                        cos(dtk::deg2rad(std::min(i + inc, a + d) / 100.F * 360.F - 90.F)) * r,
+                        sin(dtk::deg2rad(std::min(i + inc, a + d) / 100.F * 360.F - 90.F)) * r));
                     mesh.triangles.push_back({ size + 1, size + 2, size + 3 });
                 }
                 a += p.data[i].percentage;
             }
 
             // Create the text labels.
-            p.size.textSize = math::Vector2i();
+            p.size.textSize = dtk::V2I();
             p.draw.textLabels.clear();
             const int r2 = p.size.fontMetrics.lineHeight;
             for (size_t i = 0; i < p.data.size(); ++i)
@@ -215,7 +215,7 @@ namespace tl
                 label.pos.y = p.size.textSize.y;
                 label.glyphs = event.fontSystem->getGlyphs(label.text, p.size.fontInfo);
                 label.color = p.data[i].color;
-                label.circleMesh = circle(math::Vector2i(r2 / 2, r2 / 2), r2 / 2, 60);
+                label.circleMesh = circle(dtk::V2I(r2 / 2, r2 / 2), r2 / 2, 60);
                 p.draw.textLabels.push_back(label);
                 p.size.textSize.x = std::max(
                     p.size.textSize.x,
@@ -243,7 +243,7 @@ namespace tl
         }
 
         void PieChart::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -251,8 +251,8 @@ namespace tl
 
             //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
 
-            const math::Box2i g = align(
-                _geometry.margin(-p.size.margin),
+            const dtk::Box2I g = align(
+                margin(_geometry, -p.size.margin),
                 _sizeHint,
                 Stretch::Fixed,
                 Stretch::Fixed,
@@ -260,19 +260,18 @@ namespace tl
                 _vAlign);
 
             // Draw the percentage labels.
-            const math::Box2i g2(
+            const dtk::Box2I g2(
                 g.min.x,
                 g.min.y,
                 p.size.pieDiameter,
                 p.size.pieDiameter);
-            const math::Vector2i c = g2.getCenter();
+            const dtk::V2I c = dtk::center(g2);
             for (const auto& label : p.draw.percentageLabels)
             {
                 event.render->drawText(
                     label.glyphs,
-                    math::Vector2i(
-                        c.x + label.pos.x,
-                        c.y + label.pos.y + p.size.fontMetrics.ascender),
+                    p.size.fontMetrics,
+                    c + label.pos,
                     event.style->getColorRole(ColorRole::Text));
             }
 
@@ -281,32 +280,32 @@ namespace tl
             {
                 event.render->drawMesh(
                     p.draw.pieSliceMeshes[i],
-                    c,
-                    p.data[i].color);
+                    p.data[i].color,
+                    dtk::V2F(c.x, c.y));
             }
 
             // Draw the text labels.
-            math::Vector2i pos(
+            dtk::V2I pos(
                 g.min.x + p.size.pieDiameter + p.size.spacing,
                 g.min.y + g.h() / 2 - p.size.textSize.y / 2);
             for (const auto& label : p.draw.textLabels)
             {
                 event.render->drawMesh(
                     label.circleMesh,
-                    math::Vector2i(
+                    label.color,
+                    dtk::V2F(
                         pos.x + label.pos.x,
-                        pos.y + label.pos.y),
-                    label.color);
+                        pos.y + label.pos.y));
                 event.render->drawText(
                     label.glyphs,
-                    math::Vector2i(
+                    p.size.fontMetrics,
+                    dtk::V2I(
                         pos.x +
                         label.pos.x +
                         p.size.fontMetrics.lineHeight +
                         p.size.spacing,
                         pos.y +
-                        label.pos.y +
-                        p.size.fontMetrics.ascender),
+                        label.pos.y),
                     event.style->getColorRole(ColorRole::Text));
             }
         }

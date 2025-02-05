@@ -6,6 +6,8 @@
 
 #include <tlUI/IWidget.h>
 
+#include <dtk/core/LogSystem.h>
+
 namespace tl
 {
     namespace play_app
@@ -33,7 +35,7 @@ namespace tl
             //! Set the clicked callback.
             void setClickedCallback(const std::function<void(void)>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
             void mousePressEvent(ui::MouseClickEvent&) override;
             void mouseReleaseEvent(ui::MouseClickEvent&) override;

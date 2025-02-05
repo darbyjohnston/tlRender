@@ -110,7 +110,7 @@ namespace tl
             return out;
         }
 
-        void WindowToolBar::setGeometry(const math::Box2i& value)
+        void WindowToolBar::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

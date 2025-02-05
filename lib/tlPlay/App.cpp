@@ -44,7 +44,7 @@ namespace tl
                     "A/B comparison mode.",
                     dtk::Format("{0}").arg(options.compareOptions.mode),
                     dtk::join(timeline::getCompareModeLabels(), ", ")),
-                app::CmdLineValueOption<math::Vector2f>::create(
+                app::CmdLineValueOption<dtk::V2F>::create(
                     options.compareOptions.wipeCenter,
                     { "-wipeCenter", "-wc" },
                     "A/B comparison wipe center.",

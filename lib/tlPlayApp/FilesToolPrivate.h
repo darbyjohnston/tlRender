@@ -37,8 +37,8 @@ namespace tl
                 bool,
                 const ui::TickEvent&) override;
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
             void keyPressEvent(ui::KeyEvent&) override;
             void keyReleaseEvent(ui::KeyEvent&) override;
 

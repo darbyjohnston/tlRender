@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include <tlTimeline/ImageOptions.h>
 #include <tlTimeline/Transition.h>
 
-#include <tlCore/Image.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Image.h>
+#include <dtk/core/RenderOptions.h>
 
 namespace tl
 {
@@ -17,11 +18,11 @@ namespace tl
         //! Video layer.
         struct VideoLayer
         {
-            std::shared_ptr<image::Image> image;
-            ImageOptions imageOptions;
+            std::shared_ptr<dtk::Image> image;
+            dtk::ImageOptions imageOptions;
 
-            std::shared_ptr<image::Image> imageB;
-            ImageOptions imageOptionsB;
+            std::shared_ptr<dtk::Image> imageB;
+            dtk::ImageOptions imageOptionsB;
 
             Transition transition = Transition::None;
             float transitionValue = 0.F;
@@ -33,7 +34,7 @@ namespace tl
         //! Video data.
         struct VideoData
         {
-            image::Size size;
+            dtk::Size2I size;
             OTIO_NS::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 

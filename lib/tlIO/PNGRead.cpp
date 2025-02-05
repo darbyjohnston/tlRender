@@ -198,24 +198,24 @@ namespace tl
                     }
                     _scanlineSize = width * channels * bitDepth / 8;
 
-                    image::PixelType pixelType = image::getIntType(channels, bitDepth);
-                    if (image::PixelType::None == pixelType)
+                    dtk::ImageType pixelType = io::getIntType(channels, bitDepth);
+                    if (dtk::ImageType::None == pixelType)
                     {
                         throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
                     }
 
-                    _info = image::Info(width, height, pixelType);
+                    _info = dtk::ImageInfo(width, height, pixelType);
                     _info.layout.mirror.y = true;
                 }
 
-                const image::Info& getInfo() const
+                const dtk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
 
-                std::shared_ptr<image::Image> read()
+                std::shared_ptr<dtk::Image> read()
                 {
-                    auto out = image::Image::create(_info);
+                    auto out = dtk::Image::create(_info);
                     uint8_t* p = out->getData();
                     for (uint16_t y = 0; y < _info.size.h; ++y, p += _scanlineSize)
                     {
@@ -263,7 +263,7 @@ namespace tl
                 dtk::InMemoryFile _memory;
                 ErrorStruct      _error;
                 size_t           _scanlineSize = 0;
-                image::Info    _info;
+                dtk::ImageInfo    _info;
             };
         }
 

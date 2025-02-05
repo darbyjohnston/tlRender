@@ -64,7 +64,7 @@ namespace tl
             //! Set the view zoom.
             void setViewZoom(
                 double,
-                const tl::math::Vector2i& focus);
+                const dtk::V2I& focus);
 
             //! Frame the view.
             void frameView();
@@ -162,9 +162,9 @@ namespace tl
             ///@}
 
             //! Get the track geometry.
-            std::vector<math::Box2i> getTrackGeom() const;
+            std::vector<dtk::Box2I> getTrackGeom() const;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void tickEvent(
                 bool,
                 bool,
@@ -184,8 +184,8 @@ namespace tl
             void _setViewZoom(
                 double zoomNew,
                 double zoomPrev,
-                const math::Vector2i& focus,
-                const math::Vector2i& scrollPos);
+                const dtk::V2I& focus,
+                const dtk::V2I& scrollPos);
 
             double _getTimelineScale() const;
             double _getTimelineScaleMax() const;

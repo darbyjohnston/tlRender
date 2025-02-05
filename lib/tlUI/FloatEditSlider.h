@@ -43,10 +43,10 @@ namespace tl
             void setCallback(const std::function<void(float)>&);
 
             //! Get the range.
-            const math::FloatRange& getRange() const;
+            const dtk::RangeF& getRange() const;
 
             //! Set the range.
-            void setRange(const math::FloatRange&);
+            void setRange(const dtk::RangeF&);
 
             //! Set the step.
             void setStep(float);
@@ -66,7 +66,7 @@ namespace tl
             //! Set the font role.
             void setFontRole(FontRole);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

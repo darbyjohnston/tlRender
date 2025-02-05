@@ -8,7 +8,7 @@
 
 #include <tlUI/IClipboard.h>
 
-#include <tlGL/GLFWWindow.h>
+#include <dtk/gl/Window.h>
 
 #include <dtk/core/Format.h>
 
@@ -71,7 +71,7 @@ namespace tl
         {
             std::shared_ptr<ui::Style> style;
             std::shared_ptr<ui::IconLibrary> iconLibrary;
-            std::shared_ptr<image::FontSystem> fontSystem;
+            std::shared_ptr<dtk::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             std::vector<std::shared_ptr<Window> > windows;
             std::shared_ptr<Window> clipboardWindow;
@@ -98,7 +98,7 @@ namespace tl
             }
             std::vector<std::shared_ptr<app::ICmdLineOption> > cmdLineOptions2 = cmdLineOptions;
             cmdLineOptions2.push_back(
-                app::CmdLineValueOption<math::Size2i>::create(
+                app::CmdLineValueOption<dtk::Size2I>::create(
                     _uiOptions.windowSize,
                     { "-windowSize", "-ws" },
                     "Window size.",
@@ -122,7 +122,7 @@ namespace tl
 
             p.style = ui::Style::create(_context);
             p.iconLibrary = ui::IconLibrary::create(_context);
-            p.fontSystem = context->getSystem<image::FontSystem>();
+            p.fontSystem = context->getSystem<dtk::FontSystem>();
             p.clipboard = Clipboard::create(_context, nullptr);
         }
 
@@ -197,7 +197,7 @@ namespace tl
             p.windows.push_back(window);
 
             p.clipboardWindow = window;
-            p.clipboard->setWindow(window->getGLFWWindow()->getGLFW());
+            p.clipboard->setWindow(window->getGLWindow()->getGLFW());
 
             p.closeObservers[window] = dtk::ValueObserver<bool>::create(
                 window->observeClose(),
@@ -260,7 +260,7 @@ namespace tl
             if (!p.clipboardWindow && !p.windows.empty())
             {
                 p.clipboardWindow = p.windows.front();
-                p.clipboard->setWindow(p.clipboardWindow->getGLFWWindow()->getGLFW());
+                p.clipboard->setWindow(p.clipboardWindow->getGLWindow()->getGLFW());
             }
         }
     }

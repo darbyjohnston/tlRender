@@ -110,7 +110,7 @@ namespace tl
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
-            std::shared_ptr<dtk::ValueObserver<math::Size2i> > bmdSizeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::Size2I> > bmdSizeObserver;
             std::shared_ptr<dtk::ValueObserver<bmd::FrameRate> > bmdFrameRateObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
@@ -433,10 +433,10 @@ namespace tl
             p.bmdOutputDevice = bmd::OutputDevice::create(_context);
             if (0)
             {
-                auto overlayImage = image::Image::create(
+                auto overlayImage = dtk::Image::create(
                     1920,
                     1080,
-                    image::PixelType::ARGB_4444_Premult);
+                    dtk::ImageType::ARGB_4444_Premult);
                 QImage* bmdOverlayImage = new QImage(
                     overlayImage->getData(),
                     1920,
@@ -608,9 +608,9 @@ namespace tl
                     _p->bmdDeviceActive = value;
                     _audioUpdate();
                 });
-            p.bmdSizeObserver = dtk::ValueObserver<math::Size2i>::create(
+            p.bmdSizeObserver = dtk::ValueObserver<dtk::Size2I>::create(
                 p.bmdOutputDevice->observeSize(),
-                [this](const math::Size2i& value)
+                [this](const dtk::Size2I& value)
                 {
                     //std::cout << "output device size: " << value << std::endl;
                 });
@@ -707,7 +707,7 @@ namespace tl
             TLRENDER_P();
 
             p.mainWindow.reset(new MainWindow(this));
-            const math::Size2i windowSize = p.settings->getValue<math::Size2i>("MainWindow/Size");
+            const dtk::Size2I windowSize = p.settings->getValue<dtk::Size2I>("MainWindow/Size");
             p.mainWindow->resize(windowSize.w, windowSize.h);
             p.mainWindow->show();
 
@@ -724,7 +724,7 @@ namespace tl
                 });
 
             p.mainWindow->viewport()->setViewPosAndZoomCallback(
-                [this](const math::Vector2i& pos, double zoom)
+                [this](const dtk::V2I& pos, double zoom)
                 {
                     _viewUpdate(
                         pos,
@@ -1055,11 +1055,11 @@ namespace tl
             }
         }
 
-        void App::_viewUpdate(const math::Vector2i& pos, double zoom, bool frame)
+        void App::_viewUpdate(const dtk::V2I& pos, double zoom, bool frame)
         {
             TLRENDER_P();
             float scale = 1.F;
-            const math::Size2i& size = p.mainWindow->viewport()->getGeometry().getSize() *
+            const dtk::Size2I& size = p.mainWindow->viewport()->getGeometry().getSize() *
                 p.mainWindow->devicePixelRatio();
             if (p.secondaryWindow)
             {
@@ -1073,7 +1073,7 @@ namespace tl
             }
 #if defined(TLRENDER_BMD)
             scale = 1.F;
-            const math::Size2i& bmdSize = p.bmdOutputDevice->getSize();
+            const dtk::Size2I& bmdSize = p.bmdOutputDevice->getSize();
             if (size.isValid() && bmdSize.isValid())
             {
                 scale = bmdSize.w / static_cast<float>(size.w);

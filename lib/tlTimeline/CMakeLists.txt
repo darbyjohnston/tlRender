@@ -9,8 +9,6 @@ set(HEADERS
     DisplayOptionsInline.h
     Edit.h
     IRender.h
-    ImageOptions.h
-    ImageOptionsInline.h
     Init.h
     LUTOptions.h
     LUTOptionsInline.h
@@ -21,8 +19,6 @@ set(HEADERS
     PlayerInline.h
     PlayerOptions.h
     PlayerOptionsInline.h
-    RenderOptions.h
-    RenderOptionsInline.h
     RenderUtil.h
     TimeUnits.h
     Timeline.h
@@ -41,7 +37,6 @@ set(SOURCE
     DisplayOptions.cpp
     Edit.cpp
     IRender.cpp
-    ImageOptions.cpp
     Init.cpp
     LUTOptions.cpp
     MemoryReference.cpp

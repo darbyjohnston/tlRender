@@ -6,8 +6,7 @@
 
 #include <tlDevice/BMDData.h>
 
-#include <tlCore/Image.h>
-
+#include <dtk/core/Image.h>
 #include <dtk/core/ObservableValue.h>
 
 #include <memory>
@@ -33,7 +32,7 @@ namespace tl
             int                      pixelTypeIndex = 0;
             bool                     deviceEnabled = true;
             BoolOptions              boolOptions;
-            image::VideoLevels       videoLevels = image::VideoLevels::LegalRange;
+            dtk::VideoLevels         videoLevels = dtk::VideoLevels::LegalRange;
             HDRMode                  hdrMode = HDRMode::FromFile;
             image::HDRData           hdrData;
 
@@ -76,7 +75,7 @@ namespace tl
             void setBoolOptions(const BoolOptions&);
 
             //! Set the video levels.
-            void setVideoLevels(image::VideoLevels);
+            void setVideoLevels(dtk::VideoLevels);
 
             //! Set the HDR mode.
             void setHDRMode(HDRMode);

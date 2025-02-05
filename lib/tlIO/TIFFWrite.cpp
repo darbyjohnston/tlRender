@@ -22,7 +22,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<image::Image>& image)
+                    const std::shared_ptr<dtk::Image>& image)
                 {
 #if defined(_WINDOWS)
                     _tiff.p = TIFFOpenW(dtk::toWide(fileName).c_str(), "w");
@@ -42,7 +42,7 @@ namespace tl
                     uint16_t tiffExtraSamplesSize = 0;
                     uint16_t tiffCompression = 0;
                     const auto& info = image->getInfo();
-                    switch (image::getChannelCount(info.pixelType))
+                    switch (dtk::getChannelCount(info.type))
                     {
                     case 1:
                         tiffPhotometric = PHOTOMETRIC_MINISBLACK;
@@ -64,26 +64,26 @@ namespace tl
                         break;
                     default: break;
                     }
-                    switch (info.pixelType)
+                    switch (info.type)
                     {
-                    case image::PixelType::L_U8:
-                    case image::PixelType::LA_U8:
-                    case image::PixelType::RGB_U8:
-                    case image::PixelType::RGBA_U8:
+                    case dtk::ImageType::L_U8:
+                    case dtk::ImageType::LA_U8:
+                    case dtk::ImageType::RGB_U8:
+                    case dtk::ImageType::RGBA_U8:
                         tiffSampleDepth = 8;
                         tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
-                    case image::PixelType::L_U16:
-                    case image::PixelType::LA_U16:
-                    case image::PixelType::RGB_U16:
-                    case image::PixelType::RGBA_U16:
+                    case dtk::ImageType::L_U16:
+                    case dtk::ImageType::LA_U16:
+                    case dtk::ImageType::RGB_U16:
+                    case dtk::ImageType::RGBA_U16:
                         tiffSampleDepth = 16;
                         tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
-                    case image::PixelType::L_F32:
-                    case image::PixelType::LA_F32:
-                    case image::PixelType::RGB_F32:
-                    case image::PixelType::RGBA_F32:
+                    case dtk::ImageType::L_F32:
+                    case dtk::ImageType::LA_F32:
+                    case dtk::ImageType::RGB_F32:
+                    case dtk::ImageType::RGBA_F32:
                         tiffSampleDepth = 32;
                         tiffSampleFormat = SAMPLEFORMAT_IEEEFP;
                         break;
@@ -141,7 +141,7 @@ namespace tl
                         TIFFSetField(_tiff.p, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
-                    const size_t scanlineByteCount = image::getAlignedByteCount(
+                    const size_t scanlineByteCount = dtk::getAlignedByteCount(
                         info.size.w * tiffSamples * tiffSampleDepth / 8,
                         info.layout.alignment);
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
@@ -200,7 +200,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

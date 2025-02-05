@@ -132,7 +132,7 @@ namespace tl
                 if (_avCodecParameters[_avStream]->sample_aspect_ratio.den > 0 &&
                     _avCodecParameters[_avStream]->sample_aspect_ratio.num > 0)
                 {
-                    _info.size.pixelAspectRatio = av_q2d(_avCodecParameters[_avStream]->sample_aspect_ratio);
+                    _info.pixelAspectRatio = av_q2d(_avCodecParameters[_avStream]->sample_aspect_ratio);
                 }
                 _info.layout.mirror.y = true;
 
@@ -141,50 +141,50 @@ namespace tl
                 {
                 case AV_PIX_FMT_RGB24:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = image::PixelType::RGB_U8;
+                    _info.type = dtk::ImageType::RGB_U8;
                     break;
                 case AV_PIX_FMT_GRAY8:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = image::PixelType::L_U8;
+                    _info.type = dtk::ImageType::L_U8;
                     break;
                 case AV_PIX_FMT_RGBA:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.pixelType = image::PixelType::RGBA_U8;
+                    _info.type = dtk::ImageType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUV420P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = image::PixelType::RGB_U8;
+                        _info.type = dtk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = image::PixelType::YUV_420P_U8;
+                        _info.type = dtk::ImageType::YUV_420P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = image::PixelType::RGB_U8;
+                        _info.type = dtk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = image::PixelType::YUV_422P_U8;
+                        _info.type = dtk::ImageType::YUV_422P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = image::PixelType::RGB_U8;
+                        _info.type = dtk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.pixelType = image::PixelType::YUV_444P_U8;
+                        _info.type = dtk::ImageType::YUV_444P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV420P10BE:
@@ -196,14 +196,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = image::PixelType::RGB_U16;
+                        _info.type = dtk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P16LE;
-                        _info.pixelType = image::PixelType::YUV_420P_U16;
+                        _info.type = dtk::ImageType::YUV_420P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P10BE:
@@ -215,14 +215,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = image::PixelType::RGB_U16;
+                        _info.type = dtk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV422P16LE;
-                        _info.pixelType = image::PixelType::YUV_422P_U16;
+                        _info.type = dtk::ImageType::YUV_422P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P10BE:
@@ -234,14 +234,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.pixelType = image::PixelType::RGB_U16;
+                        _info.type = dtk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                        _info.pixelType = image::PixelType::YUV_444P_U16;
+                        _info.type = dtk::ImageType::YUV_444P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUVA420P:
@@ -249,7 +249,7 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P:
                     //! \todo Support these formats natively.
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA;
-                    _info.pixelType = image::PixelType::RGBA_U8;
+                    _info.type = dtk::ImageType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUVA444P10BE:
                 case AV_PIX_FMT_YUVA444P10LE:
@@ -259,29 +259,29 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P16LE:
                     //! \todo Support these formats natively.
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
-                    _info.pixelType = image::PixelType::RGBA_U16;
+                    _info.type = dtk::ImageType::RGBA_U16;
                     break;
                 default:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.pixelType = image::PixelType::RGB_U8;
+                        _info.type = dtk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P;
-                        _info.pixelType = image::PixelType::YUV_420P_U8;
+                        _info.type = dtk::ImageType::YUV_420P_U8;
                     }
                     break;
                 }
                 if (_avCodecContext[_avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
-                    _info.videoLevels = image::VideoLevels::LegalRange;
+                    _info.videoLevels = dtk::VideoLevels::LegalRange;
                 }
                 switch (_avCodecParameters[_avStream]->color_space)
                 {
                 case AVCOL_SPC_BT2020_NCL:
-                    _info.yuvCoefficients = image::YUVCoefficients::BT2020;
+                    _info.yuvCoefficients = dtk::YUVCoefficients::BT2020;
                     break;
                 default: break;
                 }
@@ -309,7 +309,7 @@ namespace tl
                         swap(avVideoStream->r_frame_rate));
                 }
         
-                image::Tags tags;
+                dtk::ImageTags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
@@ -355,12 +355,12 @@ namespace tl
                     std::stringstream ss;
                     ss.precision(2);
                     ss << std::fixed;
-                    ss << _info.size.pixelAspectRatio;
+                    ss << _info.pixelAspectRatio;
                     _tags["Video Pixel Aspect Ratio"] = ss.str();
                 }
                 {
                     std::stringstream ss;
-                    ss << _info.pixelType;
+                    ss << _info.type;
                     _tags["Video Pixel Type"] = ss.str();
                 }
                 {
@@ -435,7 +435,7 @@ namespace tl
             return _avStream != -1;
         }
 
-        const image::Info& ReadVideo::getInfo() const
+        const dtk::ImageInfo& ReadVideo::getInfo() const
         {
             return _info;
         }
@@ -445,7 +445,7 @@ namespace tl
             return _timeRange;
         }
 
-        const image::Tags& ReadVideo::getTags() const
+        const dtk::ImageTags& ReadVideo::getTags() const
         {
             return _tags;
         }
@@ -484,7 +484,7 @@ namespace tl
                     _avFrame2->format = _avOutputPixelFormat;
                     _avFrame2->width = _info.size.w;
                     _avFrame2->height = _info.size.h;
-                    _avFrame2->buf[0] = av_buffer_alloc(image::getDataByteCount(_info));
+                    _avFrame2->buf[0] = av_buffer_alloc(_info.getByteCount());
 
                     /*_swsContext = sws_getContext(
                         _avCodecParameters[_avStream]->width,
@@ -662,9 +662,9 @@ namespace tl
             return _buffer.empty();
         }
 
-        std::shared_ptr<image::Image> ReadVideo::popBuffer()
+        std::shared_ptr<dtk::Image> ReadVideo::popBuffer()
         {
-            std::shared_ptr<image::Image> out;
+            std::shared_ptr<dtk::Image> out;
             if (!_buffer.empty())
             {
                 out = _buffer.front();
@@ -698,7 +698,7 @@ namespace tl
                 if (time >= currentTime)
                 {
                     //std::cout << "video time: " << time << std::endl;
-                    auto image = image::Image::create(_info);
+                    auto image = dtk::Image::create(_info);
                     
                     auto tags = _tags;
                     AVDictionaryEntry* tag = nullptr;
@@ -720,7 +720,7 @@ namespace tl
             return out;
         }
 
-        void ReadVideo::_copy(const std::shared_ptr<image::Image>& image)
+        void ReadVideo::_copy(const std::shared_ptr<dtk::Image>& image)
         {
             const auto& info = image->getInfo();
             const std::size_t w = info.size.w;

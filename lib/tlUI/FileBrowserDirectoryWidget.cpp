@@ -122,7 +122,7 @@ namespace tl
             return _p->options;
         }
 
-        void DirectoryWidget::setGeometry(const math::Box2i& value)
+        void DirectoryWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();

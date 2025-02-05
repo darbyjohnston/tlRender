@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlCore/Range.h>
 #include <tlCore/Util.h>
 
 #include <dtk/core/ObservableValue.h>
+#include <dtk/core/Range.h>
 
 namespace dtk
 {
@@ -53,13 +53,13 @@ namespace tl
             ///@{
 
             //! Get the range.
-            const math::IntRange& getRange() const;
+            const dtk::RangeI& getRange() const;
 
             //! Set the range.
-            void setRange(const math::IntRange&);
+            void setRange(const dtk::RangeI&);
 
             //! Observe the range.
-            std::shared_ptr<dtk::IObservableValue<math::IntRange> > observeRange() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::RangeI> > observeRange() const;
 
             ///@}
 

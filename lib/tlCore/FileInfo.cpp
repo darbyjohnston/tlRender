@@ -40,10 +40,10 @@ namespace tl
                  _path.getNumber().size() == value._path.getPadding()))
             {
                 _path.setPadding(std::max(_path.getPadding(), value._path.getPadding()));
-                math::IntRange sequence = _path.getSequence();
-                const math::IntRange& otherSequence = value._path.getSequence();
-                sequence.expand(otherSequence.getMin());
-                sequence.expand(otherSequence.getMax());
+                dtk::RangeI sequence = _path.getSequence();
+                const dtk::RangeI& otherSequence = value._path.getSequence();
+                sequence = dtk::expand(sequence, otherSequence.min());
+                sequence = dtk::expand(sequence, otherSequence.max());
                 _path.setSequence(sequence);
                 _size += value._size;
                 _permissions = std::min(_permissions, value._permissions);

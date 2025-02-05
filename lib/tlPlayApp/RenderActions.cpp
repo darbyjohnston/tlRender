@@ -15,7 +15,7 @@ namespace tl
     {
         struct RenderActions::Private
         {
-            std::vector<image::PixelType> colorBuffers;
+            std::vector<dtk::ImageType> colorBuffers;
             std::map<std::string, std::shared_ptr<ui::Action> > actions;
         };
 
@@ -33,7 +33,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.videoLevels = timeline::InputVideoLevels::FromFile;
+                        imageOptions.videoLevels = dtk::InputVideoLevels::FromFile;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
@@ -45,7 +45,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.videoLevels = timeline::InputVideoLevels::FullRange;
+                        imageOptions.videoLevels = dtk::InputVideoLevels::FullRange;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
@@ -57,7 +57,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.videoLevels = timeline::InputVideoLevels::LegalRange;
+                        imageOptions.videoLevels = dtk::InputVideoLevels::LegalRange;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
@@ -69,7 +69,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.alphaBlend = timeline::AlphaBlend::None;
+                        imageOptions.alphaBlend = dtk::AlphaBlend::None;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
@@ -81,7 +81,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.alphaBlend = timeline::AlphaBlend::Straight;
+                        imageOptions.alphaBlend = dtk::AlphaBlend::Straight;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
@@ -93,14 +93,14 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto imageOptions = app->getRenderModel()->getImageOptions();
-                        imageOptions.alphaBlend = timeline::AlphaBlend::Premultiplied;
+                        imageOptions.alphaBlend = dtk::AlphaBlend::Premultiplied;
                         app->getRenderModel()->setImageOptions(imageOptions);
                     }
                 });
 
-            p.colorBuffers.push_back(image::PixelType::RGBA_U8);
-            p.colorBuffers.push_back(image::PixelType::RGBA_F16);
-            p.colorBuffers.push_back(image::PixelType::RGBA_F32);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
             std::vector<std::pair<ui::Key, ui::KeyModifier> > colorBufferShortcuts =
             {
                 std::make_pair(ui::Key::_8, ui::KeyModifier::Control),
@@ -109,7 +109,7 @@ namespace tl
             };
             for (size_t i = 0; i < p.colorBuffers.size(); ++i)
             {
-                const image::PixelType pixelType = p.colorBuffers[i];
+                const dtk::ImageType pixelType = p.colorBuffers[i];
                 std::stringstream ss;
                 ss << pixelType;
                 p.actions[ss.str()] = std::make_shared<ui::Action>(
@@ -146,7 +146,7 @@ namespace tl
             return out;
         }
 
-        const std::vector<image::PixelType>& RenderActions::getColorBuffers() const
+        const std::vector<dtk::ImageType>& RenderActions::getColorBuffers() const
         {
             return _p->colorBuffers;
         }

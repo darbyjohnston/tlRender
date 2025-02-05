@@ -61,7 +61,7 @@ namespace tl
             p.wipeYSlider = ui::FloatEditSlider::create(context);
             p.wipeYSlider->setDefaultValue(.5F);
             p.wipeRotationSlider = ui::FloatEditSlider::create(context);
-            p.wipeRotationSlider->setRange(math::FloatRange(0.F, 360.F));
+            p.wipeRotationSlider->setRange(dtk::RangeF(0.F, 360.F));
             p.wipeRotationSlider->setStep(1.F);
             p.wipeRotationSlider->setLargeStep(10.F);
             p.wipeRotationSlider->setDefaultValue(0.F);

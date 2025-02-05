@@ -4,11 +4,12 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/Mesh.h>
-#include <tlGL/Util.h>
+#include <tlTimeline/RenderUtil.h>
 
-#include <tlCore/Math.h>
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Mesh.h>
+#include <dtk/gl/Util.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -16,8 +17,8 @@ namespace tl
     {
         void Render::drawVideo(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
             const timeline::BackgroundOptions& backgroundOptions)
@@ -97,7 +98,7 @@ namespace tl
         }
 
         void Render::_drawBackground(
-            const std::vector<math::Box2i>& boxes,
+            const std::vector<dtk::Box2I>& boxes,
             const timeline::BackgroundOptions& options)
         {
             for (const auto& box : boxes)
@@ -105,42 +106,40 @@ namespace tl
                 switch (options.type)
                 {
                 case timeline::Background::Solid:
-                    drawRect(box, options.color0);
+                    IRender::drawRect(box, options.color0);
                     break;
                 case timeline::Background::Checkers:
                     drawColorMesh(
-                        geom::checkers(box, options.color0, options.color1, options.checkersSize),
-                        math::Vector2i(),
+                        dtk::checkers(box, options.color0, options.color1, options.checkersSize),
                         dtk::Color4F(1.F, 1.F, 1.F));
                     break;
                 case timeline::Background::Gradient:
                 {
-                    geom::TriangleMesh2 mesh;
-                    mesh.v.push_back(math::Vector2f(box.min.x, box.min.y));
-                    mesh.v.push_back(math::Vector2f(box.max.x, box.min.y));
-                    mesh.v.push_back(math::Vector2f(box.max.x, box.max.y));
-                    mesh.v.push_back(math::Vector2f(box.min.x, box.max.y));
-                    mesh.c.push_back(math::Vector4f(
+                    dtk::TriMesh2F mesh;
+                    mesh.v.push_back(dtk::V2F(box.min.x, box.min.y));
+                    mesh.v.push_back(dtk::V2F(box.max.x, box.min.y));
+                    mesh.v.push_back(dtk::V2F(box.max.x, box.max.y));
+                    mesh.v.push_back(dtk::V2F(box.min.x, box.max.y));
+                    mesh.c.push_back(dtk::V4F(
                         options.color0.r,
                         options.color0.g,
                         options.color0.b,
                         options.color0.a));
-                    mesh.c.push_back(math::Vector4f(
+                    mesh.c.push_back(dtk::V4F(
                         options.color1.r,
                         options.color1.g,
                         options.color1.b,
                         options.color1.a));
                     mesh.triangles.push_back({
-                        geom::Vertex2(1, 0, 1),
-                        geom::Vertex2(2, 0, 1),
-                        geom::Vertex2(3, 0, 2), });
+                        dtk::Vertex2(1, 0, 1),
+                        dtk::Vertex2(2, 0, 1),
+                        dtk::Vertex2(3, 0, 2), });
                     mesh.triangles.push_back({
-                        geom::Vertex2(3, 0, 2),
-                        geom::Vertex2(4, 0, 2),
-                        geom::Vertex2(1, 0, 1), });
+                        dtk::Vertex2(3, 0, 2),
+                        dtk::Vertex2(4, 0, 2),
+                        dtk::Vertex2(1, 0, 1), });
                     drawColorMesh(
                         mesh,
-                        math::Vector2i(),
                         dtk::Color4F(1.F, 1.F, 1.F));
                     break;
                 }
@@ -151,8 +150,8 @@ namespace tl
 
         void Render::_drawVideoA(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
@@ -161,15 +160,15 @@ namespace tl
                 _drawVideo(
                     videoData[0],
                     boxes[0],
-                    !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
+                    !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
                     !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
             }
         }
 
         void Render::_drawVideoB(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
@@ -178,15 +177,15 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
             }
         }
 
         void Render::_drawVideoWipe(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
@@ -202,21 +201,23 @@ namespace tl
                 y = boxes[0].h() * compareOptions.wipeCenter.y;
             }
             const float rotation = compareOptions.wipeRotation;
-            math::Vector2f pts[4];
+            dtk::V2F pts[4];
             for (size_t i = 0; i < 4; ++i)
             {
-                float rad = math::deg2rad(rotation + 90.F * i + 90.F);
+                float rad = dtk::deg2rad(rotation + 90.F * i + 90.F);
                 pts[i].x = cos(rad) * radius + x;
                 pts[i].y = sin(rad) * radius + y;
             }
 
-            gl::SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
+            dtk::gl::SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
 
+            const dtk::Size2I renderSize = getRenderSize();
+            const dtk::Box2I viewport = getViewport();
             glViewport(
-                p.viewport.x(),
-                p.renderSize.h - p.viewport.h() - p.viewport.y(),
-                p.viewport.w(),
-                p.viewport.h());
+                viewport.x(),
+                renderSize.h - viewport.h() - viewport.y(),
+                viewport.w(),
+                viewport.h());
             glClear(GL_STENCIL_BUFFER_BIT);
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -226,11 +227,11 @@ namespace tl
             {
                 if (p.vbos["wipe"])
                 {
-                    geom::TriangleMesh2 mesh;
+                    dtk::TriMesh2F mesh;
                     mesh.v.push_back(pts[0]);
                     mesh.v.push_back(pts[1]);
                     mesh.v.push_back(pts[2]);
-                    geom::Triangle2 tri;
+                    dtk::Triangle2 tri;
                     tri.v[0] = 1;
                     tri.v[1] = 2;
                     tri.v[2] = 3;
@@ -250,15 +251,15 @@ namespace tl
                 _drawVideo(
                     videoData[0],
                     boxes[0],
-                    !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
+                    !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
                     !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
             }
 
             glViewport(
-                p.viewport.x(),
-                p.renderSize.h - p.viewport.h() - p.viewport.y(),
-                p.viewport.w(),
-                p.viewport.h());
+                viewport.x(),
+                renderSize.h - viewport.h() - viewport.y(),
+                viewport.w(),
+                viewport.h());
             glClear(GL_STENCIL_BUFFER_BIT);
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -267,11 +268,11 @@ namespace tl
             {
                 if (p.vbos["wipe"])
                 {
-                    geom::TriangleMesh2 mesh;
+                    dtk::TriMesh2F mesh;
                     mesh.v.push_back(pts[2]);
                     mesh.v.push_back(pts[3]);
                     mesh.v.push_back(pts[0]);
-                    geom::Triangle2 tri;
+                    dtk::Triangle2 tri;
                     tri.v[0] = 1;
                     tri.v[1] = 2;
                     tri.v[2] = 3;
@@ -291,15 +292,15 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
             }
         }
 
         void Render::_drawVideoOverlay(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
@@ -310,16 +311,16 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
             }
             if (!videoData.empty() && !boxes.empty())
             {
-                const math::Size2i offscreenBufferSize(
+                const dtk::Size2I offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = p.renderOptions.colorBuffer;
+                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = getRenderOptions().colorBuffer;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -329,16 +330,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["overlay"] = gl::OffscreenBuffer::create(
+                    p.buffers["overlay"] = dtk::gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["overlay"])
                 {
-                    const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const dtk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    gl::OffscreenBufferBinding binding(p.buffers["overlay"]);
+                    dtk::gl::OffscreenBufferBinding binding(p.buffers["overlay"]);
                     glViewport(
                         0,
                         0,
@@ -350,7 +351,7 @@ namespace tl
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform(
                         "transform.mvp",
-                        math::ortho(
+                        dtk::ortho(
                             0.F,
                             static_cast<float>(offscreenBufferSize.w),
                             static_cast<float>(offscreenBufferSize.h),
@@ -360,23 +361,25 @@ namespace tl
 
                     _drawVideo(
                         videoData[0],
-                        math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
+                        dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                        !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
 
                     p.shaders["display"]->bind();
-                    p.shaders["display"]->setUniform("transform.mvp", p.transform);
+                    p.shaders["display"]->setUniform("transform.mvp", getTransform());
                 }
 
                 if (p.buffers["overlay"])
                 {
                     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
+                    const dtk::Size2I renderSize = getRenderSize();
+                    const dtk::Box2I viewport = getViewport();
                     glViewport(
-                        p.viewport.x(),
-                        p.renderSize.h - p.viewport.h() - p.viewport.y(),
-                        p.viewport.w(),
-                        p.viewport.h());
+                        viewport.x(),
+                        renderSize.h - viewport.h() - viewport.y(),
+                        viewport.w(),
+                        viewport.h());
 
                     p.shaders["overlay"]->bind();
                     p.shaders["overlay"]->setUniform("color", dtk::Color4F(1.F, 1.F, 1.F, compareOptions.overlay));
@@ -388,7 +391,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            geom::box(boxes[0], true),
+                            dtk::mesh(boxes[0], true),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -402,19 +405,19 @@ namespace tl
 
         void Render::_drawVideoDifference(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
             TLRENDER_P();
             if (!videoData.empty() && !boxes.empty())
             {
-                const math::Size2i offscreenBufferSize(
+                const dtk::Size2I offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = p.renderOptions.colorBuffer;
+                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = getRenderOptions().colorBuffer;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -424,16 +427,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["difference0"] = gl::OffscreenBuffer::create(
+                    p.buffers["difference0"] = dtk::gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["difference0"])
                 {
-                    const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const dtk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    gl::OffscreenBufferBinding binding(p.buffers["difference0"]);
+                    dtk::gl::OffscreenBufferBinding binding(p.buffers["difference0"]);
                     glViewport(
                         0,
                         0,
@@ -445,7 +448,7 @@ namespace tl
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform(
                         "transform.mvp",
-                        math::ortho(
+                        dtk::ortho(
                             0.F,
                             static_cast<float>(offscreenBufferSize.w),
                             static_cast<float>(offscreenBufferSize.h),
@@ -455,18 +458,18 @@ namespace tl
 
                     _drawVideo(
                         videoData[0],
-                        math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<timeline::ImageOptions>(imageOptions[0]) : nullptr,
+                        dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                        !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
 
                     p.shaders["display"]->bind();
-                    p.shaders["display"]->setUniform("transform.mvp", p.transform);
+                    p.shaders["display"]->setUniform("transform.mvp", getTransform());
                 }
 
                 if (videoData.size() > 1)
                 {
-                    offscreenBufferOptions = gl::OffscreenBufferOptions();
-                    offscreenBufferOptions.colorType = p.renderOptions.colorBuffer;
+                    offscreenBufferOptions = dtk::gl::OffscreenBufferOptions();
+                    offscreenBufferOptions.color = getRenderOptions().colorBuffer;
                     if (displayOptions.size() > 1)
                     {
                         offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
@@ -476,16 +479,16 @@ namespace tl
                         offscreenBufferSize,
                         offscreenBufferOptions))
                     {
-                        p.buffers["difference1"] = gl::OffscreenBuffer::create(
+                        p.buffers["difference1"] = dtk::gl::OffscreenBuffer::create(
                             offscreenBufferSize,
                             offscreenBufferOptions);
                     }
 
                     if (p.buffers["difference1"])
                     {
-                        const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                        const dtk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                        gl::OffscreenBufferBinding binding(p.buffers["difference1"]);
+                        dtk::gl::OffscreenBufferBinding binding(p.buffers["difference1"]);
                         glViewport(
                             0,
                             0,
@@ -497,7 +500,7 @@ namespace tl
                         p.shaders["display"]->bind();
                         p.shaders["display"]->setUniform(
                             "transform.mvp",
-                            math::ortho(
+                            dtk::ortho(
                                 0.F,
                                 static_cast<float>(offscreenBufferSize.w),
                                 static_cast<float>(offscreenBufferSize.h),
@@ -507,8 +510,8 @@ namespace tl
 
                         _drawVideo(
                             videoData[1],
-                            math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                            imageOptions.size() > 1 ? std::make_shared<timeline::ImageOptions>(imageOptions[1]) : nullptr,
+                            dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                            imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
                             displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
                     }
                 }
@@ -521,11 +524,13 @@ namespace tl
                 {
                     glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
+                    const dtk::Size2I renderSize = getRenderSize();
+                    const dtk::Box2I viewport = getViewport();
                     glViewport(
-                        p.viewport.x(),
-                        p.renderSize.h - p.viewport.h() - p.viewport.y(),
-                        p.viewport.w(),
-                        p.viewport.h());
+                        viewport.x(),
+                        renderSize.h - viewport.h() - viewport.y(),
+                        viewport.w(),
+                        viewport.h());
 
                     p.shaders["difference"]->bind();
                     p.shaders["difference"]->setUniform("textureSampler", 0);
@@ -540,7 +545,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            geom::box(boxes[0], true),
+                            dtk::mesh(boxes[0], true),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -554,8 +559,8 @@ namespace tl
 
         void Render::_drawVideoTile(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<math::Box2i>& boxes,
-            const std::vector<timeline::ImageOptions>& imageOptions,
+            const std::vector<dtk::Box2I>& boxes,
+            const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions)
         {
@@ -564,7 +569,7 @@ namespace tl
                 _drawVideo(
                     videoData[i],
                     boxes[i],
-                    i < imageOptions.size() ? std::make_shared<timeline::ImageOptions>(imageOptions[i]) : nullptr,
+                    i < imageOptions.size() ? std::make_shared<dtk::ImageOptions>(imageOptions[i]) : nullptr,
                     i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions());
             }
         }
@@ -603,8 +608,8 @@ namespace tl
 
         void Render::_drawVideo(
             const timeline::VideoData& videoData,
-            const math::Box2i& box,
-            const std::shared_ptr<timeline::ImageOptions>& imageOptions,
+            const dtk::Box2I& box,
+            const std::shared_ptr<dtk::ImageOptions>& imageOptions,
             const timeline::DisplayOptions& displayOptions)
         {
             TLRENDER_P();
@@ -612,35 +617,36 @@ namespace tl
             GLint viewportPrev[4] = { 0, 0, 0, 0 };
             glGetIntegerv(GL_VIEWPORT, viewportPrev);
 
-            const auto transform = math::ortho(
+            const auto transform = dtk::ortho(
                 0.F,
                 static_cast<float>(box.w()),
                 static_cast<float>(box.h()),
                 0.F,
                 -1.F,
                 1.F);
-            p.shaders["image"]->bind();
-            p.shaders["image"]->setUniform("transform.mvp", transform);
+            auto imageShader = p.baseRender->getShader("image");
+            imageShader->bind();
+            imageShader->setUniform("transform.mvp", transform);
 
-            const math::Size2i& offscreenBufferSize = box.getSize();
-            gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.colorType = p.renderOptions.colorBuffer;
+            const dtk::Size2I& offscreenBufferSize = box.size();
+            dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+            offscreenBufferOptions.color = getRenderOptions().colorBuffer;
             offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
             if (doCreate(
                 p.buffers["video"],
                 offscreenBufferSize,
                 offscreenBufferOptions))
             {
-                p.buffers["video"] = gl::OffscreenBuffer::create(
+                p.buffers["video"] = dtk::gl::OffscreenBuffer::create(
                     offscreenBufferSize,
                     offscreenBufferOptions);
             }
 
             if (p.buffers["video"])
             {
-                const gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                const dtk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                gl::OffscreenBufferBinding binding(p.buffers["video"]);
+                dtk::gl::OffscreenBufferBinding binding(p.buffers["video"]);
                 glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -658,7 +664,7 @@ namespace tl
                                     offscreenBufferSize,
                                     offscreenBufferOptions))
                                 {
-                                    p.buffers["dissolve"] = gl::OffscreenBuffer::create(
+                                    p.buffers["dissolve"] = dtk::gl::OffscreenBuffer::create(
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
@@ -667,41 +673,41 @@ namespace tl
                                     offscreenBufferSize,
                                     offscreenBufferOptions))
                                 {
-                                    p.buffers["dissolve2"] = gl::OffscreenBuffer::create(
+                                    p.buffers["dissolve2"] = dtk::gl::OffscreenBuffer::create(
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
                                 if (p.buffers["dissolve"])
                                 {
-                                    gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
+                                    dtk::gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     float v = 1.F - layer.transitionValue;
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                                    dissolveImageOptions.alphaBlend = timeline::AlphaBlend::Straight;
-                                    drawImage(
+                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::Straight;
+                                    IRender::drawImage(
                                         layer.image,
-                                        image::getBox(
+                                        timeline::getBox(
                                             layer.image->getAspect(),
-                                            math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                            dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                         dtk::Color4F(1.F, 1.F, 1.F, v),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve2"])
                                 {
-                                    gl::OffscreenBufferBinding binding(p.buffers["dissolve2"]);
+                                    dtk::gl::OffscreenBufferBinding binding(p.buffers["dissolve2"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     float v = layer.transitionValue;
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
-                                    dissolveImageOptions.alphaBlend = timeline::AlphaBlend::Straight;
-                                    drawImage(
+                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::Straight;
+                                    IRender::drawImage(
                                         layer.imageB,
-                                        image::getBox(
+                                        timeline::getBox(
                                             layer.imageB->getAspect(),
-                                            math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                            dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                         dtk::Color4F(1.F, 1.F, 1.F, v),
                                         dissolveImageOptions);
                                 }
@@ -719,7 +725,7 @@ namespace tl
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
-                                            geom::box(math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
+                                            dtk::mesh(dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
                                             p.vbos["video"]->getType()));
                                     }
                                     if (p.vaos["video"])
@@ -732,7 +738,7 @@ namespace tl
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
-                                            geom::box(math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
+                                            dtk::mesh(dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
                                             p.vbos["video"]->getType()));
                                     }
                                     if (p.vaos["video"])
@@ -744,21 +750,21 @@ namespace tl
                             }
                             else if (layer.image)
                             {
-                                drawImage(
+                                IRender::drawImage(
                                     layer.image,
-                                    image::getBox(
+                                    timeline::getBox(
                                         layer.image->getAspect(),
-                                        math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                        dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                     dtk::Color4F(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptions);
                             }
                             else if (layer.imageB)
                             {
-                                drawImage(
+                                IRender::drawImage(
                                     layer.imageB,
-                                    image::getBox(
+                                    timeline::getBox(
                                         layer.imageB->getAspect(),
-                                        math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                        dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                     dtk::Color4F(1.F, 1.F, 1.F, layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                             }
@@ -767,11 +773,11 @@ namespace tl
                     default:
                         if (layer.image)
                         {
-                            drawImage(
+                            IRender::drawImage(
                                 layer.image,
-                                image::getBox(
+                                timeline::getBox(
                                     layer.image->getAspect(),
-                                    math::Box2i(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                    dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                 dtk::Color4F(1.F, 1.F, 1.F),
                                 imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
@@ -872,7 +878,7 @@ namespace tl
                 if (p.vbos["video"])
                 {
                     p.vbos["video"]->copy(convert(
-                        geom::box(box, true),
+                        dtk::mesh(box, true),
                         p.vbos["video"]->getType()));
                 }
                 if (p.vaos["video"])
@@ -882,8 +888,8 @@ namespace tl
                 }
             }
 
-            p.shaders["image"]->bind();
-            p.shaders["image"]->setUniform("transform.mvp", p.transform);
+            imageShader->bind();
+            imageShader->setUniform("transform.mvp", getTransform());
         }
     }
 }

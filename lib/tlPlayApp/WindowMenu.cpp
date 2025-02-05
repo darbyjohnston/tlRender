@@ -42,7 +42,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->setWindowSize(math::Size2i(1280, 720));
+                        mainWindow->setWindowSize(dtk::Size2I(1280, 720));
                     }
                 });
             p.menus["Resize"]->addItem(action);
@@ -52,7 +52,7 @@ namespace tl
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->setWindowSize(math::Size2i(1920, 1080));
+                        mainWindow->setWindowSize(dtk::Size2I(1920, 1080));
                     }
                 });
             p.menus["Resize"]->addItem(action);

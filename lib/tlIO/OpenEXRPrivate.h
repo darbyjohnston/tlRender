@@ -6,7 +6,7 @@
 
 #include <tlIO/OpenEXR.h>
 
-#include <tlCore/Box.h>
+#include <dtk/core/Box.h>
 
 #include <ImathBox.h>
 #include <ImfHeader.h>
@@ -22,13 +22,13 @@ namespace tl
         {
             Channel();
             Channel(
-                const std::string&    name,
-                Imf::PixelType        pixelType,
-                const math::Vector2i& sampling  = math::Vector2i(1, 1));
+                const std::string& name,
+                Imf::PixelType     pixelType,
+                const dtk::V2I&    sampling  = dtk::V2I(1, 1));
 
             std::string    name;
             Imf::PixelType pixelType = Imf::PixelType::HALF;
-            math::Vector2i sampling  = math::Vector2i(1, 1);
+            dtk::V2I       sampling  = dtk::V2I(1, 1);
         };
 
         //! Image layer.
@@ -59,15 +59,15 @@ namespace tl
         std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
 
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, image::Tags&);
+        void readTags(const Imf::Header&, dtk::ImageTags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const image::Tags&, double speed, Imf::Header&);
+        void writeTags(const dtk::ImageTags&, double speed, Imf::Header&);
 
         //! Convert an Imath box type.
-        math::Box2i fromImath(const Imath::Box2i&);
+        dtk::Box2I fromImath(const Imath::Box2i&);
 
         //! Convert from an Imf channel.
         Channel fromImf(const std::string& name, const Imf::Channel&);

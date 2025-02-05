@@ -36,13 +36,13 @@ namespace tl
             void setDisplayOptions(const DisplayOptions&) override;
 
             void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const ui::DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
 
         protected:
             int _getMargin() const;
             int _getLineHeight() const;
-            math::Box2i _getInsideGeometry() const;
+            dtk::Box2I _getInsideGeometry() const;
 
             void _timeUnitsUpdate() override;
 

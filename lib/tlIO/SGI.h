@@ -97,7 +97,7 @@ namespace tl
             void _writeVideo(
                 const std::string& fileName,
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<image::Image>&,
+                const std::shared_ptr<dtk::Image>&,
                 const io::Options&) override;
         };
 
@@ -120,8 +120,8 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
-            image::Info getWriteInfo(
-                const image::Info&,
+            dtk::ImageInfo getWriteInfo(
+                const dtk::ImageInfo&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

@@ -44,26 +44,26 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the scroll size.
-            const math::Vector2i& getScrollSize() const;
+            const dtk::V2I& getScrollSize() const;
 
             //! Set the scroll size callback.
-            void setScrollSizeCallback(const std::function<void(const math::Vector2i&)>&);
+            void setScrollSizeCallback(const std::function<void(const dtk::V2I&)>&);
 
             //! Get the scroll position.
-            const math::Vector2i& getScrollPos() const;
+            const dtk::V2I& getScrollPos() const;
 
             //! Set the scroll position.
-            void setScrollPos(const math::Vector2i&, bool clamp = true);
+            void setScrollPos(const dtk::V2I&, bool clamp = true);
 
             //! Set the scroll position callback.
-            void setScrollPosCallback(const std::function<void(const math::Vector2i&)>&);
+            void setScrollPosCallback(const std::function<void(const dtk::V2I&)>&);
 
             //! Set whether the scroll area has a border.
             void setBorder(bool);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

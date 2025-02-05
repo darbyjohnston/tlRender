@@ -18,7 +18,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& text,
-                const math::Vector2i& pos,
+                const dtk::V2I& pos,
                 const std::shared_ptr<IWidget>&,
                 const std::shared_ptr<dtk::Context>&);
 
@@ -30,15 +30,15 @@ namespace tl
             //! Create a new tooltip.
             static std::shared_ptr<ToolTip> create(
                 const std::string& text,
-                const math::Vector2i& pos,
+                const dtk::V2I& pos,
                 const std::shared_ptr<IWidget>&,
                 const std::shared_ptr<dtk::Context>&);
 
             void close() override;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

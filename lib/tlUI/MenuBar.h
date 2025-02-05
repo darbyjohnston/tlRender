@@ -40,7 +40,7 @@ namespace tl
             //! Handle keyboard shortcuts.
             bool shortcut(Key, int);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

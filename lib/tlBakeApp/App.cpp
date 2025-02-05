@@ -47,11 +47,11 @@ namespace tl
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
-                    app::CmdLineValueOption<math::Size2i>::create(
+                    app::CmdLineValueOption<dtk::Size2I>::create(
                         _options.renderSize,
                         { "-renderSize", "-rs" },
                         "Render size."),
-                    app::CmdLineValueOption<image::PixelType>::create(
+                    app::CmdLineValueOption<dtk::ImageType>::create(
                         _options.outputPixelType,
                         { "-outputPixelType", "-op" },
                         "Output pixel type.",
@@ -189,7 +189,7 @@ namespace tl
                 _window = gl::GLFWWindow::create(
                     _context,
                     "tlbake",
-                    math::Size2i(1, 1),
+                    dtk::Size2I(1, 1),
                     static_cast<int>(gl::GLFWWindowOptions::MakeCurrent));
 
                 // Read the timeline.
@@ -221,7 +221,7 @@ namespace tl
                 }
                 _renderSize = _options.renderSize.isValid() ?
                     _options.renderSize :
-                    math::Size2i(info.video[0].size.w, info.video[0].size.h);
+                    dtk::Size2I(info.video[0].size.w, info.video[0].size.h);
                 _print(dtk::Format("Render size: {0}").arg(_renderSize));
 
                 // Create the renderer.
@@ -239,18 +239,18 @@ namespace tl
                 io::Info ioInfo;
                 _outputInfo.size.w = _renderSize.w;
                 _outputInfo.size.h = _renderSize.h;
-                _outputInfo.pixelType = _options.outputPixelType != image::PixelType::None ?
+                _outputInfo.pixelType = _options.outputPixelType != dtk::ImageType::None ?
                     _options.outputPixelType :
                     info.video[0].pixelType;
                 _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
-                if (image::PixelType::None == _outputInfo.pixelType)
+                if (dtk::ImageType::None == _outputInfo.pixelType)
                 {
-                    _outputInfo.pixelType = image::PixelType::RGB_U8;
+                    _outputInfo.pixelType = dtk::ImageType::RGB_U8;
                 }
                 _print(dtk::Format("Output info: {0} {1}").
                     arg(_outputInfo.size).
                     arg(_outputInfo.pixelType));
-                _outputImage = image::Image::create(_outputInfo);
+                _outputImage = dtk::Image::create(_outputInfo);
                 ioInfo.video.push_back(_outputInfo);
                 ioInfo.videoTime = _timeRange;
                 _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
@@ -368,14 +368,14 @@ namespace tl
             const auto videoData = _timeline->getVideo(_inputTime).future.get();
             _render->drawVideo(
                 { videoData },
-                { math::Box2i(0, 0, _renderSize.w, _renderSize.h) });
+                { dtk::Box2I(0, 0, _renderSize.w, _renderSize.h) });
             _render->end();
 
             // Write the frame.
             glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
-#if defined(TLRENDER_API_GL_4_1)
+#if defined(dtk_API_GL_4_1)
             glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != dtk::getEndian());
-#endif // TLRENDER_API_GL_4_1
+#endif // dtk_API_GL_4_1
             const GLenum format = gl::getReadPixelsFormat(_outputInfo.pixelType);
             const GLenum type = gl::getReadPixelsType(_outputInfo.pixelType);
             if (GL_NONE == format || GL_NONE == type)

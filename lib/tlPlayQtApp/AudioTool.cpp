@@ -106,7 +106,7 @@ namespace tl
             TLRENDER_P();
 
             p.slider = new qtwidget::FloatEditSlider;
-            p.slider->setRange(math::FloatRange(-1.F, 1.F));
+            p.slider->setRange(dtk::RangeF(-1.F, 1.F));
             p.slider->setDefaultValue(0.F);
 
             auto layout = new QVBoxLayout;

@@ -36,7 +36,7 @@ namespace tl
 
             void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
@@ -78,8 +78,8 @@ namespace tl
 
             void tickEvent(bool, bool, const TickEvent&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
             void keyPressEvent(KeyEvent&) override;
             void keyReleaseEvent(KeyEvent&) override;
 
@@ -115,7 +115,7 @@ namespace tl
 
             const FileBrowserOptions& getOptions() const;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:
@@ -158,7 +158,7 @@ namespace tl
 
             void setRecentFilesModel(const std::shared_ptr<RecentFilesModel>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

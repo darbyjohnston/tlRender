@@ -6,9 +6,8 @@
 
 #include <tlDevice/BMDData.h>
 
-#include <tlGL/GL.h>
-
-#include <tlCore/Image.h>
+#include <dtk/gl/GL.h>
+#include <dtk/core/Image.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -46,10 +45,10 @@ namespace tl
         PixelType getOutputType(PixelType);
 
         //! Get the color buffer type.
-        image::PixelType getColorBuffer(PixelType);
+        dtk::ImageType getColorBuffer(PixelType);
 
         //! Get the pack pixels buffer size.
-        size_t getPackPixelsSize(const math::Size2i&, PixelType);
+        size_t getPackPixelsSize(const dtk::Size2I&, PixelType);
 
         //! Get the pack pixels format.
         GLenum getPackPixelsFormat(PixelType);
@@ -67,7 +66,7 @@ namespace tl
         void copyPackPixels(
             const void*,
             void*,
-            const math::Size2i&,
+            const dtk::Size2I&,
             PixelType);
     }
 }

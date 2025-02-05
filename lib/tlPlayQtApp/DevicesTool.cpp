@@ -103,10 +103,10 @@ namespace tl
             p.masteringLuminanceSpinBoxes.second->setRange(0.0, 10000.0);
 
             p.maxCLLSlider = new qtwidget::FloatEditSlider;
-            p.maxCLLSlider->setRange(math::FloatRange(0.F, 10000.F));
+            p.maxCLLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
             p.maxFALLSlider = new qtwidget::FloatEditSlider;
-            p.maxFALLSlider->setRange(math::FloatRange(0.F, 10000.F));
+            p.maxFALLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
             auto layout = new QFormLayout;
             layout->addRow(p.enabledCheckBox);
@@ -242,7 +242,7 @@ namespace tl
                 [this](double value)
                 {
                     auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.displayMasteringLuminance = math::FloatRange(value, hdrData.displayMasteringLuminance.getMax());
+                    hdrData.displayMasteringLuminance = dtk::RangeF(value, hdrData.displayMasteringLuminance.getMax());
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
             connect(
@@ -251,7 +251,7 @@ namespace tl
                 [this](double value)
                 {
                     auto hdrData = _p->app->bmdDevicesModel()->observeData()->get().hdrData;
-                    hdrData.displayMasteringLuminance = math::FloatRange(hdrData.displayMasteringLuminance.getMin(), value);
+                    hdrData.displayMasteringLuminance = dtk::RangeF(hdrData.displayMasteringLuminance.getMin(), value);
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 

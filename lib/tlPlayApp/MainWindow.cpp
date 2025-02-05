@@ -158,10 +158,10 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
         };
 
@@ -207,7 +207,7 @@ namespace tl
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
             p.speedModel = ui::DoubleModel::create(context);
-            p.speedModel->setRange(math::DoubleRange(0.0, 1000000.0));
+            p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
@@ -608,17 +608,17 @@ namespace tl
                     _p->timelineWidget->setDisplayOptions(options);
                 });
 
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 app->getRenderModel()->observeColorBuffer(),
-                [this](image::PixelType value)
+                [this](dtk::ImageType value)
                 {
                     setColorBuffer(value);
                     _p->viewport->setColorBuffer(value);
                 });
 
-            p.imageOptionsObserver = dtk::ValueObserver<timeline::ImageOptions>::create(
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->getRenderModel()->observeImageOptions(),
-                [this](const timeline::ImageOptions& value)
+                [this](const dtk::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
                 });
@@ -652,7 +652,7 @@ namespace tl
         MainWindow::~MainWindow()
         {
             TLRENDER_P();
-            math::Size2i windowSize = _geometry.getSize();
+            dtk::Size2I windowSize = _geometry.size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
             windowSize = windowSize / _displayScale;
@@ -734,7 +734,7 @@ namespace tl
             }
         }
 
-        void MainWindow::setGeometry(const math::Box2i& value)
+        void MainWindow::setGeometry(const dtk::Box2I& value)
         {
             Window::setGeometry(value);
             _p->layout->setGeometry(value);

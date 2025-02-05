@@ -8,14 +8,14 @@ namespace tl
 {
     namespace qtwidget
     {
-        QSize toQt(const math::Size2i& value)
+        QSize toQt(const dtk::Size2I& value)
         {
             return QSize(value.w, value.h);
         }
 
-        math::Size2i fromQt(const QSize& value)
+        dtk::Size2I fromQt(const QSize& value)
         {
-            return math::Size2i(value.width(), value.height());
+            return dtk::Size2I(value.width(), value.height());
         }
 
         QColor toQt(const dtk::Color4F& value)

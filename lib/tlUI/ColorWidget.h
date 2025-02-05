@@ -43,7 +43,7 @@ namespace tl
             //! Set the color callback.
             void setCallback(const std::function<void(const dtk::Color4F&)>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

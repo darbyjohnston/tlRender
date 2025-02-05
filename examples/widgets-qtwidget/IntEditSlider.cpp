@@ -19,11 +19,11 @@ namespace tl
                 {
                     _sliders.push_back(new qtwidget::IntEditSlider);
                 }
-                _sliders[1]->setRange(math::IntRange(0, 10));
+                _sliders[1]->setRange(dtk::RangeI(0, 10));
                 _sliders[1]->setValue(5);
-                _sliders[2]->setRange(math::IntRange(-10, 10));
+                _sliders[2]->setRange(dtk::RangeI(-10, 10));
                 _sliders[2]->setValue(-5);
-                _sliders[3]->setRange(math::IntRange(-10000, 10000));
+                _sliders[3]->setRange(dtk::RangeI(-10000, 10000));
                 _sliders[3]->setValue(5000);
                 _sliders[3]->setDefaultValue(5000);
                 _sliders[3]->setSingleStep(10);

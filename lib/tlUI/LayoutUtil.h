@@ -6,20 +6,20 @@
 
 #include <tlUI/IWidgetOptions.h>
 
-#include <tlCore/Box.h>
+#include <dtk/core/Box.h>
 
 namespace tl
 {
     namespace ui
     {
         //! Align within the given box.
-        math::Box2i align(
-            const math::Box2i&    box,
-            const math::Size2i& sizeHint,
-            Stretch               hStretch,
-            Stretch               vStretch,
-            HAlign                hAlign,
-            VAlign                vAlign);
+        dtk::Box2I align(
+            const dtk::Box2I&  box,
+            const dtk::Size2I& sizeHint,
+            Stretch            hStretch,
+            Stretch            vStretch,
+            HAlign             hAlign,
+            VAlign             vAlign);
 
         //! Get a format string for the given number.
         std::string format(int);

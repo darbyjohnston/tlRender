@@ -70,7 +70,7 @@ namespace tl
             }
             p.size.sizeInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             switch (p.orientation)
             {
             case Orientation::Horizontal:

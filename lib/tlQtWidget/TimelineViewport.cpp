@@ -30,12 +30,12 @@ namespace tl
         TimelineViewport::~TimelineViewport()
         {}
 
-        image::PixelType TimelineViewport::colorBuffer() const
+        dtk::ImageType TimelineViewport::colorBuffer() const
         {
             return _p->viewport->getColorBuffer();
         }
 
-        const math::Vector2i& TimelineViewport::viewPos() const
+        const dtk::V2I& TimelineViewport::viewPos() const
         {
             return _p->viewport->getViewPos();
         }
@@ -90,7 +90,7 @@ namespace tl
             _p->viewport->setBackgroundOptions(value);
         }
 
-        void TimelineViewport::setColorBuffer(image::PixelType value)
+        void TimelineViewport::setColorBuffer(dtk::ImageType value)
         {
             _p->viewport->setColorBuffer(value);
         }
@@ -100,12 +100,12 @@ namespace tl
             _p->viewport->setPlayer(value ? value->player() : nullptr);
         }
 
-        void TimelineViewport::setViewPosAndZoom(const math::Vector2i& pos, double zoom)
+        void TimelineViewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
         {
             _p->viewport->setViewPosAndZoom(pos, zoom);
         }
 
-        void TimelineViewport::setViewZoom(double zoom, const math::Vector2i& focus)
+        void TimelineViewport::setViewZoom(double zoom, const dtk::V2I& focus)
         {
             _p->viewport->setViewZoom(zoom, focus);
         }

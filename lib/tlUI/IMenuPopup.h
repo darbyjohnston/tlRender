@@ -38,7 +38,7 @@ namespace tl
             //! Open the popup.
             void open(
                 const std::shared_ptr<IWindow>&,
-                const math::Box2i& buttonGeometry);
+                const dtk::Box2I& buttonGeometry);
 
             //! Get whether the popup is open.
             bool isOpen() const;
@@ -58,9 +58,9 @@ namespace tl
             //! Set the widget.
             void setWidget(const std::shared_ptr<IWidget>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             TLRENDER_PRIVATE();

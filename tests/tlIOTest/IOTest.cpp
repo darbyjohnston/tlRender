@@ -42,7 +42,7 @@ namespace tl
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = image::Image::create(160, 80, image::PixelType::L_U8);
+                const auto image = dtk::Image::create(160, 80, dtk::ImageType::L_U8);
                 const VideoData v(time, layer, image);
                 DTK_ASSERT(time.strictly_equal(v.time));
                 DTK_ASSERT(layer == v.layer);
@@ -51,7 +51,7 @@ namespace tl
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = image::Image::create(16, 16, image::PixelType::L_U8);
+                const auto image = dtk::Image::create(16, 16, dtk::ImageType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
                 DTK_ASSERT(a == b);

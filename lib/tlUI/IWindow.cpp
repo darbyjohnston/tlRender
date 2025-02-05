@@ -20,8 +20,8 @@ namespace tl
         struct IWindow::Private
         {
             bool inside = false;
-            math::Vector2i cursorPos;
-            math::Vector2i cursorPosPrev;
+            dtk::V2I cursorPos;
+            dtk::V2I cursorPosPrev;
             std::weak_ptr<IWidget> hover;
             std::weak_ptr<IWidget> mousePress;
             MouseClickEvent mouseClickEvent;
@@ -30,12 +30,12 @@ namespace tl
             KeyEvent keyEvent;
 
             std::shared_ptr<DragAndDropData> dndData;
-            std::shared_ptr<image::Image> dndCursor;
-            math::Vector2i dndCursorHotspot;
+            std::shared_ptr<dtk::Image> dndCursor;
+            dtk::V2I dndCursorHotspot;
             std::weak_ptr<IWidget> dndHover;
 
             std::shared_ptr<ToolTip> toolTip;
-            math::Vector2i toolTipPos;
+            dtk::V2I toolTipPos;
             std::chrono::steady_clock::time_point toolTipTimer;
 
             std::shared_ptr<IClipboard> clipboard;
@@ -168,7 +168,7 @@ namespace tl
             }
         }
 
-        void IWindow::drawOverlayEvent(const math::Box2i& clipRect, const DrawEvent& event)
+        void IWindow::drawOverlayEvent(const dtk::Box2I& clipRect, const DrawEvent& event)
         {
             IWidget::drawOverlayEvent(clipRect, event);
             TLRENDER_P();
@@ -176,7 +176,7 @@ namespace tl
             {
                 event.render->drawImage(
                     p.dndCursor,
-                    math::Box2i(
+                    dtk::Box2I(
                         p.cursorPos.x - p.dndCursorHotspot.x,
                         p.cursorPos.y - p.dndCursorHotspot.y,
                         p.dndCursor->getWidth(),
@@ -293,7 +293,7 @@ namespace tl
             }
         }
 
-        void IWindow::_cursorPos(const math::Vector2i& pos)
+        void IWindow::_cursorPos(const dtk::V2I& pos)
         {
             TLRENDER_P();
 
@@ -376,7 +376,7 @@ namespace tl
                 _updates |= Update::Draw;
             }
 
-            if (math::length(p.cursorPos - p.toolTipPos) > toolTipDistance)
+            if (dtk::length(p.cursorPos - p.toolTipPos) > toolTipDistance)
             {
                 if (p.toolTip)
                 {
@@ -451,7 +451,7 @@ namespace tl
             }
         }
 
-        void IWindow::_scroll(const math::Vector2f& value, int modifiers)
+        void IWindow::_scroll(const dtk::V2F& value, int modifiers)
         {
             TLRENDER_P();
             ScrollEvent event(value, modifiers, p.cursorPos);
@@ -468,22 +468,22 @@ namespace tl
 
         void IWindow::_clipEventRecursive(
             const std::shared_ptr<IWidget>& widget,
-            const math::Box2i& clipRect,
+            const dtk::Box2I& clipRect,
             bool clipped)
         {
-            const math::Box2i& g = widget->getGeometry();
-            clipped |= !g.intersects(clipRect);
+            const dtk::Box2I& g = widget->getGeometry();
+            clipped |= !dtk::intersects(g, clipRect);
             clipped |= !widget->isVisible(false);
-            const math::Box2i intersectedClipRect = g.intersect(clipRect);
+            const dtk::Box2I intersectedClipRect = dtk::intersect(g, clipRect);
             widget->clipEvent(intersectedClipRect, clipped);
-            const math::Box2i childrenClipRect =
-                widget->getChildrenClipRect().intersect(intersectedClipRect);
+            const dtk::Box2I childrenClipRect =
+                dtk::intersect(widget->getChildrenClipRect(), intersectedClipRect);
             for (const auto& child : widget->getChildren())
             {
-                const math::Box2i& childGeometry = child->getGeometry();
+                const dtk::Box2I& childGeometry = child->getGeometry();
                 _clipEventRecursive(
                     child,
-                    childGeometry.intersect(childrenClipRect),
+                    dtk::intersect(childGeometry, childrenClipRect),
                     clipped);
             }
         }
@@ -492,7 +492,7 @@ namespace tl
         {}
 
         std::list<std::shared_ptr<IWidget> > IWindow::_getUnderCursor(
-            const math::Vector2i& pos)
+            const dtk::V2I& pos)
         {
             TLRENDER_P();
             std::list<std::shared_ptr<IWidget> > out;
@@ -502,12 +502,12 @@ namespace tl
 
         void IWindow::_getUnderCursor(
             const std::shared_ptr<IWidget>& widget,
-            const math::Vector2i& pos,
+            const dtk::V2I& pos,
             std::list<std::shared_ptr<IWidget> >& out)
         {
             if (!widget->isClipped() &&
                 widget->isEnabled() &&
-                widget->getGeometry().contains(pos))
+                dtk::contains(widget->getGeometry(), pos))
             {
                 for (auto i = widget->getChildren().rbegin();
                     i != widget->getChildren().rend();

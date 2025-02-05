@@ -74,7 +74,7 @@ namespace tl
                 return out;
             }
 
-            void RowLayouts::setGeometry(const math::Box2i& value)
+            void RowLayouts::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

@@ -66,7 +66,7 @@ namespace tl
                 QSharedPointer<qt::TimelinePlayer> _player;
                 image::Size _videoSize;
                 std::vector<timeline::VideoData> _videoData;
-                math::Vector2f _cameraRotation;
+                dtk::V2F _cameraRotation;
                 float _cameraFOV = 45.F;
                 geom::TriangleMesh3 _sphereMesh;
                 std::shared_ptr<gl::VBO> _sphereVBO;
@@ -74,7 +74,7 @@ namespace tl
                 std::shared_ptr<gl::Shader> _shader;
                 std::shared_ptr<gl::OffscreenBuffer> _buffer;
                 std::shared_ptr<timeline_gl::Render> _render;
-                math::Vector2i _mousePosPrev;
+                dtk::V2I _mousePosPrev;
             };
         }
     }

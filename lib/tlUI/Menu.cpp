@@ -45,9 +45,9 @@ namespace tl
                     bool,
                     const TickEvent&) override;
                 void sizeHintEvent(const SizeHintEvent&) override;
-                void clipEvent(const math::Box2i&, bool) override;
+                void clipEvent(const dtk::Box2I&, bool) override;
                 void drawEvent(
-                    const math::Box2i&,
+                    const dtk::Box2I&,
                     const DrawEvent&) override;
                 void keyPressEvent(KeyEvent&) override;
                 void keyReleaseEvent(KeyEvent&) override;
@@ -62,8 +62,8 @@ namespace tl
                 {
                     std::string name;
                     bool init = false;
-                    std::future<std::shared_ptr<image::Image> > future;
-                    std::shared_ptr<image::Image> image;
+                    std::future<std::shared_ptr<dtk::Image> > future;
+                    std::shared_ptr<dtk::Image> image;
                 };
                 IconData _checkedIcon;
                 IconData _uncheckedIcon;
@@ -77,17 +77,17 @@ namespace tl
                     int border = 0;
 
                     bool textInit = true;
-                    image::FontInfo fontInfo;
-                    image::FontMetrics fontMetrics;
-                    math::Size2i textSize;
-                    math::Size2i shortcutSize;
+                    dtk::FontInfo fontInfo;
+                    dtk::FontMetrics fontMetrics;
+                    dtk::Size2I textSize;
+                    dtk::Size2I shortcutSize;
                 };
                 SizeData _size;
 
                 struct DrawData
                 {
-                    std::vector<std::shared_ptr<image::Glyph> > textGlyphs;
-                    std::vector<std::shared_ptr<image::Glyph> > shortcutGlyphs;
+                    std::vector<std::shared_ptr<dtk::Glyph> > textGlyphs;
+                    std::vector<std::shared_ptr<dtk::Glyph> > shortcutGlyphs;
                 };
                 DrawData _draw;
             };
@@ -175,13 +175,13 @@ namespace tl
                 {
                     _iconScale = _displayScale;
                     _checkedIcon.init = true;
-                    _checkedIcon.future = std::future<std::shared_ptr<image::Image> >();
+                    _checkedIcon.future = std::future<std::shared_ptr<dtk::Image> >();
                     _checkedIcon.image.reset();
                     _uncheckedIcon.init = true;
-                    _uncheckedIcon.future = std::future<std::shared_ptr<image::Image> >();
+                    _uncheckedIcon.future = std::future<std::shared_ptr<dtk::Image> >();
                     _uncheckedIcon.image.reset();
                     _subMenuIcon.init = true;
-                    _subMenuIcon.future = std::future<std::shared_ptr<image::Image> >();
+                    _subMenuIcon.future = std::future<std::shared_ptr<dtk::Image> >();
                     _subMenuIcon.image.reset();
                 }
                 if (!_checkedIcon.name.empty() && _checkedIcon.init)
@@ -245,7 +245,7 @@ namespace tl
                 _size.sizeInit = false;
                 _size.textInit = false;
 
-                _sizeHint = math::Size2i();
+                _sizeHint = dtk::Size2I();
                 if (_iconImage)
                 {
                     _sizeHint.w = _iconImage->getWidth() + _size.spacing;
@@ -284,7 +284,7 @@ namespace tl
                     _size.border * 4;
             }
 
-            void MenuButton::clipEvent(const math::Box2i& clipRect, bool clipped)
+            void MenuButton::clipEvent(const dtk::Box2I& clipRect, bool clipped)
             {
                 IWidget::clipEvent(clipRect, clipped);
                 if (clipped)
@@ -295,12 +295,12 @@ namespace tl
             }
 
             void MenuButton::drawEvent(
-                const math::Box2i& drawRect,
+                const dtk::Box2I& drawRect,
                 const DrawEvent& event)
             {
                 IButton::drawEvent(drawRect, event);
 
-                const math::Box2i& g = _geometry;
+                const dtk::Box2I& g = _geometry;
                 const bool enabled = isEnabled();
 
                 // Draw the key focus.
@@ -308,7 +308,6 @@ namespace tl
                 {
                     event.render->drawMesh(
                         border(g, _size.border * 2),
-                        math::Vector2i(),
                         event.style->getColorRole(ColorRole::KeyFocus));
                 }
 
@@ -321,7 +320,7 @@ namespace tl
                 }
                 
                 // Draw the pressed and hover states.
-                if (_mouse.press && _geometry.contains(_mouse.pos))
+                if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
                 {
                     event.render->drawRect(
                         g,
@@ -335,20 +334,20 @@ namespace tl
                 }
 
                 // Draw the icon.
-                const math::Box2i g2 = g.margin(-_size.border * 2);
+                const dtk::Box2I g2 = dtk::margin(g, -_size.border * 2);
                 int x = g2.x() + _size.margin;
                 if (_iconImage)
                 {
                     if (_checked)
                     {
                         event.render->drawRect(
-                            math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                            dtk::Box2I(g2.x(), g2.y(), g2.h(), g2.h()),
                             event.style->getColorRole(ColorRole::Checked));
                     }
-                    const image::Size& iconSize = _iconImage->getSize();
+                    const dtk::Size2I& iconSize = _iconImage->getSize();
                     event.render->drawImage(
                         _iconImage,
-                        math::Box2i(
+                        dtk::Box2I(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -361,12 +360,12 @@ namespace tl
                 else if (_checked && _checkedIcon.image)
                 {
                     event.render->drawRect(
-                        math::Box2i(g2.x(), g2.y(), g2.h(), g2.h()),
+                        dtk::Box2I(g2.x(), g2.y(), g2.h(), g2.h()),
                         event.style->getColorRole(ColorRole::Checked));
-                    const image::Size& iconSize = _checkedIcon.image->getSize();
+                    const dtk::Size2I& iconSize = _checkedIcon.image->getSize();
                     event.render->drawImage(
                         _checkedIcon.image,
-                        math::Box2i(
+                        dtk::Box2I(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -378,10 +377,10 @@ namespace tl
                 }
                 else if (!_checked && _uncheckedIcon.image)
                 {
-                    const image::Size& iconSize = _uncheckedIcon.image->getSize();
+                    const dtk::Size2I& iconSize = _uncheckedIcon.image->getSize();
                     event.render->drawImage(
                         _uncheckedIcon.image,
-                        math::Box2i(
+                        dtk::Box2I(
                             x,
                             g2.y() + g2.h() / 2 - iconSize.h / 2,
                             iconSize.w,
@@ -399,12 +398,12 @@ namespace tl
                     {
                         _draw.textGlyphs = event.fontSystem->getGlyphs(_text, _size.fontInfo);
                     }
-                    const math::Vector2i pos(
+                    const dtk::V2I pos(
                         x + _size.margin,
-                        g2.y() + g2.h() / 2 - _size.textSize.h / 2 +
-                        _size.fontMetrics.ascender);
+                        g2.y() + g2.h() / 2 - _size.textSize.h / 2);
                     event.render->drawText(
                         _draw.textGlyphs,
+                        _size.fontMetrics,
                         pos,
                         event.style->getColorRole(enabled ?
                             ColorRole::Text :
@@ -418,12 +417,12 @@ namespace tl
                     {
                         _draw.shortcutGlyphs = event.fontSystem->getGlyphs(_shortcutText, _size.fontInfo);
                     }
-                    const math::Vector2i pos(
+                    const dtk::V2I pos(
                         g2.max.x - _size.margin - _size.shortcutSize.w,
-                        g2.y() + g2.h() / 2 - _size.shortcutSize.h / 2 +
-                        _size.fontMetrics.ascender);
+                        g2.y() + g2.h() / 2 - _size.shortcutSize.h / 2);
                     event.render->drawText(
                         _draw.shortcutGlyphs,
+                        _size.fontMetrics,
                         pos,
                         event.style->getColorRole(enabled ?
                             ColorRole::Text :
@@ -433,10 +432,10 @@ namespace tl
                 // Draw the sub menu icon.
                 if (_subMenuIcon.image)
                 {
-                    const image::Size& iconSize = _subMenuIcon.image->getSize();
+                    const dtk::Size2I& iconSize = _subMenuIcon.image->getSize();
                     event.render->drawImage(
                       _subMenuIcon.image,
-                      math::Box2i(
+                      dtk::Box2I(
                           g2.max.x - _size.margin - iconSize.w,
                           g2.y() + g2.h() / 2 - iconSize.h / 2,
                           iconSize.w,

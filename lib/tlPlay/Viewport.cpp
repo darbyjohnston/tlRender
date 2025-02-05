@@ -19,7 +19,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
-            image::PixelType colorBuffer = image::PixelType::None;
+            dtk::ImageType colorBuffer = dtk::ImageType::None;
 
             std::shared_ptr<ui::Label> fpsLabel;
             std::shared_ptr<ui::Label> colorBufferLabel;
@@ -27,7 +27,7 @@ namespace tl
             struct ColorPicker
             {
                 dtk::Color4F color;
-                math::Vector2i pos;
+                dtk::V2I pos;
                 std::shared_ptr<ViewportColorWidget> widget;
             };
             std::vector<ColorPicker> colorPickers;
@@ -42,13 +42,13 @@ namespace tl
             {
                 MouseMode mode = MouseMode::None;
                 size_t index = 0;
-                math::Vector2i offset;
+                dtk::V2I offset;
             };
             MouseData mouse;
 
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
-            std::shared_ptr<dtk::ValueObserver<image::PixelType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ListObserver<dtk::Color4F> > colorPickersObserver;
         };
 
@@ -98,9 +98,9 @@ namespace tl
                     _hudUpdate();
                 });
 
-            p.colorBufferObserver = dtk::ValueObserver<image::PixelType>::create(
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
                 observeColorBuffer(),
-                [this](image::PixelType value)
+                [this](dtk::ImageType value)
                 {
                     _p->colorBuffer = value;
                     _hudUpdate();
@@ -153,15 +153,15 @@ namespace tl
             }
         }
 
-        void Viewport::setGeometry(const math::Box2i& value)
+        void Viewport::setGeometry(const dtk::Box2I& value)
         {
             TimelineViewport::setGeometry(value);
             TLRENDER_P();
             p.hudLayout->setGeometry(value);
             for (const auto& colorPicker : p.colorPickers)
             {
-                math::Size2i sizeHint = colorPicker.widget->getSizeHint();
-                colorPicker.widget->setGeometry(math::Box2i(
+                dtk::Size2I sizeHint = colorPicker.widget->getSizeHint();
+                colorPicker.widget->setGeometry(dtk::Box2I(
                     colorPicker.pos.x,
                     colorPicker.pos.y,
                     sizeHint.w,
@@ -231,7 +231,7 @@ namespace tl
             {
                 for (size_t i = 0; i < p.colorPickers.size(); ++i)
                 {
-                    if (p.colorPickers[i].widget->getGeometry().contains(event.pos))
+                    if (dtk::contains(p.colorPickers[i].widget->getGeometry(), event.pos))
                     {
                         p.mouse.mode = Private::MouseMode::DragWidget;
                         p.mouse.index = i;
@@ -280,7 +280,7 @@ namespace tl
         void Viewport::_colorPickersUpdate()
         {
             TLRENDER_P();
-            std::vector<math::Vector2i> colorPickers;
+            std::vector<dtk::V2I> colorPickers;
             for (const auto& colorPicker : p.colorPickers)
             {
                 colorPickers.push_back(colorPicker.pos);

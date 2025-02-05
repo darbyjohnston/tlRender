@@ -10,7 +10,7 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/Init.h>
+#include <dtk/gl/Init.h>
 
 #include <QOpenGLFramebufferObject>
 
@@ -43,18 +43,18 @@ namespace tl
                     if (!_init)
                     {
                         _init = true;
-                        gl::initGLAD();
+                        dtk::gl::initGLAD();
                         _render = timeline_gl::Render::create(qtquick::getContext());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
-                    const math::Size2i size(fbo->width(), fbo->height());
+                    const dtk::Size2I size(fbo->width(), fbo->height());
                     _render->begin(size);
                     if (!_videoData.empty())
                     {
                         _render->drawVideo(
                             { _videoData.front() },
-                            { math::Box2i(0, 0, size.w, size.h) });
+                            { dtk::Box2I(0, 0, size.w, size.h) });
                     }
                     _render->end();
 

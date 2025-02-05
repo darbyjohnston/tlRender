@@ -20,15 +20,15 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
             DrawData draw;
         };
@@ -117,7 +117,7 @@ namespace tl
             p.size.sizeInit = false;
             p.size.textInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             if (!_text.empty())
             {
                 _sizeHint.w = p.size.textSize.w + p.size.margin * 2;
@@ -129,7 +129,7 @@ namespace tl
                     _sizeHint.h = _sizeHint.h;
                 }
             }
-            std::shared_ptr<image::Image> iconImage = _iconImage;
+            std::shared_ptr<dtk::Image> iconImage = _iconImage;
             if (_checked && _checkedIconImage)
             {
                 iconImage = _checkedIconImage;
@@ -153,7 +153,7 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void ToolButton::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void ToolButton::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IButton::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -164,24 +164,23 @@ namespace tl
         }
 
         void ToolButton::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
 
-            const math::Box2i g2 = g.margin(-p.size.border * 2);
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
             const ColorRole colorRole = _checked ? _checkedRole : _buttonRole;
             if (colorRole != ColorRole::None)
             {
@@ -190,7 +189,7 @@ namespace tl
                     event.style->getColorRole(colorRole));
             }
 
-            if (_mouse.press && _geometry.contains(_mouse.pos))
+            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
             {
                 event.render->drawRect(
                     g2,
@@ -203,19 +202,19 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            const math::Box2i g3 = g2.margin(-p.size.margin);
+            const dtk::Box2I g3 = dtk::margin(g2, -p.size.margin);
             int x = g3.x();
-            std::shared_ptr<image::Image> iconImage = _iconImage;
+            std::shared_ptr<dtk::Image> iconImage = _iconImage;
             if (_checked && _checkedIconImage)
             {
                 iconImage = _checkedIconImage;
             }
             if (iconImage)
             {
-                const image::Size& iconSize = iconImage->getSize();
+                const dtk::Size2I& iconSize = iconImage->getSize();
                 event.render->drawImage(
                   iconImage,
-                  math::Box2i(
+                  dtk::Box2I(
                       x,
                       g3.y() + g3.h() / 2 - iconSize.h / 2,
                       iconSize.w,
@@ -235,12 +234,12 @@ namespace tl
                 const int x2 = !_icon.empty() ?
                     (x + p.size.margin) :
                     (g3.x() + g3.w() / 2 - p.size.textSize.w / 2);
-                const math::Vector2i pos(
+                const dtk::V2I pos(
                     x2,
-                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
-                    p.size.fontMetrics.ascender);
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2);
                 event.render->drawText(
                     p.draw.glyphs,
+                    p.size.fontMetrics,
                     pos,
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :

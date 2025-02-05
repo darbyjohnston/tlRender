@@ -74,7 +74,7 @@ namespace tl
             _p->clickedCallback = value;
         }
 
-        void StatusBar::setGeometry(const math::Box2i & value)
+        void StatusBar::setGeometry(const dtk::Box2I & value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -53,8 +53,8 @@ namespace tl
             void setFontRole(FontRole);
 
             void sizeHintEvent(const SizeHintEvent&) override;
-            void clipEvent(const math::Box2i&, bool) override;
-            void drawEvent(const math::Box2i&, const DrawEvent&) override;
+            void clipEvent(const dtk::Box2I&, bool) override;
+            void drawEvent(const dtk::Box2I&, const DrawEvent&) override;
 
         private:
             void _textUpdate();

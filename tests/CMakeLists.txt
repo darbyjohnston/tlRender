@@ -1,6 +1,5 @@
 add_subdirectory(tlAppTest)
 add_subdirectory(tlCoreTest)
-add_subdirectory(tlGLTest)
 add_subdirectory(tlIOTest)
 add_subdirectory(tlTestLib)
 add_subdirectory(tlTimelineTest)

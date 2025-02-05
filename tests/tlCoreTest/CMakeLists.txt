@@ -1,36 +1,18 @@
 set(HEADERS
     AudioTest.h
-    BoxTest.h
     FileInfoTest.h
     FileTest.h
-    FontSystemTest.h
     HDRTest.h
-    ImageTest.h
-    MathTest.h
-    MatrixTest.h
-    MeshTest.h
     PathTest.h
-    RangeTest.h
-    SizeTest.h
-    TimeTest.h
-    VectorTest.h)
+    TimeTest.h)
 
 set(SOURCE
     AudioTest.cpp
-    BoxTest.cpp
     FileInfoTest.cpp
     FileTest.cpp
-    FontSystemTest.cpp
     HDRTest.cpp
-    ImageTest.cpp
-    MathTest.cpp
-    MatrixTest.cpp
-    MeshTest.cpp
     PathTest.cpp
-    RangeTest.cpp
-    SizeTest.cpp
-    TimeTest.cpp
-    VectorTest.cpp)
+    TimeTest.cpp)
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlCoreTest tlTestLib)

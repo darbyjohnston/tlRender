@@ -116,12 +116,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::FloatRange& FloatEditSlider::getRange() const
+        const dtk::RangeF& FloatEditSlider::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void FloatEditSlider::setRange(const math::FloatRange& value)
+        void FloatEditSlider::setRange(const dtk::RangeF& value)
         {
             _p->model->setRange(value);
         }
@@ -156,7 +156,7 @@ namespace tl
             _p->edit->setFontRole(value);
         }
 
-        void FloatEditSlider::setGeometry(const math::Box2i& value)
+        void FloatEditSlider::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

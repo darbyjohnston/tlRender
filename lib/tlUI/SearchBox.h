@@ -36,7 +36,7 @@ namespace tl
             //! Set the callback.
             void setCallback(const std::function<void(const std::string&)>&);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
 
         private:

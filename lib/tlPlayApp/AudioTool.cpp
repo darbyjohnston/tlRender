@@ -38,7 +38,7 @@ namespace tl
             TLRENDER_P();
 
             p.syncOffsetSlider = ui::DoubleEditSlider::create(context);
-            p.syncOffsetSlider->setRange(math::DoubleRange(-1.0, 1.0));
+            p.syncOffsetSlider->setRange(dtk::RangeD(-1.0, 1.0));
             p.syncOffsetSlider->setDefaultValue(0.0);
 
             auto layout = ui::VerticalLayout::create(context);

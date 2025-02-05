@@ -20,14 +20,14 @@ namespace tl
                 int size = 0;
                 int border = 0;
                 int handle = 0;
-                image::FontMetrics fontMetrics;
+                dtk::FontMetrics fontMetrics;
             };
             SizeData size;
 
             std::function<void(double)> callback;
 
             std::shared_ptr<dtk::ValueObserver<double> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::DoubleRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeD> > rangeObserver;
         };
 
         void DoubleSlider::_init(
@@ -61,9 +61,9 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::DoubleRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeD>::create(
                 p.model->observeRange(),
-                [this](const math::DoubleRange&)
+                [this](const dtk::RangeD&)
                 {
                     _updates |= Update::Size;
                     _updates |= Update::Draw;
@@ -102,12 +102,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::DoubleRange& DoubleSlider::getRange() const
+        const dtk::RangeD& DoubleSlider::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void DoubleSlider::setRange(const math::DoubleRange& value)
+        void DoubleSlider::setRange(const dtk::RangeD& value)
         {
             _p->model->setRange(value);
         }
@@ -157,34 +157,32 @@ namespace tl
         }
 
         void DoubleSlider::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
             else
             {
                 event.render->drawMesh(
-                    border(g.margin(-p.size.border), p.size.border),
-                    math::Vector2i(),
+                    border(dtk::margin(g, -p.size.border), p.size.border),
                     event.style->getColorRole(ColorRole::Border));
             }
 
             event.render->drawRect(
-                g.margin(-p.size.border * 2),
+                dtk::margin(g, -p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
-            const math::Box2i g2 = _getSliderGeometry();
+            const dtk::Box2I g2 = _getSliderGeometry();
             //event.render->drawRect(
             //    g2,
             //    dtk::Color4F(1.F, 0.F, 0.F, .5F));
@@ -193,7 +191,7 @@ namespace tl
             {
                 pos = _valueToPos(p.model->getValue());
             }
-            const math::Box2i g3(
+            const dtk::Box2I g3(
                 pos - p.size.handle / 2,
                 g2.y(),
                 p.size.handle,
@@ -282,11 +280,11 @@ namespace tl
                     break;
                 case Key::End:
                     event.accept = true;
-                    p.model->setValue(p.model->getRange().getMin());
+                    p.model->setValue(p.model->getRange().min());
                     break;
                 case Key::Home:
                     event.accept = true;
-                    p.model->setValue(p.model->getRange().getMax());
+                    p.model->setValue(p.model->getRange().max());
                     break;
                 case Key::Escape:
                     if (hasKeyFocus())
@@ -305,10 +303,10 @@ namespace tl
             event.accept = true;
         }
 
-        math::Box2i DoubleSlider::_getSliderGeometry() const
+        dtk::Box2I DoubleSlider::_getSliderGeometry() const
         {
             TLRENDER_P();
-            return _geometry.margin(
+            return dtk::margin(_geometry,
                 -(p.size.border * 3 + p.size.handle / 2),
                 -(p.size.border * 3),
                 -(p.size.border * 3 + p.size.handle / 2),
@@ -318,13 +316,13 @@ namespace tl
         double DoubleSlider::_posToValue(int pos) const
         {
             TLRENDER_P();
-            const math::Box2i g = _getSliderGeometry();
+            const dtk::Box2I g = _getSliderGeometry();
             const double v = (pos - g.x()) / static_cast<double>(g.w());
             double out = 0.0;
             if (p.model)
             {
-                const math::DoubleRange& range = p.model->getRange();
-                out = range.getMin() + (range.getMax() - range.getMin()) * v;
+                const dtk::RangeD& range = p.model->getRange();
+                out = range.min() + (range.max() - range.min()) * v;
             }
             return out;
         }
@@ -332,15 +330,15 @@ namespace tl
         int DoubleSlider::_valueToPos(double value) const
         {
             TLRENDER_P();
-            const math::Box2i g = _getSliderGeometry();
+            const dtk::Box2I g = _getSliderGeometry();
             double v = 0.0;
             if (p.model)
             {
-                const math::DoubleRange& range = p.model->getRange();
-                if (range.getMin() != range.getMax())
+                const dtk::RangeD& range = p.model->getRange();
+                if (range.min() != range.max())
                 {
-                    v = (value - range.getMin()) /
-                        static_cast<double>(range.getMax() - range.getMin());
+                    v = (value - range.min()) /
+                        static_cast<double>(range.max() - range.min());
                 }
             }
             return g.x() + g.w() * v;

@@ -6,13 +6,16 @@
 
 #include <tlUI/IWindow.h>
 
-namespace tl
+namespace dtk
 {
     namespace gl
     {
-        class GLFWWindow;
+        class Window;
     }
+}
 
+namespace tl
+{
     namespace ui_app
     {
         //! Window.
@@ -38,13 +41,13 @@ namespace tl
                 const std::shared_ptr<Window>& share = nullptr);
 
             //! Get the window size.
-            const math::Size2i& getWindowSize() const;
+            const dtk::Size2I& getWindowSize() const;
 
             //! Observe the window size.
-            std::shared_ptr<dtk::IObservableValue<math::Size2i> > observeWindowSize() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::Size2I> > observeWindowSize() const;
 
             //! Set the window size.
-            void setWindowSize(const math::Size2i&);
+            void setWindowSize(const dtk::Size2I&);
 
             //! Observe whether the window is visible.
             std::shared_ptr<dtk::IObservableValue<bool> > observeVisible() const;
@@ -74,18 +77,18 @@ namespace tl
             std::shared_ptr<dtk::IObservableValue<bool> > observeClose() const;
 
             //! Get the color buffer type.
-            image::PixelType getColorBuffer() const;
+            dtk::ImageType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<dtk::IObservableValue<image::PixelType> > observeColorBuffer() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
-            void setColorBuffer(image::PixelType);
+            void setColorBuffer(dtk::ImageType);
 
-            //! Get the GLFW window.
-            const std::shared_ptr<gl::GLFWWindow>& getGLFWWindow() const;
+            //! Get the OpenGL window.
+            const std::shared_ptr<dtk::gl::Window>& getGLWindow() const;
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void setVisible(bool) override;
             void tickEvent(
                 bool parentsVisible,
@@ -105,7 +108,7 @@ namespace tl
             bool _hasDrawUpdate(const std::shared_ptr<IWidget>&) const;
             void _drawEventRecursive(
                 const std::shared_ptr<IWidget>&,
-                const math::Box2i&,
+                const dtk::Box2I&,
                 const ui::DrawEvent&);
 
             TLRENDER_PRIVATE();

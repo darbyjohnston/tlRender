@@ -139,7 +139,7 @@ namespace tl
             }
             {
                 Path p("render.0001.exr");
-                const math::IntRange sequence(1, 100);
+                const dtk::RangeI sequence(1, 100);
                 p.setSequence(sequence);
                 DTK_ASSERT(sequence == p.getSequence());
                 DTK_ASSERT(p.isSequence());
@@ -149,7 +149,7 @@ namespace tl
             }
             {
                 Path p("render.0001.exr");
-                const math::IntRange sequence(1, 9999);
+                const dtk::RangeI sequence(1, 9999);
                 p.setSequence(sequence);
                 DTK_ASSERT("0001-9999" == p.getSequenceString());
                 DTK_ASSERT(p.sequence(Path("render.0001.exr")));
@@ -159,7 +159,7 @@ namespace tl
             }
             {
                 Path p("render.1000.exr");
-                const math::IntRange sequence(1, 9999);
+                const dtk::RangeI sequence(1, 9999);
                 p.setSequence(sequence);
                 DTK_ASSERT(p.sequence(Path("render.0001.exr")));
                 DTK_ASSERT(p.sequence(Path("render.1000.exr")));
@@ -203,7 +203,7 @@ namespace tl
                 DTK_ASSERT("0010" == a.getNumber());
                 DTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
                 DTK_ASSERT(a.getPadding() == 4);
-                DTK_ASSERT(a.getSequence() == math::IntRange(10, 10));
+                DTK_ASSERT(a.getSequence() == dtk::RangeI(10, 10));
                 a.setExtension(".tif");
                 DTK_ASSERT(".tif" == a.getExtension());
                 DTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");

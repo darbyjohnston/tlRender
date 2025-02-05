@@ -35,10 +35,10 @@ namespace tl
             virtual ~TimelineViewport();
 
             //! Get the color buffer type.
-            image::PixelType colorBuffer() const;
+            dtk::ImageType colorBuffer() const;
 
             //! Get the view position.
-            const math::Vector2i& viewPos() const;
+            const dtk::V2I& viewPos() const;
 
             //! Get the view zoom.
             double viewZoom() const;
@@ -72,16 +72,16 @@ namespace tl
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
             //! Set the color buffer type.
-            void setColorBuffer(image::PixelType);
+            void setColorBuffer(dtk::ImageType);
 
             //! Set the timeline player.
             void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);
 
             //! Set the view position and zoom.
-            void setViewPosAndZoom(const tl::math::Vector2i&, double);
+            void setViewPosAndZoom(const dtk::V2I&, double);
 
             //! Set the view zoom.
-            void setViewZoom(double, const tl::math::Vector2i& focus = tl::math::Vector2i());
+            void setViewZoom(double, const dtk::V2I& focus = dtk::V2I());
 
             //! Frame the view.
             void setFrameView(bool);
@@ -100,7 +100,7 @@ namespace tl
             void compareOptionsChanged(const tl::timeline::CompareOptions&);
 
             //! This signal is emitted when the position and zoom change.
-            void viewPosAndZoomChanged(const tl::math::Vector2i&, double);
+            void viewPosAndZoomChanged(const dtk::V2I&, double);
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);

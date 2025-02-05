@@ -4,9 +4,10 @@
 
 #pragma once
 
-#include <tlCore/FontSystem.h>
+#include <tlCore/Util.h>
 
 #include <dtk/core/Color.h>
+#include <dtk/core/FontSystem.h>
 #include <dtk/core/ObservableValue.h>
 
 namespace dtk
@@ -44,8 +45,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(SizeRole);
-        TLRENDER_ENUM_SERIALIZE(SizeRole);
+        DTK_ENUM(SizeRole);
 
         //! Get the default size roles.
         std::map<SizeRole, int> defaultSizeRoles();
@@ -89,8 +89,7 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(ColorRole);
-        TLRENDER_ENUM_SERIALIZE(ColorRole);
+        DTK_ENUM(ColorRole);
 
         //! Get default color roles.
         std::map<ColorRole, dtk::Color4F> defaultColorRoles();
@@ -106,11 +105,10 @@ namespace tl
             Count,
             First = None
         };
-        TLRENDER_ENUM(FontRole);
-        TLRENDER_ENUM_SERIALIZE(FontRole);
+        DTK_ENUM(FontRole);
 
         //! Get default font roles.
-        std::map<FontRole, image::FontInfo> defaultFontRoles();
+        std::map<FontRole, dtk::FontInfo> defaultFontRoles();
 
         //! Style.
         class Style : public std::enable_shared_from_this<Style>
@@ -149,13 +147,13 @@ namespace tl
             void setColorRoles(const std::map<ColorRole, dtk::Color4F>&);
 
             //! Get a font role.
-            image::FontInfo getFontRole(FontRole, float scale) const;
+            dtk::FontInfo getFontRole(FontRole, float scale) const;
 
             //! Set a font role.
-            void setFontRole(FontRole, const image::FontInfo&);
+            void setFontRole(FontRole, const dtk::FontInfo&);
 
             //! Set the font roles.
-            void setFontRoles(const std::map<FontRole, image::FontInfo>&);
+            void setFontRoles(const std::map<FontRole, dtk::FontInfo>&);
 
             //! Observe style changes.
             std::shared_ptr<dtk::IObservableValue<bool> > observeChanged() const;
@@ -163,7 +161,7 @@ namespace tl
         private:
             std::map<SizeRole, int> _sizeRoles;
             std::map<ColorRole, dtk::Color4F> _colorRoles;
-            std::map<FontRole, image::FontInfo> _fontRoles;
+            std::map<FontRole, dtk::FontInfo> _fontRoles;
 
             TLRENDER_PRIVATE();
         };

@@ -4,9 +4,8 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/Mesh.h>
-#include <tlGL/Util.h>
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Util.h>
 
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
@@ -24,263 +23,6 @@ namespace tl
         namespace
         {
             const int pboSizeMin = 1024;
-        }
-
-        std::vector<std::shared_ptr<gl::Texture> > getTextures(
-            const image::Info& info,
-            const timeline::ImageFilters& imageFilters,
-            size_t offset)
-        {
-            std::vector<std::shared_ptr<gl::Texture> > out;
-            gl::TextureOptions options;
-            options.filters = imageFilters;
-            options.pbo = info.size.w >= pboSizeMin || info.size.h >= pboSizeMin;
-            switch (info.pixelType)
-            {
-            case image::PixelType::YUV_420P_U8:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h / 2), image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            case image::PixelType::YUV_422P_U8:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h), image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            case image::PixelType::YUV_444P_U8:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(info.size, image::PixelType::L_U8);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            case image::PixelType::YUV_420P_U16:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h / 2), image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            case image::PixelType::YUV_422P_U16:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(image::Size(info.size.w / 2, info.size.h), image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            case image::PixelType::YUV_444P_U16:
-            {
-                auto infoTmp = image::Info(info.size, image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                infoTmp = image::Info(info.size, image::PixelType::L_U16);
-                out.push_back(gl::Texture::create(infoTmp, options));
-                out.push_back(gl::Texture::create(infoTmp, options));
-                break;
-            }
-            default:
-            {
-                auto texture = gl::Texture::create(info, options);
-                out.push_back(texture);
-                break;
-            }
-            }
-            return out;
-        }
-
-        void copyTextures(
-            const std::shared_ptr<image::Image>& image,
-            const std::vector<std::shared_ptr<gl::Texture> >& textures,
-            size_t offset)
-        {
-            const auto& info = image->getInfo();
-            switch (info.pixelType)
-            {
-            case image::PixelType::YUV_420P_U8:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    textures[1]->copy(image->getData() + (w * h), textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) + (w2 * h2), textures[2]->getInfo());
-                }
-                break;
-            }
-            case image::PixelType::YUV_422P_U8:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    textures[1]->copy(image->getData() + (w * h), textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) + (w2 * h), textures[2]->getInfo());
-                }
-                break;
-            }
-            case image::PixelType::YUV_444P_U8:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    textures[1]->copy(image->getData() + (w * h), textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) + (w * h), textures[2]->getInfo());
-                }
-                break;
-            }
-            case image::PixelType::YUV_420P_U16:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    textures[1]->copy(image->getData() + (w * h) * 2, textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) * 2 + (w2 * h2) * 2, textures[2]->getInfo());
-                }
-                break;
-            }
-            case image::PixelType::YUV_422P_U16:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    const std::size_t w2 = w / 2;
-                    textures[1]->copy(image->getData() + (w * h) * 2, textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) * 2 + (w2 * h) * 2, textures[2]->getInfo());
-                }
-                break;
-            }
-            case image::PixelType::YUV_444P_U16:
-            {
-                if (3 == textures.size())
-                {
-                    textures[0]->copy(image->getData(), textures[0]->getInfo());
-                    const std::size_t w = info.size.w;
-                    const std::size_t h = info.size.h;
-                    textures[1]->copy(image->getData() + (w * h) * 2, textures[1]->getInfo());
-                    textures[2]->copy(image->getData() + (w * h) * 2 + (w * h) * 2, textures[2]->getInfo());
-                }
-                break;
-            }
-            default:
-                if (1 == textures.size())
-                {
-                    textures[0]->copy(image);
-                }
-                break;
-            }
-        }
-
-        void setActiveTextures(
-            const image::Info& info,
-            const std::vector<std::shared_ptr<gl::Texture> >& textures,
-            size_t offset)
-        {
-            switch (info.pixelType)
-            {
-            case image::PixelType::YUV_420P_U8:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            case image::PixelType::YUV_422P_U8:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            case image::PixelType::YUV_444P_U8:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            case image::PixelType::YUV_420P_U16:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            case image::PixelType::YUV_422P_U16:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            case image::PixelType::YUV_444P_U16:
-                if (3 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    textures[1]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    textures[2]->bind();
-                }
-                break;
-            default:
-                if (1 == textures.size())
-                {
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + offset));
-                    textures[0]->bind();
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 1 + offset));
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE0 + 2 + offset));
-                    glBindTexture(GL_TEXTURE_2D, 0);
-                }
-                break;
-            }
         }
 
 #if defined(TLRENDER_OCIO)
@@ -312,310 +54,88 @@ namespace tl
         }
 #endif // TLRENDER_OCIO
 
-        Render::Render(
+        void Render::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<TextureCache>& textureCache) :
-            IRender(context),
-            _p(new Private)
+            const std::shared_ptr<dtk::gl::TextureCache>& textureCache)
         {
+            IRender::_init(context);
             TLRENDER_P();
-
-            p.textureCache = textureCache;
-            if (!p.textureCache)
-            {
-                p.textureCache = std::make_shared<TextureCache>();
-            }
-
-            p.glyphTextureAtlas = gl::TextureAtlas::create(
-                1,
-                4096,
-                image::PixelType::L_U8,
-                timeline::ImageFilter::Linear);
-
-            p.logTimer = std::chrono::steady_clock::now();
+            p.baseRender = dtk::gl::Render::create(context, textureCache);
         }
+
+        Render::Render() :
+            _p(new Private)
+        {}
 
         Render::~Render()
         {}
 
         std::shared_ptr<Render> Render::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<TextureCache>& textureCache)
+            const std::shared_ptr<dtk::gl::TextureCache>& textureCache)
         {
-            return std::shared_ptr<Render>(new Render(context, textureCache));
+            auto out = std::shared_ptr<Render>(new Render);
+            out->_init(context, textureCache);
+            return out;
         }
 
-        const std::shared_ptr<TextureCache>& Render::getTextureCache() const
+        const std::shared_ptr<dtk::gl::TextureCache>& Render::getTextureCache() const
         {
-            return _p->textureCache;
+            return _p->baseRender->getTextureCache();
         }
 
         void Render::begin(
-            const math::Size2i& renderSize,
-            const timeline::RenderOptions& renderOptions)
+            const dtk::Size2I& renderSize,
+            const dtk::RenderOptions& renderOptions)
         {
             TLRENDER_P();
 
-            p.timer = std::chrono::steady_clock::now();
+            p.baseRender->begin(renderSize, renderOptions);
 
-            p.renderSize = renderSize;
-            p.renderOptions = renderOptions;
-            p.textureCache->setMax(renderOptions.textureCacheByteCount);
-
-            glEnable(GL_BLEND);
-            glBlendEquation(GL_FUNC_ADD);
-
-            if (!p.shaders["rect"])
-            {
-                p.shaders["rect"] = gl::Shader::create(
-                    vertexSource(),
-                    meshFragmentSource());
-            }
-            if (!p.shaders["mesh"])
-            {
-                p.shaders["mesh"] = gl::Shader::create(
-                    vertexSource(),
-                    meshFragmentSource());
-            }
-            if (!p.shaders["colorMesh"])
-            {
-                p.shaders["colorMesh"] = gl::Shader::create(
-                    colorMeshVertexSource(),
-                    colorMeshFragmentSource());
-            }
-            if (!p.shaders["text"])
-            {
-                p.shaders["text"] = gl::Shader::create(
-                    vertexSource(),
-                    textFragmentSource());
-            }
             if (!p.shaders["texture"])
             {
-                p.shaders["texture"] = gl::Shader::create(
+                p.shaders["texture"] = dtk::gl::Shader::create(
                     vertexSource(),
                     textureFragmentSource());
             }
-            if (!p.shaders["image"])
-            {
-                p.shaders["image"] = gl::Shader::create(
-                    vertexSource(),
-                    imageFragmentSource());
-            }
             if (!p.shaders["wipe"])
             {
-                p.shaders["wipe"] = gl::Shader::create(
+                p.shaders["wipe"] = dtk::gl::Shader::create(
                     vertexSource(),
                     meshFragmentSource());
             }
             if (!p.shaders["overlay"])
             {
-                p.shaders["overlay"] = gl::Shader::create(
+                p.shaders["overlay"] = dtk::gl::Shader::create(
                     vertexSource(),
                     textureFragmentSource());
             }
             if (!p.shaders["difference"])
             {
-                p.shaders["difference"] = gl::Shader::create(
+                p.shaders["difference"] = dtk::gl::Shader::create(
                     vertexSource(),
                     differenceFragmentSource());
             }
             if (!p.shaders["dissolve"])
             {
-                p.shaders["dissolve"] = gl::Shader::create(
+                p.shaders["dissolve"] = dtk::gl::Shader::create(
                     vertexSource(),
                     textureFragmentSource());
             }
             _displayShader();
 
-            p.vbos["rect"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32);
-            p.vaos["rect"] = gl::VAO::create(p.vbos["rect"]->getType(), p.vbos["rect"]->getID());
-            p.vbos["texture"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
-            p.vaos["texture"] = gl::VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
-            p.vbos["image"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
-            p.vaos["image"] = gl::VAO::create(p.vbos["image"]->getType(), p.vbos["image"]->getID());
-            p.vbos["wipe"] = gl::VBO::create(1 * 3, gl::VBOType::Pos2_F32);
-            p.vaos["wipe"] = gl::VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
-            p.vbos["video"] = gl::VBO::create(2 * 3, gl::VBOType::Pos2_F32_UV_U16);
-            p.vaos["video"] = gl::VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
-
-            setViewport(math::Box2i(0, 0, renderSize.w, renderSize.h));
-            if (renderOptions.clear)
-            {
-                clearViewport(renderOptions.clearColor);
-            }
-            setTransform(math::ortho(
-                0.F,
-                static_cast<float>(renderSize.w),
-                static_cast<float>(renderSize.h),
-                0.F,
-                -1.F,
-                1.F));
+            p.vbos["texture"] = dtk::gl::VBO::create(2 * 3, dtk::gl::VBOType::Pos2_F32_UV_U16);
+            p.vaos["texture"] = dtk::gl::VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
+            p.vbos["wipe"] = dtk::gl::VBO::create(1 * 3, dtk::gl::VBOType::Pos2_F32);
+            p.vaos["wipe"] = dtk::gl::VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
+            p.vbos["video"] = dtk::gl::VBO::create(2 * 3, dtk::gl::VBOType::Pos2_F32_UV_U16);
+            p.vaos["video"] = dtk::gl::VAO::create(p.vbos["video"]->getType(), p.vbos["video"]->getID());
         }
 
         void Render::end()
         {
             TLRENDER_P();
-
-            //! \bug Should these be reset periodically?
-            //p.glyphIDs.clear();
-            //p.vbos["mesh"].reset();
-            //p.vaos["mesh"].reset();
-            //p.vbos["text"].reset();
-            //p.vaos["text"].reset();
-
-            const auto now = std::chrono::steady_clock::now();
-            const auto diff = std::chrono::duration_cast<std::chrono::milliseconds>(now - p.timer);
-            p.currentStats.time = diff.count();
-            p.stats.push_back(p.currentStats);
-            p.currentStats = Private::Stats();
-            while (p.stats.size() > 60)
-            {
-                p.stats.pop_front();
-            }
-
-            const std::chrono::duration<float> logDiff = now - p.logTimer;
-            if (logDiff.count() > 10.F)
-            {
-                p.logTimer = now;
-                if (auto context = _context.lock())
-                {
-                    Private::Stats average;
-                    const size_t size = p.stats.size();
-                    if (size > 0)
-                    {
-                        for (const auto& i : p.stats)
-                        {
-                            average.time += i.time;
-                            average.rects += i.rects;
-                            average.meshes += i.meshes;
-                            average.meshTriangles += i.meshTriangles;
-                            average.text += i.text;
-                            average.textTriangles += i.textTriangles;
-                            average.textures += i.textures;
-                            average.images += i.images;
-                        }
-                        average.time /= p.stats.size();
-                        average.rects /= p.stats.size();
-                        average.meshes /= p.stats.size();
-                        average.meshTriangles /= p.stats.size();
-                        average.text /= p.stats.size();
-                        average.textTriangles /= p.stats.size();
-                        average.textures /= p.stats.size();
-                        average.images /= p.stats.size();
-                    }
-
-                    context->log(
-                        dtk::Format("tl::timeline::GLRender {0}").arg(this),
-                        dtk::Format(
-                            "\n"
-                            "    Average render time: {0}ms\n"
-                            "    Average rectangle count: {1}\n"
-                            "    Average mesh count: {2}\n"
-                            "    Average mesh triangles: {3}\n"
-                            "    Average text count: {4}\n"
-                            "    Average text triangles: {5}\n"
-                            "    Average texture count: {6}\n"
-                            "    Average image count: {7}\n"
-                            "    Glyph texture atlas: {8}%\n"
-                            "    Glyph IDs: {9}").
-                        arg(average.time).
-                        arg(average.rects).
-                        arg(average.meshes).
-                        arg(average.meshTriangles).
-                        arg(average.text).
-                        arg(average.textTriangles).
-                        arg(average.textures).
-                        arg(average.images).
-                        arg(p.glyphTextureAtlas->getPercentageUsed()).
-                        arg(p.glyphIDs.size()));
-                }
-            }
-        }
-
-        math::Size2i Render::getRenderSize() const
-        {
-            return _p->renderSize;
-        }
-
-        void Render::setRenderSize(const math::Size2i& value)
-        {
-            _p->renderSize = value;
-        }
-
-        math::Box2i Render::getViewport() const
-        {
-            return _p->viewport;
-        }
-
-        void Render::setViewport(const math::Box2i& value)
-        {
-            TLRENDER_P();
-            p.viewport = value;
-            glViewport(
-                value.x(),
-                p.renderSize.h - value.h() - value.y(),
-                value.w(),
-                value.h());
-        }
-
-        void Render::clearViewport(const dtk::Color4F& value)
-        {
-            glClearColor(value.r, value.g, value.b, value.a);
-            glClear(GL_COLOR_BUFFER_BIT);
-        }
-
-        bool Render::getClipRectEnabled() const
-        {
-            return _p->clipRectEnabled;
-        }
-
-        void Render::setClipRectEnabled(bool value)
-        {
-            TLRENDER_P();
-            p.clipRectEnabled = value;
-            if (p.clipRectEnabled)
-            {
-                glEnable(GL_SCISSOR_TEST);
-            }
-            else
-            {
-                glDisable(GL_SCISSOR_TEST);
-            }
-        }
-
-        math::Box2i Render::getClipRect() const
-        {
-            return _p->clipRect;
-        }
-
-        void Render::setClipRect(const math::Box2i& value)
-        {
-            TLRENDER_P();
-            p.clipRect = value;
-            if (value.w() > 0 && value.h() > 0)
-            {
-                glScissor(
-                    value.x(),
-                    p.renderSize.h - value.h() - value.y(),
-                    value.w(),
-                    value.h());
-            }
-        }
-
-        math::Matrix4x4f Render::getTransform() const
-        {
-            return _p->transform;
-        }
-
-        void Render::setTransform(const math::Matrix4x4f& value)
-        {
-            TLRENDER_P();
-            p.transform = value;
-            for (auto i : p.shaders)
-            {
-                i.second->bind();
-                i.second->setUniform("transform.mvp", value);
-            }
+            p.baseRender->end();
         }
 
         namespace
@@ -995,6 +515,66 @@ namespace tl
             _displayShader();
         }
 
+        dtk::Size2I Render::getRenderSize() const
+        {
+            return _p->baseRender->getRenderSize();
+        }
+
+        void Render::setRenderSize(const dtk::Size2I& value)
+        {
+            _p->baseRender->setRenderSize(value);
+        }
+
+        dtk::RenderOptions Render::getRenderOptions() const
+        {
+            return _p->baseRender->getRenderOptions();
+        }
+
+        dtk::Box2I Render::getViewport() const
+        {
+            return _p->baseRender->getViewport();
+        }
+
+        void Render::setViewport(const dtk::Box2I& value)
+        {
+            _p->baseRender->setViewport(value);
+        }
+
+        void Render::clearViewport(const dtk::Color4F& value)
+        {
+            _p->baseRender->clearViewport(value);
+        }
+
+        bool Render::getClipRectEnabled() const
+        {
+            return _p->baseRender->getClipRectEnabled();
+        }
+
+        void Render::setClipRectEnabled(bool value)
+        {
+            _p->baseRender->setClipRectEnabled(value);
+        }
+
+        dtk::Box2I Render::getClipRect() const
+        {
+            return _p->baseRender->getClipRect();
+        }
+
+        void Render::setClipRect(const dtk::Box2I& value)
+        {
+            _p->baseRender->setClipRect(value);
+        }
+
+        dtk::M44F Render::getTransform() const
+        {
+            return _p->baseRender->getTransform();
+        }
+
+        void Render::setTransform(const dtk::M44F& value)
+        {
+            _p->baseRender->setTransform(value);
+        }
+
         void Render::_displayShader()
         {
             TLRENDER_P();
@@ -1028,10 +608,10 @@ namespace tl
                     //context->log("tl::gl::GLRender", source);
                     context->log("tl::gl::GLRender", "Creating display shader");
                 }
-                p.shaders["display"] = gl::Shader::create(vertexSource(), source);
+                p.shaders["display"] = dtk::gl::Shader::create(vertexSource(), source);
             }
             p.shaders["display"]->bind();
-            p.shaders["display"]->setUniform("transform.mvp", p.transform);
+            p.shaders["display"]->setUniform("transform.mvp", getTransform());
 #if defined(TLRENDER_OCIO)
             size_t texturesOffset = 1;
             if (p.ocioData)

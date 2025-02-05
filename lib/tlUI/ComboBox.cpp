@@ -128,11 +128,11 @@ namespace tl
             std::string icon;
             float iconScale = 1.F;
             bool iconInit = false;
-            std::future<std::shared_ptr<image::Image> > iconFuture;
-            std::shared_ptr<image::Image> iconImage;
+            std::future<std::shared_ptr<dtk::Image> > iconFuture;
+            std::shared_ptr<dtk::Image> iconImage;
             bool arrowIconInit = false;
-            std::future<std::shared_ptr<image::Image> > arrowIconFuture;
-            std::shared_ptr<image::Image> arrowIconImage;
+            std::future<std::shared_ptr<dtk::Image> > arrowIconFuture;
+            std::shared_ptr<dtk::Image> arrowIconImage;
 
             std::shared_ptr<ComboBoxMenu> menu;
 
@@ -144,15 +144,15 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
             DrawData draw;
         };
@@ -200,7 +200,7 @@ namespace tl
             if (value == p.items)
                 return;
             p.items = value;
-            p.currentIndex = math::clamp(
+            p.currentIndex = dtk::clamp(
                 p.currentIndex,
                 0,
                 static_cast<int>(p.items.size()) - 1);
@@ -208,7 +208,7 @@ namespace tl
             p.text = item.text;
             p.icon = item.icon;
             p.iconInit = true;
-            p.iconFuture = std::future<std::shared_ptr<image::Image> >();
+            p.iconFuture = std::future<std::shared_ptr<dtk::Image> >();
             p.iconImage.reset();
             p.size.textInit = true;
             _updates |= Update::Size;
@@ -229,7 +229,7 @@ namespace tl
         void ComboBox::setCurrentIndex(int value)
         {
             TLRENDER_P();
-            const int tmp = math::clamp(
+            const int tmp = dtk::clamp(
                 value,
                 0,
                 static_cast<int>(p.items.size()) - 1);
@@ -240,7 +240,7 @@ namespace tl
             p.text = item.text;
             p.icon = item.icon;
             p.iconInit = true;
-            p.iconFuture = std::future<std::shared_ptr<image::Image> >();
+            p.iconFuture = std::future<std::shared_ptr<dtk::Image> >();
             p.iconImage.reset();
             p.size.textInit = true;
             _updates |= Update::Size;
@@ -279,10 +279,10 @@ namespace tl
             {
                 p.iconScale = _displayScale;
                 p.iconInit = true;
-                p.iconFuture = std::future<std::shared_ptr<image::Image> >();
+                p.iconFuture = std::future<std::shared_ptr<dtk::Image> >();
                 p.iconImage.reset();
                 p.arrowIconInit = true;
-                p.arrowIconFuture = std::future<std::shared_ptr<image::Image> >();
+                p.arrowIconFuture = std::future<std::shared_ptr<dtk::Image> >();
                 p.arrowIconImage.reset();
             }
             if (!p.icon.empty() && p.iconInit)
@@ -327,12 +327,12 @@ namespace tl
             {
                 p.size.fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-                p.size.textSize = math::Size2i();
+                p.size.textSize = dtk::Size2I();
                 for (const auto& i : p.items)
                 {
                     if (!i.text.empty())
                     {
-                        const math::Size2i textSize = event.fontSystem->getSize(i.text, p.size.fontInfo);
+                        const dtk::Size2I textSize = event.fontSystem->getSize(i.text, p.size.fontInfo);
                         p.size.textSize.w = std::max(p.size.textSize.w, textSize.w);
                         p.size.textSize.h = std::max(p.size.textSize.h, textSize.h);
                     }
@@ -372,36 +372,34 @@ namespace tl
         }
 
         void ComboBox::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
 
             if (_keyFocus)
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
             else
             {
                 event.render->drawMesh(
-                    border(g.margin(-p.size.border), p.size.border),
-                    math::Vector2i(),
+                    border(dtk::margin(g, -p.size.border), p.size.border),
                     event.style->getColorRole(ColorRole::Border));
             }
 
-            const math::Box2i g2 = g.margin(-p.size.border * 2);
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
             event.render->drawRect(
                 g2,
                 event.style->getColorRole(ColorRole::Button));
 
-            if (_mouse.press && _geometry.contains(_mouse.pos))
+            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
             {
                 event.render->drawRect(
                     g2,
@@ -414,14 +412,14 @@ namespace tl
                     event.style->getColorRole(ColorRole::Hover));
             }
 
-            const math::Box2i g3 = g2.margin(-p.size.margin);
+            const dtk::Box2I g3 = dtk::margin(g2, -p.size.margin);
             int x = g3.x();
             if (p.iconImage)
             {
-                const image::Size& iconSize = p.iconImage->getSize();
+                const dtk::Size2I& iconSize = p.iconImage->getSize();
                 event.render->drawImage(
                     p.iconImage,
-                    math::Box2i(
+                    dtk::Box2I(
                         x,
                         g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,
@@ -438,12 +436,12 @@ namespace tl
                 {
                     p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
                 }
-                const math::Vector2i pos(
+                const dtk::V2I pos(
                     x + p.size.margin,
-                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2 +
-                    p.size.fontMetrics.ascender);
+                    g3.y() + g3.h() / 2 - p.size.textSize.h / 2);
                 event.render->drawText(
                     p.draw.glyphs,
+                    p.size.fontMetrics,
                     pos,
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :
@@ -452,10 +450,10 @@ namespace tl
 
             if (p.arrowIconImage)
             {
-                const image::Size& iconSize = p.arrowIconImage->getSize();
+                const dtk::Size2I& iconSize = p.arrowIconImage->getSize();
                 event.render->drawImage(
                     p.arrowIconImage,
-                    math::Box2i(
+                    dtk::Box2I(
                         g3.x() + g3.w() - iconSize.w,
                         g3.y() + g3.h() / 2 - iconSize.h / 2,
                         iconSize.w,

@@ -166,8 +166,8 @@ namespace tl
                     "    Video: {1} {2}\n"
                     "    Audio: {3} {4} {5}").
                 arg(p.timeRange).
-                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : image::Size()).
-                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].pixelType : image::PixelType::None).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : dtk::Size2I()).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].type : dtk::ImageType::None).
                 arg(p.ioInfo.audio.channelCount).
                 arg(p.ioInfo.audio.dataType).
                 arg(p.ioInfo.audio.sampleRate));

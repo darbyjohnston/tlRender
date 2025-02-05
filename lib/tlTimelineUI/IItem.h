@@ -25,8 +25,8 @@ namespace tl
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::map<std::string, std::shared_ptr<io::Info> > info;
-            std::map<std::string, std::shared_ptr<image::Image> > thumbnails;
-            std::map<std::string, std::shared_ptr<geom::TriangleMesh2> > waveforms;
+            std::map<std::string, std::shared_ptr<dtk::Image> > thumbnails;
+            std::map<std::string, std::shared_ptr<dtk::TriMesh2F> > waveforms;
         };
 
         //! In/out points display options.
@@ -160,8 +160,8 @@ namespace tl
             int timeToPos(const OTIO_NS::RationalTime&) const;
 
         protected:
-            static math::Box2i _getClipRect(
-                const math::Box2i&,
+            static dtk::Box2I _getClipRect(
+                const dtk::Box2I&,
                 double scale);
 
             std::string _getDurationLabel(const OTIO_NS::RationalTime&);

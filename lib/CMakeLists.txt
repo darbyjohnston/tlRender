@@ -1,5 +1,4 @@
 add_subdirectory(tlCore)
-add_subdirectory(tlGL)
 add_subdirectory(tlDevice)
 add_subdirectory(tlIO)
 add_subdirectory(tlPlay)

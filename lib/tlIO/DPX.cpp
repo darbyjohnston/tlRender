@@ -212,7 +212,7 @@ namespace tl
             io->read(&out.tv, sizeof(Header::TV));
 
             // Flip the endian of the data if necessary.
-            image::Info imageInfo;
+            dtk::ImageInfo imageInfo;
             if (fileEndian != dtk::getEndian())
             {
                 io->setEndianConversion(true);
@@ -257,7 +257,7 @@ namespace tl
                 case Descriptor::RGBA: channels = 4; break;
                 default: break;
                 }
-                imageInfo.pixelType = image::getIntType(channels, out.image.elem[0].bitDepth);
+                imageInfo.type = io::getIntType(channels, out.image.elem[0].bitDepth);
             }
             break;
             case Components::TypeA:
@@ -266,7 +266,7 @@ namespace tl
                 case 10:
                     if (Descriptor::RGB == static_cast<Descriptor>(out.image.elem[0].descriptor))
                     {
-                        imageInfo.pixelType = image::PixelType::RGB_U10;
+                        imageInfo.type = dtk::ImageType::RGB_U10;
                         imageInfo.layout.alignment = 4;
                     }
                     break;
@@ -280,7 +280,7 @@ namespace tl
                     case Descriptor::RGBA: channels = 4; break;
                     default: break;
                     }
-                    imageInfo.pixelType = image::getIntType(channels, out.image.elem[0].bitDepth);
+                    imageInfo.type = io::getIntType(channels, out.image.elem[0].bitDepth);
                     break;
                 }
                 default: break;
@@ -288,13 +288,13 @@ namespace tl
                 break;
             default: break;
             }
-            if (image::PixelType::None == imageInfo.pixelType)
+            if (dtk::ImageType::None == imageInfo.type)
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(io->getPath()).
                     arg("Unsupported file"));
             }
-            const size_t dataByteCount = image::getDataByteCount(imageInfo);
+            const size_t dataByteCount = imageInfo.getByteCount();
             const size_t ioSize = io->getSize();
             if (dataByteCount > ioSize - out.file.imageOffset)
             {
@@ -569,39 +569,39 @@ namespace tl
             header.image.size[1] = imageInfo.size.h;
             header.image.orient = static_cast<uint16_t>(Orient::LeftRightTopBottom);
 
-            switch (imageInfo.pixelType)
+            switch (imageInfo.type)
             {
-            case image::PixelType::L_U8:
-            case image::PixelType::L_U16:
-            case image::PixelType::L_F16:
-            case image::PixelType::L_F32:
+            case dtk::ImageType::L_U8:
+            case dtk::ImageType::L_U16:
+            case dtk::ImageType::L_F16:
+            case dtk::ImageType::L_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::L);
                 break;
-            case image::PixelType::RGB_U8:
-            case image::PixelType::RGB_U10:
-            case image::PixelType::RGB_U16:
-            case image::PixelType::RGB_F16:
-            case image::PixelType::RGB_F32:
+            case dtk::ImageType::RGB_U8:
+            case dtk::ImageType::RGB_U10:
+            case dtk::ImageType::RGB_U16:
+            case dtk::ImageType::RGB_F16:
+            case dtk::ImageType::RGB_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGB);
                 break;
-            case image::PixelType::RGBA_U8:
-            case image::PixelType::RGBA_U16:
-            case image::PixelType::RGBA_F16:
-            case image::PixelType::RGBA_F32:
+            case dtk::ImageType::RGBA_U8:
+            case dtk::ImageType::RGBA_U16:
+            case dtk::ImageType::RGBA_F16:
+            case dtk::ImageType::RGBA_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGBA);
                 break;
             default: break;
             }
 
-            switch (imageInfo.pixelType)
+            switch (imageInfo.type)
             {
-            case image::PixelType::RGB_U10:
+            case dtk::ImageType::RGB_U10:
                 header.image.elem[0].packing = static_cast<uint16_t>(Components::TypeA);
                 break;
             default: break;
             }
 
-            const int bitDepth = image::getBitDepth(imageInfo.pixelType);
+            const int bitDepth = dtk::getBitDepth(imageInfo.type);
             header.image.elem[0].bitDepth = bitDepth;
             header.image.elem[0].dataSign = 0;
             header.image.elem[0].lowData = 0;
@@ -925,16 +925,16 @@ namespace tl
             return Read::create(path, memory, options, _cache, _logSystem.lock());
         }
 
-        image::Info Plugin::getWriteInfo(
-            const image::Info& info,
+        dtk::ImageInfo Plugin::getWriteInfo(
+            const dtk::ImageInfo& info,
             const io::Options& options) const
         {
-            image::Info out;
+            dtk::ImageInfo out;
             out.size = info.size;
-            switch (info.pixelType)
+            switch (info.type)
             {
-            case image::PixelType::RGB_U10:
-                out.pixelType = info.pixelType;
+            case dtk::ImageType::RGB_U10:
+                out.type = info.type;
                 break;
             default: break;
             }

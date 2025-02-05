@@ -73,13 +73,13 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void RowLayout::setGeometry(const math::Box2i& value)
+        void RowLayout::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            const math::Box2i g = _geometry.margin(-p.size.margin);
+            const dtk::Box2I g = dtk::margin(_geometry, -p.size.margin);
             _childrenClipRect = g;
-            std::vector<math::Size2i> sizeHints;
+            std::vector<dtk::Size2I> sizeHints;
             size_t expanding = 0;
             std::shared_ptr<IWidget> lastVisibleChild;
             for (const auto& child : _children)
@@ -108,13 +108,13 @@ namespace tl
             const std::pair<int, int> extra(
                 _geometry.w() - _sizeHint.w,
                 _geometry.h() - _sizeHint.h);
-            math::Vector2i pos = g.min;
+            dtk::V2I pos = g.min;
             size_t count = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
-                    math::Size2i size = sizeHints[count];
+                    dtk::Size2I size = sizeHints[count];
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
@@ -140,7 +140,7 @@ namespace tl
                         }
                         break;
                     }
-                    child->setGeometry(math::Box2i(pos, size));
+                    child->setGeometry(dtk::Box2I(pos, size));
                     switch (p.orientation)
                     {
                     case Orientation::Horizontal:
@@ -190,14 +190,14 @@ namespace tl
             }
             p.size.sizeInit = false;
 
-            _sizeHint = math::Size2i();
-            std::vector<math::Size2i> sizeHints;
+            _sizeHint = dtk::Size2I();
+            std::vector<dtk::Size2I> sizeHints;
             size_t visible = 0;
             for (const auto& child : _children)
             {
                 if (child->isVisible(false))
                 {
-                    const math::Size2i& sizeHint = child->getSizeHint();
+                    const dtk::Size2I& sizeHint = child->getSizeHint();
                     sizeHints.push_back(sizeHint);
                     switch (p.orientation)
                     {

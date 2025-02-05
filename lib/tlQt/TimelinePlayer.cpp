@@ -4,8 +4,9 @@
 
 #include <tlQt/TimelinePlayer.h>
 
-#include <tlCore/Math.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Math.h>
 
 #include <QTimer>
 

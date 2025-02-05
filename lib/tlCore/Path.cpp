@@ -4,9 +4,8 @@
 
 #include <tlCore/Path.h>
 
-#include <tlCore/Math.h>
-
 #include <dtk/core/Error.h>
+#include <dtk/core/Math.h>
 #include <dtk/core/String.h>
 
 #include <dtk/core/Format.h>
@@ -264,7 +263,7 @@ namespace tl
             _padding = value;
         }
         
-        void Path::setSequence(const math::IntRange& value)
+        void Path::setSequence(const dtk::RangeI& value)
         {
             _sequence = value;
         }
@@ -275,8 +274,8 @@ namespace tl
             if (isSequence())
             {
                 out = dtk::Format("{0}-{1}").
-                    arg(_sequence.getMin(), _padding, '0').
-                    arg(_sequence.getMax(), _padding, '0');
+                    arg(_sequence.min(), _padding, '0').
+                    arg(_sequence.max(), _padding, '0');
             }
             return out;
         }
@@ -325,8 +324,8 @@ namespace tl
         void Path::_numberUpdate()
         {
             _numberValue = std::atoi(_number.c_str());
-            _numberDigits = math::digits(_numberValue);
-            _sequence = math::IntRange(_numberValue, _numberValue);
+            _numberDigits = dtk::digits(_numberValue);
+            _sequence = dtk::RangeI(_numberValue, _numberValue);
             if (_number.size() > 1 && '0' == _number[0])
             {
                 _padding = _number.size();

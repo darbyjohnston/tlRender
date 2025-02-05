@@ -48,9 +48,9 @@ namespace tl
         {}
 
         Channel::Channel(
-            const std::string&    name,
-            Imf::PixelType        pixelType,
-            const math::Vector2i& sampling) :
+            const std::string& name,
+            Imf::PixelType     pixelType,
+            const dtk::V2I&    sampling) :
             name(name),
             pixelType(pixelType),
             sampling(sampling)
@@ -660,7 +660,7 @@ namespace tl
 
         } // namespace
 
-        void readTags(const Imf::Header& header, image::Tags& tags)
+        void readTags(const Imf::Header& header, dtk::ImageTags& tags)
         {
             // Predefined attributes.
             tags["Display Window"] = serialize(header.displayWindow());
@@ -761,7 +761,7 @@ namespace tl
             TLRENDER_SERIALIZE_STD_ATTR(XDensity, xDensity);
         }
 
-        void writeTags(const image::Tags& tags, double speed, Imf::Header& header)
+        void writeTags(const dtk::ImageTags& tags, double speed, Imf::Header& header)
         {
             // Standard attributes.
             TLRENDER_DESERIALIZE_STD_ATTR(AdoptedNeutral, Imath::V2f);
@@ -823,9 +823,9 @@ namespace tl
             }
         }
 
-        math::Box2i fromImath(const Imath::Box2i& value)
+        dtk::Box2I fromImath(const Imath::Box2i& value)
         {
-            return math::Box2i(math::Vector2i(value.min.x, value.min.y), math::Vector2i(value.max.x, value.max.y));
+            return dtk::Box2I(dtk::V2I(value.min.x, value.min.y), dtk::V2I(value.max.x, value.max.y));
         }
 
         Channel fromImf(const std::string& name, const Imf::Channel& channel)
@@ -833,7 +833,7 @@ namespace tl
             return Channel(
                 name,
                 channel.type,
-                math::Vector2i(channel.xSampling, channel.ySampling));
+                dtk::V2I(channel.xSampling, channel.ySampling));
         }
 
         void Plugin::_init(
@@ -876,16 +876,16 @@ namespace tl
             return Read::create(path, memory, options, _cache, _logSystem.lock());
         }
 
-        image::Info Plugin::getWriteInfo(
-            const image::Info& info,
+        dtk::ImageInfo Plugin::getWriteInfo(
+            const dtk::ImageInfo& info,
             const io::Options& options) const
         {
-            image::Info out;
+            dtk::ImageInfo out;
             out.size = info.size;
-            switch (info.pixelType)
+            switch (info.type)
             {
-            case image::PixelType::RGBA_F16:
-                out.pixelType = info.pixelType;
+            case dtk::ImageType::RGBA_F16:
+                out.type = info.type;
                 break;
             default: break;
             }

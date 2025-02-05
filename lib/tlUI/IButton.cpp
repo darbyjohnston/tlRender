@@ -235,7 +235,7 @@ namespace tl
         {
             IWidget::mouseReleaseEvent(event);
             _updates |= Update::Draw;
-            if (_geometry.contains(_mouse.pos))
+            if (dtk::contains(_geometry, _mouse.pos))
             {
                 _click();
             }

@@ -10,12 +10,11 @@
 
 #include <tlIO/System.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
-#include <tlGL/OffscreenBuffer.h>
-
 #include <tlCore/AudioResample.h>
 
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Window.h>
+#include <dtk/gl/OffscreenBuffer.h>
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/LRUCache.h>
@@ -36,8 +35,8 @@ namespace tl
         {
             size_t max = 1000;
             dtk::LRUCache<std::string, io::Info> info;
-            dtk::LRUCache<std::string, std::shared_ptr<image::Image> > thumbnails;
-            dtk::LRUCache<std::string, std::shared_ptr<geom::TriangleMesh2> > waveforms;
+            dtk::LRUCache<std::string, std::shared_ptr<dtk::Image> > thumbnails;
+            dtk::LRUCache<std::string, std::shared_ptr<dtk::TriMesh2F> > waveforms;
             std::mutex mutex;
         };
 
@@ -144,7 +143,7 @@ namespace tl
 
         void ThumbnailCache::addThumbnail(
             const std::string& key,
-            const std::shared_ptr<image::Image>& thumbnail)
+            const std::shared_ptr<dtk::Image>& thumbnail)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -160,7 +159,7 @@ namespace tl
 
         bool ThumbnailCache::getThumbnail(
             const std::string& key,
-            std::shared_ptr<image::Image>& thumbnail) const
+            std::shared_ptr<dtk::Image>& thumbnail) const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -168,7 +167,7 @@ namespace tl
         }
 
         std::string ThumbnailCache::getWaveformKey(
-            const math::Size2i& size,
+            const dtk::Size2I& size,
             const file::Path& path,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
@@ -186,7 +185,7 @@ namespace tl
 
         void ThumbnailCache::addWaveform(
             const std::string& key,
-            const std::shared_ptr<geom::TriangleMesh2>& waveform)
+            const std::shared_ptr<dtk::TriMesh2F>& waveform)
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -202,7 +201,7 @@ namespace tl
 
         bool ThumbnailCache::getWaveform(
             const std::string& key,
-            std::shared_ptr<geom::TriangleMesh2>& waveform) const
+            std::shared_ptr<dtk::TriMesh2F>& waveform) const
         {
             TLRENDER_P();
             std::unique_lock<std::mutex> lock(p.mutex);
@@ -222,7 +221,7 @@ namespace tl
         {
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<ThumbnailCache> cache;
-            std::shared_ptr<gl::GLFWWindow> window;
+            std::shared_ptr<dtk::gl::Window> window;
             uint64_t requestId = 0;
 
             struct InfoRequest
@@ -242,7 +241,7 @@ namespace tl
                 int height = 0;
                 OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
-                std::promise<std::shared_ptr<image::Image> > promise;
+                std::promise<std::shared_ptr<dtk::Image> > promise;
             };
 
             struct WaveformRequest
@@ -250,10 +249,10 @@ namespace tl
                 uint64_t id = 0;
                 file::Path path;
                 std::vector<dtk::InMemoryFile> memoryRead;
-                math::Size2i size;
+                dtk::Size2I size;
                 OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 io::Options options;
-                std::promise<std::shared_ptr<geom::TriangleMesh2> > promise;
+                std::promise<std::shared_ptr<dtk::TriMesh2F> > promise;
             };
 
             struct InfoMutex
@@ -291,7 +290,7 @@ namespace tl
             struct ThumbnailThread
             {
                 std::shared_ptr<timeline_gl::Render> render;
-                std::shared_ptr<gl::OffscreenBuffer> buffer;
+                std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
                 dtk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
@@ -312,7 +311,7 @@ namespace tl
         void ThumbnailGenerator::_init(
             const std::shared_ptr<ThumbnailCache>& cache,
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<gl::GLFWWindow>& window)
+            const std::shared_ptr<dtk::gl::Window>& window)
         {
             TLRENDER_P();
             
@@ -323,11 +322,11 @@ namespace tl
             p.window = window;
             if (!p.window)
             {
-                p.window = gl::GLFWWindow::create(
+                p.window = dtk::gl::Window::create(
                     context,
                     "tl::ui::ThumbnailGenerator",
-                    math::Size2i(1, 1),
-                    static_cast<int>(gl::GLFWWindowOptions::None));
+                    dtk::Size2I(1, 1),
+                    static_cast<int>(dtk::gl::WindowOptions::None));
             }
 
             p.infoThread.running = true;
@@ -416,7 +415,7 @@ namespace tl
         std::shared_ptr<ThumbnailGenerator> ThumbnailGenerator::create(
             const std::shared_ptr<ThumbnailCache>& cache,
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<gl::GLFWWindow>& window)
+            const std::shared_ptr<dtk::gl::Window>& window)
         {
             auto out = std::shared_ptr<ThumbnailGenerator>(new ThumbnailGenerator);
             out->_init(cache, context, window);
@@ -517,7 +516,7 @@ namespace tl
 
         WaveformRequest ThumbnailGenerator::getWaveform(
             const file::Path& path,
-            const math::Size2i& size,
+            const dtk::Size2I& size,
             const OTIO_NS::TimeRange& range,
             const io::Options& options)
         {
@@ -527,7 +526,7 @@ namespace tl
         WaveformRequest ThumbnailGenerator::getWaveform(
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memoryRead,
-            const math::Size2i& size,
+            const dtk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
@@ -690,7 +689,7 @@ namespace tl
             }
             if (request)
             {
-                std::shared_ptr<image::Image> image;
+                std::shared_ptr<dtk::Image> image;
                 const std::string key = ThumbnailCache::getThumbnailKey(
                     request->height,
                     request->path,
@@ -719,17 +718,17 @@ namespace tl
                             if (read)
                             {
                                 const io::Info info = read->getInfo().get();
-                                math::Size2i size;
+                                dtk::Size2I size;
                                 if (!info.video.empty())
                                 {
-                                    size.w = request->height * info.video[0].size.getAspect();
+                                    size.w = request->height * dtk::aspectRatio(info.video[0].size);
                                     size.h = request->height;
                                 }
-                                gl::OffscreenBufferOptions options;
-                                options.colorType = image::PixelType::RGBA_U8;
-                                if (gl::doCreate(p.thumbnailThread.buffer, size, options))
+                                dtk::gl::OffscreenBufferOptions options;
+                                options.color = dtk::ImageType::RGBA_U8;
+                                if (dtk::gl::doCreate(p.thumbnailThread.buffer, size, options))
                                 {
-                                    p.thumbnailThread.buffer = gl::OffscreenBuffer::create(size, options);
+                                    p.thumbnailThread.buffer = dtk::gl::OffscreenBuffer::create(size, options);
                                 }
                                 const OTIO_NS::RationalTime time =
                                     request->time != time::invalidTime ?
@@ -738,16 +737,16 @@ namespace tl
                                 const auto videoData = read->readVideo(time, request->options).get();
                                 if (p.thumbnailThread.render && p.thumbnailThread.buffer && videoData.image)
                                 {
-                                    gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
+                                    dtk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
                                     p.thumbnailThread.render->begin(size);
-                                    p.thumbnailThread.render->drawImage(
+                                    p.thumbnailThread.render->IRender::drawImage(
                                         videoData.image,
-                                        { math::Box2i(0, 0, size.w, size.h) });
+                                        dtk::Box2I(0, 0, size.w, size.h));
                                     p.thumbnailThread.render->end();
-                                    image = image::Image::create(
+                                    image = dtk::Image::create(
                                         size.w,
                                         size.h,
-                                        image::PixelType::RGBA_U8);
+                                        dtk::ImageType::RGBA_U8);
                                     glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                     glReadPixels(
                                         0,
@@ -778,32 +777,32 @@ namespace tl
                                 const auto info = timeline->getIOInfo();
                                 const auto videoData = timeline->getVideo(
                                     timeline->getTimeRange().start_time()).future.get();
-                                math::Size2i size;
+                                dtk::Size2I size;
                                 if (!info.video.empty())
                                 {
-                                    size.w = request->height * info.video.front().size.getAspect();
+                                    size.w = request->height * dtk::aspectRatio(info.video.front().size);
                                     size.h = request->height;
                                 }
                                 if (size.isValid())
                                 {
-                                    gl::OffscreenBufferOptions options;
-                                    options.colorType = image::PixelType::RGBA_U8;
-                                    if (gl::doCreate(p.thumbnailThread.buffer, size, options))
+                                    dtk::gl::OffscreenBufferOptions options;
+                                    options.color = dtk::ImageType::RGBA_U8;
+                                    if (dtk::gl::doCreate(p.thumbnailThread.buffer, size, options))
                                     {
-                                        p.thumbnailThread.buffer = gl::OffscreenBuffer::create(size, options);
+                                        p.thumbnailThread.buffer = dtk::gl::OffscreenBuffer::create(size, options);
                                     }
                                     if (p.thumbnailThread.render && p.thumbnailThread.buffer)
                                     {
-                                        gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
+                                        dtk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
                                         p.thumbnailThread.render->begin(size);
                                         p.thumbnailThread.render->drawVideo(
                                             { videoData },
-                                            { math::Box2i(0, 0, size.w, size.h) });
+                                            { dtk::Box2I(0, 0, size.w, size.h) });
                                         p.thumbnailThread.render->end();
-                                        image = image::Image::create(
+                                        image = dtk::Image::create(
                                             size.w,
                                             size.h,
-                                            image::PixelType::RGBA_U8);
+                                            dtk::ImageType::RGBA_U8);
                                         glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                         glReadPixels(
                                             0,
@@ -829,11 +828,11 @@ namespace tl
 
         namespace
         {
-            std::shared_ptr<geom::TriangleMesh2> audioMesh(
+            std::shared_ptr<dtk::TriMesh2F> audioMesh(
                 const std::shared_ptr<audio::Audio>& audio,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
-                auto out = std::shared_ptr<geom::TriangleMesh2>(new geom::TriangleMesh2);
+                auto out = std::shared_ptr<dtk::TriMesh2F>(new dtk::TriMesh2F);
                 const auto& info = audio->getInfo();
                 const size_t sampleCount = audio->getSampleCount();
                 if (sampleCount > 0)
@@ -857,8 +856,8 @@ namespace tl
                             audio::F32_T max = 0.F;
                             if (x0 <= x1)
                             {
-                                min = audio::F32Range.getMax();
-                                max = audio::F32Range.getMin();
+                                min = audio::F32Range.max();
+                                max = audio::F32Range.min();
                                 for (int i = x0; i <= x1 && i < sampleCount; ++i)
                                 {
                                     const audio::F32_T v = *(data + i * info.channelCount);
@@ -867,22 +866,22 @@ namespace tl
                                 }
                             }
                             const int h2 = size.h / 2;
-                            const math::Box2i box(
-                                math::Vector2i(
+                            const dtk::Box2I box(
+                                dtk::V2I(
                                     x,
                                     h2 - h2 * max),
-                                math::Vector2i(
+                                dtk::V2I(
                                     x + 1,
                                     h2 - h2 * min));
                             if (box.isValid())
                             {
                                 const size_t j = 1 + out->v.size();
-                                out->v.push_back(math::Vector2f(box.x(), box.y()));
-                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y()));
-                                out->v.push_back(math::Vector2f(box.x() + box.w(), box.y() + box.h()));
-                                out->v.push_back(math::Vector2f(box.x(), box.y() + box.h()));
-                                out->triangles.push_back(geom::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(geom::Triangle2({ j + 2, j + 3, j + 0 }));
+                                out->v.push_back(dtk::V2F(box.x(), box.y()));
+                                out->v.push_back(dtk::V2F(box.x() + box.w(), box.y()));
+                                out->v.push_back(dtk::V2F(box.x() + box.w(), box.y() + box.h()));
+                                out->v.push_back(dtk::V2F(box.x(), box.y() + box.h()));
+                                out->triangles.push_back(dtk::Triangle2({ j + 0, j + 1, j + 2 }));
+                                out->triangles.push_back(dtk::Triangle2({ j + 2, j + 3, j + 0 }));
                             }
                         }
                         break;
@@ -893,11 +892,11 @@ namespace tl
                 return out;
             }
 
-            std::shared_ptr<image::Image> audioImage(
+            std::shared_ptr<dtk::Image> audioImage(
                 const std::shared_ptr<audio::Audio>& audio,
-                const math::Size2i& size)
+                const dtk::Size2I& size)
             {
-                auto out = image::Image::create(size.w, size.h, image::PixelType::L_U8);
+                auto out = dtk::Image::create(size.w, size.h, dtk::ImageType::L_U8);
                 const auto& info = audio->getInfo();
                 const size_t sampleCount = audio->getSampleCount();
                 if (sampleCount > 0)
@@ -921,8 +920,8 @@ namespace tl
                             audio::F32_T max = 0.F;
                             if (x0 < x1)
                             {
-                                min = audio::F32Range.getMax();
-                                max = audio::F32Range.getMin();
+                                min = audio::F32Range.max();
+                                max = audio::F32Range.min();
                                 for (int i = x0; i < x1; ++i)
                                 {
                                     const audio::F32_T v = *(data + i * info.channelCount);
@@ -967,7 +966,7 @@ namespace tl
             }
             if (request)
             {
-                std::shared_ptr<geom::TriangleMesh2> mesh;
+                std::shared_ptr<dtk::TriMesh2F> mesh;
                 const std::string key = ThumbnailCache::getWaveformKey(
                     request->size,
                     request->path,
@@ -1110,7 +1109,7 @@ namespace tl
 
         WaveformRequest ThumbnailSystem::getWaveform(
             const file::Path& path,
-            const math::Size2i& size,
+            const dtk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& ioOptions)
         {

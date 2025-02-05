@@ -4,9 +4,8 @@
 
 #pragma once
 
-#include <tlCore/Size.h>
-
 #include <dtk/core/Color.h>
+#include <dtk/core/Size.h>
 
 #include <QColor>
 #include <QSize>
@@ -17,10 +16,10 @@ namespace tl
     namespace qtwidget
     {
         //! Convert to a Qt size.
-        QSize toQt(const math::Size2i&);
+        QSize toQt(const dtk::Size2I&);
 
         //! Convert from a Qt size.
-        math::Size2i fromQt(const QSize&);
+        dtk::Size2I fromQt(const QSize&);
 
         //! Convert to a Qt color.
         QColor toQt(const dtk::Color4F&);

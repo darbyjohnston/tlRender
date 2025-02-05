@@ -7,8 +7,9 @@
 #include <tlTimeline/Video.h>
 
 #include <tlCore/HDR.h>
-#include <tlCore/Size.h>
 #include <tlCore/Time.h>
+
+#include <dtk/core/Size.h>
 
 namespace tl
 {
@@ -18,7 +19,7 @@ namespace tl
         struct DisplayMode
         {
             std::string           name;
-            math::Size2i          size;
+            dtk::Size2I           size;
             OTIO_NS::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
@@ -50,7 +51,7 @@ namespace tl
         size_t getRowByteCount(int, PixelType);
 
         //! Get the number of bytes used to storepixel data.
-        size_t getDataByteCount(const math::Size2i&, PixelType);
+        size_t getDataByteCount(const dtk::Size2I&, PixelType);
 
         //! Device information.
         struct DeviceInfo

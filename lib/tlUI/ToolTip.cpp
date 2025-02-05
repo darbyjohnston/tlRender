@@ -14,7 +14,7 @@ namespace tl
     {
         struct ToolTip::Private
         {
-            math::Vector2i pos;
+            dtk::V2I pos;
 
             std::shared_ptr<Label> label;
 
@@ -30,7 +30,7 @@ namespace tl
 
         void ToolTip::_init(
             const std::string& text,
-            const math::Vector2i& pos,
+            const dtk::V2I& pos,
             const std::shared_ptr<IWidget>& window,
             const std::shared_ptr<dtk::Context>& context)
         {
@@ -56,7 +56,7 @@ namespace tl
 
         std::shared_ptr<ToolTip> ToolTip::create(
             const std::string& text,
-            const math::Vector2i& pos,
+            const dtk::V2I& pos,
             const std::shared_ptr<IWidget>& window,
             const std::shared_ptr<dtk::Context>& context)
         {
@@ -70,41 +70,41 @@ namespace tl
             setParent(nullptr);
         }
 
-        void ToolTip::setGeometry(const math::Box2i& value)
+        void ToolTip::setGeometry(const dtk::Box2I& value)
         {
             IPopup::setGeometry(value);
             TLRENDER_P();
-            math::Size2i sizeHint = p.label->getSizeHint();
-            std::list<math::Box2i> boxes;
-            boxes.push_back(math::Box2i(
+            dtk::Size2I sizeHint = p.label->getSizeHint();
+            std::list<dtk::Box2I> boxes;
+            boxes.push_back(dtk::Box2I(
                 p.pos.x + p.size.handle,
                 p.pos.y + p.size.handle,
                 sizeHint.w,
                 sizeHint.h));
-            boxes.push_back(math::Box2i(
+            boxes.push_back(dtk::Box2I(
                 p.pos.x - p.size.handle - sizeHint.w,
                 p.pos.y + p.size.handle,
                 sizeHint.w,
                 sizeHint.h));
-            boxes.push_back(math::Box2i(
+            boxes.push_back(dtk::Box2I(
                 p.pos.x + p.size.handle,
                 p.pos.y - p.size.handle - sizeHint.h,
                 sizeHint.w,
                 sizeHint.h));
-            boxes.push_back(math::Box2i(
+            boxes.push_back(dtk::Box2I(
                 p.pos.x - p.size.handle - sizeHint.w,
                 p.pos.y - p.size.handle - sizeHint.h,
                 sizeHint.w,
                 sizeHint.h));
             struct Intersect
             {
-                math::Box2i original;
-                math::Box2i intersected;
+                dtk::Box2I original;
+                dtk::Box2I intersected;
             };
             std::vector<Intersect> intersect;
             for (const auto& box : boxes)
             {
-                intersect.push_back({ box, box.intersect(value) });
+                intersect.push_back({ box, dtk::intersect(box, value) });
             }
             std::stable_sort(
                 intersect.begin(),
@@ -112,10 +112,10 @@ namespace tl
                 [](const Intersect& a, const Intersect& b)
                 {
                     return
-                        a.intersected.getSize().getArea() >
-                        b.intersected.getSize().getArea();
+                        dtk::area(a.intersected.size()) >
+                        dtk::area(b.intersected.size());
                 });
-            math::Box2i g = intersect.front().intersected;
+            dtk::Box2I g = intersect.front().intersected;
             p.label->setGeometry(g);
         }
 
@@ -135,7 +135,7 @@ namespace tl
         }
 
         void ToolTip::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IPopup::drawEvent(drawRect, event);
@@ -143,20 +143,18 @@ namespace tl
             //event.render->drawRect(
             //    _geometry,
             //    dtk::Color4F(0.F, 0.F, 0.F, .2F));
-            const math::Box2i g = p.label->getGeometry();
-            const math::Box2i g2(
+            const dtk::Box2I g = p.label->getGeometry();
+            const dtk::Box2I g2(
                 g.min.x - p.size.shadow,
                 g.min.y,
                 g.w() + p.size.shadow * 2,
                 g.h() + p.size.shadow);
             event.render->drawColorMesh(
                 shadow(g2, p.size.shadow),
-                math::Vector2i(),
                 dtk::Color4F(1.F, 1.F, 1.F));
 
             event.render->drawMesh(
-                border(g.margin(p.size.border), p.size.border),
-                math::Vector2i(),
+                border(dtk::margin(g, p.size.border), p.size.border),
                 event.style->getColorRole(ColorRole::Border));
                 
             event.render->drawRect(

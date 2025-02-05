@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlTimeline/ImageOptions.h>
-#include <tlTimeline/RenderOptions.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/RenderOptions.h>
 
 #include <dtk/core/ObservableValue.h>
 
@@ -41,22 +42,22 @@ namespace tl
                 const std::shared_ptr<Settings>&);
 
             //! Get the image options.
-            const timeline::ImageOptions& getImageOptions() const;
+            const dtk::ImageOptions& getImageOptions() const;
 
             //! Observe the image options.
-            std::shared_ptr<dtk::IObservableValue<timeline::ImageOptions> > observeImageOptions() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::ImageOptions> > observeImageOptions() const;
 
             //! Set the image options.
-            void setImageOptions(const timeline::ImageOptions&);
+            void setImageOptions(const dtk::ImageOptions&);
 
             //! Get the color buffer type.
-            image::PixelType getColorBuffer() const;
+            dtk::ImageType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<dtk::IObservableValue<image::PixelType> > observeColorBuffer() const;
+            std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
-            void setColorBuffer(image::PixelType);
+            void setColorBuffer(dtk::ImageType);
 
         private:
             TLRENDER_PRIVATE();

@@ -42,7 +42,7 @@ namespace tl
             //! Set the spacing role.
             void setSpacingRole(SizeRole);
 
-            void setGeometry(const math::Box2i&) override;
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const SizeHintEvent&) override;
             void childRemovedEvent(const ChildEvent&) override;
 

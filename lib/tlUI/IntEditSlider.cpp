@@ -116,12 +116,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::IntRange& IntEditSlider::getRange() const
+        const dtk::RangeI& IntEditSlider::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void IntEditSlider::setRange(const math::IntRange& value)
+        void IntEditSlider::setRange(const dtk::RangeI& value)
         {
             _p->model->setRange(value);
         }
@@ -151,7 +151,7 @@ namespace tl
             _p->edit->setFontRole(value);
         }
 
-        void IntEditSlider::setGeometry(const math::Box2i& value)
+        void IntEditSlider::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

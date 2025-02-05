@@ -37,9 +37,9 @@ namespace tl
 
             //! Set the view.
             void setView(
-                const tl::math::Vector2i& pos,
-                double                    zoom,
-                bool                      frame);
+                const dtk::V2I& pos,
+                double          zoom,
+                bool            frame);
 
         private:
             TLRENDER_PRIVATE();

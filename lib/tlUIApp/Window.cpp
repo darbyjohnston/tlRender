@@ -6,14 +6,14 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
-#include <tlGL/OffscreenBuffer.h>
-#include <tlGL/Util.h>
-#if defined(TLRENDER_API_GLES_2)
-#include <tlGL/Mesh.h>
-#include <tlGL/Shader.h>
-#endif // TLRENDER_API_GLES_2
+#include <dtk/gl/GL.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Util.h>
+#include <dtk/gl/Window.h>
+#if defined(dtk_API_GLES_2)
+#include <dtk/gl/Mesh.h>
+#include <dtk/gl/Shader.h>
+#endif // dtk_API_GLES_2
 
 #include <dtk/core/Format.h>
 
@@ -157,24 +157,24 @@ namespace tl
 
         struct Window::Private
         {
-            std::shared_ptr<dtk::ObservableValue<math::Size2i> > windowSize;
+            std::shared_ptr<dtk::ObservableValue<dtk::Size2I> > windowSize;
             std::shared_ptr<dtk::ObservableValue<bool> > visible;
             std::shared_ptr<dtk::ObservableValue<bool> > fullScreen;
             std::shared_ptr<dtk::ObservableValue<bool> > floatOnTop;
             std::shared_ptr<dtk::ObservableValue<bool> > close;
-            std::shared_ptr<dtk::ObservableValue<image::PixelType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
 
-            std::shared_ptr<gl::GLFWWindow> glfwWindow;
-            math::Size2i frameBufferSize;
+            std::shared_ptr<dtk::gl::Window> glWindow;
+            dtk::Size2I frameBufferSize;
             float displayScale = 1.F;
             bool refresh = false;
             int modifiers = 0;
-            std::shared_ptr<timeline_gl::TextureCache> textureCache;
+            std::shared_ptr<dtk::gl::TextureCache> textureCache;
             std::shared_ptr<timeline_gl::Render> render;
-            std::shared_ptr<gl::OffscreenBuffer> offscreenBuffer;
-#if defined(TLRENDER_API_GLES_2)
+            std::shared_ptr<dtk::gl::OffscreenBuffer> offscreenBuffer;
+#if defined(dtk_API_GLES_2)
             std::shared_ptr<gl::Shader> shader;
-#endif // TLRENDER_API_GLES_2
+#endif // dtk_API_GLES_2
         };
 
         void Window::_init(
@@ -185,48 +185,48 @@ namespace tl
             IWindow::_init("tl::ui::Window", context, nullptr);
             TLRENDER_P();
 
-            p.windowSize = dtk::ObservableValue<math::Size2i>::create(math::Size2i(1920, 1080));
+            p.windowSize = dtk::ObservableValue<dtk::Size2I>::create(dtk::Size2I(1920, 1080));
             p.visible = dtk::ObservableValue<bool>::create(false);
             p.fullScreen = dtk::ObservableValue<bool>::create(false);
             p.floatOnTop = dtk::ObservableValue<bool>::create(false);
             p.close = dtk::ObservableValue<bool>::create(false);
-            p.colorBuffer = dtk::ObservableValue<image::PixelType>::create(image::PixelType::RGBA_U8);
+            p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(dtk::ImageType::RGBA_U8);
 
-            p.glfwWindow = gl::GLFWWindow::create(
+            p.glWindow = dtk::gl::Window::create(
                 context,
                 name,
                 p.windowSize->get(),
-                static_cast<int>(gl::GLFWWindowOptions::DoubleBuffer) |
-                static_cast<int>(gl::GLFWWindowOptions::MakeCurrent),
-                share ? share->getGLFWWindow() : nullptr);
-            p.glfwWindow->setFrameBufferSizeCallback(
-                [this](const math::Size2i& value)
+                static_cast<int>(dtk::gl::WindowOptions::DoubleBuffer) |
+                static_cast<int>(dtk::gl::WindowOptions::MakeCurrent),
+                share ? share->getGLWindow() : nullptr);
+            p.glWindow->setFrameBufferSizeCallback(
+                [this](const dtk::Size2I& value)
                 {
                     _p->frameBufferSize = value;
                     _updates |= ui::Update::Size;
                     _updates |= ui::Update::Draw;
                 });
-            p.glfwWindow->setContentScaleCallback(
-                [this](const math::Vector2f& value)
+            p.glWindow->setContentScaleCallback(
+                [this](const dtk::V2F& value)
                 {
                     _p->displayScale = value.x;
                     _updates |= ui::Update::Size;
                     _updates |= ui::Update::Draw;
                 });
-            p.glfwWindow->setRefreshCallback(
+            p.glWindow->setRefreshCallback(
                 [this]
                 {
                     _p->refresh = true;
                 });
-            p.glfwWindow->setCursorEnterCallback(
+            p.glWindow->setCursorEnterCallback(
                 [this](bool value)
                 {
                     _cursorEnter(value);
                 });
-            p.glfwWindow->setCursorPosCallback(
-                [this](const math::Vector2f& value)
+            p.glWindow->setCursorPosCallback(
+                [this](const dtk::V2F& value)
                 {
-                    math::Vector2i pos;
+                    dtk::V2I pos;
 #if defined(__APPLE__)
                     //! \bug The mouse position needs to be scaled on macOS?
                     pos.x = value.x * _p->displayScale;
@@ -237,18 +237,18 @@ namespace tl
 #endif // __APPLE__
                     _cursorPos(pos);
                 });
-            p.glfwWindow->setButtonCallback(
+            p.glWindow->setButtonCallback(
                 [this](int button, int action, int modifiers)
                 {
                     _p->modifiers = modifiers;
                     _mouseButton(button, GLFW_PRESS == action, fromGLFWModifiers(modifiers));
                 });
-            p.glfwWindow->setScrollCallback(
-                [this](const math::Vector2f& value)
+            p.glWindow->setScrollCallback(
+                [this](const dtk::V2F& value)
                 {
                     _scroll(value, fromGLFWModifiers(_p->modifiers));
                 });
-            p.glfwWindow->setKeyCallback(
+            p.glWindow->setKeyCallback(
                 [this](int key, int scanCode, int action, int modifiers)
                 {
                     TLRENDER_P();
@@ -270,13 +270,13 @@ namespace tl
                         break;
                     }
                 });
-            p.glfwWindow->setCharCallback(
+            p.glWindow->setCharCallback(
                 [this](unsigned int c)
                 {
                     std::wstring_convert<std::codecvt_utf8<tl_char_t>, tl_char_t> utf32Convert;
                     _text(utf32Convert.to_bytes(c));
                 });
-            p.glfwWindow->setDropCallback(
+            p.glWindow->setDropCallback(
                 [this](int count, const char** fileNames)
                 {
                     std::vector<std::string> tmp;
@@ -287,8 +287,8 @@ namespace tl
                     _drop(tmp);
                 });
 
-            p.frameBufferSize = p.glfwWindow->getFrameBufferSize();
-            p.displayScale = p.glfwWindow->getContentScale().x;
+            p.frameBufferSize = p.glWindow->getFrameBufferSize();
+            p.displayScale = p.glWindow->getContentScale().x;
 
             if (share)
             {
@@ -315,20 +315,20 @@ namespace tl
             return out;
         }
 
-        const math::Size2i& Window::getWindowSize() const
+        const dtk::Size2I& Window::getWindowSize() const
         {
             return _p->windowSize->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<math::Size2i> > Window::observeWindowSize() const
+        std::shared_ptr<dtk::IObservableValue<dtk::Size2I> > Window::observeWindowSize() const
         {
             return _p->windowSize;
         }
 
-        void Window::setWindowSize(const math::Size2i& value)
+        void Window::setWindowSize(const dtk::Size2I& value)
         {
-            _p->glfwWindow->setSize(value);
-            setGeometry(math::Box2i(_geometry.x(), _geometry.y(), value.w, value.h));
+            _p->glWindow->setSize(value);
+            setGeometry(dtk::Box2I(_geometry.x(), _geometry.y(), value.w, value.h));
         }
 
         std::shared_ptr<dtk::IObservableValue<bool> > Window::observeVisible() const
@@ -338,7 +338,7 @@ namespace tl
 
         int Window::getScreen() const
         {
-            return _p->glfwWindow->getScreen();
+            return _p->glWindow->getScreen();
         }
 
         bool Window::isFullScreen() const
@@ -354,7 +354,7 @@ namespace tl
         void Window::setFullScreen(bool value, int screen)
         {
             TLRENDER_P();
-            p.glfwWindow->setFullScreen(value, screen);
+            p.glWindow->setFullScreen(value, screen);
             p.fullScreen->setIfChanged(value);
         }
 
@@ -371,7 +371,7 @@ namespace tl
         void Window::setFloatOnTop(bool value)
         {
             TLRENDER_P();
-            p.glfwWindow->setFloatOnTop(value);
+            p.glWindow->setFloatOnTop(value);
             p.floatOnTop->setIfChanged(value);
         }
 
@@ -380,17 +380,17 @@ namespace tl
             return _p->close;
         }
 
-        image::PixelType Window::getColorBuffer() const
+        dtk::ImageType Window::getColorBuffer() const
         {
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<image::PixelType> > Window::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > Window::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }
 
-        void Window::setColorBuffer(image::PixelType value)
+        void Window::setColorBuffer(dtk::ImageType value)
         {
             if (_p->colorBuffer->setIfChanged(value))
             {
@@ -398,19 +398,19 @@ namespace tl
             }
         }
 
-        const std::shared_ptr<gl::GLFWWindow>& Window::getGLFWWindow() const
+        const std::shared_ptr<dtk::gl::Window>& Window::getGLWindow() const
         {
-            return _p->glfwWindow;
+            return _p->glWindow;
         }
 
-        void Window::setGeometry(const math::Box2i& value)
+        void Window::setGeometry(const dtk::Box2I& value)
         {
             IWindow::setGeometry(value);
             for (const auto& i : _children)
             {
                 i->setGeometry(value);
             }
-            _p->windowSize->setIfChanged(value.getSize());
+            _p->windowSize->setIfChanged(value.size());
         }
 
         void Window::setVisible(bool value)
@@ -421,11 +421,11 @@ namespace tl
             {
                 if (value)
                 {
-                    p.glfwWindow->show();
+                    p.glWindow->show();
                 }
                 else
                 {
-                    p.glfwWindow->hide();
+                    p.glWindow->hide();
                 }
             }
         }
@@ -447,7 +447,7 @@ namespace tl
                     p.displayScale);
                 _sizeHintEventRecursive(shared_from_this(), sizeHintEvent);
 
-                setGeometry(math::Box2i(p.frameBufferSize));
+                setGeometry(dtk::Box2I(dtk::V2I(), p.frameBufferSize));
 
                 _clipEventRecursive(
                     shared_from_this(),
@@ -468,22 +468,22 @@ namespace tl
                         p.textureCache);
                 }
 
-                gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.colorType = p.colorBuffer->get();
-                if (gl::doCreate(
+                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = p.colorBuffer->get();
+                if (dtk::gl::doCreate(
                     p.offscreenBuffer,
                     p.frameBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.offscreenBuffer = gl::OffscreenBuffer::create(
+                    p.offscreenBuffer = dtk::gl::OffscreenBuffer::create(
                         p.frameBufferSize,
                         offscreenBufferOptions);
                 }
                 if (p.offscreenBuffer)
                 {
                     {
-                        gl::OffscreenBufferBinding binding(p.offscreenBuffer);
-                        timeline::RenderOptions renderOptions;
+                        dtk::gl::OffscreenBufferBinding binding(p.offscreenBuffer);
+                        dtk::RenderOptions renderOptions;
                         renderOptions.colorBuffer = p.colorBuffer->get();
                         p.render->begin(p.frameBufferSize, renderOptions);
                         ui::DrawEvent drawEvent(
@@ -494,7 +494,7 @@ namespace tl
                         p.render->setClipRectEnabled(true);
                         _drawEventRecursive(
                             shared_from_this(),
-                            math::Box2i(p.frameBufferSize),
+                            dtk::Box2I(dtk::V2I(), p.frameBufferSize),
                             drawEvent);
                         p.render->setClipRectEnabled(false);
                         p.render->end();
@@ -506,7 +506,7 @@ namespace tl
                         GLsizei(p.frameBufferSize.h));
                     glClearColor(0.F, 0.F, 0.F, 0.F);
                     glClear(GL_COLOR_BUFFER_BIT);
-#if defined(TLRENDER_API_GL_4_1)
+#if defined(dtk_API_GL_4_1)
                     glBindFramebuffer(
                         GL_READ_FRAMEBUFFER,
                         p.offscreenBuffer->getID());
@@ -521,7 +521,7 @@ namespace tl
                         p.frameBufferSize.h,
                         GL_COLOR_BUFFER_BIT,
                         GL_LINEAR);
-#elif defined(TLRENDER_API_GLES_2)
+#elif defined(dtk_API_GLES_2)
                     if (!p.shader)
                     {
                         try
@@ -590,7 +590,7 @@ namespace tl
                         glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                         glBindTexture(GL_TEXTURE_2D, p.offscreenBuffer->getColorID());
 
-                        auto mesh = geom::box(math::Box2i(
+                        auto mesh = geom::box(dtk::Box2I(
                             0,
                             0,
                             p.frameBufferSize.w,
@@ -598,22 +598,22 @@ namespace tl
                         auto vboData = gl::convert(
                             mesh,
                             gl::VBOType::Pos2_F32_UV_U16,
-                            math::SizeTRange(0, mesh.triangles.size() - 1));
+                            dtk::RangeSizeT(0, mesh.triangles.size() - 1));
                         auto vbo = gl::VBO::create(mesh.triangles.size() * 3, gl::VBOType::Pos2_F32_UV_U16);
                         vbo->copy(vboData);
                         auto vao = gl::VAO::create(gl::VBOType::Pos2_F32_UV_U16, vbo->getID());
                         vao->bind();
                         vao->draw(GL_TRIANGLES, 0, mesh.triangles.size() * 3);
                     }
-#endif // TLRENDER_API_GL_4_1
+#endif // dtk_API_GL_4_1
 
-                    p.glfwWindow->swap();
+                    p.glWindow->swap();
                 }
 
                 _doneCurrent();
             }
 
-            if (p.glfwWindow->shouldClose())
+            if (p.glWindow->shouldClose())
             {
                 hide();
                 p.close->setAlways(true);
@@ -623,18 +623,18 @@ namespace tl
         void Window::_makeCurrent()
         {
             TLRENDER_P();
-            if (p.glfwWindow)
+            if (p.glWindow)
             {
-                p.glfwWindow->makeCurrent();
+                p.glWindow->makeCurrent();
             }
         }
 
         void Window::_doneCurrent()
         {
             TLRENDER_P();
-            if (p.glfwWindow)
+            if (p.glWindow)
             {
-                p.glfwWindow->doneCurrent();
+                p.glWindow->doneCurrent();
             }
         }
 
@@ -697,25 +697,26 @@ namespace tl
 
         void Window::_drawEventRecursive(
             const std::shared_ptr<IWidget>& widget,
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
-            const math::Box2i& g = widget->getGeometry();
+            const dtk::Box2I& g = widget->getGeometry();
             if (!widget->isClipped() && g.w() > 0 && g.h() > 0)
             {
                 event.render->setClipRect(drawRect);
                 widget->drawEvent(drawRect, event);
-                const math::Box2i childrenClipRect =
-                    widget->getChildrenClipRect().intersect(drawRect);
+                const dtk::Box2I childrenClipRect = dtk::intersect(
+                    widget->getChildrenClipRect(),
+                    drawRect);
                 event.render->setClipRect(childrenClipRect);
                 for (const auto& child : widget->getChildren())
                 {
-                    const math::Box2i& childGeometry = child->getGeometry();
-                    if (childGeometry.intersects(childrenClipRect))
+                    const dtk::Box2I& childGeometry = child->getGeometry();
+                    if (dtk::intersects(childGeometry, childrenClipRect))
                     {
                         _drawEventRecursive(
                             child,
-                            childGeometry.intersect(childrenClipRect),
+                            dtk::intersect(childGeometry, childrenClipRect),
                             event);
                     }
                 }

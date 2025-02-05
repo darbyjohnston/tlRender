@@ -108,10 +108,10 @@ namespace tl
                 *value = _hdrData.primaries[3].y;
                 break;
             case bmdDeckLinkFrameMetadataHDRMaxDisplayMasteringLuminance:
-                *value = _hdrData.displayMasteringLuminance.getMax();
+                *value = _hdrData.displayMasteringLuminance.max();
                 break;
             case bmdDeckLinkFrameMetadataHDRMinDisplayMasteringLuminance:
-                *value = _hdrData.displayMasteringLuminance.getMin();
+                *value = _hdrData.displayMasteringLuminance.min();
                 break;
             case bmdDeckLinkFrameMetadataHDRMaximumContentLightLevel:
                 *value = _hdrData.maxCLL;

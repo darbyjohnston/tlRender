@@ -20,7 +20,7 @@ namespace tl
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
                     const std::string&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
                 ITestPattern();
 
@@ -36,7 +36,7 @@ namespace tl
             protected:
                 std::weak_ptr<dtk::Context> _context;
                 std::string _name;
-                math::Size2i _size;
+                dtk::Size2I _size;
             };
 
             class CountTestPattern : public ITestPattern
@@ -44,7 +44,7 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
             public:
                 virtual ~CountTestPattern();
@@ -53,17 +53,17 @@ namespace tl
 
                 static std::shared_ptr<CountTestPattern> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
                     const OTIO_NS::RationalTime&) override;
 
             private:
-                image::FontInfo _secondsFontInfo;
-                image::FontMetrics _secondsFontMetrics;
-                image::FontInfo _framesFontInfo;
-                image::FontMetrics _framesFontMetrics;
+                dtk::FontInfo _secondsFontInfo;
+                dtk::FontMetrics _secondsFontMetrics;
+                dtk::FontInfo _framesFontInfo;
+                dtk::FontMetrics _framesFontMetrics;
             };
 
             class SwatchesTestPattern : public ITestPattern
@@ -71,7 +71,7 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
             public:
                 virtual ~SwatchesTestPattern();
@@ -80,14 +80,14 @@ namespace tl
 
                 static std::shared_ptr<SwatchesTestPattern> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
                     const OTIO_NS::RationalTime&) override;
 
             private:
-                std::shared_ptr<image::Image> _gradient;
+                std::shared_ptr<dtk::Image> _gradient;
             };
 
             class GridTestPattern : public ITestPattern
@@ -99,7 +99,7 @@ namespace tl
 
                 static std::shared_ptr<GridTestPattern> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
@@ -112,7 +112,7 @@ namespace tl
                 static std::shared_ptr<ITestPattern> create(
                     const std::shared_ptr<dtk::Context>&,
                     const std::string& name,
-                    const math::Size2i&);
+                    const dtk::Size2I&);
             };
         }
     }

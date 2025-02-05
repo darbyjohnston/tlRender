@@ -146,7 +146,7 @@ namespace tl
             void _activeUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
             void _cacheUpdate();
-            void _viewUpdate(const math::Vector2i& pos, double zoom, bool frame);
+            void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 
             TLRENDER_PRIVATE();

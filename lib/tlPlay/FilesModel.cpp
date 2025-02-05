@@ -4,7 +4,7 @@
 
 #include <tlPlay/FilesModel.h>
 
-#include <tlCore/Math.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
@@ -142,7 +142,7 @@ namespace tl
                     files.erase(i);
                     p.files->setIfChanged(files);
 
-                    const int aNewIndex = math::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
+                    const int aNewIndex = dtk::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
                     p.aIndex->setIfChanged(_index(p.a->get()));
 

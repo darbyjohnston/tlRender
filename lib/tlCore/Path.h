@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Range.h>
 #include <tlCore/Util.h>
+
+#include <dtk/core/Range.h>
 
 #include <nlohmann/json.hpp>
 
@@ -106,10 +107,10 @@ namespace tl
             void setPadding(size_t);
 
             //! Get the number sequence.
-            const math::IntRange& getSequence() const;
+            const dtk::RangeI& getSequence() const;
 
             //! Set the number sequence.
-            void setSequence(const math::IntRange&);
+            void setSequence(const dtk::RangeI&);
 
             //! Get whether this path is a sequence.
             bool isSequence() const;
@@ -152,7 +153,7 @@ namespace tl
             std::string _number;
             int _numberValue = 0;
             size_t _numberDigits = 0;
-            math::IntRange _sequence;
+            dtk::RangeI _sequence;
             size_t _padding = 0;
             std::string _extension;
             std::string _request;

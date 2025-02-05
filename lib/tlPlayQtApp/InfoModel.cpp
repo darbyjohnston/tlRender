@@ -15,7 +15,7 @@ namespace tl
     {
         struct TagsModel::Private
         {
-            image::Tags tags;
+            dtk::ImageTags tags;
             QList<QPair<QString, QString> > items;
         };
 
@@ -27,7 +27,7 @@ namespace tl
         TagsModel::~TagsModel()
         {}
 
-        void TagsModel::setTags(const image::Tags& value)
+        void TagsModel::setTags(const dtk::ImageTags& value)
         {
             TLRENDER_P();
             if (value == p.tags)

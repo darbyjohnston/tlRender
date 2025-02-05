@@ -19,7 +19,7 @@ namespace tl
                 FILE* f,
                 png_structp png,
                 png_infop* pngInfo,
-                const image::Info& info)
+                const dtk::ImageInfo& info)
             {
                 if (setjmp(png_jmpbuf(png)))
                 {
@@ -33,28 +33,28 @@ namespace tl
                 png_init_io(png, f);
 
                 int colorType = 0;
-                switch (info.pixelType)
+                switch (info.type)
                 {
-                case image::PixelType::L_U8:
-                case image::PixelType::L_U16:
+                case dtk::ImageType::L_U8:
+                case dtk::ImageType::L_U16:
                     colorType = PNG_COLOR_TYPE_GRAY;
                     break;
-                case image::PixelType::LA_U8:
-                case image::PixelType::LA_U16:
+                case dtk::ImageType::LA_U8:
+                case dtk::ImageType::LA_U16:
                     colorType = PNG_COLOR_TYPE_GRAY_ALPHA;
                     break;
-                case image::PixelType::RGB_U8:
-                case image::PixelType::RGB_U16:
+                case dtk::ImageType::RGB_U8:
+                case dtk::ImageType::RGB_U16:
                     colorType = PNG_COLOR_TYPE_RGB;
                     break;
-                case image::PixelType::RGBA_U8:
-                case image::PixelType::RGBA_U16:
+                case dtk::ImageType::RGBA_U8:
+                case dtk::ImageType::RGBA_U16:
                     colorType = PNG_COLOR_TYPE_RGB_ALPHA;
                     break;
                 default: break;
                 }
 
-                const int bitDepth = image::getBitDepth(info.pixelType);
+                const int bitDepth = dtk::getBitDepth(info.type);
                 png_set_IHDR(
                     png,
                     *pngInfo,
@@ -96,7 +96,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<image::Image>& image)
+                    const std::shared_ptr<dtk::Image>& image)
                 {
                     _png.p = png_create_write_struct(
                         PNG_LIBPNG_VER_STRING,
@@ -129,19 +129,19 @@ namespace tl
                     }
 
                     size_t scanlineByteCount = 0;
-                    switch (info.pixelType)
+                    switch (info.type)
                     {
-                    case image::PixelType::L_U8: scanlineByteCount = info.size.w; break;
-                    case image::PixelType::L_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
-                    case image::PixelType::LA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
-                    case image::PixelType::LA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2 * 2; break;
-                    case image::PixelType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
-                    case image::PixelType::RGB_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 3 * 2; break;
-                    case image::PixelType::RGBA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 4; break;
-                    case image::PixelType::RGBA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 4 * 2; break;
+                    case dtk::ImageType::L_U8: scanlineByteCount = info.size.w; break;
+                    case dtk::ImageType::L_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
+                    case dtk::ImageType::LA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 2; break;
+                    case dtk::ImageType::LA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 2 * 2; break;
+                    case dtk::ImageType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
+                    case dtk::ImageType::RGB_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 3 * 2; break;
+                    case dtk::ImageType::RGBA_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 4; break;
+                    case dtk::ImageType::RGBA_U16: scanlineByteCount = static_cast<size_t>(info.size.w) * 4 * 2; break;
                     default: break;
                     }
-                    scanlineByteCount = image::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
+                    scanlineByteCount = dtk::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, p -= scanlineByteCount)
                     {
@@ -219,7 +219,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<image::Image>& image,
+            const std::shared_ptr<dtk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

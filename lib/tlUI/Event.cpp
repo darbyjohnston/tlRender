@@ -24,9 +24,9 @@ namespace tl
         {}
 
         TickEvent::TickEvent(
-            const std::shared_ptr<Style>&               style,
-            const std::shared_ptr<IconLibrary>&         iconLibrary,
-            const std::shared_ptr<image::FontSystem>& fontSystem) :
+            const std::shared_ptr<Style>&           style,
+            const std::shared_ptr<IconLibrary>&     iconLibrary,
+            const std::shared_ptr<dtk::FontSystem>& fontSystem) :
             style(style),
             iconLibrary(iconLibrary),
             fontSystem(fontSystem)
@@ -36,10 +36,10 @@ namespace tl
         {}
 
         SizeHintEvent::SizeHintEvent(
-            const std::shared_ptr<Style>&             style,
-            const std::shared_ptr<IconLibrary>&       iconLibrary,
-            const std::shared_ptr<image::FontSystem>& fontSystem,
-            float                                     displayScale) :
+            const std::shared_ptr<Style>&           style,
+            const std::shared_ptr<IconLibrary>&     iconLibrary,
+            const std::shared_ptr<dtk::FontSystem>& fontSystem,
+            float                                   displayScale) :
             style(style),
             iconLibrary(iconLibrary),
             fontSystem(fontSystem),
@@ -53,7 +53,7 @@ namespace tl
             const std::shared_ptr<Style>&             style,
             const std::shared_ptr<IconLibrary>&       iconLibrary,
             const std::shared_ptr<timeline::IRender>& render,
-            const std::shared_ptr<image::FontSystem>& fontSystem) :
+            const std::shared_ptr<dtk::FontSystem>&   fontSystem) :
             style(style),
             iconLibrary(iconLibrary),
             render(render),
@@ -67,8 +67,8 @@ namespace tl
         {}
 
         MouseMoveEvent::MouseMoveEvent(
-            const math::Vector2i& pos,
-            const math::Vector2i& prev) :
+            const dtk::V2I& pos,
+            const dtk::V2I& prev) :
             pos(pos),
             prev(prev)
         {}
@@ -79,7 +79,7 @@ namespace tl
         MouseClickEvent::MouseClickEvent(
             int                   button,
             int                   modifiers,
-            const math::Vector2i& pos) :
+            const dtk::V2I& pos) :
             button(button),
             modifiers(modifiers),
             pos(pos)
@@ -89,9 +89,9 @@ namespace tl
         {}
 
         ScrollEvent::ScrollEvent(
-            const math::Vector2f& value,
+            const dtk::V2F& value,
             int                   modifiers,
-            const math::Vector2i& pos) :
+            const dtk::V2I& pos) :
             value(value),
             modifiers(modifiers),
             pos(pos)
@@ -232,7 +232,7 @@ namespace tl
         KeyEvent::KeyEvent(
             Key                   key,
             int                   modifiers,
-            const math::Vector2i& pos) :
+            const dtk::V2I& pos) :
             key(key),
             modifiers(modifiers),
             pos(pos)
@@ -261,8 +261,8 @@ namespace tl
         {}
 
         DragAndDropEvent::DragAndDropEvent(
-            const math::Vector2i& pos,
-            const math::Vector2i& prev,
+            const dtk::V2I& pos,
+            const dtk::V2I& prev,
             const std::shared_ptr<DragAndDropData>& data) :
             pos(pos),
             prev(prev),

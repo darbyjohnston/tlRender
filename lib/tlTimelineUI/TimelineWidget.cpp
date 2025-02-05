@@ -6,8 +6,8 @@
 
 #include <tlUI/ScrollWidget.h>
 
-#include <tlGL/GL.h>
-#include <tlGL/GLFWWindow.h>
+#include <dtk/gl/GL.h>
+#include <dtk/gl/Window.h>
 
 namespace tl
 {
@@ -42,7 +42,7 @@ namespace tl
             double scale = 500.0;
             bool sizeInit = true;
 
-            std::shared_ptr<gl::GLFWWindow> window;
+            std::shared_ptr<dtk::gl::Window> window;
 
             std::shared_ptr<ui::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
@@ -55,7 +55,7 @@ namespace tl
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                math::Vector2i scrollPos;
+                dtk::V2I scrollPos;
                 std::chrono::steady_clock::time_point wheelTimer;
             };
             MouseData mouse;
@@ -90,11 +90,11 @@ namespace tl
             p.itemOptions = dtk::ObservableValue<ItemOptions>::create();
             p.displayOptions = dtk::ObservableValue<DisplayOptions>::create();
 
-            p.window = gl::GLFWWindow::create(
+            p.window = dtk::gl::Window::create(
                 context,
                 "tl::timelineui::TimelineWidget",
-                math::Size2i(1, 1),
-                static_cast<int>(gl::GLFWWindowOptions::None));
+                dtk::Size2I(1, 1),
+                static_cast<int>(dtk::gl::WindowOptions::None));
 
             p.scrollWidget = ui::ScrollWidget::create(
                 context,
@@ -202,12 +202,12 @@ namespace tl
 
         void TimelineWidget::setViewZoom(double value)
         {
-            setViewZoom(value, math::Vector2i(_geometry.w() / 2, _geometry.h() / 2));
+            setViewZoom(value, dtk::V2I(_geometry.w() / 2, _geometry.h() / 2));
         }
 
         void TimelineWidget::setViewZoom(
             double zoom,
-            const math::Vector2i& focus)
+            const dtk::V2I& focus)
         {
             TLRENDER_P();
             _setViewZoom(
@@ -220,7 +220,7 @@ namespace tl
         void TimelineWidget::frameView()
         {
             TLRENDER_P();
-            p.scrollWidget->setScrollPos(math::Vector2i());
+            p.scrollWidget->setScrollPos(dtk::V2I());
             const double scale = _getTimelineScale();
             if (scale != p.scale)
             {
@@ -409,12 +409,12 @@ namespace tl
             }
         }
 
-        std::vector<math::Box2i> TimelineWidget::getTrackGeom() const
+        std::vector<dtk::Box2I> TimelineWidget::getTrackGeom() const
         {
             return _p->timelineItem->getTrackGeom();
         }
 
-        void TimelineWidget::setGeometry(const math::Box2i& value)
+        void TimelineWidget::setGeometry(const dtk::Box2I& value)
         {
             const bool changed = value != _geometry;
             IWidget::setGeometry(value);
@@ -462,7 +462,7 @@ namespace tl
             {
             case Private::MouseMode::Scroll:
             {
-                const math::Vector2i d = event.pos - _mouse.pressPos;
+                const dtk::V2I d = event.pos - _mouse.pressPos;
                 p.scrollWidget->setScrollPos(p.mouse.scrollPos - d);
                 setFrameView(false);
                 break;
@@ -559,20 +559,20 @@ namespace tl
         void TimelineWidget::_setViewZoom(
             double zoomNew,
             double zoomPrev,
-            const math::Vector2i& focus,
-            const math::Vector2i& scrollPos)
+            const dtk::V2I& focus,
+            const dtk::V2I& scrollPos)
         {
             TLRENDER_P();
             const int w = _geometry.w();
             const double zoomMin = _getTimelineScale();
             const double zoomMax = _getTimelineScaleMax();
-            const double zoomClamped = math::clamp(zoomNew, zoomMin, zoomMax);
+            const double zoomClamped = dtk::clamp(zoomNew, zoomMin, zoomMax);
             if (zoomClamped != p.scale)
             {
                 p.scale = zoomClamped;
                 _setItemScale();
                 const double s = zoomClamped / zoomPrev;
-                const math::Vector2i scrollPosNew(
+                const dtk::V2I scrollPosNew(
                     (scrollPos.x + focus.x) * s - focus.x,
                     scrollPos.y);
                 p.scrollWidget->setScrollPos(scrollPosNew, false);
@@ -591,7 +591,7 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const math::Box2i scrollViewport = p.scrollWidget->getViewport();
+                    const dtk::Box2I scrollViewport = p.scrollWidget->getViewport();
                     out = scrollViewport.w() / duration;
                 }
             }
@@ -604,7 +604,7 @@ namespace tl
             double out = 1.0;
             if (p.player)
             {
-                const math::Box2i scrollViewport = p.scrollWidget->getViewport();
+                const dtk::Box2I scrollViewport = p.scrollWidget->getViewport();
                 const OTIO_NS::TimeRange& timeRange = p.player->getTimeRange();
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration < 1.0)
@@ -683,13 +683,13 @@ namespace tl
                 Private::MouseMode::None == p.mouse.mode)
             {
                 const int pos = p.timelineItem->timeToPos(p.currentTime);
-                const math::Box2i vp = p.scrollWidget->getViewport();
+                const dtk::Box2I vp = p.scrollWidget->getViewport();
                 const int margin = vp.w() * marginPercentage;
                 if (pos < (vp.min.x + margin) || pos >(vp.max.x - margin))
                 {
                     const int offset = pos < (vp.min.x + margin) ? (vp.min.x + margin) : (vp.max.x - margin);
                     const OTIO_NS::RationalTime t = p.currentTime - p.timeRange.start_time();
-                    math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
+                    dtk::V2I scrollPos = p.scrollWidget->getScrollPos();
                     scrollPos.x = _geometry.min.x - offset + t.rescaled_to(1.0).value() * p.scale;
                     p.scrollWidget->setScrollPos(scrollPos);
                 }
@@ -700,7 +700,7 @@ namespace tl
         {
             TLRENDER_P();
 
-            const math::Vector2i scrollPos = p.scrollWidget->getScrollPos();
+            const dtk::V2I scrollPos = p.scrollWidget->getScrollPos();
 
             p.scrubObserver.reset();
             p.timeScrubObserver.reset();

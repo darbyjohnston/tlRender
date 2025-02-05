@@ -19,15 +19,15 @@ namespace tl
         {
             struct ScrollAreasWidget::Private
             {
-                math::Vector2i cellCount;
+                dtk::V2I cellCount;
                 int cellSize = 0;
                 int margin = 0;
-                std::vector<math::Size2i> textSize;
-                std::vector<std::vector<std::shared_ptr<image::Glyph> > > glyphs;
+                std::vector<dtk::Size2I> textSize;
+                std::vector<std::vector<std::shared_ptr<dtk::Glyph> > > glyphs;
             };
 
             void ScrollAreasWidget::_init(
-                const math::Vector2i& cellCount,
+                const dtk::V2I& cellCount,
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
@@ -49,7 +49,7 @@ namespace tl
             {}
 
             std::shared_ptr<ScrollAreasWidget> ScrollAreasWidget::create(
-                const math::Vector2i& cellCount,
+                const dtk::V2I& cellCount,
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<IWidget>& parent)
             {
@@ -67,13 +67,13 @@ namespace tl
                     arg(ui::format(p.cellCount.x)).
                     arg(ui::format(p.cellCount.y));
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, _displayScale);
-                const math::Size2i textSize = event.fontSystem->getSize(format, fontInfo);
+                const dtk::Size2I textSize = event.fontSystem->getSize(format, fontInfo);
                 p.cellSize = textSize.w + p.margin * 2;
                 _sizeHint.w = p.cellCount.x * p.cellSize;
                 _sizeHint.h = p.cellCount.y * p.cellSize;
             }
 
-            void ScrollAreasWidget::clipEvent(const math::Box2i& clipRect, bool clipped)
+            void ScrollAreasWidget::clipEvent(const dtk::Box2I& clipRect, bool clipped)
             {
                 IWidget::clipEvent(clipRect, clipped);
                 TLRENDER_P();
@@ -87,13 +87,13 @@ namespace tl
             }
 
             void ScrollAreasWidget::drawEvent(
-                const math::Box2i& drawRect,
+                const dtk::Box2I& drawRect,
                 const ui::DrawEvent& event)
             {
                 IWidget::drawEvent(drawRect, event);
                 TLRENDER_P();
 
-                const math::Box2i& g = _geometry;
+                const dtk::Box2I& g = _geometry;
 
                 const auto fontInfo = event.style->getFontRole(ui::FontRole::Label, _displayScale);
                 const auto fontMetrics = event.fontSystem->getMetrics(fontInfo);
@@ -103,7 +103,7 @@ namespace tl
                     {
                         const bool even = ((x + y) % 2 == 0);
 
-                        const math::Box2i g2(
+                        const dtk::Box2I g2(
                             g.x() + x * p.cellSize,
                             g.y() + y * p.cellSize,
                             p.cellSize,
@@ -126,9 +126,8 @@ namespace tl
                         }
                         event.render->drawText(
                             p.glyphs[i],
-                            g2.getCenter() -
-                                math::Vector2i(p.textSize[i].w, p.textSize[i].h) / 2 +
-                                math::Vector2i(0, fontMetrics.ascender),
+                            fontMetrics,
+                            dtk::center(g2) - dtk::V2I(p.textSize[i].w, p.textSize[i].h) / 2,
                             event.style->getColorRole(ui::ColorRole::Text));
                     }
                 }
@@ -150,15 +149,15 @@ namespace tl
                     parent);
                 TLRENDER_P();
 
-                auto widget0 = ScrollAreasWidget::create(math::Vector2i(10, 1), context);
+                auto widget0 = ScrollAreasWidget::create(dtk::V2I(10, 1), context);
                 auto scrollWidget0 = ui::ScrollWidget::create(context, ui::ScrollType::Horizontal);
                 scrollWidget0->setWidget(widget0);
 
-                auto widget1 = ScrollAreasWidget::create(math::Vector2i(1, 10), context);
+                auto widget1 = ScrollAreasWidget::create(dtk::V2I(1, 10), context);
                 auto scrollWidget1 = ui::ScrollWidget::create(context, ui::ScrollType::Vertical);
                 scrollWidget1->setWidget(widget1);
 
-                auto widget2 = ScrollAreasWidget::create(math::Vector2i(10, 10), context);
+                auto widget2 = ScrollAreasWidget::create(dtk::V2I(10, 10), context);
                 auto scrollWidget2 = ui::ScrollWidget::create(context, ui::ScrollType::Both);
                 scrollWidget2->setWidget(widget2);
                 scrollWidget2->setHStretch(ui::Stretch::Expanding);
@@ -188,7 +187,7 @@ namespace tl
                 return out;
             }
 
-            void ScrollAreas::setGeometry(const math::Box2i& value)
+            void ScrollAreas::setGeometry(const dtk::Box2I& value)
             {
                 IExampleWidget::setGeometry(value);
                 _p->layout->setGeometry(value);

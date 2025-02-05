@@ -4,9 +4,8 @@
 
 #include <tlCore/Time.h>
 
-#include <tlCore/Math.h>
-
 #include <dtk/core/Error.h>
+#include <dtk/core/Math.h>
 #include <dtk/core/String.h>
 
 #include <array>
@@ -64,7 +63,7 @@ namespace tl
             const std::chrono::steady_clock::time_point& t1)
         {
             const std::chrono::duration<double> diff = t1 - t0;
-            const long long diffClamped = math::clamp(
+            const long long diffClamped = dtk::clamp(
                 static_cast<int64_t>(diff.count() * 1000000),
                 static_cast<int64_t>(0),
                 static_cast<int64_t>(value.count()));

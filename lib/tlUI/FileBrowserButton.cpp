@@ -35,7 +35,7 @@ namespace tl
             {
                 bool init = true;
                 ThumbnailRequest request;
-                std::shared_ptr<image::Image> image;
+                std::shared_ptr<dtk::Image> image;
             };
             ThumbnailData thumbnail;
 
@@ -47,15 +47,15 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
                 std::vector<int> textWidths;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector< std::vector<std::shared_ptr<image::Glyph> > > glyphs;
+                std::vector< std::vector<std::shared_ptr<dtk::Glyph> > > glyphs;
             };
             DrawData draw;
         };
@@ -228,7 +228,7 @@ namespace tl
             p.size.sizeInit = false;
             p.size.textInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             if (!p.labels.empty())
             {
                 _sizeHint.h = p.size.fontMetrics.lineHeight;
@@ -255,7 +255,7 @@ namespace tl
                 p.size.border * 4;
         }
 
-        void Button::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void Button::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -301,20 +301,20 @@ namespace tl
                         thumbnailSystem->cancelRequests({ p.thumbnail.request.id });
                     }
                     p.thumbnail.init = true;
-                    p.thumbnail.request.future = std::future<std::shared_ptr<image::Image> >();
+                    p.thumbnail.request.future = std::future<std::shared_ptr<dtk::Image> >();
                 }
                 p.draw.glyphs.clear();
             }
         }
 
         void Button::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
             const bool enabled = isEnabled();
 
             // Draw the key focus.
@@ -322,7 +322,6 @@ namespace tl
             {
                 event.render->drawMesh(
                     border(g, p.size.border * 2),
-                    math::Vector2i(),
                     event.style->getColorRole(ColorRole::KeyFocus));
             }
 
@@ -338,7 +337,7 @@ namespace tl
             }
 
             // Draw the pressed and hover states.
-            if (_mouse.press && _geometry.contains(_mouse.pos))
+            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
             {
                 event.render->drawRect(
                     g,
@@ -352,14 +351,14 @@ namespace tl
             }
 
             // Draw the thumbnail or icon.
-            const math::Box2i g2 = g.margin(-p.size.border * 2);
+            const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
             int x = g2.x() + p.size.margin;
             if (p.thumbnail.image)
             {
-                const image::Size& size = p.thumbnail.image->getSize();
+                const dtk::Size2I& size = p.thumbnail.image->getSize();
                 event.render->drawImage(
                     p.thumbnail.image,
-                    math::Box2i(
+                    dtk::Box2I(
                         x,
                         g2.y() + g2.h() / 2 - size.h / 2,
                         size.w,
@@ -371,10 +370,10 @@ namespace tl
             }
             else if (_iconImage)
             {
-                const image::Size& size = _iconImage->getSize();
+                const dtk::Size2I& size = _iconImage->getSize();
                 event.render->drawImage(
                     _iconImage,
-                    math::Box2i(
+                    dtk::Box2I(
                         x,
                         g2.y() + g2.h() / 2 - size.h / 2,
                         size.w,
@@ -399,12 +398,12 @@ namespace tl
                     p.draw.glyphs.push_back(
                         event.fontSystem->getGlyphs(p.labels[i], p.size.fontInfo));
                 }
-                const math::Vector2i pos(
+                const dtk::V2I pos(
                     x,
-                    g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2 +
-                    p.size.fontMetrics.ascender);
+                    g2.y() + g2.h() / 2 - p.size.fontMetrics.lineHeight / 2);
                 event.render->drawText(
                     p.draw.glyphs[i],
+                    p.size.fontMetrics,
                     pos,
                     event.style->getColorRole(enabled ?
                         ColorRole::Text :

@@ -27,7 +27,7 @@ namespace tl
             std::function<void(float)> callback;
             
             std::shared_ptr<dtk::ValueObserver<float> > valueObserver;
-            std::shared_ptr<dtk::ValueObserver<math::FloatRange> > rangeObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::RangeF> > rangeObserver;
         };
 
         void FloatEdit::_init(
@@ -80,11 +80,11 @@ namespace tl
                     }
                 });
 
-            p.rangeObserver = dtk::ValueObserver<math::FloatRange>::create(
+            p.rangeObserver = dtk::ValueObserver<dtk::RangeF>::create(
                 p.model->observeRange(),
-                [this](const math::FloatRange& value)
+                [this](const dtk::RangeF& value)
                 {
-                    _p->digits = math::digits(value.getMax());
+                    _p->digits = dtk::digits(value.max());
                     _updates |= Update::Size;
                     _textUpdate();
                 });
@@ -124,12 +124,12 @@ namespace tl
             _p->callback = value;
         }
 
-        const math::FloatRange& FloatEdit::getRange() const
+        const dtk::RangeF& FloatEdit::getRange() const
         {
             return _p->model->getRange();
         }
 
-        void FloatEdit::setRange(const math::FloatRange& value)
+        void FloatEdit::setRange(const dtk::RangeF& value)
         {
             _p->model->setRange(value);
         }
@@ -163,7 +163,7 @@ namespace tl
             _p->lineEdit->setFontRole(value);
         }
 
-        void FloatEdit::setGeometry(const math::Box2i& value)
+        void FloatEdit::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

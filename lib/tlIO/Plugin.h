@@ -107,7 +107,7 @@ namespace tl
             //! Write video data.
             virtual void writeVideo(
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<image::Image>&,
+                const std::shared_ptr<dtk::Image>&,
                 const Options& = Options()) = 0;
 
         protected:
@@ -152,8 +152,8 @@ namespace tl
                 const Options& = Options()) = 0;
 
             //! Get information for writing.
-            virtual image::Info getWriteInfo(
-                const image::Info&,
+            virtual dtk::ImageInfo getWriteInfo(
+                const dtk::ImageInfo&,
                 const Options& = Options()) const = 0;
 
             //! Create a writer for the given path.
@@ -163,7 +163,7 @@ namespace tl
                 const Options& = Options()) = 0;
 
         protected:
-            bool _isWriteCompatible(const image::Info&, const Options&) const;
+            bool _isWriteCompatible(const dtk::ImageInfo&, const Options&) const;
 
             std::shared_ptr<Cache> _cache;
             std::weak_ptr<dtk::LogSystem> _logSystem;

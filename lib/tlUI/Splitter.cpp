@@ -23,7 +23,7 @@ namespace tl
                 int spacing = 0;
                 int handle = 0;
 
-                std::vector<math::Box2i> handleGeometry;
+                std::vector<dtk::Box2I> handleGeometry;
             };
             SizeData size;
 
@@ -92,12 +92,12 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void Splitter::setGeometry(const math::Box2i& value)
+        void Splitter::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             std::vector<bool> childVisible;
             for (const auto& child : _children)
@@ -105,7 +105,7 @@ namespace tl
                 childVisible.push_back(child->isVisible(false));
             }
             p.size.handleGeometry.clear();
-            std::vector<math::Box2i> childGeometry;
+            std::vector<dtk::Box2I> childGeometry;
             int x = g.x();
             int y = g.y();
             int w = 0;
@@ -119,21 +119,21 @@ namespace tl
                 {
                     w = g.w() * p.split - p.size.handle / 2;
                     h = g.h();
-                    childGeometry.push_back(math::Box2i(x, y, w, h));
+                    childGeometry.push_back(dtk::Box2I(x, y, w, h));
                     x += w;
                     x += p.size.spacing;
                     w = p.size.handle;
-                    p.size.handleGeometry.push_back(math::Box2i(x, y, w, h));
+                    p.size.handleGeometry.push_back(dtk::Box2I(x, y, w, h));
                     x += w;
                     x += p.size.spacing;
                     w = g.x() + g.w() - x;
-                    childGeometry.push_back(math::Box2i(x, y, w, h));
+                    childGeometry.push_back(dtk::Box2I(x, y, w, h));
                 }
                 else
                 {
                     for (size_t i = 0; i < _children.size(); ++i)
                     {
-                        childGeometry.push_back(math::Box2i(x, y, g.w(), g.h()));
+                        childGeometry.push_back(dtk::Box2I(x, y, g.w(), g.h()));
                     }
                 }
                 break;
@@ -144,21 +144,21 @@ namespace tl
                 {
                     w = g.w();
                     h = g.h() * p.split - p.size.handle / 2;
-                    childGeometry.push_back(math::Box2i(x, y, w, h));
+                    childGeometry.push_back(dtk::Box2I(x, y, w, h));
                     y += h;
                     y += p.size.spacing;
                     h = p.size.handle;
-                    p.size.handleGeometry.push_back(math::Box2i(x, y, w, h));
+                    p.size.handleGeometry.push_back(dtk::Box2I(x, y, w, h));
                     y += h;
                     y += p.size.spacing;
                     h = g.y() + g.h() - y;
-                    childGeometry.push_back(math::Box2i(x, y, w, h));
+                    childGeometry.push_back(dtk::Box2I(x, y, w, h));
                 }
                 else
                 {
                     for (size_t i = 0; i < _children.size(); ++i)
                     {
-                        childGeometry.push_back(math::Box2i(x, y, g.w(), g.h()));
+                        childGeometry.push_back(dtk::Box2I(x, y, g.w(), g.h()));
                     }
                 }
                 break;
@@ -193,7 +193,7 @@ namespace tl
         }
 
         void Splitter::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
@@ -242,7 +242,7 @@ namespace tl
             event.accept = true;
             if (p.mouse.pressedHandle != -1)
             {
-                const math::Box2i& g = _geometry;
+                const dtk::Box2I& g = _geometry;
                 float split = 0.F;
                 switch (p.orientation)
                 {
@@ -253,7 +253,7 @@ namespace tl
                     split = (event.pos.y - g.min.y) / static_cast<float>(g.h());
                     break;
                 }
-                split = math::clamp(split, .1F, .9F);
+                split = dtk::clamp(split, .1F, .9F);
                 if (split != p.split)
                 {
                     p.split = split;
@@ -266,7 +266,7 @@ namespace tl
                 int hoverHandle = -1;
                 for (size_t i = 0; i < p.size.handleGeometry.size(); ++i)
                 {
-                    if (p.size.handleGeometry[i].contains(event.pos))
+                    if (dtk::contains(p.size.handleGeometry[i], event.pos))
                     {
                         hoverHandle = i;
                         break;
@@ -286,7 +286,7 @@ namespace tl
             p.mouse.pressedHandle = -1;
             for (size_t i = 0; i < p.size.handleGeometry.size(); ++i)
             {
-                if (p.size.handleGeometry[i].contains(event.pos))
+                if (dtk::contains(p.size.handleGeometry[i], event.pos))
                 {
                     event.accept = true;
                     p.mouse.pressedHandle = i;

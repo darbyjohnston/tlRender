@@ -73,7 +73,7 @@ if(TLRENDER_USD)
     list(APPEND SOURCE USD.cpp USDRead.cpp USDRender.cpp)
     list(APPEND LIBRARIES_PRIVATE tf usd usdGeom usdImagingGL usdAppUtils hd)
 endif()
-list(APPEND LIBRARIES tlGL)
+list(APPEND LIBRARIES tlCore dtk::dtkGL)
 
 add_library(tlIO ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlIO PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})

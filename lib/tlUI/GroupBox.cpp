@@ -23,15 +23,15 @@ namespace tl
                 int border = 0;
 
                 bool textInit = true;
-                image::FontInfo fontInfo;
-                image::FontMetrics fontMetrics;
-                math::Size2i textSize;
+                dtk::FontInfo fontInfo;
+                dtk::FontMetrics fontMetrics;
+                dtk::Size2I textSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<image::Glyph> > glyphs;
+                std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
             DrawData draw;
         };
@@ -94,13 +94,13 @@ namespace tl
             _updates |= Update::Draw;
         }
 
-        void GroupBox::setGeometry(const math::Box2i& value)
+        void GroupBox::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             TLRENDER_P();
-            math::Box2i g = value;
+            dtk::Box2I g = value;
             g.min.y += p.size.fontMetrics.lineHeight + p.size.spacing;
-            g = g.margin(-(p.size.border + p.size.margin));
+            g = dtk::margin(g, -(p.size.border + p.size.margin));
             for (const auto& child : _children)
             {
                 child->setGeometry(g);
@@ -129,10 +129,10 @@ namespace tl
             p.size.sizeInit = false;
             p.size.textInit = false;
 
-            _sizeHint = math::Size2i();
+            _sizeHint = dtk::Size2I();
             for (const auto& child : _children)
             {
-                const math::Size2i& sizeHint = child->getSizeHint();
+                const dtk::Size2I& sizeHint = child->getSizeHint();
                 _sizeHint.w = std::max(_sizeHint.w, sizeHint.w);
                 _sizeHint.h = std::max(_sizeHint.h, sizeHint.h);
             }
@@ -142,7 +142,7 @@ namespace tl
             _sizeHint.h += p.size.fontMetrics.lineHeight + p.size.spacing;
         }
 
-        void GroupBox::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void GroupBox::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -153,13 +153,13 @@ namespace tl
         }
 
         void GroupBox::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             TLRENDER_P();
 
-            const math::Box2i& g = _geometry;
+            const dtk::Box2I& g = _geometry;
 
             if (!p.text.empty() && p.draw.glyphs.empty())
             {
@@ -167,17 +167,17 @@ namespace tl
             }
             event.render->drawText(
                 p.draw.glyphs,
-                math::Vector2i(g.x(), g.y() + p.size.fontMetrics.ascender),
+                p.size.fontMetrics,
+                g.min,
                 event.style->getColorRole(ColorRole::Text));
 
-            const math::Box2i g2(
-                math::Vector2i(
+            const dtk::Box2I g2(
+                dtk::V2I(
                     g.min.x,
                     g.min.y + p.size.fontMetrics.lineHeight + p.size.spacing),
                 g.max);
             event.render->drawMesh(
                 border(g2, p.size.border, p.size.margin),
-                math::Vector2i(),
                 event.style->getColorRole(ColorRole::Border));
         }
     }

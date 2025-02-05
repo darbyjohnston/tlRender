@@ -22,7 +22,7 @@ namespace tl
 
         struct FloatEditSlider::Private
         {
-            math::FloatRange range = math::FloatRange(0.F, 1.F);
+            dtk::RangeF range = dtk::RangeF(0.F, 1.F);
             float value = 0.F;
             float defaultValue = -1.F;
             float singleStep = .01F;
@@ -73,7 +73,7 @@ namespace tl
         FloatEditSlider::~FloatEditSlider()
         {}
 
-        const math::FloatRange& FloatEditSlider::range() const
+        const dtk::RangeF& FloatEditSlider::range() const
         {
             return _p->range;
         }
@@ -103,7 +103,7 @@ namespace tl
             return _p->orientation;
         }
 
-        void FloatEditSlider::setRange(const math::FloatRange& value)
+        void FloatEditSlider::setRange(const dtk::RangeF& value)
         {
             TLRENDER_P();
             if (value == p.range)
@@ -196,7 +196,7 @@ namespace tl
                 [this](int value)
                 {
                     const float n = value / static_cast<float>(steps);
-                    _p->value = n * (_p->range.getMax() - _p->range.getMin()) + _p->range.getMin();
+                    _p->value = n * (_p->range.max() - _p->range.min()) + _p->range.min();
                     _widgetUpdate();
                     Q_EMIT valueChanged(_p->value);
                 });
@@ -207,19 +207,19 @@ namespace tl
             TLRENDER_P();
             {
                 QSignalBlocker blocker(p.spinBox);
-                p.spinBox->setRange(p.range.getMin(), p.range.getMax());
+                p.spinBox->setRange(p.range.min(), p.range.max());
                 p.spinBox->setValue(p.value);
                 p.spinBox->setSingleStep(p.singleStep);
             }
             {
                 QSignalBlocker blocker(p.slider);
                 p.slider->setRange(0, steps);
-                const float n = (p.value - p.range.getMin()) / (p.range.getMax() - p.range.getMin());
+                const float n = (p.value - p.range.min()) / (p.range.max() - p.range.min());
                 p.slider->setValue(n * steps);
                 p.slider->setSingleStep(p.singleStep);
                 p.slider->setPageStep(p.pageStep);
             }
-            p.defaultValueButton->setVisible(p.range.contains(p.defaultValue));
+            p.defaultValueButton->setVisible(dtk::contains(p.range, p.defaultValue));
             p.defaultValueButton->setEnabled(p.value != p.defaultValue);
         }
     }

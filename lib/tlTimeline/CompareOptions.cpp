@@ -31,69 +31,74 @@ namespace tl
         TLRENDER_ENUM_IMPL(CompareTimeMode, "Relative", "Absolute");
         TLRENDER_ENUM_SERIALIZE_IMPL(CompareTimeMode);
 
-        std::vector<math::Box2i> getBoxes(CompareMode mode, const std::vector<image::Size>& sizes)
+        std::vector<dtk::Box2I> getBoxes(CompareMode mode, const std::vector<dtk::ImageInfo>& infos)
         {
-            std::vector<math::Box2i> out;
-            const size_t count = sizes.size();
+            std::vector<dtk::Box2I> out;
+            const size_t count = infos.size();
             switch (mode)
             {
             case CompareMode::Horizontal:
             {
-                image::Size size;
+                dtk::ImageInfo info;
                 if (count > 0)
                 {
-                    size = sizes[0];
+                    info = infos[0];
                 }
                 if (count > 0)
                 {
-                    out.push_back(math::Box2i(
+                    out.push_back(dtk::Box2I(
                         0,
                         0,
-                        size.w * size.pixelAspectRatio,
-                        size.h));
+                        info.size.w * info.pixelAspectRatio,
+                        info.size.h));
                 }
                 if (count > 1)
                 {
-                    out.push_back(math::Box2i(
-                        size.w * size.pixelAspectRatio,
+                    out.push_back(dtk::Box2I(
+                        info.size.w * info.pixelAspectRatio,
                         0,
-                        size.w * size.pixelAspectRatio,
-                        size.h));
+                        info.size.w * info.pixelAspectRatio,
+                        info.size.h));
                 }
                 break;
             }
             case CompareMode::Vertical:
             {
-                image::Size size;
+                dtk::ImageInfo info;
                 if (count > 0)
                 {
-                    size = sizes[0];
+                    info = infos[0];
                 }
                 if (count > 0)
                 {
-                    out.push_back(math::Box2i(
+                    out.push_back(dtk::Box2I(
                         0,
                         0,
-                        size.w * size.pixelAspectRatio,
-                        size.h));
+                        info.size.w * info.pixelAspectRatio,
+                        info.size.h));
                 }
                 if (count > 1)
                 {
-                    out.push_back(math::Box2i(
+                    out.push_back(dtk::Box2I(
                         0,
-                        size.h,
-                        size.w * size.pixelAspectRatio,
-                        size.h));
+                        info.size.h,
+                        info.size.w * info.pixelAspectRatio,
+                        info.size.h));
                 }
                 break;
             }
             case CompareMode::Tile:
                 if (count > 0)
                 {
-                    image::Size tileSize;
-                    for (const auto& i : sizes)
+                    dtk::Size2I tileSize;
+                    float pixelAspectRatio = 1.F;
+                    for (const auto& info : infos)
                     {
-                        tileSize = std::max(tileSize, i);
+                        if (dtk::area(info.size) > dtk::area(tileSize))
+                        {
+                            tileSize = info.size;
+                        }
+                        pixelAspectRatio = std::max(pixelAspectRatio, info.pixelAspectRatio);
                     }
 
                     int columns = 0;
@@ -119,15 +124,15 @@ namespace tl
                         {
                             if (i < count)
                             {
-                                const auto& s = sizes[i];
-                                const math::Box2i box(
+                                const auto& info = infos[i];
+                                const dtk::Box2I box(
                                     x,
                                     y,
-                                    tileSize.w * tileSize.pixelAspectRatio,
+                                    tileSize.w * pixelAspectRatio,
                                     tileSize.h);
                                 out.push_back(box);
                             }
-                            x += tileSize.w * tileSize.pixelAspectRatio;
+                            x += tileSize.w * pixelAspectRatio;
                         }
                         y += tileSize.h;
                     }
@@ -136,38 +141,43 @@ namespace tl
             default:
                 for (size_t i = 0; i < std::min(count, static_cast<size_t>(2)); ++i)
                 {
-                    out.push_back(math::Box2i(
+                    out.push_back(dtk::Box2I(
                         0,
                         0,
-                        sizes[0].w * sizes[0].pixelAspectRatio,
-                        sizes[0].h));
+                        infos[0].size.w * infos[0].pixelAspectRatio,
+                        infos[0].size.h));
                 }
                 break;
             }
             return out;
         }
 
-        std::vector<math::Box2i> getBoxes(CompareMode mode, const std::vector<VideoData>& videoData)
+        std::vector<dtk::Box2I> getBoxes(CompareMode mode, const std::vector<VideoData>& videoData)
         {
-            std::vector<image::Size> sizes;
+            std::vector<dtk::ImageInfo> infos;
             for (const auto& i : videoData)
             {
-                sizes.push_back(i.size);
+                dtk::ImageInfo info;
+                if (!i.layers.empty() && i.layers.front().image)
+                {
+                    info = i.layers.front().image->getInfo();
+                }
+                infos.push_back(info);
             }
-            return getBoxes(mode, sizes);
+            return getBoxes(mode, infos);
         }
 
-        math::Size2i getRenderSize(CompareMode mode, const std::vector<image::Size>& sizes)
+        dtk::Size2I getRenderSize(CompareMode mode, const std::vector<dtk::ImageInfo>& infos)
         {
-            math::Size2i out;
-            math::Box2i box;
-            const auto boxes = getBoxes(mode, sizes);
+            dtk::Size2I out;
+            dtk::Box2I box;
+            const auto boxes = getBoxes(mode, infos);
             if (!boxes.empty())
             {
                 box = boxes[0];
                 for (size_t i = 1; i < boxes.size(); ++i)
                 {
-                    box.expand(boxes[i]);
+                    box = dtk::expand(box, boxes[i]);
                 }
                 out.w = box.w();
                 out.h = box.h();
@@ -175,14 +185,19 @@ namespace tl
             return out;
         }
 
-        math::Size2i getRenderSize(CompareMode mode, const std::vector<VideoData>& videoData)
+        dtk::Size2I getRenderSize(CompareMode mode, const std::vector<VideoData>& videoData)
         {
-            std::vector<image::Size> sizes;
+            std::vector<dtk::ImageInfo> infos;
             for (const auto& i : videoData)
             {
-                sizes.push_back(i.size);
+                dtk::ImageInfo info;
+                if (!i.layers.empty() && i.layers.front().image)
+                {
+                    info = i.layers.front().image->getInfo();
+                }
+                infos.push_back(info);
             }
-            return getRenderSize(mode, sizes);
+            return getRenderSize(mode, infos);
         }
 
         OTIO_NS::RationalTime getCompareTime(

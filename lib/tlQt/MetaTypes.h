@@ -9,26 +9,17 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/FontSystem.h>
-#include <tlCore/Image.h>
 
 #include <QMetaType>
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
 
-Q_DECLARE_METATYPE(tl::image::PixelType);
-Q_DECLARE_METATYPE(tl::image::Size);
-Q_DECLARE_METATYPE(tl::image::VideoLevels);
-
 Q_DECLARE_METATYPE(tl::io::FileType);
 
-Q_DECLARE_METATYPE(tl::timeline::AlphaBlend);
 Q_DECLARE_METATYPE(tl::timeline::Channels);
 Q_DECLARE_METATYPE(tl::timeline::CompareMode);
 Q_DECLARE_METATYPE(tl::timeline::CompareTimeMode);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
-Q_DECLARE_METATYPE(tl::timeline::ImageFilter);
-Q_DECLARE_METATYPE(tl::timeline::InputVideoLevels);
 Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);
 Q_DECLARE_METATYPE(tl::timeline::TimeAction);

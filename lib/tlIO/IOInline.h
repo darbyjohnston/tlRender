@@ -27,7 +27,7 @@ namespace tl
         inline VideoData::VideoData(
             const OTIO_NS::RationalTime& time,
             uint16_t layer,
-            const std::shared_ptr<image::Image>& image) :
+            const std::shared_ptr<dtk::Image>& image) :
             time(time),
             layer(layer),
             image(image)

@@ -292,7 +292,7 @@ namespace tl
             file::PathOptions pathOptions)
         {
             std::string url;
-            math::IntRange sequence;
+            dtk::RangeI sequence;
             if (auto externalRef = dynamic_cast<const OTIO_NS::ExternalReference*>(ref))
             {
                 url = externalRef->target_url();
@@ -307,7 +307,7 @@ namespace tl
                     imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
                 url = ss.str();
-                sequence = math::IntRange(
+                sequence = dtk::RangeI(
                     imageSequenceRef->start_frame(),
                     imageSequenceRef->end_frame());
             }
@@ -330,7 +330,7 @@ namespace tl
                 url = sharedMemorySequenceRef->target_url();
             }
             file::Path out = timeline::getPath(url, directory, pathOptions);
-            if (sequence.getMin() != sequence.getMax())
+            if (sequence.min() != sequence.max())
             {
                 out.setSequence(sequence);
             }

@@ -34,8 +34,8 @@ namespace tl
         struct Options
         {
             OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-            math::Size2i renderSize;
-            image::PixelType outputPixelType = image::PixelType::None;
+            dtk::Size2I renderSize;
+            dtk::ImageType outputPixelType = dtk::ImageType::None;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
@@ -95,7 +95,7 @@ namespace tl
             Options _options;
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            math::Size2i _renderSize;
+            dtk::Size2I _renderSize;
             image::Info _outputInfo;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             OTIO_NS::RationalTime _inputTime = time::invalidTime;
@@ -108,7 +108,7 @@ namespace tl
 
             std::shared_ptr<io::IPlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;
-            std::shared_ptr<image::Image> _outputImage;
+            std::shared_ptr<dtk::Image> _outputImage;
 
             bool _running = true;
             std::chrono::steady_clock::time_point _startTime;

@@ -53,7 +53,7 @@ namespace tl
             p.color1Swatch->setEditable(true);
             p.color1Swatch->setHStretch(ui::Stretch::Expanding);
             p.checkersSizeSlider = ui::IntEditSlider::create(context);
-            p.checkersSizeSlider->setRange(math::IntRange(10, 100));
+            p.checkersSizeSlider->setRange(dtk::RangeI(10, 100));
 
             p.layout = ui::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(ui::SizeRole::MarginSmall);
@@ -146,7 +146,7 @@ namespace tl
             return out;
         }
 
-        void BackgroundWidget::setGeometry(const math::Box2i& value)
+        void BackgroundWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);

@@ -57,27 +57,27 @@ namespace tl
             return Read::create(path, memory, options, _cache, _logSystem.lock());
         }
 
-        image::Info Plugin::getWriteInfo(
-            const image::Info& info,
+        dtk::ImageInfo Plugin::getWriteInfo(
+            const dtk::ImageInfo& info,
             const io::Options& options) const
         {
-            image::Info out;
+            dtk::ImageInfo out;
             out.size = info.size;
-            switch (info.pixelType)
+            switch (info.type)
             {
-            case image::PixelType::L_U8:
-            case image::PixelType::L_U16:
-            case image::PixelType::L_F32:
-            case image::PixelType::LA_U8:
-            case image::PixelType::LA_U16:
-            case image::PixelType::LA_F32:
-            case image::PixelType::RGB_U8:
-            case image::PixelType::RGB_U16:
-            case image::PixelType::RGB_F32:
-            case image::PixelType::RGBA_U8:
-            case image::PixelType::RGBA_U16:
-            case image::PixelType::RGBA_F32:
-                out.pixelType = info.pixelType;
+            case dtk::ImageType::L_U8:
+            case dtk::ImageType::L_U16:
+            case dtk::ImageType::L_F32:
+            case dtk::ImageType::LA_U8:
+            case dtk::ImageType::LA_U16:
+            case dtk::ImageType::LA_F32:
+            case dtk::ImageType::RGB_U8:
+            case dtk::ImageType::RGB_U16:
+            case dtk::ImageType::RGB_F32:
+            case dtk::ImageType::RGBA_U8:
+            case dtk::ImageType::RGBA_U16:
+            case dtk::ImageType::RGBA_F32:
+                out.type = info.type;
                 break;
             default: break;
             }

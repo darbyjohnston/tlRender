@@ -43,7 +43,7 @@ namespace tl
             return out;
         }
 
-        inline const math::Size2i& IWidget::getSizeHint() const
+        inline const dtk::Size2I& IWidget::getSizeHint() const
         {
             return _sizeHint;
         }
@@ -68,7 +68,7 @@ namespace tl
             return _vAlign;
         }
 
-        inline const math::Box2i& IWidget::getGeometry() const
+        inline const dtk::Box2I& IWidget::getGeometry() const
         {
             return _geometry;
         }
@@ -88,7 +88,7 @@ namespace tl
             return _clipped;
         }
 
-        inline const math::Box2i& IWidget::getChildrenClipRect() const
+        inline const dtk::Box2I& IWidget::getChildrenClipRect() const
         {
             return _childrenClipRect;
         }

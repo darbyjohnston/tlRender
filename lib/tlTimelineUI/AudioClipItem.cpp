@@ -25,7 +25,7 @@ namespace tl
             struct SizeData
             {
                 int dragLength = 0;
-                math::Box2i clipRect;
+                dtk::Box2I clipRect;
             };
             SizeData size;
 
@@ -188,7 +188,7 @@ namespace tl
             }
         }
 
-        void AudioClipItem::clipEvent(const math::Box2i& clipRect, bool clipped)
+        void AudioClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
         {
             IBasicItem::clipEvent(clipRect, clipped);
             TLRENDER_P();
@@ -203,7 +203,7 @@ namespace tl
         }
 
         void AudioClipItem::drawEvent(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
@@ -214,16 +214,16 @@ namespace tl
         }
 
         void AudioClipItem::_drawWaveforms(
-            const math::Box2i& drawRect,
+            const dtk::Box2I& drawRect,
             const ui::DrawEvent& event)
         {
             TLRENDER_P();
 
-            const math::Box2i g = _getInsideGeometry();
+            const dtk::Box2I g = _getInsideGeometry();
             const int m = _getMargin();
             const int lineHeight = _getLineHeight();
 
-            const math::Box2i box(
+            const dtk::Box2I box(
                 g.min.x,
                 g.min.y +
                 (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
@@ -235,12 +235,12 @@ namespace tl
             const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
             const timeline::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(box.intersect(clipRectState.getClipRect()));
+            event.render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
 
-            const math::Box2i clipRect = _getClipRect(
+            const dtk::Box2I clipRect = _getClipRect(
                 drawRect,
                 _displayOptions.clipRectScale);
-            if (g.intersects(clipRect))
+            if (dtk::intersects(g, clipRect))
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
@@ -257,14 +257,14 @@ namespace tl
                 const bool enabled = isEnabled();
                 for (int x = 0; x < w; x += _displayOptions.waveformWidth)
                 {
-                    const math::Box2i box(
+                    const dtk::Box2I box(
                         g.min.x +
                         x,
                         g.min.y +
                         (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                         _displayOptions.waveformWidth,
                         _displayOptions.waveformHeight);
-                    if (box.intersects(clipRect))
+                    if (dtk::intersects(box, clipRect))
                     {
                         const OTIO_NS::RationalTime time = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
@@ -296,10 +296,10 @@ namespace tl
                             {
                                 event.render->drawMesh(
                                     *i->second,
-                                    box.min,
                                     enabled ?
                                         dtk::Color4F(1.F, 1.F, 1.F) :
-                                        dtk::Color4F(.5F, .5F, .5F));
+                                        dtk::Color4F(.5F, .5F, .5F),
+                                    dtk::V2F(box.min.x, box.min.y));
                             }
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())
@@ -310,7 +310,7 @@ namespace tl
                                 p.waveformRequests[mediaRange.start_time()] = p.thumbnailGenerator->getWaveform(
                                     p.path,
                                     p.memoryRead,
-                                    box.getSize(),
+                                    box.size(),
                                     mediaRange,
                                     _data->options.ioOptions);
                             }

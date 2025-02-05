@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlCore/Image.h>
+#include <tlCore/Util.h>
+
+#include <dtk/core/Image.h>
 
 #include <future>
 
@@ -35,7 +37,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&);
 
             //! Request an icon.
-            std::future<std::shared_ptr<image::Image> > request(
+            std::future<std::shared_ptr<dtk::Image> > request(
                 const std::string& name,
                 float displayScale);
 

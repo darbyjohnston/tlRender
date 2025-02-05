@@ -77,7 +77,7 @@ namespace tl
             if (value == p.items)
                 return;
             p.items = value;
-            p.currentItem = math::clamp(p.currentItem, 0, static_cast<int>(p.items.size()) - 1);
+            p.currentItem = dtk::clamp(p.currentItem, 0, static_cast<int>(p.items.size()) - 1);
             _widgetUpdate();
             _searchUpdate();
         }
@@ -105,7 +105,7 @@ namespace tl
             _searchUpdate();
         }
 
-        void ListWidget::setGeometry(const math::Box2i& value)
+        void ListWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->scrollWidget->setGeometry(value);
