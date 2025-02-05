@@ -9,7 +9,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/File.h>
 #include <tlCore/FileInfo.h>
 
 #include <dtk/core/Context.h>
@@ -23,6 +22,8 @@
 #include <mz_strm.h>
 #include <mz_zip.h>
 #include <mz_zip_rw.h>
+
+#include <filesystem>
 
 #if defined(TLRENDER_PYTHON)
 #include <Python.h>
@@ -62,7 +63,7 @@ namespace tl
                         for (const auto& extension : audioExtensions)
                         {
                             const file::Path audioPath(name + extension, pathOptions);
-                            if (file::exists(audioPath.get()))
+                            if (std::filesystem::exists(std::filesystem::u8path(audioPath.get())))
                             {
                                 out = audioPath;
                                 break;

@@ -44,8 +44,6 @@
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
-#include <tlCore/File.h>
-
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QDragEnterEvent>

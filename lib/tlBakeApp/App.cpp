@@ -8,7 +8,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/File.h>
 #include <tlCore/Time.h>
 
 #include <dtk/gl/GL.h>

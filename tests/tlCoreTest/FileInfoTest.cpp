@@ -4,7 +4,6 @@
 
 #include <tlCoreTest/FileInfoTest.h>
 
-#include <tlCore/File.h>
 #include <tlCore/FileInfo.h>
 
 #include <dtk/core/FileIO.h>
@@ -58,7 +57,7 @@ namespace tl
                 DTK_ASSERT(0 == f.getSize());
                 DTK_ASSERT(f.getPermissions() != 0);
                 DTK_ASSERT(f.getTime() != 0);
-                rm(path.get());
+                std::filesystem::remove(std::filesystem::u8path(path.get()));
             }
         }
 
@@ -133,8 +132,8 @@ namespace tl
                 DTK_ASSERT(options != ListOptions());
             }
             
-            std::string tmp = createTempDir();
-            mkdir(file::Path(tmp, "dir").get());
+            std::string tmp = std::tmpnam(nullptr);
+            std::filesystem::create_directory(std::filesystem::u8path(tmp));
             dtk::FileIO::create(file::Path(tmp, "file.txt").get(), dtk::FileMode::Write);
             dtk::FileIO::create(file::Path(tmp, "render.1.exr").get(), dtk::FileMode::Write);
             dtk::FileIO::create(file::Path(tmp, "render.2.exr").get(), dtk::FileMode::Write);

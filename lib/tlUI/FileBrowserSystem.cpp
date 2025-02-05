@@ -6,13 +6,13 @@
 
 #include <tlUI/RecentFilesModel.h>
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Context.h>
 
 #if defined(TLRENDER_NFD)
 #include <nfd.hpp>
 #endif // TLRENDER_NFD
+
+#include <filesystem>
 
 namespace tl
 {
@@ -33,7 +33,7 @@ namespace tl
         {
             DTK_P();
 
-            p.path = file::getCWD();
+            p.path = std::filesystem::current_path().u8string();
             p.recentFilesModel = RecentFilesModel::create(context);
 
 #if defined(TLRENDER_NFD)

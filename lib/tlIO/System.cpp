@@ -30,8 +30,6 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 

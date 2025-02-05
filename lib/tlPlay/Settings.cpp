@@ -10,6 +10,7 @@
 
 #include <dtk/core/Format.h>
 
+#include <filesystem>
 #include <iostream>
 
 namespace tl
@@ -64,7 +65,7 @@ namespace tl
 
         void Settings::_read()
         {
-            if (std::filesystem::exists(_fileName))
+            if (std::filesystem::exists(std::filesystem::u8path(_fileName)))
             {
                 try
                 {

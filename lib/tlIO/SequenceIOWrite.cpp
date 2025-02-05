@@ -4,8 +4,6 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <tlCore/File.h>
-
 #include <cstring>
 #include <sstream>
 

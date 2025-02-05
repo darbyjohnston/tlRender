@@ -1,7 +1,6 @@
 set(HEADERS
     AudioTest.h
     FileInfoTest.h
-    FileTest.h
     HDRTest.h
     PathTest.h
     TimeTest.h)
@@ -9,7 +8,6 @@ set(HEADERS
 set(SOURCE
     AudioTest.cpp
     FileInfoTest.cpp
-    FileTest.cpp
     HDRTest.cpp
     PathTest.cpp
     TimeTest.cpp)

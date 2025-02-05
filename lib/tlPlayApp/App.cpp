@@ -32,10 +32,11 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/File.h>
 #include <tlCore/FileLogSystem.h>
 
 #include <dtk/core/Format.h>
+
+#include <filesystem>
 
 namespace tl
 {
@@ -412,7 +413,7 @@ namespace tl
 #endif // TLRENDER_BMD
 
             p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
-            p.settings->setDefaultValue("FileBrowser/Path", file::getCWD());
+            p.settings->setDefaultValue("FileBrowser/Path", std::filesystem::current_path().u8string());
             p.settings->setDefaultValue("FileBrowser/Options", ui::FileBrowserOptions());
 
             p.settings->setDefaultValue("Performance/AudioBufferFrameCount",

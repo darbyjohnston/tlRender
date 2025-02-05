@@ -20,8 +20,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 

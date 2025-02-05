@@ -11,7 +11,7 @@
 #include <tlUI/RecentFilesModel.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/File.h>
+#include <filesystem>
 
 namespace tl
 {
@@ -181,7 +181,7 @@ namespace tl
                 }
 
                 _createButton("Current", context, p.layouts["Shortcuts"]);
-                p.paths.push_back(file::getCWD());
+                p.paths.push_back(std::filesystem::current_path().u8string());
                 for (auto userPath : file::getUserPathEnums())
                 {
                     const std::string path = file::getUserPath(userPath);

@@ -47,7 +47,6 @@
 
 #include <tlCoreTest/AudioTest.h>
 #include <tlCoreTest/FileInfoTest.h>
-#include <tlCoreTest/FileTest.h>
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/TimeTest.h>
@@ -68,7 +67,6 @@ void coreTests(
 {
     tests.push_back(core_tests::AudioTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));
-    tests.push_back(core_tests::FileTest::create(context));
     tests.push_back(core_tests::HDRTest::create(context));
     tests.push_back(core_tests::PathTest::create(context));
     tests.push_back(core_tests::TimeTest::create(context));

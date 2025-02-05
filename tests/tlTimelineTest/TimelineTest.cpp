@@ -9,8 +9,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Format.h>
 
 #include <opentimelineio/clip.h>

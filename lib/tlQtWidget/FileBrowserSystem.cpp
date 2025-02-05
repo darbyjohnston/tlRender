@@ -6,8 +6,6 @@
 
 #include <tlTimeline/Util.h>
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Context.h>
 
 #include <QFileDialog>
@@ -15,6 +13,8 @@
 #if defined(TLRENDER_NFD)
 #include <nfd.hpp>
 #endif // TLRENDER_NFD
+
+#include <filesystem>
 
 namespace tl
 {
@@ -33,7 +33,7 @@ namespace tl
         {
             DTK_P();
 
-            p.path = file::getCWD();
+            p.path = std::filesystem::current_path().u8string();
 
             std::vector<std::string> extensions;
             for (const auto& i : timeline::getExtensions(

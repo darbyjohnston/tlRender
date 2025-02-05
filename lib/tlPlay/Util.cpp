@@ -4,10 +4,11 @@
 
 #include <tlPlay/Util.h>
 
-#include <tlCore/File.h>
 #include <tlCore/Path.h>
 
 #include <dtk/core/Format.h>
+
+#include <filesystem>
 
 namespace tl
 {
@@ -17,16 +18,16 @@ namespace tl
         {
             const std::string documentsPath = file::getUserPath(
                 file::UserPath::Documents);
-            if (!file::exists(documentsPath))
+            if (!std::filesystem::exists(std::filesystem::u8path(documentsPath)))
             {
-                file::mkdir(documentsPath);
+                std::filesystem::create_directory(std::filesystem::u8path(documentsPath));
             }
             const std::string out = file::Path(
                 documentsPath,
                 "tlRender").get();
-            if (!file::exists(out))
+            if (!std::filesystem::exists(std::filesystem::u8path(out)))
             {
-                file::mkdir(out);
+                std::filesystem::create_directory(std::filesystem::u8path(out));
             }
             return out;
         }

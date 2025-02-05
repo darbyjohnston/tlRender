@@ -9,8 +9,6 @@
 #include <tlUI/RowLayout.h>
 #include <tlUI/ToolButton.h>
 
-#include <tlCore/File.h>
-
 #include <dtk/core/Context.h>
 
 namespace tl

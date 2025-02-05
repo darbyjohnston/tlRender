@@ -3,7 +3,6 @@ set(HEADERS
     AudioInline.h
     AudioResample.h
     AudioSystem.h
-    File.h
     FileInfo.h
     FileInfoInline.h
     FileInfoPrivate.h
@@ -33,13 +32,11 @@ set(SOURCE
 if (WIN32)
     list(APPEND SOURCE
         FileInfoWin32.cpp
-        FileWin32.cpp
         PathWin32.cpp
         TimeWin32.cpp)
 else()
     list(APPEND SOURCE
         FileInfoUnix.cpp
-        FileUnix.cpp
         PathUnix.cpp
         TimeUnix.cpp)
 endif()
