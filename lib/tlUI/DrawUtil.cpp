@@ -4,7 +4,7 @@
 
 #include <tlUI/DrawUtil.h>
 
-#include <dtk/core/math.h>
+#include <dtk/core/Math.h>
 
 namespace tl
 {
