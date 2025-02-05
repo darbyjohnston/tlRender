@@ -53,7 +53,6 @@ namespace tl
 
             qRegisterMetaType<timeline::AudioData>("tl::timeline::AudioData");
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
-            qRegisterMetaType<dtk::ChannelDisplay>("tl::dtk::ChannelDisplay");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
             qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
             qRegisterMetaType<timeline::CompareTimeMode>("tl::timeline::CompareTimeMode");
