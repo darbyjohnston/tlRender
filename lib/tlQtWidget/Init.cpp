@@ -45,7 +45,7 @@ namespace tl
             std::vector<std::string> fontFamilyList;
             for (const auto& i : std::vector<std::string>(
                 {
-                    "NotoMono-Regular",
+                    "NotoSansMono-Regular",
                     "NotoSans-Bold",
                     "NotoSans-Regular"
                 }))

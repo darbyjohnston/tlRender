@@ -19,6 +19,7 @@ Q_DECLARE_METATYPE(dtk::ChannelDisplay);
 Q_DECLARE_METATYPE(dtk::ImageType);
 Q_DECLARE_METATYPE(dtk::ImageFilter);
 Q_DECLARE_METATYPE(dtk::InputVideoLevels);
+Q_DECLARE_METATYPE(dtk::Size2I);
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
 

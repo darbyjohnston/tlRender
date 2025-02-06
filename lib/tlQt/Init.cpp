@@ -39,6 +39,7 @@ namespace tl
             qRegisterMetaType<dtk::ImageType>("dtk::ImageType");
             qRegisterMetaType<dtk::ImageFilter>("dtk::ImageFilter");
             qRegisterMetaType<dtk::InputVideoLevels>("dtk::InputVideoLevels");
+            qRegisterMetaType<dtk::Size2I>("dtk::Size2I");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<dtk::AlphaBlend>();
             QMetaType::registerComparators<dtk::ChannelDisplay>();

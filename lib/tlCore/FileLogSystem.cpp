@@ -82,7 +82,6 @@ namespace tl
                         }
                         {
                             auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Append);
-                            io->seek(io->getSize());
                             for (const auto& item : items)
                             {
                                 io->write(dtk::toString(item) + "\n");

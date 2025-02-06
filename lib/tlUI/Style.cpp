@@ -144,7 +144,7 @@ namespace tl
         {
             std::map<FontRole, dtk::FontInfo> out;
             out[FontRole::Label] = dtk::FontInfo("NotoSans-Regular", 12 * 1);
-            out[FontRole::Mono] = dtk::FontInfo("NotoMono-Regular", 12 * 1);
+            out[FontRole::Mono] = dtk::FontInfo("NotoSansMono-Regular", 12 * 1);
             out[FontRole::Title] = dtk::FontInfo("NotoSans-Regular", 16 * 1);
             return out;
         }
