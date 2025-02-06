@@ -34,6 +34,19 @@ namespace tl
             qRegisterMetaType<OTIO_NS::TimeRange>("OTIO_NS::TimeRange");
             qRegisterMetaType<std::vector<OTIO_NS::TimeRange> >("std::vector<OTIO_NS::TimeRange>");
 
+            qRegisterMetaType<dtk::AlphaBlend>("dtk::AlphaBlend");
+            qRegisterMetaType<dtk::ChannelDisplay>("dtk::ChannelDisplay");
+            qRegisterMetaType<dtk::ImageType>("dtk::ImageType");
+            qRegisterMetaType<dtk::ImageFilter>("dtk::ImageFilter");
+            qRegisterMetaType<dtk::InputVideoLevels>("dtk::InputVideoLevels");
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+            QMetaType::registerComparators<dtk::AlphaBlend>();
+            QMetaType::registerComparators<dtk::ChannelDisplay>();
+            QMetaType::registerComparators<dtk::ImageType>();
+            QMetaType::registerComparators<dtk::ImageFilter>();
+            QMetaType::registerComparators<dtk::InputVideoLevels>();
+#endif // QT_VERSION
+
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
             qRegisterMetaType<audio::DeviceID>("tl::audio::DeviceID");
             qRegisterMetaType<audio::DeviceInfo>("tl::audio::DeviceInfo");

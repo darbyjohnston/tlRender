@@ -10,7 +10,15 @@
 
 #include <tlCore/AudioSystem.h>
 
+#include <dtk/core/RenderOptions.h>
+
 #include <QMetaType>
+
+Q_DECLARE_METATYPE(dtk::AlphaBlend);
+Q_DECLARE_METATYPE(dtk::ChannelDisplay);
+Q_DECLARE_METATYPE(dtk::ImageType);
+Q_DECLARE_METATYPE(dtk::ImageFilter);
+Q_DECLARE_METATYPE(dtk::InputVideoLevels);
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
 
