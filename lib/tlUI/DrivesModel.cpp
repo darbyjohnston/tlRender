@@ -6,7 +6,9 @@
 
 #include <tlCore/Path.h>
 #include <tlCore/Time.h>
-#include <tlCore/Timer.h>
+
+#include <dtk/core/Time.h>
+#include <dtk/core/Timer.h>
 
 #include <atomic>
 #include <mutex>
@@ -34,7 +36,7 @@ namespace tl
             std::thread thread;
             std::atomic<bool> running;
 
-            std::shared_ptr<time::Timer> timer;
+            std::shared_ptr<dtk::Timer> timer;
         };
 
         void DrivesModel::_init(const std::shared_ptr<dtk::Context>& context)
@@ -57,11 +59,11 @@ namespace tl
                             p.mutex.drives = drives;
                         }
                         const auto t1 = std::chrono::steady_clock::now();
-                        time::sleep(timeout, t0, t1);
+                        dtk::sleep(timeout, t0, t1);
                     }
                 });
 
-            p.timer = time::Timer::create(context);
+            p.timer = dtk::Timer::create(context);
             p.timer->setRepeating(true);
             p.timer->start(
                 timeout,

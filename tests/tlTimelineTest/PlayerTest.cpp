@@ -10,6 +10,7 @@
 #include <tlIO/System.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/Time.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -366,7 +367,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(10));
+                        dtk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -376,7 +377,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(10));
+                        dtk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -387,7 +388,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(10));
+                        dtk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -398,7 +399,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        time::sleep(std::chrono::milliseconds(10));
+                        dtk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);

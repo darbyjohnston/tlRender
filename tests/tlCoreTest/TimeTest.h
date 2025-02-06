@@ -22,11 +22,9 @@ namespace tl
             
         private:
             void _otime();
-            void _sleep();
             void _util();
             void _keycode();
             void _timecode();
-            void _timer();
             void _serialize();
         };
     }

@@ -7,8 +7,9 @@
 #include <tlDevice/BMDOutputDevice.h>
 
 #include <dtk/core/Context.h>
-#include <dtk/core/String.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/String.h>
+#include <dtk/core/Time.h>
 
 #include "platform.h"
 
@@ -206,7 +207,7 @@ namespace tl
                         }
 
                         const auto t1 = std::chrono::steady_clock::now();
-                        time::sleep(getTickTime(), t0, t1);
+                        dtk::sleep(getTickTime(), t0, t1);
                     }
 
 #if defined(_WINDOWS)

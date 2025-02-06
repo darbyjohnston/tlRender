@@ -10,6 +10,7 @@
 #include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
+#include <dtk/core/Time.h>
 
 namespace tl
 {
@@ -885,7 +886,7 @@ namespace tl
                 }
 
                 // Sleep for a bit.
-                time::sleep(p.playerOptions.sleepTimeout, t0, t1);
+                dtk::sleep(p.playerOptions.sleepTimeout, t0, t1);
             }
             p.clearRequests();
         }

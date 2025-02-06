@@ -14,8 +14,7 @@ set(HEADERS
     Path.h
     PathInline.h
     Time.h
-    TimeInline.h
-    Timer.h)
+    TimeInline.h)
 
 set(SOURCE
     Audio.cpp
@@ -27,18 +26,15 @@ set(SOURCE
     ISystem.cpp
     Init.cpp
     Path.cpp
-    Time.cpp
-    Timer.cpp)
+    Time.cpp)
 if (WIN32)
     list(APPEND SOURCE
         FileInfoWin32.cpp
-        PathWin32.cpp
-        TimeWin32.cpp)
+        PathWin32.cpp)
 else()
     list(APPEND SOURCE
         FileInfoUnix.cpp
-        PathUnix.cpp
-        TimeUnix.cpp)
+        PathUnix.cpp)
 endif()
 
 set(LIBRARIES dtk::dtkCore OTIO Imath::Imath nlohmann_json::nlohmann_json)

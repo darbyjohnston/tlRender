@@ -11,6 +11,7 @@
 #include <dtk/gl/Window.h>
 
 #include <dtk/core/Format.h>
+#include <dtk/core/Time.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -167,7 +168,7 @@ namespace tl
 
                 // Sleep for a bit.
                 const auto t1 = std::chrono::steady_clock::now();
-                time::sleep(tickTimeout, t0, t1);
+                dtk::sleep(tickTimeout, t0, t1);
             }
             return _exit;
         }

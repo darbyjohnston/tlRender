@@ -5,7 +5,6 @@
 #include <tlCore/Init.h>
 
 #include <tlCore/AudioSystem.h>
-#include <tlCore/Timer.h>
 
 #include <dtk/core/Context.h>
 
@@ -14,6 +13,5 @@ namespace tl
     void init(const std::shared_ptr<dtk::Context>& context)
     {
         audio::System::create(context);
-        time::TimerSystem::create(context);
     }
 }

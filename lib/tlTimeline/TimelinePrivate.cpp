@@ -12,6 +12,7 @@
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
+#include <dtk/core/Time.h>
 
 #include <opentimelineio/transition.h>
 
@@ -130,7 +131,7 @@ namespace tl
             }
 
             // Sleep for a bit.
-            time::sleep(timeout, t0, t1);
+            dtk::sleep(timeout, t0, t1);
         }
 
         void Timeline::Private::requests()

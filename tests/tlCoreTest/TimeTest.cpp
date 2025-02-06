@@ -5,7 +5,6 @@
 #include <tlCoreTest/TimeTest.h>
 
 #include <tlCore/Time.h>
-#include <tlCore/Timer.h>
 
 #include <dtk/core/Format.h>
 
@@ -29,11 +28,9 @@ namespace tl
         void TimeTest::run()
         {
             _otime();
-            _sleep();
             _util();
             _keycode();
             _timecode();
-            _timer();
             _serialize();
         }
         
@@ -70,11 +67,6 @@ namespace tl
                 DTK_ASSERT(a == b);
                 DTK_ASSERT(!compareExact(a, b));
             }
-        }
-        
-        void TimeTest::_sleep()
-        {
-            sleep(std::chrono::microseconds(1000));
         }
         
         void TimeTest::_util()
@@ -316,45 +308,6 @@ namespace tl
             }
             catch (const std::exception&)
             {}
-        }
-
-        void TimeTest::_timer()
-        {
-            auto timer = Timer::create(_context);
-            DTK_ASSERT(!timer->isRepeating());
-            timer->setRepeating(true);
-            DTK_ASSERT(timer->isRepeating());
-            size_t count = 0;
-            timer->start(
-                std::chrono::milliseconds(100),
-                [this, timer, &count]
-                {
-                    _print(dtk::Format("Timeout: {0}").arg(count));
-                    ++count;
-                    if (3 == count)
-                    {
-                        timer->stop();
-                    }
-                });
-            DTK_ASSERT(timer->isActive());
-            DTK_ASSERT(std::chrono::milliseconds(100) == timer->getTimeout());
-            while (timer->isActive())
-            {
-                _context->tick();
-            }
-            timer->setRepeating(false);
-            timer->start(
-                std::chrono::milliseconds(100),
-                [this](
-                    const std::chrono::steady_clock::time_point&,
-                    const std::chrono::microseconds& ms)
-                {
-                    _print(dtk::Format("Timeout: {0} microseconds").arg(ms.count()));
-                });
-            while (timer->isActive())
-            {
-                _context->tick();
-            }
         }
 
         void TimeTest::_serialize()

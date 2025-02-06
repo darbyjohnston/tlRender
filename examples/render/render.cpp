@@ -6,13 +6,12 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <tlCore/Time.h>
-
 #include <dtk/gl/GL.h>
 #include <dtk/gl/Window.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/Math.h>
 #include <dtk/core/String.h>
+#include <dtk/core/Time.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -285,7 +284,7 @@ namespace tl
                 _rotation = diff.count() * 2.F;
 
                 // Sleep.
-                time::sleep(std::chrono::milliseconds(5), t0, t1);
+                dtk::sleep(std::chrono::milliseconds(5), t0, t1);
             }
 
             void App::_draw()

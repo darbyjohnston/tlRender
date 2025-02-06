@@ -7,9 +7,8 @@
 #include <tlUI/Label.h>
 #include <tlUI/RowLayout.h>
 
-#include <tlCore/Timer.h>
-
 #include <dtk/core/Context.h>
+#include <dtk/core/Timer.h>
 
 namespace tl
 {
@@ -19,7 +18,7 @@ namespace tl
         {
             std::shared_ptr<ui::Label> label;
             std::shared_ptr<ui::HorizontalLayout> layout;
-            std::shared_ptr<time::Timer> timer;
+            std::shared_ptr<dtk::Timer> timer;
             std::function<void(void)> clickedCallback;
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
@@ -43,7 +42,7 @@ namespace tl
             p.layout = ui::HorizontalLayout::create(context, shared_from_this());
             p.label->setParent(p.layout);
 
-            p.timer = time::Timer::create(context);
+            p.timer = dtk::Timer::create(context);
 
             p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
                 context->getLogSystem()->observeLogItems(),
