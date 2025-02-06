@@ -5,6 +5,7 @@ set(dtk_GIT_TAG "main")
 
 set(dtk_DEPS dtk-deps)
 set(dtk_ARGS
+    -Ddtk_API=${dtk_API}
     -Ddtk_PYTHON=OFF
     -Ddtk_TESTS=OFF
     -Ddtk_EXAMPLES=OFF

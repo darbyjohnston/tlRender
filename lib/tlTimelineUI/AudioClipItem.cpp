@@ -7,10 +7,11 @@
 #include <tlUI/DrawUtil.h>
 #include <tlUI/ThumbnailSystem.h>
 
-#include <tlTimeline/RenderUtil.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/Cache.h>
+
+#include <dtk/core/RenderUtil.h>
 
 namespace tl
 {
@@ -232,8 +233,8 @@ namespace tl
             event.render->drawRect(
                 box,
                 dtk::Color4F(0.F, 0.F, 0.F));
-            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
-            const timeline::ClipRectState clipRectState(event.render);
+            const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
+            const dtk::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
 

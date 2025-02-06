@@ -6,14 +6,12 @@
 
 #include <tlUI/DrawUtil.h>
 
-#include <tlTimeline/RenderUtil.h>
-
 #include <dtk/gl/GL.h>
 #include <dtk/gl/OffscreenBuffer.h>
 #include <dtk/gl/Util.h>
-
 #include <dtk/core/Context.h>
 #include <dtk/core/LogSystem.h>
+#include <dtk/core/RenderUtil.h>
 
 namespace tl
 {
@@ -413,32 +411,33 @@ namespace tl
             {
                 p.doRender = false;
 
-                const timeline::ViewportState viewportState(event.render);
-                const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
-                const timeline::ClipRectState clipRectState(event.render);
-                const timeline::TransformState transformState(event.render);
-                const timeline::RenderSizeState renderSizeState(event.render);
+                const dtk::ViewportState viewportState(event.render);
+                const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
+                const dtk::ClipRectState clipRectState(event.render);
+                const dtk::TransformState transformState(event.render);
+                const dtk::RenderSizeState renderSizeState(event.render);
 
-                const dtk::Size2I size = g.size();
-                dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.color = p.colorBuffer->get();
-                if (!p.displayOptions.empty())
+                try
                 {
-                    offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
-                }
+                    const dtk::Size2I size = g.size();
+                    dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = p.colorBuffer->get();
+                    if (!p.displayOptions.empty())
+                    {
+                        offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
+                    }
 #if defined(dtk_API_GL_4_1)
-                offscreenBufferOptions.depth = dtk::gl::OffscreenDepth::_24;
-                offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
+                    offscreenBufferOptions.depth = dtk::gl::OffscreenDepth::_24;
+                    offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
 #elif defined(dtk_API_GLES_2)
-                offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
+                    offscreenBufferOptions.stencil = dtk::gl::OffscreenStencil::_8;
 #endif // dtk_API_GL_4_1
-                if (dtk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
-                {
-                    p.buffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
-                }
-                if (p.buffer)
-                {
-                    try
+                    if (dtk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
+                    {
+                        p.buffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+
+                    if (p.buffer)
                     {
                         dtk::gl::OffscreenBufferBinding binding(p.buffer);
                         event.render->setRenderSize(size);
@@ -525,12 +524,12 @@ namespace tl
                             _droppedFramesUpdate(p.videoData[0].time);
                         }
                     }
-                    catch (const std::exception& e)
+                }
+                catch (const std::exception& e)
+                {
+                    if (auto context = _context.lock())
                     {
-                        if (auto context = _context.lock())
-                        {
-                            context->log("tl::timelineui::TimelineViewport", e.what(), dtk::LogType::Error);
-                        }
+                        context->log("tl::timelineui::TimelineViewport", e.what(), dtk::LogType::Error);
                     }
                 }
             }

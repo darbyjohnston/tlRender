@@ -4,6 +4,7 @@ set(dtk_GIT_REPOSITORY "https://github.com/darbyjohnston/dtk.git")
 set(dtk_GIT_TAG "a18ba0cfedd430bda999a9957ce94e1dee3bd039")
 
 set(dtk-deps_ARGS
+    -Ddtk_API=${dtk_API}
     -Ddtk_ZLIB=OFF
     -Ddtk_nlohmann_json=OFF
     -Ddtk_PNG=OFF

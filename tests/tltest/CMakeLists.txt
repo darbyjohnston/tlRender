@@ -8,7 +8,7 @@ set(LIBRARIES
     tlCoreTest
     tlIOTest
     tlTimelineTest)
-if(TLRENDER_QT6 OR TLRENDER_QT5 AND NOT "${TLRENDER_API}" STREQUAL "GLES_2")
+if(TLRENDER_QT6 OR TLRENDER_QT5)
     list(APPEND LIBRARIES tlQtTest)
 endif()
 

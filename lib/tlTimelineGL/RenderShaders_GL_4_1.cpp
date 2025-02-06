@@ -62,15 +62,15 @@ namespace tl
                 "\n"
                 "void main()\n"
                 "{\n"
-                "\n"
                 "    outColor = texture(textureSampler, fTexture) * color;\n"
+                //"    outColor = vec4(fTexture.x, fTexture.y, 0.0, 1.0);\n"
                 "}\n";
         }
 
         namespace
         {
             const std::string videoLevels =
-                "// enum tl::image::VideoLevels\n"
+                "// enum dtk::VideoLevels\n"
                 "const uint VideoLevels_FullRange  = 0;\n"
                 "const uint VideoLevels_LegalRange = 1;\n";
         }

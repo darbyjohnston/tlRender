@@ -9,7 +9,7 @@
 #include <tlUI/IWindow.h>
 #include <tlUI/LayoutUtil.h>
 
-#include <tlTimeline/RenderUtil.h>
+#include <dtk/core/RenderUtil.h>
 
 namespace tl
 {
@@ -333,8 +333,8 @@ namespace tl
                 dtk::margin(g, -p.size.border * 2),
                 event.style->getColorRole(ColorRole::Base));
 
-            const timeline::ClipRectEnabledState clipRectEnabledState(event.render);
-            const timeline::ClipRectState clipRectState(event.render);
+            const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
+            const dtk::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
             event.render->setClipRect(dtk::intersect(dtk::margin(g, -p.size.border * 2), drawRect));
 
