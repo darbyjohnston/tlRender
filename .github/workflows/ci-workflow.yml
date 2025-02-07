@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
@@ -67,6 +68,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
@@ -156,7 +158,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CMAKE_CXX_STANDARD: 17
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
@@ -208,6 +210,7 @@ jobs:
     runs-on: macos-13
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
@@ -263,8 +266,7 @@ jobs:
     runs-on: macos-13
 
     env:
-      CMAKE_CXX_STANDARD: 17
-      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
@@ -281,6 +283,7 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
 
     steps:
     - uses: actions/checkout@v4
@@ -319,6 +322,7 @@ jobs:
     runs-on: macos-latest
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
@@ -372,6 +376,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
@@ -427,6 +432,7 @@ jobs:
     #runs-on: windows-2019
 
     env:
+      dtk_API: GL_4_1
       TLRENDER_PYTHON: OFF
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
@@ -443,7 +449,6 @@ jobs:
       TLRENDER_PROGRAMS: ON
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
-      CMAKE_CXX_STANDARD: 17
 
     steps:
     - uses: actions/checkout@v4
