@@ -29,12 +29,6 @@ namespace tl
             //! Set the LUT options.
             virtual void setLUTOptions(const LUTOptions&) = 0;
 
-            //! Draw a texture.
-            virtual void drawTexture(
-                unsigned int,
-                const dtk::Box2I&,
-                const dtk::Color4F& = dtk::Color4F(1.F, 1.F, 1.F)) = 0;
-
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,

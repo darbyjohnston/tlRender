@@ -92,12 +92,6 @@ namespace tl
 
             p.baseRender->begin(renderSize, renderOptions);
 
-            if (!p.shaders["texture"])
-            {
-                p.shaders["texture"] = dtk::gl::Shader::create(
-                    vertexSource(),
-                    textureFragmentSource());
-            }
             if (!p.shaders["wipe"])
             {
                 p.shaders["wipe"] = dtk::gl::Shader::create(
@@ -124,8 +118,6 @@ namespace tl
             }
             _displayShader();
 
-            p.vbos["texture"] = dtk::gl::VBO::create(2 * 3, dtk::gl::VBOType::Pos2_F32_UV_U16);
-            p.vaos["texture"] = dtk::gl::VAO::create(p.vbos["texture"]->getType(), p.vbos["texture"]->getID());
             p.vbos["wipe"] = dtk::gl::VBO::create(1 * 3, dtk::gl::VBOType::Pos2_F32);
             p.vaos["wipe"] = dtk::gl::VAO::create(p.vbos["wipe"]->getType(), p.vbos["wipe"]->getID());
             p.vbos["video"] = dtk::gl::VBO::create(2 * 3, dtk::gl::VBOType::Pos2_F32_UV_U16);
@@ -572,7 +564,13 @@ namespace tl
 
         void Render::setTransform(const dtk::M44F& value)
         {
-            _p->baseRender->setTransform(value);
+            DTK_P();
+            p.baseRender->setTransform(value);
+            for (auto i : p.shaders)
+            {
+                i.second->bind();
+                i.second->setUniform("transform.mvp", value);
+            }
         }
 
         void Render::_displayShader()

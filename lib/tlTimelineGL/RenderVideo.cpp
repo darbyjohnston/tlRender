@@ -617,6 +617,8 @@ namespace tl
             GLint viewportPrev[4] = { 0, 0, 0, 0 };
             glGetIntegerv(GL_VIEWPORT, viewportPrev);
 
+            auto imageShader = p.baseRender->getShader("image");
+            imageShader->bind();
             const auto transform = dtk::ortho(
                 0.F,
                 static_cast<float>(box.w()),
@@ -624,8 +626,6 @@ namespace tl
                 0.F,
                 -1.F,
                 1.F);
-            auto imageShader = p.baseRender->getShader("image");
-            imageShader->bind();
             imageShader->setUniform("transform.mvp", transform);
 
             const dtk::Size2I& offscreenBufferSize = box.size();

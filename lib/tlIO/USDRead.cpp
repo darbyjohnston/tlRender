@@ -18,13 +18,13 @@ namespace tl
             int64_t id,
             const std::shared_ptr<Render>& render,
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, cache, logSystem);
-            TLRENDER_P();
+            DTK_P();
             p.id = id;
             p.render = render;
         }
@@ -42,7 +42,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options,
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(id, render, path, {}, options, cache, logSystem);
@@ -51,21 +51,21 @@ namespace tl
 
         std::future<io::Info> Read::getInfo()
         {
-            TLRENDER_P();
+            DTK_P();
             return p.render->getInfo(p.id, _path);
         }
         
         std::future<io::VideoData> Read::readVideo(
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             return p.render->render(p.id, _path, time, io::merge(options, _options));
         }
         
         void Read::cancelRequests()
         {
-            TLRENDER_P();
+            DTK_P();
             p.render->cancelRequests(p.id);
         }
     }

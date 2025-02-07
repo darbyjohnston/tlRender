@@ -38,10 +38,10 @@ namespace tl
                 int64_t id,
                 const std::shared_ptr<Render>&,
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             Read();
 
@@ -55,16 +55,16 @@ namespace tl
                 const file::Path&,
                 const io::Options&,
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             std::future<io::Info> getInfo() override;
             std::future<io::VideoData> readVideo(
-                const otime::RationalTime&,
+                const OTIO_NS::RationalTime&,
                 const io::Options&) override;
             void cancelRequests() override;
 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
 
         //! USD plugin.
@@ -73,7 +73,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
             
             Plugin();
 
@@ -83,17 +83,17 @@ namespace tl
             //! Create a new plugin.
             static std::shared_ptr<Plugin> create(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
             
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<file::MemoryRead>&,
+                const std::vector<dtk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
-            image::Info getWriteInfo(
-                const image::Info&,
+            dtk::ImageInfo getWriteInfo(
+                const dtk::ImageInfo&,
                 const io::Options& = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,
@@ -101,7 +101,7 @@ namespace tl
                 const io::Options& = io::Options()) override;
                 
         private:
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

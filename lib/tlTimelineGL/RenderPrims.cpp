@@ -10,32 +10,6 @@ namespace tl
 {
     namespace timeline_gl
     {
-        void Render::drawTexture(
-            unsigned int id,
-            const dtk::Box2I& box,
-            const dtk::Color4F& color)
-        {
-            DTK_P();
-            p.shaders["texture"]->bind();
-            p.shaders["texture"]->setUniform("color", color);
-            p.shaders["texture"]->setUniform("textureSampler", 0);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
-            glBindTexture(GL_TEXTURE_2D, id);
-
-            if (p.vbos["texture"])
-            {
-                p.vbos["texture"]->copy(convert(dtk::mesh(box), p.vbos["texture"]->getType()));
-            }
-            if (p.vaos["texture"])
-            {
-                p.vaos["texture"]->bind();
-                p.vaos["texture"]->draw(GL_TRIANGLES, 0, p.vbos["texture"]->getSize());
-            }
-        }
-
         void Render::drawRect(
             const dtk::Box2F& rect,
             const dtk::Color4F& color)
@@ -81,6 +55,14 @@ namespace tl
             const dtk::V2F& pos)
         {
             _p->baseRender->drawColorMesh(mesh, color, pos);
+        }
+
+        void Render::drawTexture(
+            unsigned int id,
+            const dtk::Box2I& rect,
+            const dtk::Color4F& color)
+        {
+            _p->baseRender->drawTexture(id, rect, color);
         }
 
         void Render::drawText(

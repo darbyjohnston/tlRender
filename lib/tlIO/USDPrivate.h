@@ -23,7 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
 
             Render();
 
@@ -33,7 +33,7 @@ namespace tl
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
                 const std::shared_ptr<io::Cache>&,
-                const std::weak_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<dtk::LogSystem>&);
             
             //! Get information.
             std::future<io::Info> getInfo(
@@ -44,7 +44,7 @@ namespace tl
             std::future<io::VideoData> render(
                 int64_t id,
                 const file::Path& path,
-                const otime::RationalTime& time,
+                const OTIO_NS::RationalTime& time,
                 const io::Options&);
 
             //! Cancel requests.
@@ -58,7 +58,7 @@ namespace tl
             void _run();
             void _finish();
 
-            TLRENDER_PRIVATE();
+            DTK_PRIVATE();
         };
     }
 }

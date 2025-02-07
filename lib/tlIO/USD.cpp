@@ -20,7 +20,6 @@ namespace tl
             "GeomOnly",
             "GeomFlat",
             "GeomSmooth");
-        DTK_ENUM_SERIALIZE_IMPL(DrawMode);
 
         struct Plugin::Private
         {
@@ -31,7 +30,7 @@ namespace tl
         
         void Plugin::_init(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IPlugin::_init(
                 "USD",
@@ -43,7 +42,7 @@ namespace tl
                 },
                 cache,
                 logSystem);
-            TLRENDER_P();
+            DTK_P();
             p.render = Render::create(cache, logSystem);
         }
         
@@ -56,7 +55,7 @@ namespace tl
 
         std::shared_ptr<Plugin> Plugin::create(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Plugin>(new Plugin);
             out->_init(cache, logSystem);
@@ -67,36 +66,36 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 ++(p.id);
                 id = p.id;
             }
-            return Read::create(id, p.render, path, options, _cache, _logSystem);
+            return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
         }
         
         std::shared_ptr<io::IRead> Plugin::read(
             const file::Path& path,
-            const std::vector<file::MemoryRead>& memory,
+            const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
                 ++(p.id);
                 id = p.id;
             }
-            return Read::create(id, p.render, path, options, _cache, _logSystem);
+            return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
         }
         
-        image::Info Plugin::getWriteInfo(
-            const image::Info&,
+        dtk::ImageInfo Plugin::getWriteInfo(
+            const dtk::ImageInfo&,
             const io::Options&) const
         {
-            return image::Info();
+            return dtk::ImageInfo();
         }
         
         std::shared_ptr<io::IWrite> Plugin::write(

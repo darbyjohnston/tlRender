@@ -63,7 +63,6 @@ namespace tl
                 "void main()\n"
                 "{\n"
                 "    outColor = texture(textureSampler, fTexture) * color;\n"
-                //"    outColor = vec4(fTexture.x, fTexture.y, 0.0, 1.0);\n"
                 "}\n";
         }
 

@@ -410,13 +410,6 @@ namespace tl
             if (p.doRender)
             {
                 p.doRender = false;
-
-                const dtk::ViewportState viewportState(event.render);
-                const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
-                const dtk::ClipRectState clipRectState(event.render);
-                const dtk::TransformState transformState(event.render);
-                const dtk::RenderSizeState renderSizeState(event.render);
-
                 try
                 {
                     const dtk::Size2I size = g.size();
@@ -439,6 +432,12 @@ namespace tl
 
                     if (p.buffer)
                     {
+                        const dtk::ViewportState viewportState(event.render);
+                        const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
+                        const dtk::ClipRectState clipRectState(event.render);
+                        const dtk::TransformState transformState(event.render);
+                        const dtk::RenderSizeState renderSizeState(event.render);
+
                         dtk::gl::OffscreenBufferBinding binding(p.buffer);
                         event.render->setRenderSize(size);
                         event.render->setViewport(dtk::Box2I(0, 0, g.w(), g.h()));

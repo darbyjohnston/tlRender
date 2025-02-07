@@ -39,7 +39,7 @@ endif()
 
 set(LIBRARIES dtk::dtkCore OTIO Imath::Imath nlohmann_json::nlohmann_json)
 set(LIBRARIES_PRIVATE Freetype::Freetype MINIZIP::minizip ZLIB)
-if(TLRENDER_OCIO AND NOT "${dtk_API}" STREQUAL "GLES_2")
+if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()
 if(TLRENDER_SDL2)

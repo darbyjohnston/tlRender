@@ -4,11 +4,12 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <tlCore/File.h>
-#include <tlCore/LRUCache.h>
-
+#include <dtk/core/File.h>
+#include <dtk/core/FileIO.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/LRUCache.h>
 #include <dtk/core/LogSystem.h>
+#include <dtk/core/Memory.h>
 
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
@@ -30,6 +31,8 @@
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
+
+#include <filesystem>
 
 using namespace PXR_NS;
 
@@ -55,7 +58,7 @@ namespace tl
             {
                 int64_t id = -1;
                 file::Path path;
-                otime::RationalTime time = time::invalidTime;
+                OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
                 std::promise<io::VideoData> promise;
             };
@@ -79,7 +82,7 @@ namespace tl
             {
                 ~DiskCacheItem()
                 {
-                    file::rm(fileName);
+                    std::filesystem::remove(std::filesystem::u8path(fileName));
                 }
                 
                 std::string fileName;
@@ -87,8 +90,8 @@ namespace tl
             
             struct Thread
             {
-                memory::LRUCache<std::string, StageCacheItem> stageCache;
-                memory::LRUCache<std::string, std::shared_ptr<DiskCacheItem> > diskCache;
+                dtk::LRUCache<std::string, StageCacheItem> stageCache;
+                dtk::LRUCache<std::string, std::shared_ptr<DiskCacheItem> > diskCache;
                 std::string tempDir;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
@@ -100,9 +103,9 @@ namespace tl
         
         void Render::_init(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            TLRENDER_P();
+            DTK_P();
 
             p.cache = cache;
             p.logSystem = logSystem;
@@ -131,7 +134,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    TLRENDER_P();
+                    DTK_P();
                     glfwMakeContextCurrent(p.glfwWindow);
                     _run();
                     p.thread.stageCache.clear();
@@ -162,7 +165,7 @@ namespace tl
 
         Render::~Render()
         {
-            TLRENDER_P();
+            DTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -176,7 +179,7 @@ namespace tl
 
         std::shared_ptr<Render> Render::create(
             const std::shared_ptr<io::Cache>& cache,
-            const std::weak_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Render>(new Render);
             out->_init(cache, logSystem);
@@ -185,7 +188,7 @@ namespace tl
         
         std::future<io::Info> Render::getInfo(int64_t id, const file::Path& path)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = id;
             request->path = path;
@@ -213,10 +216,10 @@ namespace tl
         std::future<io::VideoData> Render::render(
             int64_t id,
             const file::Path& path,
-            const otime::RationalTime& time,
+            const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            TLRENDER_P();
+            DTK_P();
             auto request = std::make_shared<Private::Request>();
             request->id = id;
             request->path = path;
@@ -245,7 +248,7 @@ namespace tl
         
         void Render::cancelRequests(int64_t id)
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::Request> > requests;
             {
@@ -388,7 +391,7 @@ namespace tl
             UsdStageRefPtr& stage,
             std::shared_ptr<UsdImagingGLEngine>& engine)
         {
-            TLRENDER_P();
+            DTK_P();
             stage = UsdStage::Open(fileName);
             const bool gpuEnabled = true;
             engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
@@ -426,7 +429,7 @@ namespace tl
         
         void Render::_run()
         {
-            TLRENDER_P();
+            DTK_P();
                         
             TfDiagnosticMgr::GetInstance().SetQuiet(true);
 
@@ -485,7 +488,8 @@ namespace tl
                 p.thread.diskCache.setMax(diskCacheByteCount);
                 if (diskCacheByteCount > 0 && p.thread.tempDir.empty())
                 {
-                    p.thread.tempDir = file::createTempDir();
+                    p.thread.tempDir = std::tmpnam(nullptr);
+                    std::filesystem::create_directory(std::filesystem::u8path(p.thread.tempDir));
                     if (auto logSystem = p.logSystem.lock())
                     {
                         logSystem->print(
@@ -495,7 +499,7 @@ namespace tl
                                 "    Temp directory: {0}\n"
                                 "    Disk cache: {1}GB").
                             arg(p.thread.tempDir).
-                            arg(diskCacheByteCount / memory::gigabyte));
+                            arg(diskCacheByteCount / dtk::gigabyte));
                     }
                 }
                 else if (0 == diskCacheByteCount &&
@@ -548,13 +552,13 @@ namespace tl
                         {
                             aspectRatio = 1.F;
                         }
-                        info.video.push_back(image::Info(
+                        info.video.push_back(dtk::ImageInfo(
                             renderWidth,
                             renderWidth / aspectRatio,
-                            image::PixelType::RGBA_F16));
-                        info.videoTime = otime::TimeRange::range_from_start_end_time_inclusive(
-                            otime::RationalTime(startTimeCode, timeCodesPerSecond),
-                            otime::RationalTime(endTimeCode, timeCodesPerSecond));
+                            dtk::ImageType::RGBA_F16));
+                        info.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                            OTIO_NS::RationalTime(startTimeCode, timeCodesPerSecond),
+                            OTIO_NS::RationalTime(endTimeCode, timeCodesPerSecond));
                         //std::cout << fileName << " range: " << info.videoTime << std::endl;
                     }
                     infoRequest->promise.set_value(info);
@@ -588,19 +592,19 @@ namespace tl
                     if (diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(cacheKey, diskCacheItem))
                     {
-                        std::shared_ptr<image::Image> image;
+                        std::shared_ptr<dtk::Image> image;
                         try
                         {
                             //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
-                            auto fileIO = file::FileIO::create(diskCacheItem->fileName, file::Mode::Read);
+                            auto fileIO = dtk::FileIO::create(diskCacheItem->fileName, dtk::FileMode::Read);
                             uint16_t w = 0;
                             uint16_t h = 0;
                             fileIO->readU16(&w);
                             fileIO->readU16(&h);
                             uint32_t pixelType = 0;
                             fileIO->readU32(&pixelType);
-                            image = image::Image::create(w, h, static_cast<image::PixelType>(pixelType));
-                            fileIO->read(image->getData(), image->getDataByteCount());
+                            image = dtk::Image::create(w, h, static_cast<dtk::ImageType>(pixelType));
+                            fileIO->read(image->getData(), image->getInfo().getByteCount());
                         }
                         catch (const std::exception& e)
                         {
@@ -630,7 +634,7 @@ namespace tl
                 // Handle requests.
                 if (request)
                 {
-                    std::shared_ptr<image::Image> image;
+                    std::shared_ptr<dtk::Image> image;
                     const std::string cacheKey = io::getVideoCacheKey(
                         request->path,
                         request->time,
@@ -779,11 +783,11 @@ namespace tl
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = image::Image::create(
+                                        image = dtk::Image::create(
                                             renderWidth,
                                             renderHeight,
-                                            image::PixelType::RGBA_F16);
-                                        memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getDataByteCount());
+                                            dtk::ImageType::RGBA_F16);
+                                        memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getInfo().getByteCount());
                                         break;
                                     default: break;
                                     }
@@ -799,11 +803,11 @@ namespace tl
                                     switch (HdStHioConversions::GetHioFormat(colorRenderBuffer->GetFormat()))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = image::Image::create(
+                                        image = dtk::Image::create(
                                             renderWidth,
                                             renderHeight,
-                                            image::PixelType::RGBA_F16);
-                                        memcpy(image->getData(), colorRenderBuffer->Map(), image->getDataByteCount());
+                                            dtk::ImageType::RGBA_F16);
+                                        memcpy(image->getData(), colorRenderBuffer->Map(), image->getInfo().getByteCount());
                                         break;
                                     default: break;
                                     }
@@ -818,11 +822,11 @@ namespace tl
                                     arg(p.thread.tempDir).
                                     arg(diskCacheItem);
                                 //std::cout << "write temp file: " << diskCacheItem->fileName << std::endl;
-                                auto tempFile = file::FileIO::create(diskCacheItem->fileName, file::Mode::Write);
+                                auto tempFile = dtk::FileIO::create(diskCacheItem->fileName, dtk::FileMode::Write);
                                 tempFile->writeU16(image->getWidth());
                                 tempFile->writeU16(image->getHeight());
-                                tempFile->writeU32(static_cast<uint32_t>(image->getPixelType()));
-                                const size_t byteCount = image->getDataByteCount();
+                                tempFile->writeU32(static_cast<uint32_t>(image->getType()));
+                                const size_t byteCount = image->getInfo().getByteCount();
                                 tempFile->write(image->getData(), byteCount);
                                 p.thread.diskCache.add(cacheKey, diskCacheItem, byteCount);
                             }
@@ -874,8 +878,8 @@ namespace tl
                                 arg(requestsSize).
                                 arg(p.thread.stageCache.getSize()).
                                 arg(p.thread.stageCache.getMax()).
-                                arg(p.thread.diskCache.getSize() / memory::gigabyte).
-                                arg(p.thread.diskCache.getMax() / memory::gigabyte));
+                                arg(p.thread.diskCache.getSize() / dtk::gigabyte).
+                                arg(p.thread.diskCache.getMax() / dtk::gigabyte));
                         }
                     }
                 }
@@ -884,7 +888,7 @@ namespace tl
 
         void Render::_finish()
         {
-            TLRENDER_P();
+            DTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::Request> > requests;
             {
