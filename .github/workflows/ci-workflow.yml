@@ -8,8 +8,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -70,8 +68,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_AUDIO: OFF
@@ -115,9 +111,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      dtk_API: GLES_2
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GLES_2
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_AUDIO: OFF
@@ -163,8 +158,6 @@ jobs:
     env:
       CMAKE_CXX_STANDARD: 17
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -216,8 +209,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -275,8 +266,6 @@ jobs:
       CMAKE_CXX_STANDARD: 17
       CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -331,8 +320,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -386,8 +373,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -443,8 +428,6 @@ jobs:
 
     env:
       TLRENDER_PYTHON: OFF
-      TLRENDER_API: GL_4_1
-      TLRENDER_GLFW: ON
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
