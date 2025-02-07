@@ -24,12 +24,6 @@ then
     sudo apt-get install libpulse-dev
 fi
 
-# Install Python support
-if [[ $TLRENDER_PYTHON = "ON" ]]
-then
-    sudo apt-get install python3.8-dev
-fi
-
 # Install Qt support
 if [[ $TLRENDER_QT5 = "ON" ]]
 then
@@ -45,7 +39,6 @@ cmake ../etc/SuperBuild \
     -DCMAKE_PREFIX_PATH=$PWD/install \
     -DCMAKE_CXX_STANDARD=$CMAKE_CXX_STANDARD \
     -Ddtk_API=$dtk_API \
-    -DTLRENDER_PYTHON=$TLRENDER_PYTHON \
     -DTLRENDER_NET=$TLRENDER_NET \
     -DTLRENDER_OCIO=$TLRENDER_OCIO \
     -DTLRENDER_AUDIO=$TLRENDER_AUDIO \

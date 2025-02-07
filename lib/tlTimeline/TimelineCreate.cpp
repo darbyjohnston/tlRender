@@ -25,10 +25,6 @@
 
 #include <filesystem>
 
-#if defined(TLRENDER_PYTHON)
-#include <Python.h>
-#endif // TLRENDER_PYTHON
-
 namespace tl
 {
     namespace timeline
@@ -102,30 +98,6 @@ namespace tl
                 }
                 return out;
             }
-
-#if defined(TLRENDER_PYTHON)
-            class PyObjectRef
-            {
-            public:
-                PyObjectRef(PyObject* o) :
-                    o(o)
-                {
-                    if (!o)
-                    {
-                        throw std::runtime_error("Python error");
-                    }
-                }
-
-                ~PyObjectRef()
-                {
-                    Py_XDECREF(o);
-                }
-
-                PyObject* o = nullptr;
-
-                operator PyObject* () const { return o; }
-            };
-#endif // TLRENDER_PYTHON
         }
 
         class ZipReader
@@ -311,43 +283,6 @@ namespace tl
                         }
                     }
                 }
-            }
-            else
-            {
-#if defined(TLRENDER_PYTHON)
-                Py_Initialize();
-                try
-                {
-                    auto pyModule = PyObjectRef(PyImport_ImportModule("opentimelineio.adapters"));
-
-                    auto pyReadFromFile = PyObjectRef(PyObject_GetAttrString(pyModule, "read_from_file"));
-                    auto pyReadFromFileArgs = PyObjectRef(PyTuple_New(1));
-                    auto pyReadFromFileArg = PyUnicode_FromStringAndSize(fileName.c_str(), fileName.size());
-                    if (!pyReadFromFileArg)
-                    {
-                        throw std::runtime_error("Cannot create arg");
-                    }
-                    PyTuple_SetItem(pyReadFromFileArgs, 0, pyReadFromFileArg);
-                    auto pyTimeline = PyObjectRef(PyObject_CallObject(pyReadFromFile, pyReadFromFileArgs));
-
-                    auto pyToJSONString = PyObjectRef(PyObject_GetAttrString(pyTimeline, "to_json_string"));
-                    auto pyJSONString = PyObjectRef(PyObject_CallObject(pyToJSONString, NULL));
-                    out = OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>(
-                        dynamic_cast<OTIO_NS::Timeline*>(OTIO_NS::Timeline::from_json_string(
-                            PyUnicode_AsUTF8AndSize(pyJSONString, NULL),
-                            errorStatus)));
-                }
-                catch (const std::exception& e)
-                {
-                    errorStatus->outcome = OTIO_NS::ErrorStatus::Outcome::FILE_OPEN_FAILED;
-                    errorStatus->details = e.what();
-                }
-                if (PyErr_Occurred())
-                {
-                    PyErr_Print();
-                }
-                Py_Finalize();
-#endif // TLRENDER_PYTHON
             }
             return out;
         }

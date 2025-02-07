@@ -24,7 +24,6 @@ project(
 #-------------------------------------------------------------------------------
 # Build options
 
-set(TLRENDER_PYTHON FALSE CACHE BOOL "Enable Python support (for OTIO Python adapters)")
 set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_SDL2 TRUE CACHE BOOL "Enable support for SDL2")
@@ -38,12 +37,6 @@ set(TLRENDER_FFMPEG TRUE CACHE BOOL "Enable support for FFmpeg I/O")
 set(TLRENDER_USD FALSE CACHE BOOL "Enable support for USD")
 set(TLRENDER_BMD FALSE CACHE BOOL "Enable support for Blackmagic Design devices")
 set(TLRENDER_BMD_SDK "" CACHE PATH "Full path to the Blackmagic Design SDK")
-if(WIN32 OR APPLE)
-    set(TLRENDER_NFD_DEFAULT TRUE)
-else()
-    set(TLRENDER_NFD_DEFAULT FALSE)
-endif()
-set(TLRENDER_NFD ${TLRENDER_NFD_DEFAULT} CACHE BOOL "Enable support for native file dialogs")
 set(TLRENDER_QT6 FALSE CACHE BOOL "Enable support for Qt6")
 set(TLRENDER_QT5 FALSE CACHE BOOL "Enable support for Qt5")
 set(TLRENDER_PROGRAMS TRUE CACHE BOOL "Build programs")
@@ -61,9 +54,6 @@ set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
-if(TLRENDER_PYTHON)
-    add_definitions(-DTLRENDER_PYTHON)
-endif()
 if(TLRENDER_USD)
     add_definitions(-DTLRENDER_USD)
 endif()
@@ -139,7 +129,6 @@ find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
 find_package(OTIO REQUIRED)
-find_package(Freetype REQUIRED)
 
 # OpenColorIO dependencies
 if(TLRENDER_OCIO)
@@ -196,11 +185,6 @@ if(TLRENDER_USD)
     if(pxr_FOUND)
         add_definitions(-DTLRENDER_USD)
     endif()
-endif()
-
-# Python dependencies
-if(TLRENDER_PYTHON)
-    find_package(Python3 REQUIRED COMPONENTS Development)
 endif()
 
 # Native file dialog dependencies

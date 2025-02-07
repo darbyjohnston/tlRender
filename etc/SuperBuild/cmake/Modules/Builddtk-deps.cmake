@@ -8,15 +8,13 @@ set(dtk-deps_ARGS
     -Ddtk_ZLIB=OFF
     -Ddtk_nlohmann_json=OFF
     -Ddtk_PNG=OFF
-    -Ddtk_Freetype=OFF
-    -Ddtk_NFD=OFF
     -Ddtk_DEPS_ONLY=ON
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
     dtk-deps
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/dtk-deps
-    DEPENDS ZLIB PNG Freetype
+    DEPENDS ZLIB PNG
     GIT_REPOSITORY ${dtk_GIT_REPOSITORY}
     GIT_TAG ${dtk_GIT_TAG}
     SOURCE_SUBDIR etc/SuperBuild
