@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(dtk_GIT_REPOSITORY "https://github.com/darbyjohnston/dtk.git")
-set(dtk_GIT_TAG "a18ba0cfedd430bda999a9957ce94e1dee3bd039")
+set(dtk_GIT_TAG "main")
 
 set(dtk-deps_ARGS
     -Ddtk_API=${dtk_API}
@@ -9,7 +9,6 @@ set(dtk-deps_ARGS
     -Ddtk_nlohmann_json=OFF
     -Ddtk_PNG=OFF
     -Ddtk_Freetype=OFF
-    -Ddtk_glfw3=OFF
     -Ddtk_NFD=OFF
     -Ddtk_DEPS_ONLY=ON
     ${TLRENDER_EXTERNAL_ARGS})
