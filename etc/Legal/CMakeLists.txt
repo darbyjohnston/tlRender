@@ -2,8 +2,6 @@ set(LEGAL
     LICENSE_BlackmagicDesign.txt
     LICENSE_CMake.txt
     LICENSE_FFmpeg.txt
-    LICENSE_FreeType.txt
-    LICENSE_GLFW.md
     LICENSE_MaterialX.txt
     LICENSE_OFL.txt
     LICENSE_OpenColorIO.txt
@@ -16,13 +14,11 @@ set(LEGAL
     LICENSE_boost.txt
     LICENSE_dtk.txt
     LICENSE_expat.txt
-    LICENSE_glad.txt
     LICENSE_libjpeg-turbo.txt
     LICENSE_libjpeg.txt
     LICENSE_libpng.txt
     LICENSE_libtiff.txt
     LICENSE_minizip-ng.txt
-    LICENSE_nativefiledialog-extended.txt
     LICENSE_nlohmann_json.txt
     LICENSE_oneTBB.txt
     LICENSE_pystring.txt
