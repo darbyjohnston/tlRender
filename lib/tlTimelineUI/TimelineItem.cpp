@@ -8,12 +8,11 @@
 #include <tlTimelineUI/GapItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/ScrollArea.h>
-
 #include <tlTimeline/Edit.h>
 #include <tlTimeline/Util.h>
 
+#include <dtk/ui/DrawUtil.h>
+#include <dtk/ui/ScrollArea.h>
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 
@@ -22,6 +21,7 @@ namespace tl
     namespace timelineui
     {
         void TimelineItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<timeline::Player>& player,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>& stack,
             double scale,
@@ -29,7 +29,6 @@ namespace tl
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<dtk::gl::Window>& window,
-            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             const OTIO_NS::TimeRange timeRange = player->getTimeRange();
@@ -37,6 +36,7 @@ namespace tl
                 OTIO_NS::RationalTime(0.0, timeRange.duration().rate()),
                 timeRange.duration());
             IItem::_init(
+                context,
                 "tl::timelineui::TimelineItem",
                 timeRange,
                 trimmedRange,
@@ -44,20 +44,19 @@ namespace tl
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
             DTK_P();
 
-            _setMouseHover(true);
-            _setMousePress(true, 0, 0);
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true, 0, 0);
 
             p.player = player;
 
             p.scrub = dtk::ObservableValue<bool>::create(false);
             p.timeScrub = dtk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
 
-            p.thumbnailGenerator = ui::ThumbnailGenerator::create(
-                context->getSystem<ui::ThumbnailSystem>()->getCache(),
+            p.thumbnailGenerator = ThumbnailGenerator::create(
+                context->getSystem<ThumbnailSystem>()->getCache(),
                 context,
                 window);
 
@@ -87,12 +86,12 @@ namespace tl
                         }
                     }
                     track.timeRange = otioTrack->trimmed_range();
-                    track.enabledButton = ui::ToolButton::create(
+                    track.enabledButton = dtk::ToolButton::create(
                         context,
                         shared_from_this());
                     track.enabledButton->setIcon("Hidden");
                     track.enabledButton->setCheckedIcon("Visible");
-                    track.enabledButton->setCheckedRole(ui::ColorRole::None);
+                    track.enabledButton->setCheckedRole(dtk::ColorRole::None);
                     track.enabledButton->setCheckable(true);
                     track.enabledButton->setChecked(otioTrack->enabled());
                     track.enabledButton->setCheckedCallback(
@@ -101,17 +100,17 @@ namespace tl
                             _setTrackEnabled(stackIndex, value);
                         });
                     track.enabledButton->setAcceptsKeyFocus(false);
-                    track.enabledButton->setToolTip("Toggle the enabled state");
-                    track.label = ui::Label::create(
+                    track.enabledButton->setTooltip("Toggle the enabled state");
+                    track.label = dtk::Label::create(
+                        context,
                         trackLabel,
-                        context,
                         shared_from_this());
-                    track.label->setMarginRole(ui::SizeRole::MarginInside);
+                    track.label->setMarginRole(dtk::SizeRole::MarginInside);
                     track.label->setEnabled(otioTrack->enabled());
-                    track.durationLabel = ui::Label::create(
+                    track.durationLabel = dtk::Label::create(
                         context,
                         shared_from_this());
-                    track.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
+                    track.durationLabel->setMarginRole(dtk::SizeRole::MarginInside);
                     track.durationLabel->setEnabled(otioTrack->enabled());
 
                     for (const auto& child : otioTrack->children())
@@ -123,24 +122,24 @@ namespace tl
                             {
                             case TrackType::Video:
                                 item = VideoClipItem::create(
+                                    context,
                                     clip,
                                     scale,
                                     options,
                                     displayOptions,
                                     itemData,
                                     p.thumbnailGenerator,
-                                    context,
                                     shared_from_this());
                                 break;
                             case TrackType::Audio:
                                 item = AudioClipItem::create(
+                                    context,
                                     clip,
                                     scale,
                                     options,
                                     displayOptions,
                                     itemData,
                                     p.thumbnailGenerator,
-                                    context,
                                     shared_from_this());
                                 break;
                             default: break;
@@ -149,15 +148,15 @@ namespace tl
                         else if (auto gap = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Gap>(child))
                         {
                             item = GapItem::create(
+                                context,
                                 TrackType::Video == track.type ?
-                                ui::ColorRole::VideoGap :
-                                ui::ColorRole::AudioGap,
+                                    dtk::Color4F(.25F, .31F, .31F) :
+                                    dtk::Color4F(.25F, .24F, .3F),
                                 gap,
                                 scale,
                                 options,
                                 displayOptions,
                                 itemData,
-                                context,
                                 shared_from_this());
                         }
                         if (item)
@@ -180,7 +179,7 @@ namespace tl
                 [this](const OTIO_NS::RationalTime& value)
                 {
                     _p->currentTime = value;
-                    _updates |= ui::Update::Draw;
+                    _setDrawUpdate();
                 });
 
             p.inOutRangeObserver = dtk::ValueObserver<OTIO_NS::TimeRange>::create(
@@ -188,7 +187,7 @@ namespace tl
                 [this](const OTIO_NS::TimeRange value)
                 {
                     _p->inOutRange = value;
-                    _updates |= ui::Update::Draw;
+                    _setDrawUpdate();
                 });
 
             p.cacheInfoObserver = dtk::ValueObserver<timeline::PlayerCacheInfo>::create(
@@ -196,7 +195,7 @@ namespace tl
                 [this](const timeline::PlayerCacheInfo& value)
                 {
                     _p->cacheInfo = value;
-                    _updates |= ui::Update::Draw;
+                    _setDrawUpdate();
                 });
         }
 
@@ -208,6 +207,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineItem> TimelineItem::create(
+            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<timeline::Player>& player,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>& stack,
             double scale,
@@ -215,11 +215,11 @@ namespace tl
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
             const std::shared_ptr<dtk::gl::Window>& window,
-            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineItem>(new TimelineItem);
             out->_init(
+                context,
                 player,
                 stack,
                 scale,
@@ -227,7 +227,6 @@ namespace tl
                 displayOptions,
                 itemData,
                 window,
-                context,
                 parent);
             return out;
         }
@@ -258,7 +257,7 @@ namespace tl
             if (value == p.frameMarkers)
                 return;
             p.frameMarkers = value;
-            _updates |= ui::Update::Draw;
+            _setDrawUpdate();
         }
 
         int TimelineItem::getMinimumHeight() const
@@ -284,7 +283,7 @@ namespace tl
             DTK_P();
             if (changed)
             {
-                p.size.sizeInit = true;
+                p.size.init = true;
                 _tracksUpdate();
             }
         }
@@ -294,14 +293,13 @@ namespace tl
             IWidget::setGeometry(value);
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
             float y =
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
                 p.size.border * 4 +
                 p.size.border +
-                g.min.y;
+                value.min.y;
             for (auto& track : p.tracks)
             {
                 const bool visible = _isTrackVisible(track.index);
@@ -322,17 +320,17 @@ namespace tl
                             durationSizeHint.h));
                 }
                 track.enabledButton->setGeometry(dtk::Box2I(
-                    g.min.x,
+                    value.min.x,
                     y + trackInfoHeight / 2 - buttonSizeHint.h / 2,
                     buttonSizeHint.w,
                     buttonSizeHint.h));
                 track.label->setGeometry(dtk::Box2I(
-                    g.min.x + buttonSizeHint.w + p.size.spacing,
+                    value.min.x + buttonSizeHint.w + p.size.spacing,
                     y + trackInfoHeight / 2 - labelSizeHint.h / 2,
                     labelSizeHint.w,
                     labelSizeHint.h));
                 track.durationLabel->setGeometry(dtk::Box2I(
-                    g.min.x + track.size.w - durationSizeHint.w,
+                    value.min.x + track.size.w - durationSizeHint.w,
                     y + trackInfoHeight / 2 - durationSizeHint.h / 2,
                     durationSizeHint.w,
                     durationSizeHint.h));
@@ -357,7 +355,7 @@ namespace tl
                         sizeHint = item->getSizeHint();
                     }
                     item->setGeometry(dtk::Box2I(
-                        _geometry.min.x +
+                        value.min.x +
                         timeRange.start_time().rescaled_to(1.0).value() * _scale,
                         y + std::max(labelSizeHint.h, durationSizeHint.h),
                         sizeHint.w,
@@ -365,7 +363,7 @@ namespace tl
                 }
 
                 track.geom = dtk::Box2I(
-                    g.min.x,
+                    value.min.x,
                     y,
                     track.size.w,
                     visible ? track.size.h : 0);
@@ -376,30 +374,31 @@ namespace tl
                 }
             }
 
-            if (auto scrollArea = getParentT<ui::ScrollArea>())
+            if (auto scrollArea = getParentT<dtk::ScrollArea>())
             {
                 p.size.scrollPos = scrollArea->getScrollPos();
             }
         }
 
-        void TimelineItem::sizeHintEvent(const ui::SizeHintEvent& event)
+        void TimelineItem::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IItem::sizeHintEvent(event);
             DTK_P();
 
-            if (displayScaleChanged || p.size.sizeInit)
+            const bool displayScaleChanged = event.displayScale != p.size.displayScale;
+            if (displayScaleChanged || p.size.init)
             {
-                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
-                p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, _displayScale);
-                p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
-                p.size.handle = event.style->getSizeRole(ui::SizeRole::Handle, _displayScale);
+                p.size.init = false;
+                p.size.displayScale = event.displayScale;
+                p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginInside, event.displayScale);
+                p.size.spacing = event.style->getSizeRole(dtk::SizeRole::SpacingSmall, event.displayScale);
+                p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
+                p.size.handle = event.style->getSizeRole(dtk::SizeRole::Handle, event.displayScale);
                 p.size.fontInfo = dtk::FontInfo(
                     _displayOptions.monoFont,
-                    _displayOptions.fontSize * _displayScale);
+                    _displayOptions.fontSize * event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
             }
-            p.size.sizeInit = false;
 
             int tracksHeight = 0;
             bool minimumTrackHeightInit = true;
@@ -437,14 +436,14 @@ namespace tl
                 }
             }
 
-            _sizeHint = dtk::Size2I(
+            _setSizeHint(dtk::Size2I(
                 _timeRange.duration().rescaled_to(1.0).value() * _scale,
                 p.size.margin +
                 p.size.fontMetrics.lineHeight +
                 p.size.margin +
                 p.size.border * 4 +
                 p.size.border +
-                tracksHeight);
+                tracksHeight));
 
             p.minimumHeight =
                 p.size.margin +
@@ -457,12 +456,12 @@ namespace tl
 
         void TimelineItem::drawOverlayEvent(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IItem::drawOverlayEvent(drawRect, event);
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
+            const dtk::Box2I& g = getGeometry();
 
             int y =
                 p.size.scrollPos.y +
@@ -474,13 +473,13 @@ namespace tl
                 p.size.border * 4;
             event.render->drawRect(
                 dtk::Box2I(g.min.x, y, g.w(), h),
-                event.style->getColorRole(ui::ColorRole::Window));
+                event.style->getColorRole(dtk::ColorRole::Window));
 
             y = y + h;
             h = p.size.border;
             event.render->drawRect(
                 dtk::Box2I(g.min.x, y, g.w(), h),
-                event.style->getColorRole(ui::ColorRole::Border));
+                event.style->getColorRole(dtk::ColorRole::Border));
 
             _drawInOutPoints(drawRect, event);
             _drawTimeTicks(drawRect, event);
@@ -495,11 +494,11 @@ namespace tl
                 const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
                 event.render->drawRect(
                     dt.draw,
-                    event.style->getColorRole(ui::ColorRole::Green));
+                    event.style->getColorRole(dtk::ColorRole::Green));
             }
         }
 
-        void TimelineItem::mouseMoveEvent(ui::MouseMoveEvent& event)
+        void TimelineItem::mouseMoveEvent(dtk::MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
             DTK_P();
@@ -520,7 +519,7 @@ namespace tl
                     {
                         const dtk::Box2I& g = item->geometry;
                         item->p->setGeometry(dtk::Box2I(
-                            g.min + _mouse.pos - _mouse.pressPos,
+                            g.min + _getMousePos() - _getMousePressPos(),
                             g.size()));
                     }
                     
@@ -539,11 +538,11 @@ namespace tl
                         {
                             item->p->setSelectRole(
                                 dropTarget != -1 ?
-                                ui::ColorRole::Green :
-                                ui::ColorRole::Checked);
+                                dtk::ColorRole::Green :
+                                dtk::ColorRole::Checked);
                         }
                         p.mouse.currentDropTarget = dropTarget;
-                        _updates |= ui::Update::Draw;
+                        _setDrawUpdate();
                     }
                 }
                 break;
@@ -552,7 +551,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::mousePressEvent(ui::MouseClickEvent& event)
+        void TimelineItem::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
             DTK_P();
@@ -564,7 +563,7 @@ namespace tl
 
                 p.mouse.mode = Private::MouseMode::None;
 
-                const dtk::Box2I& g = _geometry;
+                const dtk::Box2I& g = getGeometry();
                 if (p.editable)
                 {
                     for (int i = 0; i < p.tracks.size(); ++i)
@@ -617,7 +616,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::mouseReleaseEvent(ui::MouseClickEvent& event)
+        void TimelineItem::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
             DTK_P();
@@ -642,12 +641,12 @@ namespace tl
             if (!p.mouse.dropTargets.empty())
             {
                 p.mouse.dropTargets.clear();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
             p.mouse.currentDropTarget = -1;
         }
 
-        /*void TimelineItem::keyPressEvent(ui::KeyEvent& event)
+        /*void TimelineItem::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             if (isEnabled() &&
@@ -661,7 +660,7 @@ namespace tl
             }
         }
 
-        void TimelineItem::keyReleaseEvent(ui::KeyEvent& event)
+        void TimelineItem::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
         }*/
@@ -670,8 +669,8 @@ namespace tl
         {
             IItem::_timeUnitsUpdate();
             _textUpdate();
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
 
         void TimelineItem::_releaseMouse()
@@ -708,13 +707,14 @@ namespace tl
 
         void TimelineItem::_drawInOutPoints(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
             if (!time::compareExact(_p->inOutRange, time::invalidTimeRange) &&
                 !time::compareExact(_p->inOutRange, _timeRange))
             {
-                const dtk::Box2I& g = _geometry;
+                const dtk::Box2I& g = getGeometry();
+                const dtk::Color4F color(.4F, .5F, .9F);
 
                 switch (_displayOptions.inOutDisplay)
                 {
@@ -730,9 +730,7 @@ namespace tl
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
-                    event.render->drawRect(
-                        box,
-                        event.style->getColorRole(ui::ColorRole::InOut));
+                    event.render->drawRect(box, color);
                     break;
                 }
                 case InOutDisplay::OutsideRange:
@@ -747,9 +745,7 @@ namespace tl
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
-                    event.render->drawRect(
-                        box,
-                        event.style->getColorRole(ui::ColorRole::InOut));
+                    event.render->drawRect(box, color);
                     x0 = timeToPos(_p->inOutRange.end_time_exclusive());
                     x1 = timeToPos(_timeRange.end_time_exclusive());
                     box = dtk::Box2I(
@@ -760,9 +756,7 @@ namespace tl
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
                         p.size.margin);
-                    event.render->drawRect(
-                        box,
-                        event.style->getColorRole(ui::ColorRole::InOut));
+                    event.render->drawRect(box, color);
                     break;
                 }
                 default: break;
@@ -785,7 +779,7 @@ namespace tl
             int& tick)
         {
             DTK_P();
-            const int w = _sizeHint.w;
+            const int w = getSizeHint().w;
             const float duration = _timeRange.duration().rescaled_to(1.0).value();
             const int secondsTick = 1.0 / duration * w;
             const int minutesTick = 60.0 / duration * w;
@@ -813,13 +807,13 @@ namespace tl
 
         void TimelineItem::_drawTimeTicks(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
             if (_timeRange != time::invalidTimeRange)
             {
-                const dtk::Box2I& g = _geometry;
-                const int w = _sizeHint.w;
+                const dtk::Box2I& g = getGeometry();
+                const int w = getSizeHint().w;
                 const float duration = _timeRange.duration().rescaled_to(1.0).value();
                 const int frameTick = 1.0 / _timeRange.duration().value() * w;
                 if (duration > 0.0 && frameTick >= p.size.handle)
@@ -858,7 +852,7 @@ namespace tl
                     {
                         event.render->drawMesh(
                             mesh,
-                            event.style->getColorRole(ui::ColorRole::Button));
+                            event.style->getColorRole(dtk::ColorRole::Button));
                     }
                 }
 
@@ -901,7 +895,7 @@ namespace tl
                     {
                         event.render->drawMesh(
                             mesh,
-                            event.style->getColorRole(ui::ColorRole::Button));
+                            event.style->getColorRole(dtk::ColorRole::Button));
                     }
                 }
             }
@@ -909,11 +903,12 @@ namespace tl
 
         void TimelineItem::_drawFrameMarkers(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
-            const dtk::Box2I& g = _geometry;
+            const dtk::Box2I& g = getGeometry();
             const double rate = _timeRange.duration().rate();
+            const dtk::Color4F color(.6F, .4F, .2F);
             for (const auto& frameMarker : p.frameMarkers)
             {
                 const dtk::Box2I g2(
@@ -927,22 +922,20 @@ namespace tl
                     p.size.border * 4);
                 if (dtk::intersects(g2, drawRect))
                 {
-                    event.render->drawRect(
-                        g2,
-                        event.style->getColorRole(ui::ColorRole::FrameMarker));
+                    event.render->drawRect(g2, color);
                 }
             }
         }
 
         void TimelineItem::_drawTimeLabels(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
             if (_timeRange != time::invalidTimeRange)
             {
-                const dtk::Box2I& g = _geometry;
-                const int w = _sizeHint.w;
+                const dtk::Box2I& g = getGeometry();
+                const int w = getSizeHint().w;
                 const float duration = _timeRange.duration().rescaled_to(1.0).value();
                 double seconds = 0;
                 int tick = 0;
@@ -976,7 +969,7 @@ namespace tl
                                 event.fontSystem->getGlyphs(label, p.size.fontInfo),
                                 p.size.fontMetrics,
                                 box.min,
-                                event.style->getColorRole(ui::ColorRole::TextDisabled));
+                                event.style->getColorRole(dtk::ColorRole::TextDisabled));
                         }
                     }
                 }
@@ -985,11 +978,11 @@ namespace tl
 
         void TimelineItem::_drawCacheInfo(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
+            const dtk::Box2I& g = getGeometry();
 
             if (CacheDisplay::VideoAndAudio == _displayOptions.cacheDisplay ||
                 CacheDisplay::VideoOnly == _displayOptions.cacheDisplay)
@@ -1025,9 +1018,8 @@ namespace tl
                 }
                 if (!mesh.v.empty())
                 {
-                    event.render->drawMesh(
-                        mesh,
-                        event.style->getColorRole(ui::ColorRole::VideoCache));
+                    const dtk::Color4F color(.3F, .7F, .7F);
+                    event.render->drawMesh(mesh, color);
                 }
             }
 
@@ -1062,20 +1054,19 @@ namespace tl
                 }
                 if (!mesh.v.empty())
                 {
-                    event.render->drawMesh(
-                        mesh,
-                        event.style->getColorRole(ui::ColorRole::AudioCache));
+                    const dtk::Color4F color(.3F, .25F, .4F);
+                    event.render->drawMesh(mesh, color);
                 }
             }
         }
 
         void TimelineItem::_drawCurrentTime(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
+            const dtk::Box2I& g = getGeometry();
 
             if (!p.currentTime.is_invalid_time())
             {
@@ -1090,7 +1081,7 @@ namespace tl
                         pos.y,
                         p.size.border * 2,
                         g.h()),
-                    event.style->getColorRole(ui::ColorRole::Red));
+                    event.style->getColorRole(dtk::ColorRole::Red));
 
                 const std::string label = _data->timeUnitsModel->getLabel(p.currentTime);
                 event.render->drawText(
@@ -1099,7 +1090,7 @@ namespace tl
                     dtk::V2I(
                         pos.x + p.size.border * 2 + p.size.margin,
                         pos.y + p.size.margin),
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    event.style->getColorRole(dtk::ColorRole::Text));
             }
         }
 
@@ -1150,7 +1141,7 @@ namespace tl
         {
             if (p)
             {
-                p->setSelectRole(ui::ColorRole::Checked);
+                p->setSelectRole(dtk::ColorRole::Checked);
                 geometry = p->getGeometry();
             }
         }
@@ -1159,7 +1150,7 @@ namespace tl
         {
             if (p)
             {
-                p->setSelectRole(ui::ColorRole::None);
+                p->setSelectRole(dtk::ColorRole::None);
                 p->setGeometry(geometry);
             }
         }

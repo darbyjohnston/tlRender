@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlBaseApp/BaseApp.h>
+#include <dtk/core/IApp.h>
 
 namespace tl
 {
@@ -15,14 +15,14 @@ namespace tl
         };
 
         //! Application.
-        class App : public app::BaseApp
+        class App : public dtk::IApp
         {
             DTK_NON_COPYABLE(App);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::vector<std::string>&);
+                std::vector<std::string>&);
 
             App();
 
@@ -32,10 +32,10 @@ namespace tl
             //! Create a new application.
             static std::shared_ptr<App> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::vector<std::string>&);
+                std::vector<std::string>&);
 
             //! Run the application.
-            int run();
+            void run() override;
 
         private:
             std::string _input;

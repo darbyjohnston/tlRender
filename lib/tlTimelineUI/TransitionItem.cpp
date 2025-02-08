@@ -9,12 +9,12 @@ namespace tl
     namespace timelineui
     {
         void TransitionItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
@@ -28,6 +28,7 @@ namespace tl
                     timeRange.duration());
             }
             IItem::_init(
+                context,
                 "tl::timelineui::TransitionItem",
                 timeRange,
                 trimmedRange,
@@ -35,7 +36,6 @@ namespace tl
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
         }
 
@@ -46,22 +46,22 @@ namespace tl
         {}
 
         std::shared_ptr<TransitionItem> TransitionItem::create(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TransitionItem>(new TransitionItem);
             out->_init(
+                context,
                 transition,
                 scale,
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
             return out;
         }

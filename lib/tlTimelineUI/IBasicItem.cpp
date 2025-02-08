@@ -4,8 +4,7 @@
 
 #include <tlTimelineUI/IBasicItem.h>
 
-#include <tlUI/DrawUtil.h>
-
+#include <dtk/ui/DrawUtil.h>
 #include <dtk/core/RenderUtil.h>
 
 namespace tl
@@ -16,12 +15,13 @@ namespace tl
         {
             std::string label;
             std::string durationLabel;
-            ui::ColorRole colorRole = ui::ColorRole::VideoClip;
+            dtk::Color4F color;
             std::vector<Marker> markers;
 
             struct SizeData
             {
-                bool sizeInit = true;
+                bool init = true;
+                float displayScale = 0.F;
                 int margin = 0;
                 int border = 0;
 
@@ -42,16 +42,16 @@ namespace tl
         };
 
         void IBasicItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& label,
-            ui::ColorRole colorRole,
+            const dtk::Color4F& color,
             const std::string& objectName,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>& item,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             const auto timeRangeOpt = item->trimmed_range_in_parent();
@@ -61,6 +61,7 @@ namespace tl
             }
             const OTIO_NS::TimeRange trimmedRange = item->trimmed_range();
             IItem::_init(
+                context,
                 objectName,
                 timeRange,
                 trimmedRange,
@@ -68,12 +69,11 @@ namespace tl
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
             DTK_P();
 
             p.label = label;
-            p.colorRole = colorRole;
+            p.color = color;
             p.markers = getMarkers(item.value);
 
             _textUpdate();
@@ -97,22 +97,22 @@ namespace tl
             }
         }
 
-        void IBasicItem::sizeHintEvent(const ui::SizeHintEvent& event)
+        void IBasicItem::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IItem::sizeHintEvent(event);
             DTK_P();
 
-            if (displayScaleChanged || p.size.sizeInit)
+            const bool displayScaleChanged = event.displayScale != p.size.displayScale;
+            if (p.size.init || displayScaleChanged)
             {
-                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
-                p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+                p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginInside, event.displayScale);
+                p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
             }
-            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            if (p.size.init || displayScaleChanged || p.size.textInit)
             {
                 p.size.fontInfo = dtk::FontInfo(
                     _displayOptions.regularFont,
-                    _displayOptions.fontSize * _displayScale);
+                    _displayOptions.fontSize * event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
                 p.size.labelSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.label, p.size.fontInfo) :
@@ -123,18 +123,20 @@ namespace tl
                 p.draw.labelGlyphs.clear();
                 p.draw.durationGlyphs.clear();
             }
-            p.size.sizeInit = false;
+            p.size.init = false;
+            p.size.displayScale = event.displayScale;
             p.size.textInit = false;
 
-            _sizeHint.w = _timeRange.duration().rescaled_to(1.0).value() * _scale;
-            _sizeHint.h = 0;
+            dtk::Size2I sizeHint;
+            sizeHint.w = _timeRange.duration().rescaled_to(1.0).value() * _scale;
             if (_displayOptions.clipInfo)
             {
-                _sizeHint.h +=
+                sizeHint.h +=
                     p.size.fontMetrics.lineHeight +
                     p.size.margin * 2;
             }
-            _sizeHint.h += p.size.border * 4;
+            sizeHint.h += p.size.border * 4;
+            _setSizeHint(sizeHint);
         }
 
         void IBasicItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
@@ -150,26 +152,24 @@ namespace tl
 
         void IBasicItem::drawEvent(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IItem::drawEvent(drawRect, event);
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
-            ui::ColorRole colorRole = getSelectRole();
-            if (colorRole != ui::ColorRole::None)
+            const dtk::Box2I& g = getGeometry();
+            dtk::ColorRole colorRole = getSelectRole();
+            if (colorRole != dtk::ColorRole::None)
             {
                 event.render->drawMesh(
-                    ui::border(g, p.size.border * 2),
+                    dtk::border(g, p.size.border * 2),
                     event.style->getColorRole(colorRole));
             }
 
             const dtk::Box2I g2 = dtk::margin(g, -(p.size.border * 2));
             event.render->drawRect(
                 g2,
-                isEnabled() ?
-                    event.style->getColorRole(p.colorRole) :
-                    dtk::greyscale(event.style->getColorRole(p.colorRole)));
+                isEnabled() ? p.color : dtk::greyscale(p.color));
 
             const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
             const dtk::ClipRectState clipRectState(event.render);
@@ -196,8 +196,8 @@ namespace tl
                         labelGeometry.min,
                         event.style->getColorRole(
                             enabled ?
-                            ui::ColorRole::Text :
-                            ui::ColorRole::TextDisabled));
+                            dtk::ColorRole::Text :
+                            dtk::ColorRole::TextDisabled));
                 }
 
                 const dtk::Box2I durationGeometry(
@@ -220,8 +220,8 @@ namespace tl
                         durationGeometry.min,
                         event.style->getColorRole(
                             enabled ?
-                            ui::ColorRole::Text :
-                            ui::ColorRole::TextDisabled));
+                            dtk::ColorRole::Text :
+                            dtk::ColorRole::TextDisabled));
                 }
             }
         }
@@ -238,7 +238,8 @@ namespace tl
 
         dtk::Box2I IBasicItem::_getInsideGeometry() const
         {
-            return dtk::margin(_geometry, -(_p->size.border * 2));
+            const dtk::Box2I& g = getGeometry();
+            return dtk::margin(g, -(_p->size.border * 2));
         }
 
         void IBasicItem::_timeUnitsUpdate()
@@ -252,8 +253,8 @@ namespace tl
             DTK_P();
             p.durationLabel = _getDurationLabel(_timeRange.duration());
             p.size.textInit = true;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
     }
 }

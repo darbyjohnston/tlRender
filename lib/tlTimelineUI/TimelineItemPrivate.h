@@ -4,9 +4,10 @@
 
 #include <tlTimelineUI/TimelineItem.h>
 
-#include <tlUI/Label.h>
-#include <tlUI/ThumbnailSystem.h>
-#include <tlUI/ToolButton.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
+
+#include <dtk/ui/ToolButton.h>
+#include <dtk/ui/Label.h>
 
 namespace tl
 {
@@ -24,16 +25,16 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             int minimumHeight = 0;
-            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
+            std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct Track
             {
                 int index = 0;
                 TrackType type = TrackType::None;
                 OTIO_NS::TimeRange timeRange;
-                std::shared_ptr<ui::ToolButton> enabledButton;
-                std::shared_ptr<ui::Label> label;
-                std::shared_ptr<ui::Label> durationLabel;
+                std::shared_ptr<dtk::ToolButton> enabledButton;
+                std::shared_ptr<dtk::Label> label;
+                std::shared_ptr<dtk::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
                 dtk::Size2I size;
                 dtk::Box2I geom;
@@ -43,7 +44,8 @@ namespace tl
 
             struct SizeData
             {
-                bool sizeInit = true;
+                bool init = true;
+                float displayScale = 0.F;
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;

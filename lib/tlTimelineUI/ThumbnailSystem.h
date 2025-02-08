@@ -25,7 +25,7 @@ namespace dtk
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         //! Information request.
         struct InfoRequest

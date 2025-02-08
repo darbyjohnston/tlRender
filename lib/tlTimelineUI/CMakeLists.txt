@@ -4,6 +4,7 @@ set(HEADERS
     IBasicItem.h
     IItem.h
     Init.h
+    ThumbnailSystem.h
     TimelineItem.h
     TimelineViewport.h
     TimelineWidget.h
@@ -18,6 +19,7 @@ set(SOURCE
     IBasicItem.cpp
     IItem.cpp
     Init.cpp
+    ThumbnailSystem.cpp
     TimelineItem.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp
@@ -25,7 +27,7 @@ set(SOURCE
     VideoClipItem.cpp)
 
 add_library(tlTimelineUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlTimelineUI PUBLIC tlUI PRIVATE ${LIBRARIES_PRIVATE})
+target_link_libraries(tlTimelineUI PUBLIC tlTimelineGL dtk::dtkUI)
 set_target_properties(tlTimelineUI PROPERTIES FOLDER lib)
 set_target_properties(tlTimelineUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

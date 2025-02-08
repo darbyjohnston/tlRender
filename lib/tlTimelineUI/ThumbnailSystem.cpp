@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/ThumbnailSystem.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
 
 #include <tlTimelineGL/Render.h>
 
@@ -24,7 +24,7 @@
 
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         namespace
         {
@@ -324,7 +324,7 @@ namespace tl
             {
                 p.window = dtk::gl::Window::create(
                     context,
-                    "tl::ui::ThumbnailGenerator",
+                    "tl::timelineui::ThumbnailGenerator",
                     dtk::Size2I(1, 1),
                     static_cast<int>(dtk::gl::WindowOptions::None));
             }
@@ -1068,7 +1068,7 @@ namespace tl
         };
 
         ThumbnailSystem::ThumbnailSystem(const std::shared_ptr<dtk::Context>& context) :
-            ISystem(context, "tl::ui::ThumbnailSystem"),
+            ISystem(context, "tl::timelineui::ThumbnailSystem"),
             _p(new Private)
         {
             DTK_P();

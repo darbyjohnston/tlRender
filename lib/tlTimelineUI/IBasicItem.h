@@ -17,16 +17,16 @@ namespace tl
         {
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& label,
-                ui::ColorRole,
+                const dtk::Color4F&,
                 const std::string& objectName,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<dtk::IWidget>& parent = nullptr);
 
             IBasicItem();
 
@@ -35,9 +35,9 @@ namespace tl
 
             void setDisplayOptions(const DisplayOptions&) override;
 
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void clipEvent(const dtk::Box2I&, bool) override;
-            void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
+            void drawEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
 
         protected:
             int _getMargin() const;

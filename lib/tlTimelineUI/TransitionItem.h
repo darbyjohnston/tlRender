@@ -17,12 +17,12 @@ namespace tl
         {
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TransitionItem();
@@ -32,12 +32,12 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TransitionItem> create(
+                const std::shared_ptr<dtk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
     }

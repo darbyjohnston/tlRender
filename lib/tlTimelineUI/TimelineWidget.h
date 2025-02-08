@@ -14,14 +14,14 @@ namespace tl
         //! 
         //! \tool Adjust the current frame label to stay visible on the right
         //! side of the timeline widget.
-        class TimelineWidget : public ui::IWidget
+        class TimelineWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(TimelineWidget);
 
         protected:
             void _init(
-                const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineWidget();
@@ -31,8 +31,8 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimelineWidget> create(
-                const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the timeline player.
@@ -94,10 +94,10 @@ namespace tl
             void setScrollToCurrentFrame(bool);
 
             //! Get the mouse scroll key modifier.
-            ui::KeyModifier getScrollKeyModifier() const;
+            dtk::KeyModifier getScrollKeyModifier() const;
 
             //! Set the mouse scroll key modifier.
-            void setScrollKeyModifier(ui::KeyModifier);
+            void setScrollKeyModifier(dtk::KeyModifier);
 
             //! Get the mouse wheel scale.
             float getMouseWheelScale() const;
@@ -168,14 +168,14 @@ namespace tl
             void tickEvent(
                 bool,
                 bool,
-                const ui::TickEvent&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void mouseMoveEvent(ui::MouseMoveEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
-            void scrollEvent(ui::ScrollEvent&) override;
-            void keyPressEvent(ui::KeyEvent&) override;
-            void keyReleaseEvent(ui::KeyEvent&) override;
+                const dtk::TickEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void mouseMoveEvent(dtk::MouseMoveEvent&) override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
+            void scrollEvent(dtk::ScrollEvent&) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
 
         protected:
             void _releaseMouse() override;

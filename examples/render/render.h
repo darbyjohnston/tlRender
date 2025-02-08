@@ -2,10 +2,11 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <tlBaseApp/BaseApp.h>
-
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/App.h>
+#include <dtk/ui/MainWindow.h>
 
 namespace dtk
 {
@@ -36,8 +37,31 @@ namespace tl
                 timeline::LUTOptions lutOptions;
             };
 
+            //! Window.
+            class MainWindow : public dtk::MainWindow
+            {
+                DTK_NON_COPYABLE(MainWindow);
+
+            protected:
+                void _init(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<dtk::App>&);
+
+                MainWindow() = default;
+
+            public:
+                ~MainWindow();
+
+                static std::shared_ptr<MainWindow> create(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<dtk::App>&);
+
+            protected:
+                std::shared_ptr<dtk::IRender> _createRender(const std::shared_ptr<dtk::Context>&) override;
+            };
+
             //! Application.
-            class App : public app::BaseApp
+            class App : public dtk::App
             {
                 DTK_NON_COPYABLE(App);
 
@@ -56,11 +80,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::vector<std::string>&);
 
-                //! Run the application.
-                int run();
-
-                //! Exit the application.
-                void exit();
+                void run() override;
 
             private:
                 void _keyCallback(int, int, int, int);

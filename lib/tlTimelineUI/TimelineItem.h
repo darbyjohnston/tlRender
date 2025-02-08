@@ -39,6 +39,7 @@ namespace tl
         {
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
@@ -46,7 +47,6 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<dtk::gl::Window>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineItem();
@@ -56,6 +56,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
@@ -63,7 +64,6 @@ namespace tl
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
                 const std::shared_ptr<dtk::gl::Window>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set whether the timeline is editable.
@@ -90,13 +90,13 @@ namespace tl
             void setDisplayOptions(const DisplayOptions&) override;
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void drawOverlayEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
-            void mouseMoveEvent(ui::MouseMoveEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
-            //void keyPressEvent(ui::KeyEvent&) override;
-            //void keyReleaseEvent(ui::KeyEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void drawOverlayEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
+            void mouseMoveEvent(dtk::MouseMoveEvent&) override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
+            //void keyPressEvent(dtk::KeyEvent&) override;
+            //void keyReleaseEvent(dtk::KeyEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;
@@ -109,7 +109,7 @@ namespace tl
 
             void _drawInOutPoints(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
             dtk::Size2I _getLabelMaxSize(
                 const std::shared_ptr<dtk::FontSystem>&) const;
             void _getTimeTicks(
@@ -118,19 +118,19 @@ namespace tl
                 int& tick);
             void _drawTimeTicks(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
             void _drawFrameMarkers(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
             void _drawTimeLabels(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
             void _drawCacheInfo(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
             void _drawCurrentTime(
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
 
             void _tracksUpdate();
             void _textUpdate();

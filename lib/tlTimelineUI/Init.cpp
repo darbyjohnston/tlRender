@@ -4,18 +4,20 @@
 
 #include <tlTimelineUI/Init.h>
 
-#include <tlUI/Init.h>
-
 #include <tlTimeline/Init.h>
+
+#include <dtk/ui/Init.h>
 
 namespace tl
 {
     namespace timelineui
     {
-        void init(const std::shared_ptr<dtk::Context>& context)
+        void init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::string& settingsPath)
         {
             tl::timeline::init(context);
-            tl::ui::init(context);
+            dtk::uiInit(context, settingsPath);
         }
     }
 }

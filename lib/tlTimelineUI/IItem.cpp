@@ -114,11 +114,12 @@ namespace tl
 
         struct IItem::Private
         {
-            ui::ColorRole selectRole = ui::ColorRole::None;
+            dtk::ColorRole selectRole = dtk::ColorRole::None;
             std::shared_ptr<dtk::ValueObserver<bool> > timeUnitsObserver;
         };
 
         void IItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const std::string& objectName,
             const OTIO_NS::TimeRange& timeRange,
             const OTIO_NS::TimeRange& trimmedRange,
@@ -126,10 +127,9 @@ namespace tl
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& data,
-            const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(objectName, context, parent);
+            IWidget::_init(context, objectName, parent);
             DTK_P();
 
             _timeRange = timeRange;
@@ -164,8 +164,8 @@ namespace tl
             if (value == _scale)
                 return;
             _scale = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
 
         void IItem::setOptions(const ItemOptions& value)
@@ -178,30 +178,31 @@ namespace tl
             if (value == _displayOptions)
                 return;
             _displayOptions = value;
-            _updates |= ui::Update::Size;
-            _updates |= ui::Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
 
-        ui::ColorRole IItem::getSelectRole() const
+        dtk::ColorRole IItem::getSelectRole() const
         {
             return _p->selectRole;
         }
 
-        void IItem::setSelectRole(ui::ColorRole value)
+        void IItem::setSelectRole(dtk::ColorRole value)
         {
             DTK_P();
             if (value == p.selectRole)
                 return;
             p.selectRole = value;
-            _updates |= ui::Update::Draw;
+            _setDrawUpdate();
         }
 
         OTIO_NS::RationalTime IItem::posToTime(float value) const
         {
             OTIO_NS::RationalTime out = time::invalidTime;
-            if (_geometry.w() > 0)
+            const dtk::Box2I& g = getGeometry();
+            if (g.w() > 0)
             {
-                const double normalized = (value - _geometry.min.x) /
+                const double normalized = (value - g.min.x) /
                     static_cast<double>(_timeRange.duration().rescaled_to(1.0).value() * _scale);
                 out = OTIO_NS::RationalTime(
                     _timeRange.start_time() +
@@ -219,8 +220,9 @@ namespace tl
 
         int IItem::timeToPos(const OTIO_NS::RationalTime& value) const
         {
+            const dtk::Box2I& g = getGeometry();
             const OTIO_NS::RationalTime t = value - _timeRange.start_time();
-            return _geometry.min.x + t.rescaled_to(1.0).value() * _scale;
+            return g.min.x + t.rescaled_to(1.0).value() * _scale;
         }
 
         dtk::Box2I IItem::_getClipRect(

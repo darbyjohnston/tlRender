@@ -4,17 +4,20 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
-
 #include <tlTimeline/BackgroundOptions.h>
+#include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/IWidget.h>
 
 namespace tl
 {
     namespace timelineui
     {
         //! Timeline viewport.
-        class TimelineViewport : public ui::IWidget
+        class TimelineViewport : public dtk::IWidget
         {
             DTK_NON_COPYABLE(TimelineViewport);
 
@@ -122,14 +125,14 @@ namespace tl
             std::shared_ptr<dtk::IObservableList<dtk::Color4F> > observeColorPickers() const;
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void drawEvent(const dtk::Box2I&, const ui::DrawEvent&) override;
-            void mouseMoveEvent(ui::MouseMoveEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
-            void scrollEvent(ui::ScrollEvent&) override;
-            void keyPressEvent(ui::KeyEvent&) override;
-            void keyReleaseEvent(ui::KeyEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void drawEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
+            void mouseMoveEvent(dtk::MouseMoveEvent&) override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
+            void scrollEvent(dtk::ScrollEvent&) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
 
         protected:
             void _releaseMouse() override;

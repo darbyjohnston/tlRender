@@ -4,11 +4,11 @@
 
 #include <tlTimelineUI/AudioClipItem.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/ThumbnailSystem.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
 
 #include <tlTimeline/Util.h>
 
+#include <dtk/ui/DrawUtil.h>
 #include <tlIO/Cache.h>
 
 #include <dtk/core/RenderUtil.h>
@@ -21,7 +21,7 @@ namespace tl
         {
             file::Path path;
             std::vector<dtk::InMemoryFile> memoryRead;
-            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
+            std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData
             {
@@ -30,19 +30,19 @@ namespace tl
             };
             SizeData size;
 
-            ui::InfoRequest infoRequest;
+            InfoRequest infoRequest;
             std::shared_ptr<io::Info> ioInfo;
-            std::map<OTIO_NS::RationalTime, ui::WaveformRequest> waveformRequests;
+            std::map<OTIO_NS::RationalTime, WaveformRequest> waveformRequests;
         };
 
         void AudioClipItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<IWidget>& parent)
         {
             const auto path = timeline::getPath(
@@ -50,15 +50,15 @@ namespace tl
                 itemData->directory,
                 itemData->options.pathOptions);
             IBasicItem::_init(
+                context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                ui::ColorRole::AudioClip,
+                dtk::Color4F(.3F, .25F, .4F),
                 "tl::timelineui::AudioClipItem",
                 clip.value,
                 scale,
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
             DTK_P();
 
@@ -85,24 +85,24 @@ namespace tl
         }
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioClipItem>(new AudioClipItem);
             out->_init(
+                context,
                 clip,
                 scale,
                 options,
                 displayOptions,
                 itemData,
                 thumbnailGenerator,
-                context,
                 parent);
             return out;
         }
@@ -115,7 +115,7 @@ namespace tl
             if (changed)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
@@ -131,14 +131,14 @@ namespace tl
             if (thumbnailsChanged)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
         void AudioClipItem::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const ui::TickEvent& event)
+            const dtk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             DTK_P();
@@ -150,8 +150,8 @@ namespace tl
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
                 const std::string infoCacheKey = io::getInfoCacheKey(p.path, _data->options.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                _setSizeUpdate();
+                _setDrawUpdate();
             }
 
             // Check if any audio waveforms are finished.
@@ -169,7 +169,7 @@ namespace tl
                         {});
                     _data->waveforms[cacheKey] = mesh;
                     i = p.waveformRequests.erase(i);
-                    _updates |= ui::Update::Draw;
+                    _setDrawUpdate();
                 }
                 else
                 {
@@ -178,15 +178,17 @@ namespace tl
             }
         }
 
-        void AudioClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
+        void AudioClipItem::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IBasicItem::sizeHintEvent(event);
             DTK_P();
-            p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
+            p.size.dragLength = event.style->getSizeRole(dtk::SizeRole::DragLength, event.displayScale);
+            dtk::Size2I sizeHint = getSizeHint();
             if (_displayOptions.thumbnails)
             {
-                _sizeHint.h += _displayOptions.waveformHeight;
+                sizeHint.h += _displayOptions.waveformHeight;
             }
+            _setSizeHint(sizeHint);
         }
 
         void AudioClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
@@ -199,13 +201,13 @@ namespace tl
             if (clipped)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
         void AudioClipItem::drawEvent(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
             if (_displayOptions.thumbnails)
@@ -216,7 +218,7 @@ namespace tl
 
         void AudioClipItem::_drawWaveforms(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
 
@@ -328,7 +330,7 @@ namespace tl
             if (p.infoRequest.future.valid())
             {
                 ids.push_back(p.infoRequest.id);
-                p.infoRequest = ui::InfoRequest();
+                p.infoRequest = InfoRequest();
             }
             for (const auto& i : p.waveformRequests)
             {

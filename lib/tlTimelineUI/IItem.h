@@ -4,10 +4,12 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
-
+#include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>
+
+#include <dtk/ui/IWidget.h>
 
 #include <opentimelineio/item.h>
 
@@ -102,7 +104,7 @@ namespace tl
         dtk::Color4F getMarkerColor(const std::string&);
 
         //! Drag and drop data.
-        class DragAndDropData : public ui::DragAndDropData
+        class DragAndDropData : public dtk::DragAndDropData
         {
         public:
             DragAndDropData(const std::shared_ptr<IItem>&);
@@ -116,10 +118,11 @@ namespace tl
         };
 
         //! Base class for items.
-        class IItem : public ui::IWidget
+        class IItem : public dtk::IWidget
         {
         protected:
             void _init(
+                const std::shared_ptr<dtk::Context>&,
                 const std::string& objectName,
                 const OTIO_NS::TimeRange& timeRange,
                 const OTIO_NS::TimeRange& trimmedRange,
@@ -127,13 +130,12 @@ namespace tl
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
+                const std::shared_ptr<dtk::IWidget>& parent = nullptr);
 
             IItem();
 
         public:
-            virtual ~IItem();
+            virtual ~IItem() = 0;
             
             //! Get the item time range.
             const OTIO_NS::TimeRange& getTimeRange() const;
@@ -148,10 +150,10 @@ namespace tl
             virtual void setDisplayOptions(const DisplayOptions&);
 
             //! Get the selection color role.
-            ui::ColorRole getSelectRole() const;
+            dtk::ColorRole getSelectRole() const;
 
             //! Set the selection color role.
-            void setSelectRole(ui::ColorRole);
+            void setSelectRole(dtk::ColorRole);
 
             //! Convert a position to a time.
             OTIO_NS::RationalTime posToTime(float) const;

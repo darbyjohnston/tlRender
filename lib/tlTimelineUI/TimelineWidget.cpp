@@ -4,8 +4,7 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlUI/ScrollWidget.h>
-
+#include <dtk/ui/ScrollWidget.h>
 #include <dtk/gl/GL.h>
 #include <dtk/gl/Window.h>
 
@@ -26,7 +25,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
             std::shared_ptr<dtk::ObservableValue<bool> > scrollToCurrentFrame;
-            ui::KeyModifier scrollKeyModifier = ui::KeyModifier::Control;
+            dtk::KeyModifier scrollKeyModifier = dtk::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
             std::shared_ptr<dtk::ObservableValue<bool> > stopOnScrub;
             std::shared_ptr<dtk::ObservableValue<bool> > scrub;
@@ -41,10 +40,11 @@ namespace tl
             OTIO_NS::RationalTime currentTime = time::invalidTime;
             double scale = 500.0;
             bool sizeInit = true;
+            float displayScale = 0.F;
 
             std::shared_ptr<dtk::gl::Window> window;
 
-            std::shared_ptr<ui::ScrollWidget> scrollWidget;
+            std::shared_ptr<dtk::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
 
             enum class MouseMode
@@ -68,15 +68,15 @@ namespace tl
         };
 
         void TimelineWidget::_init(
-            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::TimelineWidget", context, parent);
+            IWidget::_init(context, "tl::timelineui::TimelineWidget", parent);
             DTK_P();
 
-            _setMouseHover(true);
-            _setMousePress(true, 0, static_cast<int>(p.scrollKeyModifier));
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
 
             p.itemData = std::make_shared<ItemData>();
             p.itemData->timeUnitsModel = timeUnitsModel;
@@ -96,9 +96,9 @@ namespace tl
                 dtk::Size2I(1, 1),
                 static_cast<int>(dtk::gl::WindowOptions::None));
 
-            p.scrollWidget = ui::ScrollWidget::create(
+            p.scrollWidget = dtk::ScrollWidget::create(
                 context,
-                ui::ScrollType::Both,
+                dtk::ScrollType::Both,
                 shared_from_this());
             p.scrollWidget->setScrollEventsEnabled(false);
             p.scrollWidget->setBorder(false);
@@ -112,12 +112,12 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
-            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineWidget>(new TimelineWidget);
-            out->_init(timeUnitsModel, context, parent);
+            out->_init(context, timeUnitsModel, parent);
             return out;
         }
 
@@ -202,7 +202,8 @@ namespace tl
 
         void TimelineWidget::setViewZoom(double value)
         {
-            setViewZoom(value, dtk::V2I(_geometry.w() / 2, _geometry.h() / 2));
+            const dtk::Box2I& g = getGeometry();
+            setViewZoom(value, dtk::V2I(g.w() / 2, g.h() / 2));
         }
 
         void TimelineWidget::setViewZoom(
@@ -226,8 +227,8 @@ namespace tl
             {
                 p.scale = scale;
                 _setItemScale();
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                _setSizeUpdate();
+                _setDrawUpdate();
             }
         }
 
@@ -282,16 +283,16 @@ namespace tl
             }
         }
 
-        ui::KeyModifier TimelineWidget::getScrollKeyModifier() const
+        dtk::KeyModifier TimelineWidget::getScrollKeyModifier() const
         {
             return _p->scrollKeyModifier;
         }
 
-        void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
+        void TimelineWidget::setScrollKeyModifier(dtk::KeyModifier value)
         {
             DTK_P();
             p.scrollKeyModifier = value;
-            _setMousePress(true, 0, static_cast<int>(p.scrollKeyModifier));
+            _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
         }
 
         float TimelineWidget::getMouseWheelScale() const
@@ -416,7 +417,7 @@ namespace tl
 
         void TimelineWidget::setGeometry(const dtk::Box2I& value)
         {
-            const bool changed = value != _geometry;
+            const bool changed = value != getGeometry();
             IWidget::setGeometry(value);
             DTK_P();
             p.scrollWidget->setGeometry(value);
@@ -436,25 +437,27 @@ namespace tl
         void TimelineWidget::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const ui::TickEvent& event)
+            const dtk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
         }
 
-        void TimelineWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void TimelineWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             DTK_P();
-            const int b = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
-            const int sa = event.style->getSizeRole(ui::SizeRole::ScrollArea, _displayScale);
-            _sizeHint.w = sa;
+            const int b = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
+            const int sa = event.style->getSizeRole(dtk::SizeRole::ScrollArea, event.displayScale);
+            dtk::Size2I sizeHint;
+            sizeHint.w = sa;
             //! \bug This assumes the scroll bars are hidden.
-            _sizeHint.h = p.timelineItem ? (p.timelineItem->getMinimumHeight() + b * 2) : sa;
-            p.sizeInit |= displayScaleChanged;
+            sizeHint.h = p.timelineItem ? (p.timelineItem->getMinimumHeight() + b * 2) : sa;
+            _setSizeHint(sizeHint);
+            p.sizeInit |= event.displayScale != p.displayScale;
+            p.displayScale = event.displayScale;
         }
 
-        void TimelineWidget::mouseMoveEvent(ui::MouseMoveEvent& event)
+        void TimelineWidget::mouseMoveEvent(dtk::MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
             DTK_P();
@@ -462,7 +465,7 @@ namespace tl
             {
             case Private::MouseMode::Scroll:
             {
-                const dtk::V2I d = event.pos - _mouse.pressPos;
+                const dtk::V2I d = event.pos - _getMousePressPos();
                 p.scrollWidget->setScrollPos(p.mouse.scrollPos - d);
                 setFrameView(false);
                 break;
@@ -471,7 +474,7 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mousePressEvent(ui::MouseClickEvent& event)
+        void TimelineWidget::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
             DTK_P();
@@ -489,14 +492,14 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mouseReleaseEvent(ui::MouseClickEvent& event)
+        void TimelineWidget::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
             DTK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        void TimelineWidget::scrollEvent(ui::ScrollEvent& event)
+        void TimelineWidget::scrollEvent(dtk::ScrollEvent& event)
         {
             DTK_P();
             if (p.itemOptions->get().inputEnabled)
@@ -515,7 +518,7 @@ namespace tl
             }
         }
 
-        void TimelineWidget::keyPressEvent(ui::KeyEvent& event)
+        void TimelineWidget::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             if (p.itemOptions->get().inputEnabled &&
@@ -523,19 +526,19 @@ namespace tl
             {
                 switch (event.key)
                 {
-                case ui::Key::_0:
+                case dtk::Key::_0:
                     event.accept = true;
                     setViewZoom(1.F, event.pos);
                     break;
-                case ui::Key::Equal:
+                case dtk::Key::Equal:
                     event.accept = true;
                     setViewZoom(p.scale * 2.F, event.pos);
                     break;
-                case ui::Key::Minus:
+                case dtk::Key::Minus:
                     event.accept = true;
                     setViewZoom(p.scale / 2.F, event.pos);
                     break;
-                case ui::Key::Backspace:
+                case dtk::Key::Backspace:
                     event.accept = true;
                     setFrameView(true);
                     break;
@@ -544,7 +547,7 @@ namespace tl
             }
         }
 
-        void TimelineWidget::keyReleaseEvent(ui::KeyEvent& event)
+        void TimelineWidget::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
         }
@@ -563,7 +566,7 @@ namespace tl
             const dtk::V2I& scrollPos)
         {
             DTK_P();
-            const int w = _geometry.w();
+            const int w = getGeometry().w();
             const double zoomMin = _getTimelineScale();
             const double zoomMax = _getTimelineScaleMax();
             const double zoomClamped = dtk::clamp(zoomNew, zoomMin, zoomMax);
@@ -690,7 +693,7 @@ namespace tl
                     const int offset = pos < (vp.min.x + margin) ? (vp.min.x + margin) : (vp.max.x - margin);
                     const OTIO_NS::RationalTime t = p.currentTime - p.timeRange.start_time();
                     dtk::V2I scrollPos = p.scrollWidget->getScrollPos();
-                    scrollPos.x = _geometry.min.x - offset + t.rescaled_to(1.0).value() * p.scale;
+                    scrollPos.x = getGeometry().min.x - offset + t.rescaled_to(1.0).value() * p.scale;
                     p.scrollWidget->setScrollPos(scrollPos);
                 }
             }
@@ -709,20 +712,20 @@ namespace tl
 
             if (p.player)
             {
-                if (auto context = _context.lock())
+                if (auto context = getContext())
                 {
                     p.itemData->speed = p.player->getDefaultSpeed();
                     p.itemData->directory = p.player->getPath().getDirectory();
                     p.itemData->options = p.player->getOptions();
                     p.timelineItem = TimelineItem::create(
+                        context,
                         p.player,
                         p.player->getTimeline()->getTimeline()->tracks(),
                         p.scale,
                         p.itemOptions->get(),
                         p.displayOptions->get(),
                         p.itemData,
-                        p.window,
-                        context);
+                        p.window);
                     p.timelineItem->setEditable(p.editable->get());
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
                     p.timelineItem->setFrameMarkers(p.frameMarkers);

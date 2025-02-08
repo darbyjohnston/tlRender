@@ -4,13 +4,14 @@
 
 #include <tlTimelineUI/VideoClipItem.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/ThumbnailSystem.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
 
+#include <tlTimeline/IRender.h>
 #include <tlTimeline/Util.h>
 
 #include <tlIO/Cache.h>
 
+#include <dtk/ui/DrawUtil.h>
 #include <dtk/core/RenderUtil.h>
 
 namespace tl
@@ -22,31 +23,29 @@ namespace tl
             std::string clipName;
             file::Path path;
             std::vector<dtk::InMemoryFile> memoryRead;
-            std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator;
+            std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData
             {
-                bool sizeInit = true;
                 int dragLength = 0;
-
                 dtk::Box2I clipRect;
             };
             SizeData size;
 
             io::Options ioOptions;
-            ui::InfoRequest infoRequest;
+            InfoRequest infoRequest;
             std::shared_ptr<io::Info> ioInfo;
-            std::map<OTIO_NS::RationalTime, ui::ThumbnailRequest> thumbnailRequests;
+            std::map<OTIO_NS::RationalTime, ThumbnailRequest> thumbnailRequests;
         };
 
         void VideoClipItem::_init(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<IWidget>& parent)
         {
             const auto path = timeline::getPath(
@@ -54,15 +53,15 @@ namespace tl
                 itemData->directory,
                 itemData->options.pathOptions);
             IBasicItem::_init(
+                context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                ui::ColorRole::VideoClip,
+                dtk::Color4F(.2F, .4F, .4F),
                 "tl::timelineui::VideoClipItem",
                 clip.value,
                 scale,
                 options,
                 displayOptions,
                 itemData,
-                context,
                 parent);
             DTK_P();
 
@@ -92,24 +91,24 @@ namespace tl
         }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
+            const std::shared_ptr<dtk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
             const DisplayOptions& displayOptions,
             const std::shared_ptr<ItemData>& itemData,
-            const std::shared_ptr<ui::ThumbnailGenerator> thumbnailGenerator,
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<ThumbnailGenerator> thumbnailGenerator,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<VideoClipItem>(new VideoClipItem);
             out->_init(
+                context,
                 clip,
                 scale,
                 options,
                 displayOptions,
                 itemData,
                 thumbnailGenerator,
-                context,
                 parent);
             return out;
         }
@@ -122,7 +121,7 @@ namespace tl
             if (changed)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
@@ -136,14 +135,14 @@ namespace tl
             if (thumbnailsChanged)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
         void VideoClipItem::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const ui::TickEvent& event)
+            const dtk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             DTK_P();
@@ -155,8 +154,8 @@ namespace tl
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
                 const std::string infoCacheKey = io::getInfoCacheKey(p.path, p.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                _setSizeUpdate();
+                _setDrawUpdate();
             }
 
             // Check if any thumbnails are finished.
@@ -174,7 +173,7 @@ namespace tl
                         {});
                     _data->thumbnails[cacheKey] = image;
                     i = p.thumbnailRequests.erase(i);
-                    _updates |= ui::Update::Draw;
+                    _setDrawUpdate();
                 }
                 else
                 {
@@ -183,22 +182,17 @@ namespace tl
             }
         }
 
-        void VideoClipItem::sizeHintEvent(const ui::SizeHintEvent& event)
+        void VideoClipItem::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IBasicItem::sizeHintEvent(event);
             DTK_P();
-
-            if (displayScaleChanged || p.size.sizeInit)
-            {
-                p.size.dragLength = event.style->getSizeRole(ui::SizeRole::DragLength, _displayScale);
-            }
-            p.size.sizeInit = false;
-
+            p.size.dragLength = event.style->getSizeRole(dtk::SizeRole::DragLength, event.displayScale);
+            dtk::Size2I sizeHint = getSizeHint();
             if (_displayOptions.thumbnails)
             {
-                _sizeHint.h += _displayOptions.thumbnailHeight;
+                sizeHint.h += _displayOptions.thumbnailHeight;
             }
+            _setSizeHint(sizeHint);
         }
 
         void VideoClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
@@ -211,13 +205,13 @@ namespace tl
             if (clipped)
             {
                 _cancelRequests();
-                _updates |= ui::Update::Draw;
+                _setDrawUpdate();
             }
         }
 
         void VideoClipItem::drawEvent(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
             if (_displayOptions.thumbnails)
@@ -228,10 +222,11 @@ namespace tl
 
         void VideoClipItem::_drawThumbnails(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             DTK_P();
 
+            auto render = std::dynamic_pointer_cast<timeline::IRender>(event.render);
             const dtk::Box2I g = _getInsideGeometry();
             const int m = _getMargin();
             const int lineHeight = _getLineHeight();
@@ -242,15 +237,15 @@ namespace tl
                 (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                 g.w(),
                 _displayOptions.thumbnailHeight);
-            event.render->drawRect(
+            render->drawRect(
                 box,
                 dtk::Color4F(0.F, 0.F, 0.F));
-            const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
-            const dtk::ClipRectState clipRectState(event.render);
-            event.render->setClipRectEnabled(true);
-            event.render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
-            event.render->setOCIOOptions(_displayOptions.ocio);
-            event.render->setLUTOptions(_displayOptions.lut);
+            const dtk::ClipRectEnabledState clipRectEnabledState(render);
+            const dtk::ClipRectState clipRectState(render);
+            render->setClipRectEnabled(true);
+            render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
+            render->setOCIOOptions(_displayOptions.ocio);
+            render->setLUTOptions(_displayOptions.lut);
 
             const dtk::Box2I clipRect = _getClipRect(
                 drawRect,
@@ -318,7 +313,7 @@ namespace tl
                                 timeline::VideoData videoData;
                                 videoData.size = i->second->getSize();
                                 videoData.layers.push_back({ i->second });
-                                event.render->drawVideo(
+                                render->drawVideo(
                                     { videoData },
                                     { box },
                                     {},
@@ -350,7 +345,7 @@ namespace tl
             if (p.infoRequest.future.valid())
             {
                 ids.push_back(p.infoRequest.id);
-                p.infoRequest = ui::InfoRequest();
+                p.infoRequest = InfoRequest();
             }
             for (const auto& i : p.thumbnailRequests)
             {

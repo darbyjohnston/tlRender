@@ -17,13 +17,13 @@ namespace tl
         {
         protected:
             void _init(
-                ui::ColorRole,
+                const std::shared_ptr<dtk::Context>&,
+                const dtk::Color4F&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             GapItem();
@@ -33,13 +33,13 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<GapItem> create(
-                ui::ColorRole,
+                const std::shared_ptr<dtk::Context>&,
+                const dtk::Color4F&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
     }
