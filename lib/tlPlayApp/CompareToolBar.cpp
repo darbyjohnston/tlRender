@@ -8,9 +8,9 @@
 
 #include <tlPlay/FilesModel.h>
 
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/ButtonGroup.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -18,10 +18,10 @@ namespace tl
     {
         struct CompareToolBar::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<ui::ButtonGroup> buttonGroup;
-            std::map<timeline::CompareMode, std::shared_ptr<ui::ToolButton> > buttons;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::shared_ptr<dtk::ButtonGroup> buttonGroup;
+            std::map<timeline::CompareMode, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
         };
@@ -29,32 +29,32 @@ namespace tl
         void CompareToolBar::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::CompareToolBar",
                 context,
+                "tl::play_app::CompareToolBar",
                 parent);
             DTK_P();
 
             p.actions = actions;
 
-            p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
+            p.buttonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Radio);
             const auto enums = timeline::getCompareModeEnums();
             const auto labels = timeline::getCompareModeLabels();
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 const auto mode = enums[i];
-                p.buttons[mode] = ui::ToolButton::create(context);
+                p.buttons[mode] = dtk::ToolButton::create(context);
                 p.buttons[mode]->setCheckable(true);
                 p.buttons[mode]->setIcon(p.actions[labels[i]]->icon);
-                p.buttons[mode]->setToolTip(p.actions[labels[i]]->toolTip);
+                p.buttons[mode]->setTooltip(p.actions[labels[i]]->toolTip);
                 p.buttonGroup->addButton(p.buttons[mode]);
             }
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 p.buttons[enums[i]]->setParent(p.layout);
@@ -93,7 +93,7 @@ namespace tl
         std::shared_ptr<CompareToolBar> CompareToolBar::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareToolBar>(new CompareToolBar);
@@ -107,10 +107,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void CompareToolBar::sizeHintEvent(const ui::SizeHintEvent& event)
+        void CompareToolBar::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void CompareToolBar::_compareUpdate(const timeline::CompareOptions& value)

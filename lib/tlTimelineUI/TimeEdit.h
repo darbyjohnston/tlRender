@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <dtk/ui/IWidget.h>
+
+#include <opentimelineio/version.h>
 
 namespace tl
 {
@@ -13,17 +15,17 @@ namespace tl
         class TimeUnitsModel;
     }
 
-    namespace ui
+    namespace timelineui
     {
         //! Time value editor.
-        class TimeEdit : public IWidget
+        class TimeEdit : public dtk::IWidget
         {
             DTK_NON_COPYABLE(TimeEdit);
 
         protected:
             void _init(
-                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimeEdit();
@@ -33,8 +35,8 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeEdit> create(
-                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the time units model.
@@ -50,13 +52,13 @@ namespace tl
             void setCallback(const std::function<void(const OTIO_NS::RationalTime&)>&);
 
             //! Set the font role.
-            void setFontRole(FontRole);
+            void setFontRole(dtk::FontRole);
 
             void setGeometry(const dtk::Box2I&) override;
             void takeKeyFocus() override;
-            void sizeHintEvent(const SizeHintEvent&) override;
-            void keyPressEvent(KeyEvent&) override;
-            void keyReleaseEvent(KeyEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
 
         private:
             void _commitValue(const std::string&);

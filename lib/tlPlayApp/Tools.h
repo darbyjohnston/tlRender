@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Event.h>
-
+#include <dtk/ui/Event.h>
 #include <dtk/core/ObservableValue.h>
 
 namespace tl
@@ -39,7 +38,7 @@ namespace tl
         std::string getIcon(Tool);
 
         //! Get the tool keyboard shortcut.
-        ui::Key getShortcut(Tool);
+        dtk::Key getShortcut(Tool);
 
         //! Get the tools in the toolbar.
         std::vector<Tool> toolsInToolbar();

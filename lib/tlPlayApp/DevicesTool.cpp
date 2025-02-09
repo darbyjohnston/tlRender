@@ -6,20 +6,22 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlUI/Bellows.h>
-#include <tlUI/CheckBox.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/FloatEdit.h>
-#include <tlUI/FloatEditSlider.h>
-#include <tlUI/GridLayout.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
-
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDDevicesModel.h>
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
+
+#include <dtk/ui/Bellows.h>
+#include <dtk/ui/CheckBox.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/FloatEdit.h>
+#include <dtk/ui/FloatEditSlider.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
+
+#include <sstream>
 
 namespace tl
 {
@@ -28,18 +30,17 @@ namespace tl
         struct DevicesTool::Private
         {
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::shared_ptr<ui::ComboBox> deviceComboBox;
-            std::shared_ptr<ui::ComboBox> displayModeComboBox;
-            std::shared_ptr<ui::ComboBox> pixelTypeComboBox;
-            std::shared_ptr<ui::CheckBox> _444SDIVideoOutputCheckBox;
-            std::shared_ptr<ui::ComboBox> videoLevelsComboBox;
-            std::shared_ptr<ui::ComboBox> hdrModeComboBox;
-            std::shared_ptr<ui::ComboBox> hdrEOTFComboBox;
-            std::vector<std::pair< std::shared_ptr<ui::FloatEdit>, std::shared_ptr<ui::FloatEdit> > > primariesFloatEdits;
-            std::pair< std::shared_ptr<ui::FloatEdit>, std::shared_ptr<ui::FloatEdit> > masteringLuminanceFloatEdits;
-            std::shared_ptr<ui::FloatEditSlider> maxCLLSlider;
-            std::shared_ptr<ui::FloatEditSlider> maxFALLSlider;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::shared_ptr<dtk::ComboBox> deviceComboBox;
+            std::shared_ptr<dtk::ComboBox> displayModeComboBox;
+            std::shared_ptr<dtk::ComboBox> pixelTypeComboBox;
+            std::shared_ptr<dtk::CheckBox> _444SDIVideoOutputCheckBox;
+            std::shared_ptr<dtk::ComboBox> videoLevelsComboBox;
+            std::shared_ptr<dtk::ComboBox> hdrModeComboBox;
+            std::vector<std::pair< std::shared_ptr<dtk::FloatEdit>, std::shared_ptr<dtk::FloatEdit> > > primariesFloatEdits;
+            std::pair< std::shared_ptr<dtk::FloatEdit>, std::shared_ptr<dtk::FloatEdit> > masteringLuminanceFloatEdits;
+            std::shared_ptr<dtk::FloatEditSlider> maxCLLSlider;
+            std::shared_ptr<dtk::FloatEditSlider> maxFALLSlider;
 
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > dataObserver;
 #endif // TLRENDER_BMD
@@ -59,95 +60,88 @@ namespace tl
             DTK_P();
 
 #if defined(TLRENDER_BMD)
-            p.enabledCheckBox = ui::CheckBox::create(context);
+            p.enabledCheckBox = dtk::CheckBox::create(context);
 
-            p.deviceComboBox = ui::ComboBox::create(context);
-            p.deviceComboBox->setHStretch(ui::Stretch::Expanding);
-            p.displayModeComboBox = ui::ComboBox::create(context);
-            p.displayModeComboBox->setHStretch(ui::Stretch::Expanding);
-            p.pixelTypeComboBox = ui::ComboBox::create(context);
-            p.pixelTypeComboBox->setHStretch(ui::Stretch::Expanding);
+            p.deviceComboBox = dtk::ComboBox::create(context);
+            p.deviceComboBox->setHStretch(dtk::Stretch::Expanding);
+            p.displayModeComboBox = dtk::ComboBox::create(context);
+            p.displayModeComboBox->setHStretch(dtk::Stretch::Expanding);
+            p.pixelTypeComboBox = dtk::ComboBox::create(context);
+            p.pixelTypeComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p._444SDIVideoOutputCheckBox = ui::CheckBox::create(context);
+            p._444SDIVideoOutputCheckBox = dtk::CheckBox::create(context);
 
-            p.videoLevelsComboBox = ui::ComboBox::create(dtk::getVideoLevelsLabels(), context);
-            p.videoLevelsComboBox->setHStretch(ui::Stretch::Expanding);
+            p.videoLevelsComboBox = dtk::ComboBox::create(context, dtk::getVideoLevelsLabels());
+            p.videoLevelsComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.hdrModeComboBox = ui::ComboBox::create(bmd::getHDRModeLabels(), context);
-            p.hdrModeComboBox->setHStretch(ui::Stretch::Expanding);
-
-            p.hdrEOTFComboBox = ui::ComboBox::create(image::getHDR_EOTFLabels(), context);
-            p.hdrEOTFComboBox->setHStretch(ui::Stretch::Expanding);
+            p.hdrModeComboBox = dtk::ComboBox::create(context, bmd::getHDRModeLabels());
+            p.hdrModeComboBox->setHStretch(dtk::Stretch::Expanding);
 
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
-                auto min = ui::FloatEdit::create(context);
+                auto min = dtk::FloatEdit::create(context);
                 min->setRange(dtk::RangeF(0.F, 1.F));
                 min->setStep(.01F);
                 min->setLargeStep(.1F);
-                auto max = ui::FloatEdit::create(context);
+                auto max = dtk::FloatEdit::create(context);
                 max->setRange(dtk::RangeF(0.F, 1.F));
                 max->setStep(.01F);
                 max->setLargeStep(.1F);
                 p.primariesFloatEdits.push_back(std::make_pair(min, max));
             }
 
-            p.masteringLuminanceFloatEdits.first = ui::FloatEdit::create(context);
+            p.masteringLuminanceFloatEdits.first = dtk::FloatEdit::create(context);
             p.masteringLuminanceFloatEdits.first->setRange(dtk::RangeF(0.F, 10000.F));
-            p.masteringLuminanceFloatEdits.second = ui::FloatEdit::create(context);
+            p.masteringLuminanceFloatEdits.second = dtk::FloatEdit::create(context);
             p.masteringLuminanceFloatEdits.second->setRange(dtk::RangeF(0.F, 10000.F));
 
-            p.maxCLLSlider = ui::FloatEditSlider::create(context);
+            p.maxCLLSlider = dtk::FloatEditSlider::create(context);
             p.maxCLLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
-            p.maxFALLSlider = ui::FloatEditSlider::create(context);
+            p.maxFALLSlider = dtk::FloatEditSlider::create(context);
             p.maxFALLSlider->setRange(dtk::RangeF(0.F, 10000.F));
 
-            auto layout = ui::VerticalLayout::create(context);
-            layout->setSpacingRole(ui::SizeRole::None);
+            auto layout = dtk::VerticalLayout::create(context);
+            layout->setSpacingRole(dtk::SizeRole::None);
 
-            auto bellows = ui::Bellows::create("Output", context, layout);
-            auto gridLayout = ui::GridLayout::create(context);
-            gridLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Enabled:", context, gridLayout);
+            auto bellows = dtk::Bellows::create(context, "Output", layout);
+            auto gridLayout = dtk::GridLayout::create(context);
+            gridLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Enabled:", gridLayout);
             gridLayout->setGridPos(label, 0, 0);
             p.enabledCheckBox->setParent(gridLayout);
             gridLayout->setGridPos(p.enabledCheckBox, 0, 1);
-            label = ui::Label::create("Device:", context, gridLayout);
+            label = dtk::Label::create(context, "Device:", gridLayout);
             gridLayout->setGridPos(label, 1, 0);
             p.deviceComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.deviceComboBox, 1, 1);
-            label = ui::Label::create("Display mode:", context, gridLayout);
+            label = dtk::Label::create(context, "Display mode:", gridLayout);
             gridLayout->setGridPos(label, 2, 0);
             p.displayModeComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.displayModeComboBox, 2, 1);
-            label = ui::Label::create("Pixel type:", context, gridLayout);
+            label = dtk::Label::create(context, "Pixel type:", gridLayout);
             gridLayout->setGridPos(label, 3, 0);
             p.pixelTypeComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.pixelTypeComboBox, 3, 1);
-            label = ui::Label::create("444 SDI video output:", context, gridLayout);
+            label = dtk::Label::create(context, "444 SDI video output:", gridLayout);
             gridLayout->setGridPos(label, 4, 0);
             p._444SDIVideoOutputCheckBox->setParent(gridLayout);
             gridLayout->setGridPos(p._444SDIVideoOutputCheckBox, 4, 1);
-            label = ui::Label::create("Video levels:", context, gridLayout);
+            label = dtk::Label::create(context, "Video levels:", gridLayout);
             gridLayout->setGridPos(label, 5, 0);
             p.videoLevelsComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.videoLevelsComboBox, 5, 1);
             bellows->setWidget(gridLayout);
 
-            bellows = ui::Bellows::create("HDR", context, layout);
-            gridLayout = ui::GridLayout::create(context);
-            gridLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("Mode:", context, gridLayout);
+            bellows = dtk::Bellows::create(context, "HDR", layout);
+            gridLayout = dtk::GridLayout::create(context);
+            gridLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            label = dtk::Label::create(context, "Mode:", gridLayout);
             gridLayout->setGridPos(label, 0, 0);
             p.hdrModeComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.hdrModeComboBox, 0, 1);
-            label = ui::Label::create("EOTF:", context, gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
-            p.hdrEOTFComboBox->setParent(gridLayout);
-            gridLayout->setGridPos(p.hdrEOTFComboBox, 1, 1);
             const std::array<std::string, image::HDRPrimaries::Count> primariesLabels =
             {
                 "Red primaries:",
@@ -157,32 +151,32 @@ namespace tl
             };
             for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
             {
-                label = ui::Label::create(primariesLabels[i], context, gridLayout);
+                label = dtk::Label::create(context, primariesLabels[i], gridLayout);
                 gridLayout->setGridPos(label, 2 + i, 0);
-                auto hLayout = ui::HorizontalLayout::create(context, gridLayout);
-                hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+                auto hLayout = dtk::HorizontalLayout::create(context, gridLayout);
+                hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
                 p.primariesFloatEdits[i].first->setParent(hLayout);
                 p.primariesFloatEdits[i].second->setParent(hLayout);
                 gridLayout->setGridPos(hLayout, 2 + i, 1);
             }
-            label = ui::Label::create("Mastering luminance:", context, gridLayout);
+            label = dtk::Label::create(context, "Mastering luminance:", gridLayout);
             gridLayout->setGridPos(label, 7, 0);
-            auto hLayout = ui::HorizontalLayout::create(context, gridLayout);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto hLayout = dtk::HorizontalLayout::create(context, gridLayout);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.masteringLuminanceFloatEdits.first->setParent(hLayout);
             p.masteringLuminanceFloatEdits.second->setParent(hLayout);
             gridLayout->setGridPos(hLayout, 7, 1);
-            label = ui::Label::create("Maximum CLL:", context, gridLayout);
+            label = dtk::Label::create(context, "Maximum CLL:", gridLayout);
             gridLayout->setGridPos(label, 8, 0);
             p.maxCLLSlider->setParent(gridLayout);
             gridLayout->setGridPos(p.maxCLLSlider, 8, 1);
-            label = ui::Label::create("Maximum FALL:", context, gridLayout);
+            label = dtk::Label::create(context, "Maximum FALL:", gridLayout);
             gridLayout->setGridPos(label, 9, 0);
             p.maxFALLSlider->setParent(gridLayout);
             gridLayout->setGridPos(p.maxFALLSlider, 9, 1);
             bellows->setWidget(gridLayout);
 
-            auto scrollWidget = ui::ScrollWidget::create(context);
+            auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
 
@@ -247,17 +241,6 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getBMDDevicesModel()->setHDRMode(static_cast<bmd::HDRMode>(value));
-                    }
-                });
-
-            p.hdrEOTFComboBox->setIndexCallback(
-                [appWeak](int value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto hdrData = app->getBMDDevicesModel()->observeData()->get().hdrData;
-                        hdrData.eotf = static_cast<image::HDR_EOTF>(value);
-                        app->getBMDDevicesModel()->setHDRData(hdrData);
                     }
                 });
 

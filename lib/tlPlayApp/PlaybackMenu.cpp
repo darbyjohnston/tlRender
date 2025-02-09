@@ -16,9 +16,9 @@ namespace tl
         {
             std::shared_ptr<timeline::Player> player;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<timeline::Playback, std::shared_ptr<ui::Action> > playbackItems;
-            std::map<timeline::Loop, std::shared_ptr<ui::Action> > loopItems;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<timeline::Playback, std::shared_ptr<dtk::Action> > playbackItems;
+            std::map<timeline::Loop, std::shared_ptr<dtk::Action> > loopItems;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
@@ -28,7 +28,7 @@ namespace tl
         void PlaybackMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -83,7 +83,7 @@ namespace tl
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);

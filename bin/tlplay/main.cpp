@@ -6,6 +6,8 @@
 
 #include <tlPlay/Init.h>
 
+#include <dtk/core/Context.h>
+
 #include <iostream>
 
 #if defined(_WINDOWS)
@@ -16,15 +18,20 @@
 #include <tchar.h>
 #endif // _WINDOWS
 
-TLRENDER_MAIN()
+DTK_MAIN()
 {
     int r = 1;
     try
     {
         auto context = dtk::Context::create();
         tl::play::init(context);
-        auto app = tl::play_app::App::create(context, tl::app::convert(argc, argv));
-        r = app->run();
+        auto args = dtk::convert(argc, argv);
+        auto app = tl::play_app::App::create(context, args);
+        r = app->getExit();
+        if (0 == r)
+        {
+            app->run();
+        }
     }
     catch(const std::exception& e)
     {

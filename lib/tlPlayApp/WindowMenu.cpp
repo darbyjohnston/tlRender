@@ -15,8 +15,8 @@ namespace tl
     {
         struct WindowMenu::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
             std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > floatOnTopObserver;
@@ -28,7 +28,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -46,13 +46,13 @@ namespace tl
             };
             for (const auto size : sizes)
             {
-                auto action = std::make_shared<ui::Action>(
+                auto action = std::make_shared<dtk::Action>(
                     dtk::Format("{0}x{1}").arg(size.w).arg(size.h),
                     [mainWindowWeak, size]
                     {
                         if (auto mainWindow = mainWindowWeak.lock())
                         {
-                            mainWindow->setWindowSize(size);
+                            mainWindow->setSize(size);
                         }
                     });
                 p.menus["Resize"]->addItem(action);
@@ -120,7 +120,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);

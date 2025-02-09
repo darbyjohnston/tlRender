@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlUI/Action.h>
-#include <tlUI/IWidget.h>
-
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/Action.h>
+#include <dtk/ui/IWidget.h>
 
 namespace tl
 {
@@ -17,7 +17,7 @@ namespace tl
         class MainWindow;
 
         //! Window tool bar.
-        class WindowToolBar : public ui::IWidget
+        class WindowToolBar : public dtk::IWidget
         {
             DTK_NON_COPYABLE(WindowToolBar);
 
@@ -26,7 +26,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             WindowToolBar();
@@ -38,11 +38,11 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();

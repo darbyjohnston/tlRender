@@ -8,10 +8,10 @@
 
 #include <tlPlay/AudioModel.h>
 
-#include <tlUI/Bellows.h>
-#include <tlUI/DoubleEditSlider.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
+#include <dtk/ui/Bellows.h>
+#include <dtk/ui/DoubleEditSlider.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
 
 namespace tl
 {
@@ -19,7 +19,7 @@ namespace tl
     {
         struct AudioTool::Private
         {
-            std::shared_ptr<ui::DoubleEditSlider> syncOffsetSlider;
+            std::shared_ptr<dtk::DoubleEditSlider> syncOffsetSlider;
 
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
         };
@@ -37,18 +37,18 @@ namespace tl
                 parent);
             DTK_P();
 
-            p.syncOffsetSlider = ui::DoubleEditSlider::create(context);
+            p.syncOffsetSlider = dtk::DoubleEditSlider::create(context);
             p.syncOffsetSlider->setRange(dtk::RangeD(-1.0, 1.0));
             p.syncOffsetSlider->setDefaultValue(0.0);
 
-            auto layout = ui::VerticalLayout::create(context);
-            auto vLayout = ui::VerticalLayout::create(context);
-            vLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            vLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            auto layout = dtk::VerticalLayout::create(context);
+            auto vLayout = dtk::VerticalLayout::create(context);
+            vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.syncOffsetSlider->setParent(vLayout);
-            auto bellows = ui::Bellows::create("Sync Offset", context, layout);
+            auto bellows = dtk::Bellows::create(context, "Sync Offset", layout);
             bellows->setWidget(vLayout);
-            auto scrollWidget = ui::ScrollWidget::create(context);
+            auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
 

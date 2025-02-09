@@ -60,19 +60,19 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        ui::Key getShortcut(Tool value)
+        dtk::Key getShortcut(Tool value)
         {
-            const std::array<ui::Key, static_cast<size_t>(Tool::Count)> data =
+            const std::array<dtk::Key, static_cast<size_t>(Tool::Count)> data =
             {
-                ui::Key::F1,
-                ui::Key::F2,
-                ui::Key::F3,
-                ui::Key::F4,
-                ui::Key::F5,
-                ui::Key::F6,
-                ui::Key::F7,
-                ui::Key::F8,
-                ui::Key::F9
+                dtk::Key::F1,
+                dtk::Key::F2,
+                dtk::Key::F3,
+                dtk::Key::F4,
+                dtk::Key::F5,
+                dtk::Key::F6,
+                dtk::Key::F7,
+                dtk::Key::F8,
+                dtk::Key::F9
             };
             return data[static_cast<size_t>(value)];
         }

@@ -8,15 +8,14 @@
 
 #include <tlPlay/AudioModel.h>
 
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/CheckBox.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/GridLayout.h>
-#include <tlUI/IntEditSlider.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
-
+#include <dtk/ui/ButtonGroup.h>
+#include <dtk/ui/CheckBox.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/IntEditSlider.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -29,12 +28,12 @@ namespace tl
             std::vector<bool> channelMute;
             audio::Info info;
 
-            std::shared_ptr<ui::IntEditSlider> volumeSlider;
-            std::shared_ptr<ui::ComboBox> deviceComboBox;
-            std::vector<std::shared_ptr<ui::CheckBox> > channelMuteCheckBoxes;
-            std::shared_ptr<ui::ButtonGroup> channelMuteButtonGroup;
-            std::shared_ptr<ui::GridLayout> layout;
-            std::shared_ptr<ui::HorizontalLayout> channelMuteLayout;
+            std::shared_ptr<dtk::IntEditSlider> volumeSlider;
+            std::shared_ptr<dtk::ComboBox> deviceComboBox;
+            std::vector<std::shared_ptr<dtk::CheckBox> > channelMuteCheckBoxes;
+            std::shared_ptr<dtk::ButtonGroup> channelMuteButtonGroup;
+            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::HorizontalLayout> channelMuteLayout;
 
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ListObserver<audio::DeviceID> > devicesObserver;
@@ -49,37 +48,37 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidgetPopup::_init(
-                "tl::play_app::AudioPopup",
                 context,
+                "tl::play_app::AudioPopup",
                 parent);
             DTK_P();
 
-            p.volumeSlider = ui::IntEditSlider::create(context);
+            p.volumeSlider = dtk::IntEditSlider::create(context);
             p.volumeSlider->setRange(dtk::RangeI(0, 100));
             p.volumeSlider->setStep(1);
             p.volumeSlider->setLargeStep(10);
-            p.volumeSlider->setToolTip("Audio volume");
+            p.volumeSlider->setTooltip("Audio volume");
 
-            p.deviceComboBox = ui::ComboBox::create(context);
-            p.deviceComboBox->setToolTip("Audio output device");
+            p.deviceComboBox = dtk::ComboBox::create(context);
+            p.deviceComboBox->setTooltip("Audio output device");
 
-            p.channelMuteButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
+            p.channelMuteButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Toggle);
 
-            p.layout = ui::GridLayout::create(context);
-            p.layout->setMarginRole(ui::SizeRole::MarginInside);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingTool);
-            auto label = ui::Label::create("Volume: ", context, p.layout);
+            p.layout = dtk::GridLayout::create(context);
+            p.layout->setMarginRole(dtk::SizeRole::MarginInside);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingTool);
+            auto label = dtk::Label::create(context, "Volume: ", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.volumeSlider->setParent(p.layout);
             p.layout->setGridPos(p.volumeSlider, 0, 1);
-            label = ui::Label::create("Device: ", context, p.layout);
+            label = dtk::Label::create(context, "Device: ", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.deviceComboBox->setParent(p.layout);
             p.layout->setGridPos(p.deviceComboBox, 1, 1);
-            label = ui::Label::create("Channel mute: ", context, p.layout);
+            label = dtk::Label::create(context, "Channel mute: ", p.layout);
             p.layout->setGridPos(label, 2, 0);
-            p.channelMuteLayout = ui::HorizontalLayout::create(context, p.layout);
-            p.channelMuteLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.channelMuteLayout = dtk::HorizontalLayout::create(context, p.layout);
+            p.channelMuteLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.layout->setGridPos(p.channelMuteLayout, 2, 1);
             setWidget(p.layout);
 
@@ -204,13 +203,13 @@ namespace tl
                 }
                 p.channelMuteCheckBoxes.clear();
                 p.channelMuteButtonGroup->clearButtons();
-                if (auto context = _context.lock())
+                if (auto context = getContext())
                 {
                     for (size_t i = 0; i < p.info.channelCount; ++i)
                     {
-                        auto checkBox = ui::CheckBox::create(
-                            dtk::Format("{0}").arg(i),
+                        auto checkBox = dtk::CheckBox::create(
                             context,
+                            dtk::Format("{0}").arg(i),
                             p.channelMuteLayout);
                         p.channelMuteCheckBoxes.push_back(checkBox);
                         p.channelMuteButtonGroup->addButton(checkBox);

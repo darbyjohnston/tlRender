@@ -15,7 +15,7 @@ namespace tl
     {
         struct ToolsActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void ToolsActions::_init(
@@ -60,7 +60,7 @@ namespace tl
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 const auto tool = enums[i];
-                p.actions[labels[i]] = std::make_shared<ui::Action>(
+                p.actions[labels[i]] = std::make_shared<dtk::Action>(
                     getText(tool),
                     getIcon(tool),
                     getShortcut(tool),
@@ -80,7 +80,7 @@ namespace tl
                 if (!toolTips[i].empty())
                 {
                     p.actions[labels[i]]->toolTip = dtk::Format(toolTips[i]).
-                        arg(ui::getLabel(
+                        arg(dtk::getShortcutLabel(
                             p.actions[labels[i]]->shortcut,
                             p.actions[labels[i]]->shortcutModifiers));
                 }
@@ -103,7 +103,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& ToolsActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& ToolsActions::getActions() const
         {
             return _p->actions;
         }

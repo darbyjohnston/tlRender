@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Menu.h>
+#include <dtk/ui/Menu.h>
 
 namespace tl
 {
@@ -14,7 +14,7 @@ namespace tl
         class RenderActions;
 
         //! Render menu.
-        class RenderMenu : public ui::Menu
+        class RenderMenu : public dtk::Menu
         {
             DTK_NON_COPYABLE(RenderMenu);
 

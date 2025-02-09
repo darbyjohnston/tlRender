@@ -12,7 +12,7 @@ namespace tl
 {
     namespace play_app
     {
-        class BackgroundWidget : public ui::IWidget
+        class BackgroundWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(BackgroundWidget);
 
@@ -33,7 +33,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _optionsUpdate(const timeline::BackgroundOptions&);

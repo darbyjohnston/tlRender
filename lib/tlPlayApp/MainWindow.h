@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlUIApp/Window.h>
-
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/Window.h>
 
 namespace tl
 {
@@ -36,21 +36,22 @@ namespace tl
             bool  bottomToolBar  = true;
             bool  statusToolBar  = true;
             float splitter       = .7F;
-            float splitter2      = .8F;
+            float splitter2      = .7F;
 
             bool operator == (const WindowOptions&) const;
             bool operator != (const WindowOptions&) const;
         };
 
         //! Main window.
-        class MainWindow : public ui_app::Window
+        class MainWindow : public dtk::Window
         {
             DTK_NON_COPYABLE(MainWindow);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&);
+                const std::shared_ptr<App>&,
+                const dtk::Size2I&);
 
             MainWindow();
 
@@ -60,7 +61,8 @@ namespace tl
             //! Create a new main window.
             static std::shared_ptr<MainWindow> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&);
+                const std::shared_ptr<App>&,
+                const dtk::Size2I&);
 
             //! Get the viewport.
             const std::shared_ptr<play::Viewport>& getViewport() const;
@@ -81,10 +83,12 @@ namespace tl
             void setWindowOptions(const WindowOptions&);
 
             void setGeometry(const dtk::Box2I&) override;
-            void keyPressEvent(ui::KeyEvent&) override;
-            void keyReleaseEvent(ui::KeyEvent&) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
 
         protected:
+            std::shared_ptr<dtk::IRender> _createRender(const std::shared_ptr<dtk::Context>&) override;
+
             void _drop(const std::vector<std::string>&) override;
 
         private:

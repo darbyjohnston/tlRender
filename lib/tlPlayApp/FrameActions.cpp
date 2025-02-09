@@ -15,7 +15,7 @@ namespace tl
     {
         struct FrameActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void FrameActions::_init(
@@ -26,10 +26,10 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Start"] = std::make_shared<ui::Action>(
+            p.actions["Start"] = std::make_shared<dtk::Action>(
                 "Go To Start",
                 "TimeStart",
-                ui::Key::Home,
+                dtk::Key::Home,
                 0,
                 [appWeak]
                 {
@@ -45,14 +45,14 @@ namespace tl
                 "Go to the start frame\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Start"]->shortcut,
                     p.actions["Start"]->shortcutModifiers));
 
-            p.actions["End"] = std::make_shared<ui::Action>(
+            p.actions["End"] = std::make_shared<dtk::Action>(
                 "Go To End",
                 "TimeEnd",
-                ui::Key::End,
+                dtk::Key::End,
                 0,
                 [appWeak]
                 {
@@ -68,14 +68,14 @@ namespace tl
                 "Go to the end frame\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["End"]->shortcut,
                     p.actions["End"]->shortcutModifiers));
 
-            p.actions["Prev"] = std::make_shared<ui::Action>(
+            p.actions["Prev"] = std::make_shared<dtk::Action>(
                 "Previous Frame",
                 "FramePrev",
-                ui::Key::Left,
+                dtk::Key::Left,
                 0,
                 [appWeak]
                 {
@@ -91,14 +91,14 @@ namespace tl
                 "Go to the previous frame\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Prev"]->shortcut,
                     p.actions["Prev"]->shortcutModifiers));
 
-            p.actions["PrevX10"] = std::make_shared<ui::Action>(
+            p.actions["PrevX10"] = std::make_shared<dtk::Action>(
                 "Previous Frame X10",
-                ui::Key::Left,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::Left,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -110,10 +110,10 @@ namespace tl
                     }
                 });
 
-            p.actions["PrevX100"] = std::make_shared<ui::Action>(
+            p.actions["PrevX100"] = std::make_shared<dtk::Action>(
                 "Previous Frame X100",
-                ui::Key::Left,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::Left,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -125,10 +125,10 @@ namespace tl
                     }
                 });
 
-            p.actions["Next"] = std::make_shared<ui::Action>(
+            p.actions["Next"] = std::make_shared<dtk::Action>(
                 "Next Frame",
                 "FrameNext",
-                ui::Key::Right,
+                dtk::Key::Right,
                 0,
                 [appWeak]
                 {
@@ -144,14 +144,14 @@ namespace tl
                 "Go to the next frame\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Next"]->shortcut,
                     p.actions["Next"]->shortcutModifiers));
 
-            p.actions["NextX10"] = std::make_shared<ui::Action>(
+            p.actions["NextX10"] = std::make_shared<dtk::Action>(
                 "Next Frame X10",
-                ui::Key::Right,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::Right,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -163,10 +163,10 @@ namespace tl
                     }
                 });
 
-            p.actions["NextX100"] = std::make_shared<ui::Action>(
+            p.actions["NextX100"] = std::make_shared<dtk::Action>(
                 "Next Frame X100",
-                ui::Key::Right,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::Right,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -179,10 +179,10 @@ namespace tl
                 });
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["FocusCurrent"] = std::make_shared<ui::Action>(
+            p.actions["FocusCurrent"] = std::make_shared<dtk::Action>(
                 "Focus Current Frame",
-                ui::Key::F,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::F,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
@@ -209,7 +209,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& FrameActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& FrameActions::getActions() const
         {
             return _p->actions;
         }

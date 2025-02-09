@@ -18,8 +18,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IDialog::_init(
-                "tl::play_app::SeparateAudioDialog",
                 context,
+                "tl::play_app::SeparateAudioDialog",
                 parent);
             DTK_P();
 

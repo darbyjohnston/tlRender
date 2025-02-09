@@ -6,8 +6,8 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -15,9 +15,9 @@ namespace tl
     {
         struct FileToolBar::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
         };
@@ -25,35 +25,35 @@ namespace tl
         void FileToolBar::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::FileToolBar",
                 context,
+                "tl::play_app::FileToolBar",
                 parent);
             DTK_P();
 
             p.actions = actions;
 
-            p.buttons["Open"] = ui::ToolButton::create(context);
+            p.buttons["Open"] = dtk::ToolButton::create(context);
             p.buttons["Open"]->setIcon(p.actions["Open"]->icon);
-            p.buttons["Open"]->setToolTip(p.actions["Open"]->toolTip);
+            p.buttons["Open"]->setTooltip(p.actions["Open"]->toolTip);
 
-            p.buttons["OpenSeparateAudio"] = ui::ToolButton::create(context);
+            p.buttons["OpenSeparateAudio"] = dtk::ToolButton::create(context);
             p.buttons["OpenSeparateAudio"]->setIcon(p.actions["OpenSeparateAudio"]->icon);
-            p.buttons["OpenSeparateAudio"]->setToolTip(p.actions["OpenSeparateAudio"]->toolTip);
+            p.buttons["OpenSeparateAudio"]->setTooltip(p.actions["OpenSeparateAudio"]->toolTip);
 
-            p.buttons["Close"] = ui::ToolButton::create(context);
+            p.buttons["Close"] = dtk::ToolButton::create(context);
             p.buttons["Close"]->setIcon(p.actions["Close"]->icon);
-            p.buttons["Close"]->setToolTip(p.actions["Close"]->toolTip);
+            p.buttons["Close"]->setTooltip(p.actions["Close"]->toolTip);
 
-            p.buttons["CloseAll"] = ui::ToolButton::create(context);
+            p.buttons["CloseAll"] = dtk::ToolButton::create(context);
             p.buttons["CloseAll"]->setIcon(p.actions["CloseAll"]->icon);
-            p.buttons["CloseAll"]->setToolTip(p.actions["CloseAll"]->toolTip);
+            p.buttons["CloseAll"]->setTooltip(p.actions["CloseAll"]->toolTip);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.buttons["Open"]->setParent(p.layout);
             p.buttons["OpenSeparateAudio"]->setParent(p.layout);
             p.buttons["Close"]->setParent(p.layout);
@@ -98,7 +98,7 @@ namespace tl
         std::shared_ptr<FileToolBar> FileToolBar::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileToolBar>(new FileToolBar);
@@ -112,10 +112,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void FileToolBar::sizeHintEvent(const ui::SizeHintEvent& event)
+        void FileToolBar::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void FileToolBar::_filesUpdate(

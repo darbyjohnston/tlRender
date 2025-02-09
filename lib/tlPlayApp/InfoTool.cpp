@@ -6,11 +6,13 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlUI/GridLayout.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
-#include <tlUI/SearchBox.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/SearchBox.h>
+
+#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -21,8 +23,8 @@ namespace tl
             io::Info info;
             std::string search;
 
-            std::shared_ptr<ui::SearchBox> searchBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::SearchBox> searchBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
@@ -40,22 +42,22 @@ namespace tl
                 parent);
             DTK_P();
 
-            p.searchBox = ui::SearchBox::create(context);
-            p.searchBox->setHStretch(ui::Stretch::Expanding);
+            p.searchBox = dtk::SearchBox::create(context);
+            p.searchBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.layout = ui::GridLayout::create(context);
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto scrollWidget = ui::ScrollWidget::create(context);
+            p.layout = dtk::GridLayout::create(context);
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(p.layout);
-            scrollWidget->setVStretch(ui::Stretch::Expanding);
+            scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
-            auto layout = ui::VerticalLayout::create(context);
-            layout->setSpacingRole(ui::SizeRole::None);
+            auto layout = dtk::VerticalLayout::create(context);
+            layout->setSpacingRole(dtk::SizeRole::None);
             scrollWidget->setParent(layout);
-            auto hLayout = ui::HorizontalLayout::create(context, layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            auto hLayout = dtk::HorizontalLayout::create(context, layout);
+            hLayout->setMarginRole(dtk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.searchBox->setParent(hLayout);
             _setWidget(layout);
 
@@ -100,7 +102,7 @@ namespace tl
             {
                 child->setParent(nullptr);
             }
-            if (auto context = _context.lock())
+            if (auto context = getContext())
             {
                 int row = 0;
                 for (const auto& tag : p.info.tags)
@@ -120,9 +122,9 @@ namespace tl
                     }
                     if (!filter)
                     {
-                        auto label = ui::Label::create(tag.first + ":", context, p.layout);
+                        auto label = dtk::Label::create(context, tag.first + ":", p.layout);
                         p.layout->setGridPos(label, row, 0);
-                        label = ui::Label::create(tag.second, context, p.layout);
+                        label = dtk::Label::create(context, tag.second, p.layout);
                         p.layout->setGridPos(label, row, 1);
                         ++row;
                     }

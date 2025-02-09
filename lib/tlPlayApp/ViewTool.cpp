@@ -8,15 +8,15 @@
 
 #include <tlPlay/ViewportModel.h>
 
-#include <tlUI/Bellows.h>
-#include <tlUI/ColorSwatch.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/GridLayout.h>
-#include <tlUI/GroupBox.h>
-#include <tlUI/IntEditSlider.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
+#include <dtk/ui/Bellows.h>
+#include <dtk/ui/ColorSwatch.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/GroupBox.h>
+#include <dtk/ui/IntEditSlider.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
 
 namespace tl
 {
@@ -24,11 +24,11 @@ namespace tl
     {
         struct BackgroundWidget::Private
         {
-            std::shared_ptr<ui::ComboBox> typeComboBox;
-            std::shared_ptr<ui::ColorSwatch> color0Swatch;
-            std::shared_ptr<ui::ColorSwatch> color1Swatch;
-            std::shared_ptr<ui::IntEditSlider> checkersSizeSlider;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::ComboBox> typeComboBox;
+            std::shared_ptr<dtk::ColorSwatch> color0Swatch;
+            std::shared_ptr<dtk::ColorSwatch> color1Swatch;
+            std::shared_ptr<dtk::IntEditSlider> checkersSizeSlider;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
@@ -36,41 +36,41 @@ namespace tl
         void BackgroundWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::BackgroundWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::BackgroundWidget", parent);
             DTK_P();
 
-            p.typeComboBox = ui::ComboBox::create(
-                timeline::getBackgroundLabels(),
-                context);
-            p.typeComboBox->setHStretch(ui::Stretch::Expanding);
+            p.typeComboBox = dtk::ComboBox::create(
+                context,
+                timeline::getBackgroundLabels());
+            p.typeComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.color0Swatch = ui::ColorSwatch::create(context);
+            p.color0Swatch = dtk::ColorSwatch::create(context);
             p.color0Swatch->setEditable(true);
-            p.color0Swatch->setHStretch(ui::Stretch::Expanding);
-            p.color1Swatch = ui::ColorSwatch::create(context);
+            p.color0Swatch->setHStretch(dtk::Stretch::Expanding);
+            p.color1Swatch = dtk::ColorSwatch::create(context);
             p.color1Swatch->setEditable(true);
-            p.color1Swatch->setHStretch(ui::Stretch::Expanding);
-            p.checkersSizeSlider = ui::IntEditSlider::create(context);
+            p.color1Swatch->setHStretch(dtk::Stretch::Expanding);
+            p.checkersSizeSlider = dtk::IntEditSlider::create(context);
             p.checkersSizeSlider->setRange(dtk::RangeI(10, 100));
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Type:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Type:", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.typeComboBox->setParent(p.layout);
             p.layout->setGridPos(p.typeComboBox, 0, 1);
-            label = ui::Label::create("Color 0:", context, p.layout);
+            label = dtk::Label::create(context, "Color 0:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.color0Swatch->setParent(p.layout);
             p.layout->setGridPos(p.color0Swatch, 1, 1);
-            label = ui::Label::create("Color 1:", context, p.layout);
+            label = dtk::Label::create(context, "Color 1:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.color1Swatch->setParent(p.layout);
             p.layout->setGridPos(p.color1Swatch, 2, 1);
-            label = ui::Label::create("Checkers size:", context, p.layout);
+            label = dtk::Label::create(context, "Checkers size:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.checkersSizeSlider->setParent(p.layout);
             p.layout->setGridPos(p.checkersSizeSlider, 3, 1);
@@ -152,10 +152,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void BackgroundWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void BackgroundWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void BackgroundWidget::_optionsUpdate(const timeline::BackgroundOptions& value)
@@ -187,10 +187,10 @@ namespace tl
 
             p.backgroundWidget = BackgroundWidget::create(context, app);
 
-            auto layout = ui::VerticalLayout::create(context);
-            auto bellows = ui::Bellows::create("Background", context, layout);
+            auto layout = dtk::VerticalLayout::create(context);
+            auto bellows = dtk::Bellows::create(context, "Background", layout);
             bellows->setWidget(p.backgroundWidget);
-            auto scrollWidget = ui::ScrollWidget::create(context);
+            auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
         }

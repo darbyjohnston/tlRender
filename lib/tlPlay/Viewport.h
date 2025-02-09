@@ -38,11 +38,11 @@ namespace tl
             void setHUD(bool);
 
             void setGeometry(const dtk::Box2I&) override;
-            void childRemovedEvent(const ui::ChildEvent&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void mouseMoveEvent(ui::MouseMoveEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
+            void childRemoveEvent(const dtk::ChildRemoveEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void mouseMoveEvent(dtk::MouseMoveEvent&) override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
 
         private:
             void _hudUpdate();

@@ -15,7 +15,7 @@ namespace tl
     {
         struct TimelineActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void TimelineActions::_init(
@@ -26,7 +26,7 @@ namespace tl
             DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["Input"] = std::make_shared<ui::Action>(
+            p.actions["Input"] = std::make_shared<dtk::Action>(
                 "Enable Input",
                 [mainWindowWeak](bool value)
                 {
@@ -38,7 +38,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Editable"] = std::make_shared<ui::Action>(
+            p.actions["Editable"] = std::make_shared<dtk::Action>(
                 "Editable",
                 [mainWindowWeak](bool value)
                 {
@@ -48,7 +48,7 @@ namespace tl
                     }
                 });
 
-            p.actions["EditAssociatedClips"] = std::make_shared<ui::Action>(
+            p.actions["EditAssociatedClips"] = std::make_shared<dtk::Action>(
                 "Edit Associated Clips",
                 [mainWindowWeak](bool value)
                 {
@@ -60,7 +60,7 @@ namespace tl
                     }
                 });
 
-            p.actions["FrameView"] = std::make_shared<ui::Action>(
+            p.actions["FrameView"] = std::make_shared<dtk::Action>(
                 "Frame Timeline View",
                 [mainWindowWeak](bool value)
                 {
@@ -70,7 +70,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ScrollToCurrentFrame"] = std::make_shared<ui::Action>(
+            p.actions["ScrollToCurrentFrame"] = std::make_shared<dtk::Action>(
                 "Scroll To Current Frame",
                 [mainWindowWeak](bool value)
                 {
@@ -80,7 +80,7 @@ namespace tl
                     }
                 });
 
-            p.actions["StopOnScrub"] = std::make_shared<ui::Action>(
+            p.actions["StopOnScrub"] = std::make_shared<dtk::Action>(
                 "Stop Playback When Scrubbing",
                 [mainWindowWeak](bool value)
                 {
@@ -90,7 +90,7 @@ namespace tl
                     }
                 });
 
-            p.actions["FirstTrack"] = std::make_shared<ui::Action>(
+            p.actions["FirstTrack"] = std::make_shared<dtk::Action>(
                 "First Track Only",
                 [mainWindowWeak](bool value)
                 {
@@ -106,7 +106,7 @@ namespace tl
                     }
                 });
 
-            p.actions["TrackInfo"] = std::make_shared<ui::Action>(
+            p.actions["TrackInfo"] = std::make_shared<dtk::Action>(
                 "Track Information",
                 [mainWindowWeak](bool value)
                 {
@@ -118,7 +118,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ClipInfo"] = std::make_shared<ui::Action>(
+            p.actions["ClipInfo"] = std::make_shared<dtk::Action>(
                 "Clip Information",
                 [mainWindowWeak](bool value)
                 {
@@ -130,7 +130,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails"] = std::make_shared<ui::Action>(
+            p.actions["Thumbnails"] = std::make_shared<dtk::Action>(
                 "Thumbnails",
                 [mainWindowWeak](bool value)
                 {
@@ -142,7 +142,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails100"] = std::make_shared<ui::Action>(
+            p.actions["Thumbnails100"] = std::make_shared<dtk::Action>(
                 "Small",
                 [mainWindowWeak]
                 {
@@ -155,7 +155,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails200"] = std::make_shared<ui::Action>(
+            p.actions["Thumbnails200"] = std::make_shared<dtk::Action>(
                 "Medium",
                 [mainWindowWeak]
                 {
@@ -168,7 +168,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails300"] = std::make_shared<ui::Action>(
+            p.actions["Thumbnails300"] = std::make_shared<dtk::Action>(
                 "Large",
                 [mainWindowWeak]
                 {
@@ -181,7 +181,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Transitions"] = std::make_shared<ui::Action>(
+            p.actions["Transitions"] = std::make_shared<dtk::Action>(
                 "Transitions",
                 [mainWindowWeak](bool value)
                 {
@@ -193,7 +193,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Markers"] = std::make_shared<ui::Action>(
+            p.actions["Markers"] = std::make_shared<dtk::Action>(
                 "Markers",
                 [mainWindowWeak](bool value)
                 {
@@ -223,7 +223,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& TimelineActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& TimelineActions::getActions() const
         {
             return _p->actions;
         }

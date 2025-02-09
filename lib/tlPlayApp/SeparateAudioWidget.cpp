@@ -4,13 +4,13 @@
 
 #include <tlPlayApp/SeparateAudioPrivate.h>
 
-#include <tlUI/Divider.h>
-#include <tlUI/FileEdit.h>
-#include <tlUI/GroupBox.h>
-#include <tlUI/Label.h>
-#include <tlUI/PushButton.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/Spacer.h>
+#include <dtk/ui/Divider.h>
+#include <dtk/ui/FileEdit.h>
+#include <dtk/ui/GroupBox.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/PushButton.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/Spacer.h>
 
 namespace tl
 {
@@ -18,11 +18,11 @@ namespace tl
     {
         struct SeparateAudioWidget::Private
         {
-            std::shared_ptr<ui::FileEdit> videoFileEdit;
-            std::shared_ptr<ui::FileEdit> audioFileEdit;
-            std::shared_ptr<ui::PushButton> okButton;
-            std::shared_ptr<ui::PushButton> cancelButton;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::FileEdit> videoFileEdit;
+            std::shared_ptr<dtk::FileEdit> audioFileEdit;
+            std::shared_ptr<dtk::PushButton> okButton;
+            std::shared_ptr<dtk::PushButton> cancelButton;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::function<void(const file::Path&, const file::Path&)> callback;
             std::function<void(void)> cancelCallback;
@@ -33,45 +33,45 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::SeparateAudioWidget",
                 context,
+                "tl::play_app::SeparateAudioWidget",
                 parent);
             DTK_P();
 
-            setHStretch(ui::Stretch::Expanding);
-            _setMouseHover(true);
-            _setMousePress(true);
+            setHStretch(dtk::Stretch::Expanding);
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true);
 
-            p.videoFileEdit = ui::FileEdit::create(context);
+            p.videoFileEdit = dtk::FileEdit::create(context);
 
-            p.audioFileEdit = ui::FileEdit::create(context);
+            p.audioFileEdit = dtk::FileEdit::create(context);
 
-            p.okButton = ui::PushButton::create("OK", context);
-            p.cancelButton = ui::PushButton::create("Cancel", context);
+            p.okButton = dtk::PushButton::create(context, "OK");
+            p.cancelButton = dtk::PushButton::create(context, "Cancel");
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
-            auto label = ui::Label::create("Open Separate Audio", context, p.layout);
-            label->setMarginRole(ui::SizeRole::MarginSmall);
-            label->setBackgroundRole(ui::ColorRole::Button);
-            auto vLayout = ui::VerticalLayout::create(context, p.layout);
-            vLayout->setVStretch(ui::Stretch::Expanding);
-            vLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            vLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto groupBox = ui::GroupBox::create("Video", context, vLayout);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
+            auto label = dtk::Label::create(context, "Open Separate Audio", p.layout);
+            label->setMarginRole(dtk::SizeRole::MarginSmall);
+            label->setBackgroundRole(dtk::ColorRole::Button);
+            auto vLayout = dtk::VerticalLayout::create(context, p.layout);
+            vLayout->setVStretch(dtk::Stretch::Expanding);
+            vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto groupBox = dtk::GroupBox::create(context, "Video", vLayout);
             p.videoFileEdit->setParent(groupBox);
-            groupBox = ui::GroupBox::create("Audio", context, vLayout);
+            groupBox = dtk::GroupBox::create(context, "Audio", vLayout);
             p.audioFileEdit->setParent(groupBox);
-            auto spacer = ui::Spacer::create(ui::Orientation::Vertical, context, vLayout);
-            spacer->setSizeRole(ui::SizeRole::None);
-            spacer->setVStretch(ui::Stretch::Expanding);
-            ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, hLayout);
-            spacer->setSizeRole(ui::SizeRole::None);
-            spacer->setHStretch(ui::Stretch::Expanding);
+            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Vertical, vLayout);
+            spacer->setSpacingRole(dtk::SizeRole::None);
+            spacer->setVStretch(dtk::Stretch::Expanding);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, hLayout);
+            spacer->setSpacingRole(dtk::SizeRole::None);
+            spacer->setHStretch(dtk::Stretch::Expanding);
             p.okButton->setParent(hLayout);
             p.cancelButton->setParent(hLayout);
 
@@ -81,8 +81,8 @@ namespace tl
                     if (_p->callback)
                     {
                         _p->callback(
-                            _p->videoFileEdit->getPath(),
-                            _p->audioFileEdit->getPath());
+                            file::Path(_p->videoFileEdit->getPath().u8string()),
+                            file::Path(_p->audioFileEdit->getPath().u8string()));
                     }
                 });
 
@@ -130,10 +130,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void SeparateAudioWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void SeparateAudioWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
     }
 }

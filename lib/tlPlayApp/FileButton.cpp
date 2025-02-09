@@ -4,9 +4,9 @@
 
 #include <tlPlayApp/FilesToolPrivate.h>
 
-#include <tlUI/DrawUtil.h>
-#include <tlUI/ThumbnailSystem.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
 
+#include <dtk/ui/DrawUtil.h>
 #include <dtk/core/Context.h>
 
 namespace tl
@@ -19,7 +19,8 @@ namespace tl
 
             struct SizeData
             {
-                int sizeInit = true;
+                int init = true;
+                float displayScale = 0.F;
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
@@ -38,7 +39,7 @@ namespace tl
             struct DrawData
             {
                 std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
-                ui::ThumbnailRequest thumbnailRequest;
+                timelineui::ThumbnailRequest thumbnailRequest;
                 std::shared_ptr<dtk::Image> thumbnail;
             };
             DrawData draw;
@@ -49,14 +50,14 @@ namespace tl
             const std::shared_ptr<play::FilesModelItem>& item,
             const std::shared_ptr<IWidget>& parent)
         {
-            IButton::_init("tl::play_app::FileButton", context, parent);
+            IButton::_init(context, "tl::play_app::FileButton", parent);
             DTK_P();
             const std::string s = dtk::elide(item->path.get(-1, file::PathType::FileName));
             setText(s);
             setCheckable(true);
-            setHStretch(ui::Stretch::Expanding);
+            setHStretch(dtk::Stretch::Expanding);
             setAcceptsKeyFocus(true);
-            _buttonRole = ui::ColorRole::None;
+            _buttonRole = dtk::ColorRole::None;
             p.item = item;
         }
 
@@ -80,7 +81,7 @@ namespace tl
         void FileButton::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const ui::TickEvent& event)
+            const dtk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             DTK_P();
@@ -88,45 +89,45 @@ namespace tl
                 p.draw.thumbnailRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.draw.thumbnail = p.draw.thumbnailRequest.future.get();
-                _updates |= ui::Update::Size;
-                _updates |= ui::Update::Draw;
+                _setSizeUpdate();
+                _setDrawUpdate();
             }
         }
 
-        void FileButton::sizeHintEvent(const ui::SizeHintEvent& event)
+        void FileButton::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IButton::sizeHintEvent(event);
             DTK_P();
 
-            if (displayScaleChanged || p.size.sizeInit)
+            if (p.size.init || event.displayScale != p.size.displayScale)
             {
-                p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginInside, _displayScale);
-                p.size.spacing = event.style->getSizeRole(ui::SizeRole::SpacingSmall, _displayScale);
-                p.size.border = event.style->getSizeRole(ui::SizeRole::Border, _displayScale);
+                p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginInside, event.displayScale);
+                p.size.spacing = event.style->getSizeRole(dtk::SizeRole::SpacingSmall, event.displayScale);
+                p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
             }
-            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            if (p.size.init || event.displayScale != p.size.displayScale || p.size.textInit)
             {
-                p.size.fontInfo = event.style->getFontRole(_fontRole, _displayScale);
+                p.size.fontInfo = event.style->getFontRole(_fontRole, event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
                 p.size.textSize = event.fontSystem->getSize(_text, p.size.fontInfo);
                 p.draw.glyphs.clear();
             }
-            p.size.sizeInit = false;
+            p.size.init = false;
+            p.size.displayScale = event.displayScale;
             p.size.textInit = false;
 
-            if (_displayScale != p.size.thumbnailScale)
+            if (event.displayScale != p.size.thumbnailScale)
             {
                 p.size.thumbnailInit = true;
-                p.size.thumbnailScale = _displayScale;
-                p.size.thumbnailHeight = 40 * _displayScale;
+                p.size.thumbnailScale = event.displayScale;
+                p.size.thumbnailHeight = 40 * event.displayScale;
             }
             if (p.size.thumbnailInit)
             {
                 p.size.thumbnailInit = false;
-                if (auto context = _context.lock())
+                if (auto context = getContext())
                 {
-                    auto thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+                    auto thumbnailSystem = context->getSystem<timelineui::ThumbnailSystem>();
                     p.draw.thumbnailRequest = thumbnailSystem->getThumbnail(
                         p.item->path,
                         p.size.thumbnailHeight);
@@ -139,16 +140,18 @@ namespace tl
                 const dtk::Size2I& size = p.draw.thumbnail->getSize();
                 thumbnailSize = dtk::Size2I(size.w * p.draw.thumbnail->getInfo().pixelAspectRatio, size.h);
             }
-            _sizeHint.w =
+            dtk::Size2I sizeHint;
+            sizeHint.w =
                 thumbnailSize.w +
                 p.size.spacing +
                 p.size.textSize.w + p.size.margin * 2 +
                 p.size.margin * 2 +
                 p.size.border * 4;
-            _sizeHint.h =
+            sizeHint.h =
                 std::max(p.size.fontMetrics.lineHeight, thumbnailSize.h) +
                 p.size.margin * 2 +
                 p.size.border * 4;
+            _setSizeHint(sizeHint);
         }
 
         void FileButton::clipEvent(const dtk::Box2I& clipRect, bool clipped)
@@ -163,19 +166,19 @@ namespace tl
 
         void FileButton::drawEvent(
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IButton::drawEvent(drawRect, event);
             DTK_P();
 
-            const dtk::Box2I& g = _geometry;
+            const dtk::Box2I& g = getGeometry();
             const bool enabled = isEnabled();
 
-            if (_keyFocus)
+            if (hasKeyFocus())
             {
                 event.render->drawMesh(
-                    ui::border(g, p.size.border * 2),
-                    event.style->getColorRole(ui::ColorRole::KeyFocus));
+                    dtk::border(g, p.size.border * 2),
+                    event.style->getColorRole(dtk::ColorRole::KeyFocus));
             }
 
             const dtk::Box2I g2 = dtk::margin(g, -p.size.border * 2);
@@ -183,19 +186,19 @@ namespace tl
             {
                 event.render->drawRect(
                     g2,
-                    event.style->getColorRole(ui::ColorRole::Checked));
+                    event.style->getColorRole(dtk::ColorRole::Checked));
             }
-            if (_mouse.press && dtk::contains(_geometry, _mouse.pos))
+            if (_isMousePressed() && dtk::contains(g, _getMousePos()))
             {
                 event.render->drawRect(
                     g2,
-                    event.style->getColorRole(ui::ColorRole::Pressed));
+                    event.style->getColorRole(dtk::ColorRole::Pressed));
             }
-            else if (_mouse.inside)
+            else if (_isMouseInside())
             {
                 event.render->drawRect(
                     g2,
-                    event.style->getColorRole(ui::ColorRole::Hover));
+                    event.style->getColorRole(dtk::ColorRole::Hover));
             }
 
             const dtk::Box2I g3 = dtk::margin(g2, -p.size.margin);
@@ -223,22 +226,22 @@ namespace tl
                     p.draw.glyphs,
                     p.size.fontMetrics,
                     pos,
-                    event.style->getColorRole(ui::ColorRole::Text));
+                    event.style->getColorRole(dtk::ColorRole::Text));
             }
         }
 
-        void FileButton::keyPressEvent(ui::KeyEvent& event)
+        void FileButton::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             if (0 == event.modifiers)
             {
                 switch (event.key)
                 {
-                case ui::Key::Enter:
+                case dtk::Key::Enter:
                     event.accept = true;
-                    _click();
+                    click();
                     break;
-                case ui::Key::Escape:
+                case dtk::Key::Escape:
                     if (hasKeyFocus())
                     {
                         event.accept = true;
@@ -250,7 +253,7 @@ namespace tl
             }
         }
 
-        void FileButton::keyReleaseEvent(ui::KeyEvent& event)
+        void FileButton::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
         }

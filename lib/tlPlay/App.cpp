@@ -11,11 +11,11 @@ namespace tl
 {
     namespace play
     {
-        std::vector<std::shared_ptr<app::ICmdLineArg> > getCmdLineArgs(Options& options)
+        std::vector<std::shared_ptr<dtk::ICmdLineArg> > getCmdLineArgs(Options& options)
         {
             return
             {
-                app::CmdLineValueArg<std::string>::create(
+                dtk::CmdLineValueArg<std::string>::create(
                     options.fileName,
                     "input",
                     "Timeline, movie, image sequence, or folder.",
@@ -23,139 +23,139 @@ namespace tl
             };
         }
 
-        std::vector<std::shared_ptr<app::ICmdLineOption> > getCmdLineOptions(
+        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
             Options& options,
             const std::string& logFileName,
             const std::string& settingsFileName)
         {
             return
             {
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.audioFileName,
                     { "-audio", "-a" },
                     "Audio file name."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.compareFileName,
                     { "-b" },
                     "A/B comparison \"B\" file name."),
-                app::CmdLineValueOption<timeline::CompareMode>::create(
+                dtk::CmdLineValueOption<timeline::CompareMode>::create(
                     options.compareOptions.mode,
                     { "-compare", "-c" },
                     "A/B comparison mode.",
                     dtk::Format("{0}").arg(options.compareOptions.mode),
                     dtk::join(timeline::getCompareModeLabels(), ", ")),
-                app::CmdLineValueOption<dtk::V2F>::create(
+                dtk::CmdLineValueOption<dtk::V2F>::create(
                     options.compareOptions.wipeCenter,
                     { "-wipeCenter", "-wc" },
                     "A/B comparison wipe center.",
                     dtk::Format("{0}").arg(options.compareOptions.wipeCenter)),
-                app::CmdLineValueOption<float>::create(
+                dtk::CmdLineValueOption<float>::create(
                     options.compareOptions.wipeRotation,
                     { "-wipeRotation", "-wr" },
                     "A/B comparison wipe rotation.",
                     dtk::Format("{0}").arg(options.compareOptions.wipeRotation)),
-                app::CmdLineValueOption<double>::create(
+                dtk::CmdLineValueOption<double>::create(
                     options.speed,
                     { "-speed" },
                     "Playback speed."),
-                app::CmdLineValueOption<timeline::Playback>::create(
+                dtk::CmdLineValueOption<timeline::Playback>::create(
                     options.playback,
                     { "-playback", "-p" },
                     "Playback mode.",
                     dtk::Format("{0}").arg(options.playback),
                     dtk::join(timeline::getPlaybackLabels(), ", ")),
-                app::CmdLineValueOption<timeline::Loop>::create(
+                dtk::CmdLineValueOption<timeline::Loop>::create(
                     options.loop,
                     { "-loop", "-lp" },
                     "Playback loop mode.",
                     dtk::Format("{0}").arg(options.loop),
                     dtk::join(timeline::getLoopLabels(), ", ")),
-                app::CmdLineValueOption<OTIO_NS::RationalTime>::create(
+                dtk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                     options.seek,
                     { "-seek" },
                     "Seek to the given time."),
-                app::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                dtk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                     options.inOutRange,
                     { "-inOutRange" },
                     "Set the in/out points range."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.ocioOptions.fileName,
                     { "-ocio" },
                     "OpenColorIO configuration file name (e.g., config.ocio)."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.ocioOptions.input,
                     { "-ocioInput" },
                     "OpenColorIO input name."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.ocioOptions.display,
                     { "-ocioDisplay" },
                     "OpenColorIO display name."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.ocioOptions.view,
                     { "-ocioView" },
                     "OpenColorIO view name."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.ocioOptions.look,
                     { "-ocioLook" },
                     "OpenColorIO look name."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.lutOptions.fileName,
                     { "-lut" },
                     "LUT file name."),
-                app::CmdLineValueOption<timeline::LUTOrder>::create(
+                dtk::CmdLineValueOption<timeline::LUTOrder>::create(
                     options.lutOptions.order,
                     { "-lutOrder" },
                     "LUT operation order.",
                     dtk::Format("{0}").arg(options.lutOptions.order),
                     dtk::join(timeline::getLUTOrderLabels(), ", ")),
 #if defined(TLRENDER_USD)
-                app::CmdLineValueOption<int>::create(
+                dtk::CmdLineValueOption<int>::create(
                     options.usdRenderWidth,
                     { "-usdRenderWidth" },
                     "USD render width.",
                     dtk::Format("{0}").arg(options.usdRenderWidth)),
-                app::CmdLineValueOption<float>::create(
+                dtk::CmdLineValueOption<float>::create(
                     options.usdComplexity,
                     { "-usdComplexity" },
                     "USD render complexity setting.",
                     dtk::Format("{0}").arg(options.usdComplexity)),
-                app::CmdLineValueOption<usd::DrawMode>::create(
+                dtk::CmdLineValueOption<usd::DrawMode>::create(
                     options.usdDrawMode,
                     { "-usdDrawMode" },
                     "USD draw mode.",
                     dtk::Format("{0}").arg(options.usdDrawMode),
                     dtk::join(usd::getDrawModeLabels(), ", ")),
-                app::CmdLineValueOption<bool>::create(
+                dtk::CmdLineValueOption<bool>::create(
                     options.usdEnableLighting,
                     { "-usdEnableLighting" },
                     "USD enable lighting.",
                     dtk::Format("{0}").arg(options.usdEnableLighting)),
-                app::CmdLineValueOption<bool>::create(
+                dtk::CmdLineValueOption<bool>::create(
                     options.usdSRGB,
                     { "-usdSRGB" },
                     "USD enable sRGB color space.",
                     dtk::Format("{0}").arg(options.usdSRGB)),
-                app::CmdLineValueOption<size_t>::create(
+                dtk::CmdLineValueOption<size_t>::create(
                     options.usdStageCache,
                     { "-usdStageCache" },
                     "USD stage cache size.",
                     dtk::Format("{0}").arg(options.usdStageCache)),
-                app::CmdLineValueOption<size_t>::create(
+                dtk::CmdLineValueOption<size_t>::create(
                     options.usdDiskCache,
                     { "-usdDiskCache" },
                     "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
                     dtk::Format("{0}").arg(options.usdDiskCache)),
 #endif // TLRENDER_USD
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.logFileName,
                     { "-logFile" },
                     "Log file name.",
                     dtk::Format("{0}").arg(logFileName)),
-                app::CmdLineFlagOption::create(
+                dtk::CmdLineFlagOption::create(
                     options.resetSettings,
                     { "-resetSettings" },
                     "Reset settings to defaults."),
-                app::CmdLineValueOption<std::string>::create(
+                dtk::CmdLineValueOption<std::string>::create(
                     options.settingsFileName,
                     { "-settings" },
                     "Settings file name.",

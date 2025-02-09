@@ -7,7 +7,6 @@
 #include <tlPlayApp/MainWindow.h>
 #include <tlPlayApp/SecondaryWindow.h>
 #include <tlPlayApp/SeparateAudioDialog.h>
-#include <tlPlayApp/Style.h>
 #include <tlPlayApp/Tools.h>
 
 #include <tlPlay/App.h>
@@ -20,9 +19,6 @@
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
-#include <tlUI/FileBrowser.h>
-#include <tlUI/RecentFilesModel.h>
-
 #include <tlTimeline/Util.h>
 
 #if defined(TLRENDER_BMD)
@@ -34,6 +30,8 @@
 
 #include <tlCore/FileLogSystem.h>
 
+#include <dtk/ui/FileBrowser.h>
+#include <dtk/ui/RecentFilesModel.h>
 #include <dtk/core/Format.h>
 
 #include <filesystem>
@@ -51,6 +49,7 @@ namespace tl
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
+            std::shared_ptr<dtk::RecentFilesModel> recentFilesModel;
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > player;
             std::shared_ptr<play::ColorModel> colorModel;
@@ -77,14 +76,13 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > recentFilesMaxObserver;
-            std::shared_ptr<dtk::ListObserver<file::Path> > recentFilesObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > mainWindowObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > secondaryWindowObserver;
+            std::shared_ptr<dtk::ListObserver<std::filesystem::path> > recentFilesObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<dtk::Window> > > closeObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -101,26 +99,20 @@ namespace tl
 
         void App::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::vector<std::string>& argv)
+            std::vector<std::string>& argv)
         {
             DTK_P();
             const std::string appName = "tlplay";
             const std::string appDocsPath = play::appDocsPath();
             const std::string logFileName = play::logFileName(appName, appDocsPath);
             const std::string settingsFileName = play::settingsName(appName, appDocsPath);
-            ui_app::App::_init(
+            dtk::App::_init(
                 context,
                 argv,
                 appName,
                 "Playback application.",
                 play::getCmdLineArgs(p.options),
                 play::getCmdLineOptions(p.options, logFileName, settingsFileName));
-            const int exitCode = getExit();
-            if (exitCode != 0)
-            {
-                exit(exitCode);
-                return;
-            }
 
             _fileLogInit(logFileName);
             _settingsInit(settingsFileName);
@@ -140,15 +132,15 @@ namespace tl
             DTK_P();
             if (p.settings)
             {
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
                 p.settings->setValue("FileBrowser/Path", fileBrowserSystem->getPath());
-                p.settings->setValue("FileBrowser/Options", fileBrowserSystem->getOptions());
+                //p.settings->setValue("FileBrowser/Options", fileBrowserSystem->getOptions());
             }
         }
 
         std::shared_ptr<App> App::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::vector<std::string>& argv)
+            std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
             out->_init(context, argv);
@@ -158,13 +150,14 @@ namespace tl
         void App::openDialog()
         {
             DTK_P();
-            auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+            auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
             fileBrowserSystem->open(
                 p.mainWindow,
-                [this](const file::FileInfo& value)
+                [this](const std::filesystem::path& value)
                 {
-                    open(value.getPath());
-                });
+                    open(file::Path(value.u8string()));
+                },
+                p.recentFilesModel);
         }
 
         void App::openSeparateAudioDialog()
@@ -196,10 +189,7 @@ namespace tl
                 item->path = i;
                 item->audioPath = audioPath;
                 p.filesModel->add(item);
-
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-                recentFilesModel->addRecent(path);
+                p.recentFilesModel->addRecent(path.get());
             }
         }
 
@@ -211,6 +201,11 @@ namespace tl
         const std::shared_ptr<play::FilesModel>& App::getFilesModel() const
         {
             return _p->filesModel;
+        }
+
+        const std::shared_ptr<dtk::RecentFilesModel>& App::getRecentFilesModel() const
+        {
+            return _p->recentFilesModel;
         }
 
         std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > App::observePlayer() const
@@ -292,24 +287,11 @@ namespace tl
                         p.secondaryWindow->setFullScreen(true, secondaryScreen);
                     }
                     p.secondaryWindow->show();
-
-                    p.secondaryWindowObserver = dtk::ValueObserver<bool>::create(
-                        p.secondaryWindow->observeClose(),
-                        [this](bool value)
-                        {
-                            if (value)
-                            {
-                                _p->secondaryWindowActive->setIfChanged(false);
-                                _p->secondaryWindow.reset();
-                                _p->secondaryWindowObserver.reset();
-                            }
-                        });
                 }
                 else
                 {
                     removeWindow(p.secondaryWindow);
                     p.secondaryWindow.reset();
-                    p.secondaryWindowObserver.reset();
                 }
             }
         }
@@ -414,7 +396,7 @@ namespace tl
 
             p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
             p.settings->setDefaultValue("FileBrowser/Path", std::filesystem::current_path().u8string());
-            p.settings->setDefaultValue("FileBrowser/Options", ui::FileBrowserOptions());
+            //p.settings->setDefaultValue("FileBrowser/Options", dtk::FileBrowserOptions());
 
             p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
                 timeline::PlayerOptions().audioBufferFrameCount);
@@ -422,8 +404,6 @@ namespace tl
             p.settings->setDefaultValue("Performance/AudioRequestCount", 16);
 
             p.settings->setDefaultValue("OpenGL/ShareContexts", true);
-
-            p.settings->setDefaultValue("Style/Palette", StylePalette::First);
 
             p.settings->setDefaultValue("Misc/ToolTipsEnabled", true);
         }
@@ -433,6 +413,8 @@ namespace tl
             DTK_P();
             
             p.filesModel = play::FilesModel::create(_context);
+
+            p.recentFilesModel = dtk::RecentFilesModel::create(_context);
 
             p.colorModel = play::ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
@@ -513,22 +495,20 @@ namespace tl
                     }
                 });
 
-            auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-            auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
             p.recentFilesMaxObserver = dtk::ValueObserver<size_t>::create(
-                recentFilesModel->observeRecentMax(),
+                p.recentFilesModel->observeRecentMax(),
                 [this](size_t value)
                 {
                     _p->settings->setValue("Files/RecentMax", value);
                 });
-            p.recentFilesObserver = dtk::ListObserver<file::Path>::create(
-                recentFilesModel->observeRecent(),
-                [this](const std::vector<file::Path>& value)
+            p.recentFilesObserver = dtk::ListObserver<std::filesystem::path>::create(
+                p.recentFilesModel->observeRecent(),
+                [this](const std::vector<std::filesystem::path>& value)
                 {
                     std::vector<std::string> fileNames;
                     for (const auto& i : value)
                     {
-                        fileNames.push_back(i.get());
+                        fileNames.push_back(i.u8string());
                     }
                     _p->settings->setValue("Files/Recent", fileNames);
                 });
@@ -565,6 +545,22 @@ namespace tl
                 [this](double)
                 {
                     _audioUpdate();
+                });
+
+            p.closeObserver = dtk::ValueObserver<std::shared_ptr<dtk::Window> >::create(
+                observeWindowClose(),
+                [this](const std::shared_ptr<dtk::Window>& value)
+                {
+                    if (value && value == _p->secondaryWindow)
+                    {
+                        _p->secondaryWindowActive->setIfChanged(false);
+                        _p->secondaryWindow.reset();
+                    }
+                    else if (value && value == _p->mainWindow)
+                    {
+                        removeWindow(_p->secondaryWindow);
+                        _p->secondaryWindow.reset();
+                    }
                 });
 
 #if defined(TLRENDER_BMD)
@@ -711,26 +707,10 @@ namespace tl
 
             p.mainWindow = MainWindow::create(
                 _context,
-                std::dynamic_pointer_cast<App>(shared_from_this()));
-            addWindow(p.mainWindow);
-            p.mainWindow->setWindowSize(
-                _uiOptions.windowSize.isValid() ?
-                _uiOptions.windowSize :
+                std::dynamic_pointer_cast<App>(shared_from_this()),
                 p.settings->getValue<dtk::Size2I>("Window/Size"));
-            p.mainWindow->setFullScreen(_uiOptions.fullscreen);
+            addWindow(p.mainWindow);
             p.mainWindow->show();
-
-            p.mainWindowObserver = dtk::ValueObserver<bool>::create(
-                p.mainWindow->observeClose(),
-                [this](bool value)
-                {
-                    if (value)
-                    {
-                        removeWindow(_p->secondaryWindow);
-                        _p->secondaryWindow.reset();
-                        _p->secondaryWindowObserver.reset();
-                    }
-                });
 
             p.mainWindow->getViewport()->setViewPosAndZoomCallback(
                 [this](const dtk::V2I& pos, double zoom)
@@ -839,45 +819,35 @@ namespace tl
             }
             if ("FileBrowser/Path" == name || name.empty())
             {
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
                 fileBrowserSystem->setPath(
                     p.settings->getValue<std::string>("FileBrowser/Path"));
             }
-            if ("FileBrowser/Options" == name || name.empty())
+            /*if ("FileBrowser/Options" == name || name.empty())
             {
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-                auto options = p.settings->getValue<ui::FileBrowserOptions>("FileBrowser/Options");
+                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
+                auto options = p.settings->getValue<dtk::FileBrowserOptions>("FileBrowser/Options");
                 fileBrowserSystem->setOptions(options);
-            }
+            }*/
             if ("FileBrowser/NativeFileDialog" == name || name.empty())
             {
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
+                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
                 fileBrowserSystem->setNativeFileDialog(
                     p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
             }
             if ("Files/RecentMax" == name || name.empty())
             {
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-                recentFilesModel->setRecentMax(
-                    p.settings->getValue<int>("Files/RecentMax"));
+                p.recentFilesModel->setRecentMax(p.settings->getValue<int>("Files/RecentMax"));
             }
             if ("Files/Recent" == name || name.empty())
             {
-                std::vector<file::Path> recentPaths;
-                for (const auto& recentFile :
+                std::vector<std::filesystem::path> recentPaths;
+                for (const auto& recentPath :
                     p.settings->getValue<std::vector<std::string> >("Files/Recent"))
                 {
-                    recentPaths.push_back(file::Path(recentFile));
+                    recentPaths.push_back(recentPath);
                 }
-                auto fileBrowserSystem = _context->getSystem<ui::FileBrowserSystem>();
-                auto recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-                recentFilesModel->setRecent(recentPaths);
-            }
-            if ("Style/Palette" == name || name.empty())
-            {
-                getStyle()->setColorRoles(getStylePalette(
-                    p.settings->getValue<StylePalette>("Style/Palette")));
+                p.recentFilesModel->setRecent(recentPaths);
             }
         }
 
@@ -926,7 +896,7 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        _log(e.what(), dtk::LogType::Error);
+                        _context->log("tl::play_app::App", e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -968,7 +938,7 @@ namespace tl
                             }
                             catch (const std::exception& e)
                             {
-                                _log(e.what(), dtk::LogType::Error);
+                                _context->log("tl::play_app::App", e.what(), dtk::LogType::Error);
                             }
                         }
                     }
@@ -1057,7 +1027,7 @@ namespace tl
             const dtk::Box2I& g = p.mainWindow->getViewport()->getGeometry();
             if (p.secondaryWindow)
             {
-                const dtk::Size2I& secondarySize = p.secondaryWindow->getWindowSize();
+                const dtk::Size2I& secondarySize = p.secondaryWindow->getSize();
                 if (g.isValid() && secondarySize.isValid())
                 {
                     scale = secondarySize.w / static_cast<float>(g.w());

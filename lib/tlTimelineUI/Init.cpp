@@ -4,6 +4,8 @@
 
 #include <tlTimelineUI/Init.h>
 
+#include <tlTimelineUI/ThumbnailSystem.h>
+
 #include <tlTimeline/Init.h>
 
 #include <dtk/ui/Init.h>
@@ -18,6 +20,7 @@ namespace tl
         {
             tl::timeline::init(context);
             dtk::uiInit(context, settingsPath);
+            ThumbnailSystem::create(context);
         }
     }
 }

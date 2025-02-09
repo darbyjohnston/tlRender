@@ -9,8 +9,8 @@
 
 #include <tlPlay/Viewport.h>
 
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -20,9 +20,9 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
         };
@@ -31,29 +31,29 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::ViewToolBar",
                 context,
+                "tl::play_app::ViewToolBar",
                 parent);
             DTK_P();
 
             p.app = app;
             p.actions = actions;
 
-            p.buttons["Frame"] = ui::ToolButton::create(context);
+            p.buttons["Frame"] = dtk::ToolButton::create(context);
             p.buttons["Frame"]->setIcon(p.actions["Frame"]->icon);
             p.buttons["Frame"]->setCheckable(p.actions["Frame"]->checkable);
-            p.buttons["Frame"]->setToolTip(p.actions["Frame"]->toolTip);
+            p.buttons["Frame"]->setTooltip(p.actions["Frame"]->toolTip);
 
-            p.buttons["Zoom1To1"] = ui::ToolButton::create(context);
+            p.buttons["Zoom1To1"] = dtk::ToolButton::create(context);
             p.buttons["Zoom1To1"]->setIcon(p.actions["Zoom1To1"]->icon);
-            p.buttons["Zoom1To1"]->setToolTip(p.actions["Zoom1To1"]->toolTip);
+            p.buttons["Zoom1To1"]->setTooltip(p.actions["Zoom1To1"]->toolTip);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.buttons["Frame"]->setParent(p.layout);
             p.buttons["Zoom1To1"]->setParent(p.layout);
 
@@ -95,7 +95,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewToolBar>(new ViewToolBar);
@@ -109,10 +109,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void ViewToolBar::sizeHintEvent(const ui::SizeHintEvent& event)
+        void ViewToolBar::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
     }
 }

@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <tlBaseApp/CmdLine.h>
-
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/LUTOptions.h>
 #include <tlTimeline/OCIOOptions.h>
@@ -14,6 +12,8 @@
 #if defined(TLRENDER_USD)
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
+
+#include <dtk/core/CmdLine.h>
 
 namespace tl
 {
@@ -50,10 +50,10 @@ namespace tl
         };
 
         //! Get the application command line arguments.
-        std::vector<std::shared_ptr<app::ICmdLineArg> > getCmdLineArgs(Options&);
+        std::vector<std::shared_ptr<dtk::ICmdLineArg> > getCmdLineArgs(Options&);
 
         //! Get the application command line options.
-        std::vector<std::shared_ptr<app::ICmdLineOption> > getCmdLineOptions(
+        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
             Options&,
             const std::string& logFileName,
             const std::string& settingsFileName);

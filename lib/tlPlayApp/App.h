@@ -4,9 +4,14 @@
 
 #pragma once
 
-#include <tlUIApp/App.h>
-
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/App.h>
+
+namespace dtk
+{
+    class RecentFilesModel;
+}
 
 namespace tl
 {
@@ -17,11 +22,6 @@ namespace tl
         class OutputDevice;
     }
 #endif // TLRENDER_BMD
-
-    namespace ui
-    {
-        class RecentFilesModel;
-    }
 
     namespace play
     {
@@ -42,14 +42,14 @@ namespace tl
         class ToolsModel;
 
         //! Application.
-        class App : public ui_app::App
+        class App : public dtk::App
         {
             DTK_NON_COPYABLE(App);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::vector<std::string>&);
+                std::vector<std::string>&);
 
             App();
 
@@ -59,7 +59,7 @@ namespace tl
             //! Create a new application.
             static std::shared_ptr<App> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::vector<std::string>&);
+                std::vector<std::string>&);
 
             //! Open a file.
             void open(
@@ -77,6 +77,9 @@ namespace tl
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
+
+            //! Get the recent files model.
+            const std::shared_ptr<dtk::RecentFilesModel>& getRecentFilesModel() const;
 
             //! Observe the timeline player.
             std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;

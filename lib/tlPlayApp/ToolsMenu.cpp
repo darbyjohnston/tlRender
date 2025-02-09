@@ -13,7 +13,7 @@ namespace tl
     {
         struct ToolsMenu::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
 
             std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
@@ -21,7 +21,7 @@ namespace tl
         void ToolsMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -59,7 +59,7 @@ namespace tl
         std::shared_ptr<ToolsMenu> ToolsMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsMenu>(new ToolsMenu);

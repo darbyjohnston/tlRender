@@ -11,7 +11,7 @@ namespace tl
 {
     namespace play_app
     {
-        class SeparateAudioWidget : public ui::IWidget
+        class SeparateAudioWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(SeparateAudioWidget);
 
@@ -36,7 +36,7 @@ namespace tl
             void setCancelCallback(const std::function<void(void)>&);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();

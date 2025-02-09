@@ -29,7 +29,6 @@ set(HEADERS
     SettingsTool.h
     SettingsToolPrivate.h
     StatusBar.h
-    Style.h
     SystemLogTool.h
     TimelineActions.h
     TimelineMenu.h
@@ -83,7 +82,6 @@ set(SOURCE
     SecondaryWindow.cpp
     SettingsTool.cpp
     StatusBar.cpp
-    Style.cpp
     SystemLogTool.cpp
     TimelineActions.cpp
     TimelineMenu.cpp
@@ -101,7 +99,7 @@ set(SOURCE
     WindowToolBar.cpp)
 
 add_library(tlPlayApp ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlPlayApp tlPlay tlUIApp)
+target_link_libraries(tlPlayApp tlPlay)
 set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

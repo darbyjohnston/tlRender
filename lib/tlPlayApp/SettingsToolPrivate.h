@@ -13,7 +13,7 @@ namespace tl
         class App;
 
         //! Cache settings widget.
-        class CacheSettingsWidget : public ui::IWidget
+        class CacheSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(CacheSettingsWidget);
 
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -43,7 +43,7 @@ namespace tl
         };
 
         //! File sequences settings widget.
-        class FileSequenceSettingsWidget : public ui::IWidget
+        class FileSequenceSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(FileSequenceSettingsWidget);
 
@@ -64,7 +64,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -74,7 +74,7 @@ namespace tl
 
 #if defined(TLRENDER_FFMPEG)
         //! FFmpeg settings widget.
-        class FFmpegSettingsWidget : public ui::IWidget
+        class FFmpegSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(FFmpegSettingsWidget);
 
@@ -95,7 +95,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -106,7 +106,7 @@ namespace tl
 
 #if defined(TLRENDER_USD)
         //! USD settings widget.
-        class USDSettingsWidget : public ui::IWidget
+        class USDSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(USDSettingsWidget);
 
@@ -127,7 +127,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -137,7 +137,7 @@ namespace tl
 #endif // TLRENDER_USD
 
         //! File browser settings widget.
-        class FileBrowserSettingsWidget : public ui::IWidget
+        class FileBrowserSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(FileBrowserSettingsWidget);
 
@@ -158,7 +158,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -167,7 +167,7 @@ namespace tl
         };
 
         //! Performance settings widget.
-        class PerformanceSettingsWidget : public ui::IWidget
+        class PerformanceSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(PerformanceSettingsWidget);
 
@@ -188,7 +188,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -197,7 +197,7 @@ namespace tl
         };
 
         //! OpenGL settings widget.
-        class OpenGLSettingsWidget : public ui::IWidget
+        class OpenGLSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(OpenGLSettingsWidget);
 
@@ -218,7 +218,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -227,7 +227,7 @@ namespace tl
         };
 
         //! Style settings widget.
-        class StyleSettingsWidget : public ui::IWidget
+        class StyleSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(StyleSettingsWidget);
 
@@ -248,7 +248,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);
@@ -257,7 +257,7 @@ namespace tl
         };
 
         //! Miscellaneous settings widget.
-        class MiscSettingsWidget : public ui::IWidget
+        class MiscSettingsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(MiscSettingsWidget);
 
@@ -278,7 +278,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _settingsUpdate(const std::string&);

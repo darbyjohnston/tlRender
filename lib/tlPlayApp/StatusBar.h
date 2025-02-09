@@ -4,16 +4,16 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
-
 #include <dtk/core/LogSystem.h>
+
+#include <dtk/ui/IWidget.h>
 
 namespace tl
 {
     namespace play_app
     {
         //! Status bar widget.
-        class StatusBar : public ui::IWidget
+        class StatusBar : public dtk::IWidget
         {
             DTK_NON_COPYABLE(StatusBar);
 
@@ -36,9 +36,9 @@ namespace tl
             void setClickedCallback(const std::function<void(void)>&);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
-            void mousePressEvent(ui::MouseClickEvent&) override;
-            void mouseReleaseEvent(ui::MouseClickEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
 
         private:
             void _widgetUpdate(const std::vector<dtk::LogItem>&);

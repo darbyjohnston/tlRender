@@ -14,7 +14,7 @@ namespace tl
     {
         struct AudioMenu::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
 
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
@@ -23,7 +23,7 @@ namespace tl
         void AudioMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -61,7 +61,7 @@ namespace tl
         std::shared_ptr<AudioMenu> AudioMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<AudioMenu>(new AudioMenu);

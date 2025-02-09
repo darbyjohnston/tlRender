@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Menu.h>
+#include <dtk/ui/Menu.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         class App;
 
         //! Audio menu.
-        class AudioMenu : public ui::Menu
+        class AudioMenu : public dtk::Menu
         {
             DTK_NON_COPYABLE(AudioMenu);
 
@@ -21,7 +21,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             AudioMenu();
@@ -32,7 +32,7 @@ namespace tl
             static std::shared_ptr<AudioMenu> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

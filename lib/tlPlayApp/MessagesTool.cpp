@@ -4,12 +4,12 @@
 
 #include <tlPlayApp/MessagesTool.h>
 
-#include <tlUI/IClipboard.h>
-#include <tlUI/IWindow.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/IClipboard.h>
+#include <dtk/ui/IWindow.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/ToolButton.h>
 
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
@@ -27,11 +27,11 @@ namespace tl
         struct MessagesTool::Private
         {
             std::list<std::string> messages;
-            std::shared_ptr<ui::Label> label;
-            std::shared_ptr<ui::ScrollWidget> scrollWidget;
-            std::shared_ptr<ui::ToolButton> copyButton;
-            std::shared_ptr<ui::ToolButton> clearButton;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::Label> label;
+            std::shared_ptr<dtk::ScrollWidget> scrollWidget;
+            std::shared_ptr<dtk::ToolButton> copyButton;
+            std::shared_ptr<dtk::ToolButton> clearButton;
+            std::shared_ptr<dtk::VerticalLayout> layout;
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
@@ -48,25 +48,25 @@ namespace tl
                 parent);
             DTK_P();
 
-            p.label = ui::Label::create(context);
-            p.label->setFontRole(ui::FontRole::Mono);
-            p.label->setMarginRole(ui::SizeRole::MarginSmall);
-            p.label->setVAlign(ui::VAlign::Top);
+            p.label = dtk::Label::create(context);
+            p.label->setFontRole(dtk::FontRole::Mono);
+            p.label->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.label->setVAlign(dtk::VAlign::Top);
 
-            p.scrollWidget = ui::ScrollWidget::create(context);
+            p.scrollWidget = dtk::ScrollWidget::create(context);
             p.scrollWidget->setWidget(p.label);
-            p.scrollWidget->setVStretch(ui::Stretch::Expanding);
+            p.scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
-            p.copyButton = ui::ToolButton::create("Copy", context);
+            p.copyButton = dtk::ToolButton::create(context, "Copy");
 
-            p.clearButton = ui::ToolButton::create("Clear", context);
+            p.clearButton = dtk::ToolButton::create(context, "Clear");
 
-            p.layout = ui::VerticalLayout::create(context);
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::VerticalLayout::create(context);
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.scrollWidget->setParent(p.layout);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(dtk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.copyButton->setParent(hLayout);
             p.clearButton->setParent(hLayout);
             _setWidget(p.layout);

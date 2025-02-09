@@ -5,28 +5,27 @@
 #include <tlPlayApp/SettingsToolPrivate.h>
 
 #include <tlPlayApp/App.h>
-#include <tlPlayApp/Style.h>
 
 #include <tlPlay/Settings.h>
-
-#include <tlUI/Bellows.h>
-#include <tlUI/CheckBox.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/DoubleEdit.h>
-#include <tlUI/FloatEditSlider.h>
-#include <tlUI/GridLayout.h>
-#include <tlUI/IntEdit.h>
-#include <tlUI/IntEdit.h>
-#include <tlUI/Label.h>
-#include <tlUI/LineEdit.h>
-#include <tlUI/MessageDialog.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
-#include <tlUI/ToolButton.h>
 
 #if defined(TLRENDER_USD)
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
+
+#include <dtk/ui/Bellows.h>
+#include <dtk/ui/CheckBox.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/DialogSystem.h>
+#include <dtk/ui/DoubleEdit.h>
+#include <dtk/ui/FloatEditSlider.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/IntEdit.h>
+#include <dtk/ui/IntEdit.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/LineEdit.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -36,10 +35,10 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::IntEdit> cacheSize;
-            std::shared_ptr<ui::DoubleEdit> readAhead;
-            std::shared_ptr<ui::DoubleEdit> readBehind;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::IntEdit> cacheSize;
+            std::shared_ptr<dtk::DoubleEdit> readAhead;
+            std::shared_ptr<dtk::DoubleEdit> readBehind;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -49,36 +48,36 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::CacheSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::CacheSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.cacheSize = ui::IntEdit::create(context);
+            p.cacheSize = dtk::IntEdit::create(context);
             p.cacheSize->setRange(dtk::RangeI(0, 1024));
 
-            p.readAhead = ui::DoubleEdit::create(context);
+            p.readAhead = dtk::DoubleEdit::create(context);
             p.readAhead->setRange(dtk::RangeD(0.0, 60.0));
             p.readAhead->setStep(1.0);
             p.readAhead->setLargeStep(10.0);
 
-            p.readBehind = ui::DoubleEdit::create(context);
+            p.readBehind = dtk::DoubleEdit::create(context);
             p.readBehind->setRange(dtk::RangeD(0.0, 60.0));
             p.readBehind->setStep(1.0);
             p.readBehind->setLargeStep(10.0);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Cache size (GB):", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Cache size (GB):", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.cacheSize->setParent(p.layout);
             p.layout->setGridPos(p.cacheSize, 0, 1);
-            label = ui::Label::create("Read ahead (seconds):", context, p.layout);
+            label = dtk::Label::create(context, "Read ahead (seconds):", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.readAhead->setParent(p.layout);
             p.layout->setGridPos(p.readAhead, 1, 1);
-            label = ui::Label::create("Read behind (seconds):", context, p.layout);
+            label = dtk::Label::create(context, "Read behind (seconds):", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.readBehind->setParent(p.layout);
             p.layout->setGridPos(p.readBehind, 2, 1);
@@ -134,10 +133,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void CacheSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void CacheSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void CacheSettingsWidget::_settingsUpdate(const std::string& name)
@@ -164,13 +163,13 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::ComboBox> audioComboBox;
-            std::shared_ptr<ui::LineEdit> audioFileNameEdit;
-            std::shared_ptr<ui::LineEdit> audioDirectoryEdit;
-            std::shared_ptr<ui::IntEdit> maxDigitsEdit;
-            std::shared_ptr<ui::DoubleEdit> defaultSpeedEdit;
-            std::shared_ptr<ui::IntEdit> threadsEdit;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::ComboBox> audioComboBox;
+            std::shared_ptr<dtk::LineEdit> audioFileNameEdit;
+            std::shared_ptr<dtk::LineEdit> audioDirectoryEdit;
+            std::shared_ptr<dtk::IntEdit> maxDigitsEdit;
+            std::shared_ptr<dtk::DoubleEdit> defaultSpeedEdit;
+            std::shared_ptr<dtk::IntEdit> threadsEdit;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -180,54 +179,52 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::FileSequenceSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::FileSequenceSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.audioComboBox = ui::ComboBox::create(
-                timeline::getFileSequenceAudioLabels(),
-                context);
-            p.audioComboBox->setHStretch(ui::Stretch::Expanding);
+            p.audioComboBox = dtk::ComboBox::create(context, timeline::getFileSequenceAudioLabels());
+            p.audioComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.audioFileNameEdit = ui::LineEdit::create(context);
-            p.audioFileNameEdit->setHStretch(ui::Stretch::Expanding);
+            p.audioFileNameEdit = dtk::LineEdit::create(context);
+            p.audioFileNameEdit->setHStretch(dtk::Stretch::Expanding);
 
-            p.audioDirectoryEdit = ui::LineEdit::create(context);
-            p.audioDirectoryEdit->setHStretch(ui::Stretch::Expanding);
+            p.audioDirectoryEdit = dtk::LineEdit::create(context);
+            p.audioDirectoryEdit->setHStretch(dtk::Stretch::Expanding);
 
-            p.maxDigitsEdit = ui::IntEdit::create(context);
+            p.maxDigitsEdit = dtk::IntEdit::create(context);
 
-            p.defaultSpeedEdit = ui::DoubleEdit::create(context);
+            p.defaultSpeedEdit = dtk::DoubleEdit::create(context);
             p.defaultSpeedEdit->setRange(dtk::RangeD(1.0, 120.0));
 
-            p.threadsEdit = ui::IntEdit::create(context);
+            p.threadsEdit = dtk::IntEdit::create(context);
             p.threadsEdit->setRange(dtk::RangeI(1, 64));
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Audio:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Audio:", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.audioComboBox->setParent(p.layout);
             p.layout->setGridPos(p.audioComboBox, 0, 1);
-            label = ui::Label::create("Audio file name:", context, p.layout);
+            label = dtk::Label::create(context, "Audio file name:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.audioFileNameEdit->setParent(p.layout);
             p.layout->setGridPos(p.audioFileNameEdit, 1, 1);
-            label = ui::Label::create("Audio directory:", context, p.layout);
+            label = dtk::Label::create(context, "Audio directory:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.audioDirectoryEdit->setParent(p.layout);
             p.layout->setGridPos(p.audioDirectoryEdit, 2, 1);
-            label = ui::Label::create("Maximum digits:", context, p.layout);
+            label = dtk::Label::create(context, "Maximum digits:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.maxDigitsEdit->setParent(p.layout);
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
-            label = ui::Label::create("Default FPS:", context, p.layout);
+            label = dtk::Label::create(context, "Default FPS:", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.defaultSpeedEdit->setParent(p.layout);
             p.layout->setGridPos(p.defaultSpeedEdit, 4, 1);
-            label = ui::Label::create("I/O threads:", context, p.layout);
+            label = dtk::Label::create(context, "I/O threads:", p.layout);
             p.layout->setGridPos(label, 5, 0);
             p.threadsEdit->setParent(p.layout);
             p.layout->setGridPos(p.threadsEdit, 5, 1);
@@ -303,10 +300,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void FileSequenceSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void FileSequenceSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void FileSequenceSettingsWidget::_settingsUpdate(const std::string& name)
@@ -349,9 +346,9 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::CheckBox> yuvToRGBCheckBox;
-            std::shared_ptr<ui::IntEdit> threadsEdit;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::CheckBox> yuvToRGBCheckBox;
+            std::shared_ptr<dtk::IntEdit> threadsEdit;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -361,27 +358,27 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::FFmpegSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::FFmpegSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.yuvToRGBCheckBox = ui::CheckBox::create(context);
+            p.yuvToRGBCheckBox = dtk::CheckBox::create(context);
 
-            p.threadsEdit = ui::IntEdit::create(context);
+            p.threadsEdit = dtk::IntEdit::create(context);
             p.threadsEdit->setRange(dtk::RangeI(0, 64));
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
-            auto gridLayout = ui::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("YUV to RGB conversion:", context, gridLayout);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
+            auto gridLayout = dtk::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            label = dtk::Label::create(context, "YUV to RGB conversion:", gridLayout);
             gridLayout->setGridPos(label, 0, 0);
             p.yuvToRGBCheckBox->setParent(gridLayout);
             gridLayout->setGridPos(p.yuvToRGBCheckBox, 0, 1);
-            label = ui::Label::create("I/O threads:", context, gridLayout);
+            label = dtk::Label::create(context, "I/O threads:", gridLayout);
             gridLayout->setGridPos(label, 1, 0);
             p.threadsEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.threadsEdit, 1, 1);
@@ -431,10 +428,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void FFmpegSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void FFmpegSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void FFmpegSettingsWidget::_settingsUpdate(const std::string& name)
@@ -459,14 +456,14 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::IntEdit> renderWidthEdit;
-            std::shared_ptr<ui::FloatEditSlider> complexitySlider;
-            std::shared_ptr<ui::ComboBox> drawModeComboBox;
-            std::shared_ptr<ui::CheckBox> lightingCheckBox;
-            std::shared_ptr<ui::CheckBox> sRGBCheckBox;
-            std::shared_ptr<ui::IntEdit> stageCacheEdit;
-            std::shared_ptr<ui::IntEdit> diskCacheEdit;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::IntEdit> renderWidthEdit;
+            std::shared_ptr<dtk::FloatEditSlider> complexitySlider;
+            std::shared_ptr<dtk::ComboBox> drawModeComboBox;
+            std::shared_ptr<dtk::CheckBox> lightingCheckBox;
+            std::shared_ptr<dtk::CheckBox> sRGBCheckBox;
+            std::shared_ptr<dtk::IntEdit> stageCacheEdit;
+            std::shared_ptr<dtk::IntEdit> diskCacheEdit;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -476,57 +473,57 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::USDSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::USDSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.renderWidthEdit = ui::IntEdit::create(context);
+            p.renderWidthEdit = dtk::IntEdit::create(context);
             p.renderWidthEdit->setRange(dtk::RangeI(1, 8192));
 
-            p.complexitySlider = ui::FloatEditSlider::create(context);
+            p.complexitySlider = dtk::FloatEditSlider::create(context);
 
-            p.drawModeComboBox = ui::ComboBox::create(usd::getDrawModeLabels(), context);
-            p.drawModeComboBox->setHStretch(ui::Stretch::Expanding);
+            p.drawModeComboBox = dtk::ComboBox::create(context, usd::getDrawModeLabels());
+            p.drawModeComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.lightingCheckBox = ui::CheckBox::create(context);
+            p.lightingCheckBox = dtk::CheckBox::create(context);
 
-            p.sRGBCheckBox = ui::CheckBox::create(context);
+            p.sRGBCheckBox = dtk::CheckBox::create(context);
 
-            p.stageCacheEdit = ui::IntEdit::create(context);
+            p.stageCacheEdit = dtk::IntEdit::create(context);
             p.stageCacheEdit->setRange(dtk::RangeI(0, 10));
 
-            p.diskCacheEdit = ui::IntEdit::create(context);
+            p.diskCacheEdit = dtk::IntEdit::create(context);
             p.diskCacheEdit->setRange(dtk::RangeI(0, 1024));
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Render width:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Render width:", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.renderWidthEdit->setParent(p.layout);
             p.layout->setGridPos(p.renderWidthEdit, 0, 1);
-            label = ui::Label::create("Render complexity:", context, p.layout);
+            label = dtk::Label::create(context, "Render complexity:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.complexitySlider->setParent(p.layout);
             p.layout->setGridPos(p.complexitySlider, 1, 1);
-            label = ui::Label::create("Draw mode:", context, p.layout);
+            label = dtk::Label::create(context, "Draw mode:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.drawModeComboBox->setParent(p.layout);
             p.layout->setGridPos(p.drawModeComboBox, 2, 1);
-            label = ui::Label::create("Enable lighting:", context, p.layout);
+            label = dtk::Label::create(context, "Enable lighting:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.lightingCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.lightingCheckBox, 3, 1);
-            label = ui::Label::create("Enable sRGB color space:", context, p.layout);
+            label = dtk::Label::create(context, "Enable sRGB color space:", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.sRGBCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.sRGBCheckBox, 4, 1);
-            label = ui::Label::create("Stage cache size:", context, p.layout);
+            label = dtk::Label::create(context, "Stage cache size:", p.layout);
             p.layout->setGridPos(label, 5, 0);
             p.stageCacheEdit->setParent(p.layout);
             p.layout->setGridPos(p.stageCacheEdit, 5, 1);
-            label = ui::Label::create("Disk cache size (GB):", context, p.layout);
+            label = dtk::Label::create(context, "Disk cache size (GB):", p.layout);
             p.layout->setGridPos(label, 6, 0);
             p.diskCacheEdit->setParent(p.layout);
             p.layout->setGridPos(p.diskCacheEdit, 6, 1);
@@ -607,10 +604,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void USDSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void USDSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void USDSettingsWidget::_settingsUpdate(const std::string& name)
@@ -658,8 +655,8 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::CheckBox> nativeFileDialogCheckBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> nativeFileDialogCheckBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -669,17 +666,17 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::FileBrowserSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::FileBrowserSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.nativeFileDialogCheckBox = ui::CheckBox::create(context);
+            p.nativeFileDialogCheckBox = dtk::CheckBox::create(context);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Native file dialog:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Native file dialog:", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.nativeFileDialogCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.nativeFileDialogCheckBox, 0, 1);
@@ -723,10 +720,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void FileBrowserSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void FileBrowserSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void FileBrowserSettingsWidget::_settingsUpdate(const std::string& name)
@@ -743,10 +740,10 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::IntEdit> audioBufferFramesEdit;
-            std::shared_ptr<ui::IntEdit> videoRequestsEdit;
-            std::shared_ptr<ui::IntEdit> audioRequestsEdit;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::IntEdit> audioBufferFramesEdit;
+            std::shared_ptr<dtk::IntEdit> videoRequestsEdit;
+            std::shared_ptr<dtk::IntEdit> audioRequestsEdit;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -756,37 +753,37 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::PerformanceSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::PerformanceSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.audioBufferFramesEdit = ui::IntEdit::create(context);
+            p.audioBufferFramesEdit = dtk::IntEdit::create(context);
             p.audioBufferFramesEdit->setRange(dtk::RangeI(1, 1000000));
             p.audioBufferFramesEdit->setStep(256);
             p.audioBufferFramesEdit->setLargeStep(1024);
 
-            p.videoRequestsEdit = ui::IntEdit::create(context);
+            p.videoRequestsEdit = dtk::IntEdit::create(context);
             p.videoRequestsEdit->setRange(dtk::RangeI(1, 64));
 
-            p.audioRequestsEdit = ui::IntEdit::create(context);
+            p.audioRequestsEdit = dtk::IntEdit::create(context);
             p.audioRequestsEdit->setRange(dtk::RangeI(1, 64));
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Changes are applied to new files.", context, p.layout);
-            auto gridLayout = ui::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("Audio buffer frames:", context, gridLayout);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
+            auto gridLayout = dtk::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            label = dtk::Label::create(context, "Audio buffer frames:", gridLayout);
             gridLayout->setGridPos(label, 0, 0);
             p.audioBufferFramesEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.audioBufferFramesEdit, 0, 1);
-            label = ui::Label::create("Video requests:", context, gridLayout);
+            label = dtk::Label::create(context, "Video requests:", gridLayout);
             gridLayout->setGridPos(label, 1, 0);
             p.videoRequestsEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.videoRequestsEdit, 1, 1);
-            label = ui::Label::create("Audio requests:", context, gridLayout);
+            label = dtk::Label::create(context, "Audio requests:", gridLayout);
             gridLayout->setGridPos(label, 2, 0);
             p.audioRequestsEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.audioRequestsEdit, 2, 1);
@@ -842,10 +839,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void PerformanceSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void PerformanceSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void PerformanceSettingsWidget::_settingsUpdate(const std::string& name)
@@ -872,8 +869,8 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::CheckBox> shareContextsCheckBox;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::CheckBox> shareContextsCheckBox;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -883,20 +880,20 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::OpenGLSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::OpenGLSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.shareContextsCheckBox = ui::CheckBox::create(context);
+            p.shareContextsCheckBox = dtk::CheckBox::create(context);
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Changes are applied to new windows.", context, p.layout);
-            auto gridLayout = ui::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            label = ui::Label::create("Share contexts:", context, gridLayout);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Changes are applied to new windows.", p.layout);
+            auto gridLayout = dtk::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            label = dtk::Label::create(context, "Share contexts:", gridLayout);
             gridLayout->setGridPos(label, 0, 0);
             p.shareContextsCheckBox->setParent(gridLayout);
             gridLayout->setGridPos(p.shareContextsCheckBox, 0, 1);
@@ -940,10 +937,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void OpenGLSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void OpenGLSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void OpenGLSettingsWidget::_settingsUpdate(const std::string& name)
@@ -960,8 +957,8 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::ComboBox> paletteComboBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::ComboBox> colorStyleComboBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -971,21 +968,21 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::StyleSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::StyleSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.paletteComboBox = ui::ComboBox::create(getStylePaletteLabels(), context);
-            p.paletteComboBox->setHStretch(ui::Stretch::Expanding);
+            p.colorStyleComboBox = dtk::ComboBox::create(context, dtk::getColorStyleLabels());
+            p.colorStyleComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Palette:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Color style:", p.layout);
             p.layout->setGridPos(label, 0, 0);
-            p.paletteComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.paletteComboBox, 0, 1);
+            p.colorStyleComboBox->setParent(p.layout);
+            p.layout->setGridPos(p.colorStyleComboBox, 0, 1);
 
             _settingsUpdate(std::string());
 
@@ -996,11 +993,11 @@ namespace tl
                     _settingsUpdate(name);
                 });
 
-            p.paletteComboBox->setIndexCallback(
+            p.colorStyleComboBox->setIndexCallback(
                 [this](int value)
                 {
-                    const StylePalette stylePalette = static_cast<StylePalette>(value);
-                    _p->settings->setValue("Style/Palette", stylePalette);
+                    const dtk::ColorStyle colorStyle = static_cast<dtk::ColorStyle>(value);
+                    _p->settings->setValue("Style/Palette", colorStyle);
                 });
         }
 
@@ -1027,10 +1024,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void StyleSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void StyleSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void StyleSettingsWidget::_settingsUpdate(const std::string& name)
@@ -1038,8 +1035,8 @@ namespace tl
             DTK_P();
             if ("Style/Palette" == name || name.empty())
             {
-                p.paletteComboBox->setCurrentIndex(static_cast<int>(
-                    p.settings->getValue<StylePalette>("Style/Palette")));
+                p.colorStyleComboBox->setCurrentIndex(static_cast<int>(
+                    p.settings->getValue<dtk::ColorStyle>("Style/Palette")));
             }
         }
 
@@ -1047,8 +1044,8 @@ namespace tl
         {
             std::shared_ptr<play::Settings> settings;
 
-            std::shared_ptr<ui::CheckBox> toolTipsEnabledCheckBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> toolTipsEnabledCheckBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
         };
@@ -1058,17 +1055,17 @@ namespace tl
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play_app::MiscSettingsWidget", context, parent);
+            IWidget::_init(context, "tl::play_app::MiscSettingsWidget", parent);
             DTK_P();
 
             p.settings = app->getSettings();
 
-            p.toolTipsEnabledCheckBox = ui::CheckBox::create(context);
+            p.toolTipsEnabledCheckBox = dtk::CheckBox::create(context);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto label = ui::Label::create("Enable tool tips:", context, p.layout);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Enable tool tips:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.toolTipsEnabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.toolTipsEnabledCheckBox, 1, 1);
@@ -1112,10 +1109,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void MiscSettingsWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void MiscSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void MiscSettingsWidget::_settingsUpdate(const std::string& name)
@@ -1130,9 +1127,9 @@ namespace tl
 
         struct SettingsTool::Private
         {
-            std::shared_ptr<ui::ScrollWidget> scrollWidget;
-            std::shared_ptr<ui::ToolButton> resetButton;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::ScrollWidget> scrollWidget;
+            std::shared_ptr<dtk::ToolButton> resetButton;
+            std::shared_ptr<dtk::VerticalLayout> layout;
         };
 
         void SettingsTool::_init(
@@ -1161,42 +1158,42 @@ namespace tl
             auto openGLWidget = OpenGLSettingsWidget::create(context, app);
             auto styleWidget = StyleSettingsWidget::create(context, app);
             auto miscWidget = MiscSettingsWidget::create(context, app);
-            auto vLayout = ui::VerticalLayout::create(context);
-            vLayout->setSpacingRole(ui::SizeRole::None);
-            auto bellows = ui::Bellows::create("Cache", context, vLayout);
+            auto vLayout = dtk::VerticalLayout::create(context);
+            vLayout->setSpacingRole(dtk::SizeRole::None);
+            auto bellows = dtk::Bellows::create(context, "Cache", vLayout);
             bellows->setWidget(cacheWidget);
-            bellows = ui::Bellows::create("File Sequences", context, vLayout);
+            bellows = dtk::Bellows::create(context, "File Sequences", vLayout);
             bellows->setWidget(fileSequenceWidget);
 #if defined(TLRENDER_FFMPEG)
-            bellows = ui::Bellows::create("FFmpeg", context, vLayout);
+            bellows = dtk::Bellows::create(context, "FFmpeg", vLayout);
             bellows->setWidget(ffmpegWidget);
 #endif // TLRENDER_USD
 #if defined(TLRENDER_USD)
-            bellows = ui::Bellows::create("USD", context, vLayout);
+            bellows = dtk::Bellows::create(context, "USD", vLayout);
             bellows->setWidget(usdWidget);
 #endif // TLRENDER_USD
-            bellows = ui::Bellows::create("File Browser", context, vLayout);
+            bellows = dtk::Bellows::create(context, "File Browser", vLayout);
             bellows->setWidget(fileBrowserWidget);
-            bellows = ui::Bellows::create("Performance", context, vLayout);
+            bellows = dtk::Bellows::create(context, "Performance", vLayout);
             bellows->setWidget(performanceWidget);
-            bellows = ui::Bellows::create("OpenGL", context, vLayout);
+            bellows = dtk::Bellows::create(context, "OpenGL", vLayout);
             bellows->setWidget(openGLWidget);
-            bellows = ui::Bellows::create("Style", context, vLayout);
+            bellows = dtk::Bellows::create(context, "Style", vLayout);
             bellows->setWidget(styleWidget);
-            bellows = ui::Bellows::create("Miscellaneous", context, vLayout);
+            bellows = dtk::Bellows::create(context, "Miscellaneous", vLayout);
             bellows->setWidget(miscWidget);
-            p.scrollWidget = ui::ScrollWidget::create(context);
+            p.scrollWidget = dtk::ScrollWidget::create(context);
             p.scrollWidget->setWidget(vLayout);
-            p.scrollWidget->setVStretch(ui::Stretch::Expanding);
+            p.scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
-            p.resetButton = ui::ToolButton::create("Default Settings", context);
+            p.resetButton = dtk::ToolButton::create(context, "Default Settings");
 
-            p.layout = ui::VerticalLayout::create(context);
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::VerticalLayout::create(context);
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.scrollWidget->setParent(p.layout);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(dtk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.resetButton->setParent(hLayout);
             _setWidget(p.layout);
 
@@ -1204,12 +1201,13 @@ namespace tl
             p.resetButton->setClickedCallback(
                 [this, appWeak]
                 {
-                    if (auto context = _context.lock())
+                    if (auto context = getContext())
                     {
-                        if (auto messageDialogSystem = context->getSystem<ui::MessageDialogSystem>())
+                        if (auto dialogSystem = context->getSystem<dtk::DialogSystem>())
                         {
-                            messageDialogSystem->open(
-                                "Reset preferences to default values?",
+                            dialogSystem->confirm(
+                                "Reset Settings",
+                                "Reset settings to default values?",
                                 getWindow(),
                                 [appWeak](bool value)
                                 {

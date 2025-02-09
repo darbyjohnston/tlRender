@@ -4,10 +4,9 @@
 
 #include <tlPlay/ViewportPrivate.h>
 
-#include <tlUI/GridLayout.h>
-#include <tlUI/Label.h>
-#include <tlUI/Spacer.h>
-
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/Spacer.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -21,9 +20,9 @@ namespace tl
             size_t droppedFrames = 0;
             dtk::ImageType colorBuffer = dtk::ImageType::None;
 
-            std::shared_ptr<ui::Label> fpsLabel;
-            std::shared_ptr<ui::Label> colorBufferLabel;
-            std::shared_ptr<ui::GridLayout> hudLayout;
+            std::shared_ptr<dtk::Label> fpsLabel;
+            std::shared_ptr<dtk::Label> colorBufferLabel;
+            std::shared_ptr<dtk::GridLayout> hudLayout;
             struct ColorPicker
             {
                 dtk::Color4F color;
@@ -61,25 +60,25 @@ namespace tl
 
             p.hud = dtk::ObservableValue<bool>::create(false);
 
-            p.fpsLabel = ui::Label::create(context);
-            p.fpsLabel->setFontRole(ui::FontRole::Mono);
-            p.fpsLabel->setMarginRole(ui::SizeRole::MarginInside);
-            p.fpsLabel->setBackgroundRole(ui::ColorRole::Base);
+            p.fpsLabel = dtk::Label::create(context);
+            p.fpsLabel->setFontRole(dtk::FontRole::Mono);
+            p.fpsLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.fpsLabel->setBackgroundRole(dtk::ColorRole::Base);
 
-            p.colorBufferLabel = ui::Label::create(context);
-            p.colorBufferLabel->setFontRole(ui::FontRole::Mono);
-            p.colorBufferLabel->setMarginRole(ui::SizeRole::MarginInside);
-            p.colorBufferLabel->setBackgroundRole(ui::ColorRole::Base);
+            p.colorBufferLabel = dtk::Label::create(context);
+            p.colorBufferLabel->setFontRole(dtk::FontRole::Mono);
+            p.colorBufferLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.colorBufferLabel->setBackgroundRole(dtk::ColorRole::Base);
 
-            p.hudLayout = ui::GridLayout::create(context, shared_from_this());
-            p.hudLayout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.hudLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.hudLayout = dtk::GridLayout::create(context, shared_from_this());
+            p.hudLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.hudLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.fpsLabel->setParent(p.hudLayout);
             p.hudLayout->setGridPos(p.fpsLabel, 0, 0);
             p.colorBufferLabel->setParent(p.hudLayout);
             p.hudLayout->setGridPos(p.colorBufferLabel, 0, 2);
-            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, p.hudLayout);
-            spacer->setStretch(ui::Stretch::Expanding, ui::Stretch::Expanding);
+            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.hudLayout);
+            spacer->setStretch(dtk::Stretch::Expanding, dtk::Stretch::Expanding);
             p.hudLayout->setGridPos(spacer, 1, 1);
             p.hudLayout->hide();
 
@@ -169,9 +168,9 @@ namespace tl
             }
         }
 
-        void Viewport::childRemovedEvent(const ui::ChildEvent& event)
+        void Viewport::childRemoveEvent(const dtk::ChildRemoveEvent& event)
         {
-            TimelineViewport::childRemovedEvent(event);
+            TimelineViewport::childRemoveEvent(event);
             DTK_P();
             const auto i = std::find_if(
                 p.colorPickers.begin(),
@@ -187,14 +186,14 @@ namespace tl
             }
         }
 
-        void Viewport::sizeHintEvent(const ui::SizeHintEvent& event)
+        void Viewport::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             TimelineViewport::sizeHintEvent(event);
             DTK_P();
-            _sizeHint = p.hudLayout->getSizeHint();
+            _setSizeHint(p.hudLayout->getSizeHint());
         }
 
-        void Viewport::mouseMoveEvent(ui::MouseMoveEvent& event)
+        void Viewport::mouseMoveEvent(dtk::MouseMoveEvent& event)
         {
             TimelineViewport::mouseMoveEvent(event);
             DTK_P();
@@ -205,8 +204,8 @@ namespace tl
                 {
                     p.colorPickers.back().pos = event.pos;
                     _colorPickersUpdate();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _setSizeUpdate();
+                    _setDrawUpdate();
                 }
                 break;
             case Private::MouseMode::DragWidget:
@@ -214,15 +213,15 @@ namespace tl
                 {
                     p.colorPickers[p.mouse.index].pos = event.pos - p.mouse.offset;
                     _colorPickersUpdate();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _setSizeUpdate();
+                    _setDrawUpdate();
                 }
                 break;
             default: break;
             }
         }
 
-        void Viewport::mousePressEvent(ui::MouseClickEvent& event)
+        void Viewport::mousePressEvent(dtk::MouseClickEvent& event)
         {
             TimelineViewport::mousePressEvent(event);
             DTK_P();
@@ -241,9 +240,9 @@ namespace tl
             }
             if (Private::MouseMode::None == p.mouse.mode &&
                 0 == event.button &&
-                event.modifiers & static_cast<int>(ui::KeyModifier::Shift))
+                event.modifiers & static_cast<int>(dtk::KeyModifier::Shift))
             {
-                if (auto context = _context.lock())
+                if (auto context = getContext())
                 {
                     p.mouse.mode = Private::MouseMode::ColorPicker;
                     p.colorPickers.push_back({
@@ -252,13 +251,13 @@ namespace tl
                         ViewportColorWidget::create(context, shared_from_this()) });
                     _colorPickersUpdate();
                     _colorWidgetsUpdate();
-                    _updates |= ui::Update::Size;
-                    _updates |= ui::Update::Draw;
+                    _setSizeUpdate();
+                    _setDrawUpdate();
                 }
             }
         }
 
-        void Viewport::mouseReleaseEvent(ui::MouseClickEvent& event)
+        void Viewport::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             TimelineViewport::mouseReleaseEvent(event);
             DTK_P();

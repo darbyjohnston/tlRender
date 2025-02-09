@@ -16,7 +16,7 @@ namespace tl
     {
         struct CompareActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void CompareActions::_init(
@@ -26,11 +26,11 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Next"] = std::make_shared<ui::Action>(
+            p.actions["Next"] = std::make_shared<dtk::Action>(
                 "Next",
                 "Next",
-                ui::Key::PageDown,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::PageDown,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -39,11 +39,11 @@ namespace tl
                     }
                 });
 
-            p.actions["Prev"] = std::make_shared<ui::Action>(
+            p.actions["Prev"] = std::make_shared<dtk::Action>(
                 "Previous",
                 "Prev",
-                ui::Key::PageUp,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::PageUp,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -63,16 +63,16 @@ namespace tl
                 "CompareVertical",
                 "CompareTile"
             };
-            const std::array<std::pair<ui::Key, int>, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
+            const std::array<std::pair<dtk::Key, int>, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
             {
-                std::make_pair(ui::Key::A, static_cast<int>(ui::KeyModifier::Control)),
-                std::make_pair(ui::Key::B, static_cast<int>(ui::KeyModifier::Control)),
-                std::make_pair(ui::Key::W, static_cast<int>(ui::KeyModifier::Control)),
-                std::make_pair(ui::Key::Unknown, 0),
-                std::make_pair(ui::Key::Unknown, 0),
-                std::make_pair(ui::Key::Unknown, 0),
-                std::make_pair(ui::Key::Unknown, 0),
-                std::make_pair(ui::Key::T, static_cast<int>(ui::KeyModifier::Control))
+                std::make_pair(dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)),
+                std::make_pair(dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)),
+                std::make_pair(dtk::Key::W, static_cast<int>(dtk::KeyModifier::Control)),
+                std::make_pair(dtk::Key::Unknown, 0),
+                std::make_pair(dtk::Key::Unknown, 0),
+                std::make_pair(dtk::Key::Unknown, 0),
+                std::make_pair(dtk::Key::Unknown, 0),
+                std::make_pair(dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control))
             };
             const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareToolTips =
             {
@@ -80,14 +80,14 @@ namespace tl
                     "Show the A file\n"
                     "\n"
                     "Shortcut: {0}").
-                    arg(ui::getLabel(
+                    arg(dtk::getShortcutLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].second)),
                 dtk::Format(
                     "Show the B file\n"
                     "\n"
                     "Shortcut: {0}").
-                    arg(ui::getLabel(
+                    arg(dtk::getShortcutLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].second)),
                 dtk::Format(
@@ -96,7 +96,7 @@ namespace tl
                     "Use the Alt key + left mouse button to move the wipe\n"
                     "\n"
                     "Shortcut: {0}").
-                    arg(ui::getLabel(
+                    arg(dtk::getShortcutLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].second)),
                 "Show the A file over the B file with transparency",
@@ -107,7 +107,7 @@ namespace tl
                     "Tile the A and B files\n"
                     "\n"
                     "Shortcut: {0}").
-                    arg(ui::getLabel(
+                    arg(dtk::getShortcutLabel(
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].first,
                         compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].second))
             };
@@ -116,7 +116,7 @@ namespace tl
             for (size_t i = 0; i < compareEnums.size(); ++i)
             {
                 const auto mode = compareEnums[i];
-                p.actions[comapreLabels[i]] = std::make_shared<ui::Action>(
+                p.actions[comapreLabels[i]] = std::make_shared<dtk::Action>(
                     timeline::getLabel(mode),
                     compareIcons[i],
                     compareShortcuts[i].first,
@@ -143,7 +143,7 @@ namespace tl
             for (size_t i = 0; i < compareTimeEnums.size(); ++i)
             {
                 const auto mode = compareTimeEnums[i];
-                p.actions[comapreTimeLabels[i]] = std::make_shared<ui::Action>(
+                p.actions[comapreTimeLabels[i]] = std::make_shared<dtk::Action>(
                     comapreTimeLabels[i],
                     [appWeak, mode]
                     {
@@ -172,7 +172,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& CompareActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& CompareActions::getActions() const
         {
             return _p->actions;
         }

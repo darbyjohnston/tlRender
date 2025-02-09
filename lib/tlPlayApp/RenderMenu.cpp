@@ -9,13 +9,15 @@
 
 #include <tlPlay/RenderModel.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play_app
     {
         struct RenderMenu::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
             std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;

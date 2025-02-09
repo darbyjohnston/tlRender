@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlUI/IDialog.h>
-
 #include <tlCore/Path.h>
+
+#include <dtk/ui/IDialog.h>
 
 namespace tl
 {
@@ -15,7 +15,7 @@ namespace tl
         class App;
 
         //! Separate audio dialog.
-        class SeparateAudioDialog : public ui::IDialog
+        class SeparateAudioDialog : public dtk::IDialog
         {
             DTK_NON_COPYABLE(SeparateAudioDialog);
 

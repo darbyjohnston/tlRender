@@ -17,9 +17,9 @@ namespace tl
         {
             std::weak_ptr<MainWindow> mainWindow;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<int, std::shared_ptr<ui::Action> > thumbnailsSizeItems;
-            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<int, std::shared_ptr<dtk::Action> > thumbnailsSizeItems;
+            std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
             std::shared_ptr<dtk::ValueObserver<bool> > editableObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
@@ -33,7 +33,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -129,7 +129,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineMenu>(new TimelineMenu);

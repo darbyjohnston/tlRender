@@ -14,9 +14,9 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::vector<std::shared_ptr<ui::Action> > bActions;
-            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::vector<std::shared_ptr<dtk::Action> > bActions;
+            std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<int> > bIndexesObserver;
@@ -27,7 +27,7 @@ namespace tl
         void CompareMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -92,7 +92,7 @@ namespace tl
         std::shared_ptr<CompareMenu> CompareMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareMenu>(new CompareMenu);
@@ -125,7 +125,7 @@ namespace tl
                 const auto bIndexes = app->getFilesModel()->getBIndexes();
                 for (size_t i = 0; i < value.size(); ++i)
                 {
-                    auto action = std::make_shared<ui::Action>(
+                    auto action = std::make_shared<dtk::Action>(
                         value[i]->path.get(-1, file::PathType::FileName),
                         [this, i]
                         {

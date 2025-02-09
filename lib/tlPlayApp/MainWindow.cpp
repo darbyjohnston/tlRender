@@ -44,22 +44,24 @@
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
+#include <tlTimelineUI/TimeEdit.h>
+#include <tlTimelineUI/TimeLabel.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/Divider.h>
-#include <tlUI/DoubleEdit.h>
-#include <tlUI/DoubleModel.h>
-#include <tlUI/Label.h>
-#include <tlUI/Menu.h>
-#include <tlUI/MenuBar.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/Spacer.h>
-#include <tlUI/Splitter.h>
-#include <tlUI/TimeEdit.h>
-#include <tlUI/TimeLabel.h>
-#include <tlUI/ToolButton.h>
+#include <tlTimelineGL/Render.h>
+
+#include <dtk/ui/ButtonGroup.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/Divider.h>
+#include <dtk/ui/DoubleEdit.h>
+#include <dtk/ui/DoubleModel.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/Menu.h>
+#include <dtk/ui/MenuBar.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/Spacer.h>
+#include <dtk/ui/Splitter.h>
+#include <dtk/ui/ToolButton.h>
 
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDOutputDevice.h>
@@ -97,7 +99,7 @@ namespace tl
             std::shared_ptr<play::Settings> settings;
             std::shared_ptr<dtk::ObservableValue<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
-            std::shared_ptr<ui::DoubleModel> speedModel;
+            std::shared_ptr<dtk::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
 
@@ -123,32 +125,32 @@ namespace tl
             std::shared_ptr<TimelineMenu> timelineMenu;
             std::shared_ptr<AudioMenu> audioMenu;
             std::shared_ptr<ToolsMenu> toolsMenu;
-            std::shared_ptr<ui::MenuBar> menuBar;
+            std::shared_ptr<dtk::MenuBar> menuBar;
             std::shared_ptr<FileToolBar> fileToolBar;
             std::shared_ptr<CompareToolBar> compareToolBar;
             std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ViewToolBar> viewToolBar;
             std::shared_ptr<ToolsToolBar> toolsToolBar;
-            std::shared_ptr<ui::ButtonGroup> playbackButtonGroup;
-            std::shared_ptr<ui::ButtonGroup> frameButtonGroup;
-            std::shared_ptr<ui::TimeEdit> currentTimeEdit;
-            std::shared_ptr<ui::TimeLabel> durationLabel;
-            std::shared_ptr<ui::ComboBox> timeUnitsComboBox;
-            std::shared_ptr<ui::DoubleEdit> speedEdit;
-            std::shared_ptr<ui::ToolButton> speedButton;
+            std::shared_ptr<dtk::ButtonGroup> playbackButtonGroup;
+            std::shared_ptr<dtk::ButtonGroup> frameButtonGroup;
+            std::shared_ptr<timelineui::TimeEdit> currentTimeEdit;
+            std::shared_ptr<timelineui::TimeLabel> durationLabel;
+            std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
+            std::shared_ptr<dtk::DoubleEdit> speedEdit;
+            std::shared_ptr<dtk::ToolButton> speedButton;
             std::shared_ptr<SpeedPopup> speedPopup;
-            std::shared_ptr<ui::ToolButton> audioButton;
+            std::shared_ptr<dtk::ToolButton> audioButton;
             std::shared_ptr<AudioPopup> audioPopup;
-            std::shared_ptr<ui::ToolButton> muteButton;
+            std::shared_ptr<dtk::ToolButton> muteButton;
             std::shared_ptr<StatusBar> statusBar;
-            std::shared_ptr<ui::Label> infoLabel;
+            std::shared_ptr<dtk::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
-            std::map<std::string, std::shared_ptr<ui::Divider> > dividers;
-            std::shared_ptr<ui::Splitter> splitter;
-            std::shared_ptr<ui::Splitter> splitter2;
-            std::shared_ptr<ui::HorizontalLayout> bottomLayout;
-            std::shared_ptr<ui::HorizontalLayout> statusLayout;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Divider> > dividers;
+            std::shared_ptr<dtk::Splitter> splitter;
+            std::shared_ptr<dtk::Splitter> splitter2;
+            std::shared_ptr<dtk::HorizontalLayout> bottomLayout;
+            std::shared_ptr<dtk::HorizontalLayout> statusLayout;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<dtk::ValueObserver<double> > speedObserver;
@@ -167,12 +169,13 @@ namespace tl
 
         void MainWindow::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app)
+            const std::shared_ptr<App>& app,
+            const dtk::Size2I& size)
         {
-            Window::_init(context, "tlplay", nullptr);
+            Window::_init(context, "tlplay", size);
             DTK_P();
 
-            setBackgroundRole(ui::ColorRole::Window);
+            setBackgroundRole(dtk::ColorRole::Window);
 
             p.app = app;
 
@@ -206,14 +209,14 @@ namespace tl
 
             p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
-            p.speedModel = ui::DoubleModel::create(context);
+            p.speedModel = dtk::DoubleModel::create(context);
             p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
             p.viewport = play::Viewport::create(context);
 
-            p.timelineWidget = timelineui::TimelineWidget::create(p.timeUnitsModel, context);
+            p.timelineWidget = timelineui::TimelineWidget::create(context, p.timeUnitsModel);
             p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
             p.timelineWidget->setFrameView(p.settings->getValue<bool>("Timeline/FrameView"));
             p.timelineWidget->setScrollBarsVisible(false);
@@ -303,7 +306,7 @@ namespace tl
                 context,
                 app,
                 p.toolsActions->getActions());
-            p.menuBar = ui::MenuBar::create(context);
+            p.menuBar = dtk::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);
             p.menuBar->addMenu("Window", p.windowMenu);
@@ -339,75 +342,75 @@ namespace tl
                 p.toolsActions->getActions());
 
             auto playbackActions = p.playbackActions->getActions();
-            auto stopButton = ui::ToolButton::create(context);
+            auto stopButton = dtk::ToolButton::create(context);
             stopButton->setIcon(playbackActions["Stop"]->icon);
-            stopButton->setToolTip(playbackActions["Stop"]->toolTip);
-            auto forwardButton = ui::ToolButton::create(context);
+            stopButton->setTooltip(playbackActions["Stop"]->toolTip);
+            auto forwardButton = dtk::ToolButton::create(context);
             forwardButton->setIcon(playbackActions["Forward"]->icon);
-            forwardButton->setToolTip(playbackActions["Forward"]->toolTip);
-            auto reverseButton = ui::ToolButton::create(context);
+            forwardButton->setTooltip(playbackActions["Forward"]->toolTip);
+            auto reverseButton = dtk::ToolButton::create(context);
             reverseButton->setIcon(playbackActions["Reverse"]->icon);
-            reverseButton->setToolTip(playbackActions["Reverse"]->toolTip);
-            p.playbackButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Radio, context);
+            reverseButton->setTooltip(playbackActions["Reverse"]->toolTip);
+            p.playbackButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Radio);
             p.playbackButtonGroup->addButton(stopButton);
             p.playbackButtonGroup->addButton(forwardButton);
             p.playbackButtonGroup->addButton(reverseButton);
 
             auto frameActions = p.frameActions->getActions();
-            auto timeStartButton = ui::ToolButton::create(context);
+            auto timeStartButton = dtk::ToolButton::create(context);
             timeStartButton->setIcon(frameActions["Start"]->icon);
-            timeStartButton->setToolTip(frameActions["Start"]->toolTip);
-            auto timeEndButton = ui::ToolButton::create(context);
+            timeStartButton->setTooltip(frameActions["Start"]->toolTip);
+            auto timeEndButton = dtk::ToolButton::create(context);
             timeEndButton->setIcon(frameActions["End"]->icon);
-            timeEndButton->setToolTip(frameActions["End"]->toolTip);
-            auto framePrevButton = ui::ToolButton::create(context);
+            timeEndButton->setTooltip(frameActions["End"]->toolTip);
+            auto framePrevButton = dtk::ToolButton::create(context);
             framePrevButton->setIcon(frameActions["Prev"]->icon);
-            framePrevButton->setToolTip(frameActions["Prev"]->toolTip);
+            framePrevButton->setTooltip(frameActions["Prev"]->toolTip);
             framePrevButton->setRepeatClick(true);
-            auto frameNextButton = ui::ToolButton::create(context);
+            auto frameNextButton = dtk::ToolButton::create(context);
             frameNextButton->setIcon(frameActions["Next"]->icon);
-            frameNextButton->setToolTip(frameActions["Next"]->toolTip);
+            frameNextButton->setTooltip(frameActions["Next"]->toolTip);
             frameNextButton->setRepeatClick(true);
-            p.frameButtonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Click, context);
+            p.frameButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Click);
             p.frameButtonGroup->addButton(timeStartButton);
             p.frameButtonGroup->addButton(framePrevButton);
             p.frameButtonGroup->addButton(frameNextButton);
             p.frameButtonGroup->addButton(timeEndButton);
 
-            p.currentTimeEdit = ui::TimeEdit::create(p.timeUnitsModel, context);
-            p.currentTimeEdit->setToolTip("Current time");
+            p.currentTimeEdit = timelineui::TimeEdit::create(context, p.timeUnitsModel);
+            p.currentTimeEdit->setTooltip("Current time");
 
-            p.durationLabel = ui::TimeLabel::create(p.timeUnitsModel, context);
-            p.durationLabel->setFontRole(ui::FontRole::Mono);
-            p.durationLabel->setMarginRole(ui::SizeRole::MarginInside);
-            p.durationLabel->setToolTip("Duration");
+            p.durationLabel = timelineui::TimeLabel::create(context, p.timeUnitsModel);
+            p.durationLabel->setFontRole(dtk::FontRole::Mono);
+            p.durationLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.durationLabel->setTooltip("Duration");
 
-            p.timeUnitsComboBox = ui::ComboBox::create(context);
+            p.timeUnitsComboBox = dtk::ComboBox::create(context);
             p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
             p.timeUnitsComboBox->setCurrentIndex(
                 static_cast<int>(p.timeUnitsModel->getTimeUnits()));
-            p.timeUnitsComboBox->setToolTip("Time units");
+            p.timeUnitsComboBox->setTooltip("Time units");
 
-            p.speedEdit = ui::DoubleEdit::create(context, p.speedModel);
-            p.speedEdit->setToolTip("Current speed");
-            p.speedButton = ui::ToolButton::create("FPS", context);
+            p.speedEdit = dtk::DoubleEdit::create(context, p.speedModel);
+            p.speedEdit->setTooltip("Current speed");
+            p.speedButton = dtk::ToolButton::create(context, "FPS");
             p.speedButton->setIcon("MenuArrow");
-            p.speedButton->setToolTip("Speed menu");
+            p.speedButton->setTooltip("Speed menu");
 
-            p.audioButton = ui::ToolButton::create(context);
+            p.audioButton = dtk::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
-            p.audioButton->setToolTip("Audio settings");
-            p.muteButton = ui::ToolButton::create(context);
+            p.audioButton->setTooltip("Audio settings");
+            p.muteButton = dtk::ToolButton::create(context);
             p.muteButton->setCheckable(true);
             p.muteButton->setIcon("Mute");
-            p.muteButton->setToolTip("Mute the audio");
+            p.muteButton->setTooltip("Mute the audio");
 
             p.statusBar = StatusBar::create(context);
-            p.statusBar->setHStretch(ui::Stretch::Expanding);
+            p.statusBar->setHStretch(dtk::Stretch::Expanding);
 
-            p.infoLabel = ui::Label::create(context);
-            p.infoLabel->setHAlign(ui::HAlign::Right);
-            p.infoLabel->setMarginRole(ui::SizeRole::MarginInside);
+            p.infoLabel = dtk::Label::create(context);
+            p.infoLabel->setHAlign(dtk::HAlign::Right);
+            p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(
                 context,
@@ -415,35 +418,33 @@ namespace tl
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.toolsWidget->hide();
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.menuBar->setParent(p.layout);
-            p.dividers["MenuBar"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setSpacingRole(ui::SizeRole::None);
+            p.dividers["MenuBar"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setSpacingRole(dtk::SizeRole::None);
             p.fileToolBar->setParent(hLayout);
-            p.dividers["File"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["File"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.compareToolBar->setParent(hLayout);
-            p.dividers["Compare"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["Compare"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.windowToolBar->setParent(hLayout);
-            p.dividers["Window"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["Window"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.viewToolBar->setParent(hLayout);
-            p.dividers["View"] = ui::Divider::create(ui::Orientation::Horizontal, context, hLayout);
+            p.dividers["View"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.toolsToolBar->setParent(hLayout);
-            p.dividers["ToolBar"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            p.splitter = ui::Splitter::create(ui::Orientation::Vertical, context, p.layout);
-            p.splitter->setSpacingRole(ui::SizeRole::None);
-            p.splitter2 = ui::Splitter::create(ui::Orientation::Horizontal, context, p.splitter);
-            p.splitter2->setSpacingRole(ui::SizeRole::None);
+            p.dividers["ToolBar"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
+            p.splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, p.layout);
+            p.splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, p.splitter);
             p.viewport->setParent(p.splitter2);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
-            p.dividers["Bottom"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            p.bottomLayout = ui::HorizontalLayout::create(context, p.layout);
-            p.bottomLayout->setMarginRole(ui::SizeRole::MarginInside);
-            p.bottomLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(ui::SizeRole::None);
+            p.dividers["Bottom"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
+            p.bottomLayout = dtk::HorizontalLayout::create(context, p.layout);
+            p.bottomLayout->setMarginRole(dtk::SizeRole::MarginInside);
+            p.bottomLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
+            hLayout->setSpacingRole(dtk::SizeRole::None);
             reverseButton->setParent(hLayout);
             stopButton->setParent(hLayout);
             forwardButton->setParent(hLayout);
@@ -454,21 +455,21 @@ namespace tl
             p.currentTimeEdit->setParent(p.bottomLayout);
             p.durationLabel->setParent(p.bottomLayout);
             p.timeUnitsComboBox->setParent(p.bottomLayout);
-            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.speedEdit->setParent(hLayout);
             p.speedButton->setParent(hLayout);
-            auto spacer = ui::Spacer::create(ui::Orientation::Horizontal, context, p.bottomLayout);
-            spacer->setHStretch(ui::Stretch::Expanding);
-            hLayout = ui::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.bottomLayout);
+            spacer->setHStretch(dtk::Stretch::Expanding);
+            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.audioButton->setParent(hLayout);
             p.muteButton->setParent(hLayout);
-            p.dividers["Status"] = ui::Divider::create(ui::Orientation::Vertical, context, p.layout);
-            p.statusLayout = ui::HorizontalLayout::create(context, p.layout);
-            p.statusLayout->setSpacingRole(ui::SizeRole::None);
+            p.dividers["Status"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
+            p.statusLayout = dtk::HorizontalLayout::create(context, p.layout);
+            p.statusLayout->setSpacingRole(dtk::SizeRole::None);
             p.statusBar->setParent(p.statusLayout);
-            ui::Divider::create(ui::Orientation::Horizontal, context, p.statusLayout);
+            dtk::Divider::create(context, dtk::Orientation::Horizontal, p.statusLayout);
             p.infoLabel->setParent(p.statusLayout);
 
             _windowOptionsUpdate();
@@ -612,7 +613,7 @@ namespace tl
                 app->getRenderModel()->observeColorBuffer(),
                 [this](dtk::ImageType value)
                 {
-                    setColorBuffer(value);
+                    setFrameBufferType(value);
                     _p->viewport->setColorBuffer(value);
                 });
 
@@ -652,7 +653,7 @@ namespace tl
         MainWindow::~MainWindow()
         {
             DTK_P();
-            dtk::Size2I windowSize = _geometry.size();
+            dtk::Size2I windowSize = getGeometry().size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
             windowSize = windowSize / _displayScale;
@@ -694,10 +695,11 @@ namespace tl
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app)
+            const std::shared_ptr<App>& app,
+            const dtk::Size2I& size)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
-            out->_init(context, app);
+            out->_init(context, app, size);
             return out;
         }
 
@@ -740,15 +742,20 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void MainWindow::keyPressEvent(ui::KeyEvent& event)
+        void MainWindow::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             event.accept = p.menuBar->shortcut(event.key, event.modifiers);
         }
 
-        void MainWindow::keyReleaseEvent(ui::KeyEvent& event)
+        void MainWindow::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
+        }
+
+        std::shared_ptr<dtk::IRender> MainWindow::_createRender(const std::shared_ptr<dtk::Context>& context)
+        {
+            return timeline_gl::Render::create(context);
         }
 
         void MainWindow::_drop(const std::vector<std::string>& value)
@@ -815,7 +822,7 @@ namespace tl
         void MainWindow::_showSpeedPopup()
         {
             DTK_P();
-            if (auto context = _context.lock())
+            if (auto context = getContext())
             {
                 if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
                 {
@@ -861,7 +868,7 @@ namespace tl
         void MainWindow::_showAudioPopup()
         {
             DTK_P();
-            if (auto context = _context.lock())
+            if (auto context = getContext())
             {
                 if (auto app = p.app.lock())
                 {
@@ -942,7 +949,7 @@ namespace tl
                 toolTip = play::infoToolTip(path, info);
             }
             p.infoLabel->setText(text);
-            p.infoLabel->setToolTip(toolTip);
+            p.infoLabel->setTooltip(toolTip);
         }
 
         void to_json(nlohmann::json& json, const WindowOptions& in)

@@ -5,6 +5,8 @@ set(HEADERS
     IItem.h
     Init.h
     ThumbnailSystem.h
+    TimeEdit.h
+    TimeLabel.h
     TimelineItem.h
     TimelineViewport.h
     TimelineWidget.h
@@ -20,6 +22,8 @@ set(SOURCE
     IItem.cpp
     Init.cpp
     ThumbnailSystem.cpp
+    TimeEdit.cpp
+    TimeLabel.cpp
     TimelineItem.cpp
     TimelineViewport.cpp
     TimelineWidget.cpp

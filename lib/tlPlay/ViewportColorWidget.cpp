@@ -4,12 +4,11 @@
 
 #include <tlPlay/ViewportPrivate.h>
 
-#include <tlUI/ColorSwatch.h>
-#include <tlUI/DrawUtil.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
-
+#include <dtk/ui/ColorSwatch.h>
+#include <dtk/ui/DrawUtil.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -20,10 +19,10 @@ namespace tl
         {
             dtk::Color4F color;
 
-            std::shared_ptr<ui::ToolButton> closeButton;
-            std::shared_ptr<ui::ColorSwatch> swatch;
-            std::shared_ptr<ui::Label> label;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::shared_ptr<dtk::ToolButton> closeButton;
+            std::shared_ptr<dtk::ColorSwatch> swatch;
+            std::shared_ptr<dtk::Label> label;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             struct SizeData
             {
@@ -37,28 +36,28 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::play::ViewportColorWidget", context, parent);
+            IWidget::_init(context, "tl::play::ViewportColorWidget", parent);
             DTK_P();
 
-            setBackgroundRole(ui::ColorRole::Window);
+            setBackgroundRole(dtk::ColorRole::Window);
 
-            p.closeButton = ui::ToolButton::create(context);
+            p.closeButton = dtk::ToolButton::create(context);
             p.closeButton->setIcon("CloseSmall");
 
-            p.swatch = ui::ColorSwatch::create(context);
+            p.swatch = dtk::ColorSwatch::create(context);
 
-            p.label = ui::Label::create(context, shared_from_this());
-            p.label->setFontRole(ui::FontRole::Mono);
+            p.label = dtk::Label::create(context, shared_from_this());
+            p.label->setFontRole(dtk::FontRole::Mono);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(ui::SizeRole::MarginInside);
-            hLayout->setSpacingRole(ui::SizeRole::SpacingTool);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setMarginRole(dtk::SizeRole::MarginInside);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.swatch->setParent(hLayout);
             p.label->setParent(hLayout);
-            auto vLayout = ui::VerticalLayout::create(context, p.layout);
-            vLayout->setSpacingRole(ui::SizeRole::None);
+            auto vLayout = dtk::VerticalLayout::create(context, p.layout);
+            vLayout->setSpacingRole(dtk::SizeRole::None);
             p.closeButton->setParent(vLayout);
 
             _colorUpdate();
@@ -107,24 +106,24 @@ namespace tl
             p.layout->setGeometry(dtk::margin(value, -p.size.border));
         }
 
-        void ViewportColorWidget::sizeHintEvent(const ui::SizeHintEvent& event)
+        void ViewportColorWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             DTK_P();
-            p.size.margin = event.style->getSizeRole(ui::SizeRole::MarginSmall, event.displayScale);
-            p.size.border = event.style->getSizeRole(ui::SizeRole::Border, event.displayScale);
-            _sizeHint = p.layout->getSizeHint() + p.size.border * 2;
+            p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginSmall, event.displayScale);
+            p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
+            _setSizeHint(p.layout->getSizeHint() + p.size.border * 2);
         }
 
-        void ViewportColorWidget::drawEvent(const dtk::Box2I& drawRect, const ui::DrawEvent& event)
+        void ViewportColorWidget::drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             DTK_P();
             
             const dtk::Box2I& g = getGeometry();
             event.render->drawMesh(
-                ui::border(g, p.size.border),
-                event.style->getColorRole(ui::ColorRole::Border));
+                dtk::border(g, p.size.border),
+                event.style->getColorRole(dtk::ColorRole::Border));
 
             const dtk::Box2I g2 = dtk::margin(g, -p.size.border);
             dtk::TriMesh2F mesh;
@@ -134,7 +133,7 @@ namespace tl
             mesh.triangles.push_back({ 1, 2, 3 });
             event.render->drawMesh(
                 mesh,
-                event.style->getColorRole(ui::ColorRole::Text));
+                event.style->getColorRole(dtk::ColorRole::Text));
         }
 
         void ViewportColorWidget::_colorUpdate()

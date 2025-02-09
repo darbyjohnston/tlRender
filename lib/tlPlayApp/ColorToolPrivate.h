@@ -12,7 +12,7 @@ namespace tl
 {
     namespace play_app
     {
-        class OCIOWidget : public ui::IWidget
+        class OCIOWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(OCIOWidget);
 
@@ -33,13 +33,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();
         };
 
-        class LUTWidget : public ui::IWidget
+        class LUTWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(LUTWidget);
 
@@ -60,13 +60,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();
         };
 
-        class ColorWidget : public ui::IWidget
+        class ColorWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(ColorWidget);
 
@@ -87,13 +87,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();
         };
 
-        class LevelsWidget : public ui::IWidget
+        class LevelsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(LevelsWidget);
 
@@ -114,13 +114,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();
         };
 
-        class EXRDisplayWidget : public ui::IWidget
+        class EXRDisplayWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(EXRDisplayWidget);
 
@@ -141,13 +141,13 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();
         };
 
-        class SoftClipWidget : public ui::IWidget
+        class SoftClipWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(SoftClipWidget);
 
@@ -168,7 +168,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();

@@ -2,15 +2,15 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimeLabel.h>
-
-#include <tlUI/LayoutUtil.h>
+#include <tlTimelineUI/TimeLabel.h>
 
 #include <tlTimeline/TimeUnits.h>
 
+#include <dtk/ui/LayoutUtil.h>
+
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         struct TimeLabel::Private
         {
@@ -18,12 +18,13 @@ namespace tl
             OTIO_NS::RationalTime value = time::invalidTime;
             std::string text;
             std::string format;
-            SizeRole marginRole = SizeRole::None;
-            FontRole fontRole = FontRole::Label;
+            dtk::SizeRole marginRole = dtk::SizeRole::None;
+            dtk::FontRole fontRole = dtk::FontRole::Label;
 
             struct SizeData
             {
-                bool sizeInit = true;
+                bool init = true;
+                float displayScale = 0.F;
                 int margin = 0;
 
                 bool textInit = true;
@@ -44,11 +45,11 @@ namespace tl
         };
 
         void TimeLabel::_init(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::TimeLabel", context, parent);
+            IWidget::_init(context, "tl::timelineui::TimeLabel", parent);
             DTK_P();
 
             p.timeUnitsModel = timeUnitsModel;
@@ -75,12 +76,12 @@ namespace tl
         {}
 
         std::shared_ptr<TimeLabel> TimeLabel::create(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimeLabel>(new TimeLabel);
-            out->_init(timeUnitsModel, context, parent);
+            out->_init(context, timeUnitsModel, parent);
             return out;
         }
 
@@ -103,55 +104,58 @@ namespace tl
             _textUpdate();
         }
 
-        void TimeLabel::setMarginRole(SizeRole value)
+        void TimeLabel::setMarginRole(dtk::SizeRole value)
         {
             DTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
-            p.size.sizeInit = true;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            p.size.init = true;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
 
-        void TimeLabel::setFontRole(FontRole value)
+        void TimeLabel::setFontRole(dtk::FontRole value)
         {
             DTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
+            p.size.textInit = true;
             p.draw.glyphs.clear();
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
 
-        void TimeLabel::sizeHintEvent(const SizeHintEvent& event)
+        void TimeLabel::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            const bool displayScaleChanged = event.displayScale != _displayScale;
             IWidget::sizeHintEvent(event);
             DTK_P();
 
-            if (displayScaleChanged || p.size.sizeInit)
+            if (p.size.init || event.displayScale != p.size.displayScale)
             {
-                p.size.margin = event.style->getSizeRole(p.marginRole, _displayScale);
+                p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
             }
-            if (displayScaleChanged || p.size.textInit || p.size.sizeInit)
+            if (p.size.init || event.displayScale != p.size.displayScale || p.size.textInit)
             {
-                p.size.fontInfo = event.style->getFontRole(p.fontRole, _displayScale);
+                p.size.fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
                 p.size.textSize = event.fontSystem->getSize(p.text, p.size.fontInfo);
                 p.size.formatSize = event.fontSystem->getSize(p.format, p.size.fontInfo);
                 p.draw.glyphs.clear();
             }
-            p.size.sizeInit = false;
+            p.size.init = false;
+            p.size.displayScale = event.displayScale;
             p.size.textInit = false;
 
-            _sizeHint.w =
+            dtk::Size2I sizeHint;
+            sizeHint.w =
                 std::max(p.size.textSize.w, p.size.formatSize.w) +
                 p.size.margin * 2;
-            _sizeHint.h =
+            sizeHint.h =
                 p.size.fontMetrics.lineHeight +
                 p.size.margin * 2;
+            _setSizeHint(sizeHint);
         }
 
         void TimeLabel::clipEvent(const dtk::Box2I& clipRect, bool clipped)
@@ -166,7 +170,7 @@ namespace tl
 
         void TimeLabel::drawEvent(
             const dtk::Box2I& drawRect,
-            const DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             DTK_P();
@@ -175,12 +179,10 @@ namespace tl
 
             const dtk::Box2I g = dtk::margin(
                 align(
-                    _geometry,
-                    _sizeHint,
-                    Stretch::Fixed,
-                    Stretch::Fixed,
-                    _hAlign,
-                    _vAlign),
+                    getGeometry(),
+                    getSizeHint(),
+                    getHAlign(),
+                    getVAlign()),
                 -p.size.margin);
 
             if (!p.text.empty() && p.draw.glyphs.empty())
@@ -191,7 +193,7 @@ namespace tl
                 p.draw.glyphs,
                 p.size.fontMetrics,
                 g.min,
-                event.style->getColorRole(ColorRole::Text));
+                event.style->getColorRole(dtk::ColorRole::Text));
         }
 
         void TimeLabel::_textUpdate()
@@ -206,8 +208,8 @@ namespace tl
                 p.format = timeline::formatString(timeUnits);
             }
             p.size.textInit = true;
-            _updates |= Update::Size;
-            _updates |= Update::Draw;
+            _setSizeUpdate();
+            _setDrawUpdate();
         }
     }
 }

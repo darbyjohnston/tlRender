@@ -6,8 +6,8 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlUI/FileBrowser.h>
-#include <tlUI/RecentFilesModel.h>
+#include <dtk/ui/FileBrowser.h>
+#include <dtk/ui/RecentFilesModel.h>
 
 #include <tlIO/System.h>
 
@@ -19,24 +19,24 @@ namespace tl
         {
             std::weak_ptr<App> app;
             std::vector<std::string> extensions;
-            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<dtk::RecentFilesModel> recentFilesModel;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::vector<std::shared_ptr<ui::Action> > currentItems;
-            std::vector<std::shared_ptr<ui::Action> > layersItems;
-            std::map<std::string, std::shared_ptr<ui::Menu> > menus;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::vector<std::shared_ptr<dtk::Action> > currentItems;
+            std::vector<std::shared_ptr<dtk::Action> > layersItems;
+            std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<play::FilesModelItem> > > aObserver;
             std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
-            std::shared_ptr<dtk::ListObserver<file::Path> > recentObserver;
+            std::shared_ptr<dtk::ListObserver<std::filesystem::path> > recentObserver;
         };
 
         void FileMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -52,10 +52,7 @@ namespace tl
             p.extensions.push_back(".otio");
             p.extensions.push_back(".otioz");
 
-            if (auto fileBrowserSystem = context->getSystem<ui::FileBrowserSystem>())
-            {
-                p.recentFilesModel = fileBrowserSystem->getRecentFilesModel();
-            }
+            p.recentFilesModel = app->getRecentFilesModel();
 
             p.actions = actions;
             addItem(p.actions["Open"]);
@@ -105,9 +102,9 @@ namespace tl
 
             if (p.recentFilesModel)
             {
-                p.recentObserver = dtk::ListObserver<file::Path>::create(
+                p.recentObserver = dtk::ListObserver<std::filesystem::path>::create(
                     p.recentFilesModel->observeRecent(),
-                    [this](const std::vector<file::Path>& value)
+                    [this](const std::vector<std::filesystem::path>& value)
                     {
                         _recentUpdate(value);
                     });
@@ -124,7 +121,7 @@ namespace tl
         std::shared_ptr<FileMenu> FileMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileMenu>(new FileMenu);
@@ -157,7 +154,7 @@ namespace tl
             p.currentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
-                auto item = std::make_shared<ui::Action>(
+                auto item = std::make_shared<dtk::Action>(
                     value[i]->path.get(-1, file::PathType::FileName),
                     [this, i]
                     {
@@ -182,7 +179,7 @@ namespace tl
             {
                 for (size_t i = 0; i < value->videoLayers.size(); ++i)
                 {
-                    auto item = std::make_shared<ui::Action>(
+                    auto item = std::make_shared<dtk::Action>(
                         value->videoLayers[i],
                         [this, value, i]
                         {
@@ -224,7 +221,7 @@ namespace tl
             }
         }
 
-        void FileMenu::_recentUpdate(const std::vector<file::Path>& value)
+        void FileMenu::_recentUpdate(const std::vector<std::filesystem::path>& value)
         {
             DTK_P();
             p.menus["Recent"]->clear();
@@ -234,15 +231,15 @@ namespace tl
                 {
                     const auto path = *i;
                     auto weak = std::weak_ptr<FileMenu>(std::dynamic_pointer_cast<FileMenu>(shared_from_this()));
-                    auto item = std::make_shared<ui::Action>(
-                        path.get(),
+                    auto item = std::make_shared<dtk::Action>(
+                        path.u8string(),
                         [weak, path]
                         {
                             if (auto widget = weak.lock())
                             {
                                 if (auto app = widget->_p->app.lock())
                                 {
-                                    app->open(path);
+                                    app->open(file::Path(path.u8string()));
                                 }
                                 widget->close();
                             }

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/Action.h>
+#include <dtk/ui/Action.h>
 
 namespace tl
 {
@@ -34,7 +34,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            const std::map<std::string, std::shared_ptr<ui::Action> >& getActions() const;
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
 
         private:
             DTK_PRIVATE();

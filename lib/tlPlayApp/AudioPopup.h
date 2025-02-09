@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidgetPopup.h>
+#include <dtk/ui/IWidgetPopup.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         class App;
 
         //! Audio popup.
-        class AudioPopup : public ui::IWidgetPopup
+        class AudioPopup : public dtk::IWidgetPopup
         {
             DTK_NON_COPYABLE(AudioPopup);
 

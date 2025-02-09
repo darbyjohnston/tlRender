@@ -6,7 +6,7 @@
 
 #include <tlPlayApp/Tools.h>
 
-#include <tlUI/IWidget.h>
+#include <dtk/ui/IWidget.h>
 
 namespace tl
 {
@@ -16,7 +16,7 @@ namespace tl
         class MainWindow;
 
         //! Tools widget.
-        class ToolsWidget : public ui::IWidget
+        class ToolsWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(ToolsWidget);
 
@@ -40,7 +40,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             DTK_PRIVATE();

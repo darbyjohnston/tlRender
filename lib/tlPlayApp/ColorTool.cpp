@@ -9,17 +9,17 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/ViewportModel.h>
 
-#include <tlUI/Bellows.h>
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/CheckBox.h>
-#include <tlUI/ComboBox.h>
-#include <tlUI/FileEdit.h>
-#include <tlUI/FloatEditSlider.h>
-#include <tlUI/GridLayout.h>
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ScrollWidget.h>
-#include <tlUI/StackLayout.h>
+#include <dtk/ui/Bellows.h>
+#include <dtk/ui/ButtonGroup.h>
+#include <dtk/ui/CheckBox.h>
+#include <dtk/ui/ComboBox.h>
+#include <dtk/ui/FileEdit.h>
+#include <dtk/ui/FloatEditSlider.h>
+#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/StackLayout.h>
 
 namespace tl
 {
@@ -29,13 +29,13 @@ namespace tl
         {
             std::shared_ptr<play::OCIOModel> ocioModel;
 
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::shared_ptr<ui::FileEdit> fileEdit;
-            std::shared_ptr<ui::ComboBox> inputComboBox;
-            std::shared_ptr<ui::ComboBox> displayComboBox;
-            std::shared_ptr<ui::ComboBox> viewComboBox;
-            std::shared_ptr<ui::ComboBox> lookComboBox;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::shared_ptr<dtk::FileEdit> fileEdit;
+            std::shared_ptr<dtk::ComboBox> inputComboBox;
+            std::shared_ptr<dtk::ComboBox> displayComboBox;
+            std::shared_ptr<dtk::ComboBox> viewComboBox;
+            std::shared_ptr<dtk::ComboBox> lookComboBox;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > optionsObserver2;
@@ -45,9 +45,9 @@ namespace tl
         void OCIOWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::OCIOWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::OCIOWidget", parent);
             DTK_P();
             
 #if !defined(TLRENDER_OCIO)
@@ -56,46 +56,46 @@ namespace tl
 
             p.ocioModel = play::OCIOModel::create(context);
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.fileEdit = ui::FileEdit::create(context);
+            p.fileEdit = dtk::FileEdit::create(context);
 
-            p.inputComboBox = ui::ComboBox::create(context);
-            p.inputComboBox->setHStretch(ui::Stretch::Expanding);
+            p.inputComboBox = dtk::ComboBox::create(context);
+            p.inputComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.displayComboBox = ui::ComboBox::create(context);
-            p.displayComboBox->setHStretch(ui::Stretch::Expanding);
+            p.displayComboBox = dtk::ComboBox::create(context);
+            p.displayComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.viewComboBox = ui::ComboBox::create(context);
-            p.viewComboBox->setHStretch(ui::Stretch::Expanding);
+            p.viewComboBox = dtk::ComboBox::create(context);
+            p.viewComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.lookComboBox = ui::ComboBox::create(context);
-            p.lookComboBox->setHStretch(ui::Stretch::Expanding);
+            p.lookComboBox = dtk::ComboBox::create(context);
+            p.lookComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
-            auto gridLayout = ui::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto gridLayout = dtk::GridLayout::create(context, p.layout);
+            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(gridLayout);
             gridLayout->setGridPos(p.enabledCheckBox, 0, 0);
-            auto label = ui::Label::create("File name:", context, gridLayout);
+            auto label = dtk::Label::create(context, "File name:", gridLayout);
             gridLayout->setGridPos(label, 1, 0);
             p.fileEdit->setParent(gridLayout);
             gridLayout->setGridPos(p.fileEdit, 1, 1);
-            label = ui::Label::create("Input:", context, gridLayout);
+            label = dtk::Label::create(context, "Input:", gridLayout);
             gridLayout->setGridPos(label, 2, 0);
             p.inputComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.inputComboBox, 2, 1);
-            label = ui::Label::create("Display:", context, gridLayout);
+            label = dtk::Label::create(context, "Display:", gridLayout);
             gridLayout->setGridPos(label, 3, 0);
             p.displayComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.displayComboBox, 3, 1);
-            label = ui::Label::create("View:", context, gridLayout);
+            label = dtk::Label::create(context, "View:", gridLayout);
             gridLayout->setGridPos(label, 4, 0);
             p.viewComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.viewComboBox, 4, 1);
-            label = ui::Label::create("Look:", context, gridLayout);
+            label = dtk::Label::create(context, "Look:", gridLayout);
             gridLayout->setGridPos(label, 5, 0);
             p.lookComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.lookComboBox, 5, 1);
@@ -105,7 +105,7 @@ namespace tl
                 [this](const timeline::OCIOOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(file::Path(value.fileName));
+                    _p->fileEdit->setPath(std::filesystem::u8path(value.fileName));
                     _p->ocioModel->setOptions(value);
                 });
 
@@ -125,7 +125,7 @@ namespace tl
                 [this](const play::OCIOModelData& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(file::Path(value.fileName));
+                    _p->fileEdit->setPath(std::filesystem::u8path(value.fileName));
                     _p->inputComboBox->setItems(value.inputs);
                     _p->inputComboBox->setCurrentIndex(value.inputIndex);
                     _p->displayComboBox->setItems(value.displays);
@@ -143,9 +143,9 @@ namespace tl
                 });
 
             p.fileEdit->setCallback(
-                [this](const file::Path& value)
+                [this](const std::filesystem::path& value)
                 {
-                    _p->ocioModel->setConfig(value.get());
+                    _p->ocioModel->setConfig(value.u8string());
                 });
 
             p.inputComboBox->setIndexCallback(
@@ -193,18 +193,18 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void OCIOWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void OCIOWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct LUTWidget::Private
         {
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::shared_ptr<ui::FileEdit> fileEdit;
-            std::shared_ptr<ui::ComboBox> orderComboBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::shared_ptr<dtk::FileEdit> fileEdit;
+            std::shared_ptr<dtk::ComboBox> orderComboBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > optionsObservers;
         };
@@ -212,32 +212,32 @@ namespace tl
         void LUTWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::LUTWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::LUTWidget", parent);
             DTK_P();
             
 #if !defined(TLRENDER_OCIO)
             setEnabled(false);
 #endif // TLRENDER_OCIO
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.fileEdit = ui::FileEdit::create(context);
+            p.fileEdit = dtk::FileEdit::create(context);
 
-            p.orderComboBox = ui::ComboBox::create(timeline::getLUTOrderLabels(), context);
-            p.orderComboBox->setHStretch(ui::Stretch::Expanding);
+            p.orderComboBox = dtk::ComboBox::create(context, timeline::getLUTOrderLabels());
+            p.orderComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.enabledCheckBox, 0, 0);
-            auto label = ui::Label::create("File name:", context, p.layout);
+            auto label = dtk::Label::create(context, "File name:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.fileEdit->setParent(p.layout);
             p.layout->setGridPos(p.fileEdit, 1, 1);
-            label = ui::Label::create("Order:", context, p.layout);
+            label = dtk::Label::create(context, "Order:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.orderComboBox->setParent(p.layout);
             p.layout->setGridPos(p.orderComboBox, 2, 1);
@@ -247,7 +247,7 @@ namespace tl
                 [this](const timeline::LUTOptions& value)
                 {
                     _p->enabledCheckBox->setChecked(value.enabled);
-                    _p->fileEdit->setPath(file::Path(value.fileName));
+                    _p->fileEdit->setPath(std::filesystem::u8path(value.fileName));
                     _p->orderComboBox->setCurrentIndex(static_cast<size_t>(value.order));
                 });
 
@@ -264,13 +264,13 @@ namespace tl
                 });
 
             p.fileEdit->setCallback(
-                [appWeak](const file::Path& value)
+                [appWeak](const std::filesystem::path& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getColorModel()->getLUTOptions();
                         options.enabled = true;
-                        options.fileName = value.get();
+                        options.fileName = value.u8string();
                         app->getColorModel()->setLUTOptions(options);
                     }
                 });
@@ -311,18 +311,18 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void LUTWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void LUTWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct ColorWidget::Private
         {
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
-            std::shared_ptr<ui::CheckBox> invertCheckBox;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::map<std::string, std::shared_ptr<dtk::FloatEditSlider> > sliders;
+            std::shared_ptr<dtk::CheckBox> invertCheckBox;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
@@ -330,52 +330,52 @@ namespace tl
         void ColorWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::ColorWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::ColorWidget", parent);
             DTK_P();
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.sliders["Add"] = ui::FloatEditSlider::create(context);
+            p.sliders["Add"] = dtk::FloatEditSlider::create(context);
             p.sliders["Add"]->setRange(dtk::RangeF(-1.F, 1.F));
             p.sliders["Add"]->setDefaultValue(0.F);
-            p.sliders["Brightness"] = ui::FloatEditSlider::create(context);
+            p.sliders["Brightness"] = dtk::FloatEditSlider::create(context);
             p.sliders["Brightness"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Brightness"]->setDefaultValue(1.F);
-            p.sliders["Contrast"] = ui::FloatEditSlider::create(context);
+            p.sliders["Contrast"] = dtk::FloatEditSlider::create(context);
             p.sliders["Contrast"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Contrast"]->setDefaultValue(1.F);
-            p.sliders["Saturation"] = ui::FloatEditSlider::create(context);
+            p.sliders["Saturation"] = dtk::FloatEditSlider::create(context);
             p.sliders["Saturation"]->setRange(dtk::RangeF(0.F, 4.F));
             p.sliders["Saturation"]->setDefaultValue(1.F);
-            p.sliders["Tint"] = ui::FloatEditSlider::create(context);
+            p.sliders["Tint"] = dtk::FloatEditSlider::create(context);
             p.sliders["Tint"]->setDefaultValue(1.F);
 
-            p.invertCheckBox = ui::CheckBox::create("Invert", context);
+            p.invertCheckBox = dtk::CheckBox::create(context, "Invert");
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.enabledCheckBox, 0, 0);
-            auto label = ui::Label::create("Add:", context, p.layout);
+            auto label = dtk::Label::create(context, "Add:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.sliders["Add"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Add"], 1, 1);
-            label = ui::Label::create("Brightness:", context, p.layout);
+            label = dtk::Label::create(context, "Brightness:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.sliders["Brightness"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Brightness"], 2, 1);
-            label = ui::Label::create("Contrast:", context, p.layout);
+            label = dtk::Label::create(context, "Contrast:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.sliders["Contrast"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Contrast"], 3, 1);
-            label = ui::Label::create("Saturation:", context, p.layout);
+            label = dtk::Label::create(context, "Saturation:", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.sliders["Saturation"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Saturation"], 4, 1);
-            label = ui::Label::create("Tint:", context, p.layout);
+            label = dtk::Label::create(context, "Tint:", p.layout);
             p.layout->setGridPos(label, 5, 0);
             p.sliders["Tint"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Tint"], 5, 1);
@@ -511,17 +511,17 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void ColorWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void ColorWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct LevelsWidget::Private
         {
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::map<std::string, std::shared_ptr<dtk::FloatEditSlider> > sliders;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
@@ -529,47 +529,47 @@ namespace tl
         void LevelsWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::LevelsWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::LevelsWidget", parent);
             DTK_P();
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.sliders["InLow"] = ui::FloatEditSlider::create(context);
+            p.sliders["InLow"] = dtk::FloatEditSlider::create(context);
             p.sliders["InLow"]->setDefaultValue(0.F);
-            p.sliders["InHigh"] = ui::FloatEditSlider::create(context);
+            p.sliders["InHigh"] = dtk::FloatEditSlider::create(context);
             p.sliders["InHigh"]->setDefaultValue(1.F);
-            p.sliders["Gamma"] = ui::FloatEditSlider::create(context);
+            p.sliders["Gamma"] = dtk::FloatEditSlider::create(context);
             p.sliders["Gamma"]->setRange(dtk::RangeF(.1F, 4.F));
             p.sliders["Gamma"]->setDefaultValue(1.F);
-            p.sliders["OutLow"] = ui::FloatEditSlider::create(context);
+            p.sliders["OutLow"] = dtk::FloatEditSlider::create(context);
             p.sliders["OutLow"]->setDefaultValue(0.F);
-            p.sliders["OutHigh"] = ui::FloatEditSlider::create(context);
+            p.sliders["OutHigh"] = dtk::FloatEditSlider::create(context);
             p.sliders["OutHigh"]->setDefaultValue(1.F);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.enabledCheckBox, 0, 0);
-            auto label = ui::Label::create("In low:", context, p.layout);
+            auto label = dtk::Label::create(context, "In low:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.sliders["InLow"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["InLow"], 1, 1);
-            label = ui::Label::create("In high:", context, p.layout);
+            label = dtk::Label::create(context, "In high:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.sliders["InHigh"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["InHigh"], 2, 1);
-            label = ui::Label::create("Gamma:", context, p.layout);
+            label = dtk::Label::create(context, "Gamma:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.sliders["Gamma"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Gamma"], 3, 1);
-            label = ui::Label::create("Out low:", context, p.layout);
+            label = dtk::Label::create(context, "Out low:", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.sliders["OutLow"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["OutLow"], 4, 1);
-            label = ui::Label::create("Out high:", context, p.layout);
+            label = dtk::Label::create(context, "Out high:", p.layout);
             p.layout->setGridPos(label, 5, 0);
             p.sliders["OutHigh"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["OutHigh"], 5, 1);
@@ -682,17 +682,17 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void LevelsWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void LevelsWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct EXRDisplayWidget::Private
         {
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
-            std::shared_ptr<ui::GridLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::map<std::string, std::shared_ptr<dtk::FloatEditSlider> > sliders;
+            std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
@@ -700,43 +700,43 @@ namespace tl
         void EXRDisplayWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::EXRDisplayWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::EXRDisplayWidget", parent);
             DTK_P();
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.sliders["Exposure"] = ui::FloatEditSlider::create(context);
+            p.sliders["Exposure"] = dtk::FloatEditSlider::create(context);
             p.sliders["Exposure"]->setRange(dtk::RangeF(-10.F, 10.F));
             p.sliders["Exposure"]->setDefaultValue(0.F);
-            p.sliders["Defog"] = ui::FloatEditSlider::create(context);
+            p.sliders["Defog"] = dtk::FloatEditSlider::create(context);
             p.sliders["Defog"]->setDefaultValue(0.F);
-            p.sliders["KneeLow"] = ui::FloatEditSlider::create(context);
+            p.sliders["KneeLow"] = dtk::FloatEditSlider::create(context);
             p.sliders["KneeLow"]->setRange(dtk::RangeF(-3.F, 3.F));
             p.sliders["KneeLow"]->setDefaultValue(0.F);
-            p.sliders["KneeHigh"] = ui::FloatEditSlider::create(context);
+            p.sliders["KneeHigh"] = dtk::FloatEditSlider::create(context);
             p.sliders["KneeHigh"]->setRange(dtk::RangeF(3.5F, 7.5F));
             p.sliders["KneeHigh"]->setDefaultValue(5.F);
 
-            p.layout = ui::GridLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(p.layout);
             p.layout->setGridPos(p.enabledCheckBox, 0, 0);
-            auto label = ui::Label::create("Exposure:", context, p.layout);
+            auto label = dtk::Label::create(context, "Exposure:", p.layout);
             p.layout->setGridPos(label, 1, 0);
             p.sliders["Exposure"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Exposure"], 1, 1);
-            label = ui::Label::create("Defog:", context, p.layout);
+            label = dtk::Label::create(context, "Defog:", p.layout);
             p.layout->setGridPos(label, 2, 0);
             p.sliders["Defog"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["Defog"], 2, 1);
-            label = ui::Label::create("Knee low:", context, p.layout);
+            label = dtk::Label::create(context, "Knee low:", p.layout);
             p.layout->setGridPos(label, 3, 0);
             p.sliders["KneeLow"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["KneeLow"], 3, 1);
-            label = ui::Label::create("Knee high:", context, p.layout);
+            label = dtk::Label::create(context, "Knee high:", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.sliders["KneeHigh"]->setParent(p.layout);
             p.layout->setGridPos(p.sliders["KneeHigh"], 4, 1);
@@ -836,17 +836,17 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void EXRDisplayWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void EXRDisplayWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct SoftClipWidget::Private
         {
-            std::shared_ptr<ui::CheckBox> enabledCheckBox;
-            std::map<std::string, std::shared_ptr<ui::FloatEditSlider> > sliders;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::map<std::string, std::shared_ptr<dtk::FloatEditSlider> > sliders;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
         };
@@ -854,19 +854,19 @@ namespace tl
         void SoftClipWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<ui::IWidget>& parent)
+            const std::shared_ptr<dtk::IWidget>& parent)
         {
-            ui::IWidget::_init("tl::play_app::SoftClipWidget", context, parent);
+            dtk::IWidget::_init(context, "tl::play_app::SoftClipWidget", parent);
             DTK_P();
 
-            p.enabledCheckBox = ui::CheckBox::create("Enabled", context);
+            p.enabledCheckBox = dtk::CheckBox::create(context, "Enabled");
 
-            p.sliders["SoftClip"] = ui::FloatEditSlider::create(context);
+            p.sliders["SoftClip"] = dtk::FloatEditSlider::create(context);
             p.sliders["SoftClip"]->setDefaultValue(0.F);
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(ui::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(ui::SizeRole::SpacingSmall);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.enabledCheckBox->setParent(p.layout);
             p.sliders["SoftClip"]->setParent(p.layout);
 
@@ -926,10 +926,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void SoftClipWidget::sizeHintEvent(const ui::SizeHintEvent& value)
+        void SoftClipWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
         {
             IWidget::sizeHintEvent(value);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         struct ColorTool::Private
@@ -940,7 +940,7 @@ namespace tl
             std::shared_ptr<LevelsWidget> levelsWidget;
             std::shared_ptr<EXRDisplayWidget> exrDisplayWidget;
             std::shared_ptr<SoftClipWidget> softClipWidget;
-            std::map<std::string, std::shared_ptr<ui::Bellows> > bellows;
+            std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
         };
 
         void ColorTool::_init(
@@ -963,27 +963,27 @@ namespace tl
             p.exrDisplayWidget = EXRDisplayWidget::create(context, app);
             p.softClipWidget = SoftClipWidget::create(context, app);
 
-            auto layout = ui::VerticalLayout::create(context);
-            layout->setSpacingRole(ui::SizeRole::None);
-            p.bellows["OCIO"] = ui::Bellows::create("OCIO", context);
+            auto layout = dtk::VerticalLayout::create(context);
+            layout->setSpacingRole(dtk::SizeRole::None);
+            p.bellows["OCIO"] = dtk::Bellows::create(context, "OCIO");
             p.bellows["OCIO"]->setParent(layout);
             p.bellows["OCIO"]->setWidget(p.ocioWidget);
-            p.bellows["LUT"] = ui::Bellows::create("LUT", context);
+            p.bellows["LUT"] = dtk::Bellows::create(context, "LUT");
             p.bellows["LUT"]->setParent(layout);
             p.bellows["LUT"]->setWidget(p.lutWidget);
-            p.bellows["Color"] = ui::Bellows::create("Color", context);
+            p.bellows["Color"] = dtk::Bellows::create(context, "Color");
             p.bellows["Color"]->setParent(layout);
             p.bellows["Color"]->setWidget(p.colorWidget);
-            p.bellows["Levels"] = ui::Bellows::create("Levels", context);
+            p.bellows["Levels"] = dtk::Bellows::create(context, "Levels");
             p.bellows["Levels"]->setParent(layout);
             p.bellows["Levels"]->setWidget(p.levelsWidget);
-            p.bellows["EXRDisplay"] = ui::Bellows::create("EXR Display", context);
+            p.bellows["EXRDisplay"] = dtk::Bellows::create(context, "EXR Display");
             p.bellows["EXRDisplay"]->setParent(layout);
             p.bellows["EXRDisplay"]->setWidget(p.exrDisplayWidget);
-            p.bellows["SoftClip"] = ui::Bellows::create("Soft Clip", context);
+            p.bellows["SoftClip"] = dtk::Bellows::create(context, "Soft Clip");
             p.bellows["SoftClip"]->setParent(layout);
             p.bellows["SoftClip"]->setWidget(p.softClipWidget);
-            auto scrollWidget = ui::ScrollWidget::create(context);
+            auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
         }

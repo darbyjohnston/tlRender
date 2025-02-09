@@ -16,7 +16,7 @@ namespace tl
     {
         struct PlaybackActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
             timeline::Playback playbackPrev = timeline::Playback::Forward;
         };
 
@@ -27,10 +27,10 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Stop"] = std::make_shared<ui::Action>(
+            p.actions["Stop"] = std::make_shared<dtk::Action>(
                 "Stop",
                 "PlaybackStop",
-                ui::Key::K,
+                dtk::Key::K,
                 0,
                 [appWeak](bool value)
                 {
@@ -46,14 +46,14 @@ namespace tl
                 "Stop playback\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Stop"]->shortcut,
                     p.actions["Stop"]->shortcutModifiers));
 
-            p.actions["Forward"] = std::make_shared<ui::Action>(
+            p.actions["Forward"] = std::make_shared<dtk::Action>(
                 "Forward",
                 "PlaybackForward",
-                ui::Key::L,
+                dtk::Key::L,
                 0,
                 [appWeak](bool value)
                 {
@@ -69,14 +69,14 @@ namespace tl
                 "Forward playback\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Forward"]->shortcut,
                     p.actions["Forward"]->shortcutModifiers));
 
-            p.actions["Reverse"] = std::make_shared<ui::Action>(
+            p.actions["Reverse"] = std::make_shared<dtk::Action>(
                 "Reverse",
                 "PlaybackReverse",
-                ui::Key::J,
+                dtk::Key::J,
                 0,
                 [appWeak](bool value)
                 {
@@ -92,13 +92,13 @@ namespace tl
                 "Reverse playback\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Reverse"]->shortcut,
                     p.actions["Reverse"]->shortcutModifiers));
 
-            p.actions["Toggle"] = std::make_shared<ui::Action>(
+            p.actions["Toggle"] = std::make_shared<dtk::Action>(
                 "Toggle Playback",
-                ui::Key::Space,
+                dtk::Key::Space,
                 0,
                 [this, appWeak]
                 {
@@ -119,10 +119,10 @@ namespace tl
                     }
                 });
 
-            p.actions["JumpBack1s"] = std::make_shared<ui::Action>(
+            p.actions["JumpBack1s"] = std::make_shared<dtk::Action>(
                 "Jump Back 1s",
-                ui::Key::J,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::J,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -134,10 +134,10 @@ namespace tl
                     }
                 });
 
-            p.actions["JumpBack10s"] = std::make_shared<ui::Action>(
+            p.actions["JumpBack10s"] = std::make_shared<dtk::Action>(
                 "Jump Back 10s",
-                ui::Key::J,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::J,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -149,10 +149,10 @@ namespace tl
                     }
                 });
 
-            p.actions["JumpForward1s"] = std::make_shared<ui::Action>(
+            p.actions["JumpForward1s"] = std::make_shared<dtk::Action>(
                 "Jump Forward 1s",
-                ui::Key::L,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::L,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -164,10 +164,10 @@ namespace tl
                     }
                 });
 
-            p.actions["JumpForward10s"] = std::make_shared<ui::Action>(
+            p.actions["JumpForward10s"] = std::make_shared<dtk::Action>(
                 "Jump Forward 10s",
-                ui::Key::L,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::L,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -179,7 +179,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Loop"] = std::make_shared<ui::Action>(
+            p.actions["Loop"] = std::make_shared<dtk::Action>(
                 "Loop Playback",
                 [appWeak]
                 {
@@ -192,7 +192,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Once"] = std::make_shared<ui::Action>(
+            p.actions["Once"] = std::make_shared<dtk::Action>(
                 "Playback Once",
                 [appWeak]
                 {
@@ -205,7 +205,7 @@ namespace tl
                     }
                 });
 
-            p.actions["PingPong"] = std::make_shared<ui::Action>(
+            p.actions["PingPong"] = std::make_shared<dtk::Action>(
                 "Ping-Pong Playback",
                 [appWeak]
                 {
@@ -218,9 +218,9 @@ namespace tl
                     }
                 });
 
-            p.actions["SetInPoint"] = std::make_shared<ui::Action>(
+            p.actions["SetInPoint"] = std::make_shared<dtk::Action>(
                 "Set In Point",
-                ui::Key::I,
+                dtk::Key::I,
                 0,
                 [appWeak]
                 {
@@ -233,10 +233,10 @@ namespace tl
                     }
                 });
 
-            p.actions["ResetInPoint"] = std::make_shared<ui::Action>(
+            p.actions["ResetInPoint"] = std::make_shared<dtk::Action>(
                 "Reset In Point",
-                ui::Key::I,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::I,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -248,9 +248,9 @@ namespace tl
                     }
                 });
 
-            p.actions["SetOutPoint"] = std::make_shared<ui::Action>(
+            p.actions["SetOutPoint"] = std::make_shared<dtk::Action>(
                 "Set Out Point",
-                ui::Key::O,
+                dtk::Key::O,
                 0,
                 [appWeak]
                 {
@@ -263,10 +263,10 @@ namespace tl
                     }
                 });
 
-            p.actions["ResetOutPoint"] = std::make_shared<ui::Action>(
+            p.actions["ResetOutPoint"] = std::make_shared<dtk::Action>(
                 "Reset Out Point",
-                ui::Key::O,
-                static_cast<int>(ui::KeyModifier::Shift),
+                dtk::Key::O,
+                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -295,7 +295,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& PlaybackActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& PlaybackActions::getActions() const
         {
             return _p->actions;
         }

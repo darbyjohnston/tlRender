@@ -4,9 +4,8 @@
 
 #include <tlPlayApp/StatusBar.h>
 
-#include <tlUI/Label.h>
-#include <tlUI/RowLayout.h>
-
+#include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
 #include <dtk/core/Context.h>
 #include <dtk/core/Timer.h>
 
@@ -16,8 +15,8 @@ namespace tl
     {
         struct StatusBar::Private
         {
-            std::shared_ptr<ui::Label> label;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::shared_ptr<dtk::Label> label;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
             std::shared_ptr<dtk::Timer> timer;
             std::function<void(void)> clickedCallback;
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
@@ -28,18 +27,18 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::StatusBar",
                 context,
+                "tl::play_app::StatusBar",
                 parent);
             DTK_P();
 
-            _setMouseHover(true);
-            _setMousePress(true);
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true);
 
-            p.label = ui::Label::create(context);
-            p.label->setMarginRole(ui::SizeRole::MarginInside);
+            p.label = dtk::Label::create(context);
+            p.label->setMarginRole(dtk::SizeRole::MarginInside);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.label->setParent(p.layout);
 
             p.timer = dtk::Timer::create(context);
@@ -79,10 +78,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void StatusBar::sizeHintEvent(const ui::SizeHintEvent & event)
+        void StatusBar::sizeHintEvent(const dtk::SizeHintEvent & event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
         void StatusBar::_widgetUpdate(const std::vector<dtk::LogItem>& value)
@@ -96,13 +95,13 @@ namespace tl
                 {
                     const std::string s = dtk::toString(i);
                     p.label->setText(s);
-                    p.label->setToolTip(s);
+                    p.label->setTooltip(s);
                     p.timer->start(
                         std::chrono::seconds(5),
                         [this]
                         {
                             _p->label->setText(std::string());
-                            _p->label->setToolTip(std::string());
+                            _p->label->setTooltip(std::string());
                         });
                     break;
                 }
@@ -111,13 +110,13 @@ namespace tl
             }
         }
 
-        void StatusBar::mousePressEvent(ui::MouseClickEvent& event)
+        void StatusBar::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
             event.accept = true;
         }
 
-        void StatusBar::mouseReleaseEvent(ui::MouseClickEvent& event)
+        void StatusBar::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
             DTK_P();

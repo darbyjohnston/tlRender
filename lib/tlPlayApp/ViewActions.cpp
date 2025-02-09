@@ -16,7 +16,7 @@ namespace tl
     {
         struct ViewActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void ViewActions::_init(
@@ -27,7 +27,7 @@ namespace tl
             DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["Frame"] = std::make_shared<ui::Action>(
+            p.actions["Frame"] = std::make_shared<dtk::Action>(
                 "Frame",
                 "ViewFrame",
                 [mainWindowWeak](bool value)
@@ -39,7 +39,7 @@ namespace tl
                 });
             p.actions["Frame"]->toolTip = "Frame the view to fit the window";
 
-            p.actions["Zoom1To1"] = std::make_shared<ui::Action>(
+            p.actions["Zoom1To1"] = std::make_shared<dtk::Action>(
                 "Zoom 1:1",
                 "ViewZoom1To1",
                 [mainWindowWeak]
@@ -51,7 +51,7 @@ namespace tl
                 });
             p.actions["Zoom1To1"]->toolTip = "Set the view zoom to 1:1";
 
-            p.actions["ZoomIn"] = std::make_shared<ui::Action>(
+            p.actions["ZoomIn"] = std::make_shared<dtk::Action>(
                 "Zoom In",
                 [mainWindowWeak]
                 {
@@ -61,7 +61,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ZoomOut"] = std::make_shared<ui::Action>(
+            p.actions["ZoomOut"] = std::make_shared<dtk::Action>(
                 "Zoom Out",
                 [mainWindowWeak]
                 {
@@ -72,9 +72,9 @@ namespace tl
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Red"] = std::make_shared<ui::Action>(
+            p.actions["Red"] = std::make_shared<dtk::Action>(
                 "Red Channel",
-                ui::Key::R,
+                dtk::Key::R,
                 0,
                 [appWeak](bool value)
                 {
@@ -88,9 +88,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Green"] = std::make_shared<ui::Action>(
+            p.actions["Green"] = std::make_shared<dtk::Action>(
                 "Green Channel",
-                ui::Key::G,
+                dtk::Key::G,
                 0,
                 [appWeak](bool value)
                 {
@@ -104,9 +104,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Blue"] = std::make_shared<ui::Action>(
+            p.actions["Blue"] = std::make_shared<dtk::Action>(
                 "Blue Channel",
-                ui::Key::B,
+                dtk::Key::B,
                 0,
                 [appWeak](bool value)
                 {
@@ -120,9 +120,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Alpha"] = std::make_shared<ui::Action>(
+            p.actions["Alpha"] = std::make_shared<dtk::Action>(
                 "Alpha Channel",
-                ui::Key::A,
+                dtk::Key::A,
                 0,
                 [appWeak](bool value)
                 {
@@ -136,9 +136,9 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorHorizontal"] = std::make_shared<ui::Action>(
+            p.actions["MirrorHorizontal"] = std::make_shared<dtk::Action>(
                 "Mirror Horizontal",
-                ui::Key::H,
+                dtk::Key::H,
                 0,
                 [appWeak](bool value)
                 {
@@ -150,9 +150,9 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorVertical"] = std::make_shared<ui::Action>(
+            p.actions["MirrorVertical"] = std::make_shared<dtk::Action>(
                 "Mirror Vertical",
-                ui::Key::V,
+                dtk::Key::V,
                 0,
                 [appWeak](bool value)
                 {
@@ -164,7 +164,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyNearest"] = std::make_shared<ui::Action>(
+            p.actions["MinifyNearest"] = std::make_shared<dtk::Action>(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -176,7 +176,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyLinear"] = std::make_shared<ui::Action>(
+            p.actions["MinifyLinear"] = std::make_shared<dtk::Action>(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -188,7 +188,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyNearest"] = std::make_shared<ui::Action>(
+            p.actions["MagnifyNearest"] = std::make_shared<dtk::Action>(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -200,7 +200,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyLinear"] = std::make_shared<ui::Action>(
+            p.actions["MagnifyLinear"] = std::make_shared<dtk::Action>(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -212,10 +212,10 @@ namespace tl
                     }
                 });
 
-            p.actions["HUD"] = std::make_shared<ui::Action>(
+            p.actions["HUD"] = std::make_shared<dtk::Action>(
                 "HUD",
-                ui::Key::H,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::H,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [mainWindowWeak](bool value)
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
@@ -243,7 +243,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& ViewActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& ViewActions::getActions() const
         {
             return _p->actions;
         }

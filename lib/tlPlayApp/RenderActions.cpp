@@ -9,6 +9,8 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/RenderModel.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play_app
@@ -16,7 +18,7 @@ namespace tl
         struct RenderActions::Private
         {
             std::vector<dtk::ImageType> colorBuffers;
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void RenderActions::_init(
@@ -26,7 +28,7 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["FromFile"] = std::make_shared<ui::Action>(
+            p.actions["FromFile"] = std::make_shared<dtk::Action>(
                 "From File",
                 [appWeak](bool value)
                 {
@@ -38,7 +40,7 @@ namespace tl
                     }
                 });
 
-            p.actions["FullRange"] = std::make_shared<ui::Action>(
+            p.actions["FullRange"] = std::make_shared<dtk::Action>(
                 "Full Range",
                 [appWeak](bool value)
                 {
@@ -50,7 +52,7 @@ namespace tl
                     }
                 });
 
-            p.actions["LegalRange"] = std::make_shared<ui::Action>(
+            p.actions["LegalRange"] = std::make_shared<dtk::Action>(
                 "Legal Range",
                 [appWeak](bool value)
                 {
@@ -62,7 +64,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendNone"] = std::make_shared<ui::Action>(
+            p.actions["AlphaBlendNone"] = std::make_shared<dtk::Action>(
                 "None",
                 [appWeak](bool value)
                 {
@@ -74,7 +76,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendStraight"] = std::make_shared<ui::Action>(
+            p.actions["AlphaBlendStraight"] = std::make_shared<dtk::Action>(
                 "Straight",
                 [appWeak](bool value)
                 {
@@ -86,7 +88,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendPremultiplied"] = std::make_shared<ui::Action>(
+            p.actions["AlphaBlendPremultiplied"] = std::make_shared<dtk::Action>(
                 "Premultiplied",
                 [appWeak](bool value)
                 {
@@ -101,30 +103,30 @@ namespace tl
             p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
             p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
             p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
-            std::vector<std::pair<ui::Key, ui::KeyModifier> > colorBufferShortcuts =
+            std::vector<std::pair<dtk::Key, dtk::KeyModifier> > colorBufferShortcuts =
             {
-                std::make_pair(ui::Key::_8, ui::KeyModifier::Control),
-                std::make_pair(ui::Key::_9, ui::KeyModifier::Control),
-                std::make_pair(ui::Key::_0, ui::KeyModifier::Control)
+                std::make_pair(dtk::Key::_8, dtk::KeyModifier::Control),
+                std::make_pair(dtk::Key::_9, dtk::KeyModifier::Control),
+                std::make_pair(dtk::Key::_0, dtk::KeyModifier::Control)
             };
             for (size_t i = 0; i < p.colorBuffers.size(); ++i)
             {
-                const dtk::ImageType pixelType = p.colorBuffers[i];
+                const dtk::ImageType imageType = p.colorBuffers[i];
                 std::stringstream ss;
-                ss << pixelType;
-                p.actions[ss.str()] = std::make_shared<ui::Action>(
+                ss << imageType;
+                p.actions[ss.str()] = std::make_shared<dtk::Action>(
                     ss.str(),
                     i < colorBufferShortcuts.size() ?
                         colorBufferShortcuts[i].first :
-                        ui::Key::Unknown,
+                        dtk::Key::Unknown,
                     static_cast<int>(i < colorBufferShortcuts.size() ?
                         colorBufferShortcuts[i].second :
-                        ui::KeyModifier::None),
-                    [appWeak, pixelType](bool value)
+                        dtk::KeyModifier::None),
+                    [appWeak, imageType](bool value)
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->getRenderModel()->setColorBuffer(pixelType);
+                            app->getRenderModel()->setColorBuffer(imageType);
                         }
                     });
             }
@@ -151,7 +153,7 @@ namespace tl
             return _p->colorBuffers;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& RenderActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& RenderActions::getActions() const
         {
             return _p->actions;
         }

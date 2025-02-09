@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlUIApp/Window.h>
-
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/Window.h>
 
 namespace tl
 {
@@ -15,7 +15,7 @@ namespace tl
         class App;
 
         //! Secondary window.
-        class SecondaryWindow : public ui_app::Window
+        class SecondaryWindow : public dtk::Window
         {
             DTK_NON_COPYABLE(SecondaryWindow);
 
@@ -23,7 +23,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<ui_app::Window>&);
+                const std::shared_ptr<dtk::Window>&);
 
             SecondaryWindow();
 
@@ -33,7 +33,7 @@ namespace tl
             static std::shared_ptr<SecondaryWindow> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<ui_app::Window>&);
+                const std::shared_ptr<dtk::Window>&);
 
             //! Set the view.
             void setView(

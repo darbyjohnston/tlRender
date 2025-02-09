@@ -7,9 +7,9 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/Tools.h>
 
-#include <tlUI/ButtonGroup.h>
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/ButtonGroup.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -17,41 +17,41 @@ namespace tl
     {
         struct ToolsToolBar::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::shared_ptr<ui::ButtonGroup> buttonGroup;
-            std::map<Tool, std::shared_ptr<ui::ToolButton> > buttons;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::shared_ptr<dtk::ButtonGroup> buttonGroup;
+            std::map<Tool, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
             std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
 
         void ToolsToolBar::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::ToolsToolBar",
                 context,
+                "tl::play_app::ToolsToolBar",
                 parent);
             DTK_P();
 
             p.actions = actions;
 
-            p.buttonGroup = ui::ButtonGroup::create(ui::ButtonGroupType::Toggle, context);
+            p.buttonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Toggle);
             for (const auto tool : toolsInToolbar())
             {
-                auto button = ui::ToolButton::create(context);
+                auto button = dtk::ToolButton::create(context);
                 auto action = p.actions[getLabel(tool)];
                 button->setIcon(action->icon);
                 button->setCheckable(action->checkable);
-                button->setToolTip(action->toolTip);
+                button->setTooltip(action->toolTip);
                 p.buttonGroup->addButton(button);
                 p.buttons[tool] = button;
             }
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             for (const auto& button : p.buttons)
             {
                 button.second->setParent(p.layout);
@@ -88,7 +88,7 @@ namespace tl
         std::shared_ptr<ToolsToolBar> ToolsToolBar::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsToolBar>(new ToolsToolBar);
@@ -102,10 +102,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void ToolsToolBar::sizeHintEvent(const ui::SizeHintEvent& event)
+        void ToolsToolBar::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
     }
 }

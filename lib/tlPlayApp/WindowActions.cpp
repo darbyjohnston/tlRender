@@ -15,7 +15,7 @@ namespace tl
     {
         struct WindowActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void WindowActions::_init(
@@ -26,10 +26,10 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["FullScreen"] = std::make_shared<ui::Action>(
+            p.actions["FullScreen"] = std::make_shared<dtk::Action>(
                 "Full Screen",
                 "WindowFullScreen",
-                ui::Key::U,
+                dtk::Key::U,
                 0,
                 [appWeak](bool value)
                 {
@@ -42,11 +42,11 @@ namespace tl
                 "Toggle the window full screen\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["FullScreen"]->shortcut,
                     p.actions["FullScreen"]->shortcutModifiers));
 
-            p.actions["FloatOnTop"] = std::make_shared<ui::Action>(
+            p.actions["FloatOnTop"] = std::make_shared<dtk::Action>(
                 "Float On Top",
                 [appWeak](bool value)
                 {
@@ -56,10 +56,10 @@ namespace tl
                     }
                 });
 
-            p.actions["Secondary"] = std::make_shared<ui::Action>(
+            p.actions["Secondary"] = std::make_shared<dtk::Action>(
                 "Secondary",
                 "WindowSecondary",
-                ui::Key::Y,
+                dtk::Key::Y,
                 0,
                 [appWeak](bool value)
                 {
@@ -72,12 +72,12 @@ namespace tl
                 "Toggle the secondary window\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Secondary"]->shortcut,
                     p.actions["Secondary"]->shortcutModifiers));
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["FileToolBar"] = std::make_shared<ui::Action>(
+            p.actions["FileToolBar"] = std::make_shared<dtk::Action>(
                 "File Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -89,7 +89,7 @@ namespace tl
                     }
                 });
 
-            p.actions["CompareToolBar"] = std::make_shared<ui::Action>(
+            p.actions["CompareToolBar"] = std::make_shared<dtk::Action>(
                 "Compare Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -101,7 +101,7 @@ namespace tl
                     }
                 });
 
-            p.actions["WindowToolBar"] = std::make_shared<ui::Action>(
+            p.actions["WindowToolBar"] = std::make_shared<dtk::Action>(
                 "Window Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -113,7 +113,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ViewToolBar"] = std::make_shared<ui::Action>(
+            p.actions["ViewToolBar"] = std::make_shared<dtk::Action>(
                 "View Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -125,7 +125,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ToolsToolBar"] = std::make_shared<ui::Action>(
+            p.actions["ToolsToolBar"] = std::make_shared<dtk::Action>(
                 "Tools Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -137,7 +137,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Timeline"] = std::make_shared<ui::Action>(
+            p.actions["Timeline"] = std::make_shared<dtk::Action>(
                 "Timeline",
                 [mainWindowWeak](bool value)
                 {
@@ -149,7 +149,7 @@ namespace tl
                     }
                 });
 
-            p.actions["BottomToolBar"] = std::make_shared<ui::Action>(
+            p.actions["BottomToolBar"] = std::make_shared<dtk::Action>(
                 "Bottom Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -161,7 +161,7 @@ namespace tl
                     }
                 });
 
-            p.actions["StatusToolBar"] = std::make_shared<ui::Action>(
+            p.actions["StatusToolBar"] = std::make_shared<dtk::Action>(
                 "Status Tool Bar",
                 [mainWindowWeak](bool value)
                 {
@@ -191,7 +191,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& WindowActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& WindowActions::getActions() const
         {
             return _p->actions;
         }

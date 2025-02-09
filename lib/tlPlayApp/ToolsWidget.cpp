@@ -15,8 +15,8 @@
 #include <tlPlayApp/SystemLogTool.h>
 #include <tlPlayApp/ViewTool.h>
 
-#include <tlUI/RowLayout.h>
-#include <tlUI/StackLayout.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/StackLayout.h>
 
 namespace tl
 {
@@ -25,7 +25,7 @@ namespace tl
         struct ToolsWidget::Private
         {
             std::map<Tool, std::shared_ptr<IToolWidget> > toolWidgets;
-            std::shared_ptr<ui::StackLayout> layout;
+            std::shared_ptr<dtk::StackLayout> layout;
             std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
         };
 
@@ -36,8 +36,8 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::ToolsWidget",
                 context,
+                "tl::play_app::ToolsWidget",
                 parent);
             DTK_P();
 
@@ -51,7 +51,7 @@ namespace tl
             p.toolWidgets[Tool::SystemLog] = SystemLogTool::create(context, app);
             p.toolWidgets[Tool::View] = ViewTool::create(context, app);
 
-            p.layout = ui::StackLayout::create(context, shared_from_this());
+            p.layout = dtk::StackLayout::create(context, shared_from_this());
             for (const auto& widget : p.toolWidgets)
             {
                 widget.second->setParent(p.layout);
@@ -90,10 +90,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void ToolsWidget::sizeHintEvent(const ui::SizeHintEvent & event)
+        void ToolsWidget::sizeHintEvent(const dtk::SizeHintEvent & event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
     }
 }

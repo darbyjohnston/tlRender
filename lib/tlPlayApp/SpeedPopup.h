@@ -4,14 +4,14 @@
 
 #pragma once
 
-#include <tlUI/IMenuPopup.h>
+#include <dtk/ui/IMenuPopup.h>
 
 namespace tl
 {
     namespace play_app
     {
         //! Speed popup.
-        class SpeedPopup : public ui::IMenuPopup
+        class SpeedPopup : public dtk::IMenuPopup
         {
             DTK_NON_COPYABLE(SpeedPopup);
 

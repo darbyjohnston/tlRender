@@ -7,8 +7,8 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
-#include <tlUI/RowLayout.h>
-#include <tlUI/ToolButton.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -18,9 +18,9 @@ namespace tl
         {
             std::weak_ptr<App> app;
 
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
-            std::map<std::string, std::shared_ptr<ui::ToolButton> > buttons;
-            std::shared_ptr<ui::HorizontalLayout> layout;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > secondaryObserver;
@@ -30,30 +30,30 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
-                "tl::play_app::WindowToolBar",
                 context,
+                "tl::play_app::WindowToolBar",
                 parent);
             DTK_P();
 
             p.app = app;
             p.actions = actions;
 
-            p.buttons["FullScreen"] = ui::ToolButton::create(context);
+            p.buttons["FullScreen"] = dtk::ToolButton::create(context);
             p.buttons["FullScreen"]->setIcon(p.actions["FullScreen"]->icon);
             p.buttons["FullScreen"]->setCheckable(p.actions["FullScreen"]->checkable);
-            p.buttons["FullScreen"]->setToolTip(p.actions["FullScreen"]->toolTip);
+            p.buttons["FullScreen"]->setTooltip(p.actions["FullScreen"]->toolTip);
 
-            p.buttons["Secondary"] = ui::ToolButton::create(context);
+            p.buttons["Secondary"] = dtk::ToolButton::create(context);
             p.buttons["Secondary"]->setIcon(p.actions["Secondary"]->icon);
             p.buttons["Secondary"]->setCheckable(p.actions["Secondary"]->checkable);
-            p.buttons["Secondary"]->setToolTip(p.actions["Secondary"]->toolTip);
+            p.buttons["Secondary"]->setTooltip(p.actions["Secondary"]->toolTip);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.buttons["FullScreen"]->setParent(p.layout);
             p.buttons["Secondary"]->setParent(p.layout);
 
@@ -102,7 +102,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<ui::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowToolBar>(new WindowToolBar);
@@ -116,10 +116,10 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void WindowToolBar::sizeHintEvent(const ui::SizeHintEvent& event)
+        void WindowToolBar::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
     }
 }

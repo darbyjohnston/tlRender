@@ -6,10 +6,10 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlUI/Icon.h>
-#include <tlUI/Label.h>
-#include <tlUI/ToolButton.h>
-#include <tlUI/RowLayout.h>
+#include <dtk/ui/Icon.h>
+#include <dtk/ui/Label.h>
+#include <dtk/ui/ToolButton.h>
+#include <dtk/ui/RowLayout.h>
 
 namespace tl
 {
@@ -18,11 +18,11 @@ namespace tl
         struct IToolWidget::Private
         {
             Tool tool;
-            std::shared_ptr<ui::Icon> icon;
-            std::shared_ptr<ui::Label> label;
-            std::shared_ptr<ui::ToolButton> closeButton;
-            std::shared_ptr<ui::VerticalLayout> toolLayout;
-            std::shared_ptr<ui::VerticalLayout> layout;
+            std::shared_ptr<dtk::Icon> icon;
+            std::shared_ptr<dtk::Label> label;
+            std::shared_ptr<dtk::ToolButton> closeButton;
+            std::shared_ptr<dtk::VerticalLayout> toolLayout;
+            std::shared_ptr<dtk::VerticalLayout> layout;
         };
 
         void IToolWidget::_init(
@@ -32,34 +32,34 @@ namespace tl
             const std::string& objectName,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(objectName, context, parent);
+            IWidget::_init(context, objectName, parent);
             DTK_P();
 
             _app = app;
             p.tool = tool;
 
-            p.icon = ui::Icon::create(getIcon(tool), context);
-            p.icon->setMarginRole(ui::SizeRole::MarginSmall);
+            p.icon = dtk::Icon::create(context, getIcon(tool));
+            p.icon->setMarginRole(dtk::SizeRole::MarginSmall);
 
-            p.label = ui::Label::create(getText(tool), context);
-            p.label->setMarginRole(ui::SizeRole::MarginSmall);
-            p.label->setHStretch(ui::Stretch::Expanding);
+            p.label = dtk::Label::create(context, getText(tool));
+            p.label->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.label->setHStretch(dtk::Stretch::Expanding);
 
-            p.closeButton = ui::ToolButton::create(context);
+            p.closeButton = dtk::ToolButton::create(context);
             p.closeButton->setIcon("Close");
 
-            p.layout = ui::VerticalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(ui::SizeRole::None);
-            auto hLayout = ui::HorizontalLayout::create(context, p.layout);
-            hLayout->setSpacingRole(ui::SizeRole::None);
-            //hLayout->setBackgroundRole(ui::ColorRole::Button);
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::None);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
+            hLayout->setSpacingRole(dtk::SizeRole::None);
+            //hLayout->setBackgroundRole(dtk::ColorRole::Button);
             p.icon->setParent(hLayout);
             p.label->setParent(hLayout);
             p.closeButton->setParent(hLayout);
-            p.toolLayout = ui::VerticalLayout::create(context, p.layout);
-            p.toolLayout->setSpacingRole(ui::SizeRole::None);
-            p.toolLayout->setHStretch(ui::Stretch::Expanding);
-            p.toolLayout->setVStretch(ui::Stretch::Expanding);
+            p.toolLayout = dtk::VerticalLayout::create(context, p.layout);
+            p.toolLayout->setSpacingRole(dtk::SizeRole::None);
+            p.toolLayout->setHStretch(dtk::Stretch::Expanding);
+            p.toolLayout->setVStretch(dtk::Stretch::Expanding);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.closeButton->setClickedCallback(
@@ -85,16 +85,16 @@ namespace tl
             _p->layout->setGeometry(value);
         }
 
-        void IToolWidget::sizeHintEvent(const ui::SizeHintEvent & event)
+        void IToolWidget::sizeHintEvent(const dtk::SizeHintEvent & event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void IToolWidget::_setWidget(const std::shared_ptr<ui::IWidget>& value)
+        void IToolWidget::_setWidget(const std::shared_ptr<dtk::IWidget>& value)
         {
-            value->setHStretch(ui::Stretch::Expanding);
-            value->setVStretch(ui::Stretch::Expanding);
+            value->setHStretch(dtk::Stretch::Expanding);
+            value->setVStretch(dtk::Stretch::Expanding);
             value->setParent(_p->toolLayout);
         }
     }

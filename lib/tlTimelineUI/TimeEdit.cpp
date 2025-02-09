@@ -2,36 +2,36 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlUI/TimeEdit.h>
-
-#include <tlUI/LineEdit.h>
-#include <tlUI/IncButtons.h>
-#include <tlUI/RowLayout.h>
+#include <tlTimelineUI/TimeEdit.h>
 
 #include <tlTimeline/TimeUnits.h>
 
+#include <dtk/ui/LineEdit.h>
+#include <dtk/ui/IncButtons.h>
+#include <dtk/ui/RowLayout.h>
+
 namespace tl
 {
-    namespace ui
+    namespace timelineui
     {
         struct TimeEdit::Private
         {
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             OTIO_NS::RationalTime value = time::invalidTime;
             std::function<void(const OTIO_NS::RationalTime&)> callback;
-            std::shared_ptr<LineEdit> lineEdit;
-            std::shared_ptr<IncButtons> incButtons;
-            std::shared_ptr<HorizontalLayout> layout;
+            std::shared_ptr<dtk::LineEdit> lineEdit;
+            std::shared_ptr<dtk::IncButtons> incButtons;
+            std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeEdit::_init(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init("tl::ui::TimeEdit", context, parent);
+            IWidget::_init(context, "tl::timelineui::TimeEdit", parent);
             DTK_P();
 
             p.timeUnitsModel = timeUnitsModel;
@@ -40,14 +40,14 @@ namespace tl
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             }
 
-            p.lineEdit = LineEdit::create(context, shared_from_this());
-            p.lineEdit->setFontRole(FontRole::Mono);
-            p.lineEdit->setHStretch(Stretch::Expanding);
+            p.lineEdit = dtk::LineEdit::create(context, shared_from_this());
+            p.lineEdit->setFontRole(dtk::FontRole::Mono);
+            p.lineEdit->setHStretch(dtk::Stretch::Expanding);
 
-            p.incButtons = IncButtons::create(context);
+            p.incButtons = dtk::IncButtons::create(context);
 
-            p.layout = ui::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(SizeRole::SpacingTool);
+            p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.lineEdit->setParent(p.layout);
             p.incButtons->setParent(p.layout);
 
@@ -94,12 +94,12 @@ namespace tl
         {}
 
         std::shared_ptr<TimeEdit> TimeEdit::create(
-            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimeEdit>(new TimeEdit);
-            out->_init(timeUnitsModel, context, parent);
+            out->_init(context, timeUnitsModel, parent);
             return out;
         }
 
@@ -127,7 +127,7 @@ namespace tl
             _p->callback = value;
         }
 
-        void TimeEdit::setFontRole(FontRole value)
+        void TimeEdit::setFontRole(dtk::FontRole value)
         {
             _p->lineEdit->setFontRole(value);
         }
@@ -143,38 +143,38 @@ namespace tl
             _p->lineEdit->takeKeyFocus();
         }
 
-        void TimeEdit::sizeHintEvent(const SizeHintEvent& event)
+        void TimeEdit::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            _sizeHint = _p->layout->getSizeHint();
+            _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void TimeEdit::keyPressEvent(KeyEvent& event)
+        void TimeEdit::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
                 {
-                case Key::Up:
+                case dtk::Key::Up:
                     event.accept = true;
                     _commitValue(
                         p.value +
                         OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
-                case Key::Down:
+                case dtk::Key::Down:
                     event.accept = true;
                     _commitValue(
                         p.value -
                         OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
-                case Key::PageUp:
+                case dtk::Key::PageUp:
                     event.accept = true;
                     _commitValue(
                         p.value +
                         OTIO_NS::RationalTime(p.value.rate(), p.value.rate()));
                     break;
-                case Key::PageDown:
+                case dtk::Key::PageDown:
                     event.accept = true;
                     _commitValue(
                         p.value -
@@ -185,7 +185,7 @@ namespace tl
             }
         }
 
-        void TimeEdit::keyReleaseEvent(KeyEvent& event)
+        void TimeEdit::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
         }

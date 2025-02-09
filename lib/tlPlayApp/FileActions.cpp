@@ -16,7 +16,7 @@ namespace tl
     {
         struct FileActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void FileActions::_init(
@@ -26,11 +26,11 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Open"] = std::make_shared<ui::Action>(
+            p.actions["Open"] = std::make_shared<dtk::Action>(
                 "Open",
                 "FileOpen",
-                ui::Key::O,
-                static_cast<int>(ui::commandKeyModifier),
+                dtk::Key::O,
+                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -42,16 +42,16 @@ namespace tl
                 "Open a file\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Open"]->shortcut,
                     p.actions["Open"]->shortcutModifiers));
 
-            p.actions["OpenSeparateAudio"] = std::make_shared<ui::Action>(
+            p.actions["OpenSeparateAudio"] = std::make_shared<dtk::Action>(
                 "Open With Separate Audio",
                 "FileOpenSeparateAudio",
-                ui::Key::O,
-                static_cast<int>(ui::KeyModifier::Shift) |
-                static_cast<int>(ui::commandKeyModifier),
+                dtk::Key::O,
+                static_cast<int>(dtk::KeyModifier::Shift) |
+                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -63,15 +63,15 @@ namespace tl
                 "Open a file with separate audio\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["OpenSeparateAudio"]->shortcut,
                     p.actions["OpenSeparateAudio"]->shortcutModifiers));
 
-            p.actions["Close"] = std::make_shared<ui::Action>(
+            p.actions["Close"] = std::make_shared<dtk::Action>(
                 "Close",
                 "FileClose",
-                ui::Key::E,
-                static_cast<int>(ui::commandKeyModifier),
+                dtk::Key::E,
+                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -83,16 +83,16 @@ namespace tl
                 "Close the current file\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Close"]->shortcut,
                     p.actions["Close"]->shortcutModifiers));
 
-            p.actions["CloseAll"] = std::make_shared<ui::Action>(
+            p.actions["CloseAll"] = std::make_shared<dtk::Action>(
                 "Close All",
                 "FileCloseAll",
-                ui::Key::E,
-                static_cast<int>(ui::KeyModifier::Shift) |
-                static_cast<int>(ui::commandKeyModifier),
+                dtk::Key::E,
+                static_cast<int>(dtk::KeyModifier::Shift) |
+                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -104,11 +104,11 @@ namespace tl
                 "Close all files\n"
                 "\n"
                 "Shortcut: {0}").
-                arg(ui::getLabel(
+                arg(dtk::getShortcutLabel(
                     p.actions["Close"]->shortcut,
                     p.actions["Close"]->shortcutModifiers));
 
-            p.actions["Reload"] = std::make_shared<ui::Action>(
+            p.actions["Reload"] = std::make_shared<dtk::Action>(
                 "Reload",
                 [appWeak]
                 {
@@ -118,11 +118,11 @@ namespace tl
                     }
                 });
 
-            p.actions["Next"] = std::make_shared<ui::Action>(
+            p.actions["Next"] = std::make_shared<dtk::Action>(
                 "Next",
                 "Next",
-                ui::Key::PageDown,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::PageDown,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -131,11 +131,11 @@ namespace tl
                     }
                 });
 
-            p.actions["Prev"] = std::make_shared<ui::Action>(
+            p.actions["Prev"] = std::make_shared<dtk::Action>(
                 "Previous",
                 "Prev",
-                ui::Key::PageUp,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::PageUp,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -144,11 +144,11 @@ namespace tl
                     }
                 });
 
-            p.actions["NextLayer"] = std::make_shared<ui::Action>(
+            p.actions["NextLayer"] = std::make_shared<dtk::Action>(
                 "Next Layer",
                 "Next",
-                ui::Key::Equal,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::Equal,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -157,11 +157,11 @@ namespace tl
                     }
                 });
 
-            p.actions["PrevLayer"] = std::make_shared<ui::Action>(
+            p.actions["PrevLayer"] = std::make_shared<dtk::Action>(
                 "Previous Layer",
                 "Prev",
-                ui::Key::Minus,
-                static_cast<int>(ui::KeyModifier::Control),
+                dtk::Key::Minus,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -170,10 +170,10 @@ namespace tl
                     }
                 });
 
-            p.actions["Exit"] = std::make_shared<ui::Action>(
+            p.actions["Exit"] = std::make_shared<dtk::Action>(
                 "Exit",
-                ui::Key::Q,
-                static_cast<int>(ui::commandKeyModifier),
+                dtk::Key::Q,
+                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -199,7 +199,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& FileActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& FileActions::getActions() const
         {
             return _p->actions;
         }

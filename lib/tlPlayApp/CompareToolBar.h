@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <tlUI/Action.h>
-#include <tlUI/IWidget.h>
-
 #include <tlTimeline/Player.h>
+
+#include <dtk/ui/Action.h>
+#include <dtk/ui/IWidget.h>
 
 namespace tl
 {
@@ -16,7 +16,7 @@ namespace tl
         class App;
 
         //! Compare tool bar.
-        class CompareToolBar : public ui::IWidget
+        class CompareToolBar : public dtk::IWidget
         {
             DTK_NON_COPYABLE(CompareToolBar);
 
@@ -24,7 +24,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             CompareToolBar();
@@ -35,11 +35,11 @@ namespace tl
             static std::shared_ptr<CompareToolBar> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<ui::Action> >&,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const ui::SizeHintEvent&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
             void _compareUpdate(const timeline::CompareOptions&);

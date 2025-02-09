@@ -14,7 +14,7 @@ namespace tl
     {
         struct AudioActions::Private
         {
-            std::map<std::string, std::shared_ptr<ui::Action> > actions;
+            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
         void AudioActions::_init(
@@ -24,9 +24,9 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["VolumeUp"] = std::make_shared<ui::Action>(
+            p.actions["VolumeUp"] = std::make_shared<dtk::Action>(
                 "Volume Up",
-                ui::Key::Period,
+                dtk::Key::Period,
                 0,
                 [appWeak]
                 {
@@ -36,9 +36,9 @@ namespace tl
                     }
                 });
 
-            p.actions["VolumeDown"] = std::make_shared<ui::Action>(
+            p.actions["VolumeDown"] = std::make_shared<dtk::Action>(
                 "Volume Down",
-                ui::Key::Comma,
+                dtk::Key::Comma,
                 0,
                 [appWeak]
                 {
@@ -48,10 +48,10 @@ namespace tl
                     }
                 });
 
-            p.actions["Mute"] = std::make_shared<ui::Action>(
+            p.actions["Mute"] = std::make_shared<dtk::Action>(
                 "Mute",
                 "Mute",
-                ui::Key::M,
+                dtk::Key::M,
                 0,
                 [appWeak](bool value)
                 {
@@ -78,7 +78,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<ui::Action> >& AudioActions::getActions() const
+        const std::map<std::string, std::shared_ptr<dtk::Action> >& AudioActions::getActions() const
         {
             return _p->actions;
         }
