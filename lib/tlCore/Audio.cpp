@@ -8,6 +8,7 @@
 #include <dtk/core/String.h>
 
 #include <array>
+#include <sstream>
 
 namespace tl
 {

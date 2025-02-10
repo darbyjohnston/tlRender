@@ -10,14 +10,13 @@
 namespace dtk
 {
     class Context;
+    class Settings;
 }
 
 namespace tl
 {
     namespace play
     {
-        class Settings;
-
         //! Render model.
         class RenderModel : public std::enable_shared_from_this<RenderModel>
         {
@@ -26,7 +25,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             RenderModel();
 
@@ -36,7 +35,7 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<RenderModel> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             //! Get the image options.
             const dtk::ImageOptions& getImageOptions() const;

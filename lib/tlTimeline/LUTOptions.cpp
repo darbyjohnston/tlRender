@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <array>
+#include <sstream>
 
 #if defined(TLRENDER_OCIO)
 namespace OCIO = OCIO_NAMESPACE;

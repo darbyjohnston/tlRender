@@ -25,8 +25,8 @@ namespace tl
 
         std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
             Options& options,
-            const std::string& logFileName,
-            const std::string& settingsFileName)
+            const std::filesystem::path& logFilePath,
+            const std::filesystem::path& settingsFilePath)
         {
             return
             {
@@ -147,19 +147,19 @@ namespace tl
                     dtk::Format("{0}").arg(options.usdDiskCache)),
 #endif // TLRENDER_USD
                 dtk::CmdLineValueOption<std::string>::create(
-                    options.logFileName,
+                    options.logFile,
                     { "-logFile" },
                     "Log file name.",
-                    dtk::Format("{0}").arg(logFileName)),
+                    dtk::Format("{0}").arg(logFilePath.u8string())),
                 dtk::CmdLineFlagOption::create(
                     options.resetSettings,
                     { "-resetSettings" },
                     "Reset settings to defaults."),
                 dtk::CmdLineValueOption<std::string>::create(
-                    options.settingsFileName,
+                    options.settings,
                     { "-settings" },
                     "Settings file name.",
-                    dtk::Format("{0}").arg(settingsFileName)),
+                    dtk::Format("{0}").arg(settingsFilePath.u8string())),
             };
         }
     }

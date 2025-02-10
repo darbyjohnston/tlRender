@@ -4,7 +4,7 @@
 
 #include <tlPlay/RenderModel.h>
 
-#include <tlPlay/Settings.h>
+#include <dtk/ui/Settings.h>
 
 namespace tl
 {
@@ -13,23 +13,25 @@ namespace tl
         struct RenderModel::Private
         {
             std::weak_ptr<dtk::Context> context;
-            std::shared_ptr<Settings> settings;
+            std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageOptions> > imageOptions;
         };
 
         void RenderModel::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             DTK_P();
 
             p.context = context;
             p.settings = settings;
 
-            p.settings->setDefaultValue("Render/ColorBuffer", dtk::ImageType::RGBA_U8);
-            p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(
-                p.settings->getValue<dtk::ImageType>("Render/ColorBuffer"));
+            dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8;
+            std::string s = dtk::to_string(colorBuffer);
+            p.settings->get("Render/ColorBuffer", s);
+            dtk::from_string(s, colorBuffer);
+            p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(colorBuffer);
             p.imageOptions = dtk::ObservableValue<dtk::ImageOptions>::create();
         }
 
@@ -38,11 +40,14 @@ namespace tl
         {}
 
         RenderModel::~RenderModel()
-        {}
+        {
+            DTK_P();
+            p.settings->set("Render/ColorBuffer", dtk::to_string(p.colorBuffer->get()));
+        }
 
         std::shared_ptr<RenderModel> RenderModel::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             auto out = std::shared_ptr<RenderModel>(new RenderModel);
             out->_init(context, settings);
@@ -76,7 +81,6 @@ namespace tl
 
         void RenderModel::setColorBuffer(dtk::ImageType value)
         {
-            _p->settings->setValue("Render/ColorBuffer", value);
             _p->colorBuffer->setIfChanged(value);
         }
     }

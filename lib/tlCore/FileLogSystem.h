@@ -6,6 +6,8 @@
 
 #include <dtk/core/ISystem.h>
 
+#include <filesystem>
+
 namespace tl
 {
     namespace file
@@ -18,7 +20,7 @@ namespace tl
         protected:
             FileLogSystem(
                 const std::shared_ptr<dtk::Context>&,
-                const std::string& fileName);
+                const std::filesystem::path&);
 
         public:
             virtual ~FileLogSystem();
@@ -26,7 +28,7 @@ namespace tl
             //! Create a new system.
             static std::shared_ptr<FileLogSystem> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::string& fileName);
+                const std::filesystem::path&);
 
         private:
             DTK_PRIVATE();

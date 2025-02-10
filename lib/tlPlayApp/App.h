@@ -8,6 +8,8 @@
 
 #include <dtk/ui/App.h>
 
+#include <filesystem>
+
 namespace dtk
 {
     class RecentFilesModel;
@@ -31,7 +33,6 @@ namespace tl
         class ColorModel;
         class FilesModel;
         class RenderModel;
-        class Settings;
         class ViewportModel;
     }
 
@@ -71,9 +72,6 @@ namespace tl
 
             //! Open a file and separate audio dialog.
             void openSeparateAudioDialog();
-
-            //! Get the settings.
-            const std::shared_ptr<play::Settings>& getSettings() const;
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
@@ -120,8 +118,7 @@ namespace tl
             void _tick() override;
 
         private:
-            void _fileLogInit(const std::string&);
-            void _settingsInit(const std::string&);
+            void _settingsInit(const std::filesystem::path&);
             void _modelsInit();
             void _devicesInit();
             void _observersInit();
@@ -130,7 +127,6 @@ namespace tl
 
             io::Options _getIOOptions() const;
 
-            void _settingsUpdate(const std::string&);
             void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);

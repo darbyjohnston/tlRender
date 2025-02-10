@@ -7,6 +7,8 @@
 #include <dtk/core/Error.h>
 #include <dtk/core/String.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace timeline
@@ -19,13 +21,10 @@ namespace tl
 
         void to_json(nlohmann::json& json, const BackgroundOptions& in)
         {
-            json = nlohmann::json
-            {
-                { "type", in.type },
-                { "color0", in.color0 },
-                { "color1", in.color1 },
-                { "checkersSize", in.checkersSize },
-            };
+            json["type"] = to_string(in.type);
+            json["color0"] = in.color0;
+            json["color1"] = in.color1;
+            json["checkersSize"] = in.checkersSize;
         }
 
         void from_json(const nlohmann::json& json, BackgroundOptions& out)

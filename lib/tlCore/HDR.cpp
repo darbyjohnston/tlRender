@@ -7,6 +7,8 @@
 #include <dtk/core/Error.h>
 #include <dtk/core/String.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace image
@@ -26,23 +28,26 @@ namespace tl
 
         void to_json(nlohmann::json& json, const HDRData& value)
         {
-            json = nlohmann::json
+            json["eotf"] = to_string(value.eotf);
+            for (size_t i = 0; i < value.primaries.size(); ++i)
             {
-                { "eotf", value.eotf },
-                { "primaries", value.primaries },
-                { "displayMasteringLuminance", value.displayMasteringLuminance },
-                { "maxCLL", value.maxCLL },
-                { "maxFALL", value.maxFALL }
-            };
+                json["primaries"].push_back(value.primaries[i]);
+            }
+            json["displayMasteringLuminance"].push_back(value.displayMasteringLuminance);
+            json["maxCLL"] = value.maxCLL;
+            json["maxFALL"] = value.maxFALL;
         }
 
         void from_json(const nlohmann::json& json, HDRData& value)
         {
-            json.at("eotf").get_to(value.eotf);
-            json.at("primaries").get_to(value.primaries);
-            json.at("displayMasteringLuminance").get_to(value.displayMasteringLuminance);
-            json.at("maxCLL").get_to(value.maxCLL);
-            json.at("maxFALL").get_to(value.maxFALL);
+            from_string(json["eotf"].get<std::string>(), value.eotf);
+            for (size_t i = 0; i < value.primaries.size(); ++i)
+            {
+                json["primaries"].at(i).get_to(value.primaries[i]);
+            }
+            json["displayMasteringLuminance"].get_to(value.displayMasteringLuminance);
+            json["maxCLL"].get_to(value.maxCLL);
+            json["maxFALL"].get_to(value.maxFALL);
         }
     }
 }

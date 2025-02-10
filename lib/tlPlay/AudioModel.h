@@ -11,12 +11,15 @@
 #include <dtk/core/ObservableList.h>
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Settings;
+}
+
 namespace tl
 {
     namespace play
     {
-        class Settings;
-
         //! Audio model.
         class AudioModel : public std::enable_shared_from_this<AudioModel>
         {
@@ -25,7 +28,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             AudioModel();
 
@@ -35,7 +38,7 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<AudioModel> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             //! Get the output devices.
             const std::vector<audio::DeviceID>& getDevices();

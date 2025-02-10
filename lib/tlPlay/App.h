@@ -15,6 +15,8 @@
 
 #include <dtk/core/CmdLine.h>
 
+#include <filesystem>
+
 namespace tl
 {
     namespace play
@@ -44,9 +46,9 @@ namespace tl
             size_t usdDiskCache = 0;
 #endif // TLRENDER_USD
 
-            std::string logFileName;
+            std::string logFile;
             bool resetSettings = false;
-            std::string settingsFileName;
+            std::string settings;
         };
 
         //! Get the application command line arguments.
@@ -55,7 +57,7 @@ namespace tl
         //! Get the application command line options.
         std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
             Options&,
-            const std::string& logFileName,
-            const std::string& settingsFileName);
+            const std::filesystem::path& logFilePath,
+            const std::filesystem::path& settingsFilePath);
     }
 }

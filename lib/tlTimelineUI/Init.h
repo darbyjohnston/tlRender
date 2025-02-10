@@ -18,8 +18,6 @@ namespace tl
     namespace timelineui
     {
         //! Initialize the library.
-        void init(
-            const std::shared_ptr<dtk::Context>&,
-            const std::string& settingsPath = std::string());
+        void init(const std::shared_ptr<dtk::Context>&);
     }
 }

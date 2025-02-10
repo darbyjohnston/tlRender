@@ -23,7 +23,7 @@ namespace tl
 
         struct FileLogSystem::Private
         {
-            std::string fileName;
+            std::filesystem::path path;
 
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
 
@@ -44,13 +44,13 @@ namespace tl
 
         FileLogSystem::FileLogSystem(
             const std::shared_ptr<dtk::Context>& context,
-            const std::string& fileName) :
+            const std::filesystem::path& path) :
             ISystem(context, "tl::file:::FileLogSystem"),
             _p(new Private)
         {
             DTK_P();
 
-            p.fileName = fileName;
+            p.path = path;
 
             p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
                 context->getLogSystem()->observeLogItems(),
@@ -69,7 +69,7 @@ namespace tl
                 {
                     DTK_P();
                     {
-                        auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Write);
+                        auto io = dtk::FileIO::create(p.path, dtk::FileMode::Write);
                     }
                     while (p.thread.running)
                     {
@@ -81,7 +81,7 @@ namespace tl
                             std::swap(p.mutex.items, items);
                         }
                         {
-                            auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Append);
+                            auto io = dtk::FileIO::create(p.path, dtk::FileMode::Append);
                             for (const auto& item : items)
                             {
                                 io->write(dtk::toString(item) + "\n");
@@ -97,7 +97,7 @@ namespace tl
                         std::swap(p.mutex.items, items);
                     }
                     {
-                        auto io = dtk::FileIO::create(p.fileName, dtk::FileMode::Append);
+                        auto io = dtk::FileIO::create(p.path, dtk::FileMode::Append);
                         io->seek(io->getSize());
                         for (const auto& item : items)
                         {
@@ -119,12 +119,12 @@ namespace tl
 
         std::shared_ptr<FileLogSystem> FileLogSystem::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::string& fileName)
+            const std::filesystem::path& path)
         {
             auto out = context->getSystem<FileLogSystem>();
             if (!out)
             {
-                out = std::shared_ptr<FileLogSystem>(new FileLogSystem(context, fileName));
+                out = std::shared_ptr<FileLogSystem>(new FileLogSystem(context, path));
                 context->addSystem(out);
             }
             return out;

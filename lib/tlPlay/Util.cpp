@@ -6,6 +6,7 @@
 
 #include <tlCore/Path.h>
 
+#include <dtk/core/File.h>
 #include <dtk/core/Format.h>
 
 #include <filesystem>
@@ -14,42 +15,40 @@ namespace tl
 {
     namespace play
     {
-        std::string appDocsPath()
+        std::filesystem::path appDocsPath()
         {
-            const std::string documentsPath = file::getUserPath(
-                file::UserPath::Documents);
-            if (!std::filesystem::exists(std::filesystem::u8path(documentsPath)))
+            const std::filesystem::path documentsPath = dtk::getUserPath(
+                dtk::UserPath::Documents);
+            if (!std::filesystem::exists(documentsPath))
             {
-                std::filesystem::create_directory(std::filesystem::u8path(documentsPath));
+                std::filesystem::create_directory(documentsPath);
             }
-            const std::string out = file::Path(
-                documentsPath,
-                "tlRender").get();
-            if (!std::filesystem::exists(std::filesystem::u8path(out)))
+            const std::filesystem::path out = documentsPath / "tlRender";
+            if (!std::filesystem::exists(out))
             {
-                std::filesystem::create_directory(std::filesystem::u8path(out));
+                std::filesystem::create_directory(out);
             }
             return out;
         }
 
-        std::string logFileName(
+        std::filesystem::path logFileName(
             const std::string& appName,
-            const std::string& appDirPath)
+            const std::filesystem::path& appDocsPath)
         {
-            const std::string fileName = dtk::Format("{0}.{1}.log").
+            return appDocsPath / dtk::Format("{0}.{1}.log").
                 arg(appName).
-                arg(TLRENDER_VERSION);
-            return file::Path(appDirPath, fileName).get();
+                arg(TLRENDER_VERSION).
+                str();
         }
 
-        std::string settingsName(
+        std::filesystem::path settingsName(
             const std::string& appName,
-            const std::string& appDirPath)
+            const std::filesystem::path& appDocsPath)
         {
-            const std::string fileName = dtk::Format("{0}.{1}.json").
+            return appDocsPath / dtk::Format("{0}.{1}.json").
                 arg(appName).
-                arg(TLRENDER_VERSION);
-            return file::Path(appDirPath, fileName).get();
+                arg(TLRENDER_VERSION).
+                str();
         }
     }
 }

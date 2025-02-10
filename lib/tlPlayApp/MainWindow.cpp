@@ -40,7 +40,6 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
-#include <tlPlay/Settings.h>
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
@@ -59,6 +58,7 @@
 #include <dtk/ui/Menu.h>
 #include <dtk/ui/MenuBar.h>
 #include <dtk/ui/RowLayout.h>
+#include <dtk/ui/Settings.h>
 #include <dtk/ui/Spacer.h>
 #include <dtk/ui/Splitter.h>
 #include <dtk/ui/ToolButton.h>
@@ -96,7 +96,7 @@ namespace tl
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<dtk::ObservableValue<WindowOptions> > windowOptions;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<dtk::DoubleModel> speedModel;

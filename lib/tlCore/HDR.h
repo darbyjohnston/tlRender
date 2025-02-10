@@ -29,12 +29,12 @@ namespace tl
         DTK_ENUM(HDR_EOTF);
 
         //! HDR color primaries.
-        enum HDRPrimaries
+        enum class HDRPrimaries
         {
-            Red   = 0,
-            Green = 1,
-            Blue  = 2,
-            White = 3,
+            Red,
+            Green,
+            Blue,
+            White,
 
             Count,
             First = Red
@@ -47,7 +47,7 @@ namespace tl
             HDR_EOTF eotf = HDR_EOTF::SDR;
 
             //! Default Rec. 2020 color primaries (red, green, blue, white).
-            std::array<dtk::V2F, HDRPrimaries::Count> primaries =
+            std::array<dtk::V2F, static_cast<size_t>(HDRPrimaries::Count)> primaries =
             {
                 dtk::V2F(.708F,  .292F),
                 dtk::V2F(.170F,  .797F),

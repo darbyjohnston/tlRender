@@ -7,8 +7,6 @@ set(HEADERS
     Init.h
     OCIOModel.h
     RenderModel.h
-    Settings.h
-    SettingsInline.h
     Util.h
     Viewport.h
     ViewportModel.h)
@@ -24,7 +22,6 @@ set(SOURCE
     Init.cpp
     OCIOModel.cpp
     RenderModel.cpp
-    Settings.cpp
     Util.cpp
     Viewport.cpp
     ViewportColorWidget.cpp

@@ -12,14 +12,13 @@
 namespace dtk
 {
     class Context;
+    class Settings;
 }
 
 namespace tl
 {
     namespace play
     {
-        class Settings;
-
         //! Viewport model.
         class ViewportModel : public std::enable_shared_from_this<ViewportModel>
         {
@@ -28,7 +27,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             ViewportModel();
 
@@ -38,7 +37,7 @@ namespace tl
             //! Create a new model.
             static std::shared_ptr<ViewportModel> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<Settings>&);
+                const std::shared_ptr<dtk::Settings>&);
 
             //! Get the display options.
             const timeline::DisplayOptions& getDisplayOptions() const;

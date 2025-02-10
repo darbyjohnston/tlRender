@@ -14,12 +14,10 @@ namespace tl
 {
     namespace timelineui
     {
-        void init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::string& settingsPath)
+        void init(const std::shared_ptr<dtk::Context>& context)
         {
             tl::timeline::init(context);
-            dtk::uiInit(context, settingsPath);
+            dtk::uiInit(context);
             ThumbnailSystem::create(context);
         }
     }

@@ -88,5 +88,9 @@ namespace tl
 
             DTK_PRIVATE();
         };
+
+        void to_json(nlohmann::json&, const DevicesModelData&);
+
+        void from_json(const nlohmann::json&, DevicesModelData&);
     }
 }

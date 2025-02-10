@@ -8,6 +8,8 @@
 
 #include <dtk/core/Context.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace bmd
@@ -199,6 +201,41 @@ namespace tl
             data.hdrData = p.hdrData;
 
             p.data->setIfChanged(data);
+        }
+
+        void to_json(nlohmann::json& json, const DevicesModelData& value)
+        {
+            json["deviceIndex"] = value.deviceIndex;
+            json["displayModeIndex"] = value.displayModeIndex;
+            json["pixelTypeIndex"] = value.pixelTypeIndex;
+            json["deviceEnabled"] = value.deviceEnabled;
+            nlohmann::json json2;
+            for (const auto& i : value.boolOptions)
+            {
+                std::stringstream ss;
+                ss << i.first;
+                json2[ss.str()] = i.second;
+            }
+            json["boolOptions"] = json2;
+            json["hdrMode"] = value.hdrMode;
+            json["hdrData"] = value.hdrData;
+        }
+
+        void from_json(const nlohmann::json& json, DevicesModelData& value)
+        {
+            json.find("deviceIndex")->get_to(value.deviceIndex);
+            json.find("displayModeIndex")->get_to(value.displayModeIndex);
+            json.find("pixelTypeIndex")->get_to(value.pixelTypeIndex);
+            json.find("deviceEnabled")->get_to(value.deviceEnabled);
+            auto i = json.find("boolOptions");
+            for (const auto& j : getOptionEnums())
+            {
+                std::stringstream ss;
+                ss << j;
+                value.boolOptions[j] = i->find(ss.str())->get<bool>();
+            }
+            json.find("hdrMode")->get_to(value.hdrMode);
+            json.find("hdrData")->get_to(value.hdrData);
         }
     }
 }

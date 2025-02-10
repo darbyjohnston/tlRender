@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <functional>
+#include <sstream>
 
 namespace tl
 {

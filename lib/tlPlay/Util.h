@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 namespace tl
@@ -13,16 +14,16 @@ namespace tl
     {
         //! Get the path to the application documents directory. The directory
         //! is automatically created if it does not exist.
-        std::string appDocsPath();
+        std::filesystem::path appDocsPath();
 
-        //! Get the log file name.
-        std::string logFileName(
+        //! Get the log file path.
+        std::filesystem::path logFileName(
             const std::string& appName,
-            const std::string& appDirPath);
+            const std::filesystem::path& appDocsPath);
 
-        //! Get the settings file name.
-        std::string settingsName(
+        //! Get the settings file path.
+        std::filesystem::path settingsName(
             const std::string& appName,
-            const std::string& appDirPath);
+            const std::filesystem::path& appDocsPath);
     }
 }

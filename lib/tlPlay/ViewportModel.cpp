@@ -4,7 +4,7 @@
 
 #include <tlPlay/ViewportModel.h>
 
-#include <tlPlay/Settings.h>
+#include <dtk/ui/Settings.h>
 
 namespace tl
 {
@@ -13,23 +13,24 @@ namespace tl
         struct ViewportModel::Private
         {
             std::weak_ptr<dtk::Context> context;
-            std::shared_ptr<Settings> settings;
+            std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::DisplayOptions> > displayOptions;
         };
 
         void ViewportModel::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             DTK_P();
 
             p.context = context;
             p.settings = settings;
 
-            p.settings->setDefaultValue("Viewport/Background", timeline::BackgroundOptions());
+            timeline::BackgroundOptions backgroundOptions;
+            p.settings->getT("Viewport/Background", backgroundOptions);
             p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
-                p.settings->getValue<timeline::BackgroundOptions>("Viewport/Background"));
+                backgroundOptions);
             p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create();
         }
 
@@ -42,7 +43,7 @@ namespace tl
 
         std::shared_ptr<ViewportModel> ViewportModel::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             auto out = std::shared_ptr<ViewportModel>(new ViewportModel);
             out->_init(context, settings);
@@ -76,7 +77,7 @@ namespace tl
 
         void ViewportModel::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
-            _p->settings->setValue("Viewport/Background", value);
+            _p->settings->setT("Viewport/Background", value);
             _p->backgroundOptions->setIfChanged(value);
         }
     }

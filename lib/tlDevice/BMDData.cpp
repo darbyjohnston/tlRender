@@ -9,6 +9,7 @@
 
 #include <array>
 #include <cstring>
+#include <sstream>
 
 namespace tl
 {

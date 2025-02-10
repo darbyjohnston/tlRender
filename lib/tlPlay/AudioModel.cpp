@@ -4,10 +4,9 @@
 
 #include <tlPlay/AudioModel.h>
 
-#include <tlPlay/Settings.h>
-
 #include <tlCore/AudioSystem.h>
 
+#include <dtk/ui/Settings.h>
 #include <dtk/core/Context.h>
 #include <dtk/core/Math.h>
 
@@ -17,7 +16,7 @@ namespace tl
     {
         struct AudioModel::Private
         {
-            std::shared_ptr<Settings> settings;
+            std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<dtk::ObservableList<audio::DeviceID> > devices;
             std::shared_ptr<dtk::ObservableValue<audio::DeviceID> > device;
             std::shared_ptr<dtk::ObservableValue<float> > volume;
@@ -29,7 +28,7 @@ namespace tl
 
         void AudioModel::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             DTK_P();
 
@@ -38,13 +37,13 @@ namespace tl
             p.devices = dtk::ObservableList<audio::DeviceID>::create();
             p.device = dtk::ObservableValue<audio::DeviceID>::create();
 
-            p.settings->setDefaultValue("Audio/Volume", 1.F);
-            p.volume = dtk::ObservableValue<float>::create(
-                p.settings->getValue<float>("Audio/Volume"));
+            float volume = 1.F;
+            p.settings->get("Audio/Volume", volume);
+            p.volume = dtk::ObservableValue<float>::create(volume);
 
-            p.settings->setDefaultValue("Audio/Mute", false);
-            p.mute = dtk::ObservableValue<bool>::create(
-                p.settings->getValue<bool>("Audio/Mute"));
+            bool mute = false;
+            p.settings->get("Audio/Mute", mute);
+            p.mute = dtk::ObservableValue<bool>::create(mute);
 
             p.channelMute = dtk::ObservableList<bool>::create();
 
@@ -69,11 +68,15 @@ namespace tl
         {}
 
         AudioModel::~AudioModel()
-        {}
+        {
+            DTK_P();
+            p.settings->set("Audio/Volume", p.volume->get());
+            p.settings->set("Audio/Mute", p.mute->get());
+        }
 
         std::shared_ptr<AudioModel> AudioModel::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<Settings>& settings)
+            const std::shared_ptr<dtk::Settings>& settings)
         {
             auto out = std::shared_ptr<AudioModel>(new AudioModel);
             out->_init(context, settings);
@@ -118,7 +121,6 @@ namespace tl
         void AudioModel::setVolume(float value)
         {
             const float tmp = dtk::clamp(value, 0.F, 1.F);
-            _p->settings->setValue("Audio/Volume", tmp);
             _p->volume->setIfChanged(tmp);
         }
 
@@ -144,7 +146,6 @@ namespace tl
 
         void AudioModel::setMute(bool value)
         {
-            _p->settings->setValue("Audio/Mute", value);
             _p->mute->setIfChanged(value);
         }
 
