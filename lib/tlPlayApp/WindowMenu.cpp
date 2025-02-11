@@ -21,7 +21,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > floatOnTopObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > secondaryObserver;
-            std::shared_ptr<dtk::ValueObserver<WindowOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<play::WindowOptions> > optionsObserver;
         };
 
         void WindowMenu::_init(
@@ -94,9 +94,9 @@ namespace tl
                     setItemChecked(_p->actions["Secondary"], value);
                 });
 
-            p.optionsObserver = dtk::ValueObserver<WindowOptions>::create(
-                mainWindow->observeWindowOptions(),
-                [this](const WindowOptions& value)
+            p.optionsObserver = dtk::ValueObserver<play::WindowOptions>::create(
+                app->getSettingsModel()->observeWindow(),
+                [this](const play::WindowOptions& value)
                 {
                     setItemChecked(_p->actions["FileToolBar"], value.fileToolBar);
                     setItemChecked(_p->actions["CompareToolBar"], value.compareToolBar);

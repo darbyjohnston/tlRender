@@ -14,7 +14,7 @@ namespace tl
             const std::string& fileName,
             const std::vector<dtk::InMemoryFile>& memory,
             double videoRate,
-            const Options& options) :
+            const ReadOptions& options) :
             _fileName(fileName),
             _options(options)
         {

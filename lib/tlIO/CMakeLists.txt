@@ -32,6 +32,7 @@ set(SOURCE
     SGI.cpp
     SGIRead.cpp
     SGIWrite.cpp
+    SequenceIO.cpp
     SequenceIORead.cpp
     SequenceIOWrite.cpp
     System.cpp)

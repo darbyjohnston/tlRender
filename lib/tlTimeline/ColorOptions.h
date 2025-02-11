@@ -16,6 +16,20 @@ namespace tl
 {
     namespace timeline
     {
+        //! OpenColorIO options.
+        struct OCIOOptions
+        {
+            bool        enabled = false;
+            std::string fileName;
+            std::string input;
+            std::string display;
+            std::string view;
+            std::string look;
+
+            bool operator == (const OCIOOptions&) const;
+            bool operator != (const OCIOOptions&) const;
+        };
+
         //! LUT operation order.
         enum class LUTOrder
         {
@@ -43,7 +57,18 @@ namespace tl
 
         //! Get the list of LUT format file extensions.
         std::vector<std::string> getLUTFormatExtensions();
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const LUTOptions&);
+        void to_json(nlohmann::json&, const OCIOOptions&);
+
+        void from_json(const nlohmann::json&, LUTOptions&);
+        void from_json(const nlohmann::json&, OCIOOptions&);
+
+        ///@}
     }
 }
 
-#include <tlTimeline/LUTOptionsInline.h>
+#include <tlTimeline/ColorOptionsInline.h>

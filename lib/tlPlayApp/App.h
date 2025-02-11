@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlPlay/SettingsModel.h>
+
 #include <tlTimeline/Player.h>
 
 #include <dtk/ui/App.h>
@@ -12,7 +14,7 @@
 
 namespace dtk
 {
-    class RecentFilesModel;
+    class Settings;
 }
 
 namespace tl
@@ -20,7 +22,6 @@ namespace tl
 #if defined(TLRENDER_BMD)
     namespace bmd
     {
-        class DevicesModel;
         class OutputDevice;
     }
 #endif // TLRENDER_BMD
@@ -32,8 +33,15 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class RecentFilesModel;
         class RenderModel;
+        class SettingsModel;
+        class TimeUnitsModel;
         class ViewportModel;
+
+#if defined(TLRENDER_BMD)
+        class BMDDevicesModel;
+#endif // TLRENDER_BMD
     }
 
     //! tlplay application
@@ -73,11 +81,17 @@ namespace tl
             //! Open a file and separate audio dialog.
             void openSeparateAudioDialog();
 
+            //! Get the settings model.
+            const std::shared_ptr<play::SettingsModel>& getSettingsModel() const;
+
+            //! Get the time units model.
+            const std::shared_ptr<play::TimeUnitsModel>& getTimeUnitsModel() const;
+
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& getFilesModel() const;
 
             //! Get the recent files model.
-            const std::shared_ptr<dtk::RecentFilesModel>& getRecentFilesModel() const;
+            const std::shared_ptr<play::RecentFilesModel>& getRecentFilesModel() const;
 
             //! Observe the timeline player.
             std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
@@ -108,7 +122,7 @@ namespace tl
 
 #if defined(TLRENDER_BMD)
             //! Get the BMD devices model.
-            const std::shared_ptr<bmd::DevicesModel>& getBMDDevicesModel() const;
+            const std::shared_ptr<play::BMDDevicesModel>& getBMDDevicesModel() const;
 
             //! Get the BMD output device.
             const std::shared_ptr<bmd::OutputDevice>& getBMDOutputDevice() const;
@@ -118,7 +132,6 @@ namespace tl
             void _tick() override;
 
         private:
-            void _settingsInit(const std::filesystem::path&);
             void _modelsInit();
             void _devicesInit();
             void _observersInit();
@@ -130,7 +143,7 @@ namespace tl
             void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
-            void _cacheUpdate();
+            void _cacheUpdate(const play::CacheOptions&);
             void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 

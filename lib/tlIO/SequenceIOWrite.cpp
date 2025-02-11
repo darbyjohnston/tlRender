@@ -19,7 +19,7 @@ namespace tl
             int pad = 0;
             std::string extension;
 
-            float defaultSpeed = sequenceDefaultSpeed;
+            float defaultSpeed = SequenceOptions().defaultSpeed;
         };
 
         void ISequenceWrite::_init(

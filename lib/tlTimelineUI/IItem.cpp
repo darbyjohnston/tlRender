@@ -4,14 +4,33 @@
 
 #include <tlTimelineUI/IItem.h>
 
+#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
+#include <dtk/core/String.h>
 
 #include <opentimelineio/marker.h>
+
+#include <sstream>
 
 namespace tl
 {
     namespace timelineui
     {
+        DTK_ENUM_IMPL(
+            InOutDisplay,
+            "InsideRange",
+            "OutsideRange");
+
+        DTK_ENUM_IMPL(
+            CacheDisplay,
+            "VideoAndAudio",
+            "VideoOnly");
+
+        DTK_ENUM_IMPL(
+            WaveformPrim,
+            "Mesh",
+            "Image");
+
         bool ItemOptions::operator == (const ItemOptions& other) const
         {
             return
@@ -247,5 +266,72 @@ namespace tl
 
         void IItem::_timeUnitsUpdate()
         {}
+
+        void to_json(nlohmann::json& json, const ItemOptions& value)
+        {
+            json["inputEnabled"] = value.inputEnabled;
+            json["editAssociatedClips"] = value.editAssociatedClips;
+        }
+
+        void to_json(nlohmann::json& json, const DisplayOptions& value)
+        {
+            json["inOutDisplay"] = to_string(value.inOutDisplay);
+            json["cacheDisplay"] = to_string(value.cacheDisplay);
+            nlohmann::json json2;
+            for (size_t i = 0; i < value.tracks.size(); ++i)
+            {
+                json2.push_back(value.tracks[i]);
+            }
+            json["tracks"] = json2;
+            json["trackInfo"] = value.trackInfo;
+            json["clipInfo"] = value.clipInfo;
+            json["thumbnails"] = value.thumbnails;
+            json["thumbnailHeight"] = value.thumbnailHeight;
+            json["waveformWidth"] = value.waveformWidth;
+            json["waveformHeight"] = value.waveformHeight;
+            json["waveformPrim"] = to_string(value.waveformPrim);
+            json["thumbnailFade"] = value.thumbnailFade;
+            json["transitions"] = value.transitions;
+            json["markers"] = value.markers;
+            json["regularFont"] = value.regularFont;
+            json["monoFont"] = value.monoFont;
+            json["fontSize"] = value.fontSize;
+            json["clipRectScale"] = value.clipRectScale;
+            json["ocio"] = value.ocio;
+            json["lut"] = value.lut;
+        }
+
+        void from_json(const nlohmann::json& json, ItemOptions& value)
+        {
+            json["inputEnabled"].get_to(value.inputEnabled);
+            json["editAssociatedClips"].get_to(value.editAssociatedClips);
+        }
+
+        void from_json(const nlohmann::json& json, DisplayOptions& value)
+        {
+            from_string(json["inOutDisplay"].get<std::string>(), value.inOutDisplay);
+            from_string(json["cacheDisplay"].get<std::string>(), value.cacheDisplay);
+            auto& json2 = json["tracks"];
+            for (auto i = json2.begin(); i != json2.end(); ++i)
+            {
+                value.tracks.push_back(i->get<int>());
+            }
+            json["trackInfo"].get_to(value.trackInfo);
+            json["clipInfo"].get_to(value.clipInfo);
+            json["thumbnails"].get_to(value.thumbnails);
+            json["thumbnailHeight"].get_to(value.thumbnailHeight);
+            json["waveformWidth"].get_to(value.waveformWidth);
+            json["waveformHeight"].get_to(value.waveformHeight);
+            from_string(json["waveformPrim"].get<std::string>(), value.waveformPrim);
+            json["thumbnailFade"].get_to(value.thumbnailFade);
+            json["transitions"].get_to(value.transitions);
+            json["markers"].get_to(value.markers);
+            json["regularFont"].get_to(value.regularFont);
+            json["monoFont"].get_to(value.monoFont);
+            json["fontSize"].get_to(value.fontSize);
+            json["clipRectScale"].get_to(value.clipRectScale);
+            json["ocio"].get_to(value.ocio);
+            json["lut"].get_to(value.lut);
+        }
     }
 }

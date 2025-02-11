@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlPlay/SettingsModel.h>
+
 #include <tlTimeline/Player.h>
 
 #include <dtk/ui/Window.h>
@@ -23,24 +25,6 @@ namespace tl
     namespace play_app
     {
         class App;
-
-        //! Window options.
-        struct WindowOptions
-        {
-            bool  fileToolBar    = true;
-            bool  compareToolBar = true;
-            bool  windowToolBar  = true;
-            bool  viewToolBar    = true;
-            bool  toolsToolBar   = true;
-            bool  timeline       = true;
-            bool  bottomToolBar  = true;
-            bool  statusToolBar  = true;
-            float splitter       = .7F;
-            float splitter2      = .7F;
-
-            bool operator == (const WindowOptions&) const;
-            bool operator != (const WindowOptions&) const;
-        };
 
         //! Main window.
         class MainWindow : public dtk::Window
@@ -73,15 +57,6 @@ namespace tl
             //! Focus the current frame widget.
             void focusCurrentFrame();
 
-            //! Get the window options.
-            const WindowOptions& getWindowOptions() const;
-
-            //! Observe the window options.
-            std::shared_ptr<dtk::IObservableValue<WindowOptions> > observeWindowOptions() const;
-
-            //! Set the window options.
-            void setWindowOptions(const WindowOptions&);
-
             void setGeometry(const dtk::Box2I&) override;
             void keyPressEvent(dtk::KeyEvent&) override;
             void keyReleaseEvent(dtk::KeyEvent&) override;
@@ -95,19 +70,10 @@ namespace tl
             void _playerUpdate(const std::shared_ptr<timeline::Player>&);
             void _showSpeedPopup();
             void _showAudioPopup();
-            void _windowOptionsUpdate();
+            void _windowOptionsUpdate(const play::WindowOptions&);
             void _infoUpdate();
 
             DTK_PRIVATE();
         };
-
-        //! \name Serialize
-        ///@{
-
-        void to_json(nlohmann::json&, const WindowOptions&);
-
-        void from_json(const nlohmann::json&, WindowOptions&);
-
-        ///@}
     }
 }

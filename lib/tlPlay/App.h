@@ -4,9 +4,8 @@
 
 #pragma once
 
+#include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/CompareOptions.h>
-#include <tlTimeline/LUTOptions.h>
-#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/Player.h>
 
 #if defined(TLRENDER_USD)

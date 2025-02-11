@@ -9,7 +9,6 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/RenderModel.h>
-#include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>

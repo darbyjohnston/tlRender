@@ -15,6 +15,7 @@ namespace tl
     {
         struct WindowActions::Private
         {
+            std::shared_ptr<play::SettingsModel> model;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
@@ -24,6 +25,8 @@ namespace tl
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             DTK_P();
+
+            p.model = app->getSettingsModel();
 
             auto appWeak = std::weak_ptr<App>(app);
             p.actions["FullScreen"] = std::make_shared<dtk::Action>(
@@ -76,101 +79,84 @@ namespace tl
                     p.actions["Secondary"]->shortcut,
                     p.actions["Secondary"]->shortcutModifiers));
 
-            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.actions["FileToolBar"] = std::make_shared<dtk::Action>(
                 "File Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.fileToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.fileToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["CompareToolBar"] = std::make_shared<dtk::Action>(
                 "Compare Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.compareToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.compareToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["WindowToolBar"] = std::make_shared<dtk::Action>(
                 "Window Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.windowToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.windowToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["ViewToolBar"] = std::make_shared<dtk::Action>(
                 "View Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.viewToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.viewToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["ToolsToolBar"] = std::make_shared<dtk::Action>(
                 "Tools Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.toolsToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.toolsToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["Timeline"] = std::make_shared<dtk::Action>(
                 "Timeline",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.timeline = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.timeline = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["BottomToolBar"] = std::make_shared<dtk::Action>(
                 "Bottom Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.bottomToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.bottomToolBar = value;
+                    p.model->setWindow(options);
                 });
 
             p.actions["StatusToolBar"] = std::make_shared<dtk::Action>(
                 "Status Tool Bar",
-                [mainWindowWeak](bool value)
+                [this](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getWindowOptions();
-                        options.statusToolBar = value;
-                        mainWindow->setWindowOptions(options);
-                    }
+                    DTK_P();
+                    auto options = p.model->getWindow();
+                    options.statusToolBar = value;
+                    p.model->setWindow(options);
                 });
         }
 

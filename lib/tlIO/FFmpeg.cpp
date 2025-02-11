@@ -36,6 +36,26 @@ namespace tl
             "ProRes_4444",
             "ProRes_XQ");
 
+        bool Options::operator == (const Options& other) const
+        {
+            return
+                yuvToRgb == other.yuvToRgb &&
+                threadCount == other.threadCount;
+        }
+
+        bool Options::operator != (const Options& other) const
+        {
+            return !(*this == other);
+        }
+
+        io::Options getOptions(const Options& value)
+        {
+            io::Options out;
+            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").arg(value.yuvToRgb);
+            out["FFmpeg/ThreadCount"] = dtk::Format("{0}").arg(value.threadCount);
+            return out;
+        }
+
         AVRational swap(AVRational value)
         {
             return AVRational({ value.den, value.num });
@@ -290,6 +310,18 @@ namespace tl
             case AV_LOG_VERBOSE:
             default: break;
             }
+        }
+
+        void to_json(nlohmann::json& json, const Options& value)
+        {
+            json["yuvToRgb"] = value.yuvToRgb;
+            json["threadCount"] = value.threadCount;
+        }
+
+        void from_json(const nlohmann::json& json, Options& value)
+        {
+            json["yuvToRgb"].get_to(value.yuvToRgb);
+            json["threadCount"].get_to(value.threadCount);
         }
     }
 }

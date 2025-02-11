@@ -5,10 +5,9 @@
 #pragma once
 
 #include <tlTimeline/BackgroundOptions.h>
+#include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/DisplayOptions.h>
-#include <tlTimeline/LUTOptions.h>
-#include <tlTimeline/OCIOOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <dtk/core/IRender.h>

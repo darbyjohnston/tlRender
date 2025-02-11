@@ -34,7 +34,7 @@ namespace tl
             void setCallback(const std::function<void(double)>&);
 
         private:
-            void _menuUpdate();
+            void _widgetUpdate();
 
             DTK_PRIVATE();
         };

@@ -5,6 +5,7 @@
 #include <tlIO/USDPrivate.h>
 
 #include <dtk/core/Error.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -20,6 +21,36 @@ namespace tl
             "GeomOnly",
             "GeomFlat",
             "GeomSmooth");
+
+        bool Options::operator == (const Options& other) const
+        {
+            return
+                renderWidth == other.renderWidth &&
+                complexity == other.complexity &&
+                drawMode == other.drawMode &&
+                enableLighting == other.enableLighting &&
+                sRGB == other.sRGB &&
+                stageCache == other.stageCache &&
+                diskCache == other.diskCache;
+        }
+
+        bool Options::operator != (const Options& other) const
+        {
+            return !(*this == other);
+        }
+
+        io::Options getOptions(const Options& value)
+        {
+            io::Options out;
+            out["USD/RenderWidth"] = dtk::Format("{0}").arg(value.renderWidth);
+            out["USD/Complexity"] = dtk::Format("{0}").arg(value.complexity);
+            out["USD/DrawMode"] = dtk::Format("{0}").arg(value.drawMode);
+            out["USD/EnableLighting"] = dtk::Format("{0}").arg(value.enableLighting);
+            out["USD/sRGB"] = dtk::Format("{0}").arg(value.sRGB);
+            out["USD/StageCacheCount"] = dtk::Format("{0}").arg(value.stageCache);
+            out["USD/DiskCacheByteCount"] = dtk::Format("{0}").arg(value.diskCache);
+            return out;
+        }
 
         struct Plugin::Private
         {
@@ -104,6 +135,28 @@ namespace tl
             const io::Options&)
         {
             return nullptr;
+        }
+
+        void to_json(nlohmann::json& json, const Options& value)
+        {
+            json["renderWidth"] = value.renderWidth;
+            json["complexity"] = value.complexity;
+            json["drawMode"] = to_string(value.drawMode);
+            json["enableLighting"] = value.enableLighting;
+            json["sRGB"] = value.sRGB;
+            json["stageCache"] = value.stageCache;
+            json["diskCache"] = value.diskCache;
+        }
+
+        void from_json(const nlohmann::json& json, Options& value)
+        {
+            json["renderWidth"].get_to(value.renderWidth);
+            json["complexity"].get_to(value.complexity);
+            from_string(json["drawMode"].get<std::string>(), value.drawMode);
+            json["enableLighting"].get_to(value.enableLighting);
+            json["sRGB"].get_to(value.sRGB);
+            json["stageCache"].get_to(value.stageCache);
+            json["diskCache"].get_to(value.diskCache);
         }
     }
 }

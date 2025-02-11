@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlTimeline/LUTOptions.h>
+#include <tlTimeline/ColorOptions.h>
 
 #include <dtk/core/Error.h>
 #include <dtk/core/String.h>
@@ -55,6 +55,38 @@ namespace tl
             }
 #endif // TLRENDER_OCIO
             return out;
+        }
+
+        void to_json(nlohmann::json& json, const OCIOOptions& value)
+        {
+            json["enabled"] = value.enabled;
+            json["input"] = value.input;
+            json["display"] = value.display;
+            json["view"] = value.view;
+            json["look"] = value.look;
+        }
+
+        void to_json(nlohmann::json& json, const LUTOptions& value)
+        {
+            json["enabled"] = value.enabled;
+            json["fileName"] = value.fileName;
+            json["order"] = to_string(value.order);
+        }
+
+        void from_json(const nlohmann::json& json, OCIOOptions& value)
+        {
+            json["enabled"].get_to(value.enabled);
+            json["input"].get_to(value.input);
+            json["display"].get_to(value.display);
+            json["view"].get_to(value.view);
+            json["look"].get_to(value.look);
+        }
+
+        void from_json(const nlohmann::json& json, LUTOptions& value)
+        {
+            json["enabled"].get_to(value.enabled);
+            json["fileName"].get_to(value.fileName);
+            from_string(json["order"].get<std::string>(), value.order);
         }
     }
 }

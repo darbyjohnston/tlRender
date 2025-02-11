@@ -10,14 +10,18 @@ namespace tl
 {
     namespace io
     {
-        //! Default speed for image sequences.
-        const float sequenceDefaultSpeed = 24.F;
+        //! Sequence I/O options.
+        struct SequenceOptions
+        {
+            double defaultSpeed = 24.0;
+            size_t threadCount = 16;
 
-        //! Number of threads.
-        const size_t sequenceThreadCount = 16;
+            bool operator == (const SequenceOptions&) const;
+            bool operator != (const SequenceOptions&) const;
+        };
 
-        //! Timeout for requests.
-        const std::chrono::milliseconds sequenceRequestTimeout(5);
+        //! Get sequence I/O options.
+        Options getOptions(const SequenceOptions&);
 
         //! Base class for image sequence readers.
         class ISequenceRead : public IRead
@@ -56,7 +60,7 @@ namespace tl
 
             int64_t _startFrame = 0;
             int64_t _endFrame = 0;
-            float _defaultSpeed = sequenceDefaultSpeed;
+            float _defaultSpeed = SequenceOptions().defaultSpeed;
 
         private:
             void _thread();
@@ -96,5 +100,14 @@ namespace tl
         private:
             DTK_PRIVATE();
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const SequenceOptions&);
+
+        void from_json(const nlohmann::json&, SequenceOptions&);
+
+        ///@}
     }
 }

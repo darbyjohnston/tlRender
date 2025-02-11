@@ -20,7 +20,7 @@ namespace tl
         {
             void addTags(Info&);
 
-            size_t threadCount = sequenceThreadCount;
+            size_t threadCount = SequenceOptions().threadCount;
 
             Info info;
 

@@ -6,8 +6,9 @@
 
 #include <tlPlayApp/App.h>
 
+#include <tlPlay/RecentFilesModel.h>
+
 #include <dtk/ui/FileBrowser.h>
-#include <dtk/ui/RecentFilesModel.h>
 
 #include <tlIO/System.h>
 

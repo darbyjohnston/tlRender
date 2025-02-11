@@ -4,10 +4,7 @@
 
 #include <tlPlayApp/SpeedPopup.h>
 
-#include <dtk/ui/ButtonGroup.h>
-#include <dtk/ui/Divider.h>
-#include <dtk/ui/ToolButton.h>
-#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ListWidget.h>
 
 #include <dtk/core/Format.h>
 
@@ -18,9 +15,7 @@ namespace tl
         struct SpeedPopup::Private
         {
             std::vector<double> speeds;
-            std::vector<std::shared_ptr<dtk::ToolButton> > buttons;
-            std::shared_ptr<dtk::ButtonGroup> buttonGroup;
-            std::shared_ptr<dtk::VerticalLayout> layout;
+            std::shared_ptr<dtk::ListWidget> listWidget;
             std::function<void(double)> callback;
         };
 
@@ -37,41 +32,41 @@ namespace tl
 
             p.speeds =
             {
-                1.0,
-                3.0,
-                6.0,
-                12.0,
-                16.0,
-                18.0,
-                24000.0 / 1001.0,
+                defaultSpeed,
                 24.0,
-                30000.0 / 1001.0,
+                24000.0 / 1001.0,
                 30.0,
+                30000.0 / 1001.0,
                 48.0,
                 60000.0 / 1001.0,
                 60.0,
                 96.0,
                 120.0,
-                defaultSpeed
+                18.0,
+                16.0,
+                12.0,
+                6.0,
+                3.0,
+                1.0
             };
 
-            p.buttonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Click);
+            p.listWidget = dtk::ListWidget::create(context, dtk::ButtonGroupType::Click);
+            setWidget(p.listWidget);
 
-            p.layout = dtk::VerticalLayout::create(context);
-            p.layout->setSpacingRole(dtk::SizeRole::None);
-            setWidget(p.layout);
-
-            _menuUpdate();
+            _widgetUpdate();
 
             auto weak = std::weak_ptr<SpeedPopup>(std::dynamic_pointer_cast<SpeedPopup>(shared_from_this()));
-            p.buttonGroup->setClickedCallback(
-                [weak](int value)
+            p.listWidget->setCallback(
+                [weak](int index, bool value)
                 {
                     if (auto widget = weak.lock())
                     {
-                        if (widget->_p->callback)
+                        if (value && index >= 0 && index < widget->_p->speeds.size())
                         {
-                            widget->_p->callback(widget->_p->speeds[value]);
+                            if (widget->_p->callback)
+                            {
+                                widget->_p->callback(widget->_p->speeds[index]);
+                            }
                         }
                     }
                 });
@@ -99,37 +94,17 @@ namespace tl
             _p->callback = value;
         }
 
-        void SpeedPopup::_menuUpdate()
+        void SpeedPopup::_widgetUpdate()
         {
             DTK_P();
-            auto children = p.layout->getChildren();
-            for (const auto& child : children)
+            std::vector<std::string> items;
+            for (size_t i = 0; i < p.speeds.size(); ++i)
             {
-                child->setParent(nullptr);
+                items.push_back(0 == i ?
+                    dtk::Format("Default: {0}").arg(p.speeds[i], 2) :
+                    dtk::Format("{0}").arg(p.speeds[i], 2));
             }
-            p.buttons.clear();
-            p.buttonGroup->clearButtons();
-            if (auto context = getContext())
-            {
-                for (size_t i = 0; i < p.speeds.size(); ++i)
-                {
-                    const bool last = (p.speeds.size() - 1) == i;
-                    const bool secondToLast =
-                        p.speeds.size() > 1 &&
-                        (p.speeds.size() - 2) == i;
-                    auto button = dtk::ToolButton::create(context, shared_from_this());
-                    button->setText(last ?
-                        dtk::Format("Default: {0}").arg(p.speeds[i], 2) :
-                        dtk::Format("{0}").arg(p.speeds[i], 2));
-                    button->setParent(p.layout);
-                    p.buttons.push_back(button);
-                    p.buttonGroup->addButton(button);
-                    if (secondToLast)
-                    {
-                        dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
-                    }
-                }
-            }
+            p.listWidget->setItems(items);
         }
     }
 }

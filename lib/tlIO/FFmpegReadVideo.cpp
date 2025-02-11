@@ -20,7 +20,7 @@ namespace tl
         ReadVideo::ReadVideo(
             const std::string& fileName,
             const std::vector<dtk::InMemoryFile>& memory,
-            const Options& options) :
+            const ReadOptions& options) :
             _fileName(fileName),
             _options(options)
         {

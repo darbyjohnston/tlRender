@@ -6,12 +6,18 @@ set(HEADERS
     Info.h
     Init.h
     OCIOModel.h
+    RecentFilesModel.h
     RenderModel.h
+    SettingsModel.h
+    TimeUnitsModel.h
     Util.h
     Viewport.h
     ViewportModel.h)
 set(PRIVATE_HEADERS
     ViewportPrivate.h)
+if(TLRENDER_BMD)
+    list(APPEND HEADERS BMDDevicesModel.h)
+endif()
 
 set(SOURCE
     App.cpp
@@ -21,11 +27,17 @@ set(SOURCE
     Info.cpp
     Init.cpp
     OCIOModel.cpp
+    RecentFilesModel.cpp
     RenderModel.cpp
+    SettingsModel.cpp
+    TimeUnitsModel.cpp
     Util.cpp
     Viewport.cpp
     ViewportColorWidget.cpp
     ViewportModel.cpp)
+if(TLRENDER_BMD)
+    list(APPEND SOURCE BMDDevicesModel.cpp)
+endif()
 
 add_library(tlPlay ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlPlay tlTimelineUI tlDevice)

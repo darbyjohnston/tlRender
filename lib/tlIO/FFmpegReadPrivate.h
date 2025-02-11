@@ -37,11 +37,11 @@ namespace tl
 
         const size_t avIOContextBufferSize = 4096;
 
-        struct Options
+        struct ReadOptions
         {
             bool yuvToRGBConversion = false;
             audio::Info audioConvertInfo;
-            size_t threadCount = ffmpeg::threadCount;
+            size_t threadCount = Options().threadCount;
             size_t requestTimeout = 5;
             size_t videoBufferSize = 4;
             OTIO_NS::RationalTime audioBufferSize = OTIO_NS::RationalTime(2.0, 1.0);
@@ -53,7 +53,7 @@ namespace tl
             ReadVideo(
                 const std::string& fileName,
                 const std::vector<dtk::InMemoryFile>& memory,
-                const Options& options);
+                const ReadOptions& options);
 
             ~ReadVideo();
 
@@ -74,7 +74,7 @@ namespace tl
             void _copy(const std::shared_ptr<dtk::Image>&);
 
             std::string _fileName;
-            Options _options;
+            ReadOptions _options;
             dtk::ImageInfo _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             dtk::ImageTags _tags;
@@ -103,7 +103,7 @@ namespace tl
                 const std::string& fileName,
                 const std::vector<dtk::InMemoryFile>&,
                 double videoRate,
-                const Options&);
+                const ReadOptions&);
 
             ~ReadAudio();
 
@@ -125,7 +125,7 @@ namespace tl
             int _decode(const OTIO_NS::RationalTime& currentTime);
 
             std::string _fileName;
-            Options _options;
+            ReadOptions _options;
             audio::Info _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             dtk::ImageTags _tags;
@@ -145,7 +145,7 @@ namespace tl
 
         struct Read::Private
         {
-            Options options;
+            ReadOptions options;
 
             std::shared_ptr<ReadVideo> readVideo;
             std::shared_ptr<ReadAudio> readAudio;

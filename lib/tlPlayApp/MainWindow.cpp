@@ -40,6 +40,7 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
+#include <tlPlay/TimeUnitsModel.h>
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
@@ -67,38 +68,14 @@
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
-#include <tlTimeline/TimeUnits.h>
-
 namespace tl
 {
     namespace play_app
     {
-        bool WindowOptions::operator == (const WindowOptions& other) const
-        {
-            return
-                fileToolBar == other.fileToolBar &&
-                compareToolBar == other.compareToolBar &&
-                windowToolBar == other.windowToolBar &&
-                viewToolBar == other.viewToolBar &&
-                toolsToolBar == other.toolsToolBar &&
-                timeline == other.timeline &&
-                bottomToolBar == other.bottomToolBar &&
-                statusToolBar == other.statusToolBar &&
-                splitter == other.splitter &&
-                splitter2 == other.splitter2;
-        }
-
-        bool WindowOptions::operator != (const WindowOptions& other) const
-        {
-            return !(*this == other);
-        }
 
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<dtk::Settings> settings;
-            std::shared_ptr<dtk::ObservableValue<WindowOptions> > windowOptions;
-            std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<dtk::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
@@ -165,6 +142,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ValueObserver<play::WindowOptions> > windowOptionsObserver;
         };
 
         void MainWindow::_init(
@@ -179,36 +157,6 @@ namespace tl
 
             p.app = app;
 
-            p.settings = app->getSettings();
-            p.settings->setDefaultValue("Window/Options", WindowOptions());
-            p.settings->setDefaultValue("Timeline/Input",
-                timelineui::ItemOptions().inputEnabled);
-            p.settings->setDefaultValue("Timeline/Editable", true);
-            p.settings->setDefaultValue("Timeline/EditAssociatedClips",
-                timelineui::ItemOptions().editAssociatedClips);
-            p.settings->setDefaultValue("Timeline/FrameView", true);
-            p.settings->setDefaultValue("Timeline/ScrollToCurrentFrame", true);
-            p.settings->setDefaultValue("Timeline/StopOnScrub", true);
-            p.settings->setDefaultValue("Timeline/FirstTrack",
-                !timelineui::DisplayOptions().tracks.empty());
-            p.settings->setDefaultValue("Timeline/TrackInfo",
-                timelineui::DisplayOptions().trackInfo);
-            p.settings->setDefaultValue("Timeline/ClipInfo",
-                timelineui::DisplayOptions().clipInfo);
-            p.settings->setDefaultValue("Timeline/Thumbnails",
-                timelineui::DisplayOptions().thumbnails);
-            p.settings->setDefaultValue("Timeline/ThumbnailsSize",
-                timelineui::DisplayOptions().thumbnailHeight);
-            p.settings->setDefaultValue("Timeline/Transitions",
-                timelineui::DisplayOptions().transitions);
-            p.settings->setDefaultValue("Timeline/Markers",
-                timelineui::DisplayOptions().markers);
-
-            p.windowOptions = dtk::ObservableValue<WindowOptions>::create(
-                p.settings->getValue<WindowOptions>("Window/Options"));
-
-            p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
-
             p.speedModel = dtk::DoubleModel::create(context);
             p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
             p.speedModel->setStep(1.F);
@@ -216,29 +164,22 @@ namespace tl
 
             p.viewport = play::Viewport::create(context);
 
-            p.timelineWidget = timelineui::TimelineWidget::create(context, p.timeUnitsModel);
-            p.timelineWidget->setEditable(p.settings->getValue<bool>("Timeline/Editable"));
-            p.timelineWidget->setFrameView(p.settings->getValue<bool>("Timeline/FrameView"));
+            auto timeUnitsModel = app->getTimeUnitsModel();
+            p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
+            const play::TimelineOptions timelineOptions = app->getSettingsModel()->getTimeline();
+            p.timelineWidget->setEditable(timelineOptions.editable);
+            p.timelineWidget->setFrameView(timelineOptions.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setScrollToCurrentFrame(p.settings->getValue<bool>("Timeline/ScrollToCurrentFrame"));
-            p.timelineWidget->setStopOnScrub(p.settings->getValue<bool>("Timeline/StopOnScrub"));
-            timelineui::ItemOptions itemOptions;
-            itemOptions.inputEnabled = p.settings->getValue<bool>("Timeline/Input");
-            itemOptions.editAssociatedClips = p.settings->getValue<bool>("Timeline/EditAssociatedClips");
-            p.timelineWidget->setItemOptions(itemOptions);
-            timelineui::DisplayOptions displayOptions;
-            if (p.settings->getValue<bool>("Timeline/FirstTrack"))
+            p.timelineWidget->setScrollToCurrentFrame(timelineOptions.scroll);
+            p.timelineWidget->setStopOnScrub(timelineOptions.stopOnScrub);
+            p.timelineWidget->setItemOptions(app->getSettingsModel()->getTimelineItem());
+            timelineui::DisplayOptions timeineDisplayOptions = app->getSettingsModel()->getTimelineDisplay();
+            if (app->getSettingsModel()->getTimelineFirstTrack())
             {
-                displayOptions.tracks = { 0 };
+                timeineDisplayOptions.tracks = { 0 };
             }
-            displayOptions.trackInfo = p.settings->getValue<bool>("Timeline/TrackInfo");
-            displayOptions.clipInfo = p.settings->getValue<bool>("Timeline/ClipInfo");
-            displayOptions.thumbnails = p.settings->getValue<bool>("Timeline/Thumbnails");
-            displayOptions.thumbnailHeight = p.settings->getValue<int>("Timeline/ThumbnailsSize");
-            displayOptions.waveformHeight = displayOptions.thumbnailHeight / 2;
-            displayOptions.transitions = p.settings->getValue<bool>("Timeline/Transitions");
-            displayOptions.markers = p.settings->getValue<bool>("Timeline/Markers");
-            p.timelineWidget->setDisplayOptions(displayOptions);
+            timeineDisplayOptions.waveformHeight = timeineDisplayOptions.thumbnailHeight / 2;
+            p.timelineWidget->setDisplayOptions(timeineDisplayOptions);
 
             p.fileActions = FileActions::create(context, app);
             p.compareActions = CompareActions::create(context, app);
@@ -377,10 +318,10 @@ namespace tl
             p.frameButtonGroup->addButton(frameNextButton);
             p.frameButtonGroup->addButton(timeEndButton);
 
-            p.currentTimeEdit = timelineui::TimeEdit::create(context, p.timeUnitsModel);
+            p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
             p.currentTimeEdit->setTooltip("Current time");
 
-            p.durationLabel = timelineui::TimeLabel::create(context, p.timeUnitsModel);
+            p.durationLabel = timelineui::TimeLabel::create(context, timeUnitsModel);
             p.durationLabel->setFontRole(dtk::FontRole::Mono);
             p.durationLabel->setMarginRole(dtk::SizeRole::MarginInside);
             p.durationLabel->setTooltip("Duration");
@@ -388,7 +329,7 @@ namespace tl
             p.timeUnitsComboBox = dtk::ComboBox::create(context);
             p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
             p.timeUnitsComboBox->setCurrentIndex(
-                static_cast<int>(p.timeUnitsModel->getTimeUnits()));
+                static_cast<int>(timeUnitsModel->getTimeUnits()));
             p.timeUnitsComboBox->setTooltip("Time units");
 
             p.speedEdit = dtk::DoubleEdit::create(context, p.speedModel);
@@ -472,7 +413,6 @@ namespace tl
             dtk::Divider::create(context, dtk::Orientation::Horizontal, p.statusLayout);
             p.infoLabel->setParent(p.statusLayout);
 
-            _windowOptionsUpdate();
             _infoUpdate();
 
             auto appWeak = std::weak_ptr<App>(app);
@@ -497,10 +437,13 @@ namespace tl
                 });
 
             p.timeUnitsComboBox->setIndexCallback(
-                [this](int value)
+                [appWeak](int value)
                 {
-                    _p->timeUnitsModel->setTimeUnits(
-                        static_cast<timeline::TimeUnits>(value));
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getTimeUnitsModel()->setTimeUnits(
+                            static_cast<timeline::TimeUnits>(value));
+                    }
                 });
 
             p.playbackButtonGroup->setCheckedCallback(
@@ -644,6 +587,13 @@ namespace tl
                 {
                     _p->muteButton->setChecked(value);
                 });
+
+            p.windowOptionsObserver = dtk::ValueObserver<play::WindowOptions>::create(
+                app->getSettingsModel()->observeWindow(),
+                [this](const play::WindowOptions& value)
+                {
+                    _windowOptionsUpdate(value);
+                });
         }
 
         MainWindow::MainWindow() :
@@ -653,41 +603,6 @@ namespace tl
         MainWindow::~MainWindow()
         {
             DTK_P();
-            dtk::Size2I windowSize = getGeometry().size();
-#if defined(__APPLE__)
-            //! \bug The window size needs to be scaled on macOS?
-            windowSize = windowSize / _displayScale;
-#endif // __APPLE__
-            p.settings->setValue("Window/Size", windowSize);
-            p.settings->setValue("Window/Options", p.windowOptions->get());
-            const auto& itemOptions = p.timelineWidget->getItemOptions();
-            p.settings->setValue("Timeline/Input",
-                itemOptions.inputEnabled);
-            p.settings->setValue("Timeline/Editable",
-                p.timelineWidget->isEditable());
-            p.settings->setValue("Timeline/EditAssociatedClips",
-                itemOptions.editAssociatedClips);
-            p.settings->setValue("Timeline/FrameView",
-                p.timelineWidget->hasFrameView());
-            p.settings->setValue("Timeline/ScrollToCurrentFrame",
-                p.timelineWidget->hasScrollToCurrentFrame());
-            p.settings->setValue("Timeline/StopOnScrub",
-                p.timelineWidget->hasStopOnScrub());
-            const auto& displayOptions = p.timelineWidget->getDisplayOptions();
-            p.settings->setValue("Timeline/FirstTrack",
-                !displayOptions.tracks.empty());
-            p.settings->setValue("Timeline/TrackInfo",
-                displayOptions.trackInfo);
-            p.settings->setValue("Timeline/ClipInfo",
-                displayOptions.clipInfo);
-            p.settings->setValue("Timeline/Thumbnails",
-                displayOptions.thumbnails);
-            p.settings->setValue("Timeline/ThumbnailsSize",
-                displayOptions.thumbnailHeight);
-            p.settings->setValue("Timeline/Transitions",
-                displayOptions.transitions);
-            p.settings->setValue("Timeline/Markers",
-                displayOptions.markers);
             _makeCurrent();
             p.viewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);
@@ -716,24 +631,6 @@ namespace tl
         void MainWindow::focusCurrentFrame()
         {
             _p->currentTimeEdit->takeKeyFocus();
-        }
-
-        const WindowOptions& MainWindow::getWindowOptions() const
-        {
-            return _p->windowOptions->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<WindowOptions> > MainWindow::observeWindowOptions() const
-        {
-            return _p->windowOptions;
-        }
-
-        void MainWindow::setWindowOptions(const WindowOptions& value)
-        {
-            if (_p->windowOptions->setIfChanged(value))
-            {
-                _windowOptionsUpdate();
-            }
         }
 
         void MainWindow::setGeometry(const dtk::Box2I& value)
@@ -898,42 +795,40 @@ namespace tl
             }
         }
 
-        void MainWindow::_windowOptionsUpdate()
+        void MainWindow::_windowOptionsUpdate(const play::WindowOptions& options)
         {
             DTK_P();
-            const auto& windowOptions = p.windowOptions->get();
+            p.fileToolBar->setVisible(options.fileToolBar);
+            p.dividers["File"]->setVisible(options.fileToolBar);
 
-            p.fileToolBar->setVisible(windowOptions.fileToolBar);
-            p.dividers["File"]->setVisible(windowOptions.fileToolBar);
+            p.compareToolBar->setVisible(options.compareToolBar);
+            p.dividers["Compare"]->setVisible(options.compareToolBar);
 
-            p.compareToolBar->setVisible(windowOptions.compareToolBar);
-            p.dividers["Compare"]->setVisible(windowOptions.compareToolBar);
+            p.windowToolBar->setVisible(options.windowToolBar);
+            p.dividers["Window"]->setVisible(options.windowToolBar);
 
-            p.windowToolBar->setVisible(windowOptions.windowToolBar);
-            p.dividers["Window"]->setVisible(windowOptions.windowToolBar);
+            p.viewToolBar->setVisible(options.viewToolBar);
+            p.dividers["View"]->setVisible(options.viewToolBar);
 
-            p.viewToolBar->setVisible(windowOptions.viewToolBar);
-            p.dividers["View"]->setVisible(windowOptions.viewToolBar);
-
-            p.toolsToolBar->setVisible(windowOptions.toolsToolBar);
+            p.toolsToolBar->setVisible(options.toolsToolBar);
 
             p.dividers["ToolBar"]->setVisible(
-                windowOptions.fileToolBar ||
-                windowOptions.compareToolBar ||
-                windowOptions.windowToolBar ||
-                windowOptions.viewToolBar ||
-                windowOptions.toolsToolBar);
+                options.fileToolBar ||
+                options.compareToolBar ||
+                options.windowToolBar ||
+                options.viewToolBar ||
+                options.toolsToolBar);
 
-            p.timelineWidget->setVisible(windowOptions.timeline);
+            p.timelineWidget->setVisible(options.timeline);
 
-            p.bottomLayout->setVisible(windowOptions.bottomToolBar);
-            p.dividers["Bottom"]->setVisible(windowOptions.bottomToolBar);
+            p.bottomLayout->setVisible(options.bottomToolBar);
+            p.dividers["Bottom"]->setVisible(options.bottomToolBar);
 
-            p.statusLayout->setVisible(windowOptions.statusToolBar);
-            p.dividers["Status"]->setVisible(windowOptions.statusToolBar);
+            p.statusLayout->setVisible(options.statusToolBar);
+            p.dividers["Status"]->setVisible(options.statusToolBar);
 
-            p.splitter->setSplit(windowOptions.splitter);
-            p.splitter2->setSplit(windowOptions.splitter2);
+            p.splitter->setSplit(options.splitter);
+            p.splitter2->setSplit(options.splitter2);
         }
 
         void MainWindow::_infoUpdate()
@@ -950,37 +845,6 @@ namespace tl
             }
             p.infoLabel->setText(text);
             p.infoLabel->setTooltip(toolTip);
-        }
-
-        void to_json(nlohmann::json& json, const WindowOptions& in)
-        {
-            json = nlohmann::json
-            {
-                { "fileToolBar", in.fileToolBar },
-                { "compareToolBar", in.compareToolBar },
-                { "windowToolBar", in.windowToolBar },
-                { "viewToolBar", in.viewToolBar },
-                { "toolsToolBar", in.toolsToolBar },
-                { "timeline", in.timeline },
-                { "bottomToolBar", in.bottomToolBar },
-                { "statusToolBar", in.statusToolBar },
-                { "splitter", in.splitter },
-                { "splitter2", in.splitter2 }
-            };
-        }
-
-        void from_json(const nlohmann::json& json, WindowOptions& out)
-        {
-            json.at("fileToolBar").get_to(out.fileToolBar);
-            json.at("compareToolBar").get_to(out.compareToolBar);
-            json.at("windowToolBar").get_to(out.windowToolBar);
-            json.at("viewToolBar").get_to(out.viewToolBar);
-            json.at("toolsToolBar").get_to(out.toolsToolBar);
-            json.at("timeline").get_to(out.timeline);
-            json.at("bottomToolBar").get_to(out.bottomToolBar);
-            json.at("statusToolBar").get_to(out.statusToolBar);
-            json.at("splitter").get_to(out.splitter);
-            json.at("splitter2").get_to(out.splitter2);
         }
     }
 }

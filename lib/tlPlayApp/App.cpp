@@ -13,10 +13,15 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RecentFilesModel.h>
 #include <tlPlay/RenderModel.h>
+#include <tlPlay/TimeUnitsModel.h>
 #include <tlPlay/Util.h>
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlay/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #include <tlTimeline/Util.h>
 
@@ -30,7 +35,6 @@
 #include <tlCore/FileLogSystem.h>
 
 #include <dtk/ui/FileBrowser.h>
-#include <dtk/ui/RecentFilesModel.h>
 #include <dtk/ui/Settings.h>
 #include <dtk/core/Format.h>
 
@@ -45,10 +49,12 @@ namespace tl
             play::Options options;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::shared_ptr<dtk::Settings> settings;
+            std::shared_ptr<play::SettingsModel> settingsModel;
+            std::shared_ptr<play::TimeUnitsModel> timeUnitsModel;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
-            std::shared_ptr<dtk::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<play::RecentFilesModel> recentFilesModel;
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > player;
             std::shared_ptr<play::ColorModel> colorModel;
@@ -64,11 +70,12 @@ namespace tl
 
             bool bmdDeviceActive = false;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<bmd::DevicesModel> bmdDevicesModel;
+            std::shared_ptr<play::BMDDevicesModel> bmdDevicesModel;
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
             dtk::VideoLevels bmdOutputVideoLevels = dtk::VideoLevels::LegalRange;
 #endif // TLRENDER_BMD
 
+            std::shared_ptr<dtk::ValueObserver<play::CacheOptions> > cacheObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
@@ -100,7 +107,7 @@ namespace tl
             DTK_P();
             const std::string appName = "tlplay";
             const std::filesystem::path appDocsPath = play::appDocsPath();
-            const std::filesystem::path logPath = play::logFileName(appName, appDocsPath);
+            const std::filesystem::path logFile = play::logFileName(appName, appDocsPath);
             const std::filesystem::path settingsPath = play::settingsName(appName, appDocsPath);
             dtk::App::_init(
                 context,
@@ -108,12 +115,15 @@ namespace tl
                 appName,
                 "Playback application.",
                 play::getCmdLineArgs(p.options),
-                play::getCmdLineOptions(p.options, logPath, settingsPath));
+                play::getCmdLineOptions(p.options, logFile, settingsPath));
 
             p.fileLogSystem = file::FileLogSystem::create(
                 _context,
-                !p.options.logPath.empty() ? p.options.logPath : logPath);
-            _settingsInit(!p.options.settingsPath.empty() ? p.options.settingsPath : settingsPath);
+                !p.options.logFile.empty() ? p.options.logFile : logFile);
+            p.settings = dtk::Settings::create(
+                _context,
+                !p.options.settings.empty() ? p.options.settings : settingsPath,
+                p.options.resetSettings);
             _modelsInit();
             _devicesInit();
             _observersInit();
@@ -128,26 +138,12 @@ namespace tl
         App::~App()
         {
             DTK_P();
-            if (p.settings)
-            {
-                nlohmann::json json;
-                for (const auto& path : p.recentFilesModel->getRecent())
-                {
-                    json.push_back(path.u8string());
-                }
-                p.settings->set("Files/Recent", json);
-                p.settings->set("Files/RecentMax", p.recentFilesModel->getRecentMax());
-
-                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
-                p.settings->set("FileBrowser/Path", fileBrowserSystem->getPath().u8string());
-                p.settings->setT("FileBrowser/Options", fileBrowserSystem->getOptions());
-
-#if defined(TLRENDER_BMD)
-                p.settings->setT("BMD", p.bmdDevicesModel->observeData()->get());
-#endif // TLRENDER_BMD
-
-                p.settings->setT("Window/Size", p.mainWindow->getSize());
-            }
+            dtk::Size2I windowSize = p.mainWindow->getGeometry().size();
+#if defined(__APPLE__)
+            //! \bug The window size needs to be scaled on macOS?
+            windowSize = windowSize / _displayScale;
+#endif // __APPLE__
+            p.settingsModel->setWindowSize(windowSize);
         }
 
         std::shared_ptr<App> App::create(
@@ -194,7 +190,7 @@ namespace tl
         {
             DTK_P();
             file::PathOptions pathOptions;
-            p.settings->get("FileSequence/MaxDigits", pathOptions.maxNumberDigits);
+            pathOptions.maxNumberDigits = p.settingsModel->getFileSequence().maxDigits;
             for (const auto& i : timeline::getPaths(_context, path, pathOptions))
             {
                 auto item = std::make_shared<play::FilesModelItem>();
@@ -205,12 +201,22 @@ namespace tl
             }
         }
 
+        const std::shared_ptr<play::SettingsModel>& App::getSettingsModel() const
+        {
+            return _p->settingsModel;
+        }
+
+        const std::shared_ptr<play::TimeUnitsModel>& App::getTimeUnitsModel() const
+        {
+            return _p->timeUnitsModel;
+        }
+
         const std::shared_ptr<play::FilesModel>& App::getFilesModel() const
         {
             return _p->filesModel;
         }
 
-        const std::shared_ptr<dtk::RecentFilesModel>& App::getRecentFilesModel() const
+        const std::shared_ptr<play::RecentFilesModel>& App::getRecentFilesModel() const
         {
             return _p->recentFilesModel;
         }
@@ -304,7 +310,7 @@ namespace tl
         }
 
 #if defined(TLRENDER_BMD)
-        const std::shared_ptr<bmd::DevicesModel>& App::getBMDDevicesModel() const
+        const std::shared_ptr<play::BMDDevicesModel>& App::getBMDDevicesModel() const
         {
             return _p->bmdDevicesModel;
         }
@@ -330,49 +336,17 @@ namespace tl
 #endif // TLRENDER_BMD
         }
 
-        void App::_settingsInit(const std::filesystem::path& path)
-        {
-            DTK_P();
-            p.settings = dtk::Settings::create(
-                _context,
-                path,
-                p.options.resetSettings);
-            {
-                std::string path;
-                dtk::FileBrowserOptions options;
-                p.settings->get("FileBrowser/Path", path);
-                p.settings->getT("FileBrowser/Options", options);
-                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
-                fileBrowserSystem->setPath(path);
-                fileBrowserSystem->setOptions(options);
-            }
-        }
-
         void App::_modelsInit()
         {
             DTK_P();
+
+            p.settingsModel = play::SettingsModel::create(_context, p.settings);
+
+            p.timeUnitsModel = play::TimeUnitsModel::create(_context, p.settings);
             
             p.filesModel = play::FilesModel::create(_context);
 
-            p.recentFilesModel = dtk::RecentFilesModel::create(_context);
-            {
-                std::vector<std::filesystem::path> recent;
-                nlohmann::json json;
-                if (p.settings->get("Files/Recent", json))
-                {
-                    for (auto i = json.begin(); i != json.end(); ++i)
-                    {
-                        if (i->is_string())
-                        {
-                            recent.push_back(std::filesystem::u8path(i->get<std::string>()));
-                        }
-                    }
-                }
-                p.recentFilesModel->setRecent(recent);
-                size_t max = 10;
-                p.settings->get("Files/RecentMax", max);
-                p.recentFilesModel->setRecentMax(max);
-            }
+            p.recentFilesModel = play::RecentFilesModel::create(_context, p.settings);
 
             p.colorModel = play::ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
@@ -392,9 +366,7 @@ namespace tl
             DTK_P();
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice = bmd::OutputDevice::create(_context);
-            p.bmdDevicesModel = bmd::DevicesModel::create(_context);
-            bmd::DevicesModelData data;
-            p.settings->getT("BMD", data);
+            p.bmdDevicesModel = play::BMDDevicesModel::create(_context, p.settings);
 #endif // TLRENDER_BMD
         }
 
@@ -403,6 +375,13 @@ namespace tl
             DTK_P();
 
             p.player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
+
+            p.cacheObserver = dtk::ValueObserver<play::CacheOptions>::create(
+                p.settingsModel->observeCache(),
+                [this](const play::CacheOptions& value)
+                {
+                    _cacheUpdate(value);
+                });
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
@@ -615,12 +594,10 @@ namespace tl
 
             p.secondaryWindowActive = dtk::ObservableValue<bool>::create(false);
 
-            dtk::Size2I size(1920, 1080);
-            p.settings->getT("Window/Size", size);
             p.mainWindow = MainWindow::create(
                 _context,
                 std::dynamic_pointer_cast<App>(shared_from_this()),
-                size);
+                p.settingsModel->getWindowSize());
             addWindow(p.mainWindow);
             p.mainWindow->show();
 
@@ -646,61 +623,13 @@ namespace tl
         {
             DTK_P();
             io::Options out;
-
-            double d = 24.0;
-            p.settings->get("SequenceIO/DefaultSpeed", d);
-            out["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").arg(d);
-            int i = 16;
-            p.settings->get("SequenceIO/ThreadCount", i);
-            out["SequenceIO/ThreadCount"] = dtk::Format("{0}").arg(i);
-
+            io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
 #if defined(TLRENDER_FFMPEG)
-            bool b = false;
-            p.settings->get("FFmpeg/YUVToRGBConversion", b);
-            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").arg(b);
-            i = 0;
-            p.settings->get("FFmpeg/ThreadCount", i);
-            out["FFmpeg/ThreadCount"] = dtk::Format("{0}").arg(i);
+            io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
 #endif // TLRENDER_FFMPEG
-
 #if defined(TLRENDER_USD)
-            {
-                int i = p.options.usdRenderWidth;
-                p.settings->get("USD/renderWidth", i);
-                out["USD/renderWidth"] = dtk::Format("{0}").arg(i);
-            }
-            {
-                float f = p.options.usdComplexity;
-                p.settings->get("USD/complexity", f);
-                out["USD/complexity"] = dtk::Format("{0}").arg(f);
-            }
-            {
-                std::string s = usd::to_string(p.options.usdDrawMode);
-                p.settings->get("USD/drawMode", s);
-                out["USD/drawMode"] = s;
-            }
-            {
-                bool b = p.options.usdEnableLighting;
-                p.settings->get("USD/enableLighting", b);
-                out["USD/enableLighting"] = dtk::Format("{0}").arg(b);
-            }
-            {
-                bool b = p.options.usdSRGB;
-                p.settings->get("USD/sRGB", b);
-                out["USD/sRGB"] = dtk::Format("{0}").arg(b);
-            }
-            {
-                size_t s = p.options.usdStageCache;
-                p.settings->get("USD/stageCache", s);
-                out["USD/stageCacheCount"] = dtk::Format("{0}").arg(b);
-            }
-            {
-                size_t s = p.options.usdDiskCache;
-                p.settings->get("USD/diskCache", b);
-                out["USD/diskCacheByteCount"] = dtk::Format("{0}").arg(b);
-            }
+            io::merge(out, usd::getOptions(p.settingsModel->getUSD()));
 #endif // TLRENDER_USD
-
             return out;
         }
 
@@ -725,15 +654,15 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        std::string s;
-                        p.settings->get("FileSequence/Audio", s);
-                        timeline::from_string(s, options.fileSequenceAudio);
-                        p.settings->get("FileSequence/AudioFileName", options.fileSequenceAudioFileName);
-                        p.settings->get("FileSequence/AudioDirectory", options.fileSequenceAudioDirectory);
-                        p.settings->get("FileSequence/VideoRequestCount", options.videoRequestCount);
-                        p.settings->get("FileSequence/AudioRequestCount", options.audioRequestCount);
+                        const play::FileSequenceOptions fileSequence = p.settingsModel->getFileSequence();
+                        options.fileSequenceAudio = fileSequence.audio;
+                        options.fileSequenceAudioFileName = fileSequence.audioFileName;
+                        options.fileSequenceAudioDirectory = fileSequence.audioDirectory;
+                        const play::PerformanceOptions performance = p.settingsModel->getPerformance();
+                        options.videoRequestCount = performance.videoRequestCount;
+                        options.audioRequestCount = performance.audioRequestCount;
                         options.ioOptions = _getIOOptions();
-                        p.settings->get("FileSequence/MaxDigits", options.pathOptions.maxNumberDigits);
+                        options.pathOptions.maxNumberDigits = fileSequence.maxDigits;
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
                             timeline::create(_context, files[i]->path, options) :
                             timeline::create(_context, files[i]->path, files[i]->audioPath, options);
@@ -781,7 +710,7 @@ namespace tl
                                 playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache.readAhead = time::invalidTime;
                                 playerOptions.cache.readBehind = time::invalidTime;
-                                p.settings->get("Performance/AudioBufferFrameCount", playerOptions.audioBufferFrameCount);
+                                playerOptions.audioBufferFrameCount = p.settingsModel->getPerformance().audioBufferFrameCount;
                                 player = timeline::Player::create(_context, timeline, playerOptions);
                             }
                             catch (const std::exception& e)
@@ -815,7 +744,7 @@ namespace tl
 #endif // TLRENDER_BMD
 
             _layersUpdate(p.filesModel->observeLayers()->get());
-            _cacheUpdate();
+            _cacheUpdate(p.settingsModel->getCache());
             _audioUpdate();
         }
 
@@ -847,21 +776,16 @@ namespace tl
             }
         }
 
-        void App::_cacheUpdate()
+        void App::_cacheUpdate(const play::CacheOptions& options)
         {
             DTK_P();
 
             auto ioSystem = _context->getSystem<io::System>();
-            size_t size = 1;
-            p.settings->get("Cache/Size", size);
-            ioSystem->getCache()->setMax(size * dtk::gigabyte);
+            ioSystem->getCache()->setMax(options.sizeGB * dtk::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            double d = 1.0;
-            p.settings->get("Cache/ReadAhead", d);
-            cacheOptions.readAhead = OTIO_NS::RationalTime(d, 1.0);
-            p.settings->get("Cache/ReadBehind", d);
-            cacheOptions.readBehind = OTIO_NS::RationalTime(d, 1.0);
+            cacheOptions.readAhead = OTIO_NS::RationalTime(options.readAhead, 1.0);
+            cacheOptions.readBehind = OTIO_NS::RationalTime(options.readBehind, 1.0);
             if (auto player = p.player->get())
             {
                 player->setCacheOptions(cacheOptions);

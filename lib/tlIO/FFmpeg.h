@@ -35,8 +35,18 @@ namespace tl
         };
         DTK_ENUM(Profile);
 
-        //! Number of threads.
-        const size_t threadCount = 0;
+        //! FFmpeg options.
+        struct Options
+        {
+            bool yuvToRgb = false;
+            size_t threadCount = 0;
+
+            bool operator == (const Options&) const;
+            bool operator != (const Options&) const;
+        };
+
+        //! Get FFmpeg options.
+        io::Options getOptions(const Options&);
 
         //! Software scaler flags.
         const int swsScaleFlags = SWS_FAST_BILINEAR;
@@ -189,5 +199,14 @@ namespace tl
             //! FFmpeg callback?
             static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const Options&);
+
+        void from_json(const nlohmann::json&, Options&);
+
+        ///@}
     }
 }

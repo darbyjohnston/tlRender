@@ -217,7 +217,7 @@ namespace tl
                 json2[ss.str()] = i.second;
             }
             json["boolOptions"] = json2;
-            json["hdrMode"] = value.hdrMode;
+            json["hdrMode"] = to_string(value.hdrMode);
             json["hdrData"] = value.hdrData;
         }
 
@@ -234,7 +234,7 @@ namespace tl
                 ss << j;
                 value.boolOptions[j] = i->find(ss.str())->get<bool>();
             }
-            json.find("hdrMode")->get_to(value.hdrMode);
+            from_string(json.find("hdrMode")->get<std::string>(), value.hdrMode);
             json.find("hdrData")->get_to(value.hdrData);
         }
     }

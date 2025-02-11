@@ -52,6 +52,8 @@ namespace tl
             IWidget::_init(context, "tl::timelineui::TimeLabel", parent);
             DTK_P();
 
+            setVAlign(dtk::VAlign::Center);
+
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
             {

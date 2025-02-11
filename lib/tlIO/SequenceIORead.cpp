@@ -14,6 +14,11 @@ namespace tl
 {
     namespace io
     {
+        namespace
+        {
+            const std::chrono::milliseconds requestTimeout(5);
+        }
+
         void ISequenceRead::_init(
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
@@ -179,7 +184,7 @@ namespace tl
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     if (p.thread.cv.wait_for(
                         lock,
-                        sequenceRequestTimeout,
+                        requestTimeout,
                         [this]
                         {
                             return

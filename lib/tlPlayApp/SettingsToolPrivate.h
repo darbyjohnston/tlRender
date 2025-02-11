@@ -37,8 +37,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -67,8 +65,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -98,8 +94,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 #endif // TLRENDER_FFMPEG
@@ -130,8 +124,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 #endif // TLRENDER_USD
@@ -160,9 +152,6 @@ namespace tl
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
-        private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -189,39 +178,6 @@ namespace tl
 
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            void _settingsUpdate(const std::string&);
-
-            DTK_PRIVATE();
-        };
-
-        //! OpenGL settings widget.
-        class OpenGLSettingsWidget : public dtk::IWidget
-        {
-            DTK_NON_COPYABLE(OpenGLSettingsWidget);
-
-        protected:
-            void _init(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent);
-
-            OpenGLSettingsWidget();
-
-        public:
-            virtual ~OpenGLSettingsWidget();
-
-            static std::shared_ptr<OpenGLSettingsWidget> create(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            void _settingsUpdate(const std::string&);
 
             DTK_PRIVATE();
         };
@@ -251,8 +207,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -281,8 +235,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
     }

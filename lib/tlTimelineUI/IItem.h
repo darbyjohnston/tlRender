@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/LUTOptions.h>
-#include <tlTimeline/OCIOOptions.h>
+#include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>
 
@@ -35,22 +34,34 @@ namespace tl
         enum class InOutDisplay
         {
             InsideRange,
-            OutsideRange
+            OutsideRange,
+
+            Count,
+            First = InsideRange
         };
+        DTK_ENUM(InOutDisplay);
         
         //! Cache display options.
         enum class CacheDisplay
         {
             VideoAndAudio,
-            VideoOnly
+            VideoOnly,
+
+            Count,
+            First = VideoAndAudio
         };
+        DTK_ENUM(CacheDisplay);
 
         //! Waveform primitive type.
         enum class WaveformPrim
         {
             Mesh,
-            Image
+            Image,
+
+            Count,
+            First = Mesh
         };
+        DTK_ENUM(WaveformPrim);
 
         //! Item options.
         struct ItemOptions
@@ -180,5 +191,16 @@ namespace tl
         private:
             DTK_PRIVATE();
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const ItemOptions&);
+        void to_json(nlohmann::json&, const DisplayOptions&);
+
+        void from_json(const nlohmann::json&, ItemOptions&);
+        void from_json(const nlohmann::json&, DisplayOptions&);
+
+        ///@}
     }
 }

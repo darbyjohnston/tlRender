@@ -29,6 +29,24 @@ namespace tl
             First = Points
         };
         DTK_ENUM(DrawMode);
+
+        //! USD options.
+        struct Options
+        {
+            int renderWidth = 1920;
+            float complexity = 1.F;
+            usd::DrawMode drawMode = usd::DrawMode::ShadedSmooth;
+            bool enableLighting = true;
+            bool sRGB = true;
+            size_t stageCache = 10;
+            size_t diskCache = 0;
+
+            bool operator == (const Options&) const;
+            bool operator != (const Options&) const;
+        };
+
+        //! Get USD options.
+        io::Options getOptions(const Options&);
         
         //! USD reader.
         class Read : public io::IRead
@@ -103,6 +121,15 @@ namespace tl
         private:
             DTK_PRIVATE();
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const Options&);
+
+        void from_json(const nlohmann::json&, Options&);
+
+        ///@}
     }
 }
 

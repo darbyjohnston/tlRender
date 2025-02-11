@@ -7,7 +7,10 @@
 #include <tlPlayApp/App.h>
 
 #if defined(TLRENDER_BMD)
-#include <tlDevice/BMDDevicesModel.h>
+#include <tlPlay/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
+
+#if defined(TLRENDER_BMD)
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
@@ -77,7 +80,7 @@ namespace tl
             p.hdrModeComboBox = dtk::ComboBox::create(context, bmd::getHDRModeLabels());
             p.hdrModeComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 auto min = dtk::FloatEdit::create(context);
                 min->setRange(dtk::RangeF(0.F, 1.F));
@@ -142,14 +145,14 @@ namespace tl
             gridLayout->setGridPos(label, 0, 0);
             p.hdrModeComboBox->setParent(gridLayout);
             gridLayout->setGridPos(p.hdrModeComboBox, 0, 1);
-            const std::array<std::string, image::HDRPrimaries::Count> primariesLabels =
+            const std::array<std::string, static_cast<size_t>(image::HDRPrimaries::Count)> primariesLabels =
             {
                 "Red primaries:",
                 "Green primaries:",
                 "Blue primaries:",
                 "White primaries:"
             };
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 label = dtk::Label::create(context, primariesLabels[i], gridLayout);
                 gridLayout->setGridPos(label, 2 + i, 0);
@@ -244,7 +247,7 @@ namespace tl
                     }
                 });
 
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 p.primariesFloatEdits[i].first->setCallback(
                     [appWeak, i](float value)
@@ -338,7 +341,7 @@ namespace tl
 
                     p.hdrModeComboBox->setCurrentIndex(static_cast<int>(value.hdrMode));
 
-                    for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+                    for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
                     {
                         p.primariesFloatEdits[i].first->setValue(value.hdrData.primaries[i].x);
                         p.primariesFloatEdits[i].first->setEnabled(bmd::HDRMode::Custom == value.hdrMode);
