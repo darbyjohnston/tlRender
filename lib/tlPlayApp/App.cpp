@@ -85,7 +85,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<dtk::Window> > > closeObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -290,11 +289,6 @@ namespace tl
                         secondaryScreen = screens.front();
                     }
 #endif // __APPLE__
-                    p.secondaryWindow = SecondaryWindow::create(
-                        _context,
-                        std::dynamic_pointer_cast<App>(shared_from_this()),
-                        p.mainWindow);
-                    addWindow(p.secondaryWindow);
                     if (secondaryScreen != -1)
                     {
                         p.secondaryWindow->setFullScreen(true, secondaryScreen);
@@ -303,8 +297,7 @@ namespace tl
                 }
                 else
                 {
-                    removeWindow(p.secondaryWindow);
-                    p.secondaryWindow.reset();
+                    p.secondaryWindow->hide();
                 }
             }
         }
@@ -445,22 +438,6 @@ namespace tl
                     _audioUpdate();
                 });
 
-            p.closeObserver = dtk::ValueObserver<std::shared_ptr<dtk::Window> >::create(
-                observeWindowClose(),
-                [this](const std::shared_ptr<dtk::Window>& value)
-                {
-                    if (value && value == _p->secondaryWindow)
-                    {
-                        _p->secondaryWindowActive->setIfChanged(false);
-                        _p->secondaryWindow.reset();
-                    }
-                    else if (value && value == _p->mainWindow)
-                    {
-                        removeWindow(_p->secondaryWindow);
-                        _p->secondaryWindow.reset();
-                    }
-                });
-
 #if defined(TLRENDER_BMD)
             p.bmdDevicesObserver = dtk::ValueObserver<bmd::DevicesModelData>::create(
                 p.bmdDevicesModel->observeData(),
@@ -599,6 +576,13 @@ namespace tl
                 std::dynamic_pointer_cast<App>(shared_from_this()),
                 p.settingsModel->getWindowSize());
             addWindow(p.mainWindow);
+
+            p.secondaryWindow = SecondaryWindow::create(
+                _context,
+                std::dynamic_pointer_cast<App>(shared_from_this()),
+                p.mainWindow);
+            addWindow(p.secondaryWindow);
+
             p.mainWindow->show();
 
             p.mainWindow->getViewport()->setViewPosAndZoomCallback(
@@ -617,6 +601,17 @@ namespace tl
                         _p->mainWindow->getViewport()->getViewZoom(),
                         value);
                 });
+            p.mainWindow->setCloseCallback(
+                [this]
+                {
+                    _p->secondaryWindow->hide();
+                });
+
+            p.secondaryWindow->setCloseCallback(
+                [this]
+                {
+                    _p->secondaryWindowActive->setIfChanged(false);
+                });
         }
 
         io::Options App::_getIOOptions() const
@@ -624,7 +619,7 @@ namespace tl
             DTK_P();
             io::Options out;
             io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
-#if defined(TLRENDER_FFMPEG)
+    #if defined(TLRENDER_FFMPEG)
             io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
@@ -797,15 +792,12 @@ namespace tl
             DTK_P();
             float scale = 1.F;
             const dtk::Box2I& g = p.mainWindow->getViewport()->getGeometry();
-            if (p.secondaryWindow)
+            const dtk::Size2I& secondarySize = p.secondaryWindow->getSize();
+            if (g.isValid() && secondarySize.isValid())
             {
-                const dtk::Size2I& secondarySize = p.secondaryWindow->getSize();
-                if (g.isValid() && secondarySize.isValid())
-                {
-                    scale = secondarySize.w / static_cast<float>(g.w());
-                }
-                p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
+                scale = secondarySize.w / static_cast<float>(g.w());
             }
+            p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
 #if defined(TLRENDER_BMD)
             scale = 1.F;
             const dtk::Size2I& bmdSize = p.bmdOutputDevice->getSize();

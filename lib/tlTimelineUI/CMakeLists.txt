@@ -11,7 +11,8 @@ set(HEADERS
     TimelineViewport.h
     TimelineWidget.h
     TransitionItem.h
-    VideoClipItem.h)
+    VideoClipItem.h
+    Window.h)
 set(HEADERS_PRIVATE
     TimelineItemPrivate.h)
 
@@ -28,7 +29,8 @@ set(SOURCE
     TimelineViewport.cpp
     TimelineWidget.cpp
     TransitionItem.cpp
-    VideoClipItem.cpp)
+    VideoClipItem.cpp
+    Window.cpp)
 
 add_library(tlTimelineUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlTimelineUI PUBLIC tlTimelineGL dtk::dtkUI)

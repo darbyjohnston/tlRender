@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlTimelineUI/Window.h>
+
 #include <tlTimeline/Player.h>
 
 #include <dtk/ui/Window.h>
@@ -15,7 +17,7 @@ namespace tl
         class App;
 
         //! Secondary window.
-        class SecondaryWindow : public dtk::Window
+        class SecondaryWindow : public timelineui::Window
         {
             DTK_NON_COPYABLE(SecondaryWindow);
 

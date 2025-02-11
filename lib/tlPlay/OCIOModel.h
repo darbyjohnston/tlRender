@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/OCIOOptions.h>
+#include <tlTimeline/ColorOptions.h>
 
 #include <dtk/core/ObservableValue.h>
 

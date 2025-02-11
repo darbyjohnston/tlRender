@@ -650,11 +650,6 @@ namespace tl
             event.accept = true;
         }
 
-        std::shared_ptr<dtk::IRender> MainWindow::_createRender(const std::shared_ptr<dtk::Context>& context)
-        {
-            return timeline_gl::Render::create(context);
-        }
-
         void MainWindow::_drop(const std::vector<std::string>& value)
         {
             DTK_P();

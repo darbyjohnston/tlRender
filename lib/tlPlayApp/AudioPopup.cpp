@@ -65,8 +65,8 @@ namespace tl
             p.channelMuteButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Toggle);
 
             p.layout = dtk::GridLayout::create(context);
-            p.layout->setMarginRole(dtk::SizeRole::MarginInside);
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingTool);
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             auto label = dtk::Label::create(context, "Volume: ", p.layout);
             p.layout->setGridPos(label, 0, 0);
             p.volumeSlider->setParent(p.layout);

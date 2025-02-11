@@ -6,9 +6,9 @@
 
 #include <tlPlay/SettingsModel.h>
 
-#include <tlTimeline/Player.h>
+#include <tlTimelineUI/Window.h>
 
-#include <dtk/ui/Window.h>
+#include <tlTimeline/Player.h>
 
 namespace tl
 {
@@ -27,7 +27,7 @@ namespace tl
         class App;
 
         //! Main window.
-        class MainWindow : public dtk::Window
+        class MainWindow : public timelineui::Window
         {
             DTK_NON_COPYABLE(MainWindow);
 
@@ -62,8 +62,6 @@ namespace tl
             void keyReleaseEvent(dtk::KeyEvent&) override;
 
         protected:
-            std::shared_ptr<dtk::IRender> _createRender(const std::shared_ptr<dtk::Context>&) override;
-
             void _drop(const std::vector<std::string>&) override;
 
         private:
