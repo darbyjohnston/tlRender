@@ -48,14 +48,14 @@ namespace tl
             p.buttons["Frame"]->setCheckable(p.actions["Frame"]->checkable);
             p.buttons["Frame"]->setTooltip(p.actions["Frame"]->toolTip);
 
-            p.buttons["Zoom1To1"] = dtk::ToolButton::create(context);
-            p.buttons["Zoom1To1"]->setIcon(p.actions["Zoom1To1"]->icon);
-            p.buttons["Zoom1To1"]->setTooltip(p.actions["Zoom1To1"]->toolTip);
+            p.buttons["ZoomReset"] = dtk::ToolButton::create(context);
+            p.buttons["ZoomReset"]->setIcon(p.actions["ZoomReset"]->icon);
+            p.buttons["ZoomReset"]->setTooltip(p.actions["ZoomReset"]->toolTip);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);
             p.buttons["Frame"]->setParent(p.layout);
-            p.buttons["Zoom1To1"]->setParent(p.layout);
+            p.buttons["ZoomReset"]->setParent(p.layout);
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             p.buttons["Frame"]->setCheckedCallback(
@@ -67,12 +67,12 @@ namespace tl
                     }
                 });
 
-            p.buttons["Zoom1To1"]->setClickedCallback(
+            p.buttons["ZoomReset"]->setClickedCallback(
                 [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getViewport()->viewZoom1To1();
+                        mainWindow->getViewport()->viewZoomReset();
                     }
                 });
 

@@ -86,8 +86,8 @@ namespace tl
             //! Frame the view.
             void setFrameView(bool);
 
-            //! Set the view zoom to 1:1.
-            void viewZoom1To1();
+            //! Reset the view zoom to 1:1.
+            void viewZoomReset();
 
             //! Zoom the view in.
             void viewZoomIn();

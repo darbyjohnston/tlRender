@@ -270,7 +270,7 @@ namespace tl
             viewToolBar->setAllowedAreas(Qt::TopToolBarArea);
             viewToolBar->setFloatable(false);
             viewToolBar->addAction(p.viewActions->actions()["Frame"]);
-            viewToolBar->addAction(p.viewActions->actions()["Zoom1To1"]);
+            viewToolBar->addAction(p.viewActions->actions()["ZoomReset"]);
             addToolBar(Qt::TopToolBarArea, viewToolBar);
 
             auto toolsToolBar = new QToolBar;
@@ -557,11 +557,11 @@ namespace tl
                     _p->viewport->setFrameView(value);
                 });
             connect(
-                p.viewActions->actions()["Zoom1To1"],
+                p.viewActions->actions()["ZoomReset"],
                 &QAction::triggered,
                 [this]
                 {
-                    _p->viewport->viewZoom1To1();
+                    _p->viewport->viewZoomReset();
                 });
             connect(
                 p.viewActions->actions()["ZoomIn"],

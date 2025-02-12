@@ -115,9 +115,9 @@ namespace tl
             _p->viewport->setFrameView(value);
         }
         
-        void TimelineViewport::viewZoom1To1()
+        void TimelineViewport::viewZoomReset()
         {
-            _p->viewport->viewZoom1To1();
+            _p->viewport->viewZoomReset();
         }
 
         void TimelineViewport::viewZoomIn()

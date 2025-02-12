@@ -39,20 +39,21 @@ namespace tl
                 });
             p.actions["Frame"]->toolTip = "Frame the view to fit the window";
 
-            p.actions["Zoom1To1"] = std::make_shared<dtk::Action>(
-                "Zoom 1:1",
-                "ViewZoom1To1",
+            p.actions["ZoomReset"] = std::make_shared<dtk::Action>(
+                "Zoom Reset",
+                "ViewZoomReset",
                 [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
-                        mainWindow->getViewport()->viewZoom1To1();
+                        mainWindow->getViewport()->viewZoomReset();
                     }
                 });
-            p.actions["Zoom1To1"]->toolTip = "Set the view zoom to 1:1";
+            p.actions["ZoomReset"]->toolTip = "Reset the view zoom to 1:1";
 
             p.actions["ZoomIn"] = std::make_shared<dtk::Action>(
                 "Zoom In",
+                "ViewZoomIn",
                 [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())
@@ -63,6 +64,7 @@ namespace tl
 
             p.actions["ZoomOut"] = std::make_shared<dtk::Action>(
                 "Zoom Out",
+                "ViewZoomOut",
                 [mainWindowWeak]
                 {
                     if (auto mainWindow = mainWindowWeak.lock())

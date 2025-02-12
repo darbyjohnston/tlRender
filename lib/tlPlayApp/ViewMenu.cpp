@@ -37,7 +37,7 @@ namespace tl
             p.actions = actions;
 
             addItem(p.actions["Frame"]);
-            addItem(p.actions["Zoom1To1"]);
+            addItem(p.actions["ZoomReset"]);
             addItem(p.actions["ZoomIn"]);
             addItem(p.actions["ZoomOut"]);
             addDivider();

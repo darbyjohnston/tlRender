@@ -45,10 +45,10 @@ namespace tl
             p.actions["Frame"]->setIcon(QIcon(":/Icons/ViewFrame.svg"));
             p.actions["Frame"]->setToolTip(tr("Frame the view to fit the window"));
 
-            p.actions["Zoom1To1"] = new QAction(this);
-            p.actions["Zoom1To1"]->setText(tr("Zoom 1:1"));
-            p.actions["Zoom1To1"]->setIcon(QIcon(":/Icons/ViewZoom1To1.svg"));
-            p.actions["Zoom1To1"]->setToolTip(tr("Set the view zoom to 1:1"));
+            p.actions["ZoomReset"] = new QAction(this);
+            p.actions["ZoomReset"]->setText(tr("Zoom Reset"));
+            p.actions["ZoomReset"]->setIcon(QIcon(":/Icons/ViewZoomReset.svg"));
+            p.actions["ZoomReset"]->setToolTip(tr("Reset the view zoom to 1:1"));
 
             p.actions["ZoomIn"] = new QAction(this);
             p.actions["ZoomIn"]->setText(tr("Zoom In"));
@@ -123,7 +123,7 @@ namespace tl
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&View"));
             p.menu->addAction(p.actions["Frame"]);
-            p.menu->addAction(p.actions["Zoom1To1"]);
+            p.menu->addAction(p.actions["ZoomReset"]);
             p.menu->addAction(p.actions["ZoomIn"]);
             p.menu->addAction(p.actions["ZoomOut"]);
             p.menu->addSeparator();

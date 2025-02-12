@@ -318,7 +318,7 @@ namespace tl
             _p->frameViewCallback = value;
         }
 
-        void TimelineViewport::viewZoom1To1()
+        void TimelineViewport::viewZoomReset()
         {
             DTK_P();
             setViewZoom(1.F, _getViewportCenter());

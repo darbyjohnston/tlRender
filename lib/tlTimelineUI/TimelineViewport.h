@@ -92,8 +92,8 @@ namespace tl
             //! Set the view framed callback.
             void setFrameViewCallback(const std::function<void(bool)>&);
 
-            //! Set the view zoom to 1:1.
-            void viewZoom1To1();
+            //! Reset the view zoom to 1:1.
+            void viewZoomReset();
 
             //! Zoom the view in.
             void viewZoomIn();
