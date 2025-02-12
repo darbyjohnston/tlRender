@@ -6,6 +6,7 @@
 
 #include <tlPlayApp/App.h>
 
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/Icon.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/ToolButton.h>
@@ -52,10 +53,10 @@ namespace tl
             p.layout->setSpacingRole(dtk::SizeRole::None);
             auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
             hLayout->setSpacingRole(dtk::SizeRole::None);
-            //hLayout->setBackgroundRole(dtk::ColorRole::Button);
             p.icon->setParent(hLayout);
             p.label->setParent(hLayout);
             p.closeButton->setParent(hLayout);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             p.toolLayout = dtk::VerticalLayout::create(context, p.layout);
             p.toolLayout->setSpacingRole(dtk::SizeRole::None);
             p.toolLayout->setHStretch(dtk::Stretch::Expanding);

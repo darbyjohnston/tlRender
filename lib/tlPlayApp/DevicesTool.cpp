@@ -17,6 +17,7 @@
 #include <dtk/ui/Bellows.h>
 #include <dtk/ui/CheckBox.h>
 #include <dtk/ui/ComboBox.h>
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/FloatEdit.h>
 #include <dtk/ui/FloatEditSlider.h>
 #include <dtk/ui/GridLayout.h>
@@ -180,6 +181,7 @@ namespace tl
             bellows->setWidget(gridLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context);
+            scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
 

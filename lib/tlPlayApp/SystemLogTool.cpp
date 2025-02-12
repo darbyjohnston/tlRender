@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/SystemLogTool.h>
 
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/IClipboard.h>
 #include <dtk/ui/IWindow.h>
 #include <dtk/ui/Label.h>
@@ -54,6 +55,7 @@ namespace tl
 
             p.scrollWidget = dtk::ScrollWidget::create(context);
             p.scrollWidget->setWidget(p.label);
+            p.scrollWidget->setBorder(false);
             p.scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
             p.copyButton = dtk::ToolButton::create(context, "Copy");
@@ -63,6 +65,7 @@ namespace tl
             p.layout = dtk::VerticalLayout::create(context);
             p.layout->setSpacingRole(dtk::SizeRole::None);
             p.scrollWidget->setParent(p.layout);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(dtk::SizeRole::MarginInside);
             hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);

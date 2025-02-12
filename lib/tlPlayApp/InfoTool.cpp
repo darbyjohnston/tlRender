@@ -6,6 +6,7 @@
 
 #include <tlPlayApp/App.h>
 
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
@@ -50,11 +51,13 @@ namespace tl
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setWidget(p.layout);
+            scrollWidget->setBorder(false);
             scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
             auto layout = dtk::VerticalLayout::create(context);
             layout->setSpacingRole(dtk::SizeRole::None);
             scrollWidget->setParent(layout);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
             auto hLayout = dtk::HorizontalLayout::create(context, layout);
             hLayout->setMarginRole(dtk::SizeRole::MarginInside);
             hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);

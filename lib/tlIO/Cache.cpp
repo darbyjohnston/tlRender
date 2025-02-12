@@ -34,19 +34,17 @@ namespace tl
             const Options& initOptions,
             const Options& frameOptions)
         {
-            std::vector<std::string> s;
-            s.push_back(path.get());
-            s.push_back(path.getNumber());
-            s.push_back(dtk::Format("{0}").arg(time));
+            std::stringstream ss;
+            ss << path.get() << ";" << path.getNumber() << ";" << time << ";";
             for (const auto& i : initOptions)
             {
-                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
             for (const auto& i : frameOptions)
             {
-                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
-            return dtk::join(s, ';');
+            return ss.str();
         }
 
         std::string getAudioCacheKey(
@@ -55,19 +53,17 @@ namespace tl
             const Options& initOptions,
             const Options& frameOptions)
         {
-            std::vector<std::string> s;
-            s.push_back(path.get());
-            s.push_back(path.getNumber());
-            s.push_back(dtk::Format("{0}").arg(timeRange));
+            std::stringstream ss;
+            ss << path.get() << ";" << path.getNumber() << ";" << timeRange << ";";
             for (const auto& i : initOptions)
             {
-                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
             for (const auto& i : frameOptions)
             {
-                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
-            return dtk::join(s, ';');
+            return ss.str();
         }
 
         struct Cache::Private

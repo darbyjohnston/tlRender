@@ -191,6 +191,7 @@ namespace tl
             auto bellows = dtk::Bellows::create(context, "Background", layout);
             bellows->setWidget(p.backgroundWidget);
             auto scrollWidget = dtk::ScrollWidget::create(context);
+            scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
         }

@@ -7,6 +7,7 @@
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/String.h>
+#include <dtk/core/Time.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
@@ -25,6 +26,11 @@ namespace tl
 {
     namespace audio
     {
+        namespace
+        {
+            const std::chrono::milliseconds timeout(1000);
+        }
+
         bool DeviceID::operator == (const DeviceID& other) const
         {
             return
@@ -129,7 +135,10 @@ namespace tl
                     {
                         while (_p->thread.running)
                         {
+                            const auto t0 = std::chrono::steady_clock::now();
                             _run();
+                            const auto t1 = std::chrono::steady_clock::now();
+                            dtk::sleep(timeout, t0, t1);
                         }
                     });
             }

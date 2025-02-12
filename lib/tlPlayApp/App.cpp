@@ -626,12 +626,12 @@ namespace tl
         {
             DTK_P();
             io::Options out;
-            io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
+            out = io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
     #if defined(TLRENDER_FFMPEG)
-            io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
+            out = io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-            io::merge(out, usd::getOptions(p.settingsModel->getUSD()));
+            out = io::merge(out, usd::getOptions(p.settingsModel->getUSD()));
 #endif // TLRENDER_USD
             return out;
         }

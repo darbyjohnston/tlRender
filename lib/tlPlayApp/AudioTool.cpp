@@ -49,6 +49,7 @@ namespace tl
             auto bellows = dtk::Bellows::create(context, "Sync Offset", layout);
             bellows->setWidget(vLayout);
             auto scrollWidget = dtk::ScrollWidget::create(context);
+            scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
 

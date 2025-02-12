@@ -138,16 +138,6 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
-            {
-                std::string path;
-                dtk::FileBrowserOptions options;
-                p.settings->get("FileBrowser/Path", path);
-                p.settings->getT("FileBrowser/Options", options);
-                auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
-                fileBrowserSystem->setPath(path);
-                fileBrowserSystem->setOptions(options);
-            }
-
             CacheOptions cache;
             settings->getT("Cache", cache);
             p.cache = dtk::ObservableValue<CacheOptions>::create(cache);
@@ -179,6 +169,16 @@ namespace tl
             bool nativeFileDialog = true;
             settings->get("FileBrowser/NativeFileDialog", nativeFileDialog);
             p.nativeFileDialog = dtk::ObservableValue<bool>::create(nativeFileDialog);
+            {
+                std::string path;
+                dtk::FileBrowserOptions options;
+                p.settings->get("FileBrowser/Path", path);
+                p.settings->getT("FileBrowser/Options", options);
+                auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+                fileBrowserSystem->setPath(path);
+                fileBrowserSystem->setOptions(options);
+                fileBrowserSystem->setNativeFileDialog(nativeFileDialog);
+            }
 
             PerformanceOptions performance;
             settings->getT("Performance", performance);
@@ -211,13 +211,6 @@ namespace tl
         SettingsModel::~SettingsModel()
         {
             DTK_P();
-            if (auto context = p.context.lock())
-            {
-                auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
-                p.settings->set("FileBrowser/Path", fileBrowserSystem->getPath().u8string());
-                p.settings->setT("FileBrowser/Options", fileBrowserSystem->getOptions());
-            }
-
             p.settings->setT("Cache", p.cache->get());
 
             p.settings->setT("Window/Size", p.windowSize->get());
@@ -232,6 +225,12 @@ namespace tl
 #endif // TLRENDER_USD
 
             p.settings->set("FileBrowser/NativeFileDialog", p.nativeFileDialog->get());
+            if (auto context = p.context.lock())
+            {
+                auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+                p.settings->set("FileBrowser/Path", fileBrowserSystem->getPath().u8string());
+                p.settings->setT("FileBrowser/Options", fileBrowserSystem->getOptions());
+            }
 
             p.settings->setT("Performance", p.performance->get());
 
@@ -393,7 +392,15 @@ namespace tl
 
         void SettingsModel::setNativeFileDialog(bool value)
         {
-            _p->nativeFileDialog->setIfChanged(value);
+            DTK_P();
+            if (p.nativeFileDialog->setIfChanged(value))
+            {
+                if (auto context = p.context.lock())
+                {
+                    auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+                    fileBrowserSystem->setNativeFileDialog(value);
+                }
+            }
         }
 
         const PerformanceOptions& SettingsModel::getPerformance() const

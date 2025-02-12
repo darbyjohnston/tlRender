@@ -9,6 +9,7 @@
 #include <dtk/ui/Bellows.h>
 #include <dtk/ui/ButtonGroup.h>
 #include <dtk/ui/ComboBox.h>
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/FloatEditSlider.h>
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
@@ -76,6 +77,8 @@ namespace tl
             p.widgetLayout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.widgetLayout->setSpacingRole(dtk::SizeRole::None);
 
+            dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
+
             auto vLayout = dtk::VerticalLayout::create(context, layout);
             vLayout->setSpacingRole(dtk::SizeRole::None);
             auto bellows = dtk::Bellows::create(context, "Wipe", vLayout);
@@ -103,6 +106,7 @@ namespace tl
             bellows->setWidget(gridLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
+            scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
 

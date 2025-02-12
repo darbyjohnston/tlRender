@@ -16,6 +16,7 @@
 #include <dtk/ui/CheckBox.h>
 #include <dtk/ui/ComboBox.h>
 #include <dtk/ui/DialogSystem.h>
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/DoubleEdit.h>
 #include <dtk/ui/FloatEditSlider.h>
 #include <dtk/ui/GridLayout.h>
@@ -1055,8 +1056,10 @@ namespace tl
             bellows->setWidget(styleWidget);
             bellows = dtk::Bellows::create(context, "Miscellaneous", vLayout);
             bellows->setWidget(miscWidget);
+
             p.scrollWidget = dtk::ScrollWidget::create(context);
             p.scrollWidget->setWidget(vLayout);
+            p.scrollWidget->setBorder(false);
             p.scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
             p.resetButton = dtk::ToolButton::create(context, "Default Settings");
@@ -1064,6 +1067,7 @@ namespace tl
             p.layout = dtk::VerticalLayout::create(context);
             p.layout->setSpacingRole(dtk::SizeRole::None);
             p.scrollWidget->setParent(p.layout);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
             hLayout->setMarginRole(dtk::SizeRole::MarginInside);
             hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);

@@ -984,6 +984,7 @@ namespace tl
             p.bellows["SoftClip"]->setParent(layout);
             p.bellows["SoftClip"]->setWidget(p.softClipWidget);
             auto scrollWidget = dtk::ScrollWidget::create(context);
+            scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
         }
