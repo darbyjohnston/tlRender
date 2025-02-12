@@ -8,7 +8,10 @@
 
 #include <tlTimeline/Init.h>
 
+#include <tlResource/Resource.h>
+
 #include <dtk/ui/Init.h>
+#include <dtk/ui/IconSystem.h>
 
 namespace tl
 {
@@ -19,6 +22,12 @@ namespace tl
             tl::timeline::init(context);
             dtk::uiInit(context);
             ThumbnailSystem::create(context);
+
+            auto iconSystem = context->getSystem<dtk::IconSystem>();
+            for (const auto& resource : tl::getIconResources())
+            {
+                iconSystem->add(resource, tl::getIconResource(resource));
+            }
         }
     }
 }

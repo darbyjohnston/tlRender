@@ -118,10 +118,10 @@ namespace tl
 
             p.fileLogSystem = file::FileLogSystem::create(
                 _context,
-                !p.options.logFile.empty() ? p.options.logFile : logFile);
+                !p.options.logFile.empty() ? std::filesystem::u8path(p.options.logFile) : logFile);
             p.settings = dtk::Settings::create(
                 _context,
-                !p.options.settings.empty() ? p.options.settings : settingsPath,
+                !p.options.settings.empty() ? std::filesystem::u8path(p.options.settings) : settingsPath,
                 p.options.resetSettings);
             _modelsInit();
             _devicesInit();
