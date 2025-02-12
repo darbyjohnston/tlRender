@@ -85,6 +85,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -436,6 +437,13 @@ namespace tl
                 [this](double)
                 {
                     _audioUpdate();
+                });
+
+            p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
+                p.settingsModel->observeStyle(),
+                [this](const play::StyleOptions& value)
+                {
+                    setColorStyle(value.colorStyle);
                 });
 
 #if defined(TLRENDER_BMD)

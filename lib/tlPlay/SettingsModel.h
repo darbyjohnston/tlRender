@@ -8,6 +8,7 @@
 
 #include <tlTimeline/Player.h>
 
+#include <dtk/ui/App.h>
 #include <dtk/core/ObservableValue.h>
 
 #include <tlIO/SequenceIO.h>
@@ -92,6 +93,16 @@ namespace tl
 
             bool operator == (const TimelineOptions&) const;
             bool operator != (const TimelineOptions&) const;
+        };
+
+        //! Style options.
+        struct StyleOptions
+        {
+            dtk::ColorStyle colorStyle = dtk::ColorStyle::Dark;
+            float displayScale = 0.F;
+
+            bool operator == (const StyleOptions&) const;
+            bool operator != (const StyleOptions&) const;
         };
 
         //! Settings model.
@@ -224,6 +235,17 @@ namespace tl
 
             ///@}
 
+            //! \name Style
+            ///@{
+
+            const StyleOptions& getStyle() const;
+
+            std::shared_ptr<dtk::IObservableValue<StyleOptions> > observeStyle() const;
+
+            void setStyle(const StyleOptions&);
+
+            ///@}
+
             //! \name Miscellaneous
             ///@{
 
@@ -247,12 +269,14 @@ namespace tl
         void to_json(nlohmann::json&, const FileSequenceOptions&);
         void to_json(nlohmann::json&, const PerformanceOptions&);
         void to_json(nlohmann::json&, const TimelineOptions&);
+        void to_json(nlohmann::json&, const StyleOptions&);
 
         void from_json(const nlohmann::json&, CacheOptions&);
         void from_json(const nlohmann::json&, WindowOptions&);
         void from_json(const nlohmann::json&, FileSequenceOptions&);
         void from_json(const nlohmann::json&, PerformanceOptions&);
         void from_json(const nlohmann::json&, TimelineOptions&);
+        void from_json(const nlohmann::json&, StyleOptions&);
 
         ///@}
     }

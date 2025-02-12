@@ -84,6 +84,18 @@ namespace tl
             return !(*this == other);
         }
 
+        bool StyleOptions::operator == (const StyleOptions& other) const
+        {
+            return
+                colorStyle == other.colorStyle &&
+                displayScale == other.displayScale;
+        }
+
+        bool StyleOptions::operator != (const StyleOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         struct SettingsModel::Private
         {
             std::weak_ptr<dtk::Context> context;
@@ -111,6 +123,8 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<timelineui::ItemOptions> > timelineItem;
             std::shared_ptr<dtk::ObservableValue<timelineui::DisplayOptions> > timelineDisplay;
             std::shared_ptr<dtk::ObservableValue<bool> > timelineFirstTrack;
+
+            std::shared_ptr<dtk::ObservableValue<StyleOptions> > style;
 
             std::shared_ptr<dtk::ObservableValue<bool> > tooltipsEnabled;
         };
@@ -181,6 +195,10 @@ namespace tl
             p.timelineDisplay = dtk::ObservableValue<timelineui::DisplayOptions>::create(timelineDisplay);
             p.timelineFirstTrack = dtk::ObservableValue<bool>::create(false);
 
+            StyleOptions style;
+            settings->getT("Style", style);
+            p.style = dtk::ObservableValue<StyleOptions>::create(style);
+
             bool tooltipsEnabled = true;
             settings->get("Misc/Tooltips", tooltipsEnabled);
             p.tooltipsEnabled = dtk::ObservableValue<bool>::create(tooltipsEnabled);
@@ -217,6 +235,8 @@ namespace tl
 
             p.settings->setT("Performance", p.performance->get());
 
+            p.settings->setT("Style", p.style->get());
+
             p.settings->set("Misc/Tooltips", p.tooltipsEnabled->get());
         }
 
@@ -248,6 +268,7 @@ namespace tl
             setTimelineItem(timelineui::ItemOptions());
             setTimelineDisplay(timelineui::DisplayOptions());
             setTimelineFirstTrack(false);
+            setStyle(StyleOptions());
             setTooltipsEnabled(true);
         }
 
@@ -450,6 +471,21 @@ namespace tl
             _p->timelineFirstTrack->setIfChanged(value);
         }
 
+        const StyleOptions& SettingsModel::getStyle() const
+        {
+            return _p->style->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<StyleOptions> > SettingsModel::observeStyle() const
+        {
+            return _p->style;
+        }
+
+        void SettingsModel::setStyle(const StyleOptions& value)
+        {
+            _p->style->setIfChanged(value);
+        }
+
         bool SettingsModel::getTooltipsEnabled() const
         {
             return _p->tooltipsEnabled->get();
@@ -512,6 +548,12 @@ namespace tl
             json["stopOnScrub"] = value.stopOnScrub;
         }
 
+        void to_json(nlohmann::json& json, const StyleOptions& value)
+        {
+            json["colorStyle"] = value.colorStyle;
+            json["displayScale"] = value.displayScale;
+        }
+
         void from_json(const nlohmann::json& json, CacheOptions& value)
         {
             json["sizeGB"].get_to(value.sizeGB);
@@ -554,6 +596,12 @@ namespace tl
             json["frameView"].get_to(value.frameView);
             json["scroll"].get_to(value.scroll);
             json["stopOnScrub"].get_to(value.stopOnScrub);
+        }
+
+        void from_json(const nlohmann::json& json, StyleOptions& value)
+        {
+            json["colorStyle"].get_to(value.colorStyle);
+            json["displayScale"].get_to(value.displayScale);
         }
     }
 }

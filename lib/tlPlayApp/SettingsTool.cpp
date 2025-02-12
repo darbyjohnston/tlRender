@@ -26,6 +26,7 @@
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
 #include <dtk/ui/ToolButton.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -749,7 +750,7 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    play::PerformanceOptions performance = p.model->getPerformance();
+                    auto performance = p.model->getPerformance();
                     performance.audioBufferFrameCount = value;
                     p.model->setPerformance(performance);
                 });
@@ -758,7 +759,7 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    play::PerformanceOptions performance = p.model->getPerformance();
+                    auto performance = p.model->getPerformance();
                     performance.videoRequestCount = value;
                     p.model->setPerformance(performance);
                 });
@@ -767,7 +768,7 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    play::PerformanceOptions performance = p.model->getPerformance();
+                    auto performance = p.model->getPerformance();
                     performance.audioRequestCount = value;
                     p.model->setPerformance(performance);
                 });
@@ -804,12 +805,25 @@ namespace tl
 
         struct StyleSettingsWidget::Private
         {
-            std::weak_ptr<App> app;
+            std::shared_ptr<play::SettingsModel> model;
+
+            const std::vector<float> displayScales =
+            {
+                0.F,
+                1.F,
+                1.5F,
+                2.F,
+                2.5F,
+                3.F,
+                3.5F,
+                4.F
+            };
 
             std::shared_ptr<dtk::ComboBox> colorStyleComboBox;
+            std::shared_ptr<dtk::ComboBox> displayScaleComboBox;
             std::shared_ptr<dtk::GridLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<dtk::ColorStyle> > colorStyleObserver;
+            std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
         };
 
         void StyleSettingsWidget::_init(
@@ -820,10 +834,20 @@ namespace tl
             IWidget::_init(context, "tl::play_app::StyleSettingsWidget", parent);
             DTK_P();
 
-            p.app = app;
+            p.model = app->getSettingsModel();
 
             p.colorStyleComboBox = dtk::ComboBox::create(context, dtk::getColorStyleLabels());
             p.colorStyleComboBox->setHStretch(dtk::Stretch::Expanding);
+
+            std::vector<std::string> labels;
+            for (auto d : p.displayScales)
+            {
+                labels.push_back(0.F == d ?
+                    std::string("Automatic") :
+                    dtk::Format("{0}").arg(d).operator std::string());
+            }
+            p.displayScaleComboBox = dtk::ComboBox::create(context, labels);            
+            p.displayScaleComboBox->setHStretch(dtk::Stretch::Expanding);
 
             p.layout = dtk::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
@@ -832,21 +856,46 @@ namespace tl
             p.layout->setGridPos(label, 0, 0);
             p.colorStyleComboBox->setParent(p.layout);
             p.layout->setGridPos(p.colorStyleComboBox, 0, 1);
+            label = dtk::Label::create(context, "Display scale:", p.layout);
+            p.layout->setGridPos(label, 1, 0);
+            p.displayScaleComboBox->setParent(p.layout);
+            p.layout->setGridPos(p.displayScaleComboBox, 1, 1);
 
-            p.colorStyleObserver = dtk::ValueObserver<dtk::ColorStyle>::create(
-                app->observeColorStyle(),
-                [this](dtk::ColorStyle value)
+            p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
+                app->getSettingsModel()->observeStyle(),
+                [this](const play::StyleOptions& value)
                 {
-                    _p->colorStyleComboBox->setCurrentIndex(static_cast<int>(value));
+                    DTK_P();
+                    p.colorStyleComboBox->setCurrentIndex(static_cast<int>(value.colorStyle));
+                    const auto i = std::find(
+                        p.displayScales.begin(),
+                        p.displayScales.end(),
+                        value.displayScale);
+                    p.displayScaleComboBox->setCurrentIndex(
+                        i != p.displayScales.end() ?
+                        (i - p.displayScales.begin()) :
+                        -1);
                 });
 
             p.colorStyleComboBox->setIndexCallback(
                 [this](int value)
                 {
-                    if (auto app = _p->app.lock())
+                    DTK_P();
+                    auto style = p.model->getStyle();
+                    style.colorStyle = static_cast<dtk::ColorStyle>(value);
+                    p.model->setStyle(style);
+                });
+
+            p.displayScaleComboBox->setIndexCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    auto style = p.model->getStyle();
+                    if (value >= 0 && value < p.displayScales.size())
                     {
-                        app->setColorStyle(static_cast<dtk::ColorStyle>(value));
+                        style.displayScale = p.displayScales[value];
                     }
+                    p.model->setStyle(style);
                 });
         }
 
