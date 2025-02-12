@@ -93,6 +93,9 @@ namespace tl
             //! Get the recent files model.
             const std::shared_ptr<play::RecentFilesModel>& getRecentFilesModel() const;
 
+            //! Reload the files.
+            void reload();
+
             //! Observe the timeline player.
             std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 

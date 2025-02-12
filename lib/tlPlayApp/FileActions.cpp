@@ -114,7 +114,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getFilesModel()->reload();
+                        app->reload();
                     }
                 });
 

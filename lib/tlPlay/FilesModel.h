@@ -93,9 +93,6 @@ namespace tl
             //! Close all the files.
             void closeAll();
 
-            //! Reload all the active files.
-            void reload();
-
             //! Set the "A" file.
             void setA(int index);
 

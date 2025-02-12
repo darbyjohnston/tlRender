@@ -208,6 +208,15 @@ namespace tl
             return p.waveforms.get(key, waveform);
         }
 
+        void ThumbnailCache::clear()
+        {
+            DTK_P();
+            std::unique_lock<std::mutex> lock(p.mutex);
+            p.info.clear();
+            p.thumbnails.clear();
+            p.waveforms.clear();
+        }
+
         void ThumbnailCache::_maxUpdate()
         {
             DTK_P();

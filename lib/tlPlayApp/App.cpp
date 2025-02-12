@@ -23,6 +23,8 @@
 #include <tlPlay/BMDDevicesModel.h>
 #endif // TLRENDER_BMD
 
+#include <tlTimelineUI/ThumbnailSystem.h>
+
 #include <tlTimeline/Util.h>
 
 #if defined(TLRENDER_BMD)
@@ -219,6 +221,33 @@ namespace tl
         const std::shared_ptr<play::RecentFilesModel>& App::getRecentFilesModel() const
         {
             return _p->recentFilesModel;
+        }
+
+        void App::reload()
+        {
+            DTK_P();
+            const auto activeFiles = p.activeFiles;
+            const auto files = p.files;
+            for (const auto& i : activeFiles)
+            {
+                const auto j = std::find(p.files.begin(), p.files.end(), i);
+                if (j != p.files.end())
+                {
+                    const size_t index = j - p.files.begin();
+                    p.files.erase(j);
+                    p.timelines.erase(p.timelines.begin() + index);
+                }
+            }
+            p.activeFiles.clear();
+
+            auto thumbnailSytem = _context->getSystem<timelineui::ThumbnailSystem>();
+            thumbnailSytem->getCache()->clear();
+
+            auto ioSystem = _context->getSystem<io::System>();
+            ioSystem->getCache()->clear();
+
+            _filesUpdate(files);
+            _activeUpdate(activeFiles);
         }
 
         std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > App::observePlayer() const

@@ -133,6 +133,9 @@ namespace tl
                 const std::string& key,
                 std::shared_ptr<dtk::TriMesh2F>&) const;
 
+            //! Clear the cache.
+            void clear();
+
         private:
             void _maxUpdate();
 
