@@ -239,6 +239,13 @@ namespace tl
                 }
             }
             p.activeFiles.clear();
+            if (!activeFiles.empty())
+            {
+                if (auto player = p.player->get())
+                {
+                    activeFiles.front()->currentTime = player->getCurrentTime();
+                }
+            }
 
             auto thumbnailSytem = _context->getSystem<timelineui::ThumbnailSystem>();
             thumbnailSytem->getCache()->clear();
@@ -718,6 +725,15 @@ namespace tl
         void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& activeFiles)
         {
             DTK_P();
+
+            if (!p.activeFiles.empty())
+            {
+                if (auto player = p.player->get())
+                {
+                    p.activeFiles.front()->currentTime = player->getCurrentTime();
+                }
+            }
+
             std::shared_ptr<timeline::Player> player;
             if (!activeFiles.empty())
             {
@@ -755,6 +771,11 @@ namespace tl
             }
             if (player)
             {
+                const OTIO_NS::RationalTime currentTime = activeFiles.front()->currentTime;
+                if (!currentTime.strictly_equal(time::invalidTime))
+                {
+                    player->seek(currentTime);
+                }
                 std::vector<std::shared_ptr<timeline::Timeline> > compare;
                 for (size_t i = 1; i < activeFiles.size(); ++i)
                 {

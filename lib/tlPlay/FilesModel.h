@@ -28,6 +28,8 @@ namespace tl
 
             std::vector<std::string> videoLayers;
             size_t videoLayer = 0;
+
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
         };
 
         //! Files model.
