@@ -103,12 +103,6 @@ namespace tl
             p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
             p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
             p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
-            std::vector<std::pair<dtk::Key, dtk::KeyModifier> > colorBufferShortcuts =
-            {
-                std::make_pair(dtk::Key::_8, dtk::KeyModifier::Control),
-                std::make_pair(dtk::Key::_9, dtk::KeyModifier::Control),
-                std::make_pair(dtk::Key::_0, dtk::KeyModifier::Control)
-            };
             for (size_t i = 0; i < p.colorBuffers.size(); ++i)
             {
                 const dtk::ImageType imageType = p.colorBuffers[i];
@@ -116,12 +110,6 @@ namespace tl
                 ss << imageType;
                 p.actions[ss.str()] = std::make_shared<dtk::Action>(
                     ss.str(),
-                    i < colorBufferShortcuts.size() ?
-                        colorBufferShortcuts[i].first :
-                        dtk::Key::Unknown,
-                    static_cast<int>(i < colorBufferShortcuts.size() ?
-                        colorBufferShortcuts[i].second :
-                        dtk::KeyModifier::None),
                     [appWeak, imageType](bool value)
                     {
                         if (auto app = appWeak.lock())

@@ -351,7 +351,6 @@ namespace tl
             p.statusBar->setHStretch(dtk::Stretch::Expanding);
 
             p.infoLabel = dtk::Label::create(context);
-            p.infoLabel->setHAlign(dtk::HAlign::Right);
             p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(
@@ -409,7 +408,7 @@ namespace tl
             p.muteButton->setParent(hLayout);
             p.dividers["Status"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             p.statusLayout = dtk::HorizontalLayout::create(context, p.layout);
-            p.statusLayout->setSpacingRole(dtk::SizeRole::None);
+            p.statusLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.statusBar->setParent(p.statusLayout);
             dtk::Divider::create(context, dtk::Orientation::Horizontal, p.statusLayout);
             p.infoLabel->setParent(p.statusLayout);
