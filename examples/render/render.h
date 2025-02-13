@@ -5,8 +5,7 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
-#include <dtk/ui/App.h>
-#include <dtk/ui/MainWindow.h>
+#include <dtk/core/IApp.h>
 
 namespace dtk
 {
@@ -37,38 +36,15 @@ namespace tl
                 timeline::LUTOptions lutOptions;
             };
 
-            //! Window.
-            class MainWindow : public dtk::MainWindow
-            {
-                DTK_NON_COPYABLE(MainWindow);
-
-            protected:
-                void _init(
-                    const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<dtk::App>&);
-
-                MainWindow() = default;
-
-            public:
-                ~MainWindow();
-
-                static std::shared_ptr<MainWindow> create(
-                    const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<dtk::App>&);
-
-            protected:
-                std::shared_ptr<dtk::IRender> _createRender(const std::shared_ptr<dtk::Context>&) override;
-            };
-
             //! Application.
-            class App : public dtk::App
+            class App : public dtk::IApp
             {
                 DTK_NON_COPYABLE(App);
 
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::vector<std::string>&);
+                    std::vector<std::string>&);
 
                 App();
 
@@ -78,7 +54,7 @@ namespace tl
                 //! Create a new application.
                 static std::shared_ptr<App> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::vector<std::string>&);
+                    std::vector<std::string>&);
 
                 void run() override;
 

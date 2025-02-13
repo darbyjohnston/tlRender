@@ -1,4 +1,3 @@
-add_subdirectory(tlAppTest)
 add_subdirectory(tlCoreTest)
 add_subdirectory(tlIOTest)
 add_subdirectory(tlTestLib)

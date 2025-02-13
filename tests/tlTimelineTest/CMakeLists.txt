@@ -1,22 +1,20 @@
 set(HEADERS
+    ColorOptionsTest.h
     CompareOptionsTest.h
     DisplayOptionsTest.h
     EditTest.h
-    LUTOptionsTest.h
     MemoryReferenceTest.h
-    OCIOOptionsTest.h
     PlayerOptionsTest.h
     PlayerTest.h
     TimelineTest.h
     UtilTest.h)
 
 set(SOURCE
+    ColorOptionsTest.cpp
     CompareOptionsTest.cpp
     DisplayOptionsTest.cpp
     EditTest.cpp
-    LUTOptionsTest.cpp
     MemoryReferenceTest.cpp
-    OCIOOptionsTest.cpp
     PlayerOptionsTest.cpp
     PlayerTest.cpp
     TimelineTest.cpp

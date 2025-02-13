@@ -7,15 +7,11 @@
 #include <tlQt/Init.h>
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
-#include <tlAppTest/AppTest.h>
-#include <tlAppTest/CmdLineTest.h>
-
+#include <tlTimelineTest/ColorOptionsTest.h>
 #include <tlTimelineTest/CompareOptionsTest.h>
 #include <tlTimelineTest/DisplayOptionsTest.h>
 #include <tlTimelineTest/EditTest.h>
-#include <tlTimelineTest/LUTOptionsTest.h>
 #include <tlTimelineTest/MemoryReferenceTest.h>
-#include <tlTimelineTest/OCIOOptionsTest.h>
 #include <tlTimelineTest/PlayerOptionsTest.h>
 #include <tlTimelineTest/PlayerTest.h>
 #include <tlTimelineTest/TimelineTest.h>
@@ -105,24 +101,15 @@ void timelineTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
     const std::shared_ptr<dtk::Context>& context)
 {
+    tests.push_back(timeline_tests::ColorOptionsTest::create(context));
     tests.push_back(timeline_tests::CompareOptionsTest::create(context));
     tests.push_back(timeline_tests::DisplayOptionsTest::create(context));
     tests.push_back(timeline_tests::EditTest::create(context));
-    tests.push_back(timeline_tests::LUTOptionsTest::create(context));
     tests.push_back(timeline_tests::MemoryReferenceTest::create(context));
-    tests.push_back(timeline_tests::OCIOOptionsTest::create(context));
     tests.push_back(timeline_tests::PlayerOptionsTest::create(context));
     tests.push_back(timeline_tests::PlayerTest::create(context));
     tests.push_back(timeline_tests::TimelineTest::create(context));
     tests.push_back(timeline_tests::UtilTest::create(context));
-}
-
-void appTests(
-    std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<dtk::Context>& context)
-{
-    tests.push_back(app_tests::AppTest::create(context));
-    tests.push_back(app_tests::CmdLineTest::create(context));
 }
 
 void qtTests(
@@ -163,7 +150,6 @@ int main(int argc, char* argv[])
     coreTests(tests, context);
     ioTests(tests, context);
     timelineTests(tests, context);
-    appTests(tests, context);
     qtTests(tests, context);
 
     for (const auto& test : tests)

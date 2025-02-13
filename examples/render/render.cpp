@@ -8,6 +8,8 @@
 
 #include <dtk/gl/GL.h>
 #include <dtk/gl/Window.h>
+#include <dtk/core/CmdLine.h>
+#include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/Math.h>
 #include <dtk/core/String.h>
@@ -27,78 +29,78 @@ namespace tl
         {
             void App::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::vector<std::string>& argv)
+                std::vector<std::string>& argv)
             {
-                BaseApp::_init(
+                IApp::_init(
                     context,
                     argv,
                     "render",
                     "Example rendering application.",
                     {
-                        app::CmdLineValueArg<std::string>::create(
+                        dtk::CmdLineValueArg<std::string>::create(
                             _input,
                             "input",
                             "The input timeline.")
                     },
                 {
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.compareFileName,
                         { "-compare", "-b" },
                         "A/B comparison \"B\" file name."),
-                    app::CmdLineValueOption<dtk::Size2I>::create(
+                    dtk::CmdLineValueOption<dtk::Size2I>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
                         dtk::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
-                    app::CmdLineFlagOption::create(
+                    dtk::CmdLineFlagOption::create(
                         _options.fullscreen,
                         { "-fullscreen", "-fs" },
                         "Enable full screen mode."),
-                    app::CmdLineValueOption<bool>::create(
+                    dtk::CmdLineValueOption<bool>::create(
                         _options.hud,
                         { "-hud" },
                         "Enable the HUD (heads up display).",
                         dtk::Format("{0}").arg(_options.hud),
                         "0, 1"),
-                    app::CmdLineValueOption<timeline::Playback>::create(
+                    dtk::CmdLineValueOption<timeline::Playback>::create(
                         _options.playback,
                         { "-playback", "-p" },
                         "Playback mode.",
                         dtk::Format("{0}").arg(_options.playback),
                         dtk::join(timeline::getPlaybackLabels(), ", ")),
-                    app::CmdLineValueOption<OTIO_NS::RationalTime>::create(
+                    dtk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                         _options.seek,
                         { "-seek" },
                         "Seek to the given time."),
-                    app::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                    dtk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.fileName,
                         { "-ocio" },
                         "OpenColorIO configuration file name (e.g., config.ocio)."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.input,
                         { "-ocioInput" },
                         "OpenColorIO input name."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.display,
                         { "-ocioDisplay" },
                         "OpenColorIO display name."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.view,
                         { "-ocioView" },
                         "OpenColorIO view name."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.look,
                         { "-ocioLook" },
                         "OpenColorIO look name."),
-                    app::CmdLineValueOption<std::string>::create(
+                    dtk::CmdLineValueOption<std::string>::create(
                         _options.lutOptions.fileName,
                         { "-lut" },
                         "LUT file name."),
-                    app::CmdLineValueOption<timeline::LUTOrder>::create(
+                    dtk::CmdLineValueOption<timeline::LUTOrder>::create(
                         _options.lutOptions.order,
                         { "-lutOrder" },
                         "LUT operation order.",
@@ -115,91 +117,87 @@ namespace tl
 
             std::shared_ptr<App> App::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::vector<std::string>& argv)
+                std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
                 out->_init(context, argv);
                 return out;
             }
 
-            int App::run()
+            void App::run()
             {
-                if (0 == _exit)
+                // Read the timelines.
+                auto timeline = timeline::Timeline::create(_context, _input);
+                _player = timeline::Player::create(_context, timeline);
+                std::vector<std::shared_ptr <timeline::Timeline> > compare;
+                if (!_options.compareFileName.empty())
                 {
-                    // Read the timelines.
-                    auto timeline = timeline::Timeline::create(_context, _input);
-                    _player = timeline::Player::create(_context, timeline);
-                    std::vector<std::shared_ptr <timeline::Timeline> > compare;
-                    if (!_options.compareFileName.empty())
-                    {
-                        compare.push_back(timeline::Timeline::create(_context, _options.compareFileName));
-                    }
-                    _player->setCompare(compare);
-                    _videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
-                        _player->observeCurrentVideo(),
-                        [this](const std::vector<timeline::VideoData>& value)
-                        {
-                            _videoData = value;
-                            _renderDirty = true;
-                        });
-
-                    // Create the window.
-                    _window = dtk::gl::Window::create(
-                        _context,
-                        "render",
-                        _options.windowSize);
-                    _frameBufferSize = _window->getFrameBufferSize();
-                    _contentScale = _window->getContentScale();
-                    _window->setFullScreen(_options.fullscreen);
-                    _window->setFrameBufferSizeCallback(
-                        [this](const dtk::Size2I& value)
-                        {
-                            _frameBufferSize = value;
-                    _renderDirty = true;
-                        });
-                    _window->setContentScaleCallback(
-                        [this](const dtk::V2F& value)
-                        {
-                            _contentScale = value;
-                    _renderDirty = true;
-                        });
-                    _window->setKeyCallback(
-                        [this](int key, int scanCode, int action, int mods)
-                        {
-                            _keyCallback(key, scanCode, action, mods);
-                        });
-
-                    // Create the renderer.
-                    _render = timeline_gl::Render::create(_context);
-
-                    // Print the shortcuts help.
-                    _printShortcutsHelp();
-
-                    // Start the main loop.
-                    _hud = _options.hud;
-                    if (time::isValid(_options.inOutRange))
-                    {
-                        _player->setInOutRange(_options.inOutRange);
-                        _player->seek(_options.inOutRange.start_time());
-                    }
-                    if (time::isValid(_options.seek))
-                    {
-                        _player->seek(_options.seek);
-                    }
-                    _player->setPlayback(_options.playback);
-                    _startTime = std::chrono::steady_clock::now();
-                    while (_running && !_window->shouldClose())
-                    {
-                        glfwPollEvents();
-                        _tick();
-                    }
+                    compare.push_back(timeline::Timeline::create(_context, _options.compareFileName));
                 }
-                return _exit;
-            }
+                _player->setCompare(compare);
+                _videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
+                    _player->observeCurrentVideo(),
+                    [this](const std::vector<timeline::VideoData>& value)
+                    {
+                        _videoData = value;
+                        _renderDirty = true;
+                    });
 
-            void App::exit()
-            {
-                _running = false;
+                // Create the window.
+                _window = dtk::gl::Window::create(
+                    _context,
+                    "render",
+                    _options.windowSize);
+                _frameBufferSize = _window->getFrameBufferSize();
+                _contentScale = _window->getContentScale();
+                _window->setFullScreen(_options.fullscreen);
+                _window->setFrameBufferSizeCallback(
+                    [this](const dtk::Size2I& value)
+                    {
+                        _frameBufferSize = value;
+                        _renderDirty = true;
+                    });
+                _window->setContentScaleCallback(
+                    [this](const dtk::V2F& value)
+                    {
+                        _contentScale = value;
+                        _renderDirty = true;
+                    });
+                _window->setKeyCallback(
+                    [this](int key, int scanCode, int action, int mods)
+                    {
+                        _keyCallback(key, scanCode, action, mods);
+                    });
+                _window->setCloseCallback(
+                    [this]
+                    {
+                        _running = false;
+                    });
+
+                // Create the renderer.
+                _render = timeline_gl::Render::create(_context);
+
+                // Print the shortcuts help.
+                _printShortcutsHelp();
+
+                // Start the main loop.
+                _hud = _options.hud;
+                if (time::isValid(_options.inOutRange))
+                {
+                    _player->setInOutRange(_options.inOutRange);
+                    _player->seek(_options.inOutRange.start_time());
+                }
+                if (time::isValid(_options.seek))
+                {
+                    _player->seek(_options.seek);
+                }
+                _player->setPlayback(_options.playback);
+                _startTime = std::chrono::steady_clock::now();
+                while (_running)
+                {
+                    glfwPollEvents();
+                    _tick();
+                }
             }
 
             void App::_keyCallback(int key, int scanCode, int action, int mods)
@@ -209,7 +207,7 @@ namespace tl
                     switch (key)
                     {
                     case GLFW_KEY_ESCAPE:
-                        exit();
+                        _running = false;
                         break;
                     case GLFW_KEY_U:
                         _window->setFullScreen(!_window->isFullScreen());
@@ -477,13 +475,13 @@ namespace tl
             {
                 _hud = value;
                 _renderDirty = true;
-                _log(dtk::Format("HUD: {0}").arg(_hud));
+                _context->getLogSystem()->print("render", dtk::Format("HUD: {0}").arg(_hud));
             }
 
             void App::_playbackCallback(timeline::Playback value)
             {
                 _player->setPlayback(value);
-                _log(dtk::Format("Playback: {0}").arg(_player->observePlayback()->get()));
+                _context->getLogSystem()->print("render", dtk::Format("Playback: {0}").arg(_player->observePlayback()->get()));
             }
         }
     }

@@ -8,15 +8,15 @@
 
 namespace tl
 {
-    namespace app_tests
+    namespace timeline_tests
     {
-        class CmdLineTest : public tests::ITest
+        class ColorOptionsTest : public tests::ITest
         {
         protected:
-            CmdLineTest(const std::shared_ptr<dtk::Context>&);
+            ColorOptionsTest(const std::shared_ptr<dtk::Context>&);
 
         public:
-            static std::shared_ptr<CmdLineTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<ColorOptionsTest> create(const std::shared_ptr<dtk::Context>&);
 
             void run() override;
         };

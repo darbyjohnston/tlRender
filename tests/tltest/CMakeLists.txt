@@ -4,7 +4,6 @@ set(SOURCE
     main.cpp)
 
 set(LIBRARIES
-    tlAppTest
     tlCoreTest
     tlIOTest
     tlTimelineTest)

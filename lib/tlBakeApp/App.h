@@ -40,8 +40,8 @@ namespace tl
             dtk::ImageType outputPixelType = dtk::ImageType::None;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
-            float sequenceDefaultSpeed = io::sequenceDefaultSpeed;
-            int sequenceThreadCount = io::sequenceThreadCount;
+            float sequenceDefaultSpeed = io::SequenceOptions().defaultSpeed;
+            int sequenceThreadCount = io::SequenceOptions().threadCount;
 
 #if defined(TLRENDER_EXR)
             exr::Compression exrCompression = exr::Compression::ZIP;
@@ -50,7 +50,7 @@ namespace tl
 
 #if defined(TLRENDER_FFMPEG)
             std::string ffmpegWriteProfile;
-            int ffmpegThreadCount = ffmpeg::threadCount;
+            int ffmpegThreadCount = ffmpeg::Options().threadCount;
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)

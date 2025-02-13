@@ -33,7 +33,7 @@ namespace tl
             {
                 json["primaries"].push_back(value.primaries[i]);
             }
-            json["displayMasteringLuminance"].push_back(value.displayMasteringLuminance);
+            json["displayMasteringLuminance"] = value.displayMasteringLuminance;
             json["maxCLL"] = value.maxCLL;
             json["maxFALL"] = value.maxFALL;
         }
