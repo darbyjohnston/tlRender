@@ -34,7 +34,7 @@ namespace tl
 
         TimelineWidget::TimelineWidget(
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<ui::Style>& style,
+            const std::shared_ptr<dtk::Style>& style,
             const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             ContainerWidget(style, context, parent),
@@ -42,7 +42,7 @@ namespace tl
         {
             DTK_P();
 
-            p.timelineWidget = timelineui::TimelineWidget::create(timeUnitsModel, context);
+            p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
             //p.timelineWidget->setScrollBarsVisible(false);
             setWidget(p.timelineWidget);
 
@@ -117,7 +117,7 @@ namespace tl
             return _p->timelineWidget->hasScrollToCurrentFrame();
         }
 
-        ui::KeyModifier TimelineWidget::scrollKeyModifier() const
+        dtk::KeyModifier TimelineWidget::scrollKeyModifier() const
         {
             return _p->timelineWidget->getScrollKeyModifier();
         }
@@ -167,7 +167,7 @@ namespace tl
             _p->timelineWidget->setScrollToCurrentFrame(value);
         }
 
-        void TimelineWidget::setScrollKeyModifier(ui::KeyModifier value)
+        void TimelineWidget::setScrollKeyModifier(dtk::KeyModifier value)
         {
             _p->timelineWidget->setScrollKeyModifier(value);
         }

@@ -27,7 +27,7 @@ namespace tl
         public:
             TimelineWidget(
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
-                const std::shared_ptr<ui::Style>&,
+                const std::shared_ptr<dtk::Style>&,
                 const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
@@ -52,7 +52,7 @@ namespace tl
             bool hasScrollToCurrentFrame() const;
 
             //! Get the mouse scroll key modifier.
-            ui::KeyModifier scrollKeyModifier() const;
+            dtk::KeyModifier scrollKeyModifier() const;
 
             //! Get the mouse wheel scale.
             float mouseWheelScale() const;
@@ -83,7 +83,7 @@ namespace tl
             void setScrollToCurrentFrame(bool);
 
             //! Set the mouse scroll key modifier.
-            void setScrollKeyModifier(ui::KeyModifier);
+            void setScrollKeyModifier(dtk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);

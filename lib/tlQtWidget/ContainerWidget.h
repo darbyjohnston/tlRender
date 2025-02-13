@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlUI/IWidget.h>
+#include <dtk/ui/IWidget.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -22,17 +22,17 @@ namespace tl
 
         public:
             ContainerWidget(
-                const std::shared_ptr<ui::Style>&,
+                const std::shared_ptr<dtk::Style>&,
                 const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
             virtual ~ContainerWidget();
 
             //! Get the widget.
-            const std::shared_ptr<ui::IWidget>& getWidget() const;
+            const std::shared_ptr<dtk::IWidget>& getWidget() const;
 
             //! Set the widget.
-            void setWidget(const std::shared_ptr<ui::IWidget>&);
+            void setWidget(const std::shared_ptr<dtk::IWidget>&);
 
             //! Get whether input is enabled.
             bool isInputEnabled() const;
@@ -71,30 +71,30 @@ namespace tl
         private:
             void _tickEvent();
             void _tickEvent(
-                const std::shared_ptr<ui::IWidget>&,
+                const std::shared_ptr<dtk::IWidget>&,
                 bool visible,
                 bool enabled,
-                const ui::TickEvent&);
+                const dtk::TickEvent&);
 
-            bool _hasSizeUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            bool _hasSizeUpdate(const std::shared_ptr<dtk::IWidget>&) const;
             void _sizeHintEvent();
             void _sizeHintEvent(
-                const std::shared_ptr<ui::IWidget>&,
-                const ui::SizeHintEvent&);
+                const std::shared_ptr<dtk::IWidget>&,
+                const dtk::SizeHintEvent&);
 
             void _setGeometry();
 
             void _clipEvent();
             void _clipEvent(
-                const std::shared_ptr<ui::IWidget>&,
+                const std::shared_ptr<dtk::IWidget>&,
                 const dtk::Box2I&,
                 bool clipped);
 
-            bool _hasDrawUpdate(const std::shared_ptr<ui::IWidget>&) const;
+            bool _hasDrawUpdate(const std::shared_ptr<dtk::IWidget>&) const;
             void _drawEvent(
-                const std::shared_ptr<ui::IWidget>&,
+                const std::shared_ptr<dtk::IWidget>&,
                 const dtk::Box2I&,
-                const ui::DrawEvent&);
+                const dtk::DrawEvent&);
 
             void _inputUpdate();
             void _timerUpdate();

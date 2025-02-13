@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include <tlBaseApp/BaseApp.h>
-
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/IRender.h>
 
 #include <tlIO/IO.h>
+
+#include <dtk/core/IApp.h>
 
 #include <QApplication>
 #include <QSharedPointer>
@@ -56,7 +56,7 @@ namespace tl
         class MainWindow;
 
         //! Application.
-        class App : public QApplication, public app::BaseApp
+        class App : public QApplication, public dtk::IApp
         {
             Q_OBJECT
 

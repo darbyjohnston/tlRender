@@ -16,7 +16,7 @@ namespace tl
         };
 
         TimelineViewport::TimelineViewport(
-            const std::shared_ptr<ui::Style>& style,
+            const std::shared_ptr<dtk::Style>& style,
             const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             ContainerWidget(style, context, parent),

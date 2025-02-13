@@ -6,12 +6,12 @@
 
 #include <tlQtWidget/Util.h>
 
-#include <tlUI/IClipboard.h>
-#include <tlUI/IWindow.h>
-#include <tlUI/RowLayout.h>
-
 #include <tlTimelineGL/Render.h>
 
+#include <dtk/ui/IClipboard.h>
+#include <dtk/ui/IWindow.h>
+#include <dtk/ui/RowLayout.h>
+#include <dtk/ui/IconSystem.h>
 #include <dtk/gl/Init.h>
 #include <dtk/gl/Mesh.h>
 #include <dtk/gl/OffscreenBuffer.h>
@@ -33,14 +33,14 @@ namespace tl
         {
             const size_t timeout = 5;
 
-            class ContainerWindow : public ui::IWindow
+            class ContainerWindow : public dtk::IWindow
             {
                 DTK_NON_COPYABLE(ContainerWindow);
 
             public:
                 void _init(const std::shared_ptr<dtk::Context>& context)
                 {
-                    IWindow::_init("tl::qtwidget::ContainerWindow", context, nullptr);
+                    IWindow::_init(context, "tl::qtwidget::ContainerWindow", nullptr);
                 }
 
                 ContainerWindow()
@@ -58,7 +58,7 @@ namespace tl
                     return out;
                 }
 
-                bool key(ui::Key key, bool press, int modifiers)
+                bool key(dtk::Key key, bool press, int modifiers)
                 {
                     return _key(key, press, modifiers);
                 }
@@ -91,14 +91,14 @@ namespace tl
                 void setGeometry(const dtk::Box2I& value) override
                 {
                     IWindow::setGeometry(value);
-                    for (const auto& i : _children)
+                    for (const auto& i : getChildren())
                     {
                         i->setGeometry(value);
                     }
                 }
             };
 
-            class Clipboard : public ui::IClipboard
+            class Clipboard : public dtk::IClipboard
             {
                 DTK_NON_COPYABLE(Clipboard);
 
@@ -140,12 +140,12 @@ namespace tl
         struct ContainerWidget::Private
         {
             std::weak_ptr<dtk::Context> context;
-            std::shared_ptr<ui::Style> style;
-            std::shared_ptr<ui::IconLibrary> iconLibrary;
+            std::shared_ptr<dtk::Style> style;
+            std::shared_ptr<dtk::IconSystem> iconSystem;
             std::shared_ptr<dtk::FontSystem> fontSystem;
             std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<ui::IWidget> widget;
+            std::shared_ptr<dtk::IWidget> widget;
             std::shared_ptr<ContainerWindow> window;
             std::shared_ptr<dtk::gl::Shader> shader;
             std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
@@ -157,7 +157,7 @@ namespace tl
         };
 
         ContainerWidget::ContainerWidget(
-            const std::shared_ptr<ui::Style>& style,
+            const std::shared_ptr<dtk::Style>& style,
             const std::shared_ptr<dtk::Context>& context,
             QWidget* parent) :
             QOpenGLWidget(parent),
@@ -175,7 +175,7 @@ namespace tl
             //setFormat(surfaceFormat);
 
             p.style = style;
-            p.iconLibrary = ui::IconLibrary::create(context);
+            p.iconSystem = context->getSystem<dtk::IconSystem>();
             p.fontSystem = context->getSystem<dtk::FontSystem>();
             p.clipboard = Clipboard::create(context);
             p.window = ContainerWindow::create(context);
@@ -195,12 +195,12 @@ namespace tl
             makeCurrent();
         }
 
-        const std::shared_ptr<ui::IWidget>& ContainerWidget::getWidget() const
+        const std::shared_ptr<dtk::IWidget>& ContainerWidget::getWidget() const
         {
             return _p->widget;
         }
 
-        void ContainerWidget::setWidget(const std::shared_ptr<ui::IWidget>& widget)
+        void ContainerWidget::setWidget(const std::shared_ptr<dtk::IWidget>& widget)
         {
             DTK_P();
             if (p.widget)
@@ -342,13 +342,15 @@ namespace tl
                     {
                         dtk::gl::OffscreenBufferBinding binding(p.buffer);
                         dtk::RenderOptions renderOptions;
-                        renderOptions.clearColor = p.style->getColorRole(ui::ColorRole::Window);
+                        renderOptions.clearColor = p.style->getColorRole(dtk::ColorRole::Window);
                         p.render->begin(renderSize, renderOptions);
-                        ui::DrawEvent drawEvent(
+                        const float devicePixelRatio = window()->devicePixelRatio();
+                        dtk::DrawEvent drawEvent(
+                            p.fontSystem,
+                            p.iconSystem,
+                            devicePixelRatio,
                             p.style,
-                            p.iconLibrary,
-                            p.render,
-                            p.fontSystem);
+                            p.render);
                         p.render->setClipRectEnabled(true);
                         _drawEvent(p.window, dtk::Box2I(dtk::V2I(), renderSize), drawEvent);
                         p.render->setClipRectEnabled(false);
@@ -448,15 +450,15 @@ namespace tl
                 int out = 0;
                 if (value & Qt::ShiftModifier)
                 {
-                    out |= static_cast<int>(ui::KeyModifier::Shift);
+                    out |= static_cast<int>(dtk::KeyModifier::Shift);
                 }
                 if (value & Qt::ControlModifier)
                 {
-                    out |= static_cast<int>(ui::KeyModifier::Control);
+                    out |= static_cast<int>(dtk::KeyModifier::Control);
                 }
                 if (value & Qt::AltModifier)
                 {
-                    out |= static_cast<int>(ui::KeyModifier::Alt);
+                    out |= static_cast<int>(dtk::KeyModifier::Alt);
                 }
                 return out;
             }
@@ -536,95 +538,95 @@ namespace tl
 
         namespace
         {
-            ui::Key fromQtKey(int key)
+            dtk::Key fromQtKey(int key)
             {
-                ui::Key out = ui::Key::Unknown;
+                dtk::Key out = dtk::Key::Unknown;
                 switch (key)
                 {
-                case Qt::Key_Space: out = ui::Key::Space; break;
-                case Qt::Key_Apostrophe: out = ui::Key::Apostrophe; break;
-                case Qt::Key_Comma: out = ui::Key::Comma; break;
-                case Qt::Key_Minus: out = ui::Key::Minus; break;
-                case Qt::Key_Period: out = ui::Key::Period; break;
-                case Qt::Key_Slash: out = ui::Key::Slash; break;
-                case Qt::Key_0: out = ui::Key::_0; break;
-                case Qt::Key_1: out = ui::Key::_1; break;
-                case Qt::Key_2: out = ui::Key::_2; break;
-                case Qt::Key_3: out = ui::Key::_3; break;
-                case Qt::Key_4: out = ui::Key::_4; break;
-                case Qt::Key_5: out = ui::Key::_5; break;
-                case Qt::Key_6: out = ui::Key::_6; break;
-                case Qt::Key_7: out = ui::Key::_7; break;
-                case Qt::Key_8: out = ui::Key::_8; break;
-                case Qt::Key_9: out = ui::Key::_9; break;
-                case Qt::Key_Semicolon: out = ui::Key::Semicolon; break;
-                case Qt::Key_Equal: out = ui::Key::Equal; break;
-                case Qt::Key_A: out = ui::Key::A; break;
-                case Qt::Key_B: out = ui::Key::B; break;
-                case Qt::Key_C: out = ui::Key::C; break;
-                case Qt::Key_D: out = ui::Key::D; break;
-                case Qt::Key_E: out = ui::Key::E; break;
-                case Qt::Key_F: out = ui::Key::F; break;
-                case Qt::Key_G: out = ui::Key::G; break;
-                case Qt::Key_H: out = ui::Key::H; break;
-                case Qt::Key_I: out = ui::Key::I; break;
-                case Qt::Key_J: out = ui::Key::J; break;
-                case Qt::Key_K: out = ui::Key::K; break;
-                case Qt::Key_L: out = ui::Key::L; break;
-                case Qt::Key_M: out = ui::Key::M; break;
-                case Qt::Key_N: out = ui::Key::N; break;
-                case Qt::Key_O: out = ui::Key::O; break;
-                case Qt::Key_P: out = ui::Key::P; break;
-                case Qt::Key_Q: out = ui::Key::Q; break;
-                case Qt::Key_R: out = ui::Key::R; break;
-                case Qt::Key_S: out = ui::Key::S; break;
-                case Qt::Key_T: out = ui::Key::T; break;
-                case Qt::Key_U: out = ui::Key::U; break;
-                case Qt::Key_V: out = ui::Key::V; break;
-                case Qt::Key_W: out = ui::Key::W; break;
-                case Qt::Key_X: out = ui::Key::X; break;
-                case Qt::Key_Y: out = ui::Key::Y; break;
-                case Qt::Key_Z: out = ui::Key::Z; break;
-                case Qt::Key_BracketLeft: out = ui::Key::LeftBracket; break;
-                case Qt::Key_Backslash: out = ui::Key::Backslash; break;
-                case Qt::Key_BracketRight: out = ui::Key::RightBracket; break;
-                case Qt::Key_Agrave: out = ui::Key::GraveAccent; break;
-                case Qt::Key_Escape: out = ui::Key::Escape; break;
-                case Qt::Key_Enter: out = ui::Key::Enter; break;
-                case Qt::Key_Tab: out = ui::Key::Tab; break;
-                case Qt::Key_Backspace: out = ui::Key::Backspace; break;
-                case Qt::Key_Insert: out = ui::Key::Insert; break;
-                case Qt::Key_Delete: out = ui::Key::Delete; break;
-                case Qt::Key_Right: out = ui::Key::Right; break;
-                case Qt::Key_Left: out = ui::Key::Left; break;
-                case Qt::Key_Down: out = ui::Key::Down; break;
-                case Qt::Key_Up: out = ui::Key::Up; break;
-                case Qt::Key_PageUp: out = ui::Key::PageUp; break;
-                case Qt::Key_PageDown: out = ui::Key::PageDown; break;
-                case Qt::Key_Home: out = ui::Key::Home; break;
-                case Qt::Key_End: out = ui::Key::End; break;
-                case Qt::Key_CapsLock: out = ui::Key::CapsLock; break;
-                case Qt::Key_ScrollLock: out = ui::Key::ScrollLock; break;
-                case Qt::Key_NumLock: out = ui::Key::NumLock; break;
-                case Qt::Key_Print: out = ui::Key::PrintScreen; break;
-                case Qt::Key_Pause: out = ui::Key::Pause; break;
-                case Qt::Key_F1: out = ui::Key::F1; break;
-                case Qt::Key_F2: out = ui::Key::F2; break;
-                case Qt::Key_F3: out = ui::Key::F3; break;
-                case Qt::Key_F4: out = ui::Key::F4; break;
-                case Qt::Key_F5: out = ui::Key::F5; break;
-                case Qt::Key_F6: out = ui::Key::F6; break;
-                case Qt::Key_F7: out = ui::Key::F7; break;
-                case Qt::Key_F8: out = ui::Key::F8; break;
-                case Qt::Key_F9: out = ui::Key::F9; break;
-                case Qt::Key_F10: out = ui::Key::F10; break;
-                case Qt::Key_F11: out = ui::Key::F11; break;
-                case Qt::Key_F12: out = ui::Key::F12; break;
-                case Qt::Key_Shift: out = ui::Key::LeftShift; break;
-                case Qt::Key_Control: out = ui::Key::LeftControl; break;
-                case Qt::Key_Alt: out = ui::Key::LeftAlt; break;
-                case Qt::Key_Super_L: out = ui::Key::LeftSuper; break;
-                case Qt::Key_Super_R: out = ui::Key::RightSuper; break;
+                case Qt::Key_Space: out = dtk::Key::Space; break;
+                case Qt::Key_Apostrophe: out = dtk::Key::Apostrophe; break;
+                case Qt::Key_Comma: out = dtk::Key::Comma; break;
+                case Qt::Key_Minus: out = dtk::Key::Minus; break;
+                case Qt::Key_Period: out = dtk::Key::Period; break;
+                case Qt::Key_Slash: out = dtk::Key::Slash; break;
+                case Qt::Key_0: out = dtk::Key::_0; break;
+                case Qt::Key_1: out = dtk::Key::_1; break;
+                case Qt::Key_2: out = dtk::Key::_2; break;
+                case Qt::Key_3: out = dtk::Key::_3; break;
+                case Qt::Key_4: out = dtk::Key::_4; break;
+                case Qt::Key_5: out = dtk::Key::_5; break;
+                case Qt::Key_6: out = dtk::Key::_6; break;
+                case Qt::Key_7: out = dtk::Key::_7; break;
+                case Qt::Key_8: out = dtk::Key::_8; break;
+                case Qt::Key_9: out = dtk::Key::_9; break;
+                case Qt::Key_Semicolon: out = dtk::Key::Semicolon; break;
+                case Qt::Key_Equal: out = dtk::Key::Equal; break;
+                case Qt::Key_A: out = dtk::Key::A; break;
+                case Qt::Key_B: out = dtk::Key::B; break;
+                case Qt::Key_C: out = dtk::Key::C; break;
+                case Qt::Key_D: out = dtk::Key::D; break;
+                case Qt::Key_E: out = dtk::Key::E; break;
+                case Qt::Key_F: out = dtk::Key::F; break;
+                case Qt::Key_G: out = dtk::Key::G; break;
+                case Qt::Key_H: out = dtk::Key::H; break;
+                case Qt::Key_I: out = dtk::Key::I; break;
+                case Qt::Key_J: out = dtk::Key::J; break;
+                case Qt::Key_K: out = dtk::Key::K; break;
+                case Qt::Key_L: out = dtk::Key::L; break;
+                case Qt::Key_M: out = dtk::Key::M; break;
+                case Qt::Key_N: out = dtk::Key::N; break;
+                case Qt::Key_O: out = dtk::Key::O; break;
+                case Qt::Key_P: out = dtk::Key::P; break;
+                case Qt::Key_Q: out = dtk::Key::Q; break;
+                case Qt::Key_R: out = dtk::Key::R; break;
+                case Qt::Key_S: out = dtk::Key::S; break;
+                case Qt::Key_T: out = dtk::Key::T; break;
+                case Qt::Key_U: out = dtk::Key::U; break;
+                case Qt::Key_V: out = dtk::Key::V; break;
+                case Qt::Key_W: out = dtk::Key::W; break;
+                case Qt::Key_X: out = dtk::Key::X; break;
+                case Qt::Key_Y: out = dtk::Key::Y; break;
+                case Qt::Key_Z: out = dtk::Key::Z; break;
+                case Qt::Key_BracketLeft: out = dtk::Key::LeftBracket; break;
+                case Qt::Key_Backslash: out = dtk::Key::Backslash; break;
+                case Qt::Key_BracketRight: out = dtk::Key::RightBracket; break;
+                case Qt::Key_Agrave: out = dtk::Key::GraveAccent; break;
+                case Qt::Key_Escape: out = dtk::Key::Escape; break;
+                case Qt::Key_Enter: out = dtk::Key::Enter; break;
+                case Qt::Key_Tab: out = dtk::Key::Tab; break;
+                case Qt::Key_Backspace: out = dtk::Key::Backspace; break;
+                case Qt::Key_Insert: out = dtk::Key::Insert; break;
+                case Qt::Key_Delete: out = dtk::Key::Delete; break;
+                case Qt::Key_Right: out = dtk::Key::Right; break;
+                case Qt::Key_Left: out = dtk::Key::Left; break;
+                case Qt::Key_Down: out = dtk::Key::Down; break;
+                case Qt::Key_Up: out = dtk::Key::Up; break;
+                case Qt::Key_PageUp: out = dtk::Key::PageUp; break;
+                case Qt::Key_PageDown: out = dtk::Key::PageDown; break;
+                case Qt::Key_Home: out = dtk::Key::Home; break;
+                case Qt::Key_End: out = dtk::Key::End; break;
+                case Qt::Key_CapsLock: out = dtk::Key::CapsLock; break;
+                case Qt::Key_ScrollLock: out = dtk::Key::ScrollLock; break;
+                case Qt::Key_NumLock: out = dtk::Key::NumLock; break;
+                case Qt::Key_Print: out = dtk::Key::PrintScreen; break;
+                case Qt::Key_Pause: out = dtk::Key::Pause; break;
+                case Qt::Key_F1: out = dtk::Key::F1; break;
+                case Qt::Key_F2: out = dtk::Key::F2; break;
+                case Qt::Key_F3: out = dtk::Key::F3; break;
+                case Qt::Key_F4: out = dtk::Key::F4; break;
+                case Qt::Key_F5: out = dtk::Key::F5; break;
+                case Qt::Key_F6: out = dtk::Key::F6; break;
+                case Qt::Key_F7: out = dtk::Key::F7; break;
+                case Qt::Key_F8: out = dtk::Key::F8; break;
+                case Qt::Key_F9: out = dtk::Key::F9; break;
+                case Qt::Key_F10: out = dtk::Key::F10; break;
+                case Qt::Key_F11: out = dtk::Key::F11; break;
+                case Qt::Key_F12: out = dtk::Key::F12; break;
+                case Qt::Key_Shift: out = dtk::Key::LeftShift; break;
+                case Qt::Key_Control: out = dtk::Key::LeftControl; break;
+                case Qt::Key_Alt: out = dtk::Key::LeftAlt; break;
+                case Qt::Key_Super_L: out = dtk::Key::LeftSuper; break;
+                case Qt::Key_Super_R: out = dtk::Key::RightSuper; break;
                 }
                 return out;
             }
@@ -702,15 +704,15 @@ namespace tl
         void ContainerWidget::_tickEvent()
         {
             DTK_P();
-            ui::TickEvent tickEvent(p.style, p.iconLibrary, p.fontSystem);
+            dtk::TickEvent tickEvent;
             _tickEvent(_p->window, true, true, tickEvent);
         }
 
         void ContainerWidget::_tickEvent(
-            const std::shared_ptr<ui::IWidget>& widget,
+            const std::shared_ptr<dtk::IWidget>& widget,
             bool visible,
             bool enabled,
-            const ui::TickEvent& event)
+            const dtk::TickEvent& event)
         {
             DTK_P();
             const bool parentsVisible = visible && widget->isVisible(false);
@@ -726,9 +728,9 @@ namespace tl
             widget->tickEvent(visible, enabled, event);
         }
 
-        bool ContainerWidget::_hasSizeUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        bool ContainerWidget::_hasSizeUpdate(const std::shared_ptr<dtk::IWidget>& widget) const
         {
-            bool out = widget->getUpdates() & ui::Update::Size;
+            bool out = widget->getUpdates() & static_cast<int>(dtk::Update::Size);
             if (out)
             {
                 //std::cout << "Size update: " << widget->getObjectName() << std::endl;
@@ -747,17 +749,17 @@ namespace tl
         {
             DTK_P();
             const float devicePixelRatio = window()->devicePixelRatio();
-            ui::SizeHintEvent sizeHintEvent(
-                p.style,
-                p.iconLibrary,
+            dtk::SizeHintEvent sizeHintEvent(
                 p.fontSystem,
-                devicePixelRatio);
+                p.iconSystem,
+                devicePixelRatio,
+                p.style);
             _sizeHintEvent(p.window, sizeHintEvent);
         }
 
         void ContainerWidget::_sizeHintEvent(
-            const std::shared_ptr<ui::IWidget>& widget,
-            const ui::SizeHintEvent& event)
+            const std::shared_ptr<dtk::IWidget>& widget,
+            const dtk::SizeHintEvent& event)
         {
             for (const auto& child : widget->getChildren())
             {
@@ -781,7 +783,7 @@ namespace tl
         }
 
         void ContainerWidget::_clipEvent(
-            const std::shared_ptr<ui::IWidget>& widget,
+            const std::shared_ptr<dtk::IWidget>& widget,
             const dtk::Box2I& clipRect,
             bool clipped)
         {
@@ -802,12 +804,12 @@ namespace tl
             }
         }
 
-        bool ContainerWidget::_hasDrawUpdate(const std::shared_ptr<ui::IWidget>& widget) const
+        bool ContainerWidget::_hasDrawUpdate(const std::shared_ptr<dtk::IWidget>& widget) const
         {
             bool out = false;
             if (!widget->isClipped())
             {
-                out = widget->getUpdates() & ui::Update::Draw;
+                out = widget->getUpdates() & static_cast<int>(dtk::Update::Draw);
                 if (out)
                 {
                     //std::cout << "Draw update: " << widget->getObjectName() << std::endl;
@@ -824,9 +826,9 @@ namespace tl
         }
 
         void ContainerWidget::_drawEvent(
-            const std::shared_ptr<ui::IWidget>& widget,
+            const std::shared_ptr<dtk::IWidget>& widget,
             const dtk::Box2I& drawRect,
-            const ui::DrawEvent& event)
+            const dtk::DrawEvent& event)
         {
             const dtk::Box2I& g = widget->getGeometry();
             if (!widget->isClipped() && g.w() > 0 && g.h() > 0)
@@ -887,16 +889,16 @@ namespace tl
             /*DTK_P();
             const auto palette = this->palette();
             p.style->setColorRole(
-                ui::ColorRole::Window,
+                dtk::ColorRole::Window,
                 fromQt(palette.color(QPalette::ColorRole::Window)));
             p.style->setColorRole(
-                ui::ColorRole::Base,
+                dtk::ColorRole::Base,
                 fromQt(palette.color(QPalette::ColorRole::Base)));
             p.style->setColorRole(
-                ui::ColorRole::Button,
+                dtk::ColorRole::Button,
                 fromQt(palette.color(QPalette::ColorRole::Button)));
             p.style->setColorRole(
-                ui::ColorRole::Text,
+                dtk::ColorRole::Text,
                 fromQt(palette.color(QPalette::ColorRole::WindowText)));*/
         }
     }

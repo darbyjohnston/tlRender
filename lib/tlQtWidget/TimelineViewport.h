@@ -9,10 +9,9 @@
 #include <tlQt/TimelinePlayer.h>
 
 #include <tlTimeline/BackgroundOptions.h>
+#include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/DisplayOptions.h>
-#include <tlTimeline/LUTOptions.h>
-#include <tlTimeline/OCIOOptions.h>
 
 #include <QSharedPointer>
 #include <QVector>
@@ -28,7 +27,7 @@ namespace tl
 
         public:
             TimelineViewport(
-                const std::shared_ptr<ui::Style>&,
+                const std::shared_ptr<dtk::Style>&,
                 const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
