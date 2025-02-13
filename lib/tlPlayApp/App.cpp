@@ -143,7 +143,7 @@ namespace tl
             dtk::Size2I windowSize = p.mainWindow->getGeometry().size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
-            windowSize = windowSize / _displayScale;
+            windowSize = windowSize / p.mainWindow->getDisplayScale();
 #endif // __APPLE__
             p.settingsModel->setWindowSize(windowSize);
         }
