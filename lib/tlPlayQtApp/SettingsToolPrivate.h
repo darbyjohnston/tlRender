@@ -21,8 +21,6 @@ namespace tl
             virtual ~CacheSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -37,8 +35,6 @@ namespace tl
             virtual ~FileSequenceSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -54,8 +50,6 @@ namespace tl
             virtual ~FFmpegSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 #endif // TLRENDER_FFMPEG
@@ -72,8 +66,6 @@ namespace tl
             virtual ~USDSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 #endif // TLRENDER_USD
@@ -89,8 +81,6 @@ namespace tl
             virtual ~FileBrowserSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -105,8 +95,6 @@ namespace tl
             virtual ~PerformanceSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
 
@@ -121,8 +109,6 @@ namespace tl
             virtual ~MiscSettingsWidget();
 
         private:
-            void _settingsUpdate(const std::string&);
-
             DTK_PRIVATE();
         };
     }

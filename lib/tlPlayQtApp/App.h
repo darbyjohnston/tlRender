@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlPlay/SettingsModel.h>
+
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/IRender.h>
 
@@ -32,8 +34,9 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class RecentFilesModel;
         class RenderModel;
-        class Settings;
+        class SettingsModel;
         class ViewportModel;
     }
 
@@ -41,11 +44,6 @@ namespace tl
     {
         class TimeObject;
         class TimelinePlayer;
-    }
-
-    namespace ui
-    {
-        class RecentFilesModel;
     }
 
     //! tlplay-qt application
@@ -74,17 +72,20 @@ namespace tl
             //! Get the time object.
             qt::TimeObject* timeObject() const;
 
-            //! Get the settings.
-            const std::shared_ptr<play::Settings>& settings() const;
+            //! Get the settings model.
+            const std::shared_ptr<play::SettingsModel>& settingsModel() const;
 
             //! Get the files model.
             const std::shared_ptr<play::FilesModel>& filesModel() const;
 
+            //! Get the recent files model.
+            const std::shared_ptr<play::RecentFilesModel>& recentFilesModel() const;
+
+            //! Reload the active files.
+            void reload();
+
             //! Get the timeline player.
             const QSharedPointer<qt::TimelinePlayer>& player() const;
-
-            //! Get the recent files model.
-            const std::shared_ptr<ui::RecentFilesModel>& recentFilesModel() const;
 
             //! Get the color model.
             const std::shared_ptr<play::ColorModel>& colorModel() const;
@@ -130,8 +131,6 @@ namespace tl
             void secondaryWindowChanged(bool);
 
         private:
-            void _fileLogInit(const std::string&);
-            void _settingsInit(const std::string&);
             void _modelsInit();
             void _devicesInit();
             void _observersInit();
@@ -140,12 +139,11 @@ namespace tl
 
             io::Options _ioOptions() const;
 
-            void _settingsUpdate(const std::string&);
             void _timerUpdate();
             void _filesUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<tl::play::FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
-            void _cacheUpdate();
+            void _cacheUpdate(const play::CacheOptions&);
             void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 

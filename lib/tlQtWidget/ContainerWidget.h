@@ -22,8 +22,8 @@ namespace tl
 
         public:
             ContainerWidget(
-                const std::shared_ptr<dtk::Style>&,
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<dtk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~ContainerWidget();

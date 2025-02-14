@@ -62,7 +62,7 @@ elseif(TLRENDER_QT5)
 endif()
 
 add_library(tlPlayQtApp ${HEADERS} ${SOURCE})
-target_link_libraries(tlPlayQtApp tlQtWidget tlPlay tlBaseApp)
+target_link_libraries(tlPlayQtApp tlQtWidget tlPlay)
 set_target_properties(tlPlayQtApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayQtApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

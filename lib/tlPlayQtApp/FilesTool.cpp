@@ -9,7 +9,7 @@
 
 #include <tlQtWidget/FloatEditSlider.h>
 
-#include <tlUI/ThumbnailSystem.h>
+#include <tlTimelineUI/ThumbnailSystem.h>
 
 #include <QAction>
 #include <QBoxLayout>
@@ -50,7 +50,7 @@ namespace tl
             qtwidget::FloatEditSlider* wipeRotationSlider = nullptr;
             qtwidget::FloatEditSlider* overlaySlider = nullptr;
 
-            std::map<QCheckBox*, ui::ThumbnailRequest> thumbnailRequests;
+            std::map<QCheckBox*, timelineui::ThumbnailRequest> thumbnailRequests;
             std::unique_ptr<QTimer> timer;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -246,7 +246,7 @@ namespace tl
             p.items = items;
 
             auto context = p.app->getContext();
-            auto thumbnailSystem = context->getSystem<ui::ThumbnailSystem>();
+            auto thumbnailSystem = context->getSystem<timelineui::ThumbnailSystem>();
             const float devicePixelRatio = window()->devicePixelRatio();
             const auto& a = p.app->filesModel()->getA();
             const auto& b = p.app->filesModel()->getB();

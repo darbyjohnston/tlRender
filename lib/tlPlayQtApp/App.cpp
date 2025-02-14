@@ -23,18 +23,21 @@
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RecentFilesModel.h>
 #include <tlPlay/RenderModel.h>
-#include <tlPlay/Settings.h>
+#include <tlPlay/SettingsModel.h>
 #include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 #include <tlPlay/Util.h>
-
-#include <tlUI/RecentFilesModel.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlay/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
 
 #if defined(TLRENDER_BMD)
-#include <tlDevice/BMDDevicesModel.h>
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
+
+#include <tlTimelineUI/ThumbnailSystem.h>
 
 #include <tlTimeline/Util.h>
 
@@ -47,6 +50,7 @@
 #include <tlCore/FileLogSystem.h>
 #include <tlCore/Time.h>
 
+#include <dtk/ui/Settings.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/Math.h>
 
@@ -68,16 +72,16 @@ namespace tl
             play::Options options;
             QScopedPointer<qt::ContextObject> contextObject;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
-            std::string settingsFileName;
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<dtk::Settings> settings;
+            std::shared_ptr<play::SettingsModel> settingsModel;
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             QScopedPointer<qt::TimeObject> timeObject;
             std::shared_ptr<play::FilesModel> filesModel;
             std::vector<std::shared_ptr<play::FilesModelItem> > files;
             std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
+            std::shared_ptr<play::RecentFilesModel> recentFilesModel;
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             QSharedPointer<qt::TimelinePlayer> player;
-            std::shared_ptr<ui::RecentFilesModel> recentFilesModel;
             std::shared_ptr<play::ColorModel> colorModel;
             std::shared_ptr<play::RenderModel> renderModel;
             std::shared_ptr<play::ViewportModel> viewportModel;
@@ -95,13 +99,11 @@ namespace tl
 #endif // TLRENDER_BMD
             std::unique_ptr<QTimer> timer;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<play::CacheOptions> > cacheObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
-            std::shared_ptr<dtk::ValueObserver<size_t> > recentFilesMaxObserver;
-            std::shared_ptr<dtk::ListObserver<file::Path> > recentFilesObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
@@ -130,16 +132,17 @@ namespace tl
         {
             DTK_P();
             const std::string appName = "tlplay-qt";
-            const std::string appDocsPath = play::appDocsPath();
-            const std::string logFileName = play::logFileName(appName, appDocsPath);
-            const std::string settingsFileName = play::settingsName(appName, appDocsPath);
-            BaseApp::_init(
+            const std::filesystem::path appDocsPath = play::appDocsPath();
+            const std::filesystem::path logFile = play::logFileName(appName, appDocsPath);
+            const std::filesystem::path settingsPath = play::settingsName(appName, appDocsPath);
+            auto args = dtk::convert(argc, argv);
+            IApp::_init(
                 context,
-                app::convert(argc, argv),
+                args,
                 appName,
                 "Example Qt playback application.",
                 play::getCmdLineArgs(p.options),
-                play::getCmdLineOptions(p.options, logFileName, settingsFileName));
+                play::getCmdLineOptions(p.options, logFile, settingsPath));
             const int exitCode = getExit();
             if (exitCode != 0)
             {
@@ -154,8 +157,13 @@ namespace tl
             setStyleSheet(qtwidget::styleSheet());
             qtwidget::initFonts(context);
 
-            _fileLogInit(logFileName);
-            _settingsInit(settingsFileName);
+            p.fileLogSystem = file::FileLogSystem::create(
+                _context,
+                !p.options.logFile.empty() ? std::filesystem::u8path(p.options.logFile) : logFile);
+            p.settings = dtk::Settings::create(
+                _context,
+                !p.options.settings.empty() ? std::filesystem::u8path(p.options.settings) : settingsPath,
+                p.options.resetSettings);
             _modelsInit();
             _devicesInit();
             _observersInit();
@@ -181,9 +189,9 @@ namespace tl
             return _p->timeObject.get();
         }
 
-        const std::shared_ptr<play::Settings>& App::settings() const
+        const std::shared_ptr<play::SettingsModel>& App::settingsModel() const
         {
-            return _p->settings;
+            return _p->settingsModel;
         }
 
         const std::shared_ptr<play::FilesModel>& App::filesModel() const
@@ -191,14 +199,48 @@ namespace tl
             return _p->filesModel;
         }
 
+        const std::shared_ptr<play::RecentFilesModel>& App::recentFilesModel() const
+        {
+            return _p->recentFilesModel;
+        }
+
+        void App::reload()
+        {
+            DTK_P();
+            const auto activeFiles = p.activeFiles;
+            const auto files = p.files;
+            for (const auto& i : activeFiles)
+            {
+                const auto j = std::find(p.files.begin(), p.files.end(), i);
+                if (j != p.files.end())
+                {
+                    const size_t index = j - p.files.begin();
+                    p.files.erase(j);
+                    p.timelines.erase(p.timelines.begin() + index);
+                }
+            }
+            p.activeFiles.clear();
+            if (!activeFiles.empty())
+            {
+                if (p.player)
+                {
+                    activeFiles.front()->currentTime = p.player->currentTime();
+                }
+            }
+
+            auto thumbnailSytem = _context->getSystem<timelineui::ThumbnailSystem>();
+            thumbnailSytem->getCache()->clear();
+
+            auto ioSystem = _context->getSystem<io::System>();
+            ioSystem->getCache()->clear();
+
+            _filesUpdate(files);
+            _activeUpdate(activeFiles);
+        }
+
         const QSharedPointer<qt::TimelinePlayer>& App::player() const
         {
             return _p->player;
-        }
-
-        const std::shared_ptr<ui::RecentFilesModel>& App::recentFilesModel() const
-        {
-            return _p->recentFilesModel;
         }
 
         const std::shared_ptr<play::ColorModel>& App::colorModel() const
@@ -242,7 +284,7 @@ namespace tl
         {
             DTK_P();
             file::PathOptions pathOptions;
-            pathOptions.maxNumberDigits = p.settings->getValue<size_t>("FileSequence/MaxDigits");
+            pathOptions.maxNumberDigits = p.settingsModel->getFileSequence().maxDigits;
             for (const auto& path :
                 timeline::getPaths(_context, file::Path(fileName.toUtf8().data()), pathOptions))
             {
@@ -250,7 +292,7 @@ namespace tl
                 item->path = path;
                 item->audioPath = file::Path(audioFileName.toUtf8().data());
                 p.filesModel->add(item);
-                p.recentFilesModel->addRecent(path);
+                p.recentFilesModel->addRecent(path.get());
             }
         }
 
@@ -323,89 +365,13 @@ namespace tl
             Q_EMIT secondaryWindowChanged(value);
         }
 
-        void App::_fileLogInit(const std::string& logFileName)
-        {
-            DTK_P();
-            std::string logFileName2 = logFileName;
-            if (!p.options.logFileName.empty())
-            {
-                logFileName2 = p.options.logFileName;
-            }
-            p.fileLogSystem = file::FileLogSystem::create(_context, logFileName2);
-        }
-
-        void App::_settingsInit(const std::string& settingsFileName)
-        {
-            DTK_P();
-            if (!p.options.settingsFileName.empty())
-            {
-                p.settingsFileName = p.options.settingsFileName;
-            }
-            else
-            {
-                p.settingsFileName = settingsFileName;
-            }
-            p.settings = play::Settings::create(
-                _context,
-                p.settingsFileName,
-                p.options.resetSettings);
-
-            p.settings->setDefaultValue("Files/RecentMax", 10);
-
-            p.settings->setDefaultValue("Cache/Size", 1);
-            p.settings->setDefaultValue("Cache/ReadAhead", 2.0);
-            p.settings->setDefaultValue("Cache/ReadBehind", 0.5);
-
-            p.settings->setDefaultValue("FileSequence/Audio",
-                timeline::FileSequenceAudio::BaseName);
-            p.settings->setDefaultValue("FileSequence/AudioFileName", std::string());
-            p.settings->setDefaultValue("FileSequence/AudioDirectory", std::string());
-            p.settings->setDefaultValue("FileSequence/MaxDigits", 9);
-
-            p.settings->setDefaultValue("SequenceIO/ThreadCount", 16);
-
-#if defined(TLRENDER_FFMPEG)
-            p.settings->setDefaultValue("FFmpeg/YUVToRGBConversion", false);
-            p.settings->setDefaultValue("FFmpeg/ThreadCount", 0);
-#endif // TLRENDER_FFMPEG
-
-#if defined(TLRENDER_USD)
-            p.settings->setDefaultValue("USD/renderWidth", p.options.usdRenderWidth);
-            p.settings->setDefaultValue("USD/complexity", p.options.usdComplexity);
-            p.settings->setDefaultValue("USD/drawMode", p.options.usdDrawMode);
-            p.settings->setDefaultValue("USD/enableLighting", p.options.usdEnableLighting);
-            p.settings->setDefaultValue("USD/sRGB", p.options.usdSRGB);
-            p.settings->setDefaultValue("USD/stageCacheCount", p.options.usdStageCache);
-            p.settings->setDefaultValue("USD/diskCacheByteCount", p.options.usdDiskCache);
-#endif // TLRENDER_USD
-
-#if defined(TLRENDER_BMD)
-            bmd::DevicesModelData bmdDevicesModelData;
-            p.settings->setDefaultValue("BMD/DeviceIndex", bmdDevicesModelData.deviceIndex);
-            p.settings->setDefaultValue("BMD/DisplayModeIndex", bmdDevicesModelData.displayModeIndex);
-            p.settings->setDefaultValue("BMD/PixelTypeIndex", bmdDevicesModelData.pixelTypeIndex);
-            p.settings->setDefaultValue("BMD/DeviceEnabled", bmdDevicesModelData.deviceEnabled);
-            const auto i = bmdDevicesModelData.boolOptions.find(bmd::Option::_444SDIVideoOutput);
-            p.settings->setDefaultValue("BMD/444SDIVideoOutput", i != bmdDevicesModelData.boolOptions.end() ? i->second : false);
-            p.settings->setDefaultValue("BMD/HDRMode", bmdDevicesModelData.hdrMode);
-            p.settings->setDefaultValue("BMD/HDRData", bmdDevicesModelData.hdrData);
-#endif // TLRENDER_BMD
-
-            p.settings->setDefaultValue("FileBrowser/NativeFileDialog", true);
-
-            p.settings->setDefaultValue("Performance/AudioBufferFrameCount",
-                timeline::PlayerOptions().audioBufferFrameCount);
-            p.settings->setDefaultValue("Performance/VideoRequestCount", 16);
-            p.settings->setDefaultValue("Performance/AudioRequestCount", 16);
-
-            p.settings->setDefaultValue("Misc/ToolTipsEnabled", true);
-        }
-
         void App::_modelsInit()
         {
             DTK_P();
 
             p.contextObject.reset(new qt::ContextObject(_context));
+
+            p.settingsModel = play::SettingsModel::create(_context, p.settings);
 
             p.timeUnitsModel = timeline::TimeUnitsModel::create(_context);
 
@@ -413,7 +379,7 @@ namespace tl
 
             p.filesModel = play::FilesModel::create(_context);
 
-            p.recentFilesModel = ui::RecentFilesModel::create(_context);
+            p.recentFilesModel = play::RecentFilesModel::create(_context, p.settings);
 
             p.colorModel = play::ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
@@ -445,35 +411,7 @@ namespace tl
                 bmdOverlayImage->fill(QColor(0, 0, 255, 63));
                 p.bmdOutputDevice->setOverlay(overlayImage);
             }
-            p.bmdDevicesModel = bmd::DevicesModel::create(_context);
-            p.bmdDevicesModel->setDeviceIndex(
-                p.settings->getValue<int>("BMD/DeviceIndex"));
-            p.bmdDevicesModel->setDisplayModeIndex(
-                p.settings->getValue<int>("BMD/DisplayModeIndex"));
-            p.bmdDevicesModel->setPixelTypeIndex(
-                p.settings->getValue<int>("BMD/PixelTypeIndex"));
-            p.bmdDevicesModel->setDeviceEnabled(
-                p.settings->getValue<bool>("BMD/DeviceEnabled"));
-            bmd::BoolOptions deviceBoolOptions;
-            deviceBoolOptions[bmd::Option::_444SDIVideoOutput] =
-                p.settings->getValue<bool>("BMD/444SDIVideoOutput");
-            p.bmdDevicesModel->setBoolOptions(deviceBoolOptions);
-            p.bmdDevicesModel->setHDRMode(static_cast<bmd::HDRMode>(
-                p.settings->getValue<int>("BMD/HDRMode")));
-            std::string s = p.settings->getValue<std::string>("BMD/HDRData");
-            if (!s.empty())
-            {
-                auto json = nlohmann::json::parse(s);
-                image::HDRData hdrData;
-                try
-                {
-                    from_json(json, hdrData);
-                }
-                catch (const std::exception&)
-                {
-                }
-                p.bmdDevicesModel->setHDRData(hdrData);
-            }
+            p.bmdDevicesModel = play::BMDDevicesModel::create(_context, p.settings);
 #endif // TLRENDER_BMD
         }
 
@@ -481,11 +419,11 @@ namespace tl
         {
             DTK_P();
 
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.cacheObserver = dtk::ValueObserver<play::CacheOptions>::create(
+                p.settingsModel->observeCache(),
+                [this](const play::CacheOptions& value)
                 {
-                    _settingsUpdate(name);
+                    _cacheUpdate(value);
                 });
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
@@ -514,24 +452,6 @@ namespace tl
                     {
                         _p->player->setCompareTime(value);
                     }
-                });
-
-            p.recentFilesMaxObserver = dtk::ValueObserver<size_t>::create(
-                p.recentFilesModel->observeRecentMax(),
-                [this](size_t value)
-                {
-                    _p->settings->setValue("Files/RecentMax", value);
-                });
-            p.recentFilesObserver = dtk::ListObserver<file::Path>::create(
-                p.recentFilesModel->observeRecent(),
-                [this](const std::vector<file::Path>& value)
-                {
-                    std::vector<std::string> fileNames;
-                    for (const auto& i : value)
-                    {
-                        fileNames.push_back(i.get());
-                    }
-                    _p->settings->setValue("Files/Recent", fileNames);
                 });
 
             p.audioDeviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
@@ -574,7 +494,6 @@ namespace tl
                 [this](const bmd::DevicesModelData& value)
                 {
                     DTK_P();
-
                     bmd::DeviceConfig config;
                     config.deviceIndex = value.deviceIndex - 1;
                     config.displayModeIndex = value.displayModeIndex - 1;
@@ -590,17 +509,7 @@ namespace tl
                     displayOptions.videoLevels = p.bmdOutputVideoLevels;
                     p.bmdOutputDevice->setDisplayOptions({ displayOptions });
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
-
-                    p.settings->setValue("BMD/DeviceIndex", value.deviceIndex);
-                    p.settings->setValue("BMD/DisplayModeIndex", value.displayModeIndex);
-                    p.settings->setValue("BMD/PixelTypeIndex", value.pixelTypeIndex);
-                    p.settings->setValue("BMD/DeviceEnabled", value.deviceEnabled);
-                    const auto i = value.boolOptions.find(bmd::Option::_444SDIVideoOutput);
-                    p.settings->setValue("BMD/444SDIVideoOutput", i != value.boolOptions.end() ? i->second : false);
-                    p.settings->setValue("BMD/HDRMode", value.hdrMode);
-                    p.settings->setValue("BMD/HDRData", value.hdrData);
                 });
-
             p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
                 p.bmdOutputDevice->observeActive(),
                 [this](bool value)
@@ -707,7 +616,7 @@ namespace tl
             DTK_P();
 
             p.mainWindow.reset(new MainWindow(this));
-            const dtk::Size2I windowSize = p.settings->getValue<dtk::Size2I>("MainWindow/Size");
+            const dtk::Size2I windowSize = p.settingsModel->getWindowSize();
             p.mainWindow->resize(windowSize.w, windowSize.h);
             p.mainWindow->show();
 
@@ -745,55 +654,13 @@ namespace tl
         {
             DTK_P();
             io::Options out;
-
-            out["SequenceIO/ThreadCount"] = dtk::Format("{0}").
-                arg(p.settings->getValue<int>("SequenceIO/ThreadCount"));
-
+            out = io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
 #if defined(TLRENDER_FFMPEG)
-            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").
-                arg(p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-            out["FFmpeg/ThreadCount"] = dtk::Format("{0}").
-                arg(p.settings->getValue<int>("FFmpeg/ThreadCount"));
+            out = io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
 #endif // TLRENDER_FFMPEG
-
 #if defined(TLRENDER_USD)
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<int>("USD/renderWidth");
-                out["USD/renderWidth"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<float>("USD/complexity");
-                out["USD/complexity"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<usd::DrawMode>("USD/drawMode");
-                out["USD/drawMode"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<bool>("USD/enableLighting");
-                out["USD/enableLighting"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<bool>("USD/sRGB");
-                out["USD/sRGB"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<size_t>("USD/stageCacheCount");
-                out["USD/stageCacheCount"] = ss.str();
-            }
-            {
-                std::stringstream ss;
-                ss << p.settings->getValue<size_t>("USD/diskCacheByteCount");
-                out["USD/diskCacheByteCount"] = ss.str();
-            }
+            out = io::merge(out, usd::getOptions(p.settingsModel->getUSD()));
 #endif // TLRENDER_USD
-
             return out;
         }
 
@@ -805,71 +672,6 @@ namespace tl
                 _p->bmdOutputDevice->tick();
             }
 #endif // TLRENDER_BMD
-        }
-
-        void App::_settingsUpdate(const std::string& name)
-        {
-            DTK_P();
-            const auto split = dtk::split(name, '/');
-            if (!split.empty() || name.empty())
-            {
-                auto ioSystem = _context->getSystem<io::System>();
-                const auto& names = ioSystem->getNames();
-                bool match = false;
-                if (!split.empty())
-                {
-                    match = std::find(names.begin(), names.end(), split[0]) != names.end();
-                }
-                if (match || name.empty())
-                {
-                    const auto ioOptions = _ioOptions();
-                    if (p.player)
-                    {
-                        p.player->setIOOptions(ioOptions);
-                    }
-                }
-            }
-            if ("Cache/Size" == name ||
-                "Cache/ReadAhead" == name ||
-                "Cache/ReadBehind" == name ||
-                name.empty())
-            {
-                _cacheUpdate();
-            }
-            if ("FileBrowser/NativeFileDialog" == name || name.empty())
-            {
-                auto fileBrowserSystem = _context->getSystem<qtwidget::FileBrowserSystem>();
-                fileBrowserSystem->setNativeFileDialog(
-                    p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
-            }
-            if ("Files/RecentMax" == name || name.empty())
-            {
-                p.recentFilesModel->setRecentMax(
-                    p.settings->getValue<int>("Files/RecentMax"));
-            }
-            if ("Files/Recent" == name || name.empty())
-            {
-                std::vector<file::Path> recentPaths;
-                for (const auto& recentFile :
-                    p.settings->getValue<std::vector<std::string> >("Files/Recent"))
-                {
-                    recentPaths.push_back(file::Path(recentFile));
-                }
-                p.recentFilesModel->setRecent(recentPaths);
-            }
-            if ("Misc/ToolTipsEnabled" == name || name.empty())
-            {
-                if (p.settings->getValue<bool>("Misc/ToolTipsEnabled"))
-                {
-                    removeEventFilter(p.toolTipsFilter.get());
-                    p.toolTipsFilter.reset();
-                }
-                else
-                {
-                    p.toolTipsFilter.reset(new qt::ToolTipsFilter(this));
-                    installEventFilter(p.toolTipsFilter.get());
-                }
-            }
         }
 
         void App::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
@@ -893,19 +695,15 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        options.fileSequenceAudio =
-                            p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio");
-                        options.fileSequenceAudioFileName =
-                            p.settings->getValue<std::string>("FileSequence/AudioFileName");
-                        options.fileSequenceAudioDirectory =
-                            p.settings->getValue<std::string>("FileSequence/AudioDirectory");
-                        options.videoRequestCount =
-                            p.settings->getValue<size_t>("Performance/VideoRequestCount");
-                        options.audioRequestCount =
-                            p.settings->getValue<size_t>("Performance/AudioRequestCount");
+                        const play::FileSequenceOptions fileSequence = p.settingsModel->getFileSequence();
+                        options.fileSequenceAudio = fileSequence.audio;
+                        options.fileSequenceAudioFileName = fileSequence.audioFileName;
+                        options.fileSequenceAudioDirectory = fileSequence.audioDirectory;
+                        const play::PerformanceOptions performance = p.settingsModel->getPerformance();
+                        options.videoRequestCount = performance.videoRequestCount;
+                        options.audioRequestCount = performance.audioRequestCount;
                         options.ioOptions = _ioOptions();
-                        options.pathOptions.maxNumberDigits =
-                            p.settings->getValue<size_t>("FileSequence/MaxDigits");
+                        options.pathOptions.maxNumberDigits = fileSequence.maxDigits;
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
                             timeline::create(_context, files[i]->path, options) :
                             timeline::create(_context, files[i]->path, files[i]->audioPath, options);
@@ -925,7 +723,7 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        _log(e.what(), dtk::LogType::Error);
+                        _context->log("tl::play_qt::App", e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -937,6 +735,11 @@ namespace tl
         void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& activeFiles)
         {
             DTK_P();
+
+            if (!p.activeFiles.empty() && p.player)
+            {
+                p.activeFiles.front()->currentTime = p.player->currentTime();
+            }
 
             QSharedPointer<qt::TimelinePlayer> player;
             if (!activeFiles.empty())
@@ -962,8 +765,7 @@ namespace tl
                                 playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache.readAhead = time::invalidTime;
                                 playerOptions.cache.readBehind = time::invalidTime;
-                                playerOptions.audioBufferFrameCount =
-                                    p.settings->getValue<size_t>("Performance/AudioBufferFrameCount");
+                                playerOptions.audioBufferFrameCount = p.settingsModel->getPerformance().audioBufferFrameCount;
                                 player.reset(new qt::TimelinePlayer(
                                     _context,
                                     timeline::Player::create(_context, timeline, playerOptions),
@@ -971,7 +773,7 @@ namespace tl
                             }
                             catch (const std::exception& e)
                             {
-                                _log(e.what(), dtk::LogType::Error);
+                                _context->log("tl::play_qt::App", e.what(), dtk::LogType::Error);
                             }
                         }
                     }
@@ -979,6 +781,11 @@ namespace tl
             }
             if (player)
             {
+                const OTIO_NS::RationalTime currentTime = activeFiles.front()->currentTime;
+                if (!currentTime.strictly_equal(time::invalidTime))
+                {
+                    player->seek(currentTime);
+                }
                 std::vector<std::shared_ptr<timeline::Timeline> > compare;
                 for (size_t i = 1; i < activeFiles.size(); ++i)
                 {
@@ -1000,7 +807,7 @@ namespace tl
 #endif // TLRENDER_BMD
 
             _layersUpdate(p.filesModel->observeLayers()->get());
-            _cacheUpdate();
+            _cacheUpdate(p.settingsModel->getCache());
             _audioUpdate();
 
             Q_EMIT playerChanged(p.player);
@@ -1034,21 +841,16 @@ namespace tl
             }
         }
 
-        void App::_cacheUpdate()
+        void App::_cacheUpdate(const play::CacheOptions& options)
         {
             DTK_P();
 
             auto ioSystem = _context->getSystem<io::System>();
-            ioSystem->getCache()->setMax(
-                p.settings->getValue<size_t>("Cache/Size") * dtk::gigabyte);
+            ioSystem->getCache()->setMax(options.sizeGB * dtk::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = OTIO_NS::RationalTime(
-                p.settings->getValue<double>("Cache/ReadAhead"),
-                1.0);
-            cacheOptions.readBehind = OTIO_NS::RationalTime(
-                p.settings->getValue<double>("Cache/ReadBehind"),
-                1.0);
+            cacheOptions.readAhead = OTIO_NS::RationalTime(options.readAhead, 1.0);
+            cacheOptions.readBehind = OTIO_NS::RationalTime(options.readBehind, 1.0);
             if (p.player)
             {
                 p.player->setCacheOptions(cacheOptions);

@@ -6,9 +6,8 @@
 
 #include <tlPlayQtApp/App.h>
 
-#include <tlUI/RecentFilesModel.h>
-
 #include <tlPlay/FilesModel.h>
+#include <tlPlay/RecentFilesModel.h>
 
 #include <QActionGroup>
 
@@ -31,7 +30,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
-            std::shared_ptr<dtk::ListObserver<file::Path> > recentObserver;
+            std::shared_ptr<dtk::ListObserver<std::filesystem::path> > recentObserver;
         };
 
         FileActions::FileActions(App* app, QObject* parent) :
@@ -160,7 +159,7 @@ namespace tl
                 &QAction::triggered,
                 [app]
                 {
-                    app->filesModel()->reload();
+                    app->reload();
                 });
             connect(
                 p.actions["Next"],
@@ -244,9 +243,9 @@ namespace tl
                     _actionsUpdate();
                 });
 
-            p.recentObserver = dtk::ListObserver<file::Path>::create(
+            p.recentObserver = dtk::ListObserver<std::filesystem::path>::create(
                 app->recentFilesModel()->observeRecent(),
-                [this](const std::vector<file::Path>& value)
+                [this](const std::vector<std::filesystem::path>& value)
                 {
                     _recentUpdate(value);
                 });
@@ -265,7 +264,7 @@ namespace tl
             return _p->menu.get();
         }
 
-        void FileActions::_recentUpdate(const std::vector<file::Path>& value)
+        void FileActions::_recentUpdate(const std::vector<std::filesystem::path>& value)
         {
             DTK_P();
             for (const auto& i : p.actionGroups["Recent"]->actions())
@@ -276,9 +275,8 @@ namespace tl
             for (auto i = value.rbegin(); i != value.rend(); ++i)
             {
                 auto action = new QAction(this);
-                const QString label = QString::fromUtf8(i->get().c_str());
-                action->setText(QString("%1").arg(label));
-                const QString fileName = QString::fromUtf8(i->get().c_str());
+                const QString fileName = QString::fromUtf8(i->u8string());
+                action->setText(QString("%1").arg(fileName));
                 action->setData(fileName);
                 p.actionGroups["Recent"]->addAction(action);
                 p.recentMenu->addAction(action);

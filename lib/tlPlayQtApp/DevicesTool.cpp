@@ -86,7 +86,7 @@ namespace tl
                 p.eotfComboBox->addItem(QString::fromUtf8(i.c_str()));
             }
 
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 auto min = new QDoubleSpinBox;
                 min->setRange(0.0, 1.0);
@@ -122,14 +122,14 @@ namespace tl
             layout = new QFormLayout;
             layout->addRow(tr("Mode:"), p.hdrModeComboBox);
             layout->addRow(tr("EOTF:"), p.eotfComboBox);
-            const std::array<QString, image::HDRPrimaries::Count> primariesLabels =
+            const std::array<QString, static_cast<size_t>(image::HDRPrimaries::Count)> primariesLabels =
             {
                 tr("Red primaries:"),
                 tr("Green primaries:"),
                 tr("Blue primaries:"),
                 tr("White primaries:")
             };
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 auto hLayout = new QHBoxLayout;
                 hLayout->addWidget(p.primariesSpinBoxes[i].first);
@@ -214,7 +214,7 @@ namespace tl
                     _p->app->bmdDevicesModel()->setHDRData(hdrData);
                 });
 
-            for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+            for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
             {
                 connect(
                     p.primariesSpinBoxes[i].first,
@@ -319,17 +319,17 @@ namespace tl
                     }
                     {
                         QSignalBlocker blocker(p.videoLevelsComboBox);
-                        p.videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
+                        p.videoLevelsComboBox->setCurrentIndex(static_cast<size_t>(value.videoLevels));
                     }
                     {
                         QSignalBlocker blocker(p.hdrModeComboBox);
-                        p.hdrModeComboBox->setCurrentIndex(static_cast<int>(value.hdrMode));
+                        p.hdrModeComboBox->setCurrentIndex(static_cast<size_t>(value.hdrMode));
                     }
                     {
                         QSignalBlocker blocker(p.eotfComboBox);
-                        p.eotfComboBox->setCurrentIndex(static_cast<int>(value.hdrData.eotf));
+                        p.eotfComboBox->setCurrentIndex(static_cast<size_t>(value.hdrData.eotf));
                     }
-                    for (size_t i = 0; i < image::HDRPrimaries::Count; ++i)
+                    for (size_t i = 0; i < static_cast<size_t>(image::HDRPrimaries::Count); ++i)
                     {
                         {
                             QSignalBlocker blocker(p.primariesSpinBoxes[i].first);

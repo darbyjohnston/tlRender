@@ -28,7 +28,7 @@ namespace tl
         };
 
         FileBrowserSystem::FileBrowserSystem(const std::shared_ptr<dtk::Context>& context) :
-            ISystem(context, "tl::dtk::FileBrowserSystem"),
+            ISystem(context, "tl::qtwidget::FileBrowserSystem"),
             _p(new Private)
         {
             DTK_P();

@@ -6,7 +6,6 @@
 
 #include <tlPlayQtApp/App.h>
 
-
 #include <tlQt/MetaTypes.h>
 
 #include <tlPlay/FilesModel.h>

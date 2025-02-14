@@ -213,7 +213,7 @@ namespace tl
             p.layout->setGridPos(label, 3, 0);
             p.maxDigitsEdit->setParent(p.layout);
             p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
-            label = dtk::Label::create(context, "Default FPS:", p.layout);
+            label = dtk::Label::create(context, "Default speed (FPS):", p.layout);
             p.layout->setGridPos(label, 4, 0);
             p.defaultSpeedEdit->setParent(p.layout);
             p.layout->setGridPos(p.defaultSpeedEdit, 4, 1);
@@ -933,7 +933,7 @@ namespace tl
         {
             std::shared_ptr<play::SettingsModel> model;
 
-            std::shared_ptr<dtk::CheckBox> toolTipsEnabledCheckBox;
+            std::shared_ptr<dtk::CheckBox> tooltipsCheckBox;
             std::shared_ptr<dtk::GridLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<bool> > tooltipsEnabledObserver;
@@ -949,24 +949,24 @@ namespace tl
 
             p.model = app->getSettingsModel();
 
-            p.toolTipsEnabledCheckBox = dtk::CheckBox::create(context);
+            p.tooltipsCheckBox = dtk::CheckBox::create(context);
 
             p.layout = dtk::GridLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             auto label = dtk::Label::create(context, "Enable tool tips:", p.layout);
             p.layout->setGridPos(label, 1, 0);
-            p.toolTipsEnabledCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.toolTipsEnabledCheckBox, 1, 1);
+            p.tooltipsCheckBox->setParent(p.layout);
+            p.layout->setGridPos(p.tooltipsCheckBox, 1, 1);
 
             p.tooltipsEnabledObserver = dtk::ValueObserver<bool>::create(
-                app->getSettingsModel()->observeTooltipsEnabled(),
+                p.model->observeTooltipsEnabled(),
                 [this](bool value)
                 {
-                    _p->toolTipsEnabledCheckBox->setChecked(value);
+                    _p->tooltipsCheckBox->setChecked(value);
                 });
 
-            p.toolTipsEnabledCheckBox->setCheckedCallback(
+            p.tooltipsCheckBox->setCheckedCallback(
                 [this](bool value)
                 {
                     _p->model->setTooltipsEnabled(value);

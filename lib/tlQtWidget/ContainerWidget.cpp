@@ -157,8 +157,8 @@ namespace tl
         };
 
         ContainerWidget::ContainerWidget(
-            const std::shared_ptr<dtk::Style>& style,
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<dtk::Style>& style,
             QWidget* parent) :
             QOpenGLWidget(parent),
             _p(new Private)

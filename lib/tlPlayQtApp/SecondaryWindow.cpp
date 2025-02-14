@@ -9,7 +9,6 @@
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/RenderModel.h>
-#include <tlPlay/Settings.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlQtWidget/TimelineViewport.h>
@@ -49,20 +48,15 @@ namespace tl
             p.app = app;
 
             p.viewport = new qtwidget::TimelineViewport(
-                ui::Style::create(app->getContext()),
-                app->getContext());
+                app->getContext(),
+                dtk::Style::create(app->getContext()));
 
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(p.viewport);
             setLayout(layout);
 
-            auto settings = app->settings();
-            std::string geometry;
-            settings->setDefaultValue("SecondaryWindow/Size", dtk::Size2I(1920, 1080));
-
-            const dtk::Size2I size = settings->getValue<dtk::Size2I>("SecondaryWindow/Size");
-            resize(size.w, size.h);
+            resize(1920, 1080);
 
             p.viewport->setPlayer(app->player());
 
@@ -125,11 +119,7 @@ namespace tl
         }
 
         SecondaryWindow::~SecondaryWindow()
-        {
-            DTK_P();
-            const dtk::Size2I size(width(), height());
-            p.app->settings()->setValue("SecondaryWindow/Size", size);
-        }
+        {}
 
         void SecondaryWindow::setView(
             const dtk::V2I& pos,

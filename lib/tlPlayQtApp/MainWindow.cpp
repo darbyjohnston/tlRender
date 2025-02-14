@@ -37,7 +37,6 @@
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
-#include <tlPlay/Settings.h>
 #include <tlPlay/Viewport.h>
 
 #if defined(TLRENDER_BMD)
@@ -136,70 +135,34 @@ namespace tl
 
             p.app = app;
 
-            auto settings = app->settings();
-            settings->setDefaultValue("MainWindow/Size", dtk::Size2I(1920, 1080));
-            settings->setDefaultValue("MainWindow/FloatOnTop", false);
-            settings->setDefaultValue("Timeline/Input",
-                timelineui::ItemOptions().inputEnabled);
-            settings->setDefaultValue("Timeline/Editable", true);
-            settings->setDefaultValue("Timeline/EditAssociatedClips",
-                timelineui::ItemOptions().editAssociatedClips);
-            settings->setDefaultValue("Timeline/FrameView", true);
-            settings->setDefaultValue("Timeline/ScrollToCurrentFrame", true);
-            settings->setDefaultValue("Timeline/StopOnScrub", true);
-            settings->setDefaultValue("Timeline/FirstTrack",
-                !timelineui::DisplayOptions().tracks.empty());
-            settings->setDefaultValue("Timeline/TrackInfo",
-                timelineui::DisplayOptions().trackInfo);
-            settings->setDefaultValue("Timeline/ClipInfo",
-                timelineui::DisplayOptions().clipInfo);
-            settings->setDefaultValue("Timeline/Thumbnails",
-                timelineui::DisplayOptions().thumbnails);
-            settings->setDefaultValue("Timeline/ThumbnailsSize",
-                timelineui::DisplayOptions().thumbnailHeight);
-            settings->setDefaultValue("Timeline/Transitions",
-                timelineui::DisplayOptions().transitions);
-            settings->setDefaultValue("Timeline/Markers",
-                timelineui::DisplayOptions().markers);
-
             setAttribute(Qt::WA_DeleteOnClose);
             setFocusPolicy(Qt::StrongFocus);
             setAcceptDrops(true);
 
-            p.floatOnTop = settings->getValue<bool>("MainWindow/FloatOnTop");
-
             auto context = app->getContext();
             p.viewport = play::Viewport::create(context);
-            auto style = ui::Style::create(context);
-            p.viewportContainer = new qtwidget::ContainerWidget(style, context);
+            auto style = dtk::Style::create(context);
+            p.viewportContainer = new qtwidget::ContainerWidget(context, style);
             p.viewportContainer->setWidget(p.viewport);
 
             p.timelineWidget = new qtwidget::TimelineWidget(
+                context,
                 app->timeUnitsModel(),
-                style,
-                context);
-            p.timelineWidget->setEditable(settings->getValue<bool>("Timeline/Editable"));
-            p.timelineWidget->setFrameView(settings->getValue<bool>("Timeline/FrameView"));
+                style);
+            const play::TimelineOptions timelineOptions = app->settingsModel()->getTimeline();
+            p.timelineWidget->setEditable(timelineOptions.editable);
+            p.timelineWidget->setFrameView(timelineOptions.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setScrollToCurrentFrame(settings->getValue<bool>("Timeline/ScrollToCurrentFrame"));
-            p.timelineWidget->setStopOnScrub(settings->getValue<bool>("Timeline/StopOnScrub"));
-            timelineui::ItemOptions itemOptions;
-            itemOptions.inputEnabled = settings->getValue<bool>("Timeline/Input");
-            itemOptions.editAssociatedClips = settings->getValue<bool>("Timeline/EditAssociatedClips");
-            p.timelineWidget->setItemOptions(itemOptions);
-            timelineui::DisplayOptions displayOptions;
-            if (settings->getValue<bool>("Timeline/FirstTrack"))
+            p.timelineWidget->setScrollToCurrentFrame(timelineOptions.scroll);
+            p.timelineWidget->setStopOnScrub(timelineOptions.stopOnScrub);
+            p.timelineWidget->setItemOptions(app->settingsModel()->getTimelineItem());
+            timelineui::DisplayOptions timeineDisplayOptions = app->settingsModel()->getTimelineDisplay();
+            if (app->settingsModel()->getTimelineFirstTrack())
             {
-                displayOptions.tracks = { 0 };
+                timeineDisplayOptions.tracks = { 0 };
             }
-            displayOptions.trackInfo = settings->getValue<bool>("Timeline/TrackInfo");
-            displayOptions.clipInfo = settings->getValue<bool>("Timeline/ClipInfo");
-            displayOptions.thumbnails = settings->getValue<bool>("Timeline/Thumbnails");
-            displayOptions.thumbnailHeight = settings->getValue<int>("Timeline/ThumbnailsSize");
-            displayOptions.waveformHeight = displayOptions.thumbnailHeight / 2;
-            displayOptions.transitions = settings->getValue<bool>("Timeline/Transitions");
-            displayOptions.markers = settings->getValue<bool>("Timeline/Markers");
-            p.timelineWidget->setDisplayOptions(displayOptions);
+            timeineDisplayOptions.waveformHeight = timeineDisplayOptions.thumbnailHeight / 2;
+            p.timelineWidget->setDisplayOptions(timeineDisplayOptions);
 
             p.fileActions = new FileActions(app, this);
             p.compareActions = new CompareActions(app, this);
@@ -672,49 +635,16 @@ namespace tl
         }
 
         MainWindow::~MainWindow()
+        {}
+
+        const std::shared_ptr<play::Viewport>& MainWindow::viewport() const
         {
-            DTK_P();
-            auto settings = p.app->settings();
-            settings->setValue("MainWindow/Size", dtk::Size2I(width(), height()));
-            settings->setValue("MainWindow/FloatOnTop", p.floatOnTop);
-            const auto& itemOptions = p.timelineWidget->itemOptions();
-            settings->setValue("Timeline/Input",
-                itemOptions.inputEnabled);
-            settings->setValue("Timeline/Editable",
-                p.timelineWidget->isEditable());
-            settings->setValue("Timeline/EditAssociatedClips",
-                itemOptions.editAssociatedClips);
-            settings->setValue("Timeline/FrameView",
-                p.timelineWidget->hasFrameView());
-            settings->setValue("Timeline/ScrollToCurrentFrame",
-                p.timelineWidget->hasScrollToCurrentFrame());
-            settings->setValue("Timeline/StopOnScrub",
-                p.timelineWidget->hasStopOnScrub());
-            const auto& displayOptions = p.timelineWidget->displayOptions();
-            settings->setValue("Timeline/FirstTrack",
-                !displayOptions.tracks.empty());
-            settings->setValue("Timeline/TrackInfo",
-                displayOptions.trackInfo);
-            settings->setValue("Timeline/ClipInfo",
-                displayOptions.clipInfo);
-            settings->setValue("Timeline/Thumbnails",
-                displayOptions.thumbnails);
-            settings->setValue("Timeline/ThumbnailsSize",
-                displayOptions.thumbnailHeight);
-            settings->setValue("Timeline/Transitions",
-                displayOptions.transitions);
-            settings->setValue("Timeline/Markers",
-                displayOptions.markers);
+            return _p->viewport;
         }
 
         qtwidget::TimelineWidget* MainWindow::timelineWidget() const
         {
             return _p->timelineWidget;
-        }
-
-        const std::shared_ptr<play::Viewport>& MainWindow::viewport() const
-        {
-            return _p->viewport;
         }
 
         void MainWindow::dragEnterEvent(QDragEnterEvent* event)

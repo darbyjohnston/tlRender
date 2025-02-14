@@ -10,6 +10,8 @@
 #include <QObject>
 #include <QMenu>
 
+#include <filesystem>
+
 namespace tl
 {
     namespace play_qt
@@ -33,7 +35,7 @@ namespace tl
             QMenu* menu() const;
 
         private:
-            void _recentUpdate(const std::vector<file::Path>&);
+            void _recentUpdate(const std::vector<std::filesystem::path>&);
             void _actionsUpdate();
 
             DTK_PRIVATE();

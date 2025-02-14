@@ -505,7 +505,6 @@ namespace tl
                     p.bmdOutputDevice->setDisplayOptions({ displayOptionsList });
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
                 });
-
             p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
                 p.bmdOutputDevice->observeActive(),
                 [this](bool value)

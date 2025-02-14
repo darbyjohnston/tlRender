@@ -12,6 +12,8 @@
 
 #include <QActionGroup>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play_qt

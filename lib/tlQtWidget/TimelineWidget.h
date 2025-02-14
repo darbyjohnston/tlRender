@@ -26,9 +26,9 @@ namespace tl
 
         public:
             TimelineWidget(
+                const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<dtk::Style>&,
-                const std::shared_ptr<dtk::Context>&,
                 QWidget* parent = nullptr);
 
             virtual ~TimelineWidget();

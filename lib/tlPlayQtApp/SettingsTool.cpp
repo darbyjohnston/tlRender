@@ -7,7 +7,7 @@
 #include <tlPlayQtApp/App.h>
 #include <tlPlayQtApp/DockTitleBar.h>
 
-#include <tlPlay/Settings.h>
+#include <tlPlay/SettingsModel.h>
 
 #include <tlQtWidget/FloatEditSlider.h>
 
@@ -35,13 +35,13 @@ namespace tl
     {
         struct CacheSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QSpinBox* cacheSizeSpinBox = nullptr;
             QDoubleSpinBox* readAheadSpinBox = nullptr;
             QDoubleSpinBox* readBehindSpinBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<play::CacheOptions> > cacheObserver;
         };
 
         CacheSettingsWidget::CacheSettingsWidget(App* app, QWidget* parent) :
@@ -50,7 +50,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.cacheSizeSpinBox = new QSpinBox;
             p.cacheSizeSpinBox->setRange(0, 1024);
@@ -67,13 +67,24 @@ namespace tl
             layout->addRow(tr("Read behind (seconds):"), p.readBehindSpinBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.cacheObserver = dtk::ValueObserver<play::CacheOptions>::create(
+                p.model->observeCache(),
+                [this](const play::CacheOptions& value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.cacheSizeSpinBox);
+                        p.cacheSizeSpinBox->setValue(value.sizeGB);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.readAheadSpinBox);
+                        p.readAheadSpinBox->setValue(value.readAhead);
+
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.readBehindSpinBox);
+                        p.readBehindSpinBox->setValue(value.readBehind);
+                    }
                 });
 
             connect(
@@ -81,7 +92,10 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("Cache/Size", value);
+                    DTK_P();
+                    play::CacheOptions cache = p.model->getCache();
+                    cache.sizeGB = value;
+                    p.model->setCache(cache);
                 });
 
             connect(
@@ -89,7 +103,10 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    _p->settings->setValue("Cache/ReadAhead", value);
+                    DTK_P();
+                    play::CacheOptions cache = p.model->getCache();
+                    cache.readAhead = value;
+                    p.model->setCache(cache);
                 });
 
             connect(
@@ -97,47 +114,29 @@ namespace tl
                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),
                 [this](double value)
                 {
-                    _p->settings->setValue("Cache/ReadBehind", value);
+                    DTK_P();
+                    play::CacheOptions cache = p.model->getCache();
+                    cache.readBehind = value;
+                    p.model->setCache(cache);
                 });
         }
 
         CacheSettingsWidget::~CacheSettingsWidget()
         {}
 
-        void CacheSettingsWidget::_settingsUpdate(const std::string& name)
-        {
-            DTK_P();
-            if ("Cache/Size" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.cacheSizeSpinBox);
-                p.cacheSizeSpinBox->setValue(
-                    p.settings->getValue<int>("Cache/Size"));
-            }
-            if ("Cache/ReadAhead" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.readAheadSpinBox);
-                p.readAheadSpinBox->setValue(
-                    p.settings->getValue<double>("Cache/ReadAhead"));
-            }
-            if ("Cache/ReadBehind" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.readBehindSpinBox);
-                p.readBehindSpinBox->setValue(
-                    p.settings->getValue<double>("Cache/ReadBehind"));
-            }
-        }
-
         struct FileSequenceSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QComboBox* audioComboBox = nullptr;
             QLineEdit* audioFileName = nullptr;
             QLineEdit* audioDirectory = nullptr;
             QSpinBox* maxDigitsSpinBox = nullptr;
+            QDoubleSpinBox* defaultSpeedSpinBox = nullptr;
             QSpinBox* threadCountSpinBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<play::FileSequenceOptions> > fileSequenceObserver;
+            std::shared_ptr<dtk::ValueObserver<io::SequenceOptions> > sequenceIOObserver;
         };
 
         FileSequenceSettingsWidget::FileSequenceSettingsWidget(App* app, QWidget* parent) :
@@ -146,7 +145,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.audioComboBox = new QComboBox;
             for (const auto& i : timeline::getFileSequenceAudioLabels())
@@ -161,6 +160,9 @@ namespace tl
             p.maxDigitsSpinBox = new QSpinBox;
             p.maxDigitsSpinBox->setRange(0, 255);
 
+            p.defaultSpeedSpinBox = new QDoubleSpinBox;
+            p.defaultSpeedSpinBox->setRange(1.0, 120.0);
+
             p.threadCountSpinBox = new QSpinBox;
             p.threadCountSpinBox->setRange(1, 64);
 
@@ -169,16 +171,46 @@ namespace tl
             layout->addRow(tr("Audio file name:"), p.audioFileName);
             layout->addRow(tr("Audio directory:"), p.audioDirectory);
             layout->addRow(tr("Maximum digits:"), p.maxDigitsSpinBox);
+            layout->addRow(tr("Default speed (FPS):"), p.defaultSpeedSpinBox);
             layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.fileSequenceObserver = dtk::ValueObserver<play::FileSequenceOptions>::create(
+                p.model->observeFileSequence(),
+                [this](const play::FileSequenceOptions& value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.audioComboBox);
+                        p.audioComboBox->setCurrentIndex(static_cast<int>(value.audio));
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.audioFileName);
+                        p.audioFileName->setText(QString::fromUtf8(value.audioFileName.c_str()));
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.audioDirectory);
+                        p.audioDirectory->setText(QString::fromUtf8(value.audioDirectory.c_str()));
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.maxDigitsSpinBox);
+                        p.maxDigitsSpinBox->setValue(value.maxDigits);
+                    }
+                });
+
+            p.sequenceIOObserver = dtk::ValueObserver<io::SequenceOptions>::create(
+                p.model->observeSequenceIO(),
+                [this](const io::SequenceOptions& value)
+                {
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.defaultSpeedSpinBox);
+                        p.defaultSpeedSpinBox->setValue(value.defaultSpeed);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.threadCountSpinBox);
+                        p.threadCountSpinBox->setValue(value.threadCount);
+                    }
                 });
 
             connect(
@@ -186,9 +218,10 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->settings->setValue(
-                        "FileSequence/Audio",
-                        static_cast<timeline::FileSequenceAudio>(value));
+                    DTK_P();
+                    play::FileSequenceOptions fileSequence = p.model->getFileSequence();
+                    fileSequence.audio = static_cast<timeline::FileSequenceAudio>(value);
+                    p.model->setFileSequence(fileSequence);
                 });
 
             connect(
@@ -196,9 +229,10 @@ namespace tl
                 &QLineEdit::textChanged,
                 [this](const QString& value)
                 {
-                    _p->settings->setValue(
-                        "FileSequence/AudioFileName",
-                        std::string(value.toUtf8()));
+                    DTK_P();
+                    play::FileSequenceOptions fileSequence = p.model->getFileSequence();
+                    fileSequence.audioFileName = value.toUtf8();
+                    p.model->setFileSequence(fileSequence);
                 });
 
             connect(
@@ -206,9 +240,10 @@ namespace tl
                 &QLineEdit::textChanged,
                 [this](const QString& value)
                 {
-                    _p->settings->setValue(
-                        "FileSequence/AudioDirectory",
-                        std::string(value.toUtf8()));
+                    DTK_P();
+                    play::FileSequenceOptions fileSequence = p.model->getFileSequence();
+                    fileSequence.audioDirectory = value.toUtf8();
+                    p.model->setFileSequence(fileSequence);
                 });
 
             connect(
@@ -216,7 +251,21 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("FileSequence/MaxDigits", value);
+                    DTK_P();
+                    play::FileSequenceOptions fileSequence = p.model->getFileSequence();
+                    fileSequence.maxDigits = value;
+                    p.model->setFileSequence(fileSequence);
+                });
+
+            connect(
+                p.defaultSpeedSpinBox,
+                QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+                [this](double value)
+                {
+                    DTK_P();
+                    io::SequenceOptions sequenceIO = p.model->getSequenceIO();
+                    sequenceIO.defaultSpeed = value;
+                    p.model->setSequenceIO(sequenceIO);
                 });
 
             connect(
@@ -224,57 +273,25 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("SequenceIO/ThreadCount", value);
+                    DTK_P();
+                    io::SequenceOptions sequenceIO = p.model->getSequenceIO();
+                    sequenceIO.threadCount = value;
+                    p.model->setSequenceIO(sequenceIO);
                 });
         }
 
         FileSequenceSettingsWidget::~FileSequenceSettingsWidget()
         {}
 
-        void FileSequenceSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("FileSequence/Audio" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.audioComboBox);
-                p.audioComboBox->setCurrentIndex(static_cast<int>(
-                    p.settings->getValue<timeline::FileSequenceAudio>("FileSequence/Audio")));
-            }
-            if ("FileSequence/AudioFileName" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.audioFileName);
-                p.audioFileName->setText(QString::fromUtf8(
-                    p.settings->getValue<std::string>("FileSequence/AudioFileName").c_str()));
-            }
-            if ("FileSequence/AudioDirectory" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.audioDirectory);
-                p.audioDirectory->setText(QString::fromUtf8(
-                    p.settings->getValue<std::string>("FileSequence/AudioDirectory").c_str()));
-            }
-            if ("FileSequence/MaxDigits" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.maxDigitsSpinBox);
-                p.maxDigitsSpinBox->setValue(
-                    p.settings->getValue<int>("FileSequence/MaxDigits"));
-            }
-            if ("SequenceIO/ThreadCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.threadCountSpinBox);
-                p.threadCountSpinBox->setValue(
-                    p.settings->getValue<int>("SequenceIO/ThreadCount"));
-            }
-        }
-
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
-            QCheckBox* yuvToRGBConversionCheckBox = nullptr;
+            QCheckBox* yuvToRGBCheckBox = nullptr;
             QSpinBox* threadCountSpinBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<ffmpeg::Options> > ffmpegObserver;
         };
 
         FFmpegSettingsWidget::FFmpegSettingsWidget(App * app, QWidget * parent) :
@@ -283,9 +300,9 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
-            p.yuvToRGBConversionCheckBox = new QCheckBox;
+            p.yuvToRGBCheckBox = new QCheckBox;
 
             p.threadCountSpinBox = new QSpinBox;
             p.threadCountSpinBox->setRange(0, 64);
@@ -294,25 +311,34 @@ namespace tl
             auto label = new QLabel(tr("Changes are applied to new files."));
             label->setWordWrap(true);
             layout->addRow(label);
-            layout->addRow(tr("YUV to RGB conversion:"), p.yuvToRGBConversionCheckBox);
+            layout->addRow(tr("YUV to RGB conversion:"), p.yuvToRGBCheckBox);
             layout->addRow(tr("I/O threads:"), p.threadCountSpinBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.ffmpegObserver = dtk::ValueObserver<ffmpeg::Options>::create(
+                p.model->observeFFmpeg(),
+                [this](const ffmpeg::Options& value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.yuvToRGBCheckBox);
+                        p.yuvToRGBCheckBox->setChecked(value.yuvToRgb);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.threadCountSpinBox);
+                        p.threadCountSpinBox->setValue(value.threadCount);
+                    }
                 });
 
             connect(
-                p.yuvToRGBConversionCheckBox,
+                p.yuvToRGBCheckBox,
                 &QCheckBox::toggled,
                 [this](bool value)
                 {
-                    _p->settings->setValue("FFmpeg/YUVToRGBConversion", value);
+                    DTK_P();
+                    ffmpeg::Options ffmpeg = p.model->getFFmpeg();
+                    ffmpeg.yuvToRgb = value;
+                    p.model->setFFmpeg(ffmpeg);
                 });
 
             connect(
@@ -320,35 +346,21 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("FFmpeg/ThreadCount", value);
+                    DTK_P();
+                    ffmpeg::Options ffmpeg = p.model->getFFmpeg();
+                    ffmpeg.threadCount = value;
+                    p.model->setFFmpeg(ffmpeg);
                 });
         }
 
         FFmpegSettingsWidget::~FFmpegSettingsWidget()
         {}
-
-        void FFmpegSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("FFmpeg/YUVToRGBConversion" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.yuvToRGBConversionCheckBox);
-                p.yuvToRGBConversionCheckBox->setChecked(
-                    p.settings->getValue<bool>("FFmpeg/YUVToRGBConversion"));
-            }
-            if ("FFmpeg/ThreadCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.threadCountSpinBox);
-                p.threadCountSpinBox->setValue(
-                    p.settings->getValue<int>("FFmpeg/ThreadCount"));
-            }
-        }
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
         struct USDSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QSpinBox* renderWidthSpinBox = nullptr;
             qtwidget::FloatEditSlider* complexitySlider = nullptr;
@@ -358,7 +370,7 @@ namespace tl
             QSpinBox* stageCacheSpinBox = nullptr;
             QSpinBox* diskCacheSpinBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<usd::Options> > usdObserver;
         };
 
         USDSettingsWidget::USDSettingsWidget(App * app, QWidget * parent) :
@@ -367,7 +379,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.renderWidthSpinBox = new QSpinBox;
             p.renderWidthSpinBox->setRange(1, 8192);
@@ -400,13 +412,39 @@ namespace tl
             layout->addRow(tr("Disk cache size (GB):"), p.diskCacheSpinBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.usdObserver = dtk::ValueObserver<usd::Options>::create(
+                p.model->observeUSD(),
+                [this](const usd::Options& value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.renderWidthSpinBox);
+                        p.renderWidthSpinBox->setValue(value.renderWidth);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.complexitySlider);
+                        p.complexitySlider->setValue(value.complexity);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.drawModeComboBox);
+                        p.drawModeComboBox->setCurrentIndex(static_cast<int>(value.drawMode));
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.lightingCheckBox);
+                        p.lightingCheckBox->setChecked(value.enableLighting);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.sRGBCheckBox);
+                        p.sRGBCheckBox->setChecked(value.sRGB);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.stageCacheSpinBox);
+                        p.stageCacheSpinBox->setValue(value.stageCache);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.diskCacheSpinBox);
+                        p.diskCacheSpinBox->setValue(value.diskCache);
+                    }
                 });
 
             connect(
@@ -414,7 +452,10 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/renderWidth", value);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.renderWidth = value;
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -422,7 +463,10 @@ namespace tl
                 &qtwidget::FloatEditSlider::valueChanged,
                 [this](float value)
                 {
-                    _p->settings->setValue("USD/complexity", value);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.complexity = value;
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -430,9 +474,10 @@ namespace tl
                 QOverload<int>::of(&QComboBox::activated),
                 [this](int value)
                 {
-                    _p->settings->setValue(
-                        "USD/drawMode",
-                        static_cast<usd::DrawMode>(value));
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.drawMode = static_cast<usd::DrawMode>(value);
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -440,7 +485,10 @@ namespace tl
                 &QCheckBox::stateChanged,
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/enableLighting", Qt::Checked == value);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.enableLighting = value;
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -448,7 +496,10 @@ namespace tl
                 &QCheckBox::stateChanged,
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/sRGB", Qt::Checked == value);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.sRGB = value;
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -456,7 +507,10 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/stageCacheCount", value);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.stageCache = value;
+                    p.model->setUSD(usd);
                 });
 
             connect(
@@ -464,69 +518,24 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("USD/diskCacheByteCount", value * dtk::gigabyte);
+                    DTK_P();
+                    usd::Options usd = p.model->getUSD();
+                    usd.diskCache = value;
+                    p.model->setUSD(usd);
                 });
         }
 
         USDSettingsWidget::~USDSettingsWidget()
         {}
-
-        void USDSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("USD/renderWidth" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.renderWidthSpinBox);
-                p.renderWidthSpinBox->setValue(
-                    p.settings->getValue<int>("USD/renderWidth"));
-            }
-            if ("USD/complexity" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.complexitySlider);
-                p.complexitySlider->setValue(
-                    p.settings->getValue<float>("USD/complexity"));
-            }
-            if ("USD/drawMode" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.drawModeComboBox);
-                p.drawModeComboBox->setCurrentIndex(static_cast<int>(
-                    p.settings->getValue<usd::DrawMode>("USD/drawMode")));
-            }
-            if ("USD/enableLighting" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.lightingCheckBox);
-                p.lightingCheckBox->setChecked(
-                    p.settings->getValue<bool>("USD/enableLighting"));
-            }
-            if ("USD/sRGB" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.sRGBCheckBox);
-                p.sRGBCheckBox->setChecked(
-                    p.settings->getValue<bool>("USD/sRGB"));
-            }
-            if ("USD/stageCacheCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.stageCacheSpinBox);
-                p.stageCacheSpinBox->setValue(
-                    p.settings->getValue<size_t>("USD/stageCacheCount"));
-            }
-            if ("USD/diskCacheByteCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.diskCacheSpinBox);
-                p.diskCacheSpinBox->setValue(
-                    p.settings->getValue<size_t>("USD/diskCacheByteCount") /
-                    dtk::gigabyte);
-            }
-        }
 #endif // TLRENDER_USD
 
         struct FileBrowserSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QCheckBox* nativeFileDialogCheckBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > nfdObserver;
         };
 
         FileBrowserSettingsWidget::FileBrowserSettingsWidget(App * app, QWidget * parent) :
@@ -535,7 +544,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.nativeFileDialogCheckBox = new QCheckBox;
             p.nativeFileDialogCheckBox->setText(tr("Native file dialog"));
@@ -544,13 +553,15 @@ namespace tl
             layout->addRow(p.nativeFileDialogCheckBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.nfdObserver = dtk::ValueObserver<bool>::create(
+                p.model->observeNativeFileDialog(),
+                [this](bool value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
+                        p.nativeFileDialogCheckBox->setChecked(value);
+                    }
                 });
 
             connect(
@@ -558,33 +569,22 @@ namespace tl
                 &QCheckBox::stateChanged,
                 [this](int value)
                 {
-                    _p->settings->setValue("FileBrowser/NativeFileDialog", Qt::Checked == value);
+                    _p->model->setNativeFileDialog(value);
                 });
         }
 
         FileBrowserSettingsWidget::~FileBrowserSettingsWidget()
         {}
 
-        void FileBrowserSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("FileBrowser/NativeFileDialog" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
-                p.nativeFileDialogCheckBox->setChecked(
-                    p.settings->getValue<bool>("FileBrowser/NativeFileDialog"));
-            }
-        }
-
         struct PerformanceSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QSpinBox* audioBufferFrameCountSpinBox = nullptr;
             QSpinBox* videoRequestCountSpinBox = nullptr;
             QSpinBox* audioRequestCountSpinBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<play::PerformanceOptions> > performanceObserver;
         };
 
         PerformanceSettingsWidget::PerformanceSettingsWidget(App* app, QWidget* parent) :
@@ -593,7 +593,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.audioBufferFrameCountSpinBox = new QSpinBox;
             p.audioBufferFrameCountSpinBox->setRange(1024, 4096);
@@ -613,13 +613,23 @@ namespace tl
             layout->addRow(tr("Audio requests:"), p.audioRequestCountSpinBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.performanceObserver = dtk::ValueObserver<play::PerformanceOptions>::create(
+                p.model->observePerformance(),
+                [this](const play::PerformanceOptions& value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);
+                        p.audioBufferFrameCountSpinBox->setValue(value.audioBufferFrameCount);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.videoRequestCountSpinBox);
+                        p.videoRequestCountSpinBox->setValue(value.videoRequestCount);
+                    }
+                    {
+                        QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
+                        p.audioRequestCountSpinBox->setValue(value.audioRequestCount);
+                    }
                 });
 
             connect(
@@ -627,7 +637,10 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("Performance/AudioBufferFrameCount", value);
+                    DTK_P();
+                    auto performance = p.model->getPerformance();
+                    performance.audioBufferFrameCount = value;
+                    p.model->setPerformance(performance);
                 });
 
             connect(
@@ -635,7 +648,10 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("Performance/VideoRequestCount", value);
+                    DTK_P();
+                    auto performance = p.model->getPerformance();
+                    performance.videoRequestCount = value;
+                    p.model->setPerformance(performance);
                 });
 
             connect(
@@ -643,43 +659,23 @@ namespace tl
                 QOverload<int>::of(&QSpinBox::valueChanged),
                 [this](int value)
                 {
-                    _p->settings->setValue("Performance/AudioRequestCount", value);
+                    DTK_P();
+                    auto performance = p.model->getPerformance();
+                    performance.audioRequestCount = value;
+                    p.model->setPerformance(performance);
                 });
         }
 
         PerformanceSettingsWidget::~PerformanceSettingsWidget()
         {}
 
-        void PerformanceSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("Performance/AudioBufferFrameCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.audioBufferFrameCountSpinBox);
-                p.audioBufferFrameCountSpinBox->setValue(
-                    p.settings->getValue<int>("Performance/AudioBufferFrameCount"));
-            }
-            if ("Performance/VideoRequestCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.videoRequestCountSpinBox);
-                p.videoRequestCountSpinBox->setValue(
-                    p.settings->getValue<int>("Performance/VideoRequestCount"));
-            }
-            if ("Performance/AudioRequestCount" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.audioRequestCountSpinBox);
-                p.audioRequestCountSpinBox->setValue(
-                    p.settings->getValue<int>("Performance/AudioRequestCount"));
-            }
-        }
-
         struct MiscSettingsWidget::Private
         {
-            std::shared_ptr<play::Settings> settings;
+            std::shared_ptr<play::SettingsModel> model;
 
             QCheckBox* toolTipsCheckBox = nullptr;
 
-            std::shared_ptr<dtk::ValueObserver<std::string> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > tooltipsEnabledObserver;
         };
 
         MiscSettingsWidget::MiscSettingsWidget(App* app, QWidget* parent) :
@@ -688,7 +684,7 @@ namespace tl
         {
             DTK_P();
 
-            p.settings = app->settings();
+            p.model = app->settingsModel();
 
             p.toolTipsCheckBox = new QCheckBox;
             p.toolTipsCheckBox->setText(tr("Enable tool tips"));
@@ -697,13 +693,15 @@ namespace tl
             layout->addRow(p.toolTipsCheckBox);
             setLayout(layout);
 
-            _settingsUpdate(std::string());
-
-            p.settingsObserver = dtk::ValueObserver<std::string>::create(
-                p.settings->observeValues(),
-                [this](const std::string& name)
+            p.tooltipsEnabledObserver = dtk::ValueObserver<bool>::create(
+                p.model->observeTooltipsEnabled(),
+                [this](bool value)
                 {
-                    _settingsUpdate(name);
+                    DTK_P();
+                    {
+                        QSignalBlocker signalBlocker(p.toolTipsCheckBox);
+                        _p->toolTipsCheckBox->setChecked(value);
+                    }
                 });
 
             connect(
@@ -711,23 +709,12 @@ namespace tl
                 &QCheckBox::stateChanged,
                 [this](int value)
                 {
-                    _p->settings->setValue("Misc/ToolTipsEnabled", Qt::Checked == value);
+                    _p->model->setTooltipsEnabled(value);
                 });
         }
 
         MiscSettingsWidget::~MiscSettingsWidget()
         {}
-
-        void MiscSettingsWidget::_settingsUpdate(const std::string & name)
-        {
-            DTK_P();
-            if ("Misc/ToolTipsEnabled" == name || name.empty())
-            {
-                QSignalBlocker signalBlocker(p.toolTipsCheckBox);
-                p.toolTipsCheckBox->setChecked(
-                    p.settings->getValue<bool>("Misc/ToolTipsEnabled"));
-            }
-        }
 
         SettingsTool::SettingsTool(App* app, QWidget* parent) :
             IToolWidget(app, parent)
@@ -767,7 +754,7 @@ namespace tl
                     messageBox.setDefaultButton(QMessageBox::Ok);
                     if (messageBox.exec() == QMessageBox::Ok)
                     {
-                        app->settings()->reset();
+                        app->settingsModel()->reset();
                     }
                 });
         }
