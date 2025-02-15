@@ -275,7 +275,7 @@ namespace tl
             for (auto i = value.rbegin(); i != value.rend(); ++i)
             {
                 auto action = new QAction(this);
-                const QString fileName = QString::fromUtf8(i->u8string());
+                const QString fileName = QString::fromUtf8(i->u8string().c_str());
                 action->setText(QString("%1").arg(fileName));
                 action->setData(fileName);
                 p.actionGroups["Recent"]->addAction(action);
