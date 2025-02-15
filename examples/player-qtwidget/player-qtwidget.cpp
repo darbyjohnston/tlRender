@@ -53,8 +53,8 @@ int main(int argc, char* argv[])
 
         // Create the timeline viewport.
         auto timelineViewport = new tl::qtwidget::TimelineViewport(
-            tl::ui::Style::create(context),
-            context);
+            context,
+            dtk::Style::create(context));
         timelineViewport->setPlayer(player);
         timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
         timelineViewport->resize(1280, 720);

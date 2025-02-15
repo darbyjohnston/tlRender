@@ -9,6 +9,7 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Path.h>
 
+#include <dtk/core/CmdLine.h>
 #include <dtk/core/Format.h>
 
 #include <QQmlComponent>
@@ -26,13 +27,14 @@ namespace tl
                 char** argv) :
                 QGuiApplication(argc, argv)
             {
-                BaseApp::_init(
+                auto args = dtk::convert(argc, argv);
+                IApp::_init(
                     context,
-                    app::convert(argc, argv),
+                    args,
                     "player-qtquick",
                     "Example Qt Quick player application.",
                     {
-                        app::CmdLineValueArg<std::string>::create(
+                        dtk::CmdLineValueArg<std::string>::create(
                             _input,
                             "input",
                             "The input timeline.")

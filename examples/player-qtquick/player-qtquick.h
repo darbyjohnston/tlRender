@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <tlBaseApp/BaseApp.h>
-
 #include <tlQt/ContextObject.h>
 #include <tlQt/TimeObject.h>
 #include <tlQt/TimelinePlayer.h>
+
+#include <dtk/core/IApp.h>
 
 #include <QGuiApplication>
 
@@ -22,7 +22,7 @@ namespace tl
         namespace player_qtquick
         {
             //! Application.
-            class App : public QGuiApplication, public app::BaseApp
+            class App : public QGuiApplication, public dtk::IApp
             {
                 Q_OBJECT
 
