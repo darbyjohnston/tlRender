@@ -231,7 +231,7 @@ namespace tl
                 {
                     DTK_P();
                     play::FileSequenceOptions fileSequence = p.model->getFileSequence();
-                    fileSequence.audioFileName = value.toUtf8();
+                    fileSequence.audioFileName = value.toUtf8().data();
                     p.model->setFileSequence(fileSequence);
                 });
 
@@ -242,7 +242,7 @@ namespace tl
                 {
                     DTK_P();
                     play::FileSequenceOptions fileSequence = p.model->getFileSequence();
-                    fileSequence.audioDirectory = value.toUtf8();
+                    fileSequence.audioDirectory = value.toUtf8().data();
                     p.model->setFileSequence(fileSequence);
                 });
 
