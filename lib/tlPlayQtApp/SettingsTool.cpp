@@ -529,53 +529,6 @@ namespace tl
         {}
 #endif // TLRENDER_USD
 
-        struct FileBrowserSettingsWidget::Private
-        {
-            std::shared_ptr<play::SettingsModel> model;
-
-            QCheckBox* nativeFileDialogCheckBox = nullptr;
-
-            std::shared_ptr<dtk::ValueObserver<bool> > nfdObserver;
-        };
-
-        FileBrowserSettingsWidget::FileBrowserSettingsWidget(App * app, QWidget * parent) :
-            QWidget(parent),
-            _p(new Private)
-        {
-            DTK_P();
-
-            p.model = app->settingsModel();
-
-            p.nativeFileDialogCheckBox = new QCheckBox;
-            p.nativeFileDialogCheckBox->setText(tr("Native file dialog"));
-
-            auto layout = new QFormLayout;
-            layout->addRow(p.nativeFileDialogCheckBox);
-            setLayout(layout);
-
-            p.nfdObserver = dtk::ValueObserver<bool>::create(
-                p.model->observeNativeFileDialog(),
-                [this](bool value)
-                {
-                    DTK_P();
-                    {
-                        QSignalBlocker signalBlocker(p.nativeFileDialogCheckBox);
-                        p.nativeFileDialogCheckBox->setChecked(value);
-                    }
-                });
-
-            connect(
-                p.nativeFileDialogCheckBox,
-                &QCheckBox::stateChanged,
-                [this](int value)
-                {
-                    _p->model->setNativeFileDialog(value);
-                });
-        }
-
-        FileBrowserSettingsWidget::~FileBrowserSettingsWidget()
-        {}
-
         struct PerformanceSettingsWidget::Private
         {
             std::shared_ptr<play::SettingsModel> model;
@@ -727,7 +680,6 @@ namespace tl
 #if defined(TLRENDER_USD)
             addBellows(tr("USD"), new USDSettingsWidget(app));
 #endif // TLRENDER_USD
-            addBellows(tr("File Browser"), new FileBrowserSettingsWidget(app));
             addBellows(tr("Performance"), new PerformanceSettingsWidget(app));
             addBellows(tr("Miscellaneous"), new MiscSettingsWidget(app));
             auto resetButton = new QToolButton;

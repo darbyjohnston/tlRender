@@ -34,12 +34,6 @@ namespace tl
                 QWidget*,
                 const std::function<void(const file::Path&)>&);
 
-            //! Get whether the native file dialog is used.
-            bool isNativeFileDialog() const;
-
-            //! Set whether the native file dialog is used.
-            void setNativeFileDialog(bool);
-
             //! Get the path.
             const std::string& getPath() const;
 

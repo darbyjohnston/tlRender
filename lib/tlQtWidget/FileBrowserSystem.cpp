@@ -10,10 +10,6 @@
 
 #include <QFileDialog>
 
-#if defined(TLRENDER_NFD)
-#include <nfd.hpp>
-#endif // TLRENDER_NFD
-
 #include <filesystem>
 
 namespace tl
@@ -22,7 +18,6 @@ namespace tl
     {
         struct FileBrowserSystem::Private
         {
-            bool native = true;
             std::string path;
             QStringList extensions;
         };
@@ -73,58 +68,27 @@ namespace tl
             const std::function<void(const file::Path&)>& callback)
         {
             DTK_P();
-            bool native = p.native;
-#if defined(TLRENDER_NFD)
-            if (native)
+            QString filter;
+            if (!_p->extensions.isEmpty())
             {
-                nfdu8char_t* outPath = nullptr;
-                NFD::OpenDialog(outPath);
-                if (outPath)
+                filter.append(QObject::tr("Files"));
+                filter.append(" (");
+                QStringList extensions;
+                Q_FOREACH(QString i, _p->extensions)
                 {
-                    if (callback)
-                    {
-                        callback(file::Path(outPath));
-                    }
-                    NFD::FreePath(outPath);
+                    extensions.push_back(QString("*%1").arg(i));
                 }
+                filter.append(extensions.join(' '));
+                filter.append(")");
             }
-#else  // TLRENDER_NFD
-            native = false;
-#endif  // TLRENDER_NFD
-            if (!native)
+            const auto fileName = QFileDialog::getOpenFileName(
+                window,
+                QObject::tr("Open"),
+                QString::fromUtf8(p.path.c_str()));
+            if (callback)
             {
-                QString filter;
-                if (!_p->extensions.isEmpty())
-                {
-                    filter.append(QObject::tr("Files"));
-                    filter.append(" (");
-                    QStringList extensions;
-                    Q_FOREACH(QString i, _p->extensions)
-                    {
-                        extensions.push_back(QString("*%1").arg(i));
-                    }
-                    filter.append(extensions.join(' '));
-                    filter.append(")");
-                }
-                const auto fileName = QFileDialog::getOpenFileName(
-                    window,
-                    QObject::tr("Open"),
-                    QString::fromUtf8(p.path.c_str()));
-                if (callback)
-                {
-                    callback(file::Path(fileName.toUtf8().data()));
-                }
+                callback(file::Path(fileName.toUtf8().data()));
             }
-        }
-
-        bool FileBrowserSystem::isNativeFileDialog() const
-        {
-            return _p->native;
-        }
-
-        void FileBrowserSystem::setNativeFileDialog(bool value)
-        {
-            _p->native = value;
         }
 
         const std::string& FileBrowserSystem::getPath() const

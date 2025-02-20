@@ -70,20 +70,6 @@ namespace tl
         };
 #endif // TLRENDER_USD
 
-        //! File browser settings widget.
-        class FileBrowserSettingsWidget : public QWidget
-        {
-            Q_OBJECT
-
-        public:
-            FileBrowserSettingsWidget(App*, QWidget* parent = nullptr);
-
-            virtual ~FileBrowserSettingsWidget();
-
-        private:
-            DTK_PRIVATE();
-        };
-
         //! Performance settings widget.
         class PerformanceSettingsWidget : public QWidget
         {
