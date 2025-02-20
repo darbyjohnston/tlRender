@@ -76,6 +76,7 @@ namespace tl
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
+            std::shared_ptr<play::SettingsModel> settingsModel;
             std::shared_ptr<dtk::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
@@ -148,15 +149,16 @@ namespace tl
 
         void MainWindow::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const dtk::Size2I& size)
+            const std::shared_ptr<App>& app)
         {
-            Window::_init(context, "tlplay", size);
+            Window::_init(context, "tlplay", app->getSettingsModel()->getWindowSize());
             DTK_P();
 
             setBackgroundRole(dtk::ColorRole::Window);
 
             p.app = app;
+
+            p.settingsModel = app->getSettingsModel();
 
             p.speedModel = dtk::DoubleModel::create(context);
             p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
@@ -167,15 +169,15 @@ namespace tl
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
-            const play::TimelineOptions timelineOptions = app->getSettingsModel()->getTimeline();
+            const play::TimelineOptions timelineOptions = p.settingsModel->getTimeline();
             p.timelineWidget->setEditable(timelineOptions.editable);
             p.timelineWidget->setFrameView(timelineOptions.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
             p.timelineWidget->setScrollToCurrentFrame(timelineOptions.scroll);
             p.timelineWidget->setStopOnScrub(timelineOptions.stopOnScrub);
-            p.timelineWidget->setItemOptions(app->getSettingsModel()->getTimelineItem());
-            timelineui::DisplayOptions timeineDisplayOptions = app->getSettingsModel()->getTimelineDisplay();
-            if (app->getSettingsModel()->getTimelineFirstTrack())
+            p.timelineWidget->setItemOptions(p.settingsModel->getTimelineItem());
+            timelineui::DisplayOptions timeineDisplayOptions = p.settingsModel->getTimelineDisplay();
+            if (p.settingsModel->getTimelineFirstTrack())
             {
                 timeineDisplayOptions.tracks = { 0 };
             }
@@ -589,14 +591,14 @@ namespace tl
                 });
 
             p.windowOptionsObserver = dtk::ValueObserver<play::WindowOptions>::create(
-                app->getSettingsModel()->observeWindow(),
+                p.settingsModel->observeWindow(),
                 [this](const play::WindowOptions& value)
                 {
                     _windowOptionsUpdate(value);
                 });
 
             p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
-                app->getSettingsModel()->observeStyle(),
+                p.settingsModel->observeStyle(),
                 [this](const play::StyleOptions& value)
                 {
                     setDisplayScale(value.displayScale);
@@ -613,15 +615,21 @@ namespace tl
             _makeCurrent();
             p.viewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);
+
+            dtk::Size2I windowSize = getGeometry().size();
+#if defined(__APPLE__)
+            //! \bug The window size needs to be scaled on macOS?
+            windowSize = windowSize / getDisplayScale();
+#endif // __APPLE__
+            p.settingsModel->setWindowSize(windowSize);
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const dtk::Size2I& size)
+            const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
-            out->_init(context, app, size);
+            out->_init(context, app);
             return out;
         }
 

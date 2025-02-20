@@ -12,6 +12,11 @@
 
 namespace tl
 {
+    namespace timelineui
+    {
+        class TimelineViewport;
+    }
+
     namespace play_app
     {
         class App;
@@ -25,7 +30,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Window>&);
+                const std::shared_ptr<dtk::Window>& shared);
 
             SecondaryWindow();
 
@@ -35,7 +40,10 @@ namespace tl
             static std::shared_ptr<SecondaryWindow> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::shared_ptr<dtk::Window>&);
+                const std::shared_ptr<dtk::Window>& shared = nullptr);
+
+            //! Get the viewport.
+            const std::shared_ptr<timelineui::TimelineViewport>& getViewport() const;
 
             //! Set the view.
             void setView(

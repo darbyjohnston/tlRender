@@ -34,8 +34,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const dtk::Size2I&);
+                const std::shared_ptr<App>&);
 
             MainWindow();
 
@@ -45,8 +44,7 @@ namespace tl
             //! Create a new main window.
             static std::shared_ptr<MainWindow> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const dtk::Size2I&);
+                const std::shared_ptr<App>&);
 
             //! Get the viewport.
             const std::shared_ptr<play::Viewport>& getViewport() const;

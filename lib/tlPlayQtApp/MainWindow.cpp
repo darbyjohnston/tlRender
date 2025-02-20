@@ -632,10 +632,17 @@ namespace tl
                     _p->timeUnitsComboBox->setCurrentIndex(
                         static_cast<int>(value));
                 });
+
+            const dtk::Size2I windowSize = app->settingsModel()->getWindowSize();
+            resize(windowSize.w, windowSize.h);
         }
 
         MainWindow::~MainWindow()
-        {}
+        {
+            DTK_P();
+            dtk::Size2I windowSize(width(), height());
+            p.app->settingsModel()->setWindowSize(windowSize);
+        }
 
         const std::shared_ptr<play::Viewport>& MainWindow::viewport() const
         {

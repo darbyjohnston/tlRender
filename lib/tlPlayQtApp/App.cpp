@@ -325,20 +325,21 @@ namespace tl
         void App::setSecondaryWindow(bool value)
         {
             DTK_P();
-            //! \bug macOS does not seem to like having an application with
-            //! normal and fullscreen windows.
-            QScreen* secondaryScreen = nullptr;
-#if !defined(__APPLE__)
-            auto screens = this->screens();
-            auto mainWindowScreen = p.mainWindow->screen();
-            screens.removeOne(mainWindowScreen);
-            if (!screens.isEmpty())
-            {
-                secondaryScreen = screens[0];
-            }
-#endif // __APPLE__
             if (value)
             {
+                //! \bug macOS does not seem to like having an application with
+                //! normal and fullscreen windows.
+                QScreen* secondaryScreen = nullptr;
+#if !defined(__APPLE__)
+                auto screens = this->screens();
+                auto mainWindowScreen = p.mainWindow->screen();
+                screens.removeOne(mainWindowScreen);
+                if (!screens.isEmpty())
+                {
+                    secondaryScreen = screens[0];
+                }
+#endif // __APPLE__
+
                 p.secondaryWindow.reset(new SecondaryWindow(this));
                 if (secondaryScreen)
                 {
@@ -616,8 +617,6 @@ namespace tl
             DTK_P();
 
             p.mainWindow.reset(new MainWindow(this));
-            const dtk::Size2I windowSize = p.settingsModel->getWindowSize();
-            p.mainWindow->resize(windowSize.w, windowSize.h);
             p.mainWindow->show();
 
             connect(

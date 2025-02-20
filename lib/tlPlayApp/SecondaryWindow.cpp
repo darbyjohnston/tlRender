@@ -34,7 +34,7 @@ namespace tl
         void SecondaryWindow::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Window>& window)
+            const std::shared_ptr<dtk::Window>& shared)
         {
             Window::_init(context, "tlplay 2", dtk::Size2I(1920, 1080));
             DTK_P();
@@ -112,11 +112,16 @@ namespace tl
         std::shared_ptr<SecondaryWindow> SecondaryWindow::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::Window>& window)
+            const std::shared_ptr<dtk::Window>& shared)
         {
             auto out = std::shared_ptr<SecondaryWindow>(new SecondaryWindow);
-            out->_init(context, app, window);
+            out->_init(context, app, shared);
             return out;
+        }
+
+        const std::shared_ptr<timelineui::TimelineViewport>& SecondaryWindow::getViewport() const
+        {
+            return _p->viewport;
         }
 
         void SecondaryWindow::setView(

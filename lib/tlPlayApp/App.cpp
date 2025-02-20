@@ -138,15 +138,7 @@ namespace tl
         {}
 
         App::~App()
-        {
-            DTK_P();
-            dtk::Size2I windowSize = p.mainWindow->getGeometry().size();
-#if defined(__APPLE__)
-            //! \bug The window size needs to be scaled on macOS?
-            windowSize = windowSize / p.mainWindow->getDisplayScale();
-#endif // __APPLE__
-            p.settingsModel->setWindowSize(windowSize);
-        }
+        {}
 
         std::shared_ptr<App> App::create(
             const std::shared_ptr<dtk::Context>& context,
@@ -302,12 +294,20 @@ namespace tl
             DTK_P();
             if (p.secondaryWindowActive->setIfChanged(value))
             {
+                if (p.secondaryWindow)
+                {
+                    removeWindow(p.secondaryWindow);
+                    p.secondaryWindow.reset();
+                }
+
                 if (value)
                 {
-                    //! \bug macOS does not seem to like having an application with
-                    //! normal and fullscreen windows.
+                    //! \bug macOS and Windows do not seem to like having an
+                    //! application with normal and fullscreen windows?
                     int secondaryScreen = -1;
-#if !defined(__APPLE__)
+#if defined(__APPLE__)
+#elif defined(_WINDOWS)
+#else
                     std::vector<int> screens;
                     for (int i = 0; i < getScreenCount(); ++i)
                     {
@@ -326,15 +326,24 @@ namespace tl
                         secondaryScreen = screens.front();
                     }
 #endif // __APPLE__
+
+                    p.secondaryWindow = SecondaryWindow::create(
+                        _context,
+                        std::dynamic_pointer_cast<App>(shared_from_this()));
+                    p.secondaryWindow->setCloseCallback(
+                        [this]
+                        {
+                            DTK_P();
+                            p.secondaryWindowActive->setIfChanged(false);
+                            removeWindow(p.secondaryWindow);
+                            p.secondaryWindow.reset();
+                        });
+                    addWindow(p.secondaryWindow);
                     if (secondaryScreen != -1)
                     {
                         p.secondaryWindow->setFullScreen(true, secondaryScreen);
                     }
                     p.secondaryWindow->show();
-                }
-                else
-                {
-                    p.secondaryWindow->hide();
                 }
             }
         }
@@ -616,16 +625,8 @@ namespace tl
 
             p.mainWindow = MainWindow::create(
                 _context,
-                std::dynamic_pointer_cast<App>(shared_from_this()),
-                p.settingsModel->getWindowSize());
+                std::dynamic_pointer_cast<App>(shared_from_this()));
             addWindow(p.mainWindow);
-
-            p.secondaryWindow = SecondaryWindow::create(
-                _context,
-                std::dynamic_pointer_cast<App>(shared_from_this()),
-                p.mainWindow);
-            addWindow(p.secondaryWindow);
-
             p.mainWindow->show();
 
             p.mainWindow->getViewport()->setViewPosAndZoomCallback(
@@ -647,13 +648,12 @@ namespace tl
             p.mainWindow->setCloseCallback(
                 [this]
                 {
-                    _p->secondaryWindow->hide();
-                });
-
-            p.secondaryWindow->setCloseCallback(
-                [this]
-                {
-                    _p->secondaryWindowActive->setIfChanged(false);
+                    DTK_P();
+                    if (p.secondaryWindow)
+                    {
+                        removeWindow(p.secondaryWindow);
+                        p.secondaryWindow.reset();
+                    }
                 });
         }
 
@@ -847,14 +847,17 @@ namespace tl
         void App::_viewUpdate(const dtk::V2I& pos, double zoom, bool frame)
         {
             DTK_P();
-            float scale = 1.F;
             const dtk::Box2I& g = p.mainWindow->getViewport()->getGeometry();
-            const dtk::Size2I& secondarySize = p.secondaryWindow->getSize();
-            if (g.isValid() && secondarySize.isValid())
+            float scale = 1.F;
+            if (p.secondaryWindow)
             {
-                scale = secondarySize.w / static_cast<float>(g.w());
+                const dtk::Size2I& secondarySize = p.secondaryWindow->getViewport()->getGeometry().size();
+                if (g.isValid() && secondarySize.isValid())
+                {
+                    scale = secondarySize.w / static_cast<float>(g.w());
+                }
+                p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
             }
-            p.secondaryWindow->setView(pos * scale, zoom * scale, frame);
 #if defined(TLRENDER_BMD)
             scale = 1.F;
             const dtk::Size2I& bmdSize = p.bmdOutputDevice->getSize();
