@@ -367,9 +367,7 @@ namespace tl
                         if (isSequence)
                         {
                             auto mediaReference = new OTIO_NS::ImageSequenceReference(
-                                path.isFileProtocol() ?
-                                    std::string() :
-                                    (path.getProtocol() + path.getDirectory()),
+                                path.getProtocol() + path.getDirectory(),
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
@@ -382,7 +380,7 @@ namespace tl
                         else
                         {
                             videoClip->set_media_reference(new OTIO_NS::ExternalReference(
-                                path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
+                                path.get(),
                                 info.videoTime));
                         }
                         videoTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
@@ -403,7 +401,7 @@ namespace tl
                             auto audioClip = new OTIO_NS::Clip;
                             audioClip->set_source_range(audioInfo.audioTime);
                             audioClip->set_media_reference(new OTIO_NS::ExternalReference(
-                                audioPath.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
+                                audioPath.get(),
                                 audioInfo.audioTime));
 
                             audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
@@ -424,7 +422,7 @@ namespace tl
                         auto audioClip = new OTIO_NS::Clip;
                         audioClip->set_source_range(info.audioTime);
                         audioClip->set_media_reference(new OTIO_NS::ExternalReference(
-                            path.get(-1, path.isFileProtocol() ? file::PathType::FileName : file::PathType::Full),
+                            path.get(),
                             info.audioTime));
 
                         audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
