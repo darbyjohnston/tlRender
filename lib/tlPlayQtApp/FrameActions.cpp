@@ -64,22 +64,9 @@ namespace tl
             p.actions["FrameNextX100"]->setText(tr("Next Frame X100"));
             p.actions["FrameNextX100"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Right));
 
-            p.actions["SetInPoint"] = new QAction(parent);
-            p.actions["SetInPoint"]->setText(tr("Set In Point"));
-            p.actions["SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
-            p.actions["ResetInPoint"] = new QAction(parent);
-            p.actions["ResetInPoint"]->setText(tr("Reset In Point"));
-            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_I));
-            p.actions["SetOutPoint"] = new QAction(parent);
-            p.actions["SetOutPoint"]->setText(tr("Set Out Point"));
-            p.actions["SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
-            p.actions["ResetOutPoint"] = new QAction(parent);
-            p.actions["ResetOutPoint"]->setText(tr("Reset Out Point"));
-            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_O));
-
             p.actions["FocusCurrentFrame"] = new QAction(parent);
             p.actions["FocusCurrentFrame"]->setText(tr("Focus Current Frame"));
-            p.actions["FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::Key_F));
+            p.actions["FocusCurrentFrame"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
 
             p.menu.reset(new QMenu);
             p.menu->setTitle(tr("&Frame"));
@@ -92,11 +79,6 @@ namespace tl
             p.menu->addAction(p.actions["FrameNext"]);
             p.menu->addAction(p.actions["FrameNextX10"]);
             p.menu->addAction(p.actions["FrameNextX100"]);
-            p.menu->addSeparator();
-            p.menu->addAction(p.actions["SetInPoint"]);
-            p.menu->addAction(p.actions["ResetInPoint"]);
-            p.menu->addAction(p.actions["SetOutPoint"]);
-            p.menu->addAction(p.actions["ResetOutPoint"]);
             p.menu->addSeparator();
             p.menu->addAction(p.actions["FocusCurrentFrame"]);
 
@@ -181,47 +163,6 @@ namespace tl
                     if (_p->player)
                     {
                         _p->player->timeAction(timeline::TimeAction::FrameNextX100);
-                    }
-                });
-
-            connect(
-                p.actions["SetInPoint"],
-                &QAction::triggered,
-                [this]
-                {
-                    if (_p->player)
-                    {
-                        _p->player->setInPoint();
-                    }
-                });
-            connect(
-                p.actions["ResetInPoint"],
-                &QAction::triggered,
-                [this]
-                {
-                    if (_p->player)
-                    {
-                        _p->player->resetInPoint();
-                    }
-                });
-            connect(
-                p.actions["SetOutPoint"],
-                &QAction::triggered,
-                [this]
-                {
-                    if (_p->player)
-                    {
-                        _p->player->setOutPoint();
-                    }
-                });
-            connect(
-                p.actions["ResetOutPoint"],
-                &QAction::triggered,
-                [this]
-                {
-                    if (_p->player)
-                    {
-                        _p->player->resetOutPoint();
                     }
                 });
 

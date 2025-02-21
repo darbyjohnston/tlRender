@@ -101,6 +101,19 @@ namespace tl
             p.actionGroups["Loop"]->addAction(p.actions["Once"]);
             p.actionGroups["Loop"]->addAction(p.actions["PingPong"]);
 
+            p.actions["SetInPoint"] = new QAction(parent);
+            p.actions["SetInPoint"]->setText(tr("Set In Point"));
+            p.actions["SetInPoint"]->setShortcut(QKeySequence(Qt::Key_I));
+            p.actions["ResetInPoint"] = new QAction(parent);
+            p.actions["ResetInPoint"]->setText(tr("Reset In Point"));
+            p.actions["ResetInPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_I));
+            p.actions["SetOutPoint"] = new QAction(parent);
+            p.actions["SetOutPoint"]->setText(tr("Set Out Point"));
+            p.actions["SetOutPoint"]->setShortcut(QKeySequence(Qt::Key_O));
+            p.actions["ResetOutPoint"] = new QAction(parent);
+            p.actions["ResetOutPoint"]->setText(tr("Reset Out Point"));
+            p.actions["ResetOutPoint"]->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_O));
+
             p.actions["TimeUnits/Frames"] = new QAction(parent);
             p.actions["TimeUnits/Frames"]->setData(static_cast<int>(timeline::TimeUnits::Frames));
             p.actions["TimeUnits/Frames"]->setCheckable(true);
@@ -158,6 +171,11 @@ namespace tl
             p.menu->addAction(p.actions["Loop"]);
             p.menu->addAction(p.actions["Once"]);
             p.menu->addAction(p.actions["PingPong"]);
+            p.menu->addSeparator();
+            p.menu->addAction(p.actions["SetInPoint"]);
+            p.menu->addAction(p.actions["ResetInPoint"]);
+            p.menu->addAction(p.actions["SetOutPoint"]);
+            p.menu->addAction(p.actions["ResetOutPoint"]);
 
             p.speedMenu.reset(new QMenu);
             for (auto i : speeds)
@@ -242,6 +260,47 @@ namespace tl
                     if (_p->player)
                     {
                         _p->player->setLoop(action->data().value<timeline::Loop>());
+                    }
+                });
+
+            connect(
+                p.actions["SetInPoint"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (_p->player)
+                    {
+                        _p->player->setInPoint();
+                    }
+                });
+            connect(
+                p.actions["ResetInPoint"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (_p->player)
+                    {
+                        _p->player->resetInPoint();
+                    }
+                });
+            connect(
+                p.actions["SetOutPoint"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (_p->player)
+                    {
+                        _p->player->setOutPoint();
+                    }
+                });
+            connect(
+                p.actions["ResetOutPoint"],
+                &QAction::triggered,
+                [this]
+                {
+                    if (_p->player)
+                    {
+                        _p->player->resetOutPoint();
                     }
                 });
 
