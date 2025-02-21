@@ -24,9 +24,10 @@ namespace tl
         struct BackgroundWidget::Private
         {
             QComboBox* typeComboBox = nullptr;
-            qtwidget::ColorSwatch* color0Swatch = nullptr;
-            qtwidget::ColorSwatch* color1Swatch = nullptr;
+            qtwidget::ColorSwatch* solidSwatch = nullptr;
+            std::pair< qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> checkersSwatch = { nullptr, nullptr };
             qtwidget::IntEditSlider* checkersSizeSlider = nullptr;
+            std::pair< qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> gradientSwatch = { nullptr, nullptr };
 
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
@@ -43,20 +44,33 @@ namespace tl
                 p.typeComboBox->addItem(QString::fromUtf8(i.c_str()));
             }
 
-            p.color0Swatch = new qtwidget::ColorSwatch;
-            p.color0Swatch->setEditable(true);
+            p.solidSwatch = new qtwidget::ColorSwatch;
+            p.solidSwatch->setEditable(true);
 
-            p.color1Swatch = new qtwidget::ColorSwatch;
-            p.color1Swatch->setEditable(true);
+            p.checkersSwatch.first = new qtwidget::ColorSwatch;
+            p.checkersSwatch.first->setEditable(true);
+            p.checkersSwatch.second = new qtwidget::ColorSwatch;
+            p.checkersSwatch.second->setEditable(true);
 
             p.checkersSizeSlider = new qtwidget::IntEditSlider;
             p.checkersSizeSlider->setRange(dtk::RangeI(10, 100));
 
+            p.gradientSwatch.first = new qtwidget::ColorSwatch;
+            p.gradientSwatch.first->setEditable(true);
+            p.gradientSwatch.second = new qtwidget::ColorSwatch;
+            p.gradientSwatch.second->setEditable(true);
+
             auto layout = new QFormLayout;
             layout->addRow(tr("Type:"), p.typeComboBox);
-            layout->addRow(tr("Color 0:"), p.color0Swatch);
-            layout->addRow(tr("Color 1:"), p.color1Swatch);
-            layout->addRow(tr("Checkers size:"), p.checkersSizeSlider);
+            layout->addRow(tr("Solid color:"), p.solidSwatch);
+            auto hLayout = new QHBoxLayout;
+            hLayout->addWidget(p.checkersSwatch.first);
+            hLayout->addWidget(p.checkersSwatch.second);
+            layout->addRow(tr("Checkers solor:"), hLayout);
+            layout->addRow(tr("Checkers size:"), p.checkersSizeSlider); hLayout = new QHBoxLayout;
+            hLayout->addWidget(p.gradientSwatch.first);
+            hLayout->addWidget(p.gradientSwatch.second);
+            layout->addRow(tr("Gradient solor:"), hLayout);
             setLayout(layout);
 
             connect(
@@ -70,21 +84,32 @@ namespace tl
                 });
 
             connect(
-                p.color0Swatch,
+                p.solidSwatch,
                 &qtwidget::ColorSwatch::colorChanged,
                 [app](const dtk::Color4F& value)
                 {
                     auto options = app->viewportModel()->getBackgroundOptions();
-                    options.color0 = value;
+                    options.solidColor = value;
                     app->viewportModel()->setBackgroundOptions(options);
                 });
+
             connect(
-                p.color1Swatch,
+                p.checkersSwatch.first,
                 &qtwidget::ColorSwatch::colorChanged,
                 [app](const dtk::Color4F& value)
                 {
                     auto options = app->viewportModel()->getBackgroundOptions();
-                    options.color1 = value;
+                    options.checkersColor.first = value;
+                    app->viewportModel()->setBackgroundOptions(options);
+                });
+
+            connect(
+                p.checkersSwatch.second,
+                &qtwidget::ColorSwatch::colorChanged,
+                [app](const dtk::Color4F& value)
+                {
+                    auto options = app->viewportModel()->getBackgroundOptions();
+                    options.checkersColor.second = value;
                     app->viewportModel()->setBackgroundOptions(options);
                 });
 
@@ -96,6 +121,26 @@ namespace tl
                     auto options = app->viewportModel()->getBackgroundOptions();
                     options.checkersSize.w = value;
                     options.checkersSize.h = value;
+                    app->viewportModel()->setBackgroundOptions(options);
+                });
+
+            connect(
+                p.gradientSwatch.first,
+                &qtwidget::ColorSwatch::colorChanged,
+                [app](const dtk::Color4F& value)
+                {
+                    auto options = app->viewportModel()->getBackgroundOptions();
+                    options.gradientColor.first = value;
+                    app->viewportModel()->setBackgroundOptions(options);
+                });
+
+            connect(
+                p.gradientSwatch.second,
+                &qtwidget::ColorSwatch::colorChanged,
+                [app](const dtk::Color4F& value)
+                {
+                    auto options = app->viewportModel()->getBackgroundOptions();
+                    options.gradientColor.second = value;
                     app->viewportModel()->setBackgroundOptions(options);
                 });
 
@@ -114,9 +159,12 @@ namespace tl
         {
             DTK_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
-            p.color0Swatch->setColor(value.color0);
-            p.color1Swatch->setColor(value.color1);
+            p.solidSwatch->setColor(value.solidColor);
+            p.checkersSwatch.first->setColor(value.checkersColor.first);
+            p.checkersSwatch.second->setColor(value.checkersColor.second);
             p.checkersSizeSlider->setValue(value.checkersSize.w);
+            p.gradientSwatch.first->setColor(value.gradientColor.first);
+            p.gradientSwatch.second->setColor(value.gradientColor.second);
         }
 
         struct ViewTool::Private

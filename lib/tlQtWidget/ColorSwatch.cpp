@@ -24,7 +24,9 @@ namespace tl
         ColorSwatch::ColorSwatch(QWidget* parent) :
             QWidget(parent),
             _p(new Private)
-        {}
+        {
+            setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        }
 
         ColorSwatch::~ColorSwatch()
         {}

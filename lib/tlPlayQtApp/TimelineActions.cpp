@@ -237,28 +237,6 @@ namespace tl
                     options.waveformHeight = value / 2;
                     timelineWidget->setDisplayOptions(options);
                 });
-
-            connect(
-                p.actions["Transitions"],
-                &QAction::toggled,
-                [mainWindow](bool value)
-                {
-                    auto timelineWidget = mainWindow->timelineWidget();
-                    auto options = timelineWidget->displayOptions();
-                    options.transitions = value;
-                    timelineWidget->setDisplayOptions(options);
-                });
-
-            connect(
-                p.actions["Markers"],
-                &QAction::toggled,
-                [mainWindow](bool value)
-                {
-                    auto timelineWidget = mainWindow->timelineWidget();
-                    auto options = timelineWidget->displayOptions();
-                    options.markers = value;
-                    timelineWidget->setDisplayOptions(options);
-                });
         }
 
         TimelineActions::~TimelineActions()
@@ -341,16 +319,6 @@ namespace tl
                         break;
                     }
                 }
-            }
-            {
-                QSignalBlocker blocker(p.actions["Transitions"]);
-                const auto options = p.mainWindow->timelineWidget()->displayOptions();
-                p.actions["Transitions"]->setChecked(options.transitions);
-            }
-            {
-                QSignalBlocker blocker(p.actions["Markers"]);
-                const auto options = p.mainWindow->timelineWidget()->displayOptions();
-                p.actions["Markers"]->setChecked(options.markers);
             }
         }
     }

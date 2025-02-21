@@ -78,21 +78,22 @@ namespace tl
         {
             InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
+
             std::vector<int> tracks;
             bool trackInfo = true;
             bool clipInfo = true;
+
             bool thumbnails = true;
             int thumbnailHeight = 100;
             int waveformWidth = 200;
             int waveformHeight = 50;
             WaveformPrim waveformPrim = WaveformPrim::Mesh;
-            float thumbnailFade = .2F;
-            bool transitions = false;
-            bool markers = false;
+
             std::string regularFont = "NotoSans-Regular";
             std::string monoFont = "NotoSansMono-Regular";
             int fontSize = 12;
             float clipRectScale = 2.F;
+
             timeline::OCIOOptions ocio;
             timeline::LUTOptions lut;
 

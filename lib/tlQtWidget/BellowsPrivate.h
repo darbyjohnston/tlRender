@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/core/Util.h>
+#include <tlQtWidget/BellowsWidget.h>
 
 #include <QWidget>
 

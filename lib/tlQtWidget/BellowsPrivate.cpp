@@ -25,8 +25,6 @@ namespace tl
             DTK_P();
 
             setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-            setBackgroundRole(QPalette::Button);
-            setAutoFillBackground(true);
             setMouseTracking(true);
 
             p.iconLabel = new QLabel;

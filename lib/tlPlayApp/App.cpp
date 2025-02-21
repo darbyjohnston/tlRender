@@ -494,6 +494,7 @@ namespace tl
                 [this](const play::StyleOptions& value)
                 {
                     setColorStyle(value.colorStyle);
+                    setDisplayScale(value.displayScale);
                 });
 
 #if defined(TLRENDER_BMD)

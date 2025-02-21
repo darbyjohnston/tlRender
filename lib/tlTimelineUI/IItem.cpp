@@ -56,9 +56,6 @@ namespace tl
                 waveformWidth == other.waveformWidth &&
                 waveformHeight == other.waveformHeight &&
                 waveformPrim == other.waveformPrim &&
-                thumbnailFade == other.thumbnailFade &&
-                transitions == other.transitions &&
-                markers == other.markers &&
                 regularFont == other.regularFont &&
                 monoFont == other.monoFont &&
                 fontSize == other.fontSize &&
@@ -290,9 +287,6 @@ namespace tl
             json["waveformWidth"] = value.waveformWidth;
             json["waveformHeight"] = value.waveformHeight;
             json["waveformPrim"] = to_string(value.waveformPrim);
-            json["thumbnailFade"] = value.thumbnailFade;
-            json["transitions"] = value.transitions;
-            json["markers"] = value.markers;
             json["regularFont"] = value.regularFont;
             json["monoFont"] = value.monoFont;
             json["fontSize"] = value.fontSize;
@@ -323,9 +317,6 @@ namespace tl
             json["waveformWidth"].get_to(value.waveformWidth);
             json["waveformHeight"].get_to(value.waveformHeight);
             from_string(json["waveformPrim"].get<std::string>(), value.waveformPrim);
-            json["thumbnailFade"].get_to(value.thumbnailFade);
-            json["transitions"].get_to(value.transitions);
-            json["markers"].get_to(value.markers);
             json["regularFont"].get_to(value.regularFont);
             json["monoFont"].get_to(value.monoFont);
             json["fontSize"].get_to(value.fontSize);

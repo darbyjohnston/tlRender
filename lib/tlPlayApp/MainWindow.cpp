@@ -144,7 +144,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ValueObserver<play::WindowOptions> > windowOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
         };
 
         void MainWindow::_init(
@@ -595,13 +594,6 @@ namespace tl
                 [this](const play::WindowOptions& value)
                 {
                     _windowOptionsUpdate(value);
-                });
-
-            p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
-                p.settingsModel->observeStyle(),
-                [this](const play::StyleOptions& value)
-                {
-                    setDisplayScale(value.displayScale);
                 });
         }
 

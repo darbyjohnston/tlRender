@@ -77,13 +77,17 @@ namespace tl
             p.bButtonGroup->setExclusive(false);
 
             p.wipeXSlider = new qtwidget::FloatEditSlider;
+            p.wipeXSlider->setDefaultValue(timeline::CompareOptions().wipeCenter.x);
 
             p.wipeYSlider = new qtwidget::FloatEditSlider;
+            p.wipeYSlider->setDefaultValue(timeline::CompareOptions().wipeCenter.y);
 
             p.wipeRotationSlider = new qtwidget::FloatEditSlider;
             p.wipeRotationSlider->setRange(dtk::RangeF(0.F, 360.F));
+            p.wipeRotationSlider->setDefaultValue(timeline::CompareOptions().wipeRotation);
 
             p.overlaySlider = new qtwidget::FloatEditSlider;
+            p.overlaySlider->setDefaultValue(timeline::CompareOptions().overlay);
 
             auto widget = new QWidget;
             p.itemsLayout = new QGridLayout;

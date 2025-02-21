@@ -11,7 +11,7 @@
 #include <dtk/ui/Bellows.h>
 #include <dtk/ui/ColorSwatch.h>
 #include <dtk/ui/ComboBox.h>
-#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/FormLayout.h>
 #include <dtk/ui/GroupBox.h>
 #include <dtk/ui/IntEditSlider.h>
 #include <dtk/ui/Label.h>
@@ -25,10 +25,11 @@ namespace tl
         struct BackgroundWidget::Private
         {
             std::shared_ptr<dtk::ComboBox> typeComboBox;
-            std::shared_ptr<dtk::ColorSwatch> color0Swatch;
-            std::shared_ptr<dtk::ColorSwatch> color1Swatch;
+            std::shared_ptr<dtk::ColorSwatch> solidSwatch;
+            std::pair< std::shared_ptr<dtk::ColorSwatch>, std::shared_ptr<dtk::ColorSwatch> > checkersSwatch;
             std::shared_ptr<dtk::IntEditSlider> checkersSizeSlider;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::pair< std::shared_ptr<dtk::ColorSwatch>, std::shared_ptr<dtk::ColorSwatch> > gradientSwatch;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
@@ -46,34 +47,38 @@ namespace tl
                 timeline::getBackgroundLabels());
             p.typeComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.color0Swatch = dtk::ColorSwatch::create(context);
-            p.color0Swatch->setEditable(true);
-            p.color0Swatch->setHStretch(dtk::Stretch::Expanding);
-            p.color1Swatch = dtk::ColorSwatch::create(context);
-            p.color1Swatch->setEditable(true);
-            p.color1Swatch->setHStretch(dtk::Stretch::Expanding);
+            p.solidSwatch = dtk::ColorSwatch::create(context);
+            p.solidSwatch->setEditable(true);
+            p.solidSwatch->setHAlign(dtk::HAlign::Left);
+
+            p.checkersSwatch.first = dtk::ColorSwatch::create(context);
+            p.checkersSwatch.first->setEditable(true);
+            p.checkersSwatch.second = dtk::ColorSwatch::create(context);
+            p.checkersSwatch.second->setEditable(true);
             p.checkersSizeSlider = dtk::IntEditSlider::create(context);
             p.checkersSizeSlider->setRange(dtk::RangeI(10, 100));
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.gradientSwatch.first = dtk::ColorSwatch::create(context);
+            p.gradientSwatch.first->setEditable(true);
+            p.gradientSwatch.second = dtk::ColorSwatch::create(context);
+            p.gradientSwatch.second->setEditable(true);
+
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Type:", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.typeComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.typeComboBox, 0, 1);
-            label = dtk::Label::create(context, "Color 0:", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.color0Swatch->setParent(p.layout);
-            p.layout->setGridPos(p.color0Swatch, 1, 1);
-            label = dtk::Label::create(context, "Color 1:", p.layout);
-            p.layout->setGridPos(label, 2, 0);
-            p.color1Swatch->setParent(p.layout);
-            p.layout->setGridPos(p.color1Swatch, 2, 1);
-            label = dtk::Label::create(context, "Checkers size:", p.layout);
-            p.layout->setGridPos(label, 3, 0);
-            p.checkersSizeSlider->setParent(p.layout);
-            p.layout->setGridPos(p.checkersSizeSlider, 3, 1);
+            p.layout->addRow("Type:", p.typeComboBox);
+            p.layout->addRow("Solid color:", p.solidSwatch);
+            auto hLayout = dtk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.checkersSwatch.first->setParent(hLayout);
+            p.checkersSwatch.second->setParent(hLayout);
+            p.layout->addRow("Checkers color:", hLayout);
+            p.layout->addRow("Checkers size:", p.checkersSizeSlider);
+            hLayout = dtk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.gradientSwatch.first->setParent(hLayout);
+            p.gradientSwatch.second->setParent(hLayout);
+            p.layout->addRow("Gradient color:", hLayout);
 
             p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
@@ -94,24 +99,35 @@ namespace tl
                     }
                 });
 
-            p.color0Swatch->setCallback(
+            p.solidSwatch->setCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.color0 = value;
+                        options.solidColor = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
 
-            p.color1Swatch->setCallback(
+            p.checkersSwatch.first->setCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getBackgroundOptions();
-                        options.color1 = value;
+                        options.checkersColor.first = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.checkersSwatch.second->setCallback(
+                [appWeak](const dtk::Color4F& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.checkersColor.second = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
@@ -124,6 +140,28 @@ namespace tl
                         auto options = app->getViewportModel()->getBackgroundOptions();
                         options.checkersSize.w = value;
                         options.checkersSize.h = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.gradientSwatch.first->setCallback(
+                [appWeak](const dtk::Color4F& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.gradientColor.first = value;
+                        app->getViewportModel()->setBackgroundOptions(options);
+                    }
+                });
+
+            p.gradientSwatch.second->setCallback(
+                [appWeak](const dtk::Color4F& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getBackgroundOptions();
+                        options.gradientColor.second = value;
                         app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
@@ -162,9 +200,12 @@ namespace tl
         {
             DTK_P();
             p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
-            p.color0Swatch->setColor(value.color0);
-            p.color1Swatch->setColor(value.color1);
+            p.solidSwatch->setColor(value.solidColor);
+            p.checkersSwatch.first->setColor(value.checkersColor.first);
+            p.checkersSwatch.second->setColor(value.checkersColor.second);
             p.checkersSizeSlider->setValue(value.checkersSize.w);
+            p.gradientSwatch.first->setColor(value.gradientColor.first);
+            p.gradientSwatch.second->setColor(value.gradientColor.second);
         }
 
         struct ViewTool::Private

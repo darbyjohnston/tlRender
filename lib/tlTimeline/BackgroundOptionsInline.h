@@ -10,9 +10,10 @@ namespace tl
         {
             return
                 type == other.type &&
-                color0 == other.color0 &&
-                color1 == other.color1 &&
-                checkersSize == other.checkersSize;
+                solidColor == other.solidColor &&
+                checkersColor == other.checkersColor &&
+                checkersSize == other.checkersSize &&
+                gradientColor == other.gradientColor;
         }
 
         inline bool BackgroundOptions::operator != (const BackgroundOptions& other) const

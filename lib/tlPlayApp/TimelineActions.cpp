@@ -180,30 +180,6 @@ namespace tl
                         mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
-
-            p.actions["Transitions"] = std::make_shared<dtk::Action>(
-                "Transitions",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.transitions = value;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
-                    }
-                });
-
-            p.actions["Markers"] = std::make_shared<dtk::Action>(
-                "Markers",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.markers = value;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
-                    }
-                });
         }
 
         TimelineActions::TimelineActions() :

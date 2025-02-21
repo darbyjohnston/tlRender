@@ -19,7 +19,7 @@
 #include <dtk/ui/Divider.h>
 #include <dtk/ui/DoubleEdit.h>
 #include <dtk/ui/FloatEditSlider.h>
-#include <dtk/ui/GridLayout.h>
+#include <dtk/ui/FormLayout.h>
 #include <dtk/ui/IntEdit.h>
 #include <dtk/ui/IntEdit.h>
 #include <dtk/ui/Label.h>
@@ -40,7 +40,7 @@ namespace tl
             std::shared_ptr<dtk::IntEdit> sizeGB;
             std::shared_ptr<dtk::DoubleEdit> readAhead;
             std::shared_ptr<dtk::DoubleEdit> readBehind;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<play::CacheOptions> > cacheObserver;
         };
@@ -68,21 +68,12 @@ namespace tl
             p.readBehind->setStep(1.0);
             p.readBehind->setLargeStep(10.0);
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Cache size (GB):", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.sizeGB->setParent(p.layout);
-            p.layout->setGridPos(p.sizeGB, 0, 1);
-            label = dtk::Label::create(context, "Read ahead (seconds):", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.readAhead->setParent(p.layout);
-            p.layout->setGridPos(p.readAhead, 1, 1);
-            label = dtk::Label::create(context, "Read behind (seconds):", p.layout);
-            p.layout->setGridPos(label, 2, 0);
-            p.readBehind->setParent(p.layout);
-            p.layout->setGridPos(p.readBehind, 2, 1);
+            p.layout->addRow("Cache size (GB):", p.sizeGB);
+            p.layout->addRow("Read ahead (seconds):", p.readAhead);
+            p.layout->addRow("Read behind (seconds):", p.readBehind);
 
             p.cacheObserver = dtk::ValueObserver<play::CacheOptions>::create(
                 p.model->observeCache(),
@@ -161,7 +152,7 @@ namespace tl
             std::shared_ptr<dtk::IntEdit> maxDigitsEdit;
             std::shared_ptr<dtk::DoubleEdit> defaultSpeedEdit;
             std::shared_ptr<dtk::IntEdit> threadsEdit;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<play::FileSequenceOptions> > fileSequenceObserver;
             std::shared_ptr<dtk::ValueObserver<io::SequenceOptions> > sequenceIOObserver;
@@ -194,33 +185,15 @@ namespace tl
             p.threadsEdit = dtk::IntEdit::create(context);
             p.threadsEdit->setRange(dtk::RangeI(1, 64));
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Audio:", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.audioComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.audioComboBox, 0, 1);
-            label = dtk::Label::create(context, "Audio file name:", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.audioFileNameEdit->setParent(p.layout);
-            p.layout->setGridPos(p.audioFileNameEdit, 1, 1);
-            label = dtk::Label::create(context, "Audio directory:", p.layout);
-            p.layout->setGridPos(label, 2, 0);
-            p.audioDirectoryEdit->setParent(p.layout);
-            p.layout->setGridPos(p.audioDirectoryEdit, 2, 1);
-            label = dtk::Label::create(context, "Maximum digits:", p.layout);
-            p.layout->setGridPos(label, 3, 0);
-            p.maxDigitsEdit->setParent(p.layout);
-            p.layout->setGridPos(p.maxDigitsEdit, 3, 1);
-            label = dtk::Label::create(context, "Default speed (FPS):", p.layout);
-            p.layout->setGridPos(label, 4, 0);
-            p.defaultSpeedEdit->setParent(p.layout);
-            p.layout->setGridPos(p.defaultSpeedEdit, 4, 1);
-            label = dtk::Label::create(context, "I/O threads:", p.layout);
-            p.layout->setGridPos(label, 5, 0);
-            p.threadsEdit->setParent(p.layout);
-            p.layout->setGridPos(p.threadsEdit, 5, 1);
+            p.layout->addRow("Audio:", p.audioComboBox);
+            p.layout->addRow("Audio file name:", p.audioFileNameEdit);
+            p.layout->addRow("Audio directory:", p.audioDirectoryEdit);
+            p.layout->addRow("Maximum digits:", p.maxDigitsEdit);
+            p.layout->addRow("Default speed (FPS):", p.defaultSpeedEdit);
+            p.layout->addRow("I/O threads:", p.threadsEdit);
 
             p.fileSequenceObserver = dtk::ValueObserver<play::FileSequenceOptions>::create(
                 p.model->observeFileSequence(),
@@ -357,16 +330,10 @@ namespace tl
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
-            auto gridLayout = dtk::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            label = dtk::Label::create(context, "YUV to RGB conversion:", gridLayout);
-            gridLayout->setGridPos(label, 0, 0);
-            p.yuvToRGBCheckBox->setParent(gridLayout);
-            gridLayout->setGridPos(p.yuvToRGBCheckBox, 0, 1);
-            label = dtk::Label::create(context, "I/O threads:", gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
-            p.threadsEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.threadsEdit, 1, 1);
+            auto formLayout = dtk::FormLayout::create(context, p.layout);
+            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            formLayout->addRow("YUV to RGB conversion:", p.yuvToRGBCheckBox);
+            formLayout->addRow("I/O threads:", p.threadsEdit);
 
             p.ffmpegObserver = dtk::ValueObserver<ffmpeg::Options>::create(
                 p.model->observeFFmpeg(),
@@ -439,7 +406,7 @@ namespace tl
             std::shared_ptr<dtk::CheckBox> sRGBCheckBox;
             std::shared_ptr<dtk::IntEdit> stageCacheEdit;
             std::shared_ptr<dtk::IntEdit> diskCacheEdit;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<usd::Options> > usdObserver;
         };
@@ -472,37 +439,16 @@ namespace tl
             p.diskCacheEdit = dtk::IntEdit::create(context);
             p.diskCacheEdit->setRange(dtk::RangeI(0, 1024));
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Render width:", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.renderWidthEdit->setParent(p.layout);
-            p.layout->setGridPos(p.renderWidthEdit, 0, 1);
-            label = dtk::Label::create(context, "Render complexity:", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.complexitySlider->setParent(p.layout);
-            p.layout->setGridPos(p.complexitySlider, 1, 1);
-            label = dtk::Label::create(context, "Draw mode:", p.layout);
-            p.layout->setGridPos(label, 2, 0);
-            p.drawModeComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.drawModeComboBox, 2, 1);
-            label = dtk::Label::create(context, "Enable lighting:", p.layout);
-            p.layout->setGridPos(label, 3, 0);
-            p.lightingCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.lightingCheckBox, 3, 1);
-            label = dtk::Label::create(context, "Enable sRGB color space:", p.layout);
-            p.layout->setGridPos(label, 4, 0);
-            p.sRGBCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.sRGBCheckBox, 4, 1);
-            label = dtk::Label::create(context, "Stage cache size:", p.layout);
-            p.layout->setGridPos(label, 5, 0);
-            p.stageCacheEdit->setParent(p.layout);
-            p.layout->setGridPos(p.stageCacheEdit, 5, 1);
-            label = dtk::Label::create(context, "Disk cache size (GB):", p.layout);
-            p.layout->setGridPos(label, 6, 0);
-            p.diskCacheEdit->setParent(p.layout);
-            p.layout->setGridPos(p.diskCacheEdit, 6, 1);
+            p.layout->addRow("Render width:", p.renderWidthEdit);
+            p.layout->addRow("Render complexity:", p.complexitySlider);
+            p.layout->addRow("Draw mode:", p.drawModeComboBox);
+            p.layout->addRow("Enable lighting:", p.lightingCheckBox);
+            p.layout->addRow("Enable sRGB color space:", p.sRGBCheckBox);
+            p.layout->addRow("Stage cache size:", p.stageCacheEdit);
+            p.layout->addRow("Disk cache size (GB):", p.diskCacheEdit);
 
             p.usdObserver = dtk::ValueObserver<usd::Options>::create(
                 p.model->observeUSD(),
@@ -617,7 +563,7 @@ namespace tl
             std::shared_ptr<play::SettingsModel> model;
 
             std::shared_ptr<dtk::CheckBox> nfdCheckBox;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<bool> > nfdObserver;
         };
@@ -634,13 +580,10 @@ namespace tl
 
             p.nfdCheckBox = dtk::CheckBox::create(context);
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Native file dialog:", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.nfdCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.nfdCheckBox, 0, 1);
+            p.layout->addRow("Native file dialog:", p.nfdCheckBox);
 
             p.nfdObserver = dtk::ValueObserver<bool>::create(
                 p.model->observeNativeFileDialog(),
@@ -722,20 +665,11 @@ namespace tl
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
-            auto gridLayout = dtk::GridLayout::create(context, p.layout);
-            gridLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            label = dtk::Label::create(context, "Audio buffer frames:", gridLayout);
-            gridLayout->setGridPos(label, 0, 0);
-            p.audioBufferFramesEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.audioBufferFramesEdit, 0, 1);
-            label = dtk::Label::create(context, "Video requests:", gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
-            p.videoRequestsEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.videoRequestsEdit, 1, 1);
-            label = dtk::Label::create(context, "Audio requests:", gridLayout);
-            gridLayout->setGridPos(label, 2, 0);
-            p.audioRequestsEdit->setParent(gridLayout);
-            gridLayout->setGridPos(p.audioRequestsEdit, 2, 1);
+            auto formLayout = dtk::FormLayout::create(context, p.layout);
+            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            formLayout->addRow("Audio buffer frames:", p.audioBufferFramesEdit);
+            formLayout->addRow("Video requests:", p.videoRequestsEdit);
+            formLayout->addRow("Audio requests:", p.audioRequestsEdit);
 
             p.performanceObserver = dtk::ValueObserver<play::PerformanceOptions>::create(
                 p.model->observePerformance(),
@@ -822,7 +756,7 @@ namespace tl
 
             std::shared_ptr<dtk::ComboBox> colorStyleComboBox;
             std::shared_ptr<dtk::ComboBox> displayScaleComboBox;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
         };
@@ -850,17 +784,11 @@ namespace tl
             p.displayScaleComboBox = dtk::ComboBox::create(context, labels);            
             p.displayScaleComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Color style:", p.layout);
-            p.layout->setGridPos(label, 0, 0);
-            p.colorStyleComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.colorStyleComboBox, 0, 1);
-            label = dtk::Label::create(context, "Display scale:", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.displayScaleComboBox->setParent(p.layout);
-            p.layout->setGridPos(p.displayScaleComboBox, 1, 1);
+            p.layout->addRow("Color style:", p.colorStyleComboBox);
+            p.layout->addRow("Display scale:", p.displayScaleComboBox);
 
             p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
                 app->getSettingsModel()->observeStyle(),
@@ -934,7 +862,7 @@ namespace tl
             std::shared_ptr<play::SettingsModel> model;
 
             std::shared_ptr<dtk::CheckBox> tooltipsCheckBox;
-            std::shared_ptr<dtk::GridLayout> layout;
+            std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<bool> > tooltipsEnabledObserver;
         };
@@ -951,13 +879,10 @@ namespace tl
 
             p.tooltipsCheckBox = dtk::CheckBox::create(context);
 
-            p.layout = dtk::GridLayout::create(context, shared_from_this());
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Enable tool tips:", p.layout);
-            p.layout->setGridPos(label, 1, 0);
-            p.tooltipsCheckBox->setParent(p.layout);
-            p.layout->setGridPos(p.tooltipsCheckBox, 1, 1);
+            p.layout->addRow("Enable tooltips:", p.tooltipsCheckBox);
 
             p.tooltipsEnabledObserver = dtk::ValueObserver<bool>::create(
                 p.model->observeTooltipsEnabled(),

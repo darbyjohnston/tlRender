@@ -106,11 +106,15 @@ namespace tl
                 switch (options.type)
                 {
                 case timeline::Background::Solid:
-                    IRender::drawRect(box, options.color0);
+                    IRender::drawRect(box, options.solidColor);
                     break;
                 case timeline::Background::Checkers:
                     drawColorMesh(
-                        dtk::checkers(box, options.color0, options.color1, options.checkersSize),
+                        dtk::checkers(
+                            box,
+                            options.checkersColor.first,
+                            options.checkersColor.second,
+                            options.checkersSize),
                         dtk::Color4F(1.F, 1.F, 1.F));
                     break;
                 case timeline::Background::Gradient:
@@ -121,15 +125,15 @@ namespace tl
                     mesh.v.push_back(dtk::V2F(box.max.x, box.max.y));
                     mesh.v.push_back(dtk::V2F(box.min.x, box.max.y));
                     mesh.c.push_back(dtk::V4F(
-                        options.color0.r,
-                        options.color0.g,
-                        options.color0.b,
-                        options.color0.a));
+                        options.gradientColor.first.r,
+                        options.gradientColor.first.g,
+                        options.gradientColor.first.b,
+                        options.gradientColor.first.a));
                     mesh.c.push_back(dtk::V4F(
-                        options.color1.r,
-                        options.color1.g,
-                        options.color1.b,
-                        options.color1.a));
+                        options.gradientColor.second.r,
+                        options.gradientColor.second.g,
+                        options.gradientColor.second.b,
+                        options.gradientColor.second.a));
                     mesh.triangles.push_back({
                         dtk::Vertex2(1, 0, 1),
                         dtk::Vertex2(2, 0, 1),

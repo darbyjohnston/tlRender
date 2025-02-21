@@ -59,8 +59,6 @@ namespace tl
             p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails100"]);
             p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails200"]);
             p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails300"]);
-            addItem(p.actions["Transitions"]);
-            addItem(p.actions["Markers"]);
 
             p.thumbnailsSizeItems[100] = p.actions["Thumbnails100"];
             p.thumbnailsSizeItems[200] = p.actions["Thumbnails200"];
@@ -113,8 +111,6 @@ namespace tl
                     setItemChecked(_p->actions["ClipInfo"], value.clipInfo);
                     setItemChecked(_p->actions["Thumbnails"], value.thumbnails);
                     _thumbnailsSizeUpdate();
-                    setItemChecked(_p->actions["Transitions"], value.transitions);
-                    setItemChecked(_p->actions["Markers"], value.markers);
                 });
         }
 

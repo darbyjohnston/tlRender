@@ -11,6 +11,7 @@
 #include <dtk/ui/ComboBox.h>
 #include <dtk/ui/Divider.h>
 #include <dtk/ui/FloatEditSlider.h>
+#include <dtk/ui/FormLayout.h>
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
@@ -82,28 +83,20 @@ namespace tl
             auto vLayout = dtk::VerticalLayout::create(context, layout);
             vLayout->setSpacingRole(dtk::SizeRole::None);
             auto bellows = dtk::Bellows::create(context, "Wipe", vLayout);
-            auto gridLayout = dtk::GridLayout::create(context);
-            gridLayout->setMarginRole(dtk::SizeRole::MarginSmall);
-            auto label = dtk::Label::create(context, "X:", gridLayout);
-            gridLayout->setGridPos(label, 0, 0);
-            p.wipeXSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.wipeXSlider, 0, 1);
-            label = dtk::Label::create(context, "Y:", gridLayout);
-            gridLayout->setGridPos(label, 1, 0);
-            p.wipeYSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.wipeYSlider, 1, 1);
-            label = dtk::Label::create(context, "Rotation:", gridLayout);
-            gridLayout->setGridPos(label, 2, 0);
-            p.wipeRotationSlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.wipeRotationSlider, 2, 1);
-            bellows->setWidget(gridLayout);
+            auto formLayout = dtk::FormLayout::create(context);
+            formLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            formLayout->addRow("X:", p.wipeXSlider);
+            formLayout->addRow("Y:", p.wipeYSlider);
+            formLayout->addRow("Rotation:", p.wipeRotationSlider);
+            bellows->setWidget(formLayout);
             
             bellows = dtk::Bellows::create(context, "Overlay", vLayout);
-            gridLayout = dtk::GridLayout::create(context);
-            gridLayout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.overlaySlider->setParent(gridLayout);
-            gridLayout->setGridPos(p.overlaySlider, 0, 0);
-            bellows->setWidget(gridLayout);
+            vLayout = dtk::VerticalLayout::create(context);
+            vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.overlaySlider->setParent(vLayout);
+            bellows->setWidget(vLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
             scrollWidget->setBorder(false);

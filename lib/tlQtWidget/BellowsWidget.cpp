@@ -2,9 +2,9 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/BellowsWidget.h>
-
 #include <tlQtWidget/BellowsPrivate.h>
+
+#include <tlQtWidget/Separator.h>
 
 #include <QVBoxLayout>
 
@@ -15,6 +15,7 @@ namespace tl
         struct BellowsWidget::Private
         {
             BellowsButton* button = nullptr;
+            Separator* separator = nullptr;
             QWidget* widget = nullptr;
             QVBoxLayout* layout = nullptr;
         };
@@ -27,10 +28,13 @@ namespace tl
 
             p.button = new BellowsButton;
 
+            p.separator = new Separator(Qt::Horizontal);
+
             auto layout = new QVBoxLayout;
             layout->setContentsMargins(0, 0, 0, 1);
             layout->setSpacing(0);
             layout->addWidget(p.button);
+            layout->addWidget(p.separator);
             p.layout = new QVBoxLayout;
             layout->addLayout(p.layout);
             setLayout(layout);

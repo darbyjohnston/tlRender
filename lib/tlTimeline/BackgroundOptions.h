@@ -27,10 +27,22 @@ namespace tl
         //! Background options.
         struct BackgroundOptions
         {
-            Background   type         = Background::Solid;
-            dtk::Color4F color0       = dtk::Color4F(0.F, 0.F, 0.F);
-            dtk::Color4F color1       = dtk::Color4F(0.F, 0.F, 0.F);
-            dtk::Size2I  checkersSize = dtk::Size2I(100, 100);
+            Background type = Background::Solid;
+
+            dtk::Color4F solidColor = dtk::Color4F(0.F, 0.F, 0.F);
+
+            std::pair<dtk::Color4F, dtk::Color4F> checkersColor =
+            {
+                dtk::Color4F(0.F, 0.F, 0.F),
+                dtk::Color4F(1.F, 1.F, 1.F)
+            };
+            dtk::Size2I checkersSize = dtk::Size2I(100, 100);
+
+            std::pair<dtk::Color4F, dtk::Color4F> gradientColor =
+            {
+                dtk::Color4F(0.F, 0.F, 0.F),
+                dtk::Color4F(1.F, 1.F, 1.F)
+            };
 
             bool operator == (const BackgroundOptions&) const;
             bool operator != (const BackgroundOptions&) const;
