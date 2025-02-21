@@ -47,16 +47,13 @@ namespace tl
 
             std::string logFile;
             bool resetSettings = false;
-            std::string settings;
+            std::string settingsFile;
         };
 
         //! Get the application command line arguments.
         std::vector<std::shared_ptr<dtk::ICmdLineArg> > getCmdLineArgs(Options&);
 
         //! Get the application command line options.
-        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
-            Options&,
-            const std::filesystem::path& logFilePath,
-            const std::filesystem::path& settingsFilePath);
+        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(Options&);
     }
 }

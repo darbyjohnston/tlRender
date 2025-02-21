@@ -133,8 +133,8 @@ namespace tl
             DTK_P();
             const std::string appName = "tlplay-qt";
             const std::filesystem::path appDocsPath = play::appDocsPath();
-            const std::filesystem::path logFile = play::logFileName(appName, appDocsPath);
-            const std::filesystem::path settingsPath = play::settingsName(appName, appDocsPath);
+            p.options.logFile = play::logFileName(appName, appDocsPath).u8string();
+            p.options.settingsFile = play::settingsName(appName, appDocsPath).u8string();
             auto args = dtk::convert(argc, argv);
             IApp::_init(
                 context,
@@ -142,7 +142,7 @@ namespace tl
                 appName,
                 "Example Qt playback application.",
                 play::getCmdLineArgs(p.options),
-                play::getCmdLineOptions(p.options, logFile, settingsPath));
+                play::getCmdLineOptions(p.options));
             const int exitCode = getExit();
             if (exitCode != 0)
             {
@@ -159,10 +159,10 @@ namespace tl
 
             p.fileLogSystem = file::FileLogSystem::create(
                 _context,
-                !p.options.logFile.empty() ? std::filesystem::u8path(p.options.logFile) : logFile);
+                std::filesystem::u8path(p.options.logFile));
             p.settings = dtk::Settings::create(
                 _context,
-                !p.options.settings.empty() ? std::filesystem::u8path(p.options.settings) : settingsPath,
+                std::filesystem::u8path(p.options.settingsFile),
                 p.options.resetSettings);
             _modelsInit();
             _devicesInit();

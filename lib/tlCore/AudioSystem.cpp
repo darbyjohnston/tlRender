@@ -325,9 +325,9 @@ namespace tl
                     {
                         std::stringstream ss;
                         ss << "    Device: " << device.id.number << " " << device.id.name << "\n" <<
-                            "      Channels: " << device.info.channelCount << "\n" <<
-                            "      Data type: " << device.info.dataType << "\n" <<
-                            "      Sample rate: " << device.info.sampleRate;
+                            "        Channels: " << device.info.channelCount << "\n" <<
+                            "        Data type: " << device.info.dataType << "\n" <<
+                            "        Sample rate: " << device.info.sampleRate;
                         log.push_back(ss.str());
                     }
                 }
@@ -339,9 +339,9 @@ namespace tl
 
                 std::stringstream ss;
                 ss << "Default device: " << defaultDevice.id.number << " " << defaultDevice.id.name << "\n" <<
-                    "      Channels: " << defaultDevice.info.channelCount << "\n" <<
-                    "      Data type: " << defaultDevice.info.dataType << "\n" <<
-                    "      Sample rate: " << defaultDevice.info.sampleRate;
+                    "        Channels: " << defaultDevice.info.channelCount << "\n" <<
+                    "        Data type: " << defaultDevice.info.dataType << "\n" <<
+                    "        Sample rate: " << defaultDevice.info.sampleRate;
                 _log(ss.str());
             }
 

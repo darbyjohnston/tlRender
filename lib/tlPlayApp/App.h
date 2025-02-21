@@ -131,6 +131,8 @@ namespace tl
             const std::shared_ptr<bmd::OutputDevice>& getBMDOutputDevice() const;
 #endif // TLRENDER_BMD
 
+            void run() override;
+
         protected:
             void _tick() override;
 

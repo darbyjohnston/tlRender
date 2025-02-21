@@ -109,28 +109,15 @@ namespace tl
             DTK_P();
             const std::string appName = "tlplay";
             const std::filesystem::path appDocsPath = play::appDocsPath();
-            const std::filesystem::path logFile = play::logFileName(appName, appDocsPath);
-            const std::filesystem::path settingsPath = play::settingsName(appName, appDocsPath);
+            p.options.logFile = play::logFileName(appName, appDocsPath).u8string();
+            p.options.settingsFile = play::settingsName(appName, appDocsPath).u8string();
             dtk::App::_init(
                 context,
                 argv,
                 appName,
                 "Playback application.",
                 play::getCmdLineArgs(p.options),
-                play::getCmdLineOptions(p.options, logFile, settingsPath));
-
-            p.fileLogSystem = file::FileLogSystem::create(
-                _context,
-                !p.options.logFile.empty() ? std::filesystem::u8path(p.options.logFile) : logFile);
-            p.settings = dtk::Settings::create(
-                _context,
-                !p.options.settings.empty() ? std::filesystem::u8path(p.options.settings) : settingsPath,
-                p.options.resetSettings);
-            _modelsInit();
-            _devicesInit();
-            _observersInit();
-            _inputFilesInit();
-            _windowsInit();
+                play::getCmdLineOptions(p.options));
         }
 
         App::App() :
@@ -359,6 +346,24 @@ namespace tl
             return _p->bmdOutputDevice;
         }
 #endif // TLRENDER_BMD
+
+        void App::run()
+        {
+            DTK_P();
+            p.fileLogSystem = file::FileLogSystem::create(
+                _context,
+                std::filesystem::u8path(p.options.logFile));
+            p.settings = dtk::Settings::create(
+                _context,
+                std::filesystem::u8path(p.options.settingsFile),
+                p.options.resetSettings);
+            _modelsInit();
+            _devicesInit();
+            _observersInit();
+            _inputFilesInit();
+            _windowsInit();
+            dtk::App::run();
+        }
 
         void App::_tick()
         {

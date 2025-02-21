@@ -23,10 +23,7 @@ namespace tl
             };
         }
 
-        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(
-            Options& options,
-            const std::filesystem::path& logFilePath,
-            const std::filesystem::path& settingsFilePath)
+        std::vector<std::shared_ptr<dtk::ICmdLineOption> > getCmdLineOptions(Options& options)
         {
             return
             {
@@ -150,16 +147,16 @@ namespace tl
                     options.logFile,
                     { "-logFile" },
                     "Log file name.",
-                    dtk::Format("{0}").arg(logFilePath.u8string())),
+                    dtk::Format("{0}").arg(options.logFile)),
                 dtk::CmdLineFlagOption::create(
                     options.resetSettings,
                     { "-resetSettings" },
                     "Reset settings to defaults."),
                 dtk::CmdLineValueOption<std::string>::create(
-                    options.settings,
-                    { "-settings" },
+                    options.settingsFile,
+                    { "-settingsFile" },
                     "Settings file name.",
-                    dtk::Format("{0}").arg(settingsFilePath.u8string())),
+                    dtk::Format("{0}").arg(options.settingsFile)),
             };
         }
     }

@@ -241,10 +241,10 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "Opening audio device: " << id.number << " " << id.name << "\n" <<
-                        "  buffer frames: " << playerOptions.audioBufferFrameCount << "\n" <<
-                        "  channels: " << audioInfo.channelCount << "\n" <<
-                        "  data type: " << audioInfo.dataType << "\n" <<
-                        "  sample rate: " << audioInfo.sampleRate;
+                        "    buffer frames: " << playerOptions.audioBufferFrameCount << "\n" <<
+                        "    channels: " << audioInfo.channelCount << "\n" <<
+                        "    data type: " << audioInfo.dataType << "\n" <<
+                        "    sample rate: " << audioInfo.sampleRate;
                     context->log("tl::timeline::Player", ss.str());
                 }
 
@@ -288,9 +288,9 @@ namespace tl
                     {
                         std::stringstream ss;
                         ss << "Audio device: " << id.number << " " << id.name << "\n" <<
-                        "  channels: " << audioInfo.channelCount << "\n" <<
-                        "  data type: " << audioInfo.dataType << "\n" <<
-                        "  sample rate: " << audioInfo.sampleRate;
+                        "    channels: " << audioInfo.channelCount << "\n" <<
+                        "    data type: " << audioInfo.dataType << "\n" <<
+                        "    sample rate: " << audioInfo.sampleRate;
                         context->log("tl::timeline::Player", ss.str());
                     }
 
@@ -463,7 +463,8 @@ namespace tl
                 }
 
                 // Send the audio data to the device.
-                if (outputSamples <= getSampleCount(audioThread.buffer))
+                const size_t bufferSampleCount = getSampleCount(audioThread.buffer);
+                if (outputSamples <= bufferSampleCount)
                 {
                     audio::move(audioThread.buffer, outputBuffer, outputSamples);
                 }
