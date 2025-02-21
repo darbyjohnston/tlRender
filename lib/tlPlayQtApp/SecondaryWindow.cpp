@@ -26,6 +26,8 @@ namespace tl
 
             qtwidget::TimelineViewport* viewport = nullptr;
 
+            QMetaObject::Connection playerChangedConnection;
+
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
@@ -60,7 +62,7 @@ namespace tl
 
             p.viewport->setPlayer(app->player());
 
-            connect(
+            p.playerChangedConnection = connect(
                 app,
                 &App::playerChanged,
                 [this](const QSharedPointer<qt::TimelinePlayer>& value)
@@ -119,7 +121,15 @@ namespace tl
         }
 
         SecondaryWindow::~SecondaryWindow()
-        {}
+        {
+            //! \bug Why is is neccesary to manually disconnect here?
+            //! Without the disconnect the signal is still received
+            //! after the object is destroyed.
+            if (_p->playerChangedConnection)
+            {
+                disconnect(_p->playerChangedConnection);
+            }
+        }
 
         void SecondaryWindow::setView(
             const dtk::V2I& pos,
