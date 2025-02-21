@@ -49,6 +49,7 @@ namespace tl
             }
 
             p.actions["FullScreen"] = new QAction(this);
+            p.actions["FullScreen"]->setCheckable(true);
             p.actions["FullScreen"]->setText(tr("Full Screen"));
             p.actions["FullScreen"]->setIcon(QIcon(":/Icons/WindowFullScreen.svg"));
             p.actions["FullScreen"]->setShortcut(QKeySequence(Qt::Key_U));
