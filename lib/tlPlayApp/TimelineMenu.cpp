@@ -21,11 +21,9 @@ namespace tl
             std::map<int, std::shared_ptr<dtk::Action> > thumbnailsSizeItems;
             std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
-            std::shared_ptr<dtk::ValueObserver<bool> > editableObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > scrollToCurrentFrameObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > stopOnScrubObserver;
-            std::shared_ptr<dtk::ValueObserver<timelineui::ItemOptions> > itemOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timelineui::DisplayOptions> > displayOptionsObserver;
         };
 
@@ -42,18 +40,9 @@ namespace tl
             p.mainWindow = mainWindow;
 
             p.actions = actions;
-            addItem(p.actions["Input"]);
-            addDivider();
-            addItem(p.actions["Editable"]);
-            addItem(p.actions["EditAssociatedClips"]);
-            addDivider();
             addItem(p.actions["FrameView"]);
             addItem(p.actions["ScrollToCurrentFrame"]);
             addItem(p.actions["StopOnScrub"]);
-            addDivider();
-            addItem(p.actions["FirstTrack"]);
-            addItem(p.actions["TrackInfo"]);
-            addItem(p.actions["ClipInfo"]);
             addItem(p.actions["Thumbnails"]);
             p.menus["ThumbnailSize"] = addSubMenu("Thumbnails Size");
             p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails100"]);
@@ -65,13 +54,6 @@ namespace tl
             p.thumbnailsSizeItems[300] = p.actions["Thumbnails300"];
 
             _thumbnailsSizeUpdate();
-
-            p.editableObserver = dtk::ValueObserver<bool>::create(
-                mainWindow->getTimelineWidget()->observeEditable(),
-                [this](bool value)
-                {
-                    setItemChecked(_p->actions["Editable"], value);
-                });
 
             p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeFrameView(),
@@ -94,21 +76,10 @@ namespace tl
                     setItemChecked(_p->actions["StopOnScrub"], value);
                 });
 
-            p.itemOptionsObserver = dtk::ValueObserver<timelineui::ItemOptions>::create(
-                mainWindow->getTimelineWidget()->observeItemOptions(),
-                [this](const timelineui::ItemOptions& value)
-                {
-                    setItemChecked(_p->actions["EditAssociatedClips"], value.editAssociatedClips);
-                    setItemChecked(_p->actions["Input"], value.inputEnabled);
-                });
-
             p.displayOptionsObserver = dtk::ValueObserver<timelineui::DisplayOptions>::create(
                 mainWindow->getTimelineWidget()->observeDisplayOptions(),
                 [this](const timelineui::DisplayOptions& value)
                 {
-                    setItemChecked(_p->actions["FirstTrack"], !value.tracks.empty());
-                    setItemChecked(_p->actions["TrackInfo"], value.trackInfo);
-                    setItemChecked(_p->actions["ClipInfo"], value.clipInfo);
                     setItemChecked(_p->actions["Thumbnails"], value.thumbnails);
                     _thumbnailsSizeUpdate();
                 });

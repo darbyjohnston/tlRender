@@ -26,40 +26,6 @@ namespace tl
             DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["Input"] = std::make_shared<dtk::Action>(
-                "Enable Input",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.inputEnabled = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-
-            p.actions["Editable"] = std::make_shared<dtk::Action>(
-                "Editable",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        mainWindow->getTimelineWidget()->setEditable(value);
-                    }
-                });
-
-            p.actions["EditAssociatedClips"] = std::make_shared<dtk::Action>(
-                "Edit Associated Clips",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getItemOptions();
-                        options.editAssociatedClips = value;
-                        mainWindow->getTimelineWidget()->setItemOptions(options);
-                    }
-                });
-
             p.actions["FrameView"] = std::make_shared<dtk::Action>(
                 "Frame Timeline View",
                 [mainWindowWeak](bool value)
@@ -87,46 +53,6 @@ namespace tl
                     if (auto mainWindow = mainWindowWeak.lock())
                     {
                         mainWindow->getTimelineWidget()->setStopOnScrub(value);
-                    }
-                });
-
-            p.actions["FirstTrack"] = std::make_shared<dtk::Action>(
-                "First Track Only",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.tracks.clear();
-                        if (value)
-                        {
-                            options.tracks.push_back(0);
-                        }
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
-                    }
-                });
-
-            p.actions["TrackInfo"] = std::make_shared<dtk::Action>(
-                "Track Information",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.trackInfo = value;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
-                    }
-                });
-
-            p.actions["ClipInfo"] = std::make_shared<dtk::Action>(
-                "Clip Information",
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.clipInfo = value;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
                     }
                 });
 
