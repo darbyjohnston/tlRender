@@ -4,9 +4,13 @@
 
 #pragma once
 
-#include <dtk/core/LogSystem.h>
+#include <tlIO/IO.h>
+
+#include <tlCore/Path.h>
 
 #include <dtk/ui/IWidget.h>
+
+#include <dtk/core/LogSystem.h>
 
 namespace tl
 {
@@ -46,6 +50,7 @@ namespace tl
 
         private:
             void _logUpdate(const std::vector<dtk::LogItem>&);
+            void _infoUpdate(const file::Path&, const io::Info&);
 
             DTK_PRIVATE();
         };

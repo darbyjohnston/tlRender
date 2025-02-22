@@ -10,6 +10,8 @@
 
 #include <tlQtWidget/Divider.h>
 
+#include <tlQt/TimelinePlayer.h>
+
 #include <QBoxLayout>
 #include <QLabel>
 
@@ -45,14 +47,19 @@ namespace tl
             widget->setLayout(layout);
             addPermanentWidget(widget);
 
-            _playerUpdate(app->player());
+            auto player = app->player();
+            _infoUpdate(
+                player ? player->path() : file::Path(),
+                player ? player->ioInfo() : io::Info());
 
             connect(
                 app,
                 &App::playerChanged,
-                [this](const QSharedPointer<qt::TimelinePlayer>& value)
+                [this](const QSharedPointer<qt::TimelinePlayer>& player)
                 {
-                    _playerUpdate(value);
+                    _infoUpdate(
+                        player ? player->path() : file::Path(),
+                        player ? player->ioInfo() : io::Info());
                 });
 
             auto context = app->getContext();
@@ -78,18 +85,11 @@ namespace tl
         StatusBar::~StatusBar()
         {}
 
-        void StatusBar::_playerUpdate(const QSharedPointer<qt::TimelinePlayer>& player)
+        void StatusBar::_infoUpdate(const file::Path& path, const io::Info& info)
         {
             DTK_P();
-            std::string text;
-            std::string toolTip;
-            if (player)
-            {
-                const file::Path& path = player->path();
-                const io::Info& info = player->ioInfo();
-                text = play::infoLabel(path, info);
-                toolTip = play::infoToolTip(path, info);
-            }
+            const std::string text = play::infoLabel(path, info);
+            const std::string toolTip = play::infoToolTip(path, info);
             p.infoLabel->setText(QString::fromUtf8(text.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(toolTip.c_str()));
         }

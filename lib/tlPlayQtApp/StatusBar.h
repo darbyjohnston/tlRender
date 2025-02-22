@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include <tlQt/TimelinePlayer.h>
+#include <tlIO/IO.h>
+
+#include <tlCore/Path.h>
 
 #include <QStatusBar>
 
@@ -27,7 +29,7 @@ namespace tl
             virtual ~StatusBar();
 
         private:
-            void _playerUpdate(const QSharedPointer<qt::TimelinePlayer>&);
+            void _infoUpdate(const file::Path&, const io::Info&);
 
             DTK_PRIVATE();
         };

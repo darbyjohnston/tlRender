@@ -69,18 +69,9 @@ namespace tl
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& player)
                 {
-                    DTK_P();
-                    std::string text;
-                    std::string toolTip;
-                    if (player)
-                    {
-                        const file::Path& path = player->getPath();
-                        const io::Info& info = player->getIOInfo();
-                        text = play::infoLabel(path, info);
-                        toolTip = play::infoToolTip(path, info);
-                    }
-                    p.infoLabel->setText(text);
-                    p.infoLabel->setTooltip(toolTip);;
+                    _infoUpdate(
+                        player ? player->getPath() : file::Path(),
+                        player ? player->getIOInfo() : io::Info());
                 });
         }
 
@@ -118,6 +109,23 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
+        void StatusBar::mousePressEvent(dtk::MouseClickEvent& event)
+        {
+            IWidget::mousePressEvent(event);
+            event.accept = true;
+        }
+
+        void StatusBar::mouseReleaseEvent(dtk::MouseClickEvent& event)
+        {
+            IWidget::mouseReleaseEvent(event);
+            DTK_P();
+            event.accept = true;
+            if (p.clickedCallback)
+            {
+                p.clickedCallback();
+            }
+        }
+
         void StatusBar::_logUpdate(const std::vector<dtk::LogItem>& value)
         {
             DTK_P();
@@ -144,21 +152,13 @@ namespace tl
             }
         }
 
-        void StatusBar::mousePressEvent(dtk::MouseClickEvent& event)
+        void StatusBar::_infoUpdate(const file::Path& path, const io::Info& info)
         {
-            IWidget::mousePressEvent(event);
-            event.accept = true;
-        }
-
-        void StatusBar::mouseReleaseEvent(dtk::MouseClickEvent& event)
-        {
-            IWidget::mouseReleaseEvent(event);
             DTK_P();
-            event.accept = true;
-            if (p.clickedCallback)
-            {
-                p.clickedCallback();
-            }
+            const std::string text = play::infoLabel(path, info);
+            const std::string toolTip = play::infoToolTip(path, info);
+            p.infoLabel->setText(text);
+            p.infoLabel->setTooltip(toolTip);;
         }
     }
 }

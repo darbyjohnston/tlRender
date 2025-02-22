@@ -18,7 +18,7 @@ namespace tl
             if (!info.video.empty())
             {
                 s.push_back(std::string(
-                    dtk::Format("Video: {0}x{1} {2}").
+                    dtk::Format("video: {0}x{1} {2}").
                     arg(info.video[0].size.w).
                     arg(info.video[0].size.h).
                     arg(info.video[0].type)));
@@ -26,7 +26,7 @@ namespace tl
             if (info.audio.isValid())
             {
                 s.push_back(std::string(
-                    dtk::Format("Audio: {0}ch {1} {2}kHz").
+                    dtk::Format("audio: {0}ch {1} {2}kHz").
                     arg(info.audio.channelCount).
                     arg(info.audio.dataType).
                     arg(info.audio.sampleRate / 1000)));
