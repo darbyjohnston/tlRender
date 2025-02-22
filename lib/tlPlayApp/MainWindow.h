@@ -67,7 +67,6 @@ namespace tl
             void _showSpeedPopup();
             void _showAudioPopup();
             void _windowOptionsUpdate(const play::WindowOptions&);
-            void _infoUpdate();
 
             DTK_PRIVATE();
         };

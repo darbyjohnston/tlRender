@@ -10,6 +10,8 @@
 
 #include <tlQtWidget/SearchWidget.h>
 
+#include <tlQt/TimelinePlayer.h>
+
 #include <tlIO/IO.h>
 
 #include <QAction>
@@ -71,16 +73,18 @@ namespace tl
                 SIGNAL(searchChanged(const QString&)),
                 p.tagsProxyModel,
                 SLOT(setFilterFixedString(const QString&)));
+
+            connect(
+                app,
+                &App::playerChanged,
+                [this](const QSharedPointer<qt::TimelinePlayer>& value)
+                {
+                    _p->tagsModel->setTags(value ? value->ioInfo().tags : dtk::ImageTags());
+                });
         }
 
         InfoTool::~InfoTool()
         {}
-
-        void InfoTool::setInfo(const io::Info& value)
-        {
-            DTK_P();
-            p.tagsModel->setTags(value.tags);
-        }
 
         InfoDockWidget::InfoDockWidget(
             InfoTool* infoTool,

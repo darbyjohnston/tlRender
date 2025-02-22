@@ -4,13 +4,13 @@ set(HEADERS
     ColorSwatch.h
     ColorWidget.h
     ContainerWidget.h
+    Divider.h
     FileBrowserSystem.h
     FileWidget.h
     FloatEditSlider.h
     Init.h
     IntEditSlider.h
     SearchWidget.h
-    Separator.h
     Spacer.h
     SpeedLabel.h
     Style.h
@@ -29,13 +29,13 @@ set(SOURCE
     ColorSwatch.cpp
     ColorWidget.cpp
     ContainerWidget.cpp
+    Divider.cpp
     FileBrowserSystem.cpp
     FileWidget.cpp
     FloatEditSlider.cpp
     Init.cpp
     IntEditSlider.cpp
     SearchWidget.cpp
-    Separator.cpp
     Spacer.cpp
     SpeedLabel.cpp
     Style.cpp

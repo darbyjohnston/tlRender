@@ -12,6 +12,8 @@ namespace tl
 {
     namespace play_app
     {
+        class App;
+
         //! Status bar widget.
         class StatusBar : public dtk::IWidget
         {
@@ -20,6 +22,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             StatusBar();
@@ -30,6 +33,7 @@ namespace tl
             //! Create a new widget.
             static std::shared_ptr<StatusBar> create(
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set the clicked callback.
@@ -41,7 +45,7 @@ namespace tl
             void mouseReleaseEvent(dtk::MouseClickEvent&) override;
 
         private:
-            void _widgetUpdate(const std::vector<dtk::LogItem>&);
+            void _logUpdate(const std::vector<dtk::LogItem>&);
 
             DTK_PRIVATE();
         };

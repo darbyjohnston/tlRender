@@ -18,6 +18,7 @@
 #include <tlPlayQtApp/PlaybackActions.h>
 #include <tlPlayQtApp/RenderActions.h>
 #include <tlPlayQtApp/SettingsTool.h>
+#include <tlPlayQtApp/StatusBar.h>
 #include <tlPlayQtApp/SystemLogTool.h>
 #include <tlPlayQtApp/TimelineActions.h>
 #include <tlPlayQtApp/ToolActions.h>
@@ -54,7 +55,6 @@
 #include <QMouseEvent>
 #include <QSharedPointer>
 #include <QSlider>
-#include <QStatusBar>
 #include <QStyle>
 #include <QToolBar>
 #include <QToolButton>
@@ -68,8 +68,6 @@ namespace tl
         namespace
         {
             const size_t sliderSteps = 100;
-            const size_t errorTimeout = 5000;
-            const size_t infoLabelMax = 24;
         }
 
         struct MainWindow::Private
@@ -108,9 +106,7 @@ namespace tl
             SettingsTool* settingsTool = nullptr;
             MessagesTool* messagesTool = nullptr;
             SystemLogTool* systemLogTool = nullptr;
-            QLabel* infoLabel = nullptr;
-            QLabel* cacheLabel = nullptr;
-            QStatusBar* statusBar = nullptr;
+            StatusBar* statusBar = nullptr;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ValueObserver<int> > aIndexObserver;
@@ -124,7 +120,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
         };
 
         MainWindow::MainWindow(App* app, QWidget* parent) :
@@ -377,16 +372,7 @@ namespace tl
             p.toolActions->menu()->addAction(systemLogDockWidget->toggleViewAction());
             addDockWidget(Qt::RightDockWidgetArea, systemLogDockWidget);
 
-            p.infoLabel = new QLabel;
-            p.cacheLabel = new QLabel;
-
-            p.statusBar = new QStatusBar;
-            auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.infoLabel);
-            hLayout->addWidget(p.cacheLabel);
-            auto labelWidget = new QWidget;
-            labelWidget->setLayout(hLayout);
-            p.statusBar->addPermanentWidget(labelWidget);
+            p.statusBar = new StatusBar(app);
             setStatusBar(p.statusBar);
 
             p.viewportContainer->setFocus();
@@ -469,24 +455,6 @@ namespace tl
                 [this](bool)
                 {
                     _widgetUpdate();
-                });
-
-            p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
-                context->getLogSystem()->observeLogItems(),
-                [this](const std::vector<dtk::LogItem>& value)
-                {
-                    for (const auto& i : value)
-                    {
-                        switch (i.type)
-                        {
-                        case dtk::LogType::Error:
-                            _p->statusBar->showMessage(
-                                QString::fromUtf8(dtk::toString(i).c_str()),
-                                errorTimeout);
-                            break;
-                        default: break;
-                        }
-                    }
                 });
 
             connect(
@@ -842,20 +810,6 @@ namespace tl
                 const float volume = p.app->audioModel()->getVolume();
                 p.volumeSlider->setValue(volume * sliderSteps);
             }
-
-            p.infoTool->setInfo(p.player ? p.player->ioInfo() : io::Info());
-
-            std::string infoLabel;
-            std::string infoToolTip;
-            if (p.player)
-            {
-                const file::Path& path = p.player->path();
-                const io::Info& ioInfo = p.player->ioInfo();
-                infoLabel = play::infoLabel(path, ioInfo);
-                infoToolTip = play::infoToolTip(path, ioInfo);
-            }
-            p.infoLabel->setText(QString::fromUtf8(infoLabel.c_str()));
-            p.infoLabel->setToolTip(QString::fromUtf8(infoToolTip.c_str()));
         }
     }
 }

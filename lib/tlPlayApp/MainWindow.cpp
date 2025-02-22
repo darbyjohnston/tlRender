@@ -34,6 +34,7 @@
 #include <tlPlayApp/ViewToolBar.h>
 #include <tlPlayApp/WindowActions.h>
 #include <tlPlayApp/WindowMenu.h>
+#include <tlPlayApp/WindowMenu.h>
 #include <tlPlayApp/WindowToolBar.h>
 
 #include <tlPlay/AudioModel.h>
@@ -121,13 +122,11 @@ namespace tl
             std::shared_ptr<AudioPopup> audioPopup;
             std::shared_ptr<dtk::ToolButton> muteButton;
             std::shared_ptr<StatusBar> statusBar;
-            std::shared_ptr<dtk::Label> infoLabel;
             std::shared_ptr<ToolsWidget> toolsWidget;
             std::map<std::string, std::shared_ptr<dtk::Divider> > dividers;
             std::shared_ptr<dtk::Splitter> splitter;
             std::shared_ptr<dtk::Splitter> splitter2;
             std::shared_ptr<dtk::HorizontalLayout> bottomLayout;
-            std::shared_ptr<dtk::HorizontalLayout> statusLayout;
             std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
@@ -348,11 +347,8 @@ namespace tl
             p.muteButton->setIcon("Mute");
             p.muteButton->setTooltip("Mute the audio");
 
-            p.statusBar = StatusBar::create(context);
+            p.statusBar = StatusBar::create(context, app);
             p.statusBar->setHStretch(dtk::Stretch::Expanding);
-
-            p.infoLabel = dtk::Label::create(context);
-            p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
 
             p.toolsWidget = ToolsWidget::create(
                 context,
@@ -408,13 +404,7 @@ namespace tl
             p.audioButton->setParent(hLayout);
             p.muteButton->setParent(hLayout);
             p.dividers["Status"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
-            p.statusLayout = dtk::HorizontalLayout::create(context, p.layout);
-            p.statusLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.statusBar->setParent(p.statusLayout);
-            dtk::Divider::create(context, dtk::Orientation::Horizontal, p.statusLayout);
-            p.infoLabel->setParent(p.statusLayout);
-
-            _infoUpdate();
+            p.statusBar->setParent(p.layout);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.viewport->setCompareCallback(
@@ -685,7 +675,6 @@ namespace tl
                 p.player ?
                 p.player->getTimeRange().duration() :
                 time::invalidTime);
-            _infoUpdate();
 
             if (p.player)
             {
@@ -826,27 +815,11 @@ namespace tl
             p.bottomLayout->setVisible(options.bottomToolBar);
             p.dividers["Bottom"]->setVisible(options.bottomToolBar);
 
-            p.statusLayout->setVisible(options.statusToolBar);
+            p.statusBar->setVisible(options.statusToolBar);
             p.dividers["Status"]->setVisible(options.statusToolBar);
 
             p.splitter->setSplit(options.splitter);
             p.splitter2->setSplit(options.splitter2);
-        }
-
-        void MainWindow::_infoUpdate()
-        {
-            DTK_P();
-            std::string text;
-            std::string toolTip;
-            if (p.player)
-            {
-                const file::Path& path = p.player->getPath();
-                const io::Info& info = p.player->getIOInfo();
-                text = play::infoLabel(path, info);
-                toolTip = play::infoToolTip(path, info);
-            }
-            p.infoLabel->setText(text);
-            p.infoLabel->setTooltip(toolTip);
         }
     }
 }

@@ -20,6 +20,7 @@ set(HEADERS
     SecondaryWindow.h
     SettingsTool.h
     SettingsToolPrivate.h
+    StatusBar.h
     SystemLogTool.h
     TimelineActions.h
     ToolActions.h
@@ -48,6 +49,7 @@ set(SOURCE
     RenderActions.cpp
     SecondaryWindow.cpp
     SettingsTool.cpp
+    StatusBar.cpp
     SystemLogTool.cpp
     TimelineActions.cpp
     ToolActions.cpp

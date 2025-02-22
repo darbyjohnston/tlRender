@@ -4,6 +4,11 @@
 
 #include <tlPlayApp/StatusBar.h>
 
+#include <tlPlayApp/App.h>
+
+#include <tlPlay/Info.h>
+
+#include <dtk/ui/Divider.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/core/Context.h>
@@ -15,15 +20,18 @@ namespace tl
     {
         struct StatusBar::Private
         {
-            std::shared_ptr<dtk::Label> label;
+            std::shared_ptr<dtk::Label> logLabel;
+            std::shared_ptr<dtk::Label> infoLabel;
             std::shared_ptr<dtk::HorizontalLayout> layout;
             std::shared_ptr<dtk::Timer> timer;
             std::function<void(void)> clickedCallback;
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
         };
 
         void StatusBar::_init(
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(
@@ -35,11 +43,18 @@ namespace tl
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
 
-            p.label = dtk::Label::create(context);
-            p.label->setMarginRole(dtk::SizeRole::MarginInside);
+            p.logLabel = dtk::Label::create(context);
+            p.logLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.logLabel->setHStretch(dtk::Stretch::Expanding);
+
+            p.infoLabel = dtk::Label::create(context);
+            p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
-            p.label->setParent(p.layout);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.logLabel->setParent(p.layout);
+            dtk::Divider::create(context, dtk::Orientation::Horizontal, p.layout);
+            p.infoLabel->setParent(p.layout);
 
             p.timer = dtk::Timer::create(context);
 
@@ -47,7 +62,25 @@ namespace tl
                 context->getLogSystem()->observeLogItems(),
                 [this](const std::vector<dtk::LogItem>& value)
                 {
-                    _widgetUpdate(value);
+                    _logUpdate(value);
+                });
+
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& player)
+                {
+                    DTK_P();
+                    std::string text;
+                    std::string toolTip;
+                    if (player)
+                    {
+                        const file::Path& path = player->getPath();
+                        const io::Info& info = player->getIOInfo();
+                        text = play::infoLabel(path, info);
+                        toolTip = play::infoToolTip(path, info);
+                    }
+                    p.infoLabel->setText(text);
+                    p.infoLabel->setTooltip(toolTip);;
                 });
         }
 
@@ -60,10 +93,11 @@ namespace tl
 
         std::shared_ptr<StatusBar> StatusBar::create(
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<StatusBar>(new StatusBar);
-            out->_init(context, parent);
+            out->_init(context, app, parent);
             return out;
         }
 
@@ -84,7 +118,7 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void StatusBar::_widgetUpdate(const std::vector<dtk::LogItem>& value)
+        void StatusBar::_logUpdate(const std::vector<dtk::LogItem>& value)
         {
             DTK_P();
             for (const auto& i : value)
@@ -94,14 +128,14 @@ namespace tl
                 case dtk::LogType::Error:
                 {
                     const std::string s = dtk::toString(i);
-                    p.label->setText(s);
-                    p.label->setTooltip(s);
+                    p.logLabel->setText(s);
+                    p.logLabel->setTooltip(s);
                     p.timer->start(
                         std::chrono::seconds(5),
                         [this]
                         {
-                            _p->label->setText(std::string());
-                            _p->label->setTooltip(std::string());
+                            _p->logLabel->setText(std::string());
+                            _p->logLabel->setTooltip(std::string());
                         });
                     break;
                 }

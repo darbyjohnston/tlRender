@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/Separator.h>
+#include <tlQtWidget/Divider.h>
 
 namespace tl
 {
     namespace qtwidget
     {
-        Separator::Separator(Qt::Orientation orientation, QWidget* parent) :
+        Divider::Divider(Qt::Orientation orientation, QWidget* parent) :
             QFrame(parent),
             _orientation(orientation)
         {
@@ -16,10 +16,10 @@ namespace tl
             _widgetUpdate();
         }
 
-        Separator::~Separator()
+        Divider::~Divider()
         {}
 
-        void Separator::setOrientation(Qt::Orientation value)
+        void Divider::setOrientation(Qt::Orientation value)
         {
             if (value == _orientation)
                 return;
@@ -27,7 +27,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void Separator::_widgetUpdate()
+        void Divider::_widgetUpdate()
         {
             setFrameShape(Qt::Horizontal ? QFrame::HLine : QFrame::VLine);
         }

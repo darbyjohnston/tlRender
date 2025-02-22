@@ -29,8 +29,6 @@ namespace tl
 
             virtual ~InfoTool();
 
-            void setInfo(const io::Info&);
-
         private:
             DTK_PRIVATE();
         };

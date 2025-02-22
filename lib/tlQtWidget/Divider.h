@@ -10,15 +10,15 @@ namespace tl
 {
     namespace qtwidget
     {
-        //! Separator.
-        class Separator : public QFrame
+        //! Divider.
+        class Divider : public QFrame
         {
             Q_OBJECT
 
         public:
-            Separator(Qt::Orientation, QWidget* parent = nullptr);
+            Divider(Qt::Orientation, QWidget* parent = nullptr);
 
-            virtual ~Separator();
+            virtual ~Divider();
 
             //! Set the orientation.
             void setOrientation(Qt::Orientation);
