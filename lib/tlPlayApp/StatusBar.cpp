@@ -8,7 +8,12 @@
 
 #include <tlPlay/Info.h>
 
+#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
+
 #include <dtk/ui/Divider.h>
+#include <dtk/ui/Icon.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/core/Context.h>
@@ -22,11 +27,19 @@ namespace tl
         {
             std::shared_ptr<dtk::Label> logLabel;
             std::shared_ptr<dtk::Label> infoLabel;
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<dtk::Icon> deviceActiveIcon;
+#endif // TLRENDER_BMD
             std::shared_ptr<dtk::HorizontalLayout> layout;
+
             std::shared_ptr<dtk::Timer> timer;
             std::function<void(void)> clickedCallback;
+
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
+#endif // TLRENDER_BMD
         };
 
         void StatusBar::_init(
@@ -50,11 +63,22 @@ namespace tl
             p.infoLabel = dtk::Label::create(context);
             p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
 
+#if defined(TLRENDER_BMD)
+            p.deviceActiveIcon = dtk::Icon::create(context, "Devices");
+            p.deviceActiveIcon->setTooltip("Output device active");
+#endif // TLRENDER_BMD
+
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.logLabel->setParent(p.layout);
             dtk::Divider::create(context, dtk::Orientation::Horizontal, p.layout);
             p.infoLabel->setParent(p.layout);
+#if defined(TLRENDER_BMD)
+            dtk::Divider::create(context, dtk::Orientation::Horizontal, p.layout);
+            p.deviceActiveIcon->setParent(p.layout);
+#endif // TLRENDER_BMD
+
+            _deviceUpdate(false);
 
             p.timer = dtk::Timer::create(context);
 
@@ -73,6 +97,15 @@ namespace tl
                         player ? player->getPath() : file::Path(),
                         player ? player->getIOInfo() : io::Info());
                 });
+
+#if defined(TLRENDER_BMD)
+            p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
+                app->getBMDOutputDevice()->observeActive(),
+                [this](bool value)
+                {
+                    _deviceUpdate(value);
+                });
+#endif // TLRENDER_BMD
         }
 
         StatusBar::StatusBar() :
@@ -159,6 +192,15 @@ namespace tl
             const std::string toolTip = play::infoToolTip(path, info);
             p.infoLabel->setText(text);
             p.infoLabel->setTooltip(toolTip);;
+        }
+
+        void StatusBar::_deviceUpdate(bool value)
+        {
+            DTK_P();
+#if defined(TLRENDER_BMD)
+            p.deviceActiveIcon->setEnabled(value);
+            p.deviceActiveIcon->setBackgroundRole(value ? dtk::ColorRole::Checked : dtk::ColorRole::None);
+#endif // TLRENDER_BMD
         }
     }
 }

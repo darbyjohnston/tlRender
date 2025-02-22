@@ -51,6 +51,7 @@ namespace tl
         private:
             void _logUpdate(const std::vector<dtk::LogItem>&);
             void _infoUpdate(const file::Path&, const io::Info&);
+            void _deviceUpdate(bool);
 
             DTK_PRIVATE();
         };

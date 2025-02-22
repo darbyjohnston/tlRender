@@ -15,6 +15,10 @@
 #include <QBoxLayout>
 #include <QLabel>
 
+#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
+
 namespace tl
 {
     namespace play_qt
@@ -27,8 +31,14 @@ namespace tl
         struct StatusBar::Private
         {
             QLabel* infoLabel = nullptr;
+#if defined(TLRENDER_BMD)
+            QLabel* deviceActiveLabel = nullptr;
+#endif // TLRENDER_BMD
 
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
+#endif // TLRENDER_BMD
         };
 
         StatusBar::StatusBar(App* app, QWidget* parent) :
@@ -39,10 +49,20 @@ namespace tl
 
             p.infoLabel = new QLabel;
 
+#if defined(TLRENDER_BMD)
+            p.deviceActiveLabel = new QLabel;
+            p.deviceActiveLabel->setPixmap(QIcon(":/Icons/Devices.svg").pixmap(QSize(20, 20)));
+            p.deviceActiveLabel->setToolTip("Output device active");
+#endif // TLRENDER_BMD
+
             auto layout = new QHBoxLayout;
             layout->setContentsMargins(0, 0, 0, 0);
             layout->addWidget(new qtwidget::Divider(Qt::Vertical));
             layout->addWidget(p.infoLabel);
+#if defined(TLRENDER_BMD)
+            layout->addWidget(new qtwidget::Divider(Qt::Vertical));
+            layout->addWidget(p.deviceActiveLabel);
+#endif // TLRENDER_BMD
             auto widget = new QWidget;
             widget->setLayout(layout);
             addPermanentWidget(widget);
@@ -51,6 +71,7 @@ namespace tl
             _infoUpdate(
                 player ? player->path() : file::Path(),
                 player ? player->ioInfo() : io::Info());
+            _deviceUpdate(false);
 
             connect(
                 app,
@@ -80,6 +101,15 @@ namespace tl
                         }
                     }
                 });
+
+#if defined(TLRENDER_BMD)
+            p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
+                app->bmdOutputDevice()->observeActive(),
+                [this](bool value)
+                {
+                    _deviceUpdate(value);
+                });
+#endif // TLRENDER_BMD
         }
 
         StatusBar::~StatusBar()
@@ -92,6 +122,16 @@ namespace tl
             const std::string toolTip = play::infoToolTip(path, info);
             p.infoLabel->setText(QString::fromUtf8(text.c_str()));
             p.infoLabel->setToolTip(QString::fromUtf8(toolTip.c_str()));
+        }
+
+        void StatusBar::_deviceUpdate(bool value)
+        {
+            DTK_P();
+#if defined(TLRENDER_BMD)
+            p.deviceActiveLabel->setEnabled(value);
+            p.deviceActiveLabel->setAutoFillBackground(value);
+            p.deviceActiveLabel->setBackgroundRole(value ? QPalette::Highlight : QPalette::NoRole);
+#endif // TLRENDER_BMD
         }
     }
 }
