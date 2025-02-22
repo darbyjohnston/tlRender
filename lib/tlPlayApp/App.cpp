@@ -88,6 +88,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
             std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > tooltipsObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -495,6 +496,13 @@ namespace tl
                 {
                     setColorStyle(value.colorStyle);
                     setDisplayScale(value.displayScale);
+                });
+
+            p.tooltipsObserver = dtk::ValueObserver<bool>::create(
+                p.settingsModel->observeTooltipsEnabled(),
+                [this](bool value)
+                {
+                    setTooltipsEnabled(value);
                 });
 
 #if defined(TLRENDER_BMD)

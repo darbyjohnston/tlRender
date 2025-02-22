@@ -109,6 +109,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > tooltipsObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -487,6 +488,23 @@ namespace tl
                 [this](double)
                 {
                     _audioUpdate();
+                });
+
+            p.tooltipsObserver = dtk::ValueObserver<bool>::create(
+                p.settingsModel->observeTooltipsEnabled(),
+                [this](bool value)
+                {
+                    DTK_P();
+                    if (!value)
+                    {
+                        p.toolTipsFilter.reset(new qt::ToolTipsFilter(this));
+                        installEventFilter(p.toolTipsFilter.get());
+                    }
+                    else if (p.toolTipsFilter)
+                    {
+                        removeEventFilter(p.toolTipsFilter.get());
+                        p.toolTipsFilter.reset();
+                    }
                 });
 
 #if defined(TLRENDER_BMD)
