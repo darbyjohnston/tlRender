@@ -55,7 +55,7 @@ namespace tl
             };
             for (const auto& t : registerTypes)
             {
-                _log(dtk::Format("register type {0}: {1}").
+                _log(dtk::Format("Register type {0}: {1}").
                     arg(t.first).
                     arg(t.second));
             }

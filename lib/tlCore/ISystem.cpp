@@ -16,20 +16,10 @@ namespace tl
             dtk::ISystem(context, name)
         {
             _logSystem = context->getSystem<dtk::LogSystem>();
-
-            if (auto logSystem = _logSystem.lock())
-            {
-                logSystem->print(name, "Create");
-            }
         }
 
         ISystem::~ISystem()
-        {
-            if (auto logSystem = _logSystem.lock())
-            {
-                logSystem->print(_name, "Delete");
-            }
-        }
+        {}
 
         void ISystem::_log(const std::string& value, dtk::LogType type)
         {
