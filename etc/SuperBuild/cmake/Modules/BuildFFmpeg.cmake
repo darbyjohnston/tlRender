@@ -162,6 +162,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-encoder=ac3
         --enable-encoder=dnxhd
         --enable-encoder=eac3
+        --enable-encoder=flac
         --enable-encoder=mjpeg
         --enable-encoder=mpeg2video
         --enable-encoder=mpeg4

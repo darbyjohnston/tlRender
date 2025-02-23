@@ -196,16 +196,17 @@ namespace tl
             IPlugin::_init(
                 "FFmpeg",
                 {
-                    { ".mov", io::FileType::Movie },
-                    { ".m4v", io::FileType::Movie },
-                    { ".mp4", io::FileType::Movie },
-                    { ".y4m", io::FileType::Movie },
-                    { ".mxf", io::FileType::Movie },
-                    { ".wmv", io::FileType::Movie },
                     { ".avi", io::FileType::Movie },
-                    { ".wav", io::FileType::Audio },
+                    { ".mov", io::FileType::Movie },
+                    { ".mp4", io::FileType::Movie },
+                    { ".mxf", io::FileType::Movie },
+                    { ".m4v", io::FileType::Movie },
+                    { ".y4m", io::FileType::Movie },
+                    { ".wmv", io::FileType::Movie },
+                    { ".aiff", io::FileType::Audio },
+                    { ".flac", io::FileType::Audio },
                     { ".mp3", io::FileType::Audio },
-                    { ".aiff", io::FileType::Audio }
+                    { ".wav", io::FileType::Audio }
                 },
                 cache,
                 logSystem);
@@ -222,6 +223,7 @@ namespace tl
             {
                 codecNames.push_back(avCodec->name);
             }
+            std::sort(codecNames.begin(), codecNames.end());
             //std::cout << dtk::join(codecNames, ", ") << std::endl;
             if (auto logSystem = _logSystemWeak.lock())
             {
