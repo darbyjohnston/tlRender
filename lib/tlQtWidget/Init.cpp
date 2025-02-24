@@ -13,7 +13,6 @@
 #include <dtk/core/Context.h>
 #include <dtk/core/String.h>
 #include <dtk/core/Format.h>
-#include <dtk/resource/Resource.h>
 
 #include <QDir>
 #include <QFontDatabase>
