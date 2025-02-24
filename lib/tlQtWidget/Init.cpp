@@ -26,6 +26,13 @@ void qtInitResources()
     Q_INIT_RESOURCE(tlQtWidget);
 }
 
+namespace dtk_resource
+{
+    extern std::vector<uint8_t> NotoSansBold;
+    extern std::vector<uint8_t> NotoSansMonoRegular;
+    extern std::vector<uint8_t> NotoSansRegular;
+}
+
 namespace tl
 {
     namespace qtwidget
@@ -42,15 +49,15 @@ namespace tl
 
         void initFonts(const std::shared_ptr<dtk::Context>& context)
         {
-            std::vector<std::string> fontFamilyList;
-            for (const auto& i : std::vector<std::string>(
-                {
-                    "NotoSansMono-Regular",
-                    "NotoSans-Bold",
-                    "NotoSans-Regular"
-                }))
+            const std::vector<std::vector<uint8_t> > fonts =
             {
-                const auto font = dtk::getFontResource(i);
+                dtk_resource::NotoSansMonoRegular,
+                dtk_resource::NotoSansBold,
+                dtk_resource::NotoSansRegular
+            };
+            std::vector<std::string> fontFamilyList;
+            for (const auto& font : fonts)
+            {
                 const int id = QFontDatabase::addApplicationFontFromData(
                     QByteArray(reinterpret_cast<const char*>(font.data()), font.size()));
                 for (const auto& j : QFontDatabase::applicationFontFamilies(id))
