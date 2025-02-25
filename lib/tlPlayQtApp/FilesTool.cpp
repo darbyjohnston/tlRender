@@ -45,10 +45,13 @@ namespace tl
             std::vector<QComboBox*> layerComboBoxes;
             QGridLayout* itemsLayout = nullptr;
             QLabel* noFilesOpenLabel = nullptr;
+            QComboBox* compareComboBox = nullptr;
+            QComboBox* compareTimeComboBox = nullptr;
             qtwidget::FloatEditSlider* wipeXSlider = nullptr;
             qtwidget::FloatEditSlider* wipeYSlider = nullptr;
             qtwidget::FloatEditSlider* wipeRotationSlider = nullptr;
             qtwidget::FloatEditSlider* overlaySlider = nullptr;
+            QFormLayout* compareLayout = nullptr;
 
             std::map<QCheckBox*, timelineui::ThumbnailRequest> thumbnailRequests;
             std::unique_ptr<QTimer> timer;
@@ -58,6 +61,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
         };
 
         FilesTool::FilesTool(
@@ -75,6 +79,18 @@ namespace tl
 
             p.bButtonGroup = new QButtonGroup;
             p.bButtonGroup->setExclusive(false);
+
+            p.compareComboBox = new QComboBox;
+            for (const auto& label : timeline::getCompareModeLabels())
+            {
+                p.compareComboBox->addItem(QString::fromUtf8(label.c_str()));
+            }
+
+            p.compareTimeComboBox = new QComboBox;
+            for (const auto& label : timeline::getCompareTimeModeLabels())
+            {
+                p.compareTimeComboBox->addItem(QString::fromUtf8(label.c_str()));
+            }
 
             p.wipeXSlider = new qtwidget::FloatEditSlider;
             p.wipeXSlider->setDefaultValue(timeline::CompareOptions().wipeCenter.x);
@@ -97,19 +113,16 @@ namespace tl
             widget->setLayout(p.itemsLayout);
             addWidget(widget);
 
-            auto formLayout = new QFormLayout;
-            formLayout->addRow(tr("X:"), p.wipeXSlider);
-            formLayout->addRow(tr("Y:"), p.wipeYSlider);
-            formLayout->addRow(tr("Rotation:"), p.wipeRotationSlider);
+            p.compareLayout = new QFormLayout;
+            p.compareLayout->addRow(tr("Mode:"), p.compareComboBox);
+            p.compareLayout->addRow(tr("Time:"), p.compareTimeComboBox);
+            p.compareLayout->addRow(tr("X:"), p.wipeXSlider);
+            p.compareLayout->addRow(tr("Y:"), p.wipeYSlider);
+            p.compareLayout->addRow(tr("Rotation:"), p.wipeRotationSlider);
+            p.compareLayout->addRow(tr("Amount:"), p.overlaySlider);
             widget = new QWidget;
-            widget->setLayout(formLayout);
-            addBellows(tr("Wipe"), widget);
-
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.overlaySlider);
-            widget = new QWidget;
-            widget->setLayout(layout);
-            addBellows(tr("Overlay"), widget);
+            widget->setLayout(p.compareLayout);
+            addBellows(tr("Compare"), widget);
 
             addStretch();
 
@@ -138,6 +151,25 @@ namespace tl
                     {
                         app->filesModel()->setB(i - _p->bButtons.begin(), value);
                     }
+                });
+
+            connect(
+                p.compareComboBox,
+                &QComboBox::currentIndexChanged,
+                [this, app](int value)
+                {
+                    auto options = app->filesModel()->getCompareOptions();
+                    options.mode = static_cast<timeline::CompareMode>(value);
+                    app->filesModel()->setCompareOptions(options);
+                });
+
+            connect(
+                p.compareTimeComboBox,
+                &QComboBox::currentIndexChanged,
+                [this, app](int value)
+                {
+                    app->filesModel()->setCompareTime(
+                        static_cast<timeline::CompareTimeMode>(value));
                 });
 
             connect(
@@ -216,6 +248,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _compareUpdate(value);
+                });
+
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+                app->filesModel()->observeCompareTime(),
+                [this](timeline::CompareTimeMode value)
+                {
+                    _p->compareTimeComboBox->setCurrentIndex(static_cast<int>(value));
                 });
         }
 
@@ -348,6 +387,10 @@ namespace tl
         {
             DTK_P();
             {
+                QSignalBlocker signalBlocker(p.compareComboBox);
+                p.compareComboBox->setCurrentIndex(static_cast<int>(options.mode));
+            }
+            {
                 QSignalBlocker signalBlocker(p.wipeXSlider);
                 p.wipeXSlider->setValue(options.wipeCenter.x);
             }
@@ -363,6 +406,10 @@ namespace tl
                 QSignalBlocker signalBlocker(p.overlaySlider);
                 p.overlaySlider->setValue(options.overlay);
             }
+            p.compareLayout->setRowVisible(p.wipeXSlider, options.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.wipeYSlider, options.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.wipeRotationSlider, options.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.overlaySlider, options.mode == timeline::CompareMode::Overlay);
         }
 
         void FilesTool::_thumbnailsUpdate()

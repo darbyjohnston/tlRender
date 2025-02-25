@@ -73,10 +73,6 @@ namespace tl
             p.videoLevelsComboBox = dtk::ComboBox::create(context, dtk::getVideoLevelsLabels());
             p.videoLevelsComboBox->setHStretch(dtk::Stretch::Expanding);
 
-            auto layout = dtk::VerticalLayout::create(context);
-            layout->setSpacingRole(dtk::SizeRole::None);
-
-            auto bellows = dtk::Bellows::create(context, "Output", layout);
             auto formLayout = dtk::FormLayout::create(context);
             formLayout->setMarginRole(dtk::SizeRole::MarginSmall);
             formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
@@ -84,13 +80,12 @@ namespace tl
             formLayout->addRow("Device:", p.deviceComboBox);
             formLayout->addRow("Display mode:", p.displayModeComboBox);
             formLayout->addRow("Pixel type:", p.pixelTypeComboBox);
-            formLayout->addRow("444 SDI video output:", p._444SDIVideoOutputCheckBox);
+            formLayout->addRow("444 SDI:", p._444SDIVideoOutputCheckBox);
             formLayout->addRow("Video levels:", p.videoLevelsComboBox);
-            bellows->setWidget(formLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setBorder(false);
-            scrollWidget->setWidget(layout);
+            scrollWidget->setWidget(formLayout);
             _setWidget(scrollWidget);
 
             auto appWeak = std::weak_ptr<App>(app);

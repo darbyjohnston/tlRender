@@ -17,6 +17,7 @@ namespace tl
     {
         DTK_ENUM_IMPL(
             Tool,
+            "None",
             "Files",
             "View",
             "Color",
@@ -31,6 +32,7 @@ namespace tl
         {
             const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
             {
+                "",
                 "Files",
                 "View",
                 "Color",
@@ -48,6 +50,7 @@ namespace tl
         {
             const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
             {
+                "",
                 "Files",
                 "View",
                 "Color",
@@ -65,6 +68,7 @@ namespace tl
         {
             const std::array<dtk::Key, static_cast<size_t>(Tool::Count)> data =
             {
+                dtk::Key::Unknown,
                 dtk::Key::F1,
                 dtk::Key::F2,
                 dtk::Key::F3,
@@ -78,7 +82,43 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        std::vector<Tool> toolsInToolbar()
+        std::string getTooltip(Tool value)
+        {
+            const std::array<std::string, static_cast<size_t>(Tool::Count)> data =
+            {
+                std::string(),
+                "Show the files tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the view tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the color tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the information tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the audio tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the devices tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the settings\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the messages\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the system log\n"
+                "\n"
+                "Shortcut: {0}"
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
+        std::vector<Tool> getToolsInToolbar()
         {
             const std::vector<Tool> out
             {
@@ -96,13 +136,13 @@ namespace tl
 
         struct ToolsModel::Private
         {
-            std::shared_ptr<dtk::ObservableValue<int> > activeTool;
+            std::shared_ptr<dtk::ObservableValue<Tool> > activeTool;
         };
 
         void ToolsModel::_init()
         {
             DTK_P();
-            p.activeTool = dtk::ObservableValue<int>::create(-1);
+            p.activeTool = dtk::ObservableValue<Tool>::create(Tool::None);
         }
 
         ToolsModel::ToolsModel() :
@@ -119,17 +159,17 @@ namespace tl
             return out;
         }
 
-        int ToolsModel::getActiveTool() const
+        Tool ToolsModel::getActiveTool() const
         {
             return _p->activeTool->get();
         }
 
-        std::shared_ptr<dtk::ObservableValue<int> > ToolsModel::observeActiveTool() const
+        std::shared_ptr<dtk::ObservableValue<Tool> > ToolsModel::observeActiveTool() const
         {
             return _p->activeTool;
         }
 
-        void ToolsModel::setActiveTool(int value)
+        void ToolsModel::setActiveTool(Tool value)
         {
             _p->activeTool->setIfChanged(value);
         }

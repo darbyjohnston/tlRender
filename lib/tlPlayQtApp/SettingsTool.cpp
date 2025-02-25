@@ -686,8 +686,8 @@ namespace tl
             resetButton->setText(tr("Default Settings"));
             resetButton->setAutoRaise(true);
             auto layout = new QHBoxLayout;
-            layout->setContentsMargins(0, 0, 0, 0);
-            layout->setSpacing(1);
+            layout->setContentsMargins(5, 5, 5, 5);
+            layout->setSpacing(5);
             layout->addWidget(resetButton);
             layout->addStretch();
             auto widget = new QWidget;

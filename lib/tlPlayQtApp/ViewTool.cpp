@@ -25,9 +25,10 @@ namespace tl
         {
             QComboBox* typeComboBox = nullptr;
             qtwidget::ColorSwatch* solidSwatch = nullptr;
-            std::pair< qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> checkersSwatch = { nullptr, nullptr };
+            std::pair<qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> checkersSwatch = { nullptr, nullptr };
             qtwidget::IntEditSlider* checkersSizeSlider = nullptr;
-            std::pair< qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> gradientSwatch = { nullptr, nullptr };
+            std::pair<qtwidget::ColorSwatch*, qtwidget::ColorSwatch*> gradientSwatch = { nullptr, nullptr };
+            QFormLayout* layout = nullptr;
 
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
@@ -60,18 +61,15 @@ namespace tl
             p.gradientSwatch.second = new qtwidget::ColorSwatch;
             p.gradientSwatch.second->setEditable(true);
 
-            auto layout = new QFormLayout;
-            layout->addRow(tr("Type:"), p.typeComboBox);
-            layout->addRow(tr("Solid color:"), p.solidSwatch);
-            auto hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.checkersSwatch.first);
-            hLayout->addWidget(p.checkersSwatch.second);
-            layout->addRow(tr("Checkers solor:"), hLayout);
-            layout->addRow(tr("Checkers size:"), p.checkersSizeSlider); hLayout = new QHBoxLayout;
-            hLayout->addWidget(p.gradientSwatch.first);
-            hLayout->addWidget(p.gradientSwatch.second);
-            layout->addRow(tr("Gradient solor:"), hLayout);
-            setLayout(layout);
+            p.layout = new QFormLayout;
+            p.layout->addRow(tr("Type:"), p.typeComboBox);
+            p.layout->addRow(tr("Color:"), p.solidSwatch);
+            p.layout->addRow(tr("Color 1:"), p.checkersSwatch.first);
+            p.layout->addRow(tr("Color 2:"), p.checkersSwatch.second);
+            p.layout->addRow(tr("Size:"), p.checkersSizeSlider);
+            p.layout->addRow(tr("Color 1:"), p.gradientSwatch.first);
+            p.layout->addRow(tr("Color 2:"), p.gradientSwatch.second);
+            setLayout(p.layout);
 
             connect(
                 p.typeComboBox,
@@ -165,6 +163,13 @@ namespace tl
             p.checkersSizeSlider->setValue(value.checkersSize.w);
             p.gradientSwatch.first->setColor(value.gradientColor.first);
             p.gradientSwatch.second->setColor(value.gradientColor.second);
+
+            p.layout->setRowVisible(p.solidSwatch, value.type == timeline::Background::Solid);
+            p.layout->setRowVisible(p.checkersSwatch.first, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.checkersSwatch.second, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.checkersSizeSlider, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.gradientSwatch.first, value.type == timeline::Background::Gradient);
+            p.layout->setRowVisible(p.gradientSwatch.second, value.type == timeline::Background::Gradient);
         }
 
         struct ViewTool::Private

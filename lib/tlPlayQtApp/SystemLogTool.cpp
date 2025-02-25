@@ -59,7 +59,8 @@ namespace tl
             layout->setSpacing(0);
             layout->addWidget(p.listWidget);
             auto hLayout = new QHBoxLayout;
-            hLayout->setSpacing(1);
+            hLayout->setContentsMargins(5, 5, 5, 5);
+            hLayout->setSpacing(5);
             hLayout->addWidget(p.copyButton);
             hLayout->addWidget(p.clearButton);
             hLayout->addStretch();

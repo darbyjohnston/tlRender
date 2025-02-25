@@ -5,6 +5,7 @@
 #include <tlPlayApp/StatusBar.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/Tools.h>
 
 #include <tlPlay/Info.h>
 
@@ -25,6 +26,8 @@ namespace tl
     {
         struct StatusBar::Private
         {
+            std::weak_ptr<App> app;
+
             std::shared_ptr<dtk::Label> logLabel;
             std::shared_ptr<dtk::Label> infoLabel;
 #if defined(TLRENDER_BMD)
@@ -32,8 +35,7 @@ namespace tl
 #endif // TLRENDER_BMD
             std::shared_ptr<dtk::HorizontalLayout> layout;
 
-            std::shared_ptr<dtk::Timer> timer;
-            std::function<void(void)> clickedCallback;
+            std::shared_ptr<dtk::Timer> logTimer;
 
             std::shared_ptr<dtk::ListObserver<dtk::LogItem> > logObserver;
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
@@ -55,6 +57,8 @@ namespace tl
 
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
+
+            p.app = app;
 
             p.logLabel = dtk::Label::create(context);
             p.logLabel->setMarginRole(dtk::SizeRole::MarginInside);
@@ -80,7 +84,7 @@ namespace tl
 
             _deviceUpdate(false);
 
-            p.timer = dtk::Timer::create(context);
+            p.logTimer = dtk::Timer::create(context);
 
             p.logObserver = dtk::ListObserver<dtk::LogItem>::create(
                 context->getLogSystem()->observeLogItems(),
@@ -125,11 +129,6 @@ namespace tl
             return out;
         }
 
-        void StatusBar::setClickedCallback(const std::function<void(void)>& value)
-        {
-            _p->clickedCallback = value;
-        }
-
         void StatusBar::setGeometry(const dtk::Box2I & value)
         {
             IWidget::setGeometry(value);
@@ -153,9 +152,29 @@ namespace tl
             IWidget::mouseReleaseEvent(event);
             DTK_P();
             event.accept = true;
-            if (p.clickedCallback)
+            Tool tool = Tool::None;
+            if (dtk::contains(p.logLabel->getGeometry(), event.pos))
             {
-                p.clickedCallback();
+                tool = Tool::Messages;
+            }
+            else if (dtk::contains(p.infoLabel->getGeometry(), event.pos))
+            {
+                tool = Tool::Info;
+            }
+#if defined(TLRENDER_BMD)
+            else if (dtk::contains(p.deviceActiveIcon->getGeometry(), event.pos))
+            {
+                tool = Tool::Devices;
+            }
+#endif // TLRENDER_BMD
+            if (tool != Tool::None)
+            {
+                if (auto app = p.app.lock())
+                {
+                    auto toolsModel = app->getToolsModel();
+                    const Tool active = toolsModel->getActiveTool();
+                    toolsModel->setActiveTool(tool != active ? tool : Tool::None);
+                }
             }
         }
 
@@ -171,7 +190,7 @@ namespace tl
                     const std::string s = dtk::toString(i);
                     p.logLabel->setText(s);
                     p.logLabel->setTooltip(s);
-                    p.timer->start(
+                    p.logTimer->start(
                         std::chrono::seconds(5),
                         [this]
                         {

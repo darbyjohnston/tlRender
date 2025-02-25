@@ -34,8 +34,6 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            void _widgetUpdate();
-
             DTK_PRIVATE();
         };
     }

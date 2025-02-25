@@ -276,6 +276,7 @@ namespace tl
             p.timeUnitsComboBox->setCurrentIndex(static_cast<int>(app->timeObject()->timeUnits()));
             p.timeUnitsComboBox->setToolTip(tr("Time units"));
             p.volumeSlider = new QSlider(Qt::Horizontal);
+            p.volumeSlider->setRange(0, 100);
             p.volumeSlider->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
             p.volumeSlider->setToolTip(tr("Audio volume"));
             auto bottomToolBar = new QToolBar;

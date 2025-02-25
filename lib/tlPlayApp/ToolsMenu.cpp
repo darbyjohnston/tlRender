@@ -15,7 +15,7 @@ namespace tl
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
 
-            std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<Tool> > activeObserver;
         };
 
         void ToolsMenu::_init(
@@ -34,17 +34,15 @@ namespace tl
                 addItem(p.actions[tool]);
             }
 
-            p.activeObserver = dtk::ValueObserver<int>::create(
+            p.activeObserver = dtk::ValueObserver<Tool>::create(
                 app->getToolsModel()->observeActiveTool(),
-                [this](int value)
+                [this](Tool value)
                 {
                     const auto enums = getToolEnums();
                     const auto labels = getToolLabels();
                     for (size_t i = 0; i < enums.size(); ++i)
                     {
-                        setItemChecked(
-                            _p->actions[labels[i]],
-                            static_cast<int>(enums[i]) == value);
+                        setItemChecked(_p->actions[labels[i]], enums[i] == value);
                     }
                 });
         }

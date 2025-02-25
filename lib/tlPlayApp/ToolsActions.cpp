@@ -27,63 +27,32 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             const auto enums = getToolEnums();
             const auto labels = getToolLabels();
-            const std::array<std::string, static_cast<size_t>(Tool::Count)> toolTips =
-            {
-                "Show the files tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the color tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the color picker tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the information tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the audio tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the devices tool\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the settings\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the messages\n"
-                "\n"
-                "Shortcut: {0}",
-                "Show the system log\n"
-                "\n"
-                "Shortcut: {0}"
-            };
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 const auto tool = enums[i];
-                p.actions[labels[i]] = std::make_shared<dtk::Action>(
+                const dtk::Key shortcut = getShortcut(tool);
+                const int shortcutModifier = 0;
+                auto action = std::make_shared<dtk::Action>(
                     getText(tool),
                     getIcon(tool),
-                    getShortcut(tool),
-                    0,
-                    [this, appWeak, tool](bool value)
+                    shortcut,
+                    shortcutModifier,
+                    [appWeak, tool](bool value)
                     {
                         if (auto app = appWeak.lock())
                         {
                             auto toolsModel = app->getToolsModel();
-                            const int active = toolsModel->getActiveTool();
-                            toolsModel->setActiveTool(
-                                static_cast<int>(tool) != active ?
-                                static_cast<int>(tool) :
-                                -1);
+                            const Tool active = toolsModel->getActiveTool();
+                            toolsModel->setActiveTool(tool != active ? tool : Tool::None);
                         }
                     });
-                if (!toolTips[i].empty())
+                const std::string tooltip = getTooltip(tool);
+                if (!tooltip.empty())
                 {
-                    p.actions[labels[i]]->toolTip = dtk::Format(toolTips[i]).
-                        arg(dtk::getShortcutLabel(
-                            p.actions[labels[i]]->shortcut,
-                            p.actions[labels[i]]->shortcutModifiers));
+                    action->toolTip = dtk::Format(tooltip).
+                        arg(dtk::getShortcutLabel(shortcut, shortcutModifier));
                 }
+                p.actions[labels[i]] = action;
             }
         }
 

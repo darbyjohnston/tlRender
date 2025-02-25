@@ -40,9 +40,6 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set the clicked callback.
-            void setClickedCallback(const std::function<void(void)>&);
-
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void mousePressEvent(dtk::MouseClickEvent&) override;

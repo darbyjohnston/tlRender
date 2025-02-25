@@ -59,7 +59,7 @@ namespace tl
             p.displayModeComboBox = new QComboBox;
             p.pixelTypeComboBox = new QComboBox;
 
-            p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI video output"));
+            p._444SDIVideoOutputCheckBox = new QCheckBox(tr("444 SDI"));
 
             p.videoLevelsComboBox = new QComboBox;
             for (const auto& i : dtk::getVideoLevelsLabels())
@@ -76,7 +76,7 @@ namespace tl
             layout->addRow(tr("Video levels:"), p.videoLevelsComboBox);
             auto widget = new QWidget;
             widget->setLayout(layout);
-            addBellows(tr("Output"), widget);
+            addWidget(widget);
 
             addStretch();
 

@@ -67,18 +67,12 @@ namespace tl
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.layout->addRow("Type:", p.typeComboBox);
-            p.layout->addRow("Solid color:", p.solidSwatch);
-            auto hLayout = dtk::HorizontalLayout::create(context);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.checkersSwatch.first->setParent(hLayout);
-            p.checkersSwatch.second->setParent(hLayout);
-            p.layout->addRow("Checkers color:", hLayout);
-            p.layout->addRow("Checkers size:", p.checkersSizeSlider);
-            hLayout = dtk::HorizontalLayout::create(context);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.gradientSwatch.first->setParent(hLayout);
-            p.gradientSwatch.second->setParent(hLayout);
-            p.layout->addRow("Gradient color:", hLayout);
+            p.layout->addRow("Color:", p.solidSwatch);
+            p.layout->addRow("Color 1:", p.checkersSwatch.first);
+            p.layout->addRow("Color 2:", p.checkersSwatch.second);
+            p.layout->addRow("Size:", p.checkersSizeSlider);
+            p.layout->addRow("Color 1:", p.gradientSwatch.first);
+            p.layout->addRow("Color 2:", p.gradientSwatch.second);
 
             p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
@@ -206,6 +200,13 @@ namespace tl
             p.checkersSizeSlider->setValue(value.checkersSize.w);
             p.gradientSwatch.first->setColor(value.gradientColor.first);
             p.gradientSwatch.second->setColor(value.gradientColor.second);
+
+            p.layout->setRowVisible(p.solidSwatch, value.type == timeline::Background::Solid);
+            p.layout->setRowVisible(p.checkersSwatch.first, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.checkersSwatch.second, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.checkersSizeSlider, value.type == timeline::Background::Checkers);
+            p.layout->setRowVisible(p.gradientSwatch.first, value.type == timeline::Background::Gradient);
+            p.layout->setRowVisible(p.gradientSwatch.second, value.type == timeline::Background::Gradient);
         }
 
         struct ViewTool::Private

@@ -17,11 +17,12 @@ namespace tl
     {
         struct ToolsToolBar::Private
         {
+            std::vector<Tool> tools;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
             std::shared_ptr<dtk::ButtonGroup> buttonGroup;
-            std::map<Tool, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::vector<std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
-            std::shared_ptr<dtk::ValueObserver<int> > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<Tool> > activeObserver;
         };
 
         void ToolsToolBar::_init(
@@ -36,10 +37,12 @@ namespace tl
                 parent);
             DTK_P();
 
+            p.tools = getToolsInToolbar();
+
             p.actions = actions;
 
             p.buttonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Toggle);
-            for (const auto tool : toolsInToolbar())
+            for (const auto tool : p.tools)
             {
                 auto button = dtk::ToolButton::create(context);
                 auto action = p.actions[getLabel(tool)];
@@ -47,33 +50,39 @@ namespace tl
                 button->setCheckable(action->checkable);
                 button->setTooltip(action->toolTip);
                 p.buttonGroup->addButton(button);
-                p.buttons[tool] = button;
+                p.buttons.push_back(button);
             }
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);
             for (const auto& button : p.buttons)
             {
-                button.second->setParent(p.layout);
+                button->setParent(p.layout);
             }
 
             auto appWeak = std::weak_ptr<App>(app);
             p.buttonGroup->setCheckedCallback(
-                [appWeak](int index, bool value)
+                [this, appWeak](int index, bool value)
                 {
-                    if (auto app = appWeak.lock())
+                    DTK_P();
+                    if (index >= 0 && index < p.tools.size())
                     {
-                        app->getToolsModel()->setActiveTool(value ? index : -1);
+                        if (auto app = appWeak.lock())
+                        {
+                            app->getToolsModel()->setActiveTool(
+                                value ? _p->tools[index] : Tool::None);
+                        }
                     }
                 });
 
-            p.activeObserver = dtk::ValueObserver<int>::create(
+            p.activeObserver = dtk::ValueObserver<Tool>::create(
                 app->getToolsModel()->observeActiveTool(),
-                [this](int value)
+                [this](Tool value)
                 {
-                    for (const auto& button : _p->buttons)
+                    DTK_P();
+                    for (size_t i = 0; i < p.tools.size() && i < p.buttons.size(); ++i)
                     {
-                        button.second->setChecked(static_cast<int>(button.first) == value);
+                        p.buttons[i]->setChecked(value == p.tools[i]);
                     }
                 });
         }

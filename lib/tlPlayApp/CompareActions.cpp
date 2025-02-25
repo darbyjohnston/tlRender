@@ -135,11 +135,6 @@ namespace tl
 
             const auto compareTimeEnums = timeline::getCompareTimeModeEnums();
             const auto comapreTimeLabels = timeline::getCompareTimeModeLabels();
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareTimeToolTips =
-            {
-                "Compare relative times",
-                "Compare absolute times"
-            };
             for (size_t i = 0; i < compareTimeEnums.size(); ++i)
             {
                 const auto mode = compareTimeEnums[i];
@@ -152,7 +147,6 @@ namespace tl
                             app->getFilesModel()->setCompareTime(mode);
                         }
                     });
-                p.actions[comapreTimeLabels[i]]->toolTip = compareTimeToolTips[i];
             }
         }
 

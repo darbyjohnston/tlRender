@@ -12,10 +12,9 @@ namespace tl
     namespace play_app
     {
         //! Tools.
-        //!
-        //! \todo Add a magnifier.
         enum class Tool
         {
+            None,
             Files,
             View,
             Color,
@@ -27,7 +26,7 @@ namespace tl
             SystemLog,
 
             Count,
-            First = Audio
+            First = None
         };
         DTK_ENUM(Tool);
 
@@ -40,8 +39,11 @@ namespace tl
         //! Get the tool keyboard shortcut.
         dtk::Key getShortcut(Tool);
 
-        //! Get the tools in the toolbar.
-        std::vector<Tool> toolsInToolbar();
+        //! Get the tool tooltip.
+        std::string getTooltip(Tool);
+
+        //! Get the tools shown in the toolbar.
+        std::vector<Tool> getToolsInToolbar();
 
         //! Tools model.
         class ToolsModel : public std::enable_shared_from_this<ToolsModel>
@@ -60,13 +62,13 @@ namespace tl
             static std::shared_ptr<ToolsModel> create();
 
             //! Get the active tool.
-            int getActiveTool() const;
+            Tool getActiveTool() const;
 
             //! Observe the active tool.
-            std::shared_ptr<dtk::ObservableValue<int> > observeActiveTool() const;
+            std::shared_ptr<dtk::ObservableValue<Tool> > observeActiveTool() const;
 
             //! Set the active tool.
-            void setActiveTool(int);
+            void setActiveTool(Tool);
 
         private:
             DTK_PRIVATE();

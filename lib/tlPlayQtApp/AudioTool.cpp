@@ -10,36 +10,64 @@
 #include <tlPlay/AudioModel.h>
 
 #include <tlQtWidget/FloatEditSlider.h>
+#include <tlQtWidget/IntEditSlider.h>
 
 #include <QAction>
-#include <QBoxLayout>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QFormLayout>
 
 namespace tl
 {
     namespace play_qt
     {
-        struct AudioDeviceWidget::Private
+        struct AudioTool::Private
         {
             std::vector<audio::DeviceID> devices;
 
             QComboBox* deviceComboBox = nullptr;
+            qtwidget::IntEditSlider* volumeSlider = nullptr;
+            QCheckBox* muteCheckBox = nullptr;
+            qtwidget::FloatEditSlider* syncOffsetSlider = nullptr;
+            QFormLayout* layout = nullptr;
 
-            std::shared_ptr<dtk::ListObserver<audio::DeviceID> > audioDevicesObserver;
-            std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
+            std::shared_ptr<dtk::ListObserver<audio::DeviceID> > devicesObserver;
+            std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > deviceObserver;
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
         };
 
-        AudioDeviceWidget::AudioDeviceWidget(App* app, QWidget* parent) :
-            QWidget(parent),
+        AudioTool::AudioTool(App* app, QWidget* parent) :
+            IToolWidget(app, parent),
             _p(new Private)
         {
             DTK_P();
 
             p.deviceComboBox = new QComboBox;
 
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.deviceComboBox);
-            setLayout(layout);
+            p.volumeSlider = new qtwidget::IntEditSlider;
+            p.volumeSlider->setRange(dtk::RangeI(0, 100));
+            p.volumeSlider->setSingleStep(1);
+            p.volumeSlider->setPageStep(10);
+
+            p.muteCheckBox = new QCheckBox(tr("Mute"));
+
+            p.syncOffsetSlider = new qtwidget::FloatEditSlider;
+            p.syncOffsetSlider->setRange(dtk::RangeF(-1.F, 1.F));
+            p.syncOffsetSlider->setDefaultValue(0.F);
+
+            p.layout = new QFormLayout;
+            p.layout->addRow(tr("Device:"), p.deviceComboBox);
+            p.layout->addRow(tr("Volume:"), p.volumeSlider);
+            p.layout->addRow(p.muteCheckBox);
+            p.layout->addRow(tr("Sync offset:"), p.syncOffsetSlider);
+
+            auto widget = new QWidget;
+            widget->setLayout(p.layout);
+            addWidget(widget);
+
+            addStretch();
 
             connect(
                 p.deviceComboBox,
@@ -53,7 +81,31 @@ namespace tl
                     }
                 });
 
-            p.audioDevicesObserver = dtk::ListObserver<audio::DeviceID>::create(
+            connect(
+                p.volumeSlider,
+                &qtwidget::IntEditSlider::valueChanged,
+                [app](int value)
+                {
+                    app->audioModel()->setVolume(value / 100.F);
+                });
+
+            connect(
+                p.muteCheckBox,
+                &QCheckBox::toggled,
+                [app](bool value)
+                {
+                    app->audioModel()->setMute(value);
+                });
+
+            connect(
+                p.syncOffsetSlider,
+                &qtwidget::FloatEditSlider::valueChanged,
+                [app](float value)
+                {
+                    app->audioModel()->setSyncOffset(value);
+                });
+
+            p.devicesObserver = dtk::ListObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevices(),
                 [this](const std::vector<audio::DeviceID>& devices)
                 {
@@ -74,9 +126,9 @@ namespace tl
                     }
                 });
 
-            p.audioDeviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
+            p.deviceObserver = dtk::ValueObserver<audio::DeviceID>::create(
                 app->audioModel()->observeDevice(),
-                [this](const audio::DeviceID &value)
+                [this](const audio::DeviceID& value)
                 {
                     int index = 0;
                     const auto i = std::find(_p->devices.begin(), _p->devices.end(), value);
@@ -87,70 +139,28 @@ namespace tl
                     const QSignalBlocker blocker(_p->deviceComboBox);
                     _p->deviceComboBox->setCurrentIndex(index);
                 });
-        }
 
-        AudioDeviceWidget::~AudioDeviceWidget()
-        {}
-
-        struct AudioOffsetWidget::Private
-        {
-            qtwidget::FloatEditSlider* slider = nullptr;
-
-            std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
-        };
-
-        AudioOffsetWidget::AudioOffsetWidget(App* app, QWidget* parent) :
-            QWidget(parent),
-            _p(new Private)
-        {
-            DTK_P();
-
-            p.slider = new qtwidget::FloatEditSlider;
-            p.slider->setRange(dtk::RangeF(-1.F, 1.F));
-            p.slider->setDefaultValue(0.F);
-
-            auto layout = new QVBoxLayout;
-            layout->addWidget(p.slider);
-            setLayout(layout);
-
-            connect(
-                p.slider,
-                &qtwidget::FloatEditSlider::valueChanged,
-                [app](float value)
+            p.volumeObserver = dtk::ValueObserver<float>::create(
+                app->audioModel()->observeVolume(),
+                [this](float value)
                 {
-                    app->audioModel()->setSyncOffset(value);
+                    _p->volumeSlider->setValue(std::roundf(value * 100.F));
+                });
+
+            p.muteObserver = dtk::ValueObserver<bool>::create(
+                app->audioModel()->observeMute(),
+                [this](bool value)
+                {
+                    _p->muteCheckBox->setChecked(value);
                 });
 
             p.syncOffsetObserver = dtk::ValueObserver<double>::create(
                 app->audioModel()->observeSyncOffset(),
                 [this](double value)
                 {
-                    QSignalBlocker signalBlocker(_p->slider);
-                    _p->slider->setValue(value);
+                    QSignalBlocker signalBlocker(_p->syncOffsetSlider);
+                    _p->syncOffsetSlider->setValue(value);
                 });
-        }
-
-        AudioOffsetWidget::~AudioOffsetWidget()
-        {}
-
-        struct AudioTool::Private
-        {
-            AudioDeviceWidget* deviceWidget = nullptr;
-            AudioOffsetWidget* offsetWidget = nullptr;
-        };
-
-        AudioTool::AudioTool(App* app, QWidget* parent) :
-            IToolWidget(app, parent),
-            _p(new Private)
-        {
-            DTK_P();
-
-            p.deviceWidget = new AudioDeviceWidget(app);
-            p.offsetWidget = new AudioOffsetWidget(app);
-
-            addBellows(tr("Output Device"), p.deviceWidget);
-            addBellows(tr("Sync Offset"), p.offsetWidget);
-            addStretch();
         }
 
         AudioTool::~AudioTool()

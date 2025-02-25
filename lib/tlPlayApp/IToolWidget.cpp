@@ -68,7 +68,7 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        app->getToolsModel()->setActiveTool(-1);
+                        app->getToolsModel()->setActiveTool(Tool::None);
                     }
                 });
         }

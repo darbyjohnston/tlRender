@@ -29,10 +29,13 @@ namespace tl
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<FileButton> > aButtons;
             std::map<std::shared_ptr<play::FilesModelItem>, std::shared_ptr<dtk::ToolButton> > bButtons;
             std::vector<std::shared_ptr<dtk::ComboBox> > layerComboBoxes;
+            std::shared_ptr<dtk::ComboBox> compareComboBox;
+            std::shared_ptr<dtk::ComboBox> compareTimeComboBox;
             std::shared_ptr<dtk::FloatEditSlider> wipeXSlider;
             std::shared_ptr<dtk::FloatEditSlider> wipeYSlider;
             std::shared_ptr<dtk::FloatEditSlider> wipeRotationSlider;
             std::shared_ptr<dtk::FloatEditSlider> overlaySlider;
+            std::shared_ptr<dtk::FormLayout> compareLayout;
             std::shared_ptr<dtk::GridLayout> widgetLayout;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
@@ -40,6 +43,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > bObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
         };
 
         void FilesTool::_init(
@@ -57,6 +61,15 @@ namespace tl
 
             p.aButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Radio);
             p.bButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Check);
+
+            p.compareComboBox = dtk::ComboBox::create(
+                context,
+                timeline::getCompareModeLabels());
+            p.compareComboBox->setHStretch(dtk::Stretch::Expanding);
+            p.compareTimeComboBox = dtk::ComboBox::create(
+                context,
+                timeline::getCompareTimeModeLabels());
+            p.compareTimeComboBox->setHStretch(dtk::Stretch::Expanding);
 
             p.wipeXSlider = dtk::FloatEditSlider::create(context);
             p.wipeXSlider->setDefaultValue(.5F);
@@ -80,23 +93,17 @@ namespace tl
 
             dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
 
-            auto vLayout = dtk::VerticalLayout::create(context, layout);
-            vLayout->setSpacingRole(dtk::SizeRole::None);
-            auto bellows = dtk::Bellows::create(context, "Wipe", vLayout);
-            auto formLayout = dtk::FormLayout::create(context);
-            formLayout->setMarginRole(dtk::SizeRole::MarginSmall);
-            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            formLayout->addRow("X:", p.wipeXSlider);
-            formLayout->addRow("Y:", p.wipeYSlider);
-            formLayout->addRow("Rotation:", p.wipeRotationSlider);
-            bellows->setWidget(formLayout);
-            
-            bellows = dtk::Bellows::create(context, "Overlay", vLayout);
-            vLayout = dtk::VerticalLayout::create(context);
-            vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
-            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.overlaySlider->setParent(vLayout);
-            bellows->setWidget(vLayout);
+            auto bellows = dtk::Bellows::create(context, "Compare", layout);
+            p.compareLayout = dtk::FormLayout::create(context);
+            p.compareLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.compareLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.compareLayout->addRow("Mode:", p.compareComboBox);
+            p.compareLayout->addRow("Time:", p.compareTimeComboBox);
+            p.compareLayout->addRow("X:", p.wipeXSlider);
+            p.compareLayout->addRow("Y:", p.wipeYSlider);
+            p.compareLayout->addRow("Rotation:", p.wipeRotationSlider);
+            p.compareLayout->addRow("Amount:", p.overlaySlider);
+            bellows->setWidget(p.compareLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
             scrollWidget->setBorder(false);
@@ -119,6 +126,27 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getFilesModel()->setB(index, value);
+                    }
+                });
+
+            p.compareComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.mode = static_cast<timeline::CompareMode>(value);
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.compareTimeComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->setCompareTime(
+                            static_cast<timeline::CompareTimeMode>(value));
                     }
                 });
 
@@ -199,6 +227,13 @@ namespace tl
                 [this](const timeline::CompareOptions& value)
                 {
                     _compareUpdate(value);
+                });
+
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+                app->getFilesModel()->observeCompareTime(),
+                [this](const timeline::CompareTimeMode& value)
+                {
+                    _p->compareTimeComboBox->setCurrentIndex(static_cast<int>(value));
                 });
         }
 
@@ -321,10 +356,16 @@ namespace tl
         void FilesTool::_compareUpdate(const timeline::CompareOptions& value)
         {
             DTK_P();
+            p.compareComboBox->setCurrentIndex(static_cast<int>(value.mode));
             p.wipeXSlider->setValue(value.wipeCenter.x);
             p.wipeYSlider->setValue(value.wipeCenter.y);
             p.wipeRotationSlider->setValue(value.wipeRotation);
             p.overlaySlider->setValue(value.overlay);
+
+            p.compareLayout->setRowVisible(p.wipeXSlider, value.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.wipeYSlider, value.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.wipeRotationSlider, value.mode == timeline::CompareMode::Wipe);
+            p.compareLayout->setRowVisible(p.overlaySlider, value.mode == timeline::CompareMode::Overlay);
         }
     }
 }

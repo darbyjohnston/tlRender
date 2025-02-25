@@ -341,7 +341,7 @@ namespace tl
 
             p.audioButton = dtk::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
-            p.audioButton->setTooltip("Audio settings");
+            p.audioButton->setTooltip("Audio volume");
             p.muteButton = dtk::ToolButton::create(context);
             p.muteButton->setCheckable(true);
             p.muteButton->setIcon("Mute");
@@ -486,16 +486,6 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getAudioModel()->setMute(value);
-                    }
-                });
-
-            p.statusBar->setClickedCallback(
-                [appWeak]
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto toolsModel = app->getToolsModel();
-                        toolsModel->setActiveTool(static_cast<int>(Tool::Messages));
                     }
                 });
 

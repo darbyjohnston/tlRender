@@ -30,6 +30,7 @@ namespace tl
 
             p.swatch = new ColorSwatch;
             p.swatch->setSwatchSize(40);
+            p.swatch->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
             for (size_t i = 0; i < 4; ++i)
             {
