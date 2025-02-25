@@ -72,13 +72,13 @@ namespace tl
             p.actions["Next"] = new QAction(this);
             p.actions["Next"]->setText(tr("Next"));
             p.actions["Next"]->setIcon(QIcon(":/Icons/Next.svg"));
-            p.actions["Next"]->setShortcut(QKeySequence(Qt::Key_PageDown));
+            p.actions["Next"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageDown));
             p.actions["Next"]->setToolTip(tr("Change to the next file"));
 
             p.actions["Prev"] = new QAction(this);
             p.actions["Prev"]->setText(tr("Previous"));
             p.actions["Prev"]->setIcon(QIcon(":/Icons/Prev.svg"));
-            p.actions["Prev"]->setShortcut(QKeySequence(Qt::Key_PageUp));
+            p.actions["Prev"]->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_PageUp));
             p.actions["Prev"]->setToolTip(tr("Change to the previous file"));
 
             p.actions["NextLayer"] = new QAction(this);

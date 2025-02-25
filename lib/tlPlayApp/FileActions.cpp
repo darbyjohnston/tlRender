@@ -122,7 +122,7 @@ namespace tl
                 "Next",
                 "Next",
                 dtk::Key::PageDown,
-                0,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -135,7 +135,7 @@ namespace tl
                 "Previous",
                 "Prev",
                 dtk::Key::PageUp,
-                0,
+                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
