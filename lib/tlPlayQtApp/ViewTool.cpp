@@ -156,20 +156,30 @@ namespace tl
         void BackgroundWidget::_optionsUpdate(const timeline::BackgroundOptions & value)
         {
             DTK_P();
-            p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
+            {
+                QSignalBlocker signalBlocker(p.typeComboBox);
+                p.typeComboBox->setCurrentIndex(static_cast<int>(value.type));
+            }
             p.solidSwatch->setColor(value.solidColor);
             p.checkersSwatch.first->setColor(value.checkersColor.first);
             p.checkersSwatch.second->setColor(value.checkersColor.second);
-            p.checkersSizeSlider->setValue(value.checkersSize.w);
+            {
+                QSignalBlocker signalBlocker(p.checkersSizeSlider);
+                p.checkersSizeSlider->setValue(value.checkersSize.w);
+            }
             p.gradientSwatch.first->setColor(value.gradientColor.first);
             p.gradientSwatch.second->setColor(value.gradientColor.second);
 
+#if defined(TLRENDER_QT6)
             p.layout->setRowVisible(p.solidSwatch, value.type == timeline::Background::Solid);
             p.layout->setRowVisible(p.checkersSwatch.first, value.type == timeline::Background::Checkers);
             p.layout->setRowVisible(p.checkersSwatch.second, value.type == timeline::Background::Checkers);
             p.layout->setRowVisible(p.checkersSizeSlider, value.type == timeline::Background::Checkers);
             p.layout->setRowVisible(p.gradientSwatch.first, value.type == timeline::Background::Gradient);
             p.layout->setRowVisible(p.gradientSwatch.second, value.type == timeline::Background::Gradient);
+#elif defined(TLRENDER_QT5)
+            //! \todo Qt5 form layout.
+#endif // TLRENDER_QT6
         }
 
         struct ViewTool::Private

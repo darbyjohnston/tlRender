@@ -406,10 +406,15 @@ namespace tl
                 QSignalBlocker signalBlocker(p.overlaySlider);
                 p.overlaySlider->setValue(options.overlay);
             }
+
+ #if defined(TLRENDER_QT6)
             p.compareLayout->setRowVisible(p.wipeXSlider, options.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.wipeYSlider, options.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.wipeRotationSlider, options.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.overlaySlider, options.mode == timeline::CompareMode::Overlay);
+#elif defined(TLRENDER_QT5)
+            //! \todo Qt5 form layout.
+#endif // TLRENDER_QT6
         }
 
         void FilesTool::_thumbnailsUpdate()
