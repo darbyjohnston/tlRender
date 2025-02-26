@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/ColorToolPrivate.h>
+#include <tlPlayApp/ColorControlsPrivate.h>
 
 #include <tlPlayApp/App.h>
 
@@ -863,7 +863,7 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        struct ColorTool::Private
+        struct ColorControlsTool::Private
         {
             std::shared_ptr<OCIOWidget> ocioWidget;
             std::shared_ptr<LUTWidget> lutWidget;
@@ -874,7 +874,7 @@ namespace tl
             std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
         };
 
-        void ColorTool::_init(
+        void ColorControlsTool::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
@@ -882,8 +882,8 @@ namespace tl
             IToolWidget::_init(
                 context,
                 app,
-                Tool::Color,
-                "tl::play_app::ColorTool",
+                Tool::ColorControls,
+                "tl::play_app::ColorControlsTool",
                 parent);
             DTK_P();
 
@@ -920,19 +920,19 @@ namespace tl
             _setWidget(scrollWidget);
         }
 
-        ColorTool::ColorTool() :
+        ColorControlsTool::ColorControlsTool() :
             _p(new Private)
         {}
 
-        ColorTool::~ColorTool()
+        ColorControlsTool::~ColorControlsTool()
         {}
 
-        std::shared_ptr<ColorTool> ColorTool::create(
+        std::shared_ptr<ColorControlsTool> ColorControlsTool::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<ColorTool>(new ColorTool);
+            auto out = std::shared_ptr<ColorControlsTool>(new ColorControlsTool);
             out->_init(context, app, parent);
             return out;
         }

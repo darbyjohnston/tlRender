@@ -6,8 +6,10 @@
 
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/AudioTool.h>
-#include <tlPlayApp/ColorTool.h>
+#include <tlPlayApp/ColorControlsTool.h>
+#include <tlPlayApp/ColorPickerTool.h>
 #include <tlPlayApp/DevicesTool.h>
+#include <tlPlayApp/ExportTool.h>
 #include <tlPlayApp/FilesTool.h>
 #include <tlPlayApp/InfoTool.h>
 #include <tlPlayApp/MessagesTool.h>
@@ -42,8 +44,10 @@ namespace tl
             DTK_P();
 
             p.toolWidgets[Tool::Audio] = AudioTool::create(context, app);
-            p.toolWidgets[Tool::Color] = ColorTool::create(context, app);
+            p.toolWidgets[Tool::ColorPicker] = ColorPickerTool::create(context, app);
+            p.toolWidgets[Tool::ColorControls] = ColorControlsTool::create(context, app);
             p.toolWidgets[Tool::Devices] = DevicesTool::create(context, app);
+            p.toolWidgets[Tool::Export] = ExportTool::create(context, app);
             p.toolWidgets[Tool::Files] = FilesTool::create(context, app);
             p.toolWidgets[Tool::Info] = InfoTool::create(context, app);
             p.toolWidgets[Tool::Messages] = MessagesTool::create(context, app);

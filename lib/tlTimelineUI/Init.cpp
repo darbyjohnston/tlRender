@@ -13,7 +13,8 @@
 
 namespace tl_resource
 {
-    extern std::vector<uint8_t> Color;
+    extern std::vector<uint8_t> ColorControls;
+    extern std::vector<uint8_t> ColorPicker;
     extern std::vector<uint8_t> CompareA;
     extern std::vector<uint8_t> CompareB;
     extern std::vector<uint8_t> CompareDifference;
@@ -24,6 +25,7 @@ namespace tl_resource
     extern std::vector<uint8_t> CompareVertical;
     extern std::vector<uint8_t> CompareWipe;
     extern std::vector<uint8_t> Devices;
+    extern std::vector<uint8_t> Export;
     extern std::vector<uint8_t> FileOpenSeparateAudio;
     extern std::vector<uint8_t> Files;
     extern std::vector<uint8_t> Hidden;
@@ -47,7 +49,8 @@ namespace tl
             ThumbnailSystem::create(context);
 
             auto iconSystem = context->getSystem<dtk::IconSystem>();
-            iconSystem->add("Color", tl_resource::Color);
+            iconSystem->add("ColorControls", tl_resource::ColorControls);
+            iconSystem->add("ColorPicker", tl_resource::ColorPicker);
             iconSystem->add("CompareA", tl_resource::CompareA);
             iconSystem->add("CompareB", tl_resource::CompareB);
             iconSystem->add("CompareDifference", tl_resource::CompareDifference);
@@ -58,6 +61,7 @@ namespace tl
             iconSystem->add("CompareVertical", tl_resource::CompareVertical);
             iconSystem->add("CompareWipe", tl_resource::CompareWipe);
             iconSystem->add("Devices", tl_resource::Devices);
+            iconSystem->add("Export", tl_resource::Export);
             iconSystem->add("FileOpenSeparateAudio", tl_resource::FileOpenSeparateAudio);
             iconSystem->add("Files", tl_resource::Files);
             iconSystem->add("Hidden", tl_resource::Hidden);

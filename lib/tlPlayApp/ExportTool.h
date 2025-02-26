@@ -12,10 +12,10 @@ namespace tl
     {
         class App;
 
-        //! Color tool.
-        class ColorTool : public IToolWidget
+        //! Export tool.
+        class ExportTool : public IToolWidget
         {
-            DTK_NON_COPYABLE(ColorTool);
+            DTK_NON_COPYABLE(ExportTool);
 
         protected:
             void _init(
@@ -23,17 +23,19 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ColorTool();
+            ExportTool();
 
         public:
-            virtual ~ColorTool();
+            virtual ~ExportTool();
 
-            static std::shared_ptr<ColorTool> create(
+            static std::shared_ptr<ExportTool> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
+            void _widgetUpdate();
+
             DTK_PRIVATE();
         };
     }

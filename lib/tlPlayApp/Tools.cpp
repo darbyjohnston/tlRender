@@ -19,8 +19,10 @@ namespace tl
             Tool,
             "None",
             "Files",
+            "Export",
             "View",
-            "Color",
+            "ColorPicker",
+            "ColorControls",
             "Info",
             "Audio",
             "Devices",
@@ -34,8 +36,10 @@ namespace tl
             {
                 "",
                 "Files",
+                "Export",
                 "View",
-                "Color",
+                "Color Picker",
+                "Color Controls",
                 "Information",
                 "Audio",
                 "Devices",
@@ -52,8 +56,10 @@ namespace tl
             {
                 "",
                 "Files",
+                "Export",
                 "View",
-                "Color",
+                "ColorPicker",
+                "ColorControls",
                 "Info",
                 "Audio",
                 "Devices",
@@ -77,7 +83,9 @@ namespace tl
                 dtk::Key::F6,
                 dtk::Key::F7,
                 dtk::Key::F8,
-                dtk::Key::F9
+                dtk::Key::F9,
+                dtk::Key::F10,
+                dtk::Key::F11
             };
             return data[static_cast<size_t>(value)];
         }
@@ -90,10 +98,16 @@ namespace tl
                 "Show the files tool\n"
                 "\n"
                 "Shortcut: {0}",
+                "Show the export tool\n"
+                "\n"
+                "Shortcut: {0}",
                 "Show the view tool\n"
                 "\n"
                 "Shortcut: {0}",
-                "Show the color tool\n"
+                "Show the color picker tool\n"
+                "\n"
+                "Shortcut: {0}",
+                "Show the color controls tool\n"
                 "\n"
                 "Shortcut: {0}",
                 "Show the information tool\n"
@@ -123,8 +137,10 @@ namespace tl
             const std::vector<Tool> out
             {
                 Tool::Files,
+                Tool::Export,
                 Tool::View,
-                Tool::Color,
+                Tool::ColorPicker,
+                Tool::ColorControls,
                 Tool::Info,
                 Tool::Audio,
                 Tool::Devices,

@@ -16,8 +16,10 @@ namespace tl
         {
             None,
             Files,
+            Export,
             View,
-            Color,
+            ColorPicker,
+            ColorControls,
             Info,
             Audio,
             Devices,

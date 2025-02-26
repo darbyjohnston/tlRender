@@ -15,6 +15,7 @@ namespace tl
     {
         struct Viewport::Private
         {
+            std::shared_ptr<dtk::ObservableValue<dtk::Color4F> > colorPicker;
             std::shared_ptr<dtk::ObservableValue<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
@@ -23,19 +24,11 @@ namespace tl
             std::shared_ptr<dtk::Label> fpsLabel;
             std::shared_ptr<dtk::Label> colorBufferLabel;
             std::shared_ptr<dtk::GridLayout> hudLayout;
-            struct ColorPicker
-            {
-                dtk::Color4F color;
-                dtk::V2I pos;
-                std::shared_ptr<ViewportColorWidget> widget;
-            };
-            std::vector<ColorPicker> colorPickers;
 
             enum class MouseMode
             {
                 None,
-                ColorPicker,
-                DragWidget
+                ColorPicker
             };
             struct MouseData
             {
@@ -58,6 +51,10 @@ namespace tl
             TimelineViewport::_init(context, parent);
             DTK_P();
 
+            _setMouseHoverEnabled(true);
+            _setMousePressEnabled(true);
+
+            p.colorPicker = dtk::ObservableValue<dtk::Color4F>::create();
             p.hud = dtk::ObservableValue<bool>::create(false);
 
             p.fpsLabel = dtk::Label::create(context);
@@ -109,11 +106,10 @@ namespace tl
                 observeColorPickers(),
                 [this](const std::vector<dtk::Color4F>& value)
                 {
-                    for (size_t i = 0; i < value.size() && i < _p->colorPickers.size(); ++i)
+                    if (!value.empty())
                     {
-                        _p->colorPickers[i].color = value[i];
+                        _p->colorPicker->setIfChanged(value.front());
                     }
-                    _colorWidgetsUpdate();
                 });
         }
 
@@ -131,6 +127,16 @@ namespace tl
             auto out = std::shared_ptr<Viewport>(new Viewport);
             out->_init(context, parent);
             return out;
+        }
+
+        const dtk::Color4F& Viewport::getColorPicker() const
+        {
+            return _p->colorPicker->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > Viewport::observeColorPicker() const
+        {
+            return _p->colorPicker;
         }
 
         bool Viewport::hasHUD() const
@@ -157,33 +163,6 @@ namespace tl
             TimelineViewport::setGeometry(value);
             DTK_P();
             p.hudLayout->setGeometry(value);
-            for (const auto& colorPicker : p.colorPickers)
-            {
-                dtk::Size2I sizeHint = colorPicker.widget->getSizeHint();
-                colorPicker.widget->setGeometry(dtk::Box2I(
-                    colorPicker.pos.x,
-                    colorPicker.pos.y,
-                    sizeHint.w,
-                    sizeHint.h));
-            }
-        }
-
-        void Viewport::childRemoveEvent(const dtk::ChildRemoveEvent& event)
-        {
-            TimelineViewport::childRemoveEvent(event);
-            DTK_P();
-            const auto i = std::find_if(
-                p.colorPickers.begin(),
-                p.colorPickers.end(),
-                [event](const Private::ColorPicker& value)
-                {
-                    return event.child == value.widget;
-                });
-            if (i != p.colorPickers.end())
-            {
-                p.colorPickers.erase(i);
-                _colorPickersUpdate();
-            }
         }
 
         void Viewport::sizeHintEvent(const dtk::SizeHintEvent& event)
@@ -200,22 +179,7 @@ namespace tl
             switch (p.mouse.mode)
             {
             case Private::MouseMode::ColorPicker:
-                if (!p.colorPickers.empty())
-                {
-                    p.colorPickers.back().pos = event.pos;
-                    _colorPickersUpdate();
-                    _setSizeUpdate();
-                    _setDrawUpdate();
-                }
-                break;
-            case Private::MouseMode::DragWidget:
-                if (p.mouse.index < p.colorPickers.size())
-                {
-                    p.colorPickers[p.mouse.index].pos = event.pos - p.mouse.offset;
-                    _colorPickersUpdate();
-                    _setSizeUpdate();
-                    _setDrawUpdate();
-                }
+                setColorPickers({ event.pos });
                 break;
             default: break;
             }
@@ -226,34 +190,12 @@ namespace tl
             TimelineViewport::mousePressEvent(event);
             DTK_P();
             takeKeyFocus();
-            if (0 == event.button)
-            {
-                for (size_t i = 0; i < p.colorPickers.size(); ++i)
-                {
-                    if (dtk::contains(p.colorPickers[i].widget->getGeometry(), event.pos))
-                    {
-                        p.mouse.mode = Private::MouseMode::DragWidget;
-                        p.mouse.index = i;
-                        p.mouse.offset = event.pos - p.colorPickers[i].widget->getGeometry().min;
-                    }
-                }
-            }
             if (Private::MouseMode::None == p.mouse.mode &&
                 0 == event.button &&
                 event.modifiers & static_cast<int>(dtk::KeyModifier::Shift))
             {
-                if (auto context = getContext())
-                {
-                    p.mouse.mode = Private::MouseMode::ColorPicker;
-                    p.colorPickers.push_back({
-                        dtk::Color4F(),
-                        event.pos,
-                        ViewportColorWidget::create(context, shared_from_this()) });
-                    _colorPickersUpdate();
-                    _colorWidgetsUpdate();
-                    _setSizeUpdate();
-                    _setDrawUpdate();
-                }
+                p.mouse.mode = Private::MouseMode::ColorPicker;
+                setColorPickers({ event.pos });
             }
         }
 
@@ -274,26 +216,6 @@ namespace tl
             p.colorBufferLabel->setText(
                 dtk::Format("Color buffer: {0}").
                 arg(p.colorBuffer));
-        }
-
-        void Viewport::_colorPickersUpdate()
-        {
-            DTK_P();
-            std::vector<dtk::V2I> colorPickers;
-            for (const auto& colorPicker : p.colorPickers)
-            {
-                colorPickers.push_back(colorPicker.pos);
-            }
-            setColorPickers(colorPickers);
-        }
-
-        void Viewport::_colorWidgetsUpdate()
-        {
-            DTK_P();
-            for (const auto& colorPicker : p.colorPickers)
-            {
-                colorPicker.widget->setColor(colorPicker.color);
-            }
         }
     }
 }

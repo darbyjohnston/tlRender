@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayApp/ColorTool.h>
+#include <tlPlayApp/ColorControlsTool.h>
 
 #include <tlPlay/OCIOModel.h>
 

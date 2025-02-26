@@ -28,6 +28,12 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the color picker.
+            const dtk::Color4F& getColorPicker() const;
+
+            //! Observe the color picker.
+            std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > observeColorPicker() const;
+
             //! Get whether the HUD is enabled.
             bool hasHUD() const;
 
@@ -38,7 +44,6 @@ namespace tl
             void setHUD(bool);
 
             void setGeometry(const dtk::Box2I&) override;
-            void childRemoveEvent(const dtk::ChildRemoveEvent&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void mouseMoveEvent(dtk::MouseMoveEvent&) override;
             void mousePressEvent(dtk::MouseClickEvent&) override;
@@ -46,8 +51,6 @@ namespace tl
 
         private:
             void _hudUpdate();
-            void _colorPickersUpdate();
-            void _colorWidgetsUpdate();
 
             DTK_PRIVATE();
         };

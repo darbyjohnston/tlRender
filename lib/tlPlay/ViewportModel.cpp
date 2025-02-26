@@ -14,6 +14,7 @@ namespace tl
         {
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::Settings> settings;
+            std::shared_ptr<dtk::ObservableValue<dtk::Color4F> > colorPicker;
             std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::DisplayOptions> > displayOptions;
         };
@@ -27,6 +28,7 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
+            p.colorPicker = dtk::ObservableValue<dtk::Color4F>::create();
             timeline::BackgroundOptions backgroundOptions;
             p.settings->getT("Viewport/Background", backgroundOptions);
             p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
@@ -48,6 +50,21 @@ namespace tl
             auto out = std::shared_ptr<ViewportModel>(new ViewportModel);
             out->_init(context, settings);
             return out;
+        }
+
+        const dtk::Color4F& ViewportModel::getColorPicker() const
+        {
+            return _p->colorPicker->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > ViewportModel::observeColorPicker() const
+        {
+            return _p->colorPicker;
+        }
+
+        void ViewportModel::setColorPicker(const dtk::Color4F& value)
+        {
+            _p->colorPicker->setIfChanged(value);
         }
 
         const timeline::DisplayOptions& ViewportModel::getDisplayOptions() const

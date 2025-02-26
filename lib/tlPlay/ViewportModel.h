@@ -39,6 +39,15 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<dtk::Settings>&);
 
+            //! Get the color picker.
+            const dtk::Color4F& getColorPicker() const;
+
+            //! Observe the color picker.
+            std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > observeColorPicker() const;
+
+            //! Set the color picker.
+            void setColorPicker(const dtk::Color4F&);
+
             //! Get the display options.
             const timeline::DisplayOptions& getDisplayOptions() const;
 

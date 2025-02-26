@@ -4,11 +4,13 @@ set(HEADERS
     AudioMenu.h
     AudioPopup.h
     AudioTool.h
-    ColorTool.h
+    ColorControlsTool.h
+    ColorPickerTool.h
     CompareActions.h
     CompareMenu.h
     CompareToolBar.h
     DevicesTool.h
+    ExportTool.h
     FileActions.h
     FileMenu.h
     FileToolBar.h
@@ -45,7 +47,7 @@ set(HEADERS
     WindowMenu.h
     WindowToolBar.h)
 set(HEADERS_PRIVATE
-    ColorToolPrivate.h
+    ColorControlsPrivate.h
     FilesToolPrivate.h
     SeparateAudioPrivate.h
     ViewToolPrivate.h)
@@ -56,11 +58,13 @@ set(SOURCE
     AudioMenu.cpp
     AudioPopup.cpp
     AudioTool.cpp
-    ColorTool.cpp
+    ColorControlsTool.cpp
+    ColorPickerTool.cpp
     CompareActions.cpp
     CompareMenu.cpp
     CompareToolBar.cpp
     DevicesTool.cpp
+    ExportTool.cpp
     FileActions.cpp
     FileButton.cpp
     FileMenu.cpp

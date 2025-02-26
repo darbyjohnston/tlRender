@@ -1,7 +1,8 @@
 set(HEADERS)
 set(SOURCE)
 set(RESOURCES
-    etc/Icons/Color.svg
+    etc/Icons/ColorControls.svg
+    etc/Icons/ColorPicker.svg
     etc/Icons/CompareA.svg
     etc/Icons/CompareB.svg
     etc/Icons/CompareDifference.svg
@@ -12,6 +13,7 @@ set(RESOURCES
     etc/Icons/CompareVertical.svg
     etc/Icons/CompareWipe.svg
     etc/Icons/Devices.svg
+    etc/Icons/Export.svg
     etc/Icons/FileOpenSeparateAudio.svg
     etc/Icons/Files.svg
     etc/Icons/Hidden.svg
