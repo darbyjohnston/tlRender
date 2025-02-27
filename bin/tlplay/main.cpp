@@ -29,7 +29,7 @@ DTK_MAIN()
         tl::timelineui::init(context);
         tl::device::init(context);
         auto args = dtk::convert(argc, argv);
-        auto app = tl::play_app::App::create(context, args);
+        auto app = tl::play::App::create(context, args);
         r = app->getExit();
         if (0 == r)
         {

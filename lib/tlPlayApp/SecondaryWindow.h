@@ -17,7 +17,7 @@ namespace tl
         class TimelineViewport;
     }
 
-    namespace play_app
+    namespace play
     {
         class App;
 

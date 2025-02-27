@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlay/SettingsModel.h>
+#include <tlPlayApp/Models/SettingsModel.h>
 
 #include <tlTimelineUI/Window.h>
 
@@ -19,12 +19,8 @@ namespace tl
 
     namespace play
     {
-        class Viewport;
-    }
-
-    namespace play_app
-    {
         class App;
+        class Viewport;
 
         //! Main window.
         class MainWindow : public timelineui::Window
@@ -47,7 +43,7 @@ namespace tl
                 const std::shared_ptr<App>&);
 
             //! Get the viewport.
-            const std::shared_ptr<play::Viewport>& getViewport() const;
+            const std::shared_ptr<Viewport>& getViewport() const;
 
             //! Get the timeline widget.
             const std::shared_ptr<timelineui::TimelineWidget>& getTimelineWidget() const;
@@ -66,7 +62,7 @@ namespace tl
             void _playerUpdate(const std::shared_ptr<timeline::Player>&);
             void _showSpeedPopup();
             void _showAudioPopup();
-            void _windowOptionsUpdate(const play::WindowOptions&);
+            void _windowOptionsUpdate(const WindowOptions&);
 
             DTK_PRIVATE();
         };

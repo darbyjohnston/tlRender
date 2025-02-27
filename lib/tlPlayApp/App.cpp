@@ -4,22 +4,21 @@
 
 #include <tlPlayApp/App.h>
 
+#include <tlPlayApp/Models/AudioModel.h>
+#include <tlPlayApp/Models/ColorModel.h>
+#include <tlPlayApp/Models/FilesModel.h>
+#include <tlPlayApp/Models/RecentFilesModel.h>
+#include <tlPlayApp/Models/RenderModel.h>
+#include <tlPlayApp/Models/TimeUnitsModel.h>
+#include <tlPlayApp/Models/ViewportModel.h>
+#if defined(TLRENDER_BMD)
+#include <tlPlayApp/Models/BMDDevicesModel.h>
+#endif // TLRENDER_BMD
+#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Widgets/SeparateAudioDialog.h>
+#include <tlPlayApp/Widgets/Viewport.h>
 #include <tlPlayApp/MainWindow.h>
 #include <tlPlayApp/SecondaryWindow.h>
-#include <tlPlayApp/SeparateAudioDialog.h>
-#include <tlPlayApp/Tools.h>
-#include <tlPlayApp/Viewport.h>
-
-#include <tlPlay/AudioModel.h>
-#include <tlPlay/ColorModel.h>
-#include <tlPlay/FilesModel.h>
-#include <tlPlay/RecentFilesModel.h>
-#include <tlPlay/RenderModel.h>
-#include <tlPlay/TimeUnitsModel.h>
-#include <tlPlay/ViewportModel.h>
-#if defined(TLRENDER_BMD)
-#include <tlPlay/BMDDevicesModel.h>
-#endif // TLRENDER_BMD
 
 #include <tlTimelineUI/ThumbnailSystem.h>
 
@@ -49,7 +48,7 @@
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
         struct Options
         {
@@ -85,18 +84,18 @@ namespace tl
             Options options;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::shared_ptr<dtk::Settings> settings;
-            std::shared_ptr<play::SettingsModel> settingsModel;
-            std::shared_ptr<play::TimeUnitsModel> timeUnitsModel;
-            std::shared_ptr<play::FilesModel> filesModel;
-            std::vector<std::shared_ptr<play::FilesModelItem> > files;
-            std::vector<std::shared_ptr<play::FilesModelItem> > activeFiles;
-            std::shared_ptr<play::RecentFilesModel> recentFilesModel;
+            std::shared_ptr<SettingsModel> settingsModel;
+            std::shared_ptr<TimeUnitsModel> timeUnitsModel;
+            std::shared_ptr<FilesModel> filesModel;
+            std::vector<std::shared_ptr<FilesModelItem> > files;
+            std::vector<std::shared_ptr<FilesModelItem> > activeFiles;
+            std::shared_ptr<RecentFilesModel> recentFilesModel;
             std::vector<std::shared_ptr<timeline::Timeline> > timelines;
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > player;
-            std::shared_ptr<play::ColorModel> colorModel;
-            std::shared_ptr<play::ViewportModel> viewportModel;
-            std::shared_ptr<play::RenderModel> renderModel;
-            std::shared_ptr<play::AudioModel> audioModel;
+            std::shared_ptr<ColorModel> colorModel;
+            std::shared_ptr<ViewportModel> viewportModel;
+            std::shared_ptr<RenderModel> renderModel;
+            std::shared_ptr<AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
             std::shared_ptr<dtk::ObservableValue<bool> > secondaryWindowActive;
@@ -106,14 +105,14 @@ namespace tl
 
             bool bmdDeviceActive = false;
 #if defined(TLRENDER_BMD)
-            std::shared_ptr<play::BMDDevicesModel> bmdDevicesModel;
+            std::shared_ptr<BMDDevicesModel> bmdDevicesModel;
             std::shared_ptr<bmd::OutputDevice> bmdOutputDevice;
             dtk::VideoLevels bmdOutputVideoLevels = dtk::VideoLevels::LegalRange;
 #endif // TLRENDER_BMD
 
-            std::shared_ptr<dtk::ValueObserver<play::CacheOptions> > cacheObserver;
-            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > filesObserver;
-            std::shared_ptr<dtk::ListObserver<std::shared_ptr<play::FilesModelItem> > > activeObserver;
+            std::shared_ptr<dtk::ValueObserver<CacheOptions> > cacheObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
@@ -121,7 +120,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<dtk::ValueObserver<play::StyleOptions> > styleObserver;
+            std::shared_ptr<dtk::ValueObserver<StyleOptions> > styleObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > tooltipsObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
@@ -209,7 +208,7 @@ namespace tl
             pathOptions.maxNumberDigits = p.settingsModel->getFileSequence().maxDigits;
             for (const auto& i : timeline::getPaths(_context, path, pathOptions))
             {
-                auto item = std::make_shared<play::FilesModelItem>();
+                auto item = std::make_shared<FilesModelItem>();
                 item->path = i;
                 item->audioPath = audioPath;
                 p.filesModel->add(item);
@@ -217,22 +216,22 @@ namespace tl
             }
         }
 
-        const std::shared_ptr<play::SettingsModel>& App::getSettingsModel() const
+        const std::shared_ptr<SettingsModel>& App::getSettingsModel() const
         {
             return _p->settingsModel;
         }
 
-        const std::shared_ptr<play::TimeUnitsModel>& App::getTimeUnitsModel() const
+        const std::shared_ptr<TimeUnitsModel>& App::getTimeUnitsModel() const
         {
             return _p->timeUnitsModel;
         }
 
-        const std::shared_ptr<play::FilesModel>& App::getFilesModel() const
+        const std::shared_ptr<FilesModel>& App::getFilesModel() const
         {
             return _p->filesModel;
         }
 
-        const std::shared_ptr<play::RecentFilesModel>& App::getRecentFilesModel() const
+        const std::shared_ptr<RecentFilesModel>& App::getRecentFilesModel() const
         {
             return _p->recentFilesModel;
         }
@@ -276,22 +275,22 @@ namespace tl
             return _p->player;
         }
 
-        const std::shared_ptr<play::ColorModel>& App::getColorModel() const
+        const std::shared_ptr<ColorModel>& App::getColorModel() const
         {
             return _p->colorModel;
         }
 
-        const std::shared_ptr<play::ViewportModel>& App::getViewportModel() const
+        const std::shared_ptr<ViewportModel>& App::getViewportModel() const
         {
             return _p->viewportModel;
         }
 
-        const std::shared_ptr<play::RenderModel>& App::getRenderModel() const
+        const std::shared_ptr<RenderModel>& App::getRenderModel() const
         {
             return _p->renderModel;
         }
 
-        const std::shared_ptr<play::AudioModel>& App::getAudioModel() const
+        const std::shared_ptr<AudioModel>& App::getAudioModel() const
         {
             return _p->audioModel;
         }
@@ -371,7 +370,7 @@ namespace tl
         }
 
 #if defined(TLRENDER_BMD)
-        const std::shared_ptr<play::BMDDevicesModel>& App::getBMDDevicesModel() const
+        const std::shared_ptr<BMDDevicesModel>& App::getBMDDevicesModel() const
         {
             return _p->bmdDevicesModel;
         }
@@ -419,23 +418,23 @@ namespace tl
         {
             DTK_P();
 
-            p.settingsModel = play::SettingsModel::create(_context, p.settings);
+            p.settingsModel = SettingsModel::create(_context, p.settings);
 
-            p.timeUnitsModel = play::TimeUnitsModel::create(_context, p.settings);
+            p.timeUnitsModel = TimeUnitsModel::create(_context, p.settings);
             
-            p.filesModel = play::FilesModel::create(_context);
+            p.filesModel = FilesModel::create(_context);
 
-            p.recentFilesModel = play::RecentFilesModel::create(_context, p.settings);
+            p.recentFilesModel = RecentFilesModel::create(_context, p.settings);
 
-            p.colorModel = play::ColorModel::create(_context);
+            p.colorModel = ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
-            p.viewportModel = play::ViewportModel::create(_context, p.settings);
+            p.viewportModel = ViewportModel::create(_context, p.settings);
 
-            p.renderModel = play::RenderModel::create(_context, p.settings);
+            p.renderModel = RenderModel::create(_context, p.settings);
 
-            p.audioModel = play::AudioModel::create(_context, p.settings);
+            p.audioModel = AudioModel::create(_context, p.settings);
 
             p.toolsModel = ToolsModel::create();
         }
@@ -445,7 +444,7 @@ namespace tl
             DTK_P();
 #if defined(TLRENDER_BMD)
             p.bmdOutputDevice = bmd::OutputDevice::create(_context);
-            p.bmdDevicesModel = play::BMDDevicesModel::create(_context, p.settings);
+            p.bmdDevicesModel = BMDDevicesModel::create(_context, p.settings);
 #endif // TLRENDER_BMD
         }
 
@@ -455,22 +454,22 @@ namespace tl
 
             p.player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
 
-            p.cacheObserver = dtk::ValueObserver<play::CacheOptions>::create(
+            p.cacheObserver = dtk::ValueObserver<CacheOptions>::create(
                 p.settingsModel->observeCache(),
-                [this](const play::CacheOptions& value)
+                [this](const CacheOptions& value)
                 {
                     _cacheUpdate(value);
                 });
 
-            p.filesObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 p.filesModel->observeFiles(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
                 {
                     _filesUpdate(value);
                 });
-            p.activeObserver = dtk::ListObserver<std::shared_ptr<play::FilesModelItem> >::create(
+            p.activeObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 p.filesModel->observeActive(),
-                [this](const std::vector<std::shared_ptr<play::FilesModelItem> >& value)
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
                 {
                     _activeUpdate(value);
                 });
@@ -524,9 +523,9 @@ namespace tl
                     _audioUpdate();
                 });
 
-            p.styleObserver = dtk::ValueObserver<play::StyleOptions>::create(
+            p.styleObserver = dtk::ValueObserver<StyleOptions>::create(
                 p.settingsModel->observeStyle(),
-                [this](const play::StyleOptions& value)
+                [this](const StyleOptions& value)
                 {
                     setColorStyle(value.colorStyle);
                     setDisplayScale(value.displayScale);
@@ -906,7 +905,7 @@ namespace tl
             return out;
         }
 
-        void App::_filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& files)
+        void App::_filesUpdate(const std::vector<std::shared_ptr<FilesModelItem> >& files)
         {
             DTK_P();
 
@@ -927,11 +926,11 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        const play::FileSequenceOptions fileSequence = p.settingsModel->getFileSequence();
+                        const FileSequenceOptions fileSequence = p.settingsModel->getFileSequence();
                         options.fileSequenceAudio = fileSequence.audio;
                         options.fileSequenceAudioFileName = fileSequence.audioFileName;
                         options.fileSequenceAudioDirectory = fileSequence.audioDirectory;
-                        const play::PerformanceOptions performance = p.settingsModel->getPerformance();
+                        const PerformanceOptions performance = p.settingsModel->getPerformance();
                         options.videoRequestCount = performance.videoRequestCount;
                         options.audioRequestCount = performance.audioRequestCount;
                         options.ioOptions = _getIOOptions();
@@ -956,7 +955,7 @@ namespace tl
             p.timelines = timelines;
         }
 
-        void App::_activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >& activeFiles)
+        void App::_activeUpdate(const std::vector<std::shared_ptr<FilesModelItem> >& activeFiles)
         {
             DTK_P();
 
@@ -1063,7 +1062,7 @@ namespace tl
             }
         }
 
-        void App::_cacheUpdate(const play::CacheOptions& options)
+        void App::_cacheUpdate(const CacheOptions& options)
         {
             DTK_P();
 

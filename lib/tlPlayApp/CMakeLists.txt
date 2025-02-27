@@ -1,112 +1,171 @@
+set(HEADERS_ACTIONS
+    Actions/AudioActions.h
+    Actions/CompareActions.h
+    Actions/FileActions.h
+    Actions/FrameActions.h
+    Actions/PlaybackActions.h
+    Actions/RenderActions.h
+    Actions/TimelineActions.h
+    Actions/ToolsActions.h
+    Actions/ViewActions.h
+    Actions/WindowActions.h)
+set(HEADERS_MENUS
+    Menus/AudioMenu.h
+    Menus/CompareMenu.h
+    Menus/FileMenu.h
+    Menus/FrameMenu.h
+    Menus/PlaybackMenu.h
+    Menus/RenderMenu.h
+    Menus/TimelineMenu.h
+    Menus/ToolsMenu.h
+    Menus/ViewMenu.h
+    Menus/WindowMenu.h)
+set(HEADERS_MODELS
+    Models/AudioModel.h
+    Models/ColorModel.h
+    Models/FilesModel.h
+    Models/OCIOModel.h
+    Models/RecentFilesModel.h
+    Models/RenderModel.h
+    Models/SettingsModel.h
+    Models/TimeUnitsModel.h
+    Models/ViewportModel.h)
+if(TLRENDER_BMD)
+    list(APPEND HEADERS_MODELS Models/BMDDevicesModel.h)
+endif()
+set(HEADERS_TOOLS
+    Tools/AudioTool.h
+    Tools/ColorControlsTool.h
+    Tools/ColorPickerTool.h
+    Tools/DevicesTool.h
+    Tools/ExportTool.h
+    Tools/FilesTool.h
+    Tools/InfoTool.h
+    Tools/MessagesTool.h
+    Tools/SettingsTool.h
+    Tools/SystemLogTool.h
+    Tools/ViewTool.h)
+set(HEADERS_PRIVATE_TOOLS
+    Tools/ColorControlsPrivate.h
+    Tools/FilesToolPrivate.h
+    Tools/IToolWidget.h
+    Tools/SettingsToolPrivate.h
+    Tools/Tools.h
+    Tools/ToolsWidget.h
+    Tools/ViewToolPrivate.h)
+set(HEADERS_WIDGETS
+    Widgets/AudioPopup.h
+    Widgets/CompareToolBar.h
+    Widgets/FileToolBar.h
+    Widgets/SeparateAudioDialog.h
+    Widgets/SpeedPopup.h
+    Widgets/StatusBar.h
+    Widgets/ToolsToolBar.h
+    Widgets/ViewToolBar.h
+    Widgets/Viewport.h
+    Widgets/WindowToolBar.h)
+set(HEADERS_PRIVATE_WIDGETS
+    Widgets/SeparateAudioPrivate.h)
 set(HEADERS
     App.h
-    AudioActions.h
-    AudioMenu.h
-    AudioPopup.h
-    AudioTool.h
-    ColorControlsTool.h
-    ColorPickerTool.h
-    CompareActions.h
-    CompareMenu.h
-    CompareToolBar.h
-    DevicesTool.h
-    ExportTool.h
-    FileActions.h
-    FileMenu.h
-    FileToolBar.h
-    FilesTool.h
-    FrameActions.h
-    FrameMenu.h
-    IToolWidget.h
-    InfoTool.h
     MainWindow.h
-    MessagesTool.h
-    PlaybackActions.h
-    PlaybackMenu.h
-    RenderActions.h
-    RenderMenu.h
-    SeparateAudioDialog.h
-    SpeedPopup.h
     SecondaryWindow.h
-    SettingsTool.h
-    SettingsToolPrivate.h
-    StatusBar.h
-    SystemLogTool.h
-    TimelineActions.h
-    TimelineMenu.h
-    Tools.h
-    ToolsActions.h
-    ToolsMenu.h
-    ToolsToolBar.h
-    ToolsWidget.h
-    ViewActions.h
-    ViewMenu.h
-    ViewToolBar.h
-    ViewTool.h
-    Viewport.h
-    WindowActions.h
-    WindowMenu.h
-    WindowToolBar.h)
+    ${HEADERS_ACTIONS}
+    ${HEADERS_MENUS}
+    ${HEADERS_MODELS}
+    ${HEADERS_TOOLS}
+    ${HEADERS_WIDGETS})
 set(HEADERS_PRIVATE
-    ColorControlsPrivate.h
-    FilesToolPrivate.h
-    SeparateAudioPrivate.h
-    ViewToolPrivate.h)
+    ${HEADERS_PRIVATE_TOOLS}
+    ${HEADERS_PRIVATE_WIDGETS})
 
+set(SOURCE_ACTIONS
+    Actions/AudioActions.cpp
+    Actions/CompareActions.cpp
+    Actions/FileActions.cpp
+    Actions/FrameActions.cpp
+    Actions/PlaybackActions.cpp
+    Actions/RenderActions.cpp
+    Actions/TimelineActions.cpp
+    Actions/ToolsActions.cpp
+    Actions/ViewActions.cpp
+    Actions/WindowActions.cpp)
+set(SOURCE_MENUS
+    Menus/AudioMenu.cpp
+    Menus/CompareMenu.cpp
+    Menus/FileMenu.cpp
+    Menus/FrameMenu.cpp
+    Menus/PlaybackMenu.cpp
+    Menus/RenderMenu.cpp
+    Menus/TimelineMenu.cpp
+    Menus/ToolsMenu.cpp
+    Menus/ViewMenu.cpp
+    Menus/WindowMenu.cpp)
+set(SOURCE_MODELS
+    Models/AudioModel.cpp
+    Models/ColorModel.cpp
+    Models/FilesModel.cpp
+    Models/OCIOModel.cpp
+    Models/RecentFilesModel.cpp
+    Models/RenderModel.cpp
+    Models/SettingsModel.cpp
+    Models/TimeUnitsModel.cpp
+    Models/ViewportModel.cpp)
+if(TLRENDER_BMD)
+    list(APPEND SOURCE_MODELS Models/BMDDevicesModel.cpp)
+endif()
+set(SOURCE_TOOLS
+    Tools/AudioTool.cpp
+    Tools/ColorControlsTool.cpp
+    Tools/ColorPickerTool.cpp
+    Tools/DevicesTool.cpp
+    Tools/ExportTool.cpp
+    Tools/FileButton.cpp
+    Tools/FilesTool.cpp
+    Tools/IToolWidget.cpp
+    Tools/InfoTool.cpp
+    Tools/MessagesTool.cpp
+    Tools/SettingsTool.cpp
+    Tools/SystemLogTool.cpp
+    Tools/Tools.cpp
+    Tools/ToolsWidget.cpp
+    Tools/ViewTool.cpp)
+set(SOURCE_WIDGETS
+    Widgets/AudioPopup.cpp
+    Widgets/CompareToolBar.cpp
+    Widgets/FileToolBar.cpp
+    Widgets/SeparateAudioDialog.cpp
+    Widgets/SeparateAudioWidget.cpp
+    Widgets/SpeedPopup.cpp
+    Widgets/StatusBar.cpp
+    Widgets/ToolsToolBar.cpp
+    Widgets/ViewToolBar.cpp
+    Widgets/Viewport.cpp
+    Widgets/WindowToolBar.cpp)
 set(SOURCE
     App.cpp
-    AudioActions.cpp
-    AudioMenu.cpp
-    AudioPopup.cpp
-    AudioTool.cpp
-    ColorControlsTool.cpp
-    ColorPickerTool.cpp
-    CompareActions.cpp
-    CompareMenu.cpp
-    CompareToolBar.cpp
-    DevicesTool.cpp
-    ExportTool.cpp
-    FileActions.cpp
-    FileButton.cpp
-    FileMenu.cpp
-    FileToolBar.cpp
-    FilesTool.cpp
-    FrameActions.cpp
-    FrameMenu.cpp
-    IToolWidget.cpp
-    InfoTool.cpp
     MainWindow.cpp
-    MessagesTool.cpp
-    PlaybackActions.cpp
-    PlaybackMenu.cpp
-    RenderActions.cpp
-    RenderMenu.cpp
-    SeparateAudioDialog.cpp
-    SeparateAudioWidget.cpp
-    SpeedPopup.cpp
     SecondaryWindow.cpp
-    SettingsTool.cpp
-    StatusBar.cpp
-    SystemLogTool.cpp
-    TimelineActions.cpp
-    TimelineMenu.cpp
-    Tools.cpp
-    ToolsActions.cpp
-    ToolsMenu.cpp
-    ToolsToolBar.cpp
-    ToolsWidget.cpp
-    ViewActions.cpp
-    ViewMenu.cpp
-    ViewToolBar.cpp
-    ViewTool.cpp
-    Viewport.cpp
-    WindowActions.cpp
-    WindowMenu.cpp
-    WindowToolBar.cpp)
+    ${SOURCE_ACTIONS}
+    ${SOURCE_MENUS}
+    ${SOURCE_MODELS}
+    ${SOURCE_TOOLS}
+    ${SOURCE_WIDGETS})
+
+source_group("Actions Header Files" FILES ${HEADERS_ACTIONS})
+source_group("Actions Source Files" FILES ${SOURCE_ACTIONS})
+source_group("Menus Header Files" FILES ${HEADERS_MENUS})
+source_group("Menus Source Files" FILES ${SOURCE_MENUS})
+source_group("Models Header Files" FILES ${HEADERS_Models})
+source_group("Models Source Files" FILES ${SOURCE_Models})
+source_group("Tools Header Files" FILES ${HEADERS_TOOLS} ${HEADERS_PRIVATE_TOOLS})
+source_group("Tools Source Files" FILES ${SOURCE_TOOLS})
+source_group("Widgets Header Files" FILES ${HEADERS_WIDGETS} ${HEADERS_PRIVATE_WIDGETS})
+source_group("Widgets Source Files" FILES ${SOURCE_WIDGETS})
 
 add_library(tlPlayApp ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlPlayApp tlPlay)
-set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
+target_link_libraries(tlPlayApp tlTimelineUI tlDevice)
+#set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlPlayApp

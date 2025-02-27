@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlay/SettingsModel.h>
+#include <tlPlayApp/Models/SettingsModel.h>
 
 #include <tlTimeline/Player.h>
 
@@ -26,6 +26,7 @@ namespace tl
     }
 #endif // TLRENDER_BMD
 
+    //! tlplay application
     namespace play
     {
         struct FilesModelItem;
@@ -33,22 +34,16 @@ namespace tl
         class AudioModel;
         class ColorModel;
         class FilesModel;
+        class MainWindow;
         class RecentFilesModel;
         class RenderModel;
         class SettingsModel;
         class TimeUnitsModel;
+        class ToolsModel;
         class ViewportModel;
-
 #if defined(TLRENDER_BMD)
         class BMDDevicesModel;
 #endif // TLRENDER_BMD
-    }
-
-    //! tlplay application
-    namespace play_app
-    {
-        class MainWindow;
-        class ToolsModel;
 
         //! Application.
         class App : public dtk::App
@@ -82,16 +77,16 @@ namespace tl
             void openSeparateAudioDialog();
 
             //! Get the settings model.
-            const std::shared_ptr<play::SettingsModel>& getSettingsModel() const;
+            const std::shared_ptr<SettingsModel>& getSettingsModel() const;
 
             //! Get the time units model.
-            const std::shared_ptr<play::TimeUnitsModel>& getTimeUnitsModel() const;
+            const std::shared_ptr<TimeUnitsModel>& getTimeUnitsModel() const;
 
             //! Get the files model.
-            const std::shared_ptr<play::FilesModel>& getFilesModel() const;
+            const std::shared_ptr<FilesModel>& getFilesModel() const;
 
             //! Get the recent files model.
-            const std::shared_ptr<play::RecentFilesModel>& getRecentFilesModel() const;
+            const std::shared_ptr<RecentFilesModel>& getRecentFilesModel() const;
 
             //! Reload the active files.
             void reload();
@@ -100,16 +95,16 @@ namespace tl
             std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
 
             //! Get the color model.
-            const std::shared_ptr<play::ColorModel>& getColorModel() const;
+            const std::shared_ptr<ColorModel>& getColorModel() const;
 
             //! Get the viewport model.
-            const std::shared_ptr<play::ViewportModel>& getViewportModel() const;
+            const std::shared_ptr<ViewportModel>& getViewportModel() const;
 
             //! Get the render model.
-            const std::shared_ptr<play::RenderModel>& getRenderModel() const;
+            const std::shared_ptr<RenderModel>& getRenderModel() const;
 
             //! Get the audio model.
-            const std::shared_ptr<play::AudioModel>& getAudioModel() const;
+            const std::shared_ptr<AudioModel>& getAudioModel() const;
 
             //! Get the tools model.
             const std::shared_ptr<ToolsModel>& getToolsModel() const;
@@ -125,7 +120,7 @@ namespace tl
 
 #if defined(TLRENDER_BMD)
             //! Get the BMD devices model.
-            const std::shared_ptr<play::BMDDevicesModel>& getBMDDevicesModel() const;
+            const std::shared_ptr<BMDDevicesModel>& getBMDDevicesModel() const;
 
             //! Get the BMD output device.
             const std::shared_ptr<bmd::OutputDevice>& getBMDOutputDevice() const;
@@ -154,10 +149,10 @@ namespace tl
             std::vector<std::shared_ptr<dtk::ICmdLineOption> > _getCmdLineOptions();
             io::Options _getIOOptions() const;
 
-            void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
-            void _activeUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);
+            void _filesUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
+            void _activeUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
-            void _cacheUpdate(const play::CacheOptions&);
+            void _cacheUpdate(const CacheOptions&);
             void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 

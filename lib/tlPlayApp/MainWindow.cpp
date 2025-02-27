@@ -5,44 +5,42 @@
 
 #include <tlPlayApp/MainWindow.h>
 
+#include <tlPlayApp/Actions/AudioActions.h>
+#include <tlPlayApp/Actions/CompareActions.h>
+#include <tlPlayApp/Actions/FileActions.h>
+#include <tlPlayApp/Actions/FrameActions.h>
+#include <tlPlayApp/Actions/PlaybackActions.h>
+#include <tlPlayApp/Actions/RenderActions.h>
+#include <tlPlayApp/Actions/TimelineActions.h>
+#include <tlPlayApp/Actions/ToolsActions.h>
+#include <tlPlayApp/Actions/ViewActions.h>
+#include <tlPlayApp/Actions/WindowActions.h>
+#include <tlPlayApp/Menus/AudioMenu.h>
+#include <tlPlayApp/Menus/CompareMenu.h>
+#include <tlPlayApp/Menus/FileMenu.h>
+#include <tlPlayApp/Menus/FrameMenu.h>
+#include <tlPlayApp/Menus/PlaybackMenu.h>
+#include <tlPlayApp/Menus/RenderMenu.h>
+#include <tlPlayApp/Menus/TimelineMenu.h>
+#include <tlPlayApp/Menus/ToolsMenu.h>
+#include <tlPlayApp/Menus/ViewMenu.h>
+#include <tlPlayApp/Menus/WindowMenu.h>
+#include <tlPlayApp/Models/AudioModel.h>
+#include <tlPlayApp/Models/ColorModel.h>
+#include <tlPlayApp/Models/RenderModel.h>
+#include <tlPlayApp/Models/TimeUnitsModel.h>
+#include <tlPlayApp/Models/ViewportModel.h>
+#include <tlPlayApp/Tools/ToolsWidget.h>
+#include <tlPlayApp/Widgets/AudioPopup.h>
+#include <tlPlayApp/Widgets/CompareToolBar.h>
+#include <tlPlayApp/Widgets/FileToolBar.h>
+#include <tlPlayApp/Widgets/SpeedPopup.h>
+#include <tlPlayApp/Widgets/StatusBar.h>
+#include <tlPlayApp/Widgets/ToolsToolBar.h>
+#include <tlPlayApp/Widgets/ViewToolBar.h>
+#include <tlPlayApp/Widgets/Viewport.h>
+#include <tlPlayApp/Widgets/WindowToolBar.h>
 #include <tlPlayApp/App.h>
-#include <tlPlayApp/AudioActions.h>
-#include <tlPlayApp/AudioMenu.h>
-#include <tlPlayApp/AudioPopup.h>
-#include <tlPlayApp/CompareActions.h>
-#include <tlPlayApp/CompareMenu.h>
-#include <tlPlayApp/CompareToolBar.h>
-#include <tlPlayApp/FileActions.h>
-#include <tlPlayApp/FileMenu.h>
-#include <tlPlayApp/FileToolBar.h>
-#include <tlPlayApp/FrameActions.h>
-#include <tlPlayApp/FrameMenu.h>
-#include <tlPlayApp/PlaybackActions.h>
-#include <tlPlayApp/PlaybackMenu.h>
-#include <tlPlayApp/RenderActions.h>
-#include <tlPlayApp/RenderMenu.h>
-#include <tlPlayApp/SpeedPopup.h>
-#include <tlPlayApp/StatusBar.h>
-#include <tlPlayApp/TimelineActions.h>
-#include <tlPlayApp/TimelineMenu.h>
-#include <tlPlayApp/ToolsActions.h>
-#include <tlPlayApp/ToolsMenu.h>
-#include <tlPlayApp/ToolsToolBar.h>
-#include <tlPlayApp/ToolsWidget.h>
-#include <tlPlayApp/ViewActions.h>
-#include <tlPlayApp/ViewMenu.h>
-#include <tlPlayApp/ViewToolBar.h>
-#include <tlPlayApp/Viewport.h>
-#include <tlPlayApp/WindowActions.h>
-#include <tlPlayApp/WindowMenu.h>
-#include <tlPlayApp/WindowMenu.h>
-#include <tlPlayApp/WindowToolBar.h>
-
-#include <tlPlay/AudioModel.h>
-#include <tlPlay/ColorModel.h>
-#include <tlPlay/RenderModel.h>
-#include <tlPlay/TimeUnitsModel.h>
-#include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimeEdit.h>
 #include <tlTimelineUI/TimeLabel.h>
@@ -70,18 +68,18 @@
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
 
         struct MainWindow::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<play::SettingsModel> settingsModel;
+            std::shared_ptr<SettingsModel> settingsModel;
             std::shared_ptr<dtk::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
             std::shared_ptr<timeline::Player> player;
 
-            std::shared_ptr<play::Viewport> viewport;
+            std::shared_ptr<Viewport> viewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<FileActions> fileActions;
             std::shared_ptr<CompareActions> compareActions;
@@ -141,7 +139,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<dtk::ValueObserver<play::WindowOptions> > windowOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<WindowOptions> > windowOptionsObserver;
         };
 
         void MainWindow::_init(
@@ -162,11 +160,11 @@ namespace tl
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
-            p.viewport = play::Viewport::create(context);
+            p.viewport = Viewport::create(context);
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
-            const play::TimelineOptions timelineOptions = p.settingsModel->getTimeline();
+            const TimelineOptions timelineOptions = p.settingsModel->getTimeline();
             p.timelineWidget->setEditable(timelineOptions.editable);
             p.timelineWidget->setFrameView(timelineOptions.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
@@ -568,9 +566,9 @@ namespace tl
                     _p->muteButton->setChecked(value);
                 });
 
-            p.windowOptionsObserver = dtk::ValueObserver<play::WindowOptions>::create(
+            p.windowOptionsObserver = dtk::ValueObserver<WindowOptions>::create(
                 p.settingsModel->observeWindow(),
-                [this](const play::WindowOptions& value)
+                [this](const WindowOptions& value)
                 {
                     _windowOptionsUpdate(value);
                 });
@@ -604,7 +602,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<play::Viewport>& MainWindow::getViewport() const
+        const std::shared_ptr<Viewport>& MainWindow::getViewport() const
         {
             return _p->viewport;
         }
@@ -775,7 +773,7 @@ namespace tl
             }
         }
 
-        void MainWindow::_windowOptionsUpdate(const play::WindowOptions& options)
+        void MainWindow::_windowOptionsUpdate(const WindowOptions& options)
         {
             DTK_P();
             p.fileToolBar->setVisible(options.fileToolBar);

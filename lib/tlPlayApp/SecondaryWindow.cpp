@@ -4,18 +4,17 @@
 
 #include <tlPlayApp/SecondaryWindow.h>
 
+#include <tlPlayApp/Models/ColorModel.h>
+#include <tlPlayApp/Models/FilesModel.h>
+#include <tlPlayApp/Models/RenderModel.h>
+#include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
-
-#include <tlPlay/ColorModel.h>
-#include <tlPlay/FilesModel.h>
-#include <tlPlay/RenderModel.h>
-#include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimelineViewport.h>
 
 namespace tl
 {
-    namespace play_app
+    namespace play
     {
         struct SecondaryWindow::Private
         {

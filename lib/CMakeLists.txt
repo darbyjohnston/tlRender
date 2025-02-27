@@ -1,7 +1,6 @@
 add_subdirectory(tlCore)
 add_subdirectory(tlDevice)
 add_subdirectory(tlIO)
-add_subdirectory(tlPlay)
 add_subdirectory(tlResource)
 add_subdirectory(tlTimeline)
 add_subdirectory(tlTimelineUI)
