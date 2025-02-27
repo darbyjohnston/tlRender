@@ -34,6 +34,7 @@ namespace tl
             std::shared_ptr<dtk::FloatEditSlider> wipeXSlider;
             std::shared_ptr<dtk::FloatEditSlider> wipeYSlider;
             std::shared_ptr<dtk::FloatEditSlider> wipeRotationSlider;
+            std::shared_ptr<dtk::Label> wipeLabel;
             std::shared_ptr<dtk::FloatEditSlider> overlaySlider;
             std::shared_ptr<dtk::FormLayout> compareLayout;
             std::shared_ptr<dtk::GridLayout> widgetLayout;
@@ -94,8 +95,10 @@ namespace tl
             dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
 
             auto bellows = dtk::Bellows::create(context, "Compare", layout);
-            p.compareLayout = dtk::FormLayout::create(context);
-            p.compareLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            auto vLayout = dtk::VerticalLayout::create(context);
+            vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.compareLayout = dtk::FormLayout::create(context, vLayout);
             p.compareLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.compareLayout->addRow("Mode:", p.compareComboBox);
             p.compareLayout->addRow("Time:", p.compareTimeComboBox);
@@ -103,7 +106,8 @@ namespace tl
             p.compareLayout->addRow("Y:", p.wipeYSlider);
             p.compareLayout->addRow("Rotation:", p.wipeRotationSlider);
             p.compareLayout->addRow("Amount:", p.overlaySlider);
-            bellows->setWidget(p.compareLayout);
+            p.wipeLabel = dtk::Label::create(context, "Alt+click in the viewport to move wipe", vLayout);
+            bellows->setWidget(vLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
             scrollWidget->setBorder(false);
@@ -365,6 +369,7 @@ namespace tl
             p.compareLayout->setRowVisible(p.wipeXSlider, value.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.wipeYSlider, value.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.wipeRotationSlider, value.mode == timeline::CompareMode::Wipe);
+            p.wipeLabel->setVisible(value.mode == timeline::CompareMode::Wipe);
             p.compareLayout->setRowVisible(p.overlaySlider, value.mode == timeline::CompareMode::Overlay);
         }
     }

@@ -60,11 +60,11 @@ namespace tl
             p.app = app;
 
             p.logLabel = dtk::Label::create(context);
-            p.logLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.logLabel->setMarginRole(dtk::SizeRole::MarginSmall, dtk::SizeRole::MarginInside);
             p.logLabel->setHStretch(dtk::Stretch::Expanding);
 
             p.infoLabel = dtk::Label::create(context);
-            p.infoLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.infoLabel->setMarginRole(dtk::SizeRole::MarginSmall, dtk::SizeRole::MarginInside);
 
 #if defined(TLRENDER_BMD)
             p.deviceActiveIcon = dtk::Icon::create(context, "Devices");
@@ -72,7 +72,7 @@ namespace tl
 #endif // TLRENDER_BMD
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::None);
             p.logLabel->setParent(p.layout);
             dtk::Divider::create(context, dtk::Orientation::Horizontal, p.layout);
             p.infoLabel->setParent(p.layout);

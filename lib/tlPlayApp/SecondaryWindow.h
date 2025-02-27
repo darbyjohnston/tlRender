@@ -14,7 +14,7 @@ namespace tl
 {
     namespace timelineui
     {
-        class TimelineViewport;
+        class Viewport;
     }
 
     namespace play
@@ -43,7 +43,7 @@ namespace tl
                 const std::shared_ptr<dtk::Window>& shared = nullptr);
 
             //! Get the viewport.
-            const std::shared_ptr<timelineui::TimelineViewport>& getViewport() const;
+            const std::shared_ptr<timelineui::Viewport>& getViewport() const;
 
             //! Set the view.
             void setView(

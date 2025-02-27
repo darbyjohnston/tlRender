@@ -2,11 +2,12 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#include "MainWindow.h"
+
 #include <tlQtWidget/Init.h>
-#include <tlQtWidget/TimelineViewport.h>
 
 #include <tlQt/ContextObject.h>
-#include <tlQt/TimelinePlayer.h>
+#include <tlQt/PlayerObject.h>
 
 #include <dtk/core/Context.h>
 
@@ -46,19 +47,15 @@ int main(int argc, char* argv[])
         auto timeline = tl::timeline::Timeline::create(context, argv[1]);
 
         // Create the timeline player.
-        QSharedPointer<tl::qt::TimelinePlayer> player(
-            new tl::qt::TimelinePlayer(
-                context,
-                tl::timeline::Player::create(context, timeline)));
-
-        // Create the timeline viewport.
-        auto timelineViewport = new tl::qtwidget::TimelineViewport(
+        QSharedPointer<tl::qt::PlayerObject> player(new tl::qt::PlayerObject(
             context,
-            dtk::Style::create(context));
-        timelineViewport->setPlayer(player);
-        timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
-        timelineViewport->resize(1280, 720);
-        timelineViewport->show();
+            tl::timeline::Player::create(context, timeline)));
+
+        // Create the main window.
+        auto mainWindow = new tl::examples::player_qtwidget::MainWindow(context);
+        mainWindow->setPlayer(player);
+        mainWindow->resize(1280, 720);
+        mainWindow->show();
 
         // Start playback.
         player->setPlayback(tl::timeline::Playback::Forward);

@@ -5,8 +5,8 @@
 #pragma once
 
 #include <tlQt/ContextObject.h>
+#include <tlQt/PlayerObject.h>
 #include <tlQt/TimeObject.h>
-#include <tlQt/TimelinePlayer.h>
 
 #include <dtk/core/IApp.h>
 
@@ -40,7 +40,7 @@ namespace tl
                 QScopedPointer<qt::ContextObject> _contextObject;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 QScopedPointer<qt::TimeObject> _timeObject;
-                QScopedPointer<qt::TimelinePlayer> _timelinePlayer;
+                QScopedPointer<qt::PlayerObject> _player;
 
                 QScopedPointer<QQmlApplicationEngine> _qmlEngine;
                 QScopedPointer<QObject> _qmlObject;

@@ -4,9 +4,11 @@
 
 #include <tlPlayApp/Tools/ColorPickerTool.h>
 
+#include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/ColorWidget.h>
+#include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
 
@@ -17,6 +19,8 @@ namespace tl
         struct ColorPickerTool::Private
         {
             std::shared_ptr<dtk::ColorWidget> colorWidget;
+
+            std::shared_ptr<dtk::ValueObserver<dtk::Color4F> > colorPickerObserver;
         };
 
         void ColorPickerTool::_init(
@@ -39,7 +43,19 @@ namespace tl
             layout->setMarginRole(dtk::SizeRole::MarginSmall);
             layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.colorWidget->setParent(layout);
-            _setWidget(layout);
+            dtk::Label::create(context, "Shift+click in the viewport to pick colors", layout);
+
+            auto scrollWidget = dtk::ScrollWidget::create(context);
+            scrollWidget->setBorder(false);
+            scrollWidget->setWidget(layout);
+            _setWidget(scrollWidget);
+
+            p.colorPickerObserver = dtk::ValueObserver<dtk::Color4F>::create(
+                app->getViewportModel()->observeColorPicker(),
+                [this](const dtk::Color4F& value)
+                {
+                    _p->colorWidget->setColor(value);
+                });
         }
 
         ColorPickerTool::ColorPickerTool() :

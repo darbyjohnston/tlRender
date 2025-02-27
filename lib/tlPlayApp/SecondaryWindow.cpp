@@ -10,7 +10,7 @@
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimelineUI/Viewport.h>
 
 namespace tl
 {
@@ -18,7 +18,7 @@ namespace tl
     {
         struct SecondaryWindow::Private
         {
-            std::shared_ptr<timelineui::TimelineViewport> viewport;
+            std::shared_ptr<timelineui::Viewport> viewport;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
@@ -38,7 +38,7 @@ namespace tl
             Window::_init(context, "tlplay 2", dtk::Size2I(1920, 1080));
             DTK_P();
 
-            p.viewport = timelineui::TimelineViewport::create(context);
+            p.viewport = timelineui::Viewport::create(context);
             p.viewport->setParent(shared_from_this());
 
             p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
@@ -118,7 +118,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<timelineui::TimelineViewport>& SecondaryWindow::getViewport() const
+        const std::shared_ptr<timelineui::Viewport>& SecondaryWindow::getViewport() const
         {
             return _p->viewport;
         }

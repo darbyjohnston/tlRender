@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlQt/TimelinePlayer.h>
+#include <tlQt/PlayerObject.h>
 
 #include <tlTimelineGL/Render.h>
 
@@ -23,14 +23,14 @@ namespace tl
         namespace panorama_qtwidget
         {
             //! Panorama timeline viewport.
-            class PanoramaTimelineViewport :
+            class PanoramaViewport :
                 public QOpenGLWidget,
                 protected QOpenGLFunctions_4_1_Core
             {
                 Q_OBJECT
 
             public:
-                PanoramaTimelineViewport(
+                PanoramaViewport(
                     const std::shared_ptr<dtk::Context>&,
                     QWidget* parent = nullptr);
 
@@ -44,7 +44,7 @@ namespace tl
                 void setImageOptions(const dtk::ImageOptions&);
 
                 //! Set the timeline player.
-                void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);
+                void setPlayer(const QSharedPointer<qt::PlayerObject>&);
 
             private Q_SLOTS:
                 void _currentVideoCallback(const std::vector<tl::timeline::VideoData>&);
@@ -61,7 +61,7 @@ namespace tl
                 timeline::OCIOOptions _ocioOptions;
                 timeline::LUTOptions _lutOptions;
                 dtk::ImageOptions _imageOptions;
-                QSharedPointer<qt::TimelinePlayer> _player;
+                QSharedPointer<qt::PlayerObject> _player;
                 dtk::Size2I _videoSize;
                 std::vector<timeline::VideoData> _videoData;
                 dtk::V2F _cameraRotation;

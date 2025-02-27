@@ -15,8 +15,8 @@ namespace tl
         //! The timeline player sleep timeout.
         const std::chrono::milliseconds playerSleepTimeout(5);
 
-        //! Qt based timeline player.
-        class TimelinePlayer : public QObject
+        //! Qt timeline player object.
+        class PlayerObject : public QObject
         {
             Q_OBJECT
             Q_PROPERTY(
@@ -122,12 +122,12 @@ namespace tl
                 const std::shared_ptr<timeline::Player>&);
 
         public:
-            TimelinePlayer(
+            PlayerObject(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 QObject* parent = nullptr);
 
-            virtual ~TimelinePlayer();
+            virtual ~PlayerObject();
             
             //! Get the context.
             std::shared_ptr<dtk::Context> context() const;

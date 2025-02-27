@@ -4,28 +4,24 @@
 
 #include "App.h"
 
-#include <tlTimeline/Init.h>
+#include <tlTimelineUI/Init.h>
 
-#include <dtk/core/Context.h>
-
-#include <iostream>
-
-DTK_MAIN()
+int main(int argc, char* argv[])
 {
     int r = 1;
     try
     {
         auto context = dtk::Context::create();
-        tl::timeline::init(context);
+        tl::timelineui::init(context);
         auto args = dtk::convert(argc, argv);
-        auto app = tl::examples::render::App::create(context, args);
+        auto app = tl::examples::player::App::create(context, args);
         r = app->getExit();
         if (0 == r)
         {
             app->run();
         }
     }
-    catch(const std::exception& e)
+    catch (const std::exception& e)
     {
         std::cerr << "ERROR: " << e.what() << std::endl;
     }

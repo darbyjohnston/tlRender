@@ -16,22 +16,22 @@ namespace tl
     namespace timelineui
     {
         //! Timeline viewport.
-        class TimelineViewport : public dtk::IWidget
+        class Viewport : public dtk::IWidget
         {
-            DTK_NON_COPYABLE(TimelineViewport);
+            DTK_NON_COPYABLE(Viewport);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            TimelineViewport();
+            Viewport();
 
         public:
-            virtual ~TimelineViewport();
+            virtual ~Viewport();
 
             //! Create a new widget.
-            static std::shared_ptr<TimelineViewport> create(
+            static std::shared_ptr<Viewport> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

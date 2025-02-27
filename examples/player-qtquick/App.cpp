@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include "player-qtquick.h"
+#include "App.h"
 
 #include <tlQtQuick/GLFramebufferObject.h>
 
@@ -58,11 +58,11 @@ namespace tl
                 // Open the input file.
                 auto timeline = timeline::Timeline::create(context, _input);
                 auto player = timeline::Player::create(context, timeline);
-                _timelinePlayer.reset(new qt::TimelinePlayer(context, player));
+                _player.reset(new qt::PlayerObject(context, player));
 
                 // Load the QML.
                 _qmlEngine.reset(new QQmlApplicationEngine);
-                _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _timelinePlayer.get());
+                _qmlEngine->rootContext()->setContextProperty("timelinePlayer", _player.get());
                 QQmlComponent component(_qmlEngine.get(), QUrl(QStringLiteral("qrc:/player-qtquick.qml")));
                 if (component.status() != QQmlComponent::Status::Ready)
                 {
@@ -71,7 +71,7 @@ namespace tl
                 _qmlObject.reset(component.create());
 
                 // Start playback.
-                _timelinePlayer->setPlayback(timeline::Playback::Forward);
+                _player->setPlayback(timeline::Playback::Forward);
             }
 
             App::~App()

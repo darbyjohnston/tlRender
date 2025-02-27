@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include "PanoramaTimelineViewport.h"
+#include "PanoramaViewport.h"
 
 #include <dtk/gl/Init.h>
 
@@ -15,7 +15,7 @@ namespace tl
     {
         namespace panorama_qtwidget
         {
-            PanoramaTimelineViewport::PanoramaTimelineViewport(
+            PanoramaViewport::PanoramaViewport(
                 const std::shared_ptr<dtk::Context>& context,
                 QWidget* parent) :
                 QOpenGLWidget(parent)
@@ -29,7 +29,7 @@ namespace tl
                 setFormat(surfaceFormat);
             }
 
-            void PanoramaTimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
+            void PanoramaViewport::setOCIOOptions(const timeline::OCIOOptions& value)
             {
                 if (value == _ocioOptions)
                     return;
@@ -37,7 +37,7 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
+            void PanoramaViewport::setLUTOptions(const timeline::LUTOptions& value)
             {
                 if (value == _lutOptions)
                     return;
@@ -45,7 +45,7 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::setImageOptions(const dtk::ImageOptions& value)
+            void PanoramaViewport::setImageOptions(const dtk::ImageOptions& value)
             {
                 if (value == _imageOptions)
                     return;
@@ -53,7 +53,7 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::setPlayer(const QSharedPointer<qt::TimelinePlayer>& player)
+            void PanoramaViewport::setPlayer(const QSharedPointer<qt::PlayerObject>& player)
             {
                 if (_player)
                 {
@@ -78,13 +78,13 @@ namespace tl
                 update();
             }
 
-            void PanoramaTimelineViewport::_currentVideoCallback(const std::vector<timeline::VideoData>& value)
+            void PanoramaViewport::_currentVideoCallback(const std::vector<timeline::VideoData>& value)
             {
                 _videoData = value;
                 update();
             }
 
-            void PanoramaTimelineViewport::initializeGL()
+            void PanoramaViewport::initializeGL()
             {
                 initializeOpenGLFunctions();
                 dtk::gl::initGLAD();
@@ -154,7 +154,7 @@ namespace tl
                 }
             }
 
-            void PanoramaTimelineViewport::paintGL()
+            void PanoramaViewport::paintGL()
             {
                 try
                 {
@@ -219,17 +219,17 @@ namespace tl
                 _sphereVAO->draw(GL_TRIANGLES, 0, _sphereMesh.triangles.size() * 3);
             }
 
-            void PanoramaTimelineViewport::mousePressEvent(QMouseEvent* event)
+            void PanoramaViewport::mousePressEvent(QMouseEvent* event)
             {
                 const float devicePixelRatio = window()->devicePixelRatio();
                 _mousePosPrev.x = event->x() * devicePixelRatio;
                 _mousePosPrev.y = event->y() * devicePixelRatio;
             }
 
-            void PanoramaTimelineViewport::mouseReleaseEvent(QMouseEvent*)
+            void PanoramaViewport::mouseReleaseEvent(QMouseEvent*)
             {}
 
-            void PanoramaTimelineViewport::mouseMoveEvent(QMouseEvent* event)
+            void PanoramaViewport::mouseMoveEvent(QMouseEvent* event)
             {
                 const float devicePixelRatio = window()->devicePixelRatio();
                 _cameraRotation.x += (event->y() * devicePixelRatio - _mousePosPrev.y) / 20.F * -1.F;

@@ -2,12 +2,12 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include "PanoramaTimelineViewport.h"
+#include "PanoramaViewport.h"
 
 #include <tlQtWidget/Init.h>
 
 #include <tlQt/ContextObject.h>
-#include <tlQt/TimelinePlayer.h>
+#include <tlQt/PlayerObject.h>
 
 #include <dtk/core/Context.h>
 
@@ -47,16 +47,15 @@ int main(int argc, char* argv[])
         auto timeline = tl::timeline::Timeline::create(context, argv[1]);
 
         // Create the timeline player.
-        QSharedPointer<tl::qt::TimelinePlayer> player(
-            new tl::qt::TimelinePlayer(
-                context,
-                tl::timeline::Player::create(context, timeline)));
+        QSharedPointer<tl::qt::PlayerObject> player(new tl::qt::PlayerObject(
+            context,
+            tl::timeline::Player::create(context, timeline)));
 
         // Create the panorama timeline viewport.
-        auto timelineViewport = new tl::examples::panorama_qtwidget::PanoramaTimelineViewport(context);
-        timelineViewport->setPlayer(player);
-        timelineViewport->setAttribute(Qt::WA_DeleteOnClose);
-        timelineViewport->show();
+        auto viewport = new tl::examples::panorama_qtwidget::PanoramaViewport(context);
+        viewport->setPlayer(player);
+        viewport->setAttribute(Qt::WA_DeleteOnClose);
+        viewport->show();
 
         // Start playback.
         player->setPlayback(tl::timeline::Playback::Forward);

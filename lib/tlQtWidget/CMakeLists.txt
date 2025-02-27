@@ -6,9 +6,9 @@ set(HEADERS
     SpeedLabel.h
     TimeLabel.h
     TimeSpinBox.h
-    TimelineViewport.h
     TimelineWidget.h
-    Util.h)
+    Util.h
+    Viewport.h)
 set(PRIVATE_HEADERS)
 
 set(SOURCE
@@ -19,9 +19,9 @@ set(SOURCE
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
-    TimelineViewport.cpp
     TimelineWidget.cpp
-    Util.cpp)
+    Util.cpp
+    Viewport.cpp)
 
 if(TLRENDER_QT6)
     qt6_add_resources(SOURCE tlQtWidget.qrc)

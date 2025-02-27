@@ -6,8 +6,6 @@
 
 #include <tlQtQuick/Init.h>
 
-#include <tlQt/TimelinePlayer.h>
-
 #include <tlTimelineGL/Render.h>
 
 #include <dtk/gl/Init.h>

@@ -6,7 +6,7 @@
 
 #include <tlQtWidget/ContainerWidget.h>
 
-#include <tlQt/TimelinePlayer.h>
+#include <tlQt/PlayerObject.h>
 
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/ColorOptions.h>
@@ -21,17 +21,17 @@ namespace tl
     namespace qtwidget
     {
         //! Timeline viewport widget.
-        class TimelineViewport : public ContainerWidget
+        class Viewport : public ContainerWidget
         {
             Q_OBJECT
 
         public:
-            TimelineViewport(
+            Viewport(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<dtk::Style>&,
                 QWidget* parent = nullptr);
 
-            virtual ~TimelineViewport();
+            virtual ~Viewport();
 
             //! Get the color buffer type.
             dtk::ImageType colorBuffer() const;
@@ -74,7 +74,7 @@ namespace tl
             void setColorBuffer(dtk::ImageType);
 
             //! Set the timeline player.
-            void setPlayer(const QSharedPointer<qt::TimelinePlayer>&);
+            void setPlayer(const QSharedPointer<qt::PlayerObject>&);
 
             //! Set the view position and zoom.
             void setViewPosAndZoom(const dtk::V2I&, double);

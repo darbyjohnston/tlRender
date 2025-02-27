@@ -2,20 +2,20 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlQtWidget/TimelineViewport.h>
+#include <tlQtWidget/Viewport.h>
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimelineUI/Viewport.h>
 
 namespace tl
 {
     namespace qtwidget
     {
-        struct TimelineViewport::Private
+        struct Viewport::Private
         {
-            std::shared_ptr<timelineui::TimelineViewport> viewport;
+            std::shared_ptr<timelineui::Viewport> viewport;
         };
 
-        TimelineViewport::TimelineViewport(
+        Viewport::Viewport(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<dtk::Style>& style,
             QWidget* parent) :
@@ -23,109 +23,109 @@ namespace tl
             _p(new Private)
         {
             DTK_P();
-            p.viewport = timelineui::TimelineViewport::create(context);
+            p.viewport = timelineui::Viewport::create(context);
             setWidget(p.viewport);
         }
 
-        TimelineViewport::~TimelineViewport()
+        Viewport::~Viewport()
         {}
 
-        dtk::ImageType TimelineViewport::colorBuffer() const
+        dtk::ImageType Viewport::colorBuffer() const
         {
             return _p->viewport->getColorBuffer();
         }
 
-        const dtk::V2I& TimelineViewport::viewPos() const
+        const dtk::V2I& Viewport::viewPos() const
         {
             return _p->viewport->getViewPos();
         }
 
-        double TimelineViewport::viewZoom() const
+        double Viewport::viewZoom() const
         {
             return _p->viewport->getViewZoom();
         }
 
-        bool TimelineViewport::hasFrameView() const
+        bool Viewport::hasFrameView() const
         {
             return _p->viewport->hasFrameView();
         }
 
-        double TimelineViewport::getFPS() const
+        double Viewport::getFPS() const
         {
             return _p->viewport->getFPS();
         }
 
-        size_t TimelineViewport::getDroppedFrames() const
+        size_t Viewport::getDroppedFrames() const
         {
             return _p->viewport->getDroppedFrames();
         }
 
-        void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
+        void Viewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             _p->viewport->setOCIOOptions(value);
         }
 
-        void TimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
+        void Viewport::setLUTOptions(const timeline::LUTOptions& value)
         {
             _p->viewport->setLUTOptions(value);
         }
 
-        void TimelineViewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
+        void Viewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
             _p->viewport->setImageOptions(value);
         }
 
-        void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
+        void Viewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             _p->viewport->setDisplayOptions(value);
         }
 
-        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
+        void Viewport::setCompareOptions(const timeline::CompareOptions& value)
         {
             _p->viewport->setCompareOptions(value);
         }
 
-        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        void Viewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             _p->viewport->setBackgroundOptions(value);
         }
 
-        void TimelineViewport::setColorBuffer(dtk::ImageType value)
+        void Viewport::setColorBuffer(dtk::ImageType value)
         {
             _p->viewport->setColorBuffer(value);
         }
 
-        void TimelineViewport::setPlayer(const QSharedPointer<qt::TimelinePlayer>& value)
+        void Viewport::setPlayer(const QSharedPointer<qt::PlayerObject>& value)
         {
             _p->viewport->setPlayer(value ? value->player() : nullptr);
         }
 
-        void TimelineViewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
+        void Viewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
         {
             _p->viewport->setViewPosAndZoom(pos, zoom);
         }
 
-        void TimelineViewport::setViewZoom(double zoom, const dtk::V2I& focus)
+        void Viewport::setViewZoom(double zoom, const dtk::V2I& focus)
         {
             _p->viewport->setViewZoom(zoom, focus);
         }
 
-        void TimelineViewport::setFrameView(bool value)
+        void Viewport::setFrameView(bool value)
         {
             _p->viewport->setFrameView(value);
         }
         
-        void TimelineViewport::viewZoomReset()
+        void Viewport::viewZoomReset()
         {
             _p->viewport->viewZoomReset();
         }
 
-        void TimelineViewport::viewZoomIn()
+        void Viewport::viewZoomIn()
         {
             _p->viewport->viewZoomIn();
         }
 
-        void TimelineViewport::viewZoomOut()
+        void Viewport::viewZoomOut()
         {
             _p->viewport->viewZoomOut();
         }

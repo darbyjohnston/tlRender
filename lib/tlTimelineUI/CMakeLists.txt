@@ -8,10 +8,10 @@ set(HEADERS
     TimeEdit.h
     TimeLabel.h
     TimelineItem.h
-    TimelineViewport.h
     TimelineWidget.h
     TransitionItem.h
     VideoClipItem.h
+    Viewport.h
     Window.h)
 set(HEADERS_PRIVATE
     TimelineItemPrivate.h)
@@ -26,10 +26,10 @@ set(SOURCE
     TimeEdit.cpp
     TimeLabel.cpp
     TimelineItem.cpp
-    TimelineViewport.cpp
     TimelineWidget.cpp
     TransitionItem.cpp
     VideoClipItem.cpp
+    Viewport.cpp
     Window.cpp)
 
 add_library(tlTimelineUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})

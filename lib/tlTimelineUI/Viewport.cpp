@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimelineUI/Viewport.h>
 
 #include <tlTimeline/IRender.h>
 
@@ -18,7 +18,7 @@ namespace tl
 {
     namespace timelineui
     {
-        struct TimelineViewport::Private
+        struct Viewport::Private
         {
             timeline::CompareOptions compareOptions;
             std::function<void(timeline::CompareOptions)> compareCallback;
@@ -72,11 +72,11 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<timeline::VideoData> > videoDataObserver;
         };
 
-        void TimelineViewport::_init(
+        void Viewport::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, "tl::timelineui::TimelineViewport", parent);
+            IWidget::_init(context, "tl::timelineui::Viewport", parent);
             DTK_P();
 
             setHStretch(dtk::Stretch::Expanding);
@@ -92,23 +92,23 @@ namespace tl
             p.colorPickerValues = dtk::ObservableList<dtk::Color4F>::create();
         }
 
-        TimelineViewport::TimelineViewport() :
+        Viewport::Viewport() :
             _p(new Private)
         {}
 
-        TimelineViewport::~TimelineViewport()
+        Viewport::~Viewport()
         {}
 
-        std::shared_ptr<TimelineViewport> TimelineViewport::create(
+        std::shared_ptr<Viewport> Viewport::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<TimelineViewport>(new TimelineViewport);
+            auto out = std::shared_ptr<Viewport>(new Viewport);
             out->_init(context, parent);
             return out;
         }
 
-        void TimelineViewport::setCompareOptions(const timeline::CompareOptions& value)
+        void Viewport::setCompareOptions(const timeline::CompareOptions& value)
         {
             DTK_P();
             if (value == p.compareOptions)
@@ -118,12 +118,12 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineViewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
+        void Viewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
         {
             _p->compareCallback = value;
         }
 
-        void TimelineViewport::setOCIOOptions(const timeline::OCIOOptions& value)
+        void Viewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             DTK_P();
             if (value == p.ocioOptions)
@@ -133,7 +133,7 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineViewport::setLUTOptions(const timeline::LUTOptions& value)
+        void Viewport::setLUTOptions(const timeline::LUTOptions& value)
         {
             DTK_P();
             if (value == p.lutOptions)
@@ -143,7 +143,7 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineViewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
+        void Viewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
         {
             DTK_P();
             if (value == p.imageOptions)
@@ -153,7 +153,7 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineViewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
+        void Viewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             DTK_P();
             if (value == p.displayOptions)
@@ -163,7 +163,7 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineViewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
+        void Viewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             DTK_P();
             if (value == p.backgroundOptions)
@@ -173,17 +173,17 @@ namespace tl
             _setDrawUpdate();
         }
 
-        dtk::ImageType TimelineViewport::getColorBuffer() const
+        dtk::ImageType Viewport::getColorBuffer() const
         {
             return _p->colorBuffer->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > TimelineViewport::observeColorBuffer() const
+        std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > Viewport::observeColorBuffer() const
         {
             return _p->colorBuffer;
         }
 
-        void TimelineViewport::setColorBuffer(dtk::ImageType value)
+        void Viewport::setColorBuffer(dtk::ImageType value)
         {
             DTK_P();
             if (p.colorBuffer->setIfChanged(value))
@@ -193,7 +193,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::setPlayer(const std::shared_ptr<timeline::Player>& value)
+        void Viewport::setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
             DTK_P();
 
@@ -254,17 +254,17 @@ namespace tl
             }
         }
 
-        const dtk::V2I& TimelineViewport::getViewPos() const
+        const dtk::V2I& Viewport::getViewPos() const
         {
             return _p->viewPos;
         }
 
-        double TimelineViewport::getViewZoom() const
+        double Viewport::getViewZoom() const
         {
             return _p->viewZoom;
         }
 
-        void TimelineViewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
+        void Viewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
         {
             DTK_P();
             if (pos == p.viewPos && zoom == p.viewZoom)
@@ -280,7 +280,7 @@ namespace tl
             setFrameView(false);
         }
 
-        void TimelineViewport::setViewZoom(double zoom, const dtk::V2I& focus)
+        void Viewport::setViewZoom(double zoom, const dtk::V2I& focus)
         {
             DTK_P();
             dtk::V2I pos;
@@ -289,17 +289,17 @@ namespace tl
             setViewPosAndZoom(pos, zoom);
         }
 
-        bool TimelineViewport::hasFrameView() const
+        bool Viewport::hasFrameView() const
         {
             return _p->frameView->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineViewport::observeFrameView() const
+        std::shared_ptr<dtk::IObservableValue<bool> > Viewport::observeFrameView() const
         {
             return _p->frameView;
         }
 
-        void TimelineViewport::setFrameView(bool value)
+        void Viewport::setFrameView(bool value)
         {
             DTK_P();
             if (p.frameView->setIfChanged(value))
@@ -313,56 +313,56 @@ namespace tl
             }
         }
 
-        void TimelineViewport::setFrameViewCallback(const std::function<void(bool)>& value)
+        void Viewport::setFrameViewCallback(const std::function<void(bool)>& value)
         {
             _p->frameViewCallback = value;
         }
 
-        void TimelineViewport::viewZoomReset()
+        void Viewport::viewZoomReset()
         {
             DTK_P();
             setViewZoom(1.F, _getViewportCenter());
         }
 
-        void TimelineViewport::viewZoomIn()
+        void Viewport::viewZoomIn()
         {
             DTK_P();
             setViewZoom(p.viewZoom * 2.0, _getViewportCenter());
         }
 
-        void TimelineViewport::viewZoomOut()
+        void Viewport::viewZoomOut()
         {
             DTK_P();
             setViewZoom(p.viewZoom / 2.0, _getViewportCenter());
         }
 
-        void TimelineViewport::setViewPosAndZoomCallback(
+        void Viewport::setViewPosAndZoomCallback(
             const std::function<void(const dtk::V2I&, double)>& value)
         {
             _p->viewPosAndZoomCallback = value;
         }
 
-        double TimelineViewport::getFPS() const
+        double Viewport::getFPS() const
         {
             return _p->fps->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<double> > TimelineViewport::observeFPS() const
+        std::shared_ptr<dtk::IObservableValue<double> > Viewport::observeFPS() const
         {
             return _p->fps;
         }
 
-        size_t TimelineViewport::getDroppedFrames() const
+        size_t Viewport::getDroppedFrames() const
         {
             return _p->droppedFrames->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<size_t> > TimelineViewport::observeDroppedFrames() const
+        std::shared_ptr<dtk::IObservableValue<size_t> > Viewport::observeDroppedFrames() const
         {
             return _p->droppedFrames;
         }
 
-        void TimelineViewport::setColorPickers(const std::vector<dtk::V2I>& value)
+        void Viewport::setColorPickers(const std::vector<dtk::V2I>& value)
         {
             DTK_P();
             if (value == p.colorPickers)
@@ -371,12 +371,12 @@ namespace tl
             _setDrawUpdate();
         }
 
-        std::shared_ptr<dtk::IObservableList<dtk::Color4F> > TimelineViewport::observeColorPickers() const
+        std::shared_ptr<dtk::IObservableList<dtk::Color4F> > Viewport::observeColorPickers() const
         {
             return _p->colorPickerValues;
         }
 
-        void TimelineViewport::setGeometry(const dtk::Box2I& value)
+        void Viewport::setGeometry(const dtk::Box2I& value)
         {
             const bool changed = value != getGeometry();
             IWidget::setGeometry(value);
@@ -387,14 +387,14 @@ namespace tl
             }
         }
 
-        void TimelineViewport::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void Viewport::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             const int sa = event.style->getSizeRole(dtk::SizeRole::ScrollArea, event.displayScale);
             _setSizeHint(dtk::Size2I(sa, sa));
         }
 
-        void TimelineViewport::drawEvent(
+        void Viewport::drawEvent(
             const dtk::Box2I& drawRect,
             const dtk::DrawEvent& event)
         {
@@ -529,7 +529,7 @@ namespace tl
                 {
                     if (auto context = getContext())
                     {
-                        context->log("tl::timelineui::TimelineViewport", e.what(), dtk::LogType::Error);
+                        context->log("tl::timelineui::Viewport", e.what(), dtk::LogType::Error);
                     }
                 }
             }
@@ -563,7 +563,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mouseMoveEvent(dtk::MouseMoveEvent& event)
+        void Viewport::mouseMoveEvent(dtk::MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
             DTK_P();
@@ -610,7 +610,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mousePressEvent(dtk::MouseClickEvent& event)
+        void Viewport::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
             DTK_P();
@@ -628,14 +628,14 @@ namespace tl
             }
         }
 
-        void TimelineViewport::mouseReleaseEvent(dtk::MouseClickEvent& event)
+        void Viewport::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
             DTK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        void TimelineViewport::scrollEvent(dtk::ScrollEvent& event)
+        void Viewport::scrollEvent(dtk::ScrollEvent& event)
         {
             DTK_P();
             if (static_cast<int>(dtk::KeyModifier::None) == event.modifiers)
@@ -659,7 +659,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::keyPressEvent(dtk::KeyEvent& event)
+        void Viewport::keyPressEvent(dtk::KeyEvent& event)
         {
             DTK_P();
             if (0 == event.modifiers)
@@ -688,31 +688,31 @@ namespace tl
             }
         }
 
-        void TimelineViewport::keyReleaseEvent(dtk::KeyEvent& event)
+        void Viewport::keyReleaseEvent(dtk::KeyEvent& event)
         {
             event.accept = true;
         }
 
-        void TimelineViewport::_releaseMouse()
+        void Viewport::_releaseMouse()
         {
             IWidget::_releaseMouse();
             DTK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        dtk::Size2I TimelineViewport::_getRenderSize() const
+        dtk::Size2I Viewport::_getRenderSize() const
         {
             DTK_P();
             return timeline::getRenderSize(p.compareOptions.mode, p.videoData);
         }
 
-        dtk::V2I TimelineViewport::_getViewportCenter() const
+        dtk::V2I Viewport::_getViewportCenter() const
         {
             const dtk::Box2I& g = getGeometry();
             return dtk::V2I(g.w() / 2, g.h() / 2);
         }
 
-        void TimelineViewport::_frameView()
+        void Viewport::_frameView()
         {
             DTK_P();
             const dtk::Box2I& g = getGeometry();
@@ -738,7 +738,7 @@ namespace tl
             }
         }
 
-        void TimelineViewport::_droppedFramesUpdate(const OTIO_NS::RationalTime& value)
+        void Viewport::_droppedFramesUpdate(const OTIO_NS::RationalTime& value)
         {
             DTK_P();
             if (value != time::invalidTime && p.droppedFramesData.init)

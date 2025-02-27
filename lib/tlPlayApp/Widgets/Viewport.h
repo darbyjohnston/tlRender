@@ -4,19 +4,23 @@
 
 #pragma once
 
-#include <tlTimelineUI/TimelineViewport.h>
+#include <tlTimelineUI/Viewport.h>
 
 namespace tl
 {
     namespace play
     {
-        class Viewport : public timelineui::TimelineViewport
+        class App;
+
+        //! Viewport.
+        class Viewport : public timelineui::Viewport
         {
             DTK_NON_COPYABLE(Viewport);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Viewport();
@@ -26,13 +30,8 @@ namespace tl
 
             static std::shared_ptr<Viewport> create(
                 const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            //! Get the color picker.
-            const dtk::Color4F& getColorPicker() const;
-
-            //! Observe the color picker.
-            std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > observeColorPicker() const;
 
             //! Get whether the HUD is enabled.
             bool hasHUD() const;

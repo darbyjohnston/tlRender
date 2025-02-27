@@ -2,16 +2,16 @@ set(HEADERS
     ContextObject.h
     Init.h
     MetaTypes.h
+    PlayerObject.h
     TimeObject.h
-    TimelinePlayer.h
     ToolTipsFilter.h)
 set(PRIVATE_HEADERS)
 
 set(SOURCE
     ContextObject.cpp
     Init.cpp
+    PlayerObject.cpp
     TimeObject.cpp
-    TimelinePlayer.cpp
     ToolTipsFilter.cpp)
 
 set(LIBRARIES)

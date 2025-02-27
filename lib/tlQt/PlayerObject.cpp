@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlQt/TimelinePlayer.h>
+#include <tlQt/PlayerObject.h>
 
 #include <tlCore/Time.h>
 
@@ -22,7 +22,7 @@ namespace tl
             const size_t timeout = 5;
         }
 
-        struct TimelinePlayer::Private
+        struct PlayerObject::Private
         {
             std::shared_ptr<timeline::Player> player;
             std::unique_ptr<QTimer> timer;
@@ -48,7 +48,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
         };
 
-        void TimelinePlayer::_init(
+        void PlayerObject::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<timeline::Player>& player)
         {
@@ -192,11 +192,11 @@ namespace tl
 
             p.timer.reset(new QTimer);
             p.timer->setTimerType(Qt::PreciseTimer);
-            connect(p.timer.get(), &QTimer::timeout, this, &TimelinePlayer::_timerCallback);
+            connect(p.timer.get(), &QTimer::timeout, this, &PlayerObject::_timerCallback);
             p.timer->start(timeout);
         }
 
-        TimelinePlayer::TimelinePlayer(
+        PlayerObject::PlayerObject(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<timeline::Player>& player,
             QObject* parent) :
@@ -206,180 +206,180 @@ namespace tl
             _init(context, player);
         }
 
-        TimelinePlayer::~TimelinePlayer()
+        PlayerObject::~PlayerObject()
         {}
         
-        std::shared_ptr<dtk::Context> TimelinePlayer::context() const
+        std::shared_ptr<dtk::Context> PlayerObject::context() const
         {
             return _p->player->getContext();
         }
 
-        const std::shared_ptr<timeline::Player>& TimelinePlayer::player() const
+        const std::shared_ptr<timeline::Player>& PlayerObject::player() const
         {
             return _p->player;
         }
 
-        const std::shared_ptr<timeline::Timeline>& TimelinePlayer::timeline() const
+        const std::shared_ptr<timeline::Timeline>& PlayerObject::timeline() const
         {
             return _p->player->getTimeline();
         }
 
-        const file::Path& TimelinePlayer::path() const
+        const file::Path& PlayerObject::path() const
         {
             return _p->player->getPath();
         }
 
-        const file::Path& TimelinePlayer::audioPath() const
+        const file::Path& PlayerObject::audioPath() const
         {
             return _p->player->getAudioPath();
         }
 
-        const timeline::PlayerOptions& TimelinePlayer::getPlayerOptions() const
+        const timeline::PlayerOptions& PlayerObject::getPlayerOptions() const
         {
             return _p->player->getPlayerOptions();
         }
 
-        const timeline::Options& TimelinePlayer::getOptions() const
+        const timeline::Options& PlayerObject::getOptions() const
         {
             return _p->player->getOptions();
         }
 
-        const OTIO_NS::TimeRange& TimelinePlayer::timeRange() const
+        const OTIO_NS::TimeRange& PlayerObject::timeRange() const
         {
             return _p->player->getTimeRange();
         }
 
-        const io::Info& TimelinePlayer::ioInfo() const
+        const io::Info& PlayerObject::ioInfo() const
         {
             return _p->player->getIOInfo();
         }
 
-        double TimelinePlayer::defaultSpeed() const
+        double PlayerObject::defaultSpeed() const
         {
             return _p->player->getDefaultSpeed();
         }
 
-        double TimelinePlayer::speed() const
+        double PlayerObject::speed() const
         {
             return _p->player->getSpeed();
         }
 
-        timeline::Playback TimelinePlayer::playback() const
+        timeline::Playback PlayerObject::playback() const
         {
             return _p->player->getPlayback();
         }
 
-        timeline::Loop TimelinePlayer::loop() const
+        timeline::Loop PlayerObject::loop() const
         {
             return _p->player->getLoop();
         }
 
-        const OTIO_NS::RationalTime& TimelinePlayer::currentTime() const
+        const OTIO_NS::RationalTime& PlayerObject::currentTime() const
         {
             return _p->player->getCurrentTime();
         }
 
-        const OTIO_NS::TimeRange& TimelinePlayer::inOutRange() const
+        const OTIO_NS::TimeRange& PlayerObject::inOutRange() const
         {
             return _p->player->getInOutRange();
         }
 
-        const std::vector<std::shared_ptr<timeline::Timeline> >& TimelinePlayer::compare() const
+        const std::vector<std::shared_ptr<timeline::Timeline> >& PlayerObject::compare() const
         {
             return _p->player->getCompare();
         }
 
-        timeline::CompareTimeMode TimelinePlayer::compareTime() const
+        timeline::CompareTimeMode PlayerObject::compareTime() const
         {
             return _p->player->getCompareTime();
         }
 
-        const io::Options& TimelinePlayer::ioOptions() const
+        const io::Options& PlayerObject::ioOptions() const
         {
             return _p->player->getIOOptions();
         }
 
-        int TimelinePlayer::videoLayer() const
+        int PlayerObject::videoLayer() const
         {
             return _p->player->getVideoLayer();
         }
 
-        const std::vector<int>& TimelinePlayer::compareVideoLayers() const
+        const std::vector<int>& PlayerObject::compareVideoLayers() const
         {
             return _p->player->getCompareVideoLayers();
         }
 
-        const std::vector<timeline::VideoData>& TimelinePlayer::currentVideo() const
+        const std::vector<timeline::VideoData>& PlayerObject::currentVideo() const
         {
             return _p->player->getCurrentVideo();
         }
 
-        const audio::DeviceID& TimelinePlayer::audioDevice() const
+        const audio::DeviceID& PlayerObject::audioDevice() const
         {
             return _p->player->getAudioDevice();
         }
 
-        float TimelinePlayer::volume() const
+        float PlayerObject::volume() const
         {
             return _p->player->getVolume();
         }
 
-        bool TimelinePlayer::isMuted() const
+        bool PlayerObject::isMuted() const
         {
             return _p->player->isMuted();
         }
 
-        const std::vector<bool>& TimelinePlayer::getChannelMute() const
+        const std::vector<bool>& PlayerObject::getChannelMute() const
         {
             return _p->player->getChannelMute();
         }
 
-        double TimelinePlayer::audioOffset() const
+        double PlayerObject::audioOffset() const
         {
             return _p->player->getAudioOffset();
         }
 
-        const std::vector<timeline::AudioData>& TimelinePlayer::currentAudio() const
+        const std::vector<timeline::AudioData>& PlayerObject::currentAudio() const
         {
             return _p->player->getCurrentAudio();
         }
 
-        const timeline::PlayerCacheOptions& TimelinePlayer::cacheOptions() const
+        const timeline::PlayerCacheOptions& PlayerObject::cacheOptions() const
         {
             return _p->player->getCacheOptions();
         }
 
-        const timeline::PlayerCacheInfo& TimelinePlayer::cacheInfo() const
+        const timeline::PlayerCacheInfo& PlayerObject::cacheInfo() const
         {
             return _p->player->observeCacheInfo()->get();
         }
 
-        void TimelinePlayer::setSpeed(double value)
+        void PlayerObject::setSpeed(double value)
         {
             _p->player->setSpeed(value);
         }
 
-        void TimelinePlayer::setPlayback(timeline::Playback value)
+        void PlayerObject::setPlayback(timeline::Playback value)
         {
             _p->player->setPlayback(value);
         }
 
-        void TimelinePlayer::stop()
+        void PlayerObject::stop()
         {
             _p->player->setPlayback(timeline::Playback::Stop);
         }
 
-        void TimelinePlayer::forward()
+        void PlayerObject::forward()
         {
             _p->player->setPlayback(timeline::Playback::Forward);
         }
 
-        void TimelinePlayer::reverse()
+        void PlayerObject::reverse()
         {
             _p->player->setPlayback(timeline::Playback::Reverse);
         }
 
-        void TimelinePlayer::togglePlayback()
+        void PlayerObject::togglePlayback()
         {
             _p->player->setPlayback(
                 timeline::Playback::Stop == _p->player->getPlayback() ?
@@ -387,122 +387,122 @@ namespace tl
                 timeline::Playback::Stop);
         }
 
-        void TimelinePlayer::setLoop(timeline::Loop value)
+        void PlayerObject::setLoop(timeline::Loop value)
         {
             _p->player->setLoop(value);
         }
 
-        void TimelinePlayer::seek(const OTIO_NS::RationalTime& value)
+        void PlayerObject::seek(const OTIO_NS::RationalTime& value)
         {
             _p->player->seek(value);
         }
 
-        void TimelinePlayer::timeAction(timeline::TimeAction value)
+        void PlayerObject::timeAction(timeline::TimeAction value)
         {
             _p->player->timeAction(value);
         }
 
-        void TimelinePlayer::start()
+        void PlayerObject::start()
         {
             _p->player->start();
         }
 
-        void TimelinePlayer::end()
+        void PlayerObject::end()
         {
             _p->player->end();
         }
 
-        void TimelinePlayer::framePrev()
+        void PlayerObject::framePrev()
         {
             _p->player->framePrev();
         }
 
-        void TimelinePlayer::frameNext()
+        void PlayerObject::frameNext()
         {
             _p->player->frameNext();
         }
 
-        void TimelinePlayer::setInOutRange(const OTIO_NS::TimeRange& value)
+        void PlayerObject::setInOutRange(const OTIO_NS::TimeRange& value)
         {
             _p->player->setInOutRange(value);
         }
 
-        void TimelinePlayer::setInPoint()
+        void PlayerObject::setInPoint()
         {
             _p->player->setInPoint();
         }
 
-        void TimelinePlayer::resetInPoint()
+        void PlayerObject::resetInPoint()
         {
             _p->player->resetInPoint();
         }
 
-        void TimelinePlayer::setOutPoint()
+        void PlayerObject::setOutPoint()
         {
             _p->player->setOutPoint();
         }
 
-        void TimelinePlayer::resetOutPoint()
+        void PlayerObject::resetOutPoint()
         {
             _p->player->resetOutPoint();
         }
 
-        void TimelinePlayer::setIOOptions(const io::Options& value)
+        void PlayerObject::setIOOptions(const io::Options& value)
         {
             _p->player->setIOOptions(value);
         }
 
-        void TimelinePlayer::setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >& value)
+        void PlayerObject::setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >& value)
         {
             _p->player->setCompare(value);
         }
 
-        void TimelinePlayer::setCompareTime(timeline::CompareTimeMode value)
+        void PlayerObject::setCompareTime(timeline::CompareTimeMode value)
         {
             _p->player->setCompareTime(value);
         }
 
-        void TimelinePlayer::setVideoLayer(int value)
+        void PlayerObject::setVideoLayer(int value)
         {
             _p->player->setVideoLayer(value);
         }
 
-        void TimelinePlayer::setCompareVideoLayers(const std::vector<int>& value)
+        void PlayerObject::setCompareVideoLayers(const std::vector<int>& value)
         {
             _p->player->setCompareVideoLayers(value);
         }
 
-        void TimelinePlayer::setAudioDevice(const audio::DeviceID& value)
+        void PlayerObject::setAudioDevice(const audio::DeviceID& value)
         {
             _p->player->setAudioDevice(value);
         }
 
-        void TimelinePlayer::setVolume(float value)
+        void PlayerObject::setVolume(float value)
         {
             _p->player->setVolume(value);
         }
 
-        void TimelinePlayer::setMute(bool value)
+        void PlayerObject::setMute(bool value)
         {
             _p->player->setMute(value);
         }
 
-        void TimelinePlayer::setChannelMute(const std::vector<bool>& value)
+        void PlayerObject::setChannelMute(const std::vector<bool>& value)
         {
             _p->player->setChannelMute(value);
         }
 
-        void TimelinePlayer::setAudioOffset(double value)
+        void PlayerObject::setAudioOffset(double value)
         {
             _p->player->setAudioOffset(value);
         }
 
-        void TimelinePlayer::setCacheOptions(const timeline::PlayerCacheOptions& value)
+        void PlayerObject::setCacheOptions(const timeline::PlayerCacheOptions& value)
         {
             _p->player->setCacheOptions(value);
         }
 
-        void TimelinePlayer::_timerCallback()
+        void PlayerObject::_timerCallback()
         {
             if (_p && _p->player)
             {

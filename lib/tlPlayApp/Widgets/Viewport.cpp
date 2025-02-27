@@ -4,6 +4,9 @@
 
 #include <tlPlayApp//Widgets/Viewport.h>
 
+#include <tlPlayApp/Models/ViewportModel.h>
+#include <tlPlayApp/App.h>
+
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/Spacer.h>
@@ -15,7 +18,7 @@ namespace tl
     {
         struct Viewport::Private
         {
-            std::shared_ptr<dtk::ObservableValue<dtk::Color4F> > colorPicker;
+            std::weak_ptr<App> app;
             std::shared_ptr<dtk::ObservableValue<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
@@ -46,15 +49,16 @@ namespace tl
 
         void Viewport::_init(
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            TimelineViewport::_init(context, parent);
+            timelineui::Viewport::_init(context, parent);
             DTK_P();
 
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
 
-            p.colorPicker = dtk::ObservableValue<dtk::Color4F>::create();
+            p.app = app;
             p.hud = dtk::ObservableValue<bool>::create(false);
 
             p.fpsLabel = dtk::Label::create(context);
@@ -108,7 +112,10 @@ namespace tl
                 {
                     if (!value.empty())
                     {
-                        _p->colorPicker->setIfChanged(value.front());
+                        if (auto app = _p->app.lock())
+                        {
+                            app->getViewportModel()->setColorPicker(value.front());
+                        }
                     }
                 });
         }
@@ -122,21 +129,12 @@ namespace tl
 
         std::shared_ptr<Viewport> Viewport::create(
             const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<Viewport>(new Viewport);
-            out->_init(context, parent);
+            out->_init(context, app, parent);
             return out;
-        }
-
-        const dtk::Color4F& Viewport::getColorPicker() const
-        {
-            return _p->colorPicker->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<dtk::Color4F> > Viewport::observeColorPicker() const
-        {
-            return _p->colorPicker;
         }
 
         bool Viewport::hasHUD() const
@@ -160,21 +158,21 @@ namespace tl
 
         void Viewport::setGeometry(const dtk::Box2I& value)
         {
-            TimelineViewport::setGeometry(value);
+            timelineui::Viewport::setGeometry(value);
             DTK_P();
             p.hudLayout->setGeometry(value);
         }
 
         void Viewport::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
-            TimelineViewport::sizeHintEvent(event);
+            timelineui::Viewport::sizeHintEvent(event);
             DTK_P();
             _setSizeHint(p.hudLayout->getSizeHint());
         }
 
         void Viewport::mouseMoveEvent(dtk::MouseMoveEvent& event)
         {
-            TimelineViewport::mouseMoveEvent(event);
+            timelineui::Viewport::mouseMoveEvent(event);
             DTK_P();
             switch (p.mouse.mode)
             {
@@ -187,7 +185,7 @@ namespace tl
 
         void Viewport::mousePressEvent(dtk::MouseClickEvent& event)
         {
-            TimelineViewport::mousePressEvent(event);
+            timelineui::Viewport::mousePressEvent(event);
             DTK_P();
             takeKeyFocus();
             if (Private::MouseMode::None == p.mouse.mode &&
@@ -201,7 +199,7 @@ namespace tl
 
         void Viewport::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
-            TimelineViewport::mouseReleaseEvent(event);
+            timelineui::Viewport::mouseReleaseEvent(event);
             DTK_P();
             p.mouse = Private::MouseData();
         }

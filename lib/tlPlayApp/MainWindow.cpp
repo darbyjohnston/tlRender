@@ -152,15 +152,13 @@ namespace tl
             setBackgroundRole(dtk::ColorRole::Window);
 
             p.app = app;
-
             p.settingsModel = app->getSettingsModel();
-
             p.speedModel = dtk::DoubleModel::create(context);
             p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
             p.speedModel->setStep(1.F);
             p.speedModel->setLargeStep(10.F);
 
-            p.viewport = Viewport::create(context);
+            p.viewport = Viewport::create(context, app);
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
