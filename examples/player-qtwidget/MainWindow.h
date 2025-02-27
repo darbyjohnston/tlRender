@@ -39,9 +39,7 @@ namespace tl
                 QMetaObject::Connection _playbackConnection;
                 qtwidget::Viewport* _viewport = nullptr;
                 qtwidget::TimelineWidget* _timelineWidget = nullptr;
-                QAction* _stopAction = nullptr;
-                QAction* _forwardAction = nullptr;
-                QActionGroup* _playbackActionGroup = nullptr;
+                QAction* _playbackAction = nullptr;
                 qtwidget::TimeSpinBox* _currentTimeSpinBox = nullptr;
                 qtwidget::TimeLabel* _durationLabel = nullptr;
             };

@@ -4,7 +4,6 @@
 
 #include "MainWindow.h"
 
-#include <QActionGroup>
 #include <QDockWidget>
 #include <QStyle>
 #include <QToolBar>
@@ -36,18 +35,10 @@ namespace tl
                 addDockWidget(Qt::BottomDockWidgetArea, timelineDockWidget);
 
                 // Create the tool bar.
-                _stopAction = new QAction(this);
-                _stopAction->setCheckable(true);
-                _stopAction->setIcon(this->style()->standardIcon(QStyle::SP_MediaStop));
-                _stopAction->setToolTip(tr("Stop playback"));
-                _forwardAction = new QAction(this);
-                _forwardAction->setCheckable(true);
-                _forwardAction->setIcon(this->style()->standardIcon(QStyle::SP_MediaPlay));
-                _forwardAction->setToolTip(tr("Forward playback"));
-                _playbackActionGroup = new QActionGroup(this);
-                _playbackActionGroup->setExclusive(true);
-                _playbackActionGroup->addAction(_stopAction);
-                _playbackActionGroup->addAction(_forwardAction);
+                _playbackAction = new QAction(this);
+                _playbackAction->setIcon(this->style()->standardIcon(QStyle::SP_MediaPlay));
+                _playbackAction->setCheckable(true);
+                _playbackAction->setToolTip(tr("Toggle playback"));
                 _currentTimeSpinBox = new qtwidget::TimeSpinBox;
                 _currentTimeSpinBox->setTimeObject(timeObject);
                 _currentTimeSpinBox->setToolTip("Current time");
@@ -57,8 +48,7 @@ namespace tl
                 auto toolBar = new QToolBar;
                 toolBar->setFloatable(false);
                 toolBar->setMovable(false);
-                toolBar->addAction(_stopAction);
-                toolBar->addAction(_forwardAction);
+                toolBar->addAction(_playbackAction);
                 toolBar->addWidget(_currentTimeSpinBox);
                 toolBar->addWidget(_durationLabel);
                 addToolBar(Qt::BottomToolBarArea, toolBar);
@@ -70,15 +60,15 @@ namespace tl
 
                 // Setup connections.
                 connect(
-                    _playbackActionGroup,
-                    &QActionGroup::triggered,
-                    [this](QAction* action)
+                    _playbackAction,
+                    &QAction::toggled,
+                    [this](bool value)
                     {
                         if (_player)
                         {
-                            const timeline::Playback playback = action == _stopAction ?
-                                timeline::Playback::Stop :
-                                timeline::Playback::Forward;
+                            const timeline::Playback playback = value ?
+                                timeline::Playback::Forward :
+                                timeline::Playback::Stop;
                             _player->setPlayback(playback);
                             _playbackUpdate(playback);
                         }
@@ -145,14 +135,8 @@ namespace tl
 
             void MainWindow::_playbackUpdate(timeline::Playback playback)
             {
-                {
-                    QSignalBlocker blocker(_stopAction);
-                    _stopAction->setChecked(timeline::Playback::Stop == playback);
-                }
-                {
-                    QSignalBlocker blocker(_forwardAction);
-                    _forwardAction->setChecked(timeline::Playback::Forward == playback);
-                }
+                QSignalBlocker blocker(_playbackAction);
+                _playbackAction->setChecked(timeline::Playback::Forward == playback);
             }
         }
     }
