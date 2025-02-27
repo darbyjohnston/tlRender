@@ -18,11 +18,6 @@
 
 #include <iostream>
 
-void qtInitResources()
-{
-    Q_INIT_RESOURCE(tlQtWidget);
-}
-
 namespace dtk_resource
 {
     extern std::vector<uint8_t> NotoSansBold;
@@ -40,7 +35,6 @@ namespace tl
         {
             timelineui::init(context);
             qt::init(context, defaultSurfaceFormat);
-            System::create(context);
         }
 
         void initFonts(const std::shared_ptr<dtk::Context>& context)
@@ -64,26 +58,6 @@ namespace tl
             context->log(
                 "tl::qtwidget::initFonts",
                 dtk::Format("Added Qt application fonts: {0}").arg(dtk::join(fontFamilyList, ", ")));
-        }
-
-        System::System(const std::shared_ptr<dtk::Context>& context) :
-            ISystem(context, "tl::qtwidget::System")
-        {
-            qtInitResources();
-        }
-
-        System::~System()
-        {}
-
-        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
-        {
-            auto out = context->getSystem<System>();
-            if (!out)
-            {
-                out = std::shared_ptr<System>(new System(context));
-                context->addSystem(out);
-            }
-            return out;
         }
     }
 }

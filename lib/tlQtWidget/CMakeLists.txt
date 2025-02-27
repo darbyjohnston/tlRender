@@ -1,8 +1,6 @@
 set(HEADERS
     ContainerWidget.h
-    FloatEditSlider.h
     Init.h
-    IntEditSlider.h
     SpeedLabel.h
     TimeLabel.h
     TimeSpinBox.h
@@ -13,21 +11,13 @@ set(PRIVATE_HEADERS)
 
 set(SOURCE
     ContainerWidget.cpp
-    FloatEditSlider.cpp
     Init.cpp
-    IntEditSlider.cpp
     SpeedLabel.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
     TimelineWidget.cpp
     Util.cpp
     Viewport.cpp)
-
-if(TLRENDER_QT6)
-    qt6_add_resources(SOURCE tlQtWidget.qrc)
-elseif(TLRENDER_QT5)
-    qt5_add_resources(SOURCE tlQtWidget.qrc)
-endif()
 
 set(LIBRARIES tlQt tlTimelineUI)
 if(TLRENDER_QT6)

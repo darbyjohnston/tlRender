@@ -20,20 +20,5 @@ namespace tl
         //! Initialize the fonts. This needs to be called after the Qt
         //! application is created.
         void initFonts(const std::shared_ptr<dtk::Context>& context);
-
-        //! Qt QWidget system.
-        class System : public system::ISystem
-        {
-            DTK_NON_COPYABLE(System);
-
-        protected:
-            System(const std::shared_ptr<dtk::Context>&);
-
-        public:
-            virtual ~System();
-
-            //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
-        };
     }
 }

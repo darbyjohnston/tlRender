@@ -165,7 +165,7 @@ source_group("Widgets Source Files" FILES ${SOURCE_WIDGETS})
 
 add_library(tlPlayApp ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlPlayApp tlTimelineUI tlDevice)
-#set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
+set_target_properties(tlPlayApp PROPERTIES FOLDER lib)
 set_target_properties(tlPlayApp PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(TARGETS tlPlayApp
