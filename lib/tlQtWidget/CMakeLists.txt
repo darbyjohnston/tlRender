@@ -1,44 +1,22 @@
 set(HEADERS
-    BellowsWidget.h
-    ColorDialog.h
-    ColorSwatch.h
-    ColorWidget.h
     ContainerWidget.h
-    Divider.h
-    FileBrowserSystem.h
-    FileWidget.h
     FloatEditSlider.h
     Init.h
     IntEditSlider.h
-    SearchWidget.h
-    Spacer.h
     SpeedLabel.h
-    Style.h
     TimeLabel.h
     TimeSpinBox.h
     TimelineViewport.h
     TimelineWidget.h
     Util.h)
-set(PRIVATE_HEADERS
-    BellowsPrivate.h)
+set(PRIVATE_HEADERS)
 
 set(SOURCE
-    BellowsPrivate.cpp
-    BellowsWidget.cpp
-    ColorDialog.cpp
-    ColorSwatch.cpp
-    ColorWidget.cpp
     ContainerWidget.cpp
-    Divider.cpp
-    FileBrowserSystem.cpp
-    FileWidget.cpp
     FloatEditSlider.cpp
     Init.cpp
     IntEditSlider.cpp
-    SearchWidget.cpp
-    Spacer.cpp
     SpeedLabel.cpp
-    Style.cpp
     TimeLabel.cpp
     TimeSpinBox.cpp
     TimelineViewport.cpp

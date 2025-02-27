@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlPlay/ViewportPrivate.h>
+#include <tlPlayApp/Viewport.h>
 
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>

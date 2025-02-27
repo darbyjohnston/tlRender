@@ -43,6 +43,7 @@ set(HEADERS
     ViewMenu.h
     ViewToolBar.h
     ViewTool.h
+    Viewport.h
     WindowActions.h
     WindowMenu.h
     WindowToolBar.h)
@@ -98,6 +99,7 @@ set(SOURCE
     ViewMenu.cpp
     ViewToolBar.cpp
     ViewTool.cpp
+    Viewport.cpp
     WindowActions.cpp
     WindowMenu.cpp
     WindowToolBar.cpp)

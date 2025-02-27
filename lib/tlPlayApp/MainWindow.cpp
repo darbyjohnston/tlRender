@@ -32,6 +32,7 @@
 #include <tlPlayApp/ViewActions.h>
 #include <tlPlayApp/ViewMenu.h>
 #include <tlPlayApp/ViewToolBar.h>
+#include <tlPlayApp/Viewport.h>
 #include <tlPlayApp/WindowActions.h>
 #include <tlPlayApp/WindowMenu.h>
 #include <tlPlayApp/WindowMenu.h>
@@ -39,10 +40,8 @@
 
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
-#include <tlPlay/Info.h>
 #include <tlPlay/RenderModel.h>
 #include <tlPlay/TimeUnitsModel.h>
-#include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 
 #include <tlTimelineUI/TimeEdit.h>

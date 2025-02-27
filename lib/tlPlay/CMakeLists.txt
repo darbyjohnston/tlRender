@@ -1,39 +1,27 @@
 set(HEADERS
-    App.h
     AudioModel.h
     ColorModel.h
     FilesModel.h
-    Info.h
-    Init.h
     OCIOModel.h
     RecentFilesModel.h
     RenderModel.h
     SettingsModel.h
     TimeUnitsModel.h
-    Util.h
-    Viewport.h
     ViewportModel.h)
-set(PRIVATE_HEADERS
-    ViewportPrivate.h)
+set(PRIVATE_HEADERS)
 if(TLRENDER_BMD)
     list(APPEND HEADERS BMDDevicesModel.h)
 endif()
 
 set(SOURCE
-    App.cpp
     AudioModel.cpp
     ColorModel.cpp
     FilesModel.cpp
-    Info.cpp
-    Init.cpp
     OCIOModel.cpp
     RecentFilesModel.cpp
     RenderModel.cpp
     SettingsModel.cpp
     TimeUnitsModel.cpp
-    Util.cpp
-    Viewport.cpp
-    ViewportColorWidget.cpp
     ViewportModel.cpp)
 if(TLRENDER_BMD)
     list(APPEND SOURCE BMDDevicesModel.cpp)

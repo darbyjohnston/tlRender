@@ -143,6 +143,15 @@ namespace tl
             void _inputFilesInit();
             void _windowsInit();
 
+            std::filesystem::path _appDocsPath();
+            std::filesystem::path _getLogFilePath(
+                const std::string& appName,
+                const std::filesystem::path& appDocsPath);
+            std::filesystem::path _getSettingsPath(
+                const std::string& appName,
+                const std::filesystem::path& appDocsPath);
+            std::vector<std::shared_ptr<dtk::ICmdLineArg> > _getCmdLineArgs();
+            std::vector<std::shared_ptr<dtk::ICmdLineOption> > _getCmdLineOptions();
             io::Options _getIOOptions() const;
 
             void _filesUpdate(const std::vector<std::shared_ptr<play::FilesModelItem> >&);

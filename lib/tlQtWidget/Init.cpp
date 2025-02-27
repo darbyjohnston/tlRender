@@ -4,8 +4,6 @@
 
 #include <tlQtWidget/Init.h>
 
-#include <tlQtWidget/FileBrowserSystem.h>
-
 #include <tlQt/Init.h>
 
 #include <tlTimelineUI/Init.h>
@@ -43,7 +41,6 @@ namespace tl
             timelineui::init(context);
             qt::init(context, defaultSurfaceFormat);
             System::create(context);
-            FileBrowserSystem::create(context);
         }
 
         void initFonts(const std::shared_ptr<dtk::Context>& context)

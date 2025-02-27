@@ -34,7 +34,6 @@ namespace tl_resource
     extern std::vector<uint8_t> tlRender;
     extern std::vector<uint8_t> View;
     extern std::vector<uint8_t> Visible;
-    extern std::vector<uint8_t> WindowFullScreen;
     extern std::vector<uint8_t> WindowSecondary;
 }
 
@@ -70,7 +69,6 @@ namespace tl
             iconSystem->add("tlRender", tl_resource::tlRender);
             iconSystem->add("View", tl_resource::View);
             iconSystem->add("Visible", tl_resource::Visible);
-            iconSystem->add("WindowFullScreen", tl_resource::WindowFullScreen);
             iconSystem->add("WindowSecondary", tl_resource::WindowSecondary);
         }
     }

@@ -4,7 +4,9 @@
 
 #include <tlPlayApp/App.h>
 
-#include <tlPlay/Init.h>
+#include <tlTimelineUI/Init.h>
+
+#include <tlDevice/Init.h>
 
 #include <dtk/core/Context.h>
 
@@ -24,7 +26,8 @@ DTK_MAIN()
     try
     {
         auto context = dtk::Context::create();
-        tl::play::init(context);
+        tl::timelineui::init(context);
+        tl::device::init(context);
         auto args = dtk::convert(argc, argv);
         auto app = tl::play_app::App::create(context, args);
         r = app->getExit();

@@ -8,16 +8,14 @@
 #include <tlPlayApp/SecondaryWindow.h>
 #include <tlPlayApp/SeparateAudioDialog.h>
 #include <tlPlayApp/Tools.h>
+#include <tlPlayApp/Viewport.h>
 
-#include <tlPlay/App.h>
 #include <tlPlay/AudioModel.h>
 #include <tlPlay/ColorModel.h>
 #include <tlPlay/FilesModel.h>
 #include <tlPlay/RecentFilesModel.h>
 #include <tlPlay/RenderModel.h>
 #include <tlPlay/TimeUnitsModel.h>
-#include <tlPlay/Util.h>
-#include <tlPlay/Viewport.h>
 #include <tlPlay/ViewportModel.h>
 #if defined(TLRENDER_BMD)
 #include <tlPlay/BMDDevicesModel.h>
@@ -25,6 +23,8 @@
 
 #include <tlTimelineUI/ThumbnailSystem.h>
 
+#include <tlTimeline/ColorOptions.h>
+#include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/Util.h>
 
 #if defined(TLRENDER_BMD)
@@ -33,11 +33,16 @@
 #endif // TLRENDER_BMD
 
 #include <tlIO/System.h>
+#if defined(TLRENDER_USD)
+#include <tlIO/USD.h>
+#endif // TLRENDER_USD
 
 #include <tlCore/FileLogSystem.h>
 
 #include <dtk/ui/FileBrowser.h>
 #include <dtk/ui/Settings.h>
+#include <dtk/core/CmdLine.h>
+#include <dtk/core/File.h>
 #include <dtk/core/Format.h>
 
 #include <filesystem>
@@ -46,9 +51,38 @@ namespace tl
 {
     namespace play_app
     {
+        struct Options
+        {
+            std::string fileName;
+            std::string audioFileName;
+            std::string compareFileName;
+            timeline::CompareOptions compareOptions;
+            double speed = 0.0;
+            timeline::Playback playback = timeline::Playback::Stop;
+            timeline::Loop loop = timeline::Loop::Loop;
+            OTIO_NS::RationalTime seek = time::invalidTime;
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
+            timeline::OCIOOptions ocioOptions;
+            timeline::LUTOptions lutOptions;
+
+#if defined(TLRENDER_USD)
+            int usdRenderWidth = 1920;
+            float usdComplexity = 1.F;
+            usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
+            bool usdEnableLighting = true;
+            bool usdSRGB = true;
+            size_t usdStageCache = 10;
+            size_t usdDiskCache = 0;
+#endif // TLRENDER_USD
+
+            std::string logFile;
+            bool resetSettings = false;
+            std::string settingsFile;
+        };
+
         struct App::Private
         {
-            play::Options options;
+            Options options;
             std::shared_ptr<file::FileLogSystem> fileLogSystem;
             std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<play::SettingsModel> settingsModel;
@@ -109,16 +143,16 @@ namespace tl
         {
             DTK_P();
             const std::string appName = "tlplay";
-            const std::filesystem::path appDocsPath = play::appDocsPath();
-            p.options.logFile = play::logFileName(appName, appDocsPath).u8string();
-            p.options.settingsFile = play::settingsName(appName, appDocsPath).u8string();
+            const std::filesystem::path appDocsPath = _appDocsPath();
+            p.options.logFile = _getLogFilePath(appName, appDocsPath).u8string();
+            p.options.settingsFile = _getSettingsPath(appName, appDocsPath).u8string();
             dtk::App::_init(
                 context,
                 argv,
                 appName,
                 "Playback application.",
-                play::getCmdLineArgs(p.options),
-                play::getCmdLineOptions(p.options));
+                _getCmdLineArgs(),
+                _getCmdLineOptions());
         }
 
         App::App() :
@@ -669,6 +703,193 @@ namespace tl
                         p.secondaryWindow.reset();
                     }
                 });
+        }
+
+
+        std::filesystem::path App::_appDocsPath()
+        {
+            const std::filesystem::path documentsPath = dtk::getUserPath(dtk::UserPath::Documents);
+            if (!std::filesystem::exists(documentsPath))
+            {
+                std::filesystem::create_directory(documentsPath);
+            }
+            const std::filesystem::path out = documentsPath / "tlRender";
+            if (!std::filesystem::exists(out))
+            {
+                std::filesystem::create_directory(out);
+            }
+            return out;
+        }
+
+        std::filesystem::path App::_getLogFilePath(
+            const std::string& appName,
+            const std::filesystem::path& appDocsPath)
+        {
+            return appDocsPath / dtk::Format("{0}.{1}.log").
+                arg(appName).
+                arg(TLRENDER_VERSION).
+                str();
+        }
+
+        std::filesystem::path App::_getSettingsPath(
+            const std::string& appName,
+            const std::filesystem::path& appDocsPath)
+        {
+            return appDocsPath / dtk::Format("{0}.{1}.json").
+                arg(appName).
+                arg(TLRENDER_VERSION).
+                str();
+        }
+
+        std::vector<std::shared_ptr<dtk::ICmdLineArg> > App::_getCmdLineArgs()
+        {
+            DTK_P();
+            return
+            {
+                dtk::CmdLineValueArg<std::string>::create(
+                    p.options.fileName,
+                    "input",
+                    "Timeline, movie, image sequence, or folder.",
+                    true)
+            };
+        }
+
+        std::vector<std::shared_ptr<dtk::ICmdLineOption> > App::_getCmdLineOptions()
+        {
+            DTK_P();
+            return
+            {
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.audioFileName,
+                    { "-audio", "-a" },
+                    "Audio file name."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.compareFileName,
+                    { "-b" },
+                    "A/B comparison \"B\" file name."),
+                dtk::CmdLineValueOption<timeline::CompareMode>::create(
+                    p.options.compareOptions.mode,
+                    { "-compare", "-c" },
+                    "A/B comparison mode.",
+                    dtk::Format("{0}").arg(p.options.compareOptions.mode),
+                    dtk::join(timeline::getCompareModeLabels(), ", ")),
+                dtk::CmdLineValueOption<dtk::V2F>::create(
+                    p.options.compareOptions.wipeCenter,
+                    { "-wipeCenter", "-wc" },
+                    "A/B comparison wipe center.",
+                    dtk::Format("{0}").arg(p.options.compareOptions.wipeCenter)),
+                dtk::CmdLineValueOption<float>::create(
+                    p.options.compareOptions.wipeRotation,
+                    { "-wipeRotation", "-wr" },
+                    "A/B comparison wipe rotation.",
+                    dtk::Format("{0}").arg(p.options.compareOptions.wipeRotation)),
+                dtk::CmdLineValueOption<double>::create(
+                    p.options.speed,
+                    { "-speed" },
+                    "Playback speed."),
+                dtk::CmdLineValueOption<timeline::Playback>::create(
+                    p.options.playback,
+                    { "-playback", "-p" },
+                    "Playback mode.",
+                    dtk::Format("{0}").arg(p.options.playback),
+                    dtk::join(timeline::getPlaybackLabels(), ", ")),
+                dtk::CmdLineValueOption<timeline::Loop>::create(
+                    p.options.loop,
+                    { "-loop", "-lp" },
+                    "Playback loop mode.",
+                    dtk::Format("{0}").arg(p.options.loop),
+                    dtk::join(timeline::getLoopLabels(), ", ")),
+                dtk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
+                    p.options.seek,
+                    { "-seek" },
+                    "Seek to the given time."),
+                dtk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                    p.options.inOutRange,
+                    { "-inOutRange" },
+                    "Set the in/out points range."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.ocioOptions.fileName,
+                    { "-ocio" },
+                    "OpenColorIO configuration file name (e.g., config.ocio)."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.ocioOptions.input,
+                    { "-ocioInput" },
+                    "OpenColorIO input name."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.ocioOptions.display,
+                    { "-ocioDisplay" },
+                    "OpenColorIO display name."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.ocioOptions.view,
+                    { "-ocioView" },
+                    "OpenColorIO view name."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.ocioOptions.look,
+                    { "-ocioLook" },
+                    "OpenColorIO look name."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.lutOptions.fileName,
+                    { "-lut" },
+                    "LUT file name."),
+                dtk::CmdLineValueOption<timeline::LUTOrder>::create(
+                    p.options.lutOptions.order,
+                    { "-lutOrder" },
+                    "LUT operation order.",
+                    dtk::Format("{0}").arg(p.options.lutOptions.order),
+                    dtk::join(timeline::getLUTOrderLabels(), ", ")),
+#if defined(TLRENDER_USD)
+                dtk::CmdLineValueOption<int>::create(
+                    p.options.usdRenderWidth,
+                    { "-usdRenderWidth" },
+                    "USD render width.",
+                    dtk::Format("{0}").arg(p.options.usdRenderWidth)),
+                dtk::CmdLineValueOption<float>::create(
+                    p.options.usdComplexity,
+                    { "-usdComplexity" },
+                    "USD render complexity setting.",
+                    dtk::Format("{0}").arg(p.options.usdComplexity)),
+                dtk::CmdLineValueOption<usd::DrawMode>::create(
+                    p.options.usdDrawMode,
+                    { "-usdDrawMode" },
+                    "USD draw mode.",
+                    dtk::Format("{0}").arg(p.options.usdDrawMode),
+                    dtk::join(usd::getDrawModeLabels(), ", ")),
+                dtk::CmdLineValueOption<bool>::create(
+                    p.options.usdEnableLighting,
+                    { "-usdEnableLighting" },
+                    "USD enable lighting.",
+                    dtk::Format("{0}").arg(p.options.usdEnableLighting)),
+                dtk::CmdLineValueOption<bool>::create(
+                    p.options.usdSRGB,
+                    { "-usdSRGB" },
+                    "USD enable sRGB color space.",
+                    dtk::Format("{0}").arg(p.options.usdSRGB)),
+                dtk::CmdLineValueOption<size_t>::create(
+                    p.options.usdStageCache,
+                    { "-usdStageCache" },
+                    "USD stage cache size.",
+                    dtk::Format("{0}").arg(p.options.usdStageCache)),
+                dtk::CmdLineValueOption<size_t>::create(
+                    p.options.usdDiskCache,
+                    { "-usdDiskCache" },
+                    "USD disk cache size in gigabytes. A size of zero disables the disk cache.",
+                    dtk::Format("{0}").arg(p.options.usdDiskCache)),
+#endif // TLRENDER_USD
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.logFile,
+                    { "-logFile" },
+                    "Log file name.",
+                    dtk::Format("{0}").arg(p.options.logFile)),
+                dtk::CmdLineFlagOption::create(
+                    p.options.resetSettings,
+                    { "-resetSettings" },
+                    "Reset settings to defaults."),
+                dtk::CmdLineValueOption<std::string>::create(
+                    p.options.settingsFile,
+                    { "-settingsFile" },
+                    "Settings file name.",
+                    dtk::Format("{0}").arg(p.options.settingsFile)),
+            };
         }
 
         io::Options App::_getIOOptions() const

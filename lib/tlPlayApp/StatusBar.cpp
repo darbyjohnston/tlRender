@@ -7,8 +7,6 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/Tools.h>
 
-#include <tlPlay/Info.h>
-
 #if defined(TLRENDER_BMD)
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
@@ -18,6 +16,7 @@
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/core/Context.h>
+#include <dtk/core/Format.h>
 #include <dtk/core/Timer.h>
 
 namespace tl
@@ -207,10 +206,48 @@ namespace tl
         void StatusBar::_infoUpdate(const file::Path& path, const io::Info& info)
         {
             DTK_P();
-            const std::string text = play::infoLabel(path, info);
-            const std::string toolTip = play::infoToolTip(path, info);
+            std::vector<std::string> s;
+            s.push_back(dtk::elide(path.get(-1, file::PathType::FileName)));
+            if (!info.video.empty())
+            {
+                s.push_back(std::string(
+                    dtk::Format("video: {0}x{1} {2}").
+                    arg(info.video[0].size.w).
+                    arg(info.video[0].size.h).
+                    arg(info.video[0].type)));
+            }
+            if (info.audio.isValid())
+            {
+                s.push_back(std::string(
+                    dtk::Format("audio: {0}ch {1} {2}kHz").
+                    arg(info.audio.channelCount).
+                    arg(info.audio.dataType).
+                    arg(info.audio.sampleRate / 1000)));
+            }
+            const std::string text = dtk::join(s, ", ");
             p.infoLabel->setText(text);
-            p.infoLabel->setTooltip(toolTip);;
+
+            std::vector<std::string> t;
+            t.push_back(path.get());
+            if (!info.video.empty())
+            {
+                t.push_back(std::string(
+                    dtk::Format("Video: {0}x{1} {2}").
+                    arg(info.video[0].size.w).
+                    arg(info.video[0].size.h).
+                    arg(info.video[0].type)));
+            }
+            if (info.audio.isValid())
+            {
+                t.push_back(std::string(
+                    dtk::Format("Audio: {0} {1} {2} {3}kHz").
+                    arg(info.audio.channelCount).
+                    arg(1 == info.audio.channelCount ? "channel" : "channels").
+                    arg(info.audio.dataType).
+                    arg(info.audio.sampleRate / 1000)));
+            }
+            const std::string tooltip = dtk::join(t, "\n");
+            p.infoLabel->setTooltip(tooltip);
         }
 
         void StatusBar::_deviceUpdate(bool value)

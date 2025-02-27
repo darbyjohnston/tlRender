@@ -22,7 +22,6 @@ set(RESOURCES
     etc/Icons/tlRender.svg
     etc/Icons/View.svg
     etc/Icons/Visible.svg
-    etc/Icons/WindowFullScreen.svg
     etc/Icons/WindowSecondary.svg)
 foreach(RESOURCE ${RESOURCES})
     get_filename_component(RESOURCE_BASE ${RESOURCE} NAME_WE)
