@@ -150,13 +150,13 @@ namespace tl
 
         void from_json(const nlohmann::json& json, Options& value)
         {
-            json["renderWidth"].get_to(value.renderWidth);
-            json["complexity"].get_to(value.complexity);
-            from_string(json["drawMode"].get<std::string>(), value.drawMode);
-            json["enableLighting"].get_to(value.enableLighting);
-            json["sRGB"].get_to(value.sRGB);
-            json["stageCache"].get_to(value.stageCache);
-            json["diskCache"].get_to(value.diskCache);
+            json.at("renderWidth").get_to(value.renderWidth);
+            json.at("complexity").get_to(value.complexity);
+            from_string(json.at("drawMode").get<std::string>(), value.drawMode);
+            json.at("enableLighting").get_to(value.enableLighting);
+            json.at("sRGB").get_to(value.sRGB);
+            json.at("stageCache").get_to(value.stageCache);
+            json.at("diskCache").get_to(value.diskCache);
         }
     }
 }

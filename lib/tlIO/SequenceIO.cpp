@@ -38,8 +38,8 @@ namespace tl
 
         void from_json(const nlohmann::json& json, SequenceOptions& value)
         {
-            json["defaultSpeed"].get_to(value.defaultSpeed);
-            json["threadCount"].get_to(value.threadCount);
+            json.at("defaultSpeed").get_to(value.defaultSpeed);
+            json.at("threadCount").get_to(value.threadCount);
         }
     }
 }

@@ -297,8 +297,8 @@ namespace tl
 
         void from_json(const nlohmann::json& json, ItemOptions& value)
         {
-            json["inputEnabled"].get_to(value.inputEnabled);
-            json["editAssociatedClips"].get_to(value.editAssociatedClips);
+            json.at("inputEnabled").get_to(value.inputEnabled);
+            json.at("editAssociatedClips").get_to(value.editAssociatedClips);
         }
 
         void from_json(const nlohmann::json& json, DisplayOptions& value)

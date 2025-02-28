@@ -40,14 +40,14 @@ namespace tl
 
         void from_json(const nlohmann::json& json, HDRData& value)
         {
-            from_string(json["eotf"].get<std::string>(), value.eotf);
+            from_string(json.at("eotf").get<std::string>(), value.eotf);
             for (size_t i = 0; i < value.primaries.size(); ++i)
             {
-                json["primaries"].at(i).get_to(value.primaries[i]);
+                json.at("primaries").at(i).get_to(value.primaries[i]);
             }
-            json["displayMasteringLuminance"].get_to(value.displayMasteringLuminance);
-            json["maxCLL"].get_to(value.maxCLL);
-            json["maxFALL"].get_to(value.maxFALL);
+            json.at("displayMasteringLuminance").get_to(value.displayMasteringLuminance);
+            json.at("maxCLL").get_to(value.maxCLL);
+            json.at("maxFALL").get_to(value.maxFALL);
         }
     }
 }

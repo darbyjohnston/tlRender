@@ -563,9 +563,9 @@ namespace tl
 
         void from_json(const nlohmann::json& json, CacheOptions& value)
         {
-            json["sizeGB"].get_to(value.sizeGB);
-            json["readAhead"].get_to(value.readAhead);
-            json["readBehind"].get_to(value.readBehind);
+            json.at("sizeGB").get_to(value.sizeGB);
+            json.at("readAhead").get_to(value.readAhead);
+            json.at("readBehind").get_to(value.readBehind);
         }
 
         void from_json(const nlohmann::json& json, WindowOptions& out)
@@ -584,31 +584,31 @@ namespace tl
 
         void from_json(const nlohmann::json& json, FileSequenceOptions& value)
         {
-            timeline::from_string(json["audio"].get<std::string>(), value.audio);
-            json["audioFileName"].get_to(value.audioFileName);
-            json["audioDirectory"].get_to(value.audioDirectory);
-            json["maxDigits"].get_to(value.maxDigits);
+            timeline::from_string(json.at("audio").get<std::string>(), value.audio);
+            json.at("audioFileName").get_to(value.audioFileName);
+            json.at("audioDirectory").get_to(value.audioDirectory);
+            json.at("maxDigits").get_to(value.maxDigits);
         }
 
         void from_json(const nlohmann::json& json, PerformanceOptions& value)
         {
-            json["audioBufferFrameCount"].get_to(value.audioBufferFrameCount);
-            json["videoRequestCount"].get_to(value.videoRequestCount);
-            json["audioRequestCount"].get_to(value.audioRequestCount);
+            json.at("audioBufferFrameCount").get_to(value.audioBufferFrameCount);
+            json.at("videoRequestCount").get_to(value.videoRequestCount);
+            json.at("audioRequestCount").get_to(value.audioRequestCount);
         }
 
         void from_json(const nlohmann::json& json, TimelineOptions& value)
         {
-            json["editable"].get_to(value.editable);
-            json["frameView"].get_to(value.frameView);
-            json["scroll"].get_to(value.scroll);
-            json["stopOnScrub"].get_to(value.stopOnScrub);
+            json.at("editable").get_to(value.editable);
+            json.at("frameView").get_to(value.frameView);
+            json.at("scroll").get_to(value.scroll);
+            json.at("stopOnScrub").get_to(value.stopOnScrub);
         }
 
         void from_json(const nlohmann::json& json, StyleOptions& value)
         {
-            json["colorStyle"].get_to(value.colorStyle);
-            json["displayScale"].get_to(value.displayScale);
+            json.at("colorStyle").get_to(value.colorStyle);
+            json.at("displayScale").get_to(value.displayScale);
         }
     }
 }

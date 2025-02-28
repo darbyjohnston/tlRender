@@ -75,18 +75,18 @@ namespace tl
 
         void from_json(const nlohmann::json& json, OCIOOptions& value)
         {
-            json["enabled"].get_to(value.enabled);
-            json["input"].get_to(value.input);
-            json["display"].get_to(value.display);
-            json["view"].get_to(value.view);
-            json["look"].get_to(value.look);
+            json.at("enabled").get_to(value.enabled);
+            json.at("input").get_to(value.input);
+            json.at("display").get_to(value.display);
+            json.at("view").get_to(value.view);
+            json.at("look").get_to(value.look);
         }
 
         void from_json(const nlohmann::json& json, LUTOptions& value)
         {
-            json["enabled"].get_to(value.enabled);
-            json["fileName"].get_to(value.fileName);
-            from_string(json["order"].get<std::string>(), value.order);
+            json.at("enabled").get_to(value.enabled);
+            json.at("fileName").get_to(value.fileName);
+            from_string(json.at("order").get<std::string>(), value.order);
         }
     }
 }

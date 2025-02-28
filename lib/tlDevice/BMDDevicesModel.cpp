@@ -223,19 +223,18 @@ namespace tl
 
         void from_json(const nlohmann::json& json, DevicesModelData& value)
         {
-            json.find("deviceIndex")->get_to(value.deviceIndex);
-            json.find("displayModeIndex")->get_to(value.displayModeIndex);
-            json.find("pixelTypeIndex")->get_to(value.pixelTypeIndex);
-            json.find("deviceEnabled")->get_to(value.deviceEnabled);
-            auto i = json.find("boolOptions");
-            for (const auto& j : getOptionEnums())
+            json.at("deviceIndex").get_to(value.deviceIndex);
+            json.at("displayModeIndex").get_to(value.displayModeIndex);
+            json.at("pixelTypeIndex").get_to(value.pixelTypeIndex);
+            json.at("deviceEnabled").get_to(value.deviceEnabled);
+            for (const auto& i : getOptionEnums())
             {
                 std::stringstream ss;
-                ss << j;
-                value.boolOptions[j] = i->find(ss.str())->get<bool>();
+                ss << i;
+                value.boolOptions[i] = json.at("boolOptions").find(ss.str())->get<bool>();
             }
-            from_string(json.find("hdrMode")->get<std::string>(), value.hdrMode);
-            json.find("hdrData")->get_to(value.hdrData);
+            from_string(json.at("hdrMode").get<std::string>(), value.hdrMode);
+            json.at("hdrData").get_to(value.hdrData);
         }
     }
 }

@@ -322,8 +322,8 @@ namespace tl
 
         void from_json(const nlohmann::json& json, Options& value)
         {
-            json["yuvToRgb"].get_to(value.yuvToRgb);
-            json["threadCount"].get_to(value.threadCount);
+            json.at("yuvToRgb").get_to(value.yuvToRgb);
+            json.at("threadCount").get_to(value.threadCount);
         }
     }
 }
