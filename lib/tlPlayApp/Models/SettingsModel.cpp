@@ -4,7 +4,6 @@
 
 #include <tlPlayApp/Models/SettingsModel.h>
 
-#include <dtk/ui/FileBrowser.h>
 #include <dtk/ui/Settings.h>
 
 namespace tl
@@ -23,22 +22,16 @@ namespace tl
         {
             return !(*this == other);
         }
-        bool WindowOptions::operator == (const WindowOptions& other) const
+
+        bool FileBrowserOptions::operator == (const FileBrowserOptions& other) const
         {
             return
-                fileToolBar == other.fileToolBar &&
-                compareToolBar == other.compareToolBar &&
-                windowToolBar == other.windowToolBar &&
-                viewToolBar == other.viewToolBar &&
-                toolsToolBar == other.toolsToolBar &&
-                timeline == other.timeline &&
-                bottomToolBar == other.bottomToolBar &&
-                statusToolBar == other.statusToolBar &&
-                splitter == other.splitter &&
-                splitter2 == other.splitter2;
+                nativeFileDialog == other.nativeFileDialog &&
+                path == other.path &&
+                options == other.options;
         }
 
-        bool WindowOptions::operator != (const WindowOptions& other) const
+        bool FileBrowserOptions::operator != (const FileBrowserOptions& other) const
         {
             return !(*this == other);
         }
@@ -49,10 +42,22 @@ namespace tl
                 audio == other.audio &&
                 audioFileName == other.audioFileName &&
                 audioDirectory == other.audioDirectory &&
-                maxDigits == other.maxDigits;
+                maxDigits == other.maxDigits &&
+                io == other.io;
         }
 
         bool FileSequenceOptions::operator != (const FileSequenceOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool MiscOptions::operator == (const MiscOptions& other) const
+        {
+            return
+                tooltipsEnabled == other.tooltipsEnabled;
+        }
+
+        bool MiscOptions::operator != (const MiscOptions& other) const
         {
             return !(*this == other);
         }
@@ -70,20 +75,6 @@ namespace tl
             return !(*this == other);
         }
 
-        bool TimelineOptions::operator == (const TimelineOptions& other) const
-        {
-            return
-                editable == other.editable &&
-                frameView == other.frameView &&
-                scroll == other.scroll &&
-                stopOnScrub == other.stopOnScrub;
-        }
-
-        bool TimelineOptions::operator != (const TimelineOptions& other) const
-        {
-            return !(*this == other);
-        }
-
         bool StyleOptions::operator == (const StyleOptions& other) const
         {
             return
@@ -96,37 +87,63 @@ namespace tl
             return !(*this == other);
         }
 
+        bool TimelineOptions::operator == (const TimelineOptions& other) const
+        {
+            return
+                editable == other.editable &&
+                frameView == other.frameView &&
+                scroll == other.scroll &&
+                stopOnScrub == other.stopOnScrub &&
+                item == other.item &&
+                display == other.display &&
+                firstTrack == other.firstTrack;
+        }
+
+        bool TimelineOptions::operator != (const TimelineOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool WindowOptions::operator == (const WindowOptions& other) const
+        {
+            return
+                size == other.size &&
+                fileToolBar == other.fileToolBar &&
+                compareToolBar == other.compareToolBar &&
+                windowToolBar == other.windowToolBar &&
+                viewToolBar == other.viewToolBar &&
+                toolsToolBar == other.toolsToolBar &&
+                timeline == other.timeline &&
+                bottomToolBar == other.bottomToolBar &&
+                statusToolBar == other.statusToolBar &&
+                splitter == other.splitter &&
+                splitter2 == other.splitter2;
+        }
+
+        bool WindowOptions::operator != (const WindowOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         struct SettingsModel::Private
         {
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::Settings> settings;
 
             std::shared_ptr<dtk::ObservableValue<CacheOptions> > cache;
-
-            std::shared_ptr<dtk::ObservableValue<WindowOptions> > window;
-            std::shared_ptr<dtk::ObservableValue<dtk::Size2I> > windowSize;
-
+            std::shared_ptr<dtk::ObservableValue<FileBrowserOptions> > fileBrowser;
             std::shared_ptr<dtk::ObservableValue<FileSequenceOptions> > fileSequence;
-            std::shared_ptr<dtk::ObservableValue<io::SequenceOptions> > sequenceIO;
+            std::shared_ptr<dtk::ObservableValue<MiscOptions> > misc;
+            std::shared_ptr<dtk::ObservableValue<PerformanceOptions> > performance;
+            std::shared_ptr<dtk::ObservableValue<StyleOptions> > style;
+            std::shared_ptr<dtk::ObservableValue<TimelineOptions> > timeline;
+            std::shared_ptr<dtk::ObservableValue<WindowOptions> > window;
 #if defined(TLRENDER_FFMPEG)
             std::shared_ptr<dtk::ObservableValue<ffmpeg::Options> > ffmpeg;
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
             std::shared_ptr<dtk::ObservableValue<usd::Options> > usd;
 #endif // TLRENDER_USD
-
-            std::shared_ptr<dtk::ObservableValue<bool> > nativeFileDialog;
-
-            std::shared_ptr<dtk::ObservableValue<PerformanceOptions> > performance;
-
-            std::shared_ptr<dtk::ObservableValue<TimelineOptions> > timeline;
-            std::shared_ptr<dtk::ObservableValue<timelineui::ItemOptions> > timelineItem;
-            std::shared_ptr<dtk::ObservableValue<timelineui::DisplayOptions> > timelineDisplay;
-            std::shared_ptr<dtk::ObservableValue<bool> > timelineFirstTrack;
-
-            std::shared_ptr<dtk::ObservableValue<StyleOptions> > style;
-
-            std::shared_ptr<dtk::ObservableValue<bool> > tooltipsEnabled;
         };
 
         void SettingsModel::_init(
@@ -142,66 +159,49 @@ namespace tl
             settings->getT("Cache", cache);
             p.cache = dtk::ObservableValue<CacheOptions>::create(cache);
 
-            WindowOptions window;
-            settings->getT("Window", window);
-            p.window = dtk::ObservableValue<WindowOptions>::create(window);
-            dtk::Size2I windowSize(1920, 1080);
-            settings->getT("Window/Size", windowSize);
-            p.windowSize = dtk::ObservableValue<dtk::Size2I>::create(windowSize);
+            FileBrowserOptions fileBrowser;
+            settings->getT("FileBrowser", fileBrowser);
+            p.fileBrowser = dtk::ObservableValue<FileBrowserOptions>::create(fileBrowser);
+            auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+            fileBrowserSystem->setPath(fileBrowser.path);
+            fileBrowserSystem->setOptions(fileBrowser.options);
+            fileBrowserSystem->setNativeFileDialog(fileBrowser.nativeFileDialog);
 
             FileSequenceOptions fileSequence;
             settings->getT("FileSequence", fileSequence);
             p.fileSequence = dtk::ObservableValue<FileSequenceOptions>::create(fileSequence);
-            io::SequenceOptions sequenceIO;
-            settings->getT("SequenceIO", sequenceIO);
-            p.sequenceIO = dtk::ObservableValue<io::SequenceOptions>::create(sequenceIO);
-#if defined(TLRENDER_FFMPEG)
-            ffmpeg::Options ffmpeg;
-            settings->getT("FFmpeg", ffmpeg);
-            p.ffmpeg = dtk::ObservableValue<ffmpeg::Options>::create(ffmpeg);
-#endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_USD)
-            usd::Options usd;
-            settings->getT("USD", usd);
-            p.usd = dtk::ObservableValue<usd::Options>::create(usd);
-#endif // TLRENDER_USD
 
-            bool nativeFileDialog = true;
-            settings->get("FileBrowser/NativeFileDialog", nativeFileDialog);
-            p.nativeFileDialog = dtk::ObservableValue<bool>::create(nativeFileDialog);
-            {
-                std::string path;
-                dtk::FileBrowserOptions options;
-                p.settings->get("FileBrowser/Path", path);
-                p.settings->getT("FileBrowser/Options", options);
-                auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
-                fileBrowserSystem->setPath(path);
-                fileBrowserSystem->setOptions(options);
-                fileBrowserSystem->setNativeFileDialog(nativeFileDialog);
-            }
+            MiscOptions misc;
+            settings->getT("Misc", misc);
+            p.misc = dtk::ObservableValue<MiscOptions>::create(misc);
 
             PerformanceOptions performance;
             settings->getT("Performance", performance);
             p.performance = dtk::ObservableValue<PerformanceOptions>::create(performance);
 
-            TimelineOptions timeline;
-            settings->getT("Timeline", timeline);
-            p.timeline = dtk::ObservableValue<TimelineOptions>::create(timeline);
-            timelineui::ItemOptions timelineItem;
-            settings->getT("TimelineItem", timelineItem);
-            p.timelineItem = dtk::ObservableValue<timelineui::ItemOptions>::create(timelineItem);
-            timelineui::DisplayOptions timelineDisplay;
-            settings->getT("TimelineDisplay", timelineDisplay);
-            p.timelineDisplay = dtk::ObservableValue<timelineui::DisplayOptions>::create(timelineDisplay);
-            p.timelineFirstTrack = dtk::ObservableValue<bool>::create(false);
-
             StyleOptions style;
             settings->getT("Style", style);
             p.style = dtk::ObservableValue<StyleOptions>::create(style);
 
-            bool tooltipsEnabled = true;
-            settings->get("Misc/Tooltips", tooltipsEnabled);
-            p.tooltipsEnabled = dtk::ObservableValue<bool>::create(tooltipsEnabled);
+            TimelineOptions timeline;
+            settings->getT("Timeline", timeline);
+            p.timeline = dtk::ObservableValue<TimelineOptions>::create(timeline);
+
+            WindowOptions window;
+            settings->getT("Window", window);
+            p.window = dtk::ObservableValue<WindowOptions>::create(window);
+
+#if defined(TLRENDER_FFMPEG)
+            ffmpeg::Options ffmpeg;
+            settings->getT("FFmpeg", ffmpeg);
+            p.ffmpeg = dtk::ObservableValue<ffmpeg::Options>::create(ffmpeg);
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+            usd::Options usd;
+            settings->getT("USD", usd);
+            p.usd = dtk::ObservableValue<usd::Options>::create(usd);
+#endif // TLRENDER_USD
         }
 
         SettingsModel::SettingsModel() :
@@ -213,30 +213,34 @@ namespace tl
             DTK_P();
             p.settings->setT("Cache", p.cache->get());
 
-            p.settings->setT("Window/Size", p.windowSize->get());
-
-            p.settings->setT("FileSequence", p.fileSequence->get());
-            p.settings->setT("SequenceIO", p.sequenceIO->get());
-#if defined(TLRENDER_FFMPEG)
-            p.settings->setT("FFmpeg", p.ffmpeg->get());
-#endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_USD)
-            p.settings->setT("USD", p.usd->get());
-#endif // TLRENDER_USD
-
-            p.settings->set("FileBrowser/NativeFileDialog", p.nativeFileDialog->get());
+            FileBrowserOptions fileBrowser = p.fileBrowser->get();
             if (auto context = p.context.lock())
             {
                 auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
-                p.settings->set("FileBrowser/Path", fileBrowserSystem->getPath().u8string());
-                p.settings->setT("FileBrowser/Options", fileBrowserSystem->getOptions());
+                fileBrowser.path = fileBrowserSystem->getPath().u8string();
+                fileBrowser.options = fileBrowserSystem->getOptions();
             }
+            p.settings->setT("FileBrowser", fileBrowser);
+
+            p.settings->setT("FileSequence", p.fileSequence->get());
+
+            p.settings->setT("Misc", p.misc->get());
 
             p.settings->setT("Performance", p.performance->get());
 
             p.settings->setT("Style", p.style->get());
 
-            p.settings->set("Misc/Tooltips", p.tooltipsEnabled->get());
+            p.settings->setT("Timeline", p.timeline->get());
+
+            p.settings->setT("Window", p.window->get());
+
+#if defined(TLRENDER_FFMPEG)
+            p.settings->setT("FFmpeg", p.ffmpeg->get());
+#endif // TLRENDER_FFMPEG
+
+#if defined(TLRENDER_USD)
+            p.settings->setT("USD", p.usd->get());
+#endif // TLRENDER_USD
         }
 
         std::shared_ptr<SettingsModel> SettingsModel::create(
@@ -251,24 +255,19 @@ namespace tl
         void SettingsModel::reset()
         {
             setCache(CacheOptions());
-            setWindowSize(dtk::Size2I(1920, 1080));
-            setWindow(WindowOptions());
+            setFileBrowser(FileBrowserOptions());
             setFileSequence(FileSequenceOptions());
-            setSequenceIO(io::SequenceOptions());
+            setMisc(MiscOptions());
+            setPerformance(PerformanceOptions());
+            setStyle(StyleOptions());
+            setTimeline(TimelineOptions());
+            setWindow(WindowOptions());
 #if defined(TLRENDER_FFMPEG)
             setFFmpeg(ffmpeg::Options());
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
             setUSD(usd::Options());
 #endif // TLRENDER_USD
-            setNativeFileDialog(true);
-            setPerformance(PerformanceOptions());
-            setTimeline(TimelineOptions());
-            setTimelineItem(timelineui::ItemOptions());
-            setTimelineDisplay(timelineui::DisplayOptions());
-            setTimelineFirstTrack(false);
-            setStyle(StyleOptions());
-            setTooltipsEnabled(true);
         }
 
         const CacheOptions& SettingsModel::getCache() const
@@ -286,34 +285,27 @@ namespace tl
             _p->cache->setIfChanged(value);
         }
 
-        const WindowOptions& SettingsModel::getWindow() const
+        const FileBrowserOptions& SettingsModel::getFileBrowser() const
         {
-            return _p->window->get();
+            return _p->fileBrowser->get();
         }
 
-        const dtk::Size2I& SettingsModel::getWindowSize() const
+        std::shared_ptr<dtk::IObservableValue<FileBrowserOptions> > SettingsModel::observeFileBrowser() const
         {
-            return _p->windowSize->get();
+            return _p->fileBrowser;
         }
 
-        std::shared_ptr<dtk::IObservableValue<WindowOptions> > SettingsModel::observeWindow() const
+        void SettingsModel::setFileBrowser(const FileBrowserOptions& value)
         {
-            return _p->window;
-        }
-
-        std::shared_ptr<dtk::IObservableValue<dtk::Size2I> > SettingsModel::observeWindowSize() const
-        {
-            return _p->windowSize;
-        }
-
-        void SettingsModel::setWindow(const WindowOptions& value)
-        {
-            _p->window->setIfChanged(value);
-        }
-
-        void SettingsModel::setWindowSize(const dtk::Size2I& value)
-        {
-            _p->windowSize->setIfChanged(value);
+            DTK_P();
+            if (p.fileBrowser->setIfChanged(value))
+            {
+                if (auto context = p.context.lock())
+                {
+                    auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+                    fileBrowserSystem->setNativeFileDialog(value.nativeFileDialog);
+                }
+            }
         }
 
         const FileSequenceOptions& SettingsModel::getFileSequence() const
@@ -321,19 +313,9 @@ namespace tl
             return _p->fileSequence->get();
         }
 
-        const io::SequenceOptions& SettingsModel::getSequenceIO() const
-        {
-            return _p->sequenceIO->get();
-        }
-
         std::shared_ptr<dtk::IObservableValue<FileSequenceOptions> > SettingsModel::observeFileSequence() const
         {
             return _p->fileSequence;
-        }
-
-        std::shared_ptr<dtk::IObservableValue<io::SequenceOptions> > SettingsModel::observeSequenceIO() const
-        {
-            return _p->sequenceIO;
         }
 
         void SettingsModel::setFileSequence(const FileSequenceOptions& value)
@@ -341,9 +323,79 @@ namespace tl
             _p->fileSequence->setIfChanged(value);
         }
 
-        void SettingsModel::setSequenceIO(const io::SequenceOptions& value)
+        const MiscOptions& SettingsModel::getMisc() const
         {
-            _p->sequenceIO->setIfChanged(value);
+            return _p->misc->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<MiscOptions> > SettingsModel::observeMisc() const
+        {
+            return _p->misc;
+        }
+
+        void SettingsModel::setMisc(const MiscOptions& value)
+        {
+            _p->misc->setIfChanged(value);
+        }
+
+        const PerformanceOptions& SettingsModel::getPerformance() const
+        {
+            return _p->performance->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<PerformanceOptions> > SettingsModel::observePerformance() const
+        {
+            return _p->performance;
+        }
+
+        void SettingsModel::setPerformance(const PerformanceOptions& value)
+        {
+            _p->performance->setIfChanged(value);
+        }
+
+        const StyleOptions& SettingsModel::getStyle() const
+        {
+            return _p->style->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<StyleOptions> > SettingsModel::observeStyle() const
+        {
+            return _p->style;
+        }
+
+        void SettingsModel::setStyle(const StyleOptions& value)
+        {
+            _p->style->setIfChanged(value);
+        }
+
+        const TimelineOptions& SettingsModel::getTimeline() const
+        {
+            return _p->timeline->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<TimelineOptions> > SettingsModel::observeTimeline() const
+        {
+            return _p->timeline;
+        }
+
+        void SettingsModel::setTimeline(const TimelineOptions& value)
+        {
+            _p->timeline->setIfChanged(value);
+        }
+
+        const WindowOptions& SettingsModel::getWindow() const
+        {
+            return _p->window->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<WindowOptions> > SettingsModel::observeWindow() const
+        {
+            return _p->window;
+        }
+
+        void SettingsModel::setWindow(const WindowOptions& value)
+        {
+            _p->window->setIfChanged(value);
         }
 
 #if defined(TLRENDER_FFMPEG)
@@ -380,134 +432,6 @@ namespace tl
         }
 #endif // TLRENDER_USD
 
-        bool SettingsModel::getNativeFileDialog() const
-        {
-            return _p->nativeFileDialog->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<bool> > SettingsModel::observeNativeFileDialog() const
-        {
-            return _p->nativeFileDialog;
-        }
-
-        void SettingsModel::setNativeFileDialog(bool value)
-        {
-            DTK_P();
-            if (p.nativeFileDialog->setIfChanged(value))
-            {
-                if (auto context = p.context.lock())
-                {
-                    auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
-                    fileBrowserSystem->setNativeFileDialog(value);
-                }
-            }
-        }
-
-        const PerformanceOptions& SettingsModel::getPerformance() const
-        {
-            return _p->performance->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<PerformanceOptions> > SettingsModel::observePerformance() const
-        {
-            return _p->performance;
-        }
-
-        void SettingsModel::setPerformance(const PerformanceOptions& value)
-        {
-            _p->performance->setIfChanged(value);
-        }
-
-        const TimelineOptions& SettingsModel::getTimeline() const
-        {
-            return _p->timeline->get();
-        }
-
-        const timelineui::ItemOptions& SettingsModel::getTimelineItem() const
-        {
-            return _p->timelineItem->get();
-        }
-
-        const timelineui::DisplayOptions& SettingsModel::getTimelineDisplay() const
-        {
-            return _p->timelineDisplay->get();
-        }
-
-        bool SettingsModel::getTimelineFirstTrack() const
-        {
-            return _p->timelineFirstTrack->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<TimelineOptions> > SettingsModel::observeTimeline() const
-        {
-            return _p->timeline;
-        }
-
-        std::shared_ptr<dtk::IObservableValue<timelineui::ItemOptions> > SettingsModel::observeTimelineItem() const
-        {
-            return _p->timelineItem;
-        }
-
-        std::shared_ptr<dtk::IObservableValue<timelineui::DisplayOptions> > SettingsModel::observeTimelineDisplay() const
-        {
-            return _p->timelineDisplay;
-        }
-        
-        std::shared_ptr<dtk::IObservableValue<bool> > SettingsModel::observeTimelineFirstTrack() const
-        {
-            return _p->timelineFirstTrack;
-        }
-
-        void SettingsModel::setTimeline(const TimelineOptions& value)
-        {
-            _p->timeline->setIfChanged(value);
-        }
-
-        void SettingsModel::setTimelineItem(const timelineui::ItemOptions& value)
-        {
-            _p->timelineItem->setIfChanged(value);
-        }
-
-        void SettingsModel::setTimelineDisplay(const timelineui::DisplayOptions& value)
-        {
-            _p->timelineDisplay->setIfChanged(value);
-        }
-
-        void SettingsModel::setTimelineFirstTrack(bool value)
-        {
-            _p->timelineFirstTrack->setIfChanged(value);
-        }
-
-        const StyleOptions& SettingsModel::getStyle() const
-        {
-            return _p->style->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<StyleOptions> > SettingsModel::observeStyle() const
-        {
-            return _p->style;
-        }
-
-        void SettingsModel::setStyle(const StyleOptions& value)
-        {
-            _p->style->setIfChanged(value);
-        }
-
-        bool SettingsModel::getTooltipsEnabled() const
-        {
-            return _p->tooltipsEnabled->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<bool> > SettingsModel::observeTooltipsEnabled() const
-        {
-            return _p->tooltipsEnabled;
-        }
-
-        void SettingsModel::setTooltipsEnabled(bool value)
-        {
-            _p->tooltipsEnabled->setIfChanged(value);
-        }
-
         void to_json(nlohmann::json& json, const CacheOptions& value)
         {
             json["sizeGB"] = value.sizeGB;
@@ -515,10 +439,56 @@ namespace tl
             json["readBehind"] = value.readBehind;
         }
 
+        void to_json(nlohmann::json& json, const FileBrowserOptions& value)
+        {
+            json["nativeFileDialog"] = value.nativeFileDialog;
+            json["path"] = value.path;
+            json["options"] = value.options;
+        }
+
+        void to_json(nlohmann::json& json, const FileSequenceOptions& value)
+        {
+            json["audio"] = timeline::to_string(value.audio);
+            json["audioFileName"] = value.audioFileName;
+            json["audioDirectory"] = value.audioDirectory;
+            json["maxDigits"] = value.maxDigits;
+            json["io"] = value.io;
+        }
+
+        void to_json(nlohmann::json& json, const MiscOptions& value)
+        {
+            json["tooltipsEnabled"] = value.tooltipsEnabled;
+        }
+
+        void to_json(nlohmann::json& json, const PerformanceOptions& value)
+        {
+            json["audioBufferFrameCount"] = value.audioBufferFrameCount;
+            json["videoRequestCount"] = value.videoRequestCount;
+            json["audioRequestCount"] = value.audioRequestCount;
+        }
+
+        void to_json(nlohmann::json& json, const StyleOptions& value)
+        {
+            json["colorStyle"] = value.colorStyle;
+            json["displayScale"] = value.displayScale;
+        }
+
+        void to_json(nlohmann::json& json, const TimelineOptions& value)
+        {
+            json["editable"] = value.editable;
+            json["frameView"] = value.frameView;
+            json["scroll"] = value.scroll;
+            json["stopOnScrub"] = value.stopOnScrub;
+            json["item"] = value.item;
+            json["display"] = value.display;
+            json["firstTrack"] = value.firstTrack;
+        }
+
         void to_json(nlohmann::json& json, const WindowOptions& in)
         {
             json = nlohmann::json
             {
+                { "size", in.size },
                 { "fileToolBar", in.fileToolBar },
                 { "compareToolBar", in.compareToolBar },
                 { "windowToolBar", in.windowToolBar },
@@ -532,35 +502,6 @@ namespace tl
             };
         }
 
-        void to_json(nlohmann::json& json, const FileSequenceOptions& value)
-        {
-            json["audio"] = timeline::to_string(value.audio);
-            json["audioFileName"] = value.audioFileName;
-            json["audioDirectory"] = value.audioDirectory;
-            json["maxDigits"] = value.maxDigits;
-        }
-
-        void to_json(nlohmann::json& json, const PerformanceOptions& value)
-        {
-            json["audioBufferFrameCount"] = value.audioBufferFrameCount;
-            json["videoRequestCount"] = value.videoRequestCount;
-            json["audioRequestCount"] = value.audioRequestCount;
-        }
-
-        void to_json(nlohmann::json& json, const TimelineOptions& value)
-        {
-            json["editable"] = value.editable;
-            json["frameView"] = value.frameView;
-            json["scroll"] = value.scroll;
-            json["stopOnScrub"] = value.stopOnScrub;
-        }
-
-        void to_json(nlohmann::json& json, const StyleOptions& value)
-        {
-            json["colorStyle"] = value.colorStyle;
-            json["displayScale"] = value.displayScale;
-        }
-
         void from_json(const nlohmann::json& json, CacheOptions& value)
         {
             json.at("sizeGB").get_to(value.sizeGB);
@@ -568,8 +509,54 @@ namespace tl
             json.at("readBehind").get_to(value.readBehind);
         }
 
+        void from_json(const nlohmann::json& json, FileBrowserOptions& value)
+        {
+            json.at("nativeFileDialog").get_to(value.nativeFileDialog);
+            json.at("path").get_to(value.path);
+            json.at("options").get_to(value.options);
+        }
+
+        void from_json(const nlohmann::json& json, FileSequenceOptions& value)
+        {
+            timeline::from_string(json.at("audio").get<std::string>(), value.audio);
+            json.at("audioFileName").get_to(value.audioFileName);
+            json.at("audioDirectory").get_to(value.audioDirectory);
+            json.at("maxDigits").get_to(value.maxDigits);
+            json.at("io").get_to(value.io);
+        }
+
+        void from_json(const nlohmann::json& json, MiscOptions& value)
+        {
+            json.at("tooltipsEnabled").get_to(value.tooltipsEnabled);
+        }
+
+        void from_json(const nlohmann::json& json, PerformanceOptions& value)
+        {
+            json.at("audioBufferFrameCount").get_to(value.audioBufferFrameCount);
+            json.at("videoRequestCount").get_to(value.videoRequestCount);
+            json.at("audioRequestCount").get_to(value.audioRequestCount);
+        }
+
+        void from_json(const nlohmann::json& json, StyleOptions& value)
+        {
+            json.at("colorStyle").get_to(value.colorStyle);
+            json.at("displayScale").get_to(value.displayScale);
+        }
+
+        void from_json(const nlohmann::json& json, TimelineOptions& value)
+        {
+            json.at("editable").get_to(value.editable);
+            json.at("frameView").get_to(value.frameView);
+            json.at("scroll").get_to(value.scroll);
+            json.at("stopOnScrub").get_to(value.stopOnScrub);
+            json.at("item").get_to(value.item);
+            json.at("display").get_to(value.display);
+            json.at("firstTrack").get_to(value.firstTrack);
+        }
+
         void from_json(const nlohmann::json& json, WindowOptions& out)
         {
+            json.at("size").get_to(out.size);
             json.at("fileToolBar").get_to(out.fileToolBar);
             json.at("compareToolBar").get_to(out.compareToolBar);
             json.at("windowToolBar").get_to(out.windowToolBar);
@@ -580,35 +567,6 @@ namespace tl
             json.at("statusToolBar").get_to(out.statusToolBar);
             json.at("splitter").get_to(out.splitter);
             json.at("splitter2").get_to(out.splitter2);
-        }
-
-        void from_json(const nlohmann::json& json, FileSequenceOptions& value)
-        {
-            timeline::from_string(json.at("audio").get<std::string>(), value.audio);
-            json.at("audioFileName").get_to(value.audioFileName);
-            json.at("audioDirectory").get_to(value.audioDirectory);
-            json.at("maxDigits").get_to(value.maxDigits);
-        }
-
-        void from_json(const nlohmann::json& json, PerformanceOptions& value)
-        {
-            json.at("audioBufferFrameCount").get_to(value.audioBufferFrameCount);
-            json.at("videoRequestCount").get_to(value.videoRequestCount);
-            json.at("audioRequestCount").get_to(value.audioRequestCount);
-        }
-
-        void from_json(const nlohmann::json& json, TimelineOptions& value)
-        {
-            json.at("editable").get_to(value.editable);
-            json.at("frameView").get_to(value.frameView);
-            json.at("scroll").get_to(value.scroll);
-            json.at("stopOnScrub").get_to(value.stopOnScrub);
-        }
-
-        void from_json(const nlohmann::json& json, StyleOptions& value)
-        {
-            json.at("colorStyle").get_to(value.colorStyle);
-            json.at("displayScale").get_to(value.displayScale);
         }
     }
 }

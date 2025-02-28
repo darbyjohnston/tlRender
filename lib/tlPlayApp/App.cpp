@@ -120,8 +120,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<dtk::ValueObserver<StyleOptions> > styleObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > tooltipsObserver;
+            std::shared_ptr<dtk::ValueObserver<StyleOptions> > styleOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<MiscOptions> > miscOptionsObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -523,7 +523,7 @@ namespace tl
                     _audioUpdate();
                 });
 
-            p.styleObserver = dtk::ValueObserver<StyleOptions>::create(
+            p.styleOptionsObserver = dtk::ValueObserver<StyleOptions>::create(
                 p.settingsModel->observeStyle(),
                 [this](const StyleOptions& value)
                 {
@@ -531,11 +531,11 @@ namespace tl
                     setDisplayScale(value.displayScale);
                 });
 
-            p.tooltipsObserver = dtk::ValueObserver<bool>::create(
-                p.settingsModel->observeTooltipsEnabled(),
-                [this](bool value)
+            p.miscOptionsObserver = dtk::ValueObserver<MiscOptions>::create(
+                p.settingsModel->observeMisc(),
+                [this](const MiscOptions& value)
                 {
-                    setTooltipsEnabled(value);
+                    setTooltipsEnabled(value.tooltipsEnabled);
                 });
 
 #if defined(TLRENDER_BMD)
@@ -895,7 +895,7 @@ namespace tl
         {
             DTK_P();
             io::Options out;
-            out = io::merge(out, io::getOptions(p.settingsModel->getSequenceIO()));
+            out = io::merge(out, io::getOptions(p.settingsModel->getFileSequence().io));
     #if defined(TLRENDER_FFMPEG)
             out = io::merge(out, ffmpeg::getOptions(p.settingsModel->getFFmpeg()));
 #endif // TLRENDER_FFMPEG

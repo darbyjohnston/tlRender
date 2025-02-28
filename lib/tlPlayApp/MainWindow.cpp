@@ -146,7 +146,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            Window::_init(context, "tlplay", app->getSettingsModel()->getWindowSize());
+            Window::_init(context, "tlplay", app->getSettingsModel()->getWindow().size);
             DTK_P();
 
             setBackgroundRole(dtk::ColorRole::Window);
@@ -168,9 +168,9 @@ namespace tl
             p.timelineWidget->setScrollBarsVisible(false);
             p.timelineWidget->setScrollToCurrentFrame(timelineOptions.scroll);
             p.timelineWidget->setStopOnScrub(timelineOptions.stopOnScrub);
-            p.timelineWidget->setItemOptions(p.settingsModel->getTimelineItem());
-            timelineui::DisplayOptions timeineDisplayOptions = p.settingsModel->getTimelineDisplay();
-            if (p.settingsModel->getTimelineFirstTrack())
+            p.timelineWidget->setItemOptions(timelineOptions.item);
+            timelineui::DisplayOptions timeineDisplayOptions = timelineOptions.display;
+            if (timelineOptions.firstTrack)
             {
                 timeineDisplayOptions.tracks = { 0 };
             }
@@ -583,12 +583,13 @@ namespace tl
             p.viewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);
 
-            dtk::Size2I windowSize = getGeometry().size();
+            WindowOptions options = p.settingsModel->getWindow();
+            options.size = getGeometry().size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
-            windowSize = windowSize / getDisplayScale();
+            options.size = options.size / getDisplayScale();
 #endif // __APPLE__
-            p.settingsModel->setWindowSize(windowSize);
+            p.settingsModel->setWindow(options);
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
