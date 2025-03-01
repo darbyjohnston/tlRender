@@ -180,6 +180,7 @@ namespace tl
                 {
                     open(file::Path(value.u8string()));
                 },
+                dtk::FileBrowserMode::File,
                 p.recentFilesModel);
         }
 

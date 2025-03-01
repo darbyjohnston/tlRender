@@ -43,6 +43,52 @@ namespace tl
             bool operator != (const CacheOptions&) const;
         };
 
+        //! Export render size.
+        enum class ExportRenderSize
+        {
+            Default,
+            _1920_1080,
+            _3840_2160,
+            _4096_2160,
+            Custom,
+
+            Count,
+            First = Default
+        };
+        DTK_ENUM(ExportRenderSize);
+
+        //! Get an export render size.
+        const dtk::Size2I& getSize(ExportRenderSize);
+
+        //! Export file type.
+        enum class ExportFileType
+        {
+            Images,
+            Movie,
+
+            Count,
+            First = Images
+        };
+        DTK_ENUM(ExportFileType);
+
+        //! Export options.
+        struct ExportOptions
+        {
+            std::string directory;
+            ExportRenderSize renderSize = ExportRenderSize::Default;
+            dtk::Size2I customRenderSize = dtk::Size2I(1920, 1080);
+            ExportFileType fileType = ExportFileType::Images;
+            std::string imageBaseName;
+            size_t imagePad = 0;
+            std::string imageExtension;
+            std::string movieBaseName;
+            std::string movieExtension;
+            std::string movieCodec;
+
+            bool operator == (const ExportOptions&) const;
+            bool operator != (const ExportOptions&) const;
+        };
+
         //! File browser options.
         struct FileBrowserOptions
         {
@@ -163,6 +209,15 @@ namespace tl
 
             ///@}
 
+            //! \name Export
+            ///@{
+
+            const ExportOptions& getExport() const;
+            std::shared_ptr<dtk::IObservableValue<ExportOptions> > observeExport() const;
+            void setExport(const ExportOptions&);
+
+            ///@}
+
             //! \name File Browser
             ///@{
 
@@ -260,6 +315,7 @@ namespace tl
         ///@{
 
         void to_json(nlohmann::json&, const CacheOptions&);
+        void to_json(nlohmann::json&, const ExportOptions&);
         void to_json(nlohmann::json&, const FileBrowserOptions&);
         void to_json(nlohmann::json&, const FileSequenceOptions&);
         void to_json(nlohmann::json&, const MiscOptions&);
@@ -269,6 +325,7 @@ namespace tl
         void to_json(nlohmann::json&, const WindowOptions&);
 
         void from_json(const nlohmann::json&, CacheOptions&);
+        void from_json(const nlohmann::json&, ExportOptions&);
         void from_json(const nlohmann::json&, FileBrowserOptions&);
         void from_json(const nlohmann::json&, FileSequenceOptions&);
         void from_json(const nlohmann::json&, MiscOptions&);

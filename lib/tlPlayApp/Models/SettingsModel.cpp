@@ -5,6 +5,10 @@
 #include <tlPlayApp/Models/SettingsModel.h>
 
 #include <dtk/ui/Settings.h>
+#include <dtk/core/Error.h>
+#include <dtk/core/String.h>
+
+#include <sstream>
 
 namespace tl
 {
@@ -19,6 +23,39 @@ namespace tl
         }
 
         bool CacheOptions::operator != (const CacheOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        DTK_ENUM_IMPL(
+            ExportRenderSize,
+            "Default",
+            "1920x1080",
+            "3840x2160",
+            "4096x2160",
+            "Custom");
+
+        DTK_ENUM_IMPL(
+            ExportFileType,
+            "Images",
+            "Movie");
+
+        bool ExportOptions::operator == (const ExportOptions& other) const
+        {
+            return
+                directory == other.directory &&
+                renderSize == other.renderSize &&
+                customRenderSize == other.customRenderSize &&
+                fileType == other.fileType &&
+                imageBaseName == other.imageBaseName &&
+                imagePad == other.imagePad &&
+                imageExtension == other.imageExtension &&
+                movieBaseName == other.movieBaseName &&
+                movieExtension == other.movieExtension &&
+                movieCodec == other.movieCodec;
+        }
+
+        bool ExportOptions::operator != (const ExportOptions& other) const
         {
             return !(*this == other);
         }
@@ -131,6 +168,7 @@ namespace tl
             std::shared_ptr<dtk::Settings> settings;
 
             std::shared_ptr<dtk::ObservableValue<CacheOptions> > cache;
+            std::shared_ptr<dtk::ObservableValue<ExportOptions> > exportOptions;
             std::shared_ptr<dtk::ObservableValue<FileBrowserOptions> > fileBrowser;
             std::shared_ptr<dtk::ObservableValue<FileSequenceOptions> > fileSequence;
             std::shared_ptr<dtk::ObservableValue<MiscOptions> > misc;
@@ -158,6 +196,10 @@ namespace tl
             CacheOptions cache;
             settings->getT("Cache", cache);
             p.cache = dtk::ObservableValue<CacheOptions>::create(cache);
+
+            ExportOptions exportOptions;
+            settings->getT("Export", exportOptions);
+            p.exportOptions = dtk::ObservableValue<ExportOptions>::create(exportOptions);
 
             FileBrowserOptions fileBrowser;
             settings->getT("FileBrowser", fileBrowser);
@@ -213,6 +255,8 @@ namespace tl
             DTK_P();
             p.settings->setT("Cache", p.cache->get());
 
+            p.settings->setT("Export", p.exportOptions->get());
+
             FileBrowserOptions fileBrowser = p.fileBrowser->get();
             if (auto context = p.context.lock())
             {
@@ -255,6 +299,7 @@ namespace tl
         void SettingsModel::reset()
         {
             setCache(CacheOptions());
+            setExport(ExportOptions());
             setFileBrowser(FileBrowserOptions());
             setFileSequence(FileSequenceOptions());
             setMisc(MiscOptions());
@@ -283,6 +328,21 @@ namespace tl
         void SettingsModel::setCache(const CacheOptions& value)
         {
             _p->cache->setIfChanged(value);
+        }
+
+        const ExportOptions& SettingsModel::getExport() const
+        {
+            return _p->exportOptions->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<ExportOptions> > SettingsModel::observeExport() const
+        {
+            return _p->exportOptions;
+        }
+
+        void SettingsModel::setExport(const ExportOptions& value)
+        {
+            _p->exportOptions->setIfChanged(value);
         }
 
         const FileBrowserOptions& SettingsModel::getFileBrowser() const
@@ -439,6 +499,20 @@ namespace tl
             json["readBehind"] = value.readBehind;
         }
 
+        void to_json(nlohmann::json& json, const ExportOptions& value)
+        {
+            json["directory"] = value.directory;
+            json["renderSize"] = to_string(value.renderSize);
+            json["customRenderSize"] = value.customRenderSize;
+            json["fileType"] = to_string(value.fileType);
+            json["imageBaseName"] = value.imageBaseName;
+            json["imagePad"] = value.imagePad;
+            json["imageExtension"] = value.imageExtension;
+            json["movieBaseName"] = value.movieBaseName;
+            json["movieExtension"] = value.movieExtension;
+            json["movieCodec"] = value.movieCodec;
+        }
+
         void to_json(nlohmann::json& json, const FileBrowserOptions& value)
         {
             json["nativeFileDialog"] = value.nativeFileDialog;
@@ -507,6 +581,20 @@ namespace tl
             json.at("sizeGB").get_to(value.sizeGB);
             json.at("readAhead").get_to(value.readAhead);
             json.at("readBehind").get_to(value.readBehind);
+        }
+
+        void from_json(const nlohmann::json& json, ExportOptions& value)
+        {
+            json.at("directory").get_to(value.directory);
+            from_string(json.at("renderSize").get<std::string>(), value.renderSize);
+            json.at("customRenderSize").get_to(value.customRenderSize);
+            from_string(json.at("fileType").get<std::string>(), value.fileType);
+            json.at("imageBaseName").get_to(value.imageBaseName);
+            json.at("imagePad").get_to(value.imagePad);
+            json.at("imageExtension").get_to(value.imageExtension);
+            json.at("movieBaseName").get_to(value.movieBaseName);
+            json.at("movieExtension").get_to(value.movieExtension);
+            json.at("movieCodec").get_to(value.movieCodec);
         }
 
         void from_json(const nlohmann::json& json, FileBrowserOptions& value)
