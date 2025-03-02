@@ -366,7 +366,6 @@ namespace tl
             p.viewToolBar->setParent(hLayout);
             p.dividers["View"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.toolsToolBar->setParent(hLayout);
-            p.dividers["ToolBar"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             p.splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, p.layout);
             p.splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, p.splitter);
             p.viewport->setParent(p.splitter2);
@@ -788,13 +787,6 @@ namespace tl
             p.dividers["View"]->setVisible(options.viewToolBar);
 
             p.toolsToolBar->setVisible(options.toolsToolBar);
-
-            p.dividers["ToolBar"]->setVisible(
-                options.fileToolBar ||
-                options.compareToolBar ||
-                options.windowToolBar ||
-                options.viewToolBar ||
-                options.toolsToolBar);
 
             p.timelineWidget->setVisible(options.timeline);
 
