@@ -493,7 +493,7 @@ namespace tl
         {
             std::future<io::VideoData> out;
             io::Options optionsMerged = io::merge(options, this->options.ioOptions);
-            optionsMerged["USD/cameraName"] = clip->name();
+            optionsMerged["USD/CameraName"] = clip->name();
             auto read = getRead(clip, optionsMerged);
             const auto timeRangeOpt = clip->trimmed_range_in_parent();
             if (read && timeRangeOpt.has_value())

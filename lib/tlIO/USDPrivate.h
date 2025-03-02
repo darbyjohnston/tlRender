@@ -38,7 +38,8 @@ namespace tl
             //! Get information.
             std::future<io::Info> getInfo(
                 int64_t id,
-                const file::Path& path);
+                const file::Path& path,
+                const io::Options&);
             
             //! Render an image.
             std::future<io::VideoData> render(

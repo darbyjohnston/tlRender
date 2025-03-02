@@ -71,7 +71,7 @@ namespace tl
             p.thumbnailGenerator = thumbnailGenerator;
 
             p.ioOptions = _data->options.ioOptions;
-            p.ioOptions["USD/cameraName"] = p.clipName;
+            p.ioOptions["USD/CameraName"] = p.clipName;
             const std::string infoCacheKey = io::getInfoCacheKey(path, p.ioOptions);
             const auto i = itemData->info.find(infoCacheKey);
             if (i != itemData->info.end())

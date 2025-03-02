@@ -174,7 +174,7 @@ namespace tl
             };
             const std::vector<std::pair<std::string, std::string> > options =
             {
-                { "FFmpeg/YUVToRGBConversion", "1" },
+                { "FFmpeg/YUVToRGB", "1" },
                 { "FFmpeg/ThreadCount", "1" },
                 { "FFmpeg/RequestTimeout", "1" },
                 { "FFmpeg/VideoBufferSize", "1" },

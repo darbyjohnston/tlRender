@@ -776,7 +776,7 @@ namespace tl
             std::shared_ptr<dtk::CheckBox> sRGBCheckBox;
             std::shared_ptr<dtk::IntEdit> stageCacheEdit;
             std::shared_ptr<dtk::IntEdit> diskCacheEdit;
-            std::shared_ptr<dtk::FormLayout> layout;
+            std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<usd::Options> > optionsObserver;
         };
@@ -809,16 +809,19 @@ namespace tl
             p.diskCacheEdit = dtk::IntEdit::create(context);
             p.diskCacheEdit->setRange(dtk::RangeI(0, 1024));
 
-            p.layout = dtk::FormLayout::create(context, shared_from_this());
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.layout->addRow("Render width:", p.renderWidthEdit);
-            p.layout->addRow("Render complexity:", p.complexitySlider);
-            p.layout->addRow("Draw mode:", p.drawModeComboBox);
-            p.layout->addRow("Enable lighting:", p.lightingCheckBox);
-            p.layout->addRow("Enable sRGB color space:", p.sRGBCheckBox);
-            p.layout->addRow("Stage cache size:", p.stageCacheEdit);
-            p.layout->addRow("Disk cache size (GB):", p.diskCacheEdit);
+            auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
+            auto formLayout = dtk::FormLayout::create(context, p.layout);
+            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            formLayout->addRow("Render width:", p.renderWidthEdit);
+            formLayout->addRow("Render complexity:", p.complexitySlider);
+            formLayout->addRow("Draw mode:", p.drawModeComboBox);
+            formLayout->addRow("Enable lighting:", p.lightingCheckBox);
+            formLayout->addRow("Enable sRGB color space:", p.sRGBCheckBox);
+            formLayout->addRow("Stage cache size:", p.stageCacheEdit);
+            formLayout->addRow("Disk cache size (GB):", p.diskCacheEdit);
 
             p.optionsObserver = dtk::ValueObserver<usd::Options>::create(
                 p.model->observeUSD(),

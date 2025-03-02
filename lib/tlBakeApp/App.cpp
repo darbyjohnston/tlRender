@@ -313,22 +313,22 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << _options.usdRenderWidth;
-                out["USD/renderWidth"] = ss.str();
+                out["USD/RenderWidth"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdComplexity;
-                out["USD/complexity"] = ss.str();
+                out["USD/Complexity"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdDrawMode;
-                out["USD/drawMode"] = ss.str();
+                out["USD/DrawMode"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdEnableLighting;
-                out["USD/enableLighting"] = ss.str();
+                out["USD/EnableLighting"] = ss.str();
             }
             {
                 std::stringstream ss;
@@ -338,12 +338,12 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << _options.usdStageCache;
-                out["USD/stageCacheCount"] = ss.str();
+                out["USD/StageCacheCount"] = ss.str();
             }
             {
                 std::stringstream ss;
                 ss << _options.usdDiskCache * dtk::gigabyte;
-                out["USD/diskCacheByteCount"] = ss.str();
+                out["USD/DiskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
 

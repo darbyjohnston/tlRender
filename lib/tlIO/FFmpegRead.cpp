@@ -74,7 +74,7 @@ namespace tl
 
             DTK_P();
 
-            auto i = options.find("FFmpeg/YUVToRGBConversion");
+            auto i = options.find("FFmpeg/YUVToRGB");
             if (i != options.end())
             {
                 std::stringstream ss(i->second);

@@ -52,7 +52,7 @@ namespace tl
         std::future<io::Info> Read::getInfo()
         {
             DTK_P();
-            return p.render->getInfo(p.id, _path);
+            return p.render->getInfo(p.id, _path, _options);
         }
         
         std::future<io::VideoData> Read::readVideo(

@@ -109,7 +109,7 @@ namespace tl
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
-                const io::Options & = io::Options()) override;
+                const io::Options& = io::Options()) override;
             dtk::ImageInfo getWriteInfo(
                 const dtk::ImageInfo&,
                 const io::Options& = io::Options()) const override;

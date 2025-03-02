@@ -51,6 +51,7 @@ namespace tl
             {
                 int64_t id = -1;
                 file::Path path;
+                io::Options options;
                 std::promise<io::Info> promise;
             };
 
@@ -186,12 +187,16 @@ namespace tl
             return out;
         }
         
-        std::future<io::Info> Render::getInfo(int64_t id, const file::Path& path)
+        std::future<io::Info> Render::getInfo(
+            int64_t id,
+            const file::Path& path,
+            const io::Options& options)
         {
             DTK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = id;
             request->path = path;
+            request->options = options;
             auto future = request->promise.get_future();
             bool valid = false;
             {
@@ -460,7 +465,7 @@ namespace tl
                             infoRequest = p.mutex.infoRequests.front();
                             p.mutex.infoRequests.pop_front();
                         }
-                        if (!p.mutex.requests.empty())
+                        else if (!p.mutex.requests.empty())
                         {
                             request = p.mutex.requests.front();
                             p.mutex.requests.pop_front();
@@ -470,16 +475,20 @@ namespace tl
 
                 // Set options.
                 io::Options ioOptions;
-                if (request)
+                if (infoRequest)
+                {
+                    ioOptions = infoRequest->options;
+                }
+                else if (request)
                 {
                     ioOptions = request->options;
                 }
-                auto i = ioOptions.find("USD/stageCacheCount");
+                auto i = ioOptions.find("USD/StageCacheCount");
                 if (i != ioOptions.end())
                 {
                     stageCacheCount = std::atoll(i->second.c_str());
                 }
-                i = ioOptions.find("USD/diskCacheByteCount");
+                i = ioOptions.find("USD/DiskCacheByteCount");
                 if (i != ioOptions.end())
                 {
                     diskCacheByteCount = std::atoll(i->second.c_str());
@@ -509,13 +518,13 @@ namespace tl
                 }
 
                 // Handle information requests.
-                i = ioOptions.find("USD/renderWidth");
+                i = ioOptions.find("USD/RenderWidth");
                 if (i != ioOptions.end())
                 {
                     renderWidth = std::atoi(i->second.c_str());
                 }
                 std::string cameraName;
-                i = ioOptions.find("USD/cameraName");
+                i = ioOptions.find("USD/CameraName");
                 if (i != ioOptions.end())
                 {
                     cameraName = i->second;
@@ -657,26 +666,26 @@ namespace tl
                             //std::cout << fileName << " timeCode: " << timeCode << std::endl;
 
                             // Get options.
-                            i = ioOptions.find("USD/renderWidth");
+                            i = ioOptions.find("USD/RenderWidth");
                             if (i != ioOptions.end())
                             {
                                 renderWidth = std::atoi(i->second.c_str());
                             }
                             float complexity = 1.F;
-                            i = ioOptions.find("USD/complexity");
+                            i = ioOptions.find("USD/Complexity");
                             if (i != ioOptions.end())
                             {
                                 complexity = std::atof(i->second.c_str());
                             }
                             DrawMode drawMode = DrawMode::ShadedSmooth;
-                            i = ioOptions.find("USD/drawMode");
+                            i = ioOptions.find("USD/DrawMode");
                             if (i != ioOptions.end())
                             {
                                 std::stringstream ss(i->second);
                                 ss >> drawMode;
                             }
                             bool enableLighting = true;
-                            i = ioOptions.find("USD/enableLighting");
+                            i = ioOptions.find("USD/EnableLighting");
                             if (i != ioOptions.end())
                             {
                                 enableLighting = std::atoi(i->second.c_str());
@@ -690,7 +699,7 @@ namespace tl
 
                             // Setup the camera.
                             std::string cameraName;
-                            i = ioOptions.find("USD/cameraName");
+                            i = ioOptions.find("USD/CameraName");
                             if (i != ioOptions.end())
                             {
                                 cameraName = i->second;

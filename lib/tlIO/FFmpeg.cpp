@@ -51,7 +51,7 @@ namespace tl
         io::Options getOptions(const Options& value)
         {
             io::Options out;
-            out["FFmpeg/YUVToRGBConversion"] = dtk::Format("{0}").arg(value.yuvToRgb);
+            out["FFmpeg/YUVToRGB"] = dtk::Format("{0}").arg(value.yuvToRgb);
             out["FFmpeg/ThreadCount"] = dtk::Format("{0}").arg(value.threadCount);
             return out;
         }
