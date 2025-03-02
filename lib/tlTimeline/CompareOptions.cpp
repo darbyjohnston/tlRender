@@ -160,9 +160,13 @@ namespace tl
             for (const auto& i : videoData)
             {
                 dtk::ImageInfo info;
-                if (!i.layers.empty() && i.layers.front().image)
+                for (const auto& layer : i.layers)
                 {
-                    info = i.layers.front().image->getInfo();
+                    if (layer.image)
+                    {
+                        info = layer.image->getInfo();
+                        break;
+                    }
                 }
                 infos.push_back(info);
             }
@@ -193,9 +197,13 @@ namespace tl
             for (const auto& i : videoData)
             {
                 dtk::ImageInfo info;
-                if (!i.layers.empty() && i.layers.front().image)
+                for (const auto& layer : i.layers)
                 {
-                    info = i.layers.front().image->getInfo();
+                    if (layer.image)
+                    {
+                        info = layer.image->getInfo();
+                        break;
+                    }
                 }
                 infos.push_back(info);
             }
