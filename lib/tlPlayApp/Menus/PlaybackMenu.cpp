@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/PlaybackMenu.h>
 
+#include <tlPlayApp/Actions/PlaybackActions.h>
 #include <tlPlayApp/App.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
@@ -28,13 +29,14 @@ namespace tl
         void PlaybackMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<PlaybackActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
+
             addItem(p.actions["Stop"]);
             addItem(p.actions["Forward"]);
             addItem(p.actions["Reverse"]);
@@ -83,7 +85,7 @@ namespace tl
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<PlaybackActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackMenu>(new PlaybackMenu);

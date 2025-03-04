@@ -13,6 +13,7 @@ namespace tl
     namespace play
     {
         class App;
+        class CompareActions;
 
         //! Compare menu.
         class CompareMenu : public dtk::Menu
@@ -23,7 +24,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             CompareMenu();
@@ -34,7 +35,7 @@ namespace tl
             static std::shared_ptr<CompareMenu> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

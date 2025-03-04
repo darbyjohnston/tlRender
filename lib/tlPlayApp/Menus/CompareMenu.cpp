@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/CompareMenu.h>
 
+#include <tlPlayApp/Actions/CompareActions.h>
 #include <tlPlayApp/App.h>
 
 namespace tl
@@ -27,14 +28,15 @@ namespace tl
         void CompareMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<CompareActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
             p.app = app;
-            p.actions = actions;
+
+            p.actions = actions->getActions();
 
             p.menus["B"] = addSubMenu("B");
             addItem(p.actions["Next"]);
@@ -92,7 +94,7 @@ namespace tl
         std::shared_ptr<CompareMenu> CompareMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<CompareActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<CompareMenu>(new CompareMenu);

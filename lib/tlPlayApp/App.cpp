@@ -8,7 +8,6 @@
 #include <tlPlayApp/Models/ColorModel.h>
 #include <tlPlayApp/Models/FilesModel.h>
 #include <tlPlayApp/Models/RecentFilesModel.h>
-#include <tlPlayApp/Models/RenderModel.h>
 #include <tlPlayApp/Models/TimeUnitsModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #if defined(TLRENDER_BMD)
@@ -94,7 +93,6 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > player;
             std::shared_ptr<ColorModel> colorModel;
             std::shared_ptr<ViewportModel> viewportModel;
-            std::shared_ptr<RenderModel> renderModel;
             std::shared_ptr<AudioModel> audioModel;
             std::shared_ptr<ToolsModel> toolsModel;
 
@@ -286,11 +284,6 @@ namespace tl
             return _p->viewportModel;
         }
 
-        const std::shared_ptr<RenderModel>& App::getRenderModel() const
-        {
-            return _p->renderModel;
-        }
-
         const std::shared_ptr<AudioModel>& App::getAudioModel() const
         {
             return _p->audioModel;
@@ -432,8 +425,6 @@ namespace tl
             p.colorModel->setLUTOptions(p.options.lutOptions);
 
             p.viewportModel = ViewportModel::create(_context, p.settings);
-
-            p.renderModel = RenderModel::create(_context, p.settings);
 
             p.audioModel = AudioModel::create(_context, p.settings);
 
@@ -598,7 +589,7 @@ namespace tl
                     _p->bmdOutputDevice->setLUTOptions(value);
                 });
             p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
-                p.renderModel->observeImageOptions(),
+                p.viewportModel->observeImageOptions(),
                 [this](const dtk::ImageOptions& value)
                 {
                     _p->bmdOutputDevice->setImageOptions({ value });

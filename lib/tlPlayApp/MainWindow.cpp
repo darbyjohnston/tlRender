@@ -10,7 +10,6 @@
 #include <tlPlayApp/Actions/FileActions.h>
 #include <tlPlayApp/Actions/FrameActions.h>
 #include <tlPlayApp/Actions/PlaybackActions.h>
-#include <tlPlayApp/Actions/RenderActions.h>
 #include <tlPlayApp/Actions/TimelineActions.h>
 #include <tlPlayApp/Actions/ToolsActions.h>
 #include <tlPlayApp/Actions/ViewActions.h>
@@ -20,14 +19,12 @@
 #include <tlPlayApp/Menus/FileMenu.h>
 #include <tlPlayApp/Menus/FrameMenu.h>
 #include <tlPlayApp/Menus/PlaybackMenu.h>
-#include <tlPlayApp/Menus/RenderMenu.h>
 #include <tlPlayApp/Menus/TimelineMenu.h>
 #include <tlPlayApp/Menus/ToolsMenu.h>
 #include <tlPlayApp/Menus/ViewMenu.h>
 #include <tlPlayApp/Menus/WindowMenu.h>
 #include <tlPlayApp/Models/AudioModel.h>
 #include <tlPlayApp/Models/ColorModel.h>
-#include <tlPlayApp/Models/RenderModel.h>
 #include <tlPlayApp/Models/TimeUnitsModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/Tools/ToolsWidget.h>
@@ -85,7 +82,6 @@ namespace tl
             std::shared_ptr<CompareActions> compareActions;
             std::shared_ptr<WindowActions> windowActions;
             std::shared_ptr<ViewActions> viewActions;
-            std::shared_ptr<RenderActions> renderActions;
             std::shared_ptr<PlaybackActions> playbackActions;
             std::shared_ptr<FrameActions> frameActions;
             std::shared_ptr<TimelineActions> timelineActions;
@@ -95,7 +91,6 @@ namespace tl
             std::shared_ptr<CompareMenu> compareMenu;
             std::shared_ptr<WindowMenu> windowMenu;
             std::shared_ptr<ViewMenu> viewMenu;
-            std::shared_ptr<RenderMenu> renderMenu;
             std::shared_ptr<PlaybackMenu> playbackMenu;
             std::shared_ptr<FrameMenu> frameMenu;
             std::shared_ptr<TimelineMenu> timelineMenu;
@@ -131,12 +126,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<double> > speedObserver2;
             std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ValueObserver<WindowOptions> > windowOptionsObserver;
@@ -187,7 +178,6 @@ namespace tl
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-            p.renderActions = RenderActions::create(context, app);
             p.playbackActions = PlaybackActions::create(context, app);
             p.frameActions = FrameActions::create(
                 context,
@@ -200,55 +190,32 @@ namespace tl
             p.audioActions = AudioActions::create(context, app);
             p.toolsActions = ToolsActions::create(context, app);
 
-            p.fileMenu = FileMenu::create(
-                context,
-                app,
-                p.fileActions->getActions());
-            p.compareMenu = CompareMenu::create(
-                context,
-                app,
-                p.compareActions->getActions());
+            p.fileMenu = FileMenu::create(context, app, p.fileActions);
+            p.compareMenu = CompareMenu::create(context, app, p.compareActions);
             p.windowMenu = WindowMenu::create(
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.windowActions->getActions());
+                p.windowActions);
             p.viewMenu = ViewMenu::create(
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.viewActions->getActions());
-            p.renderMenu = RenderMenu::create(
-                context,
-                app,
-                p.renderActions);
-            p.playbackMenu = PlaybackMenu::create(
-                context,
-                app,
-                p.playbackActions->getActions());
-            p.frameMenu = FrameMenu::create(
-                context,
-                app,
-                p.frameActions->getActions());
+                p.viewActions);
+            p.playbackMenu = PlaybackMenu::create(context, app, p.playbackActions);
+            p.frameMenu = FrameMenu::create(context, app, p.frameActions);
             p.timelineMenu = TimelineMenu::create(
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.timelineActions->getActions());
-            p.audioMenu = AudioMenu::create(
-                context,
-                app,
-                p.audioActions->getActions());
-            p.toolsMenu = ToolsMenu::create(
-                context,
-                app,
-                p.toolsActions->getActions());
+                p.timelineActions);
+            p.audioMenu = AudioMenu::create(context, app, p.audioActions);
+            p.toolsMenu = ToolsMenu::create(context, app, p.toolsActions);
             p.menuBar = dtk::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);
             p.menuBar->addMenu("Window", p.windowMenu);
             p.menuBar->addMenu("View", p.viewMenu);
-            p.menuBar->addMenu("Render", p.renderMenu);
             p.menuBar->addMenu("Playback", p.playbackMenu);
             p.menuBar->addMenu("Frame", p.frameMenu);
             p.menuBar->addMenu("Timeline", p.timelineMenu);
@@ -500,18 +467,10 @@ namespace tl
                     }
                 });
 
-            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
-                app->getFilesModel()->observeCompareOptions(),
-                [this](const timeline::CompareOptions& value)
-                {
-                    _p->viewport->setCompareOptions(value);
-                });
-
             p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
                 app->getColorModel()->observeOCIOOptions(),
                 [this](const timeline::OCIOOptions& value)
                 {
-                    _p->viewport->setOCIOOptions(value);
                     auto options = _p->timelineWidget->getDisplayOptions();
                     options.ocio = value;
                     _p->timelineWidget->setDisplayOptions(options);
@@ -521,39 +480,16 @@ namespace tl
                 app->getColorModel()->observeLUTOptions(),
                 [this](const timeline::LUTOptions& value)
                 {
-                    _p->viewport->setLUTOptions(value);
                     auto options = _p->timelineWidget->getDisplayOptions();
                     options.lut = value;
                     _p->timelineWidget->setDisplayOptions(options);
                 });
 
             p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
-                app->getRenderModel()->observeColorBuffer(),
+                app->getViewportModel()->observeColorBuffer(),
                 [this](dtk::ImageType value)
                 {
                     setFrameBufferType(value);
-                    _p->viewport->setColorBuffer(value);
-                });
-
-            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
-                app->getRenderModel()->observeImageOptions(),
-                [this](const dtk::ImageOptions& value)
-                {
-                    _p->viewport->setImageOptions({ value });
-                });
-
-            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
-                app->getViewportModel()->observeDisplayOptions(),
-                [this](const timeline::DisplayOptions& value)
-                {
-                    _p->viewport->setDisplayOptions({ value });
-                });
-
-            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
-                app->getViewportModel()->observeBackgroundOptions(),
-                [this](const timeline::BackgroundOptions& value)
-                {
-                    _p->viewport->setBackgroundOptions(value);
                 });
 
             p.muteObserver = dtk::ValueObserver<bool>::create(

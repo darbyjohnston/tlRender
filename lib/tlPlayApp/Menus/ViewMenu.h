@@ -12,6 +12,7 @@ namespace tl
     {
         class App;
         class MainWindow;
+        class ViewActions;
 
         //! View menu.
         class ViewMenu : public dtk::Menu
@@ -23,7 +24,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ViewMenu();
@@ -35,7 +36,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

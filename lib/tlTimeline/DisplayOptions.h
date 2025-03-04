@@ -81,17 +81,41 @@ namespace tl
             bool operator != (const SoftClip&) const;
         };
 
+        //! Outline.
+        struct Outline
+        {
+            int          width = 2;
+            dtk::Color4F color = dtk::Color4F(1.F, 0.F, 0.F);
+
+            bool operator == (const Outline&) const;
+            bool operator != (const Outline&) const;
+        };
+
+        //! Grid.
+        struct Grid
+        {
+            dtk::Size2I  size  = dtk::Size2I(100, 100);
+            dtk::Color4F color = dtk::Color4F(0.F, 0.F, 0.F);
+
+            bool operator == (const Grid&) const;
+            bool operator != (const Grid&) const;
+        };
+
         //! Display options.
         struct DisplayOptions
         {
-            dtk::ChannelDisplay channels     = dtk::ChannelDisplay::Color;
+            dtk::ChannelDisplay channels       = dtk::ChannelDisplay::Color;
             dtk::ImageMirror    mirror;
             Color               color;
             Levels              levels;
             EXRDisplay          exrDisplay;
             SoftClip            softClip;
             dtk::ImageFilters   imageFilters;
-            dtk::VideoLevels    videoLevels  = dtk::VideoLevels::FullRange;
+            dtk::VideoLevels    videoLevels    = dtk::VideoLevels::FullRange;
+            bool                outlineEnabled = false;
+            Outline             outline;
+            bool                gridEnabled    = false;
+            Grid                grid;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

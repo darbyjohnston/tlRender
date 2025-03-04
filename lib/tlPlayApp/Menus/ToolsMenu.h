@@ -11,6 +11,7 @@ namespace tl
     namespace play
     {
         class App;
+        class ToolsActions;
 
         //! Tools menu.
         class ToolsMenu : public dtk::Menu
@@ -21,7 +22,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ToolsActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ToolsMenu();
@@ -32,7 +33,7 @@ namespace tl
             static std::shared_ptr<ToolsMenu> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ToolsActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

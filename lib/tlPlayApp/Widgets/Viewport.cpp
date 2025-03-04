@@ -4,6 +4,8 @@
 
 #include <tlPlayApp//Widgets/Viewport.h>
 
+#include <tlPlayApp/Models/ColorModel.h>
+#include <tlPlayApp/Models/FilesModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
@@ -22,7 +24,6 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<bool> > hud;
             double fps = 0.0;
             size_t droppedFrames = 0;
-            dtk::ImageType colorBuffer = dtk::ImageType::None;
 
             std::shared_ptr<dtk::Label> fpsLabel;
             std::shared_ptr<dtk::Label> colorBufferLabel;
@@ -43,6 +44,12 @@ namespace tl
 
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
@@ -89,6 +96,7 @@ namespace tl
                     _p->fps = value;
                     _hudUpdate();
                 });
+
             p.droppedFramesObserver = dtk::ValueObserver<size_t>::create(
                 observeDroppedFrames(),
                 [this](size_t value)
@@ -97,11 +105,53 @@ namespace tl
                     _hudUpdate();
                 });
 
+            p.compareOptionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    setCompareOptions(value);
+                });
+
+            p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
+                app->getColorModel()->observeOCIOOptions(),
+                [this](const timeline::OCIOOptions& value)
+                {
+                   setOCIOOptions(value);
+                });
+
+            p.lutOptionsObserver = dtk::ValueObserver<timeline::LUTOptions>::create(
+                app->getColorModel()->observeLUTOptions(),
+                [this](const timeline::LUTOptions& value)
+                {
+                   setLUTOptions(value);
+                });
+
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
+                app->getViewportModel()->observeImageOptions(),
+                [this](const dtk::ImageOptions& value)
+                {
+                   setImageOptions({ value });
+                });
+
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                   setDisplayOptions({ value });
+                });
+
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
+                app->getViewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
+                {
+                   setBackgroundOptions(value);
+                });
+
             p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
-                observeColorBuffer(),
+                app->getViewportModel()->observeColorBuffer(),
                 [this](dtk::ImageType value)
                 {
-                    _p->colorBuffer = value;
+                    setColorBuffer(value);
                     _hudUpdate();
                 });
         }
@@ -207,7 +257,7 @@ namespace tl
                 arg(p.droppedFrames));
             p.colorBufferLabel->setText(
                 dtk::Format("Color buffer: {0}").
-                arg(p.colorBuffer));
+                arg(getColorBuffer()));
         }
     }
 }

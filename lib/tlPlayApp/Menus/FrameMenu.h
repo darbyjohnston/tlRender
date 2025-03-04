@@ -13,6 +13,7 @@ namespace tl
     namespace play
     {
         class App;
+        class FrameActions;
         class MainWindow;
 
         //! Frame menu.
@@ -24,7 +25,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<FrameActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FrameMenu();
@@ -35,7 +36,7 @@ namespace tl
             static std::shared_ptr<FrameMenu> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<FrameActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:

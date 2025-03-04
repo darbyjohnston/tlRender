@@ -15,6 +15,7 @@ namespace tl
     namespace play
     {
         class App;
+        class FileActions;
 
         //! File menu.
         class FileMenu : public dtk::Menu
@@ -25,7 +26,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             FileMenu();
@@ -36,7 +37,7 @@ namespace tl
             static std::shared_ptr<FileMenu> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

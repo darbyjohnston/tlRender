@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/WindowMenu.h>
 
+#include <tlPlayApp/Actions/WindowActions.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
@@ -28,13 +29,13 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<WindowActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
 
             p.menus["Resize"] = addSubMenu("Resize");
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
@@ -120,7 +121,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<WindowActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<WindowMenu>(new WindowMenu);

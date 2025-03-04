@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/FileMenu.h>
 
+#include <tlPlayApp/Actions/FileActions.h>
 #include <tlPlayApp/Models/RecentFilesModel.h>
 #include <tlPlayApp/App.h>
 
@@ -36,7 +37,7 @@ namespace tl
         void FileMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<FileActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -54,7 +55,8 @@ namespace tl
 
             p.recentFilesModel = app->getRecentFilesModel();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
+
             addItem(p.actions["Open"]);
             addItem(p.actions["OpenSeparateAudio"]);
             addItem(p.actions["Close"]);
@@ -121,7 +123,7 @@ namespace tl
         std::shared_ptr<FileMenu> FileMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<FileActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileMenu>(new FileMenu);

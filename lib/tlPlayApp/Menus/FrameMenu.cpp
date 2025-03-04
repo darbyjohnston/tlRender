@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/FrameMenu.h>
 
+#include <tlPlayApp/Actions/FrameActions.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
@@ -19,13 +20,13 @@ namespace tl
         void FrameMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<FrameActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
 
             addItem(p.actions["Start"]);
             addItem(p.actions["End"]);
@@ -51,7 +52,7 @@ namespace tl
         std::shared_ptr<FrameMenu> FrameMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<FrameActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FrameMenu>(new FrameMenu);

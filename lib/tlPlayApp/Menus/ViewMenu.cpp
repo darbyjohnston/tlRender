@@ -4,10 +4,13 @@
 
 #include <tlPlayApp/Menus/ViewMenu.h>
 
+#include <tlPlayApp/Actions/ViewActions.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/Widgets/Viewport.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
+
+#include <sstream>
 
 namespace tl
 {
@@ -21,19 +24,21 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
         void ViewMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<ViewActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
 
             addItem(p.actions["Frame"]);
             addItem(p.actions["ZoomReset"]);
@@ -56,6 +61,25 @@ namespace tl
             p.menus["MagnifyFilter"] = addSubMenu("Magnify Filter");
             p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyNearest"]);
             p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyLinear"]);
+
+            p.menus["VideoLevels"] = addSubMenu("Video Levels");
+            p.menus["VideoLevels"]->addItem(p.actions["FromFile"]);
+            p.menus["VideoLevels"]->addItem(p.actions["FullRange"]);
+            p.menus["VideoLevels"]->addItem(p.actions["LegalRange"]);
+
+            p.menus["AlphaBlend"] = addSubMenu("Alpha Blend");
+            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendNone"]);
+            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendStraight"]);
+            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendPremultiplied"]);
+
+            p.menus["ColorBuffer"] = addSubMenu("Color Buffer");
+            std::vector<dtk::ImageType> colorBuffers = actions->getColorBuffers();
+            for (auto type : colorBuffers)
+            {
+                std::stringstream ss;
+                ss << type;
+                p.menus["ColorBuffer"]->addItem(p.actions[ss.str()]);
+            }
 
             addDivider();
             addItem(p.actions["HUD"]);
@@ -112,6 +136,45 @@ namespace tl
                         _p->actions["MagnifyLinear"],
                         dtk::ImageFilter::Linear == value.imageFilters.magnify);
                 });
+
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
+                app->getViewportModel()->observeImageOptions(),
+                [this](const dtk::ImageOptions& value)
+                {
+                    _p->menus["VideoLevels"]->setItemChecked(
+                        _p->actions["FromFile"],
+                        dtk::InputVideoLevels::FromFile == value.videoLevels);
+                    _p->menus["VideoLevels"]->setItemChecked(
+                        _p->actions["FullRange"],
+                        dtk::InputVideoLevels::FullRange == value.videoLevels);
+                    _p->menus["VideoLevels"]->setItemChecked(
+                        _p->actions["LegalRange"],
+                        dtk::InputVideoLevels::LegalRange == value.videoLevels);
+
+                    _p->menus["AlphaBlend"]->setItemChecked(
+                        _p->actions["AlphaBlendNone"],
+                        dtk::AlphaBlend::None == value.alphaBlend);
+                    _p->menus["AlphaBlend"]->setItemChecked(
+                        _p->actions["AlphaBlendStraight"],
+                        dtk::AlphaBlend::Straight == value.alphaBlend);
+                    _p->menus["AlphaBlend"]->setItemChecked(
+                        _p->actions["AlphaBlendPremultiplied"],
+                        dtk::AlphaBlend::Premultiplied == value.alphaBlend);
+                });
+
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
+                app->getViewportModel()->observeColorBuffer(),
+                [this, colorBuffers](dtk::ImageType value)
+                {
+                    for (auto type : colorBuffers)
+                    {
+                        std::stringstream ss;
+                        ss << type;
+                        _p->menus["ColorBuffer"]->setItemChecked(
+                            _p->actions[ss.str()],
+                            type == value);
+                    }
+                });
         }
 
         ViewMenu::ViewMenu() :
@@ -125,7 +188,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<ViewActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ViewMenu>(new ViewMenu);

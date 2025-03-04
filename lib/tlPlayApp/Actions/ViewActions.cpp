@@ -9,12 +9,15 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play
     {
         struct ViewActions::Private
         {
+            std::vector<dtk::ImageType> colorBuffers;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
         };
 
@@ -213,6 +216,98 @@ namespace tl
                     }
                 });
 
+
+            p.actions["FromFile"] = std::make_shared<dtk::Action>(
+                "From File",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.videoLevels = dtk::InputVideoLevels::FromFile;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.actions["FullRange"] = std::make_shared<dtk::Action>(
+                "Full Range",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.videoLevels = dtk::InputVideoLevels::FullRange;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.actions["LegalRange"] = std::make_shared<dtk::Action>(
+                "Legal Range",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.videoLevels = dtk::InputVideoLevels::LegalRange;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.actions["AlphaBlendNone"] = std::make_shared<dtk::Action>(
+                "None",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.alphaBlend = dtk::AlphaBlend::None;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.actions["AlphaBlendStraight"] = std::make_shared<dtk::Action>(
+                "Straight",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.alphaBlend = dtk::AlphaBlend::Straight;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.actions["AlphaBlendPremultiplied"] = std::make_shared<dtk::Action>(
+                "Premultiplied",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto imageOptions = app->getViewportModel()->getImageOptions();
+                        imageOptions.alphaBlend = dtk::AlphaBlend::Premultiplied;
+                        app->getViewportModel()->setImageOptions(imageOptions);
+                    }
+                });
+
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
+            for (size_t i = 0; i < p.colorBuffers.size(); ++i)
+            {
+                const dtk::ImageType imageType = p.colorBuffers[i];
+                std::stringstream ss;
+                ss << imageType;
+                p.actions[ss.str()] = std::make_shared<dtk::Action>(
+                    ss.str(),
+                    [appWeak, imageType](bool value)
+                    {
+                        if (auto app = appWeak.lock())
+                        {
+                            app->getViewportModel()->setColorBuffer(imageType);
+                        }
+                    });
+            }
+
             p.actions["HUD"] = std::make_shared<dtk::Action>(
                 "HUD",
                 dtk::Key::H,
@@ -242,6 +337,11 @@ namespace tl
             auto out = std::shared_ptr<ViewActions>(new ViewActions);
             out->_init(context, app, mainWindow);
             return out;
+        }
+
+        const std::vector<dtk::ImageType>& ViewActions::getColorBuffers() const
+        {
+            return _p->colorBuffers;
         }
 
         const std::map<std::string, std::shared_ptr<dtk::Action> >& ViewActions::getActions() const

@@ -48,6 +48,15 @@ namespace tl
             //! Set the color picker.
             void setColorPicker(const dtk::Color4F&);
 
+            //! Get the image options.
+            const dtk::ImageOptions& getImageOptions() const;
+
+            //! Observe the image options.
+            std::shared_ptr<dtk::IObservableValue<dtk::ImageOptions> > observeImageOptions() const;
+
+            //! Set the image options.
+            void setImageOptions(const dtk::ImageOptions&);
+
             //! Get the display options.
             const timeline::DisplayOptions& getDisplayOptions() const;
 
@@ -65,6 +74,15 @@ namespace tl
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
+
+            //! Get the color buffer type.
+            dtk::ImageType getColorBuffer() const;
+
+            //! Observe the color buffer type.
+            std::shared_ptr<dtk::IObservableValue<dtk::ImageType> > observeColorBuffer() const;
+
+            //! Set the color buffer type.
+            void setColorBuffer(dtk::ImageType);
 
         private:
             DTK_PRIVATE();

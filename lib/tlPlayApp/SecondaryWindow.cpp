@@ -6,7 +6,6 @@
 
 #include <tlPlayApp/Models/ColorModel.h>
 #include <tlPlayApp/Models/FilesModel.h>
-#include <tlPlayApp/Models/RenderModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
@@ -70,7 +69,7 @@ namespace tl
                 });
 
             p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
-                app->getRenderModel()->observeImageOptions(),
+                app->getViewportModel()->observeImageOptions(),
                 [this](const dtk::ImageOptions& value)
                 {
                     _p->viewport->setImageOptions({ value });
@@ -91,7 +90,7 @@ namespace tl
                 });
 
             p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
-                app->getRenderModel()->observeColorBuffer(),
+                app->getViewportModel()->observeColorBuffer(),
                 [this](dtk::ImageType value)
                 {
                     _p->viewport->setColorBuffer(value);

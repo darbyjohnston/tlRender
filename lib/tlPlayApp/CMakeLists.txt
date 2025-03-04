@@ -4,7 +4,6 @@ set(HEADERS_ACTIONS
     Actions/FileActions.h
     Actions/FrameActions.h
     Actions/PlaybackActions.h
-    Actions/RenderActions.h
     Actions/TimelineActions.h
     Actions/ToolsActions.h
     Actions/ViewActions.h
@@ -15,7 +14,6 @@ set(HEADERS_MENUS
     Menus/FileMenu.h
     Menus/FrameMenu.h
     Menus/PlaybackMenu.h
-    Menus/RenderMenu.h
     Menus/TimelineMenu.h
     Menus/ToolsMenu.h
     Menus/ViewMenu.h
@@ -26,7 +24,6 @@ set(HEADERS_MODELS
     Models/FilesModel.h
     Models/OCIOModel.h
     Models/RecentFilesModel.h
-    Models/RenderModel.h
     Models/SettingsModel.h
     Models/TimeUnitsModel.h
     Models/ViewportModel.h)
@@ -85,7 +82,6 @@ set(SOURCE_ACTIONS
     Actions/FileActions.cpp
     Actions/FrameActions.cpp
     Actions/PlaybackActions.cpp
-    Actions/RenderActions.cpp
     Actions/TimelineActions.cpp
     Actions/ToolsActions.cpp
     Actions/ViewActions.cpp
@@ -96,7 +92,6 @@ set(SOURCE_MENUS
     Menus/FileMenu.cpp
     Menus/FrameMenu.cpp
     Menus/PlaybackMenu.cpp
-    Menus/RenderMenu.cpp
     Menus/TimelineMenu.cpp
     Menus/ToolsMenu.cpp
     Menus/ViewMenu.cpp
@@ -107,7 +102,6 @@ set(SOURCE_MODELS
     Models/FilesModel.cpp
     Models/OCIOModel.cpp
     Models/RecentFilesModel.cpp
-    Models/RenderModel.cpp
     Models/SettingsModel.cpp
     Models/TimeUnitsModel.cpp
     Models/ViewportModel.cpp)

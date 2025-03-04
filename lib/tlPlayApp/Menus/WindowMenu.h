@@ -12,6 +12,7 @@ namespace tl
     {
         class App;
         class MainWindow;
+        class WindowActions;
 
         //! Window menu.
         class WindowMenu : public dtk::Menu
@@ -23,7 +24,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             WindowMenu();
@@ -35,7 +36,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void close() override;

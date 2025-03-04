@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/ToolsMenu.h>
 
+#include <tlPlayApp/Actions/ToolsActions.h>
 #include <tlPlayApp/Tools/Tools.h>
 #include <tlPlayApp/App.h>
 
@@ -21,13 +22,13 @@ namespace tl
         void ToolsMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<ToolsActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
             DTK_P();
 
-            p.actions = actions;
+            p.actions = actions->getActions();
 
             for (const auto tool : getToolLabels())
             {
@@ -57,7 +58,7 @@ namespace tl
         std::shared_ptr<ToolsMenu> ToolsMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<ToolsActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<ToolsMenu>(new ToolsMenu);

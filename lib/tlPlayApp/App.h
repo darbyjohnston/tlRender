@@ -36,7 +36,6 @@ namespace tl
         class FilesModel;
         class MainWindow;
         class RecentFilesModel;
-        class RenderModel;
         class SettingsModel;
         class TimeUnitsModel;
         class ToolsModel;
@@ -99,9 +98,6 @@ namespace tl
 
             //! Get the viewport model.
             const std::shared_ptr<ViewportModel>& getViewportModel() const;
-
-            //! Get the render model.
-            const std::shared_ptr<RenderModel>& getRenderModel() const;
 
             //! Get the audio model.
             const std::shared_ptr<AudioModel>& getAudioModel() const;

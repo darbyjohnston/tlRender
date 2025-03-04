@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Menus/TimelineMenu.h>
 
+#include <tlPlayApp/Actions/TimelineActions.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
@@ -31,7 +32,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<TimelineActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -39,7 +40,8 @@ namespace tl
 
             p.mainWindow = mainWindow;
 
-            p.actions = actions;
+            p.actions = actions->getActions();
+
             addItem(p.actions["FrameView"]);
             addItem(p.actions["ScrollToCurrentFrame"]);
             addItem(p.actions["StopOnScrub"]);
@@ -96,7 +98,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::shared_ptr<TimelineActions>& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<TimelineMenu>(new TimelineMenu);

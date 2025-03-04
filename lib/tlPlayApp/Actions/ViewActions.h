@@ -36,6 +36,8 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
+            const std::vector<dtk::ImageType>& getColorBuffers() const;
+
             const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
 
         private:
