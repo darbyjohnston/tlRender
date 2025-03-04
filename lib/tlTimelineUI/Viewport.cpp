@@ -49,8 +49,6 @@ namespace tl
                 double frame = 0.0;
             };
             DroppedFramesData droppedFramesData;
-            std::vector<dtk::V2I> colorPickers;
-            std::shared_ptr<dtk::ObservableList<dtk::Color4F> > colorPickerValues;
 
             bool doRender = false;
             std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
@@ -89,7 +87,6 @@ namespace tl
             p.frameView = dtk::ObservableValue<bool>::create(true);
             p.fps = dtk::ObservableValue<double>::create(0.0);
             p.droppedFrames = dtk::ObservableValue<size_t>::create(0);
-            p.colorPickerValues = dtk::ObservableList<dtk::Color4F>::create();
         }
 
         Viewport::Viewport() :
@@ -362,18 +359,31 @@ namespace tl
             return _p->droppedFrames;
         }
 
-        void Viewport::setColorPickers(const std::vector<dtk::V2I>& value)
+        dtk::Color4F Viewport::getColorSample(const dtk::V2I& value)
         {
             DTK_P();
-            if (value == p.colorPickers)
-                return;
-            p.colorPickers = value;
-            _setDrawUpdate();
-        }
-
-        std::shared_ptr<dtk::IObservableList<dtk::Color4F> > Viewport::observeColorPickers() const
-        {
-            return _p->colorPickerValues;
+            dtk::Color4F out;
+            if (p.buffer)
+            {
+                const dtk::Box2I& g = getGeometry();
+                const dtk::V2I pos = value - g.min;
+                std::vector<float> sample(4);
+                dtk::gl::OffscreenBufferBinding binding(p.buffer);
+                glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                glReadPixels(
+                    pos.x,
+                    pos.y,
+                    1,
+                    1,
+                    GL_RGBA,
+                    GL_FLOAT,
+                    sample.data());
+                out.r = sample[0];
+                out.g = sample[1];
+                out.b = sample[2];
+                out.a = sample[3];
+            }
+            return out;
         }
 
         void Viewport::setGeometry(const dtk::Box2I& value)
@@ -538,28 +548,6 @@ namespace tl
             {
                 const unsigned int id = p.buffer->getColorID();
                 render->drawTexture(id, g);
-            }
-
-            if (p.buffer && !p.colorPickers.empty())
-            {
-                dtk::gl::OffscreenBufferBinding binding(p.buffer);
-                std::vector<dtk::Color4F> colors;
-                for (const auto& colorPicker : p.colorPickers)
-                {
-                    const dtk::V2I pos = colorPicker - g.min;
-                    std::vector<float> sample(4);
-                    glPixelStorei(GL_PACK_ALIGNMENT, 1);
-                    glReadPixels(
-                        pos.x,
-                        pos.y,
-                        1,
-                        1,
-                        GL_RGBA,
-                        GL_FLOAT,
-                        sample.data());
-                    colors.push_back(dtk::Color4F(sample[0], sample[1], sample[2], sample[3]));
-                }
-                p.colorPickerValues->setIfChanged(colors);
             }
         }
 

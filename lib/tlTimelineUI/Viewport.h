@@ -117,11 +117,8 @@ namespace tl
             //! Observe the number of dropped frames during playback.
             std::shared_ptr<dtk::IObservableValue<size_t> > observeDroppedFrames() const;
             
-            //! Set the color pickers.
-            void setColorPickers(const std::vector<dtk::V2I>&);
-
-            //! Observe the color pickers.
-            std::shared_ptr<dtk::IObservableList<dtk::Color4F> > observeColorPickers() const;
+            //! Sample a color from the viewport.
+            dtk::Color4F getColorSample(const dtk::V2I&);
 
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;

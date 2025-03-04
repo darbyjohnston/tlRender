@@ -44,7 +44,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
-            std::shared_ptr<dtk::ListObserver<dtk::Color4F> > colorPickersObserver;
         };
 
         void Viewport::_init(
@@ -105,19 +104,6 @@ namespace tl
                     _p->colorBuffer = value;
                     _hudUpdate();
                 });
-
-            p.colorPickersObserver = dtk::ListObserver<dtk::Color4F>::create(
-                observeColorPickers(),
-                [this](const std::vector<dtk::Color4F>& value)
-                {
-                    if (!value.empty())
-                    {
-                        if (auto app = _p->app.lock())
-                        {
-                            app->getViewportModel()->setColorPicker(value.front());
-                        }
-                    }
-                });
         }
 
         Viewport::Viewport() :
@@ -177,7 +163,11 @@ namespace tl
             switch (p.mouse.mode)
             {
             case Private::MouseMode::ColorPicker:
-                setColorPickers({ event.pos });
+                if (auto app = p.app.lock())
+                {
+                    const dtk::Color4F color = getColorSample(event.pos);
+                    app->getViewportModel()->setColorPicker(color);
+                }
                 break;
             default: break;
             }
@@ -193,7 +183,11 @@ namespace tl
                 event.modifiers & static_cast<int>(dtk::KeyModifier::Shift))
             {
                 p.mouse.mode = Private::MouseMode::ColorPicker;
-                setColorPickers({ event.pos });
+                if (auto app = p.app.lock())
+                {
+                    const dtk::Color4F color = getColorSample(event.pos);
+                    app->getViewportModel()->setColorPicker(color);
+                }
             }
         }
 
