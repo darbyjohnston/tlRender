@@ -43,13 +43,13 @@ namespace tl
                 unsigned int,
                 const dtk::Box2I&,
                 const dtk::Color4F & = dtk::Color4F(1.F, 1.F, 1.F)) override;
+            void drawBackground(const timeline::BackgroundOptions&);
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
-                const timeline::CompareOptions& = timeline::CompareOptions(),
-                const timeline::BackgroundOptions& = timeline::BackgroundOptions()) override;
+                const timeline::CompareOptions& = timeline::CompareOptions()) override;
 
             void begin(
                 const dtk::Size2I&,
@@ -109,9 +109,6 @@ namespace tl
         private:
             void _displayShader();
 
-            void _drawBackground(
-                const std::vector<dtk::Box2I>&,
-                const timeline::BackgroundOptions&);
             void _drawVideoA(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,

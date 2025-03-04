@@ -28,14 +28,16 @@ namespace tl
             //! Set the LUT options.
             virtual void setLUTOptions(const LUTOptions&) = 0;
 
+            //! Draw the background.
+            virtual void drawBackground(const BackgroundOptions&) = 0;
+
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
-                const CompareOptions& = CompareOptions(),
-                const BackgroundOptions& = BackgroundOptions()) = 0;
+                const CompareOptions& = CompareOptions()) = 0;
         };
     }
 }

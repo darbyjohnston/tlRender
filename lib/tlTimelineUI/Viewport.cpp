@@ -465,72 +465,22 @@ namespace tl
                             -1.F,
                             1.F);
                         render->setTransform(pm);
-                        switch (p.backgroundOptions.type)
-                        {
-                        case timeline::Background::Solid:
-                            render->drawRect(
-                                dtk::Box2I(0, 0, g.w(), g.h()),
-                                p.backgroundOptions.solidColor);
-                            break;
-                        case timeline::Background::Checkers:
-                            render->drawColorMesh(
-                                dtk::checkers(
-                                    dtk::Box2I(0, 0, g.w(), g.h()),
-                                    p.backgroundOptions.checkersColor.first,
-                                    p.backgroundOptions.checkersColor.second,
-                                    p.backgroundOptions.checkersSize),
-                                dtk::Color4F(1.F, 1.F, 1.F));
-                            break;
-                        case timeline::Background::Gradient:
-                        {
-                            dtk::Box2I box(0, 0, g.w(), g.h());
-                            dtk::TriMesh2F mesh;
-                            mesh.v.push_back(dtk::V2F(box.min.x, box.min.y));
-                            mesh.v.push_back(dtk::V2F(box.max.x, box.min.y));
-                            mesh.v.push_back(dtk::V2F(box.max.x, box.max.y));
-                            mesh.v.push_back(dtk::V2F(box.min.x, box.max.y));
-                            mesh.c.push_back(dtk::V4F(
-                                p.backgroundOptions.gradientColor.first.r,
-                                p.backgroundOptions.gradientColor.first.g,
-                                p.backgroundOptions.gradientColor.first.b,
-                                p.backgroundOptions.gradientColor.first.a));
-                            mesh.c.push_back(dtk::V4F(
-                                p.backgroundOptions.gradientColor.second.r,
-                                p.backgroundOptions.gradientColor.second.g,
-                                p.backgroundOptions.gradientColor.second.b,
-                                p.backgroundOptions.gradientColor.second.a));
-                            mesh.triangles.push_back({
-                                dtk::Vertex2(1, 0, 1),
-                                dtk::Vertex2(2, 0, 1),
-                                dtk::Vertex2(3, 0, 2), });
-                            mesh.triangles.push_back({
-                                dtk::Vertex2(3, 0, 2),
-                                dtk::Vertex2(4, 0, 2),
-                                dtk::Vertex2(1, 0, 1), });
-                            render->drawColorMesh(
-                                mesh,
-                                dtk::Color4F(1.F, 1.F, 1.F));
-                            break;
-                        }
-                        default: break;
-                        }
+
+                        render->drawBackground(p.backgroundOptions);
+
+                        dtk::M44F vm;
+                        vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
+                        vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
+                        render->setTransform(pm * vm);
+                        render->drawVideo(
+                            p.videoData,
+                            timeline::getBoxes(p.compareOptions.compare, p.videoData),
+                            p.imageOptions,
+                            p.displayOptions,
+                            p.compareOptions);
 
                         if (!p.videoData.empty())
                         {
-                            dtk::M44F vm;
-                            vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
-                            vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
-                            render->setTransform(pm * vm);
-                            timeline::BackgroundOptions backgroundOptions;
-                            backgroundOptions.solidColor = dtk::Color4F(0.F, 0.F, 0.F, 0.F);
-                            render->drawVideo(
-                                p.videoData,
-                                timeline::getBoxes(p.compareOptions.compare, p.videoData),
-                                p.imageOptions,
-                                p.displayOptions,
-                                p.compareOptions,
-                                backgroundOptions);
-
                             _droppedFramesUpdate(p.videoData[0].time);
                         }
                     }

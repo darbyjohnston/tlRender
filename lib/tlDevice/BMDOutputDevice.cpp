@@ -1025,6 +1025,8 @@ namespace tl
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 
+                p.thread.render->drawBackground(backgroundOptions);
+
                 dtk::V2I viewPosTmp = p.thread.viewPos;
                 double viewZoomTmp = p.thread.viewZoom;
                 if (p.thread.frameView)
@@ -1050,16 +1052,13 @@ namespace tl
                     -1.F,
                     1.F);
                 p.thread.render->setTransform(pm * vm);
-                if (!p.thread.videoData.empty())
-                {
-                    p.thread.render->drawVideo(
-                        p.thread.videoData,
-                        timeline::getBoxes(compareOptions.compare, p.thread.videoData),
-                        imageOptions,
-                        displayOptions,
-                        compareOptions,
-                        backgroundOptions);
-                }
+                p.thread.render->drawVideo(
+                    p.thread.videoData,
+                    timeline::getBoxes(compareOptions.compare, p.thread.videoData),
+                    imageOptions,
+                    displayOptions,
+                    compareOptions);
+
                 if (p.thread.overlay)
                 {
                     p.thread.render->setTransform(pm);

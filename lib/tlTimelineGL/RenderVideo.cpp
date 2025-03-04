@@ -15,18 +15,64 @@ namespace tl
 {
     namespace timeline_gl
     {
+        void Render::drawBackground(const timeline::BackgroundOptions& options)
+        {
+            const dtk::Box2I rect(dtk::V2I(0, 0), getRenderSize());
+            switch (options.type)
+            {
+            case timeline::Background::Solid:
+                IRender::drawRect(rect, options.solidColor);
+                break;
+            case timeline::Background::Checkers:
+                drawColorMesh(
+                    dtk::checkers(
+                        rect,
+                        options.checkersColor.first,
+                        options.checkersColor.second,
+                        options.checkersSize),
+                    dtk::Color4F(1.F, 1.F, 1.F));
+                break;
+            case timeline::Background::Gradient:
+            {
+                dtk::TriMesh2F mesh;
+                mesh.v.push_back(dtk::V2F(rect.min.x, rect.min.y));
+                mesh.v.push_back(dtk::V2F(rect.max.x, rect.min.y));
+                mesh.v.push_back(dtk::V2F(rect.max.x, rect.max.y));
+                mesh.v.push_back(dtk::V2F(rect.min.x, rect.max.y));
+                mesh.c.push_back(dtk::V4F(
+                    options.gradientColor.first.r,
+                    options.gradientColor.first.g,
+                    options.gradientColor.first.b,
+                    options.gradientColor.first.a));
+                mesh.c.push_back(dtk::V4F(
+                    options.gradientColor.second.r,
+                    options.gradientColor.second.g,
+                    options.gradientColor.second.b,
+                    options.gradientColor.second.a));
+                mesh.triangles.push_back({
+                    dtk::Vertex2(1, 0, 1),
+                    dtk::Vertex2(2, 0, 1),
+                    dtk::Vertex2(3, 0, 2), });
+                mesh.triangles.push_back({
+                    dtk::Vertex2(3, 0, 2),
+                    dtk::Vertex2(4, 0, 2),
+                    dtk::Vertex2(1, 0, 1), });
+                drawColorMesh(
+                    mesh,
+                    dtk::Color4F(1.F, 1.F, 1.F));
+                break;
+            }
+            default: break;
+            }
+        }
+
         void Render::drawVideo(
             const std::vector<timeline::VideoData>& videoData,
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions,
-            const timeline::BackgroundOptions& backgroundOptions)
+            const timeline::CompareOptions& compareOptions)
         {
-            if (!boxes.empty())
-            {
-                _drawBackground(boxes, backgroundOptions);
-            }
             switch (compareOptions.compare)
             {
             case timeline::Compare::A:
@@ -92,61 +138,6 @@ namespace tl
                     compareOptions);
                 break;
             default: break;
-            }
-        }
-
-        void Render::_drawBackground(
-            const std::vector<dtk::Box2I>& boxes,
-            const timeline::BackgroundOptions& options)
-        {
-            for (const auto& box : boxes)
-            {
-                switch (options.type)
-                {
-                case timeline::Background::Solid:
-                    IRender::drawRect(box, options.solidColor);
-                    break;
-                case timeline::Background::Checkers:
-                    drawColorMesh(
-                        dtk::checkers(
-                            box,
-                            options.checkersColor.first,
-                            options.checkersColor.second,
-                            options.checkersSize),
-                        dtk::Color4F(1.F, 1.F, 1.F));
-                    break;
-                case timeline::Background::Gradient:
-                {
-                    dtk::TriMesh2F mesh;
-                    mesh.v.push_back(dtk::V2F(box.min.x, box.min.y));
-                    mesh.v.push_back(dtk::V2F(box.max.x, box.min.y));
-                    mesh.v.push_back(dtk::V2F(box.max.x, box.max.y));
-                    mesh.v.push_back(dtk::V2F(box.min.x, box.max.y));
-                    mesh.c.push_back(dtk::V4F(
-                        options.gradientColor.first.r,
-                        options.gradientColor.first.g,
-                        options.gradientColor.first.b,
-                        options.gradientColor.first.a));
-                    mesh.c.push_back(dtk::V4F(
-                        options.gradientColor.second.r,
-                        options.gradientColor.second.g,
-                        options.gradientColor.second.b,
-                        options.gradientColor.second.a));
-                    mesh.triangles.push_back({
-                        dtk::Vertex2(1, 0, 1),
-                        dtk::Vertex2(2, 0, 1),
-                        dtk::Vertex2(3, 0, 2), });
-                    mesh.triangles.push_back({
-                        dtk::Vertex2(3, 0, 2),
-                        dtk::Vertex2(4, 0, 2),
-                        dtk::Vertex2(1, 0, 1), });
-                    drawColorMesh(
-                        mesh,
-                        dtk::Color4F(1.F, 1.F, 1.F));
-                    break;
-                }
-                default: break;
-                }
             }
         }
 
