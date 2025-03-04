@@ -84,8 +84,9 @@ namespace tl
         //! Outline.
         struct Outline
         {
-            int          width = 2;
-            dtk::Color4F color = dtk::Color4F(1.F, 0.F, 0.F);
+            bool         enabled = false;
+            int          width   = 2;
+            dtk::Color4F color   = dtk::Color4F(1.F, 0.F, 0.F);
 
             bool operator == (const Outline&) const;
             bool operator != (const Outline&) const;
@@ -94,8 +95,9 @@ namespace tl
         //! Grid.
         struct Grid
         {
-            dtk::Size2I  size  = dtk::Size2I(100, 100);
-            dtk::Color4F color = dtk::Color4F(0.F, 0.F, 0.F);
+            bool         enabled = false;
+            dtk::Size2I  size    = dtk::Size2I(100, 100);
+            dtk::Color4F color   = dtk::Color4F(0.F, 0.F, 0.F);
 
             bool operator == (const Grid&) const;
             bool operator != (const Grid&) const;
@@ -104,22 +106,41 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            dtk::ChannelDisplay channels       = dtk::ChannelDisplay::Color;
+            dtk::ChannelDisplay channels     = dtk::ChannelDisplay::Color;
             dtk::ImageMirror    mirror;
             Color               color;
             Levels              levels;
             EXRDisplay          exrDisplay;
             SoftClip            softClip;
             dtk::ImageFilters   imageFilters;
-            dtk::VideoLevels    videoLevels    = dtk::VideoLevels::FullRange;
-            bool                outlineEnabled = false;
+            dtk::VideoLevels    videoLevels  = dtk::VideoLevels::FullRange;
             Outline             outline;
-            bool                gridEnabled    = false;
             Grid                grid;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const Color&);
+        void to_json(nlohmann::json&, const Levels&);
+        void to_json(nlohmann::json&, const EXRDisplay&);
+        void to_json(nlohmann::json&, const SoftClip&);
+        void to_json(nlohmann::json&, const Outline&);
+        void to_json(nlohmann::json&, const Grid&);
+        void to_json(nlohmann::json&, const DisplayOptions&);
+
+        void from_json(const nlohmann::json&, Color&);
+        void from_json(const nlohmann::json&, Levels&);
+        void from_json(const nlohmann::json&, EXRDisplay&);
+        void from_json(const nlohmann::json&, SoftClip&);
+        void from_json(const nlohmann::json&, Outline&);
+        void from_json(const nlohmann::json&, Grid&);
+        void from_json(const nlohmann::json&, DisplayOptions&);
+
+        ///@}
     }
 }
 

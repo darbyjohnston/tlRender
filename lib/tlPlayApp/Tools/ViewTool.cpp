@@ -8,6 +8,7 @@
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/Bellows.h>
+#include <dtk/ui/CheckBox.h>
 #include <dtk/ui/ColorSwatch.h>
 #include <dtk/ui/ComboBox.h>
 #include <dtk/ui/FormLayout.h>
@@ -208,9 +209,239 @@ namespace tl
             p.layout->setRowVisible(p.gradientSwatch.second, value.type == timeline::Background::Gradient);
         }
 
+        struct OutlineWidget::Private
+        {
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::shared_ptr<dtk::IntEditSlider> widthSlider;
+            std::shared_ptr<dtk::ColorSwatch> colorSwatch;
+            std::shared_ptr<dtk::FormLayout> layout;
+
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+        };
+
+        void OutlineWidget::_init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<dtk::IWidget>& parent)
+        {
+            dtk::IWidget::_init(context, "tl::play_app::OutlineWidget", parent);
+            DTK_P();
+
+            p.enabledCheckBox = dtk::CheckBox::create(context);
+            p.enabledCheckBox->setHStretch(dtk::Stretch::Expanding);
+
+            p.widthSlider = dtk::IntEditSlider::create(context);
+
+            p.colorSwatch = dtk::ColorSwatch::create(context);
+            p.colorSwatch->setEditable(true);
+            p.colorSwatch->setHAlign(dtk::HAlign::Left);
+
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.layout->addRow("Enabled:", p.enabledCheckBox);
+            p.layout->addRow("Width:", p.widthSlider);
+            p.layout->addRow("Color:", p.colorSwatch);
+
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _optionsUpdate(value);
+                });
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.enabledCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.outline.enabled = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.widthSlider->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.outline.width = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.colorSwatch->setCallback(
+                [appWeak](const dtk::Color4F& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.outline.color = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+        }
+
+        OutlineWidget::OutlineWidget() :
+            _p(new Private)
+        {}
+
+        OutlineWidget::~OutlineWidget()
+        {}
+
+        std::shared_ptr<OutlineWidget> OutlineWidget::create(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<OutlineWidget>(new OutlineWidget);
+            out->_init(context, app, parent);
+            return out;
+        }
+
+        void OutlineWidget::setGeometry(const dtk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void OutlineWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
+        {
+            IWidget::sizeHintEvent(value);
+            _setSizeHint(_p->layout->getSizeHint());
+        }
+
+        void OutlineWidget::_optionsUpdate(const timeline::DisplayOptions& value)
+        {
+            DTK_P();
+            p.enabledCheckBox->setChecked(value.outline.enabled);
+            p.widthSlider->setValue(value.outline.width);
+            p.colorSwatch->setColor(value.outline.color);
+        }
+
+        struct GridWidget::Private
+        {
+            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
+            std::shared_ptr<dtk::IntEditSlider> sizeSlider;
+            std::shared_ptr<dtk::ColorSwatch> colorSwatch;
+            std::shared_ptr<dtk::FormLayout> layout;
+
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+        };
+
+        void GridWidget::_init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<dtk::IWidget>& parent)
+        {
+            dtk::IWidget::_init(context, "tl::play_app::GridWidget", parent);
+            DTK_P();
+
+            p.enabledCheckBox = dtk::CheckBox::create(context);
+            p.enabledCheckBox->setHStretch(dtk::Stretch::Expanding);
+
+            p.sizeSlider = dtk::IntEditSlider::create(context);
+            p.sizeSlider->setRange(dtk::RangeI(1, 1000));
+
+            p.colorSwatch = dtk::ColorSwatch::create(context);
+            p.colorSwatch->setEditable(true);
+            p.colorSwatch->setHAlign(dtk::HAlign::Left);
+
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.layout->addRow("Enabled:", p.enabledCheckBox);
+            p.layout->addRow("Size:", p.sizeSlider);
+            p.layout->addRow("Color:", p.colorSwatch);
+
+            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _optionsUpdate(value);
+                });
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.enabledCheckBox->setCheckedCallback(
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.grid.enabled = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.sizeSlider->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.grid.size.w = value;
+                        options.grid.size.h = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.colorSwatch->setCallback(
+                [appWeak](const dtk::Color4F& value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.grid.color = value;
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+        }
+
+        GridWidget::GridWidget() :
+            _p(new Private)
+        {}
+
+        GridWidget::~GridWidget()
+        {}
+
+        std::shared_ptr<GridWidget> GridWidget::create(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<GridWidget>(new GridWidget);
+            out->_init(context, app, parent);
+            return out;
+        }
+
+        void GridWidget::setGeometry(const dtk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void GridWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
+        {
+            IWidget::sizeHintEvent(value);
+            _setSizeHint(_p->layout->getSizeHint());
+        }
+
+        void GridWidget::_optionsUpdate(const timeline::DisplayOptions& value)
+        {
+            DTK_P();
+            p.enabledCheckBox->setChecked(value.grid.enabled);
+            p.sizeSlider->setValue(value.grid.size.w);
+            p.colorSwatch->setColor(value.grid.color);
+        }
+
         struct ViewTool::Private
         {
             std::shared_ptr<BackgroundWidget> backgroundWidget;
+            std::shared_ptr<OutlineWidget> outlineWidget;
+            std::shared_ptr<GridWidget> gridWidget;
         };
 
         void ViewTool::_init(
@@ -227,10 +458,17 @@ namespace tl
             DTK_P();
 
             p.backgroundWidget = BackgroundWidget::create(context, app);
+            p.outlineWidget = OutlineWidget::create(context, app);
+            p.gridWidget = GridWidget::create(context, app);
 
             auto layout = dtk::VerticalLayout::create(context);
+            layout->setSpacingRole(dtk::SizeRole::None);
             auto bellows = dtk::Bellows::create(context, "Background", layout);
             bellows->setWidget(p.backgroundWidget);
+            bellows = dtk::Bellows::create(context, "Outline", layout);
+            bellows->setWidget(p.outlineWidget);
+            bellows = dtk::Bellows::create(context, "Grid", layout);
+            bellows->setWidget(p.gridWidget);
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);

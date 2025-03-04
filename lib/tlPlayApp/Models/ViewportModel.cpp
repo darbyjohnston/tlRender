@@ -31,12 +31,20 @@ namespace tl
             p.settings = settings;
 
             p.colorPicker = dtk::ObservableValue<dtk::Color4F>::create();
+
+            dtk::ImageOptions imageOptions;
+            p.settings->getT("Viewport/Image", imageOptions);
+            p.imageOptions = dtk::ObservableValue<dtk::ImageOptions>::create(imageOptions);
+
             timeline::BackgroundOptions backgroundOptions;
             p.settings->getT("Viewport/Background", backgroundOptions);
-            p.imageOptions = dtk::ObservableValue<dtk::ImageOptions>::create();
             p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
                 backgroundOptions);
-            p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create();
+
+            timeline::DisplayOptions displayOptions;
+            p.settings->getT("Viewport/Display", displayOptions);
+            p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create(displayOptions);
+
             dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8;
             std::string s = dtk::to_string(colorBuffer);
             p.settings->get("Viewport/ColorBuffer", s);
@@ -51,7 +59,9 @@ namespace tl
         ViewportModel::~ViewportModel()
         {
             DTK_P();
+            p.settings->setT("Viewport/Image", p.imageOptions->get());
             p.settings->setT("Viewport/Background", p.backgroundOptions->get());
+            p.settings->setT("Viewport/Display", p.displayOptions->get());
             p.settings->set("Viewport/ColorBuffer", dtk::to_string(p.colorBuffer->get()));
         }
 

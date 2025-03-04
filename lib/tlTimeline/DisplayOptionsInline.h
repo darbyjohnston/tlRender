@@ -69,6 +69,7 @@ namespace tl
         inline bool Outline::operator == (const Outline& other) const
         {
             return
+                enabled == other.enabled &&
                 width == other.width &&
                 color == other.color;
         }
@@ -81,6 +82,7 @@ namespace tl
         inline bool Grid::operator == (const Grid& other) const
         {
             return
+                enabled == other.enabled &&
                 size == other.size &&
                 color == other.color;
         }
@@ -101,9 +103,7 @@ namespace tl
                 softClip == other.softClip &&
                 imageFilters == other.imageFilters &&
                 videoLevels == other.videoLevels &&
-                outlineEnabled == other.outlineEnabled &&
                 outline == other.outline &&
-                gridEnabled == other.gridEnabled &&
                 grid == other.grid;
         }
 

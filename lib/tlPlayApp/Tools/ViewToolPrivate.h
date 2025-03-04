@@ -7,6 +7,7 @@
 #include <tlPlayApp/Tools/ViewTool.h>
 
 #include <tlTimeline/BackgroundOptions.h>
+#include <tlTimeline/DisplayOptions.h>
 
 namespace tl
 {
@@ -37,6 +38,64 @@ namespace tl
 
         private:
             void _optionsUpdate(const timeline::BackgroundOptions&);
+
+            DTK_PRIVATE();
+        };
+
+        class OutlineWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(OutlineWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            OutlineWidget();
+
+        public:
+            virtual ~OutlineWidget();
+
+            static std::shared_ptr<OutlineWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            void _optionsUpdate(const timeline::DisplayOptions&);
+
+            DTK_PRIVATE();
+        };
+
+        class GridWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(GridWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            GridWidget();
+
+        public:
+            virtual ~GridWidget();
+
+            static std::shared_ptr<GridWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            void _optionsUpdate(const timeline::DisplayOptions&);
 
             DTK_PRIVATE();
         };
