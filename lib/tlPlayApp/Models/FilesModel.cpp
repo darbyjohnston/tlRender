@@ -122,7 +122,7 @@ namespace tl
             p.files->pushBack(item);
 
             p.a->setIfChanged(p.files->getItem(p.files->getSize() - 1));
-            p.aIndex->setIfChanged(_index(p.a->get()));
+            p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -137,14 +137,14 @@ namespace tl
                 const auto i = std::find(files.begin(), files.end(), p.a->get());
                 if (i != files.end())
                 {
-                    const int aPrevIndex = _index(p.a->get());
+                    const int aPrevIndex = _getIndex(p.a->get());
 
                     files.erase(i);
                     p.files->setIfChanged(files);
 
                     const int aNewIndex = dtk::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
-                    p.aIndex->setIfChanged(_index(p.a->get()));
+                    p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                     auto b = p.b->get();
                     auto j = b.begin();
@@ -161,7 +161,7 @@ namespace tl
                         }
                     }
                     p.b->setIfChanged(b);
-                    p.bIndexes->setIfChanged(_bIndexes());
+                    p.bIndexes->setIfChanged(_getBIndexes());
 
                     p.active->setIfChanged(_getActive());
                     p.layers->setIfChanged(_getLayers());
@@ -179,7 +179,7 @@ namespace tl
             p.aIndex->setIfChanged(-1);
 
             p.b->clear();
-            p.bIndexes->setIfChanged(_bIndexes());
+            p.bIndexes->setIfChanged(_getBIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -188,11 +188,11 @@ namespace tl
         void FilesModel::setA(int index)
         {
             DTK_P();
-            const int prevIndex = _index(p.a->get());
+            const int prevIndex = _getIndex(p.a->get());
             if (index >= 0 && index < p.files->getSize() && index != prevIndex)
             {
                 p.a->setIfChanged(p.files->getItem(index));
-                p.aIndex->setIfChanged(_index(p.a->get()));
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -206,7 +206,7 @@ namespace tl
             {
                 auto b = p.b->get();
                 int removedIndex = -1;
-                const auto bIndexes = _bIndexes();
+                const auto bIndexes = _getBIndexes();
                 const auto i = std::find(bIndexes.begin(), bIndexes.end(), index);
                 if (value && i == bIndexes.end())
                 {
@@ -222,7 +222,7 @@ namespace tl
                     case timeline::Compare::Vertical:
                         if (b.size() > 1)
                         {
-                            removedIndex = _index(b.front());
+                            removedIndex = _getIndex(b.front());
                             b.erase(b.begin());
                         }
                         break;
@@ -234,7 +234,7 @@ namespace tl
                     b.erase(b.begin() + (i - bIndexes.begin()));
                 }
                 p.b->setIfChanged(b);
-                p.bIndexes->setIfChanged(_bIndexes());
+                p.bIndexes->setIfChanged(_getBIndexes());
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -257,7 +257,7 @@ namespace tl
             if (!p.b->isEmpty())
             {
                 p.b->clear();
-                p.bIndexes->setIfChanged(_bIndexes());
+                p.bIndexes->setIfChanged(_getBIndexes());
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -267,11 +267,11 @@ namespace tl
         void FilesModel::first()
         {
             DTK_P();
-            const int prevIndex = _index(p.a->get());
+            const int prevIndex = _getIndex(p.a->get());
             if (!p.files->isEmpty() && prevIndex != 0)
             {
                 p.a->setIfChanged(p.files->getItem(0));
-                p.aIndex->setIfChanged(_index(p.a->get()));
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -282,11 +282,11 @@ namespace tl
         {
             DTK_P();
             const int index = static_cast<int>(p.files->getSize()) - 1;
-            const int prevIndex = _index(p.a->get());
+            const int prevIndex = _getIndex(p.a->get());
             if (!p.files->isEmpty() && index != prevIndex)
             {
                 p.a->setIfChanged(p.files->getItem(index));
-                p.aIndex->setIfChanged(_index(p.a->get()));
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -298,14 +298,14 @@ namespace tl
             DTK_P();
             if (!p.files->isEmpty())
             {
-                const int prevIndex = _index(p.a->get());
+                const int prevIndex = _getIndex(p.a->get());
                 int index = prevIndex + 1;
                 if (index >= p.files->getSize())
                 {
                     index = 0;
                 }
                 p.a->setIfChanged(p.files->getItem(index));
-                p.aIndex->setIfChanged(_index(p.a->get()));
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -317,14 +317,14 @@ namespace tl
             DTK_P();
             if (!p.files->isEmpty())
             {
-                const int prevIndex = _index(p.a->get());
+                const int prevIndex = _getIndex(p.a->get());
                 int index = prevIndex - 1;
                 if (index < 0)
                 {
                     index = p.files->getSize() - 1;
                 }
                 p.a->setIfChanged(p.files->getItem(index));
-                p.aIndex->setIfChanged(_index(p.a->get()));
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
 
                 p.active->setIfChanged(_getActive());
                 p.layers->setIfChanged(_getLayers());
@@ -340,7 +340,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(0));
             }
-            p.bIndexes->setIfChanged(_bIndexes());
+            p.bIndexes->setIfChanged(_getBIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -355,7 +355,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(p.files->getSize() - 1));
             }
-            p.bIndexes->setIfChanged(_bIndexes());
+            p.bIndexes->setIfChanged(_getBIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -366,7 +366,7 @@ namespace tl
             DTK_P();
 
             int index = 0;
-            const auto bIndexes = _bIndexes();
+            const auto bIndexes = _getBIndexes();
             if (!bIndexes.empty())
             {
                 index = bIndexes[bIndexes.size() - 1];
@@ -381,7 +381,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(index));
             }
-            p.bIndexes->setIfChanged(_bIndexes());
+            p.bIndexes->setIfChanged(_getBIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -392,7 +392,7 @@ namespace tl
             DTK_P();
 
             int index = 0;
-            const auto bIndexes = _bIndexes();
+            const auto bIndexes = _getBIndexes();
             if (!bIndexes.empty())
             {
                 index = bIndexes[0];
@@ -407,7 +407,7 @@ namespace tl
             {
                 p.b->pushBack(p.files->getItem(index));
             }
-            p.bIndexes->setIfChanged(_bIndexes());
+            p.bIndexes->setIfChanged(_getBIndexes());
 
             p.active->setIfChanged(_getActive());
             p.layers->setIfChanged(_getLayers());
@@ -421,7 +421,7 @@ namespace tl
         void FilesModel::setLayer(const std::shared_ptr<FilesModelItem>& item, int layer)
         {
             DTK_P();
-            const int index = _index(item);
+            const int index = _getIndex(item);
             if (index != -1 &&
                 layer < p.files->getItem(index)->videoLayers.size() &&
                 layer != p.files->getItem(index)->videoLayer)
@@ -434,7 +434,7 @@ namespace tl
         void FilesModel::nextLayer()
         {
             DTK_P();
-            const int index = _index(p.a->get());
+            const int index = _getIndex(p.a->get());
             if (index != -1)
             {
                 auto item = p.files->getItem(index);
@@ -451,7 +451,7 @@ namespace tl
         void FilesModel::prevLayer()
         {
             DTK_P();
-            const int index = _index(p.a->get());
+            const int index = _getIndex(p.a->get());
             if (index != -1)
             {
                 auto item = p.files->getItem(index);
@@ -480,6 +480,7 @@ namespace tl
             DTK_P();
             if (p.compareOptions->setIfChanged(value))
             {
+                auto b = p.b->get();
                 switch (p.compareOptions->get().compare)
                 {
                 case timeline::Compare::A:
@@ -490,18 +491,44 @@ namespace tl
                 case timeline::Compare::Horizontal:
                 case timeline::Compare::Vertical:
                 {
-                    auto b = p.b->get();
                     while (b.size() > 1)
                     {
                         b.pop_back();
                     }
-                    if (p.b->setIfChanged(b))
+                    break;
+                }
+                default: break;
+                }
+                switch (p.compareOptions->get().compare)
+                {
+                case timeline::Compare::B:
+                case timeline::Compare::Wipe:
+                case timeline::Compare::Overlay:
+                case timeline::Compare::Difference:
+                case timeline::Compare::Horizontal:
+                case timeline::Compare::Vertical:
+                case timeline::Compare::Tile:
+                {
+                    if (b.empty() && !p.files->isEmpty())
                     {
-                        p.bIndexes->setIfChanged(_bIndexes());
+                        int index = _getIndex(p.a->get());
+                        if (index != -1)
+                        {
+                            index = index - 1;
+                            if (index < 0)
+                            {
+                                index = p.files->getSize() - 1;
+                            }
+                        }
+                        b.push_back(p.files->getItem(index));
                     }
                     break;
                 }
                 default: break;
+                }
+                if (p.b->setIfChanged(b))
+                {
+                    p.bIndexes->setIfChanged(_getBIndexes());
                 }
 
                 p.active->setIfChanged(_getActive());
@@ -525,20 +552,20 @@ namespace tl
             p.compareTime->setIfChanged(value);
         }
 
-        int FilesModel::_index(const std::shared_ptr<FilesModelItem>& item) const
+        int FilesModel::_getIndex(const std::shared_ptr<FilesModelItem>& item) const
         {
             DTK_P();
             size_t index = p.files->indexOf(item);
             return index != dtk::ObservableListInvalidIndex ? index : -1;
         }
 
-        std::vector<int> FilesModel::_bIndexes() const
+        std::vector<int> FilesModel::_getBIndexes() const
         {
             DTK_P();
             std::vector<int> out;
             for (const auto& b : p.b->get())
             {
-                out.push_back(_index(b));
+                out.push_back(_getIndex(b));
             }
             return out;
         }

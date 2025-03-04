@@ -149,8 +149,8 @@ namespace tl
             //! Observe the compare options.
             std::shared_ptr<dtk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
 
-            //! Set the compare time mode.
-            void setCompareTime(timeline::CompareTime);
+            //! Set the compare options.
+            void setCompareOptions(const timeline::CompareOptions&);
 
             //! Get the compare time mode.
             timeline::CompareTime getCompareTime() const;
@@ -158,12 +158,12 @@ namespace tl
             //! Observe the compare time mode.
             std::shared_ptr<dtk::IObservableValue<timeline::CompareTime> > observeCompareTime() const;
 
-            //! Set the compare options.
-            void setCompareOptions(const timeline::CompareOptions&);
+            //! Set the compare time mode.
+            void setCompareTime(timeline::CompareTime);
 
         private:
-            int _index(const std::shared_ptr<FilesModelItem>&) const;
-            std::vector<int> _bIndexes() const;
+            int _getIndex(const std::shared_ptr<FilesModelItem>&) const;
+            std::vector<int> _getBIndexes() const;
             std::vector<std::shared_ptr<FilesModelItem> > _getActive() const;
             std::vector<int> _getLayers() const;
 
