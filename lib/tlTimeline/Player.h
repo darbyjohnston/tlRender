@@ -233,13 +233,13 @@ namespace tl
             void setCompare(const std::vector<std::shared_ptr<Timeline> >&);
 
             //! Get the comparison time mode.
-            CompareTimeMode getCompareTime() const;
+            CompareTime getCompareTime() const;
 
             //! Observe the comparison time mode.
-            std::shared_ptr<dtk::IObservableValue<CompareTimeMode> > observeCompareTime() const;
+            std::shared_ptr<dtk::IObservableValue<CompareTime> > observeCompareTime() const;
 
             //! Set the comparison time mode.
-            void setCompareTime(CompareTimeMode);
+            void setCompareTime(CompareTime);
 
             ///@}
 

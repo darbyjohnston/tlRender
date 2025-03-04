@@ -18,7 +18,7 @@ namespace tl
     namespace timeline
     {
         DTK_ENUM_IMPL(
-            CompareMode,
+            Compare,
             "A",
             "B",
             "Wipe",
@@ -29,17 +29,17 @@ namespace tl
             "Tile");
 
         DTK_ENUM_IMPL(
-            CompareTimeMode,
+            CompareTime,
             "Relative",
             "Absolute");
 
-        std::vector<dtk::Box2I> getBoxes(CompareMode mode, const std::vector<dtk::ImageInfo>& infos)
+        std::vector<dtk::Box2I> getBoxes(Compare compare, const std::vector<dtk::ImageInfo>& infos)
         {
             std::vector<dtk::Box2I> out;
             const size_t count = infos.size();
-            switch (mode)
+            switch (compare)
             {
-            case CompareMode::Horizontal:
+            case Compare::Horizontal:
             {
                 dtk::ImageInfo info;
                 if (count > 0)
@@ -64,7 +64,7 @@ namespace tl
                 }
                 break;
             }
-            case CompareMode::Vertical:
+            case Compare::Vertical:
             {
                 dtk::ImageInfo info;
                 if (count > 0)
@@ -89,7 +89,7 @@ namespace tl
                 }
                 break;
             }
-            case CompareMode::Tile:
+            case Compare::Tile:
                 if (count > 0)
                 {
                     dtk::Size2I tileSize;
@@ -154,7 +154,7 @@ namespace tl
             return out;
         }
 
-        std::vector<dtk::Box2I> getBoxes(CompareMode mode, const std::vector<VideoData>& videoData)
+        std::vector<dtk::Box2I> getBoxes(Compare compare, const std::vector<VideoData>& videoData)
         {
             std::vector<dtk::ImageInfo> infos;
             for (const auto& i : videoData)
@@ -170,14 +170,14 @@ namespace tl
                 }
                 infos.push_back(info);
             }
-            return getBoxes(mode, infos);
+            return getBoxes(compare, infos);
         }
 
-        dtk::Size2I getRenderSize(CompareMode mode, const std::vector<dtk::ImageInfo>& infos)
+        dtk::Size2I getRenderSize(Compare compare, const std::vector<dtk::ImageInfo>& infos)
         {
             dtk::Size2I out;
             dtk::Box2I box;
-            const auto boxes = getBoxes(mode, infos);
+            const auto boxes = getBoxes(compare, infos);
             if (!boxes.empty())
             {
                 box = boxes[0];
@@ -191,7 +191,7 @@ namespace tl
             return out;
         }
 
-        dtk::Size2I getRenderSize(CompareMode mode, const std::vector<VideoData>& videoData)
+        dtk::Size2I getRenderSize(Compare compare, const std::vector<VideoData>& videoData)
         {
             std::vector<dtk::ImageInfo> infos;
             for (const auto& i : videoData)
@@ -207,19 +207,19 @@ namespace tl
                 }
                 infos.push_back(info);
             }
-            return getRenderSize(mode, infos);
+            return getRenderSize(compare, infos);
         }
 
         OTIO_NS::RationalTime getCompareTime(
             const OTIO_NS::RationalTime& sourceTime,
             const OTIO_NS::TimeRange& sourceTimeRange,
             const OTIO_NS::TimeRange& compareTimeRange,
-            CompareTimeMode mode)
+            CompareTime compare)
         {
             OTIO_NS::RationalTime out;
-            switch (mode)
+            switch (compare)
             {
-            case CompareTimeMode::Relative:
+            case CompareTime::Relative:
             {
                 const OTIO_NS::RationalTime relativeTime =
                     sourceTime - sourceTimeRange.start_time();
@@ -229,7 +229,7 @@ namespace tl
                 out = compareTimeRange.start_time() + relativeTimeRescaled;
                 break;
             }
-            case CompareTimeMode::Absolute:
+            case CompareTime::Absolute:
                 out = sourceTime.
                     rescaled_to(compareTimeRange.duration().rate()).
                     floor();

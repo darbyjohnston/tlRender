@@ -297,7 +297,7 @@ namespace tl
                     (_frameBufferSize.w - viewportSpacing * 2) / 3,
                     (_frameBufferSize.h - viewportSpacing * 2) / 3);
 
-                _compareOptions.mode = timeline::CompareMode::A;
+                _compareOptions.compare = timeline::Compare::A;
                 _drawViewport(
                     dtk::Box2I(
                         0,
@@ -307,7 +307,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     0.F);
-                _compareOptions.mode = timeline::CompareMode::A;
+                _compareOptions.compare = timeline::Compare::A;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x + viewportSpacing,
@@ -317,7 +317,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     _rotation);
-                _compareOptions.mode = timeline::CompareMode::B;
+                _compareOptions.compare = timeline::Compare::B;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
@@ -328,7 +328,7 @@ namespace tl
                     _compareOptions,
                     _rotation);
 
-                _compareOptions.mode = timeline::CompareMode::Wipe;
+                _compareOptions.compare = timeline::Compare::Wipe;
                 _drawViewport(
                     dtk::Box2I(
                         0,
@@ -338,7 +338,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     _rotation);
-                _compareOptions.mode = timeline::CompareMode::Overlay;
+                _compareOptions.compare = timeline::Compare::Overlay;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x + viewportSpacing,
@@ -348,7 +348,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     _rotation);
-                _compareOptions.mode = timeline::CompareMode::Difference;
+                _compareOptions.compare = timeline::Compare::Difference;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
@@ -359,7 +359,7 @@ namespace tl
                     _compareOptions,
                     _rotation);
 
-                _compareOptions.mode = timeline::CompareMode::Horizontal;
+                _compareOptions.compare = timeline::Compare::Horizontal;
                 _drawViewport(
                     dtk::Box2I(
                         0,
@@ -369,7 +369,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     _rotation);
-                _compareOptions.mode = timeline::CompareMode::Vertical;
+                _compareOptions.compare = timeline::Compare::Vertical;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x + viewportSpacing,
@@ -379,7 +379,7 @@ namespace tl
                     fontSize,
                     _compareOptions,
                     _rotation);
-                _compareOptions.mode = timeline::CompareMode::Tile;
+                _compareOptions.compare = timeline::Compare::Tile;
                 _drawViewport(
                     dtk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
@@ -400,7 +400,7 @@ namespace tl
                 const dtk::Size2I viewportSize = box.size();
                 const float viewportAspect = dtk::aspectRatio(viewportSize);
                 const dtk::Size2I renderSize = timeline::getRenderSize(
-                    compareOptions.mode,
+                    compareOptions.compare,
                     _videoData);
                 const float renderSizeAspect = dtk::aspectRatio(renderSize);
                 dtk::Size2I transformSize;
@@ -437,7 +437,7 @@ namespace tl
                     dtk::translate(dtk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
-                    timeline::getBoxes(compareOptions.mode, _videoData),
+                    timeline::getBoxes(compareOptions.compare, _videoData),
                     {},
                     {},
                     compareOptions);
@@ -456,7 +456,7 @@ namespace tl
                     fontInfo.size = fontSize;
                     auto fontSystem = _context->getSystem<dtk::FontSystem>();
                     auto fontMetrics = fontSystem->getMetrics(fontInfo);
-                    std::string text = timeline::getLabel(compareOptions.mode);
+                    std::string text = timeline::getLabel(compareOptions.compare);
                     dtk::Size2I textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
                         dtk::Box2I(0, 0, viewportSize.w, fontMetrics.lineHeight),

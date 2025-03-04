@@ -114,7 +114,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
             std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
@@ -480,9 +480,9 @@ namespace tl
                 {
                     _layersUpdate(value);
                 });
-            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTime>::create(
                 p.filesModel->observeCompareTime(),
-                [this](timeline::CompareTimeMode value)
+                [this](timeline::CompareTime value)
                 {
                     if (auto player = _p->player->get())
                     {
@@ -767,12 +767,12 @@ namespace tl
                     p.options.compareFileName,
                     { "-b" },
                     "A/B comparison \"B\" file name."),
-                dtk::CmdLineValueOption<timeline::CompareMode>::create(
-                    p.options.compareOptions.mode,
+                dtk::CmdLineValueOption<timeline::Compare>::create(
+                    p.options.compareOptions.compare,
                     { "-compare", "-c" },
                     "A/B comparison mode.",
-                    dtk::Format("{0}").arg(p.options.compareOptions.mode),
-                    dtk::join(timeline::getCompareModeLabels(), ", ")),
+                    dtk::Format("{0}").arg(p.options.compareOptions.compare),
+                    dtk::join(timeline::getCompareLabels(), ", ")),
                 dtk::CmdLineValueOption<dtk::V2F>::create(
                     p.options.compareOptions.wipeCenter,
                     { "-wipeCenter", "-wc" },

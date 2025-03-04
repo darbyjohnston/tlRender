@@ -60,7 +60,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > seek;
             std::shared_ptr<dtk::ObservableValue<OTIO_NS::TimeRange> > inOutRange;
             std::shared_ptr<dtk::ObservableList<std::shared_ptr<Timeline> > > compare;
-            std::shared_ptr<dtk::ObservableValue<CompareTimeMode> > compareTime;
+            std::shared_ptr<dtk::ObservableValue<CompareTime> > compareTime;
             std::shared_ptr<dtk::ObservableValue<io::Options> > ioOptions;
             std::shared_ptr<dtk::ObservableValue<int> > videoLayer;
             std::shared_ptr<dtk::ObservableList<int> > compareVideoLayers;
@@ -93,7 +93,7 @@ namespace tl
                 OTIO_NS::RationalTime currentTime = time::invalidTime;
                 OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
-                CompareTimeMode compareTime = CompareTimeMode::Relative;
+                CompareTime compareTime = CompareTime::Relative;
                 io::Options ioOptions;
                 int videoLayer = 0;
                 std::vector<int> compareVideoLayers;
@@ -115,7 +115,7 @@ namespace tl
                 OTIO_NS::RationalTime currentTime = time::invalidTime;
                 OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
                 std::vector<std::shared_ptr<Timeline> > compare;
-                CompareTimeMode compareTime = CompareTimeMode::Relative;
+                CompareTime compareTime = CompareTime::Relative;
                 io::Options ioOptions;
                 int videoLayer = 0;
                 std::vector<int> compareVideoLayers;

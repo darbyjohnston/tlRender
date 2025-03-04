@@ -999,7 +999,7 @@ namespace tl
 
             // Create the offscreen buffer.
             const dtk::Size2I renderSize = timeline::getRenderSize(
-                compareOptions.mode,
+                compareOptions.compare,
                 p.thread.videoData);
             dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.color = getColorBuffer(p.thread.outputPixelType);
@@ -1054,7 +1054,7 @@ namespace tl
                 {
                     p.thread.render->drawVideo(
                         p.thread.videoData,
-                        timeline::getBoxes(compareOptions.mode, p.thread.videoData),
+                        timeline::getBoxes(compareOptions.compare, p.thread.videoData),
                         imageOptions,
                         displayOptions,
                         compareOptions,

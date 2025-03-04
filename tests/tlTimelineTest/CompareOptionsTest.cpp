@@ -27,12 +27,12 @@ namespace tl
         void CompareOptionsTest::run()
         {
             {
-                _enum<CompareMode>("CompareMode", getCompareModeEnums);
-                _enum<CompareTimeMode>("CompareTimeMode", getCompareTimeModeEnums);
+                _enum<Compare>("Compare", getCompareEnums);
+                _enum<CompareTime>("CompareTime", getCompareTimeEnums);
             }
             {
                 CompareOptions options;
-                options.mode = CompareMode::B;
+                options.compare = Compare::B;
                 DTK_ASSERT(options == options);
                 DTK_ASSERT(options != CompareOptions());
             }
@@ -45,44 +45,44 @@ namespace tl
                     dtk::ImageInfo(1920 / 2, 1080 / 2, dtk::ImageType::RGBA_U8)
                 };
 
-                for (auto mode :
+                for (auto compare :
                     {
-                        CompareMode::A,
-                        CompareMode::B,
-                        CompareMode::Wipe,
-                        CompareMode::Overlay,
-                        CompareMode::Difference
+                        Compare::A,
+                        Compare::B,
+                        Compare::Wipe,
+                        Compare::Overlay,
+                        Compare::Difference
                     })
                 {
-                    auto boxes = getBoxes(mode, infos);
+                    auto boxes = getBoxes(compare, infos);
                     DTK_ASSERT(2 == boxes.size());
                     DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
                     DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[1]);
-                    auto renderSize = getRenderSize(mode, infos);
+                    auto renderSize = getRenderSize(compare, infos);
                     DTK_ASSERT(dtk::Size2I(1920, 1080) == renderSize);
                 }
 
-                auto boxes = getBoxes(CompareMode::Horizontal, infos);
+                auto boxes = getBoxes(Compare::Horizontal, infos);
                 DTK_ASSERT(2 == boxes.size());
                 DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
                 DTK_ASSERT(dtk::Box2I(1920, 0, 1920, 1080) == boxes[1]);
-                auto renderSize = getRenderSize(CompareMode::Horizontal, infos);
+                auto renderSize = getRenderSize(Compare::Horizontal, infos);
                 DTK_ASSERT(dtk::Size2I(1920 * 2, 1080) == renderSize);
 
-                boxes = getBoxes(CompareMode::Vertical, infos);
+                boxes = getBoxes(Compare::Vertical, infos);
                 DTK_ASSERT(2 == boxes.size());
                 DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
                 DTK_ASSERT(dtk::Box2I(0, 1080, 1920, 1080) == boxes[1]);
-                renderSize = getRenderSize(CompareMode::Vertical, infos);
+                renderSize = getRenderSize(Compare::Vertical, infos);
                 DTK_ASSERT(dtk::Size2I(1920, 1080 * 2) == renderSize);
 
-                boxes = getBoxes(CompareMode::Tile, infos);
+                boxes = getBoxes(Compare::Tile, infos);
                 DTK_ASSERT(4 == boxes.size());
                 DTK_ASSERT(dtk::Box2I(0, 0, 1920, 1080) == boxes[0]);
                 DTK_ASSERT(dtk::Box2I(1920, 0, 1920, 1080) == boxes[1]);
                 DTK_ASSERT(dtk::Box2I(0, 1080, 1920, 1080) == boxes[2]);
                 DTK_ASSERT(dtk::Box2I(1920, 1080, 1920, 1080) == boxes[3]);
-                renderSize = getRenderSize(CompareMode::Tile, infos);
+                renderSize = getRenderSize(Compare::Tile, infos);
                 DTK_ASSERT(dtk::Size2I(1920 * 2, 1080 * 2) == renderSize);
             }
             {
@@ -94,7 +94,7 @@ namespace tl
                     OTIO_NS::TimeRange(
                         OTIO_NS::RationalTime(0.0, 24.0),
                         OTIO_NS::RationalTime(24.0, 24.0)),
-                    CompareTimeMode::Absolute);
+                    CompareTime::Absolute);
                 DTK_ASSERT(time == OTIO_NS::RationalTime(0.0, 24.0));
             }
             {
@@ -106,7 +106,7 @@ namespace tl
                     OTIO_NS::TimeRange(
                         OTIO_NS::RationalTime(24.0, 24.0),
                         OTIO_NS::RationalTime(24.0, 24.0)),
-                    CompareTimeMode::Relative);
+                    CompareTime::Relative);
                 DTK_ASSERT(time == OTIO_NS::RationalTime(24.0, 24.0));
             }
         }

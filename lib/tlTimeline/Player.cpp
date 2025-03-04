@@ -84,7 +84,7 @@ namespace tl
             p.seek = dtk::ObservableValue<OTIO_NS::RationalTime>::create(p.currentTime->get());
             p.inOutRange = dtk::ObservableValue<OTIO_NS::TimeRange>::create(p.timeRange);
             p.compare = dtk::ObservableList<std::shared_ptr<Timeline> >::create();
-            p.compareTime = dtk::ObservableValue<CompareTimeMode>::create(CompareTimeMode::Relative);
+            p.compareTime = dtk::ObservableValue<CompareTime>::create(CompareTime::Relative);
             p.ioOptions = dtk::ObservableValue<io::Options>::create();
             p.videoLayer = dtk::ObservableValue<int>::create(0);
             p.compareVideoLayers = dtk::ObservableList<int>::create();
@@ -566,17 +566,17 @@ namespace tl
             }
         }
 
-        CompareTimeMode Player::getCompareTime() const
+        CompareTime Player::getCompareTime() const
         {
             return _p->compareTime->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<CompareTimeMode> > Player::observeCompareTime() const
+        std::shared_ptr<dtk::IObservableValue<CompareTime> > Player::observeCompareTime() const
         {
             return _p->compareTime;
         }
 
-        void Player::setCompareTime(CompareTimeMode value)
+        void Player::setCompareTime(CompareTime value)
         {
             DTK_P();
             if (p.compareTime->setIfChanged(value))

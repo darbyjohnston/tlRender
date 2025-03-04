@@ -525,7 +525,7 @@ namespace tl
                             backgroundOptions.solidColor = dtk::Color4F(0.F, 0.F, 0.F, 0.F);
                             render->drawVideo(
                                 p.videoData,
-                                timeline::getBoxes(p.compareOptions.mode, p.videoData),
+                                timeline::getBoxes(p.compareOptions.compare, p.videoData),
                                 p.imageOptions,
                                 p.displayOptions,
                                 p.compareOptions,
@@ -691,7 +691,7 @@ namespace tl
         dtk::Size2I Viewport::_getRenderSize() const
         {
             DTK_P();
-            return timeline::getRenderSize(p.compareOptions.mode, p.videoData);
+            return timeline::getRenderSize(p.compareOptions.compare, p.videoData);
         }
 
         dtk::V2I Viewport::_getViewportCenter() const

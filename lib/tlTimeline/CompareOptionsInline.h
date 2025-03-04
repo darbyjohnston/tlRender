@@ -9,7 +9,7 @@ namespace tl
         inline bool CompareOptions::operator == (const CompareOptions& other) const
         {
             return
-                mode == other.mode &&
+                compare == other.compare &&
                 wipeCenter == other.wipeCenter &&
                 wipeRotation == other.wipeRotation &&
                 overlay == other.overlay;

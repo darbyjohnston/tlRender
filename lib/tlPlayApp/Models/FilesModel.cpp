@@ -21,7 +21,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > active;
             std::shared_ptr<dtk::ObservableList<int> > layers;
             std::shared_ptr<dtk::ObservableValue<timeline::CompareOptions> > compareOptions;
-            std::shared_ptr<dtk::ObservableValue<timeline::CompareTimeMode> > compareTime;
+            std::shared_ptr<dtk::ObservableValue<timeline::CompareTime> > compareTime;
         };
 
         void FilesModel::_init(const std::shared_ptr<dtk::Context>& context)
@@ -38,7 +38,7 @@ namespace tl
             p.active = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
             p.layers = dtk::ObservableList<int>::create();
             p.compareOptions = dtk::ObservableValue<timeline::CompareOptions>::create();
-            p.compareTime = dtk::ObservableValue<timeline::CompareTimeMode>::create();
+            p.compareTime = dtk::ObservableValue<timeline::CompareTime>::create();
         }
 
         FilesModel::FilesModel() :
@@ -211,15 +211,15 @@ namespace tl
                 if (value && i == bIndexes.end())
                 {
                     b.push_back(p.files->getItem(index));
-                    switch (p.compareOptions->get().mode)
+                    switch (p.compareOptions->get().compare)
                     {
-                    case timeline::CompareMode::A:
-                    case timeline::CompareMode::B:
-                    case timeline::CompareMode::Wipe:
-                    case timeline::CompareMode::Overlay:
-                    case timeline::CompareMode::Difference:
-                    case timeline::CompareMode::Horizontal:
-                    case timeline::CompareMode::Vertical:
+                    case timeline::Compare::A:
+                    case timeline::Compare::B:
+                    case timeline::Compare::Wipe:
+                    case timeline::Compare::Overlay:
+                    case timeline::Compare::Difference:
+                    case timeline::Compare::Horizontal:
+                    case timeline::Compare::Vertical:
                         if (b.size() > 1)
                         {
                             removedIndex = _index(b.front());
@@ -480,15 +480,15 @@ namespace tl
             DTK_P();
             if (p.compareOptions->setIfChanged(value))
             {
-                switch (p.compareOptions->get().mode)
+                switch (p.compareOptions->get().compare)
                 {
-                case timeline::CompareMode::A:
-                case timeline::CompareMode::B:
-                case timeline::CompareMode::Wipe:
-                case timeline::CompareMode::Overlay:
-                case timeline::CompareMode::Difference:
-                case timeline::CompareMode::Horizontal:
-                case timeline::CompareMode::Vertical:
+                case timeline::Compare::A:
+                case timeline::Compare::B:
+                case timeline::Compare::Wipe:
+                case timeline::Compare::Overlay:
+                case timeline::Compare::Difference:
+                case timeline::Compare::Horizontal:
+                case timeline::Compare::Vertical:
                 {
                     auto b = p.b->get();
                     while (b.size() > 1)
@@ -509,17 +509,17 @@ namespace tl
             }
         }
 
-        timeline::CompareTimeMode FilesModel::getCompareTime() const
+        timeline::CompareTime FilesModel::getCompareTime() const
         {
             return _p->compareTime->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<timeline::CompareTimeMode> > FilesModel::observeCompareTime() const
+        std::shared_ptr<dtk::IObservableValue<timeline::CompareTime> > FilesModel::observeCompareTime() const
         {
             return _p->compareTime;
         }
 
-        void FilesModel::setCompareTime(timeline::CompareTimeMode value)
+        void FilesModel::setCompareTime(timeline::CompareTime value)
         {
             DTK_P();
             p.compareTime->setIfChanged(value);
@@ -551,21 +551,21 @@ namespace tl
             {
                 out.push_back(p.a->get());
             }
-            switch (p.compareOptions->get().mode)
+            switch (p.compareOptions->get().compare)
             {
-            case timeline::CompareMode::A:
+            case timeline::Compare::A:
                 if (!p.b->isEmpty())
                 {
                     out.push_back(p.b->getItem(0));
                 }
                 break;
-            case timeline::CompareMode::B:
-            case timeline::CompareMode::Wipe:
-            case timeline::CompareMode::Overlay:
-            case timeline::CompareMode::Difference:
-            case timeline::CompareMode::Horizontal:
-            case timeline::CompareMode::Vertical:
-            case timeline::CompareMode::Tile:
+            case timeline::Compare::B:
+            case timeline::Compare::Wipe:
+            case timeline::Compare::Overlay:
+            case timeline::Compare::Difference:
+            case timeline::Compare::Horizontal:
+            case timeline::Compare::Vertical:
+            case timeline::Compare::Tile:
                 for (const auto& b : p.b->get())
                 {
                     out.push_back(b);

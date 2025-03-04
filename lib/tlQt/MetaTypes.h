@@ -25,8 +25,8 @@ Q_DECLARE_METATYPE(tl::audio::DataType);
 
 Q_DECLARE_METATYPE(tl::io::FileType);
 
-Q_DECLARE_METATYPE(tl::timeline::CompareMode);
-Q_DECLARE_METATYPE(tl::timeline::CompareTimeMode);
+Q_DECLARE_METATYPE(tl::timeline::Compare);
+Q_DECLARE_METATYPE(tl::timeline::CompareTime);
 Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
 Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);

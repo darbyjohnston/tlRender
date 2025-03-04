@@ -33,7 +33,7 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Timeline> > > compareObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
             std::shared_ptr<dtk::ValueObserver<io::Options> > ioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<int> > videoLayerObserver;
             std::shared_ptr<dtk::ListObserver<int> > compareVideoLayersObserver;
@@ -98,9 +98,9 @@ namespace tl
                     Q_EMIT compareChanged(value);
                 });
 
-            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTime>::create(
                 p.player->observeCompareTime(),
-                [this](timeline::CompareTimeMode value)
+                [this](timeline::CompareTime value)
                 {
                     Q_EMIT compareTimeChanged(value);
                 });
@@ -289,7 +289,7 @@ namespace tl
             return _p->player->getCompare();
         }
 
-        timeline::CompareTimeMode PlayerObject::compareTime() const
+        timeline::CompareTime PlayerObject::compareTime() const
         {
             return _p->player->getCompareTime();
         }
@@ -457,7 +457,7 @@ namespace tl
             _p->player->setCompare(value);
         }
 
-        void PlayerObject::setCompareTime(timeline::CompareTimeMode value)
+        void PlayerObject::setCompareTime(timeline::CompareTime value)
         {
             _p->player->setCompareTime(value);
         }

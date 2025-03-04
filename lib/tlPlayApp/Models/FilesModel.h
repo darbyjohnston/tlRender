@@ -150,13 +150,13 @@ namespace tl
             std::shared_ptr<dtk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
 
             //! Set the compare time mode.
-            void setCompareTime(timeline::CompareTimeMode);
+            void setCompareTime(timeline::CompareTime);
 
             //! Get the compare time mode.
-            timeline::CompareTimeMode getCompareTime() const;
+            timeline::CompareTime getCompareTime() const;
 
             //! Observe the compare time mode.
-            std::shared_ptr<dtk::IObservableValue<timeline::CompareTimeMode> > observeCompareTime() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::CompareTime> > observeCompareTime() const;
 
             //! Set the compare options.
             void setCompareOptions(const timeline::CompareOptions&);

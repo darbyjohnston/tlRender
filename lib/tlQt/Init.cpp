@@ -68,8 +68,8 @@ namespace tl
             qRegisterMetaType<timeline::AudioData>("tl::timeline::AudioData");
             qRegisterMetaType<timeline::AudioLayer>("tl::timeline::AudioLayer");
             qRegisterMetaType<timeline::Color>("tl::timeline::Color");
-            qRegisterMetaType<timeline::CompareMode>("tl::timeline::CompareMode");
-            qRegisterMetaType<timeline::CompareTimeMode>("tl::timeline::CompareTimeMode");
+            qRegisterMetaType<timeline::Compare>("tl::timeline::Compare");
+            qRegisterMetaType<timeline::CompareTime>("tl::timeline::CompareTime");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
             qRegisterMetaType<timeline::EXRDisplay>("tl::timeline::EXRDisplay");
             qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
@@ -88,8 +88,8 @@ namespace tl
             qRegisterMetaType<timeline::VideoData>("tl::timeline::VideoData");
             qRegisterMetaType<timeline::VideoLayer>("tl::timeline::VideoLayer");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<timeline::CompareMode>();
-            QMetaType::registerComparators<timeline::CompareTimeMode>();
+            QMetaType::registerComparators<timeline::Compare>();
+            QMetaType::registerComparators<timeline::CompareTime>();
             QMetaType::registerComparators<timeline::FileSequenceAudio>();
             QMetaType::registerComparators<timeline::Loop>();
             QMetaType::registerComparators<timeline::Playback>();

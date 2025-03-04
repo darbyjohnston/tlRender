@@ -44,7 +44,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > bObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
         };
 
         void FilesTool::_init(
@@ -65,11 +65,11 @@ namespace tl
 
             p.compareComboBox = dtk::ComboBox::create(
                 context,
-                timeline::getCompareModeLabels());
+                timeline::getCompareLabels());
             p.compareComboBox->setHStretch(dtk::Stretch::Expanding);
             p.compareTimeComboBox = dtk::ComboBox::create(
                 context,
-                timeline::getCompareTimeModeLabels());
+                timeline::getCompareTimeLabels());
             p.compareTimeComboBox->setHStretch(dtk::Stretch::Expanding);
 
             p.wipeXSlider = dtk::FloatEditSlider::create(context);
@@ -139,7 +139,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getFilesModel()->getCompareOptions();
-                        options.mode = static_cast<timeline::CompareMode>(value);
+                        options.compare = static_cast<timeline::Compare>(value);
                         app->getFilesModel()->setCompareOptions(options);
                     }
                 });
@@ -150,7 +150,7 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         app->getFilesModel()->setCompareTime(
-                            static_cast<timeline::CompareTimeMode>(value));
+                            static_cast<timeline::CompareTime>(value));
                     }
                 });
 
@@ -233,9 +233,9 @@ namespace tl
                     _compareUpdate(value);
                 });
 
-            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTime>::create(
                 app->getFilesModel()->observeCompareTime(),
-                [this](const timeline::CompareTimeMode& value)
+                [this](const timeline::CompareTime& value)
                 {
                     _p->compareTimeComboBox->setCurrentIndex(static_cast<int>(value));
                 });
@@ -357,17 +357,17 @@ namespace tl
         void FilesTool::_compareUpdate(const timeline::CompareOptions& value)
         {
             DTK_P();
-            p.compareComboBox->setCurrentIndex(static_cast<int>(value.mode));
+            p.compareComboBox->setCurrentIndex(static_cast<int>(value.compare));
             p.wipeXSlider->setValue(value.wipeCenter.x);
             p.wipeYSlider->setValue(value.wipeCenter.y);
             p.wipeRotationSlider->setValue(value.wipeRotation);
             p.overlaySlider->setValue(value.overlay);
 
-            p.compareLayout->setRowVisible(p.wipeXSlider, value.mode == timeline::CompareMode::Wipe);
-            p.compareLayout->setRowVisible(p.wipeYSlider, value.mode == timeline::CompareMode::Wipe);
-            p.compareLayout->setRowVisible(p.wipeRotationSlider, value.mode == timeline::CompareMode::Wipe);
-            p.wipeLabel->setVisible(value.mode == timeline::CompareMode::Wipe);
-            p.compareLayout->setRowVisible(p.overlaySlider, value.mode == timeline::CompareMode::Overlay);
+            p.compareLayout->setRowVisible(p.wipeXSlider, value.compare == timeline::Compare::Wipe);
+            p.compareLayout->setRowVisible(p.wipeYSlider, value.compare == timeline::Compare::Wipe);
+            p.compareLayout->setRowVisible(p.wipeRotationSlider, value.compare == timeline::Compare::Wipe);
+            p.wipeLabel->setVisible(value.compare == timeline::Compare::Wipe);
+            p.compareLayout->setRowVisible(p.overlaySlider, value.compare == timeline::Compare::Overlay);
         }
     }
 }

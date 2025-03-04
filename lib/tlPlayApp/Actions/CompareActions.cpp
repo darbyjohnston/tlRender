@@ -51,7 +51,7 @@ namespace tl
                     }
                 });
 
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareIcons =
+            const std::array<std::string, static_cast<size_t>(timeline::Compare::Count)> compareIcons =
             {
                 "CompareA",
                 "CompareB",
@@ -62,7 +62,7 @@ namespace tl
                 "CompareVertical",
                 "CompareTile"
             };
-            const std::array<std::pair<dtk::Key, int>, static_cast<size_t>(timeline::CompareMode::Count)> compareShortcuts =
+            const std::array<std::pair<dtk::Key, int>, static_cast<size_t>(timeline::Compare::Count)> compareShortcuts =
             {
                 std::make_pair(dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)),
                 std::make_pair(dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)),
@@ -73,22 +73,22 @@ namespace tl
                 std::make_pair(dtk::Key::Unknown, 0),
                 std::make_pair(dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control))
             };
-            const std::array<std::string, static_cast<size_t>(timeline::CompareMode::Count)> compareToolTips =
+            const std::array<std::string, static_cast<size_t>(timeline::Compare::Count)> compareToolTips =
             {
                 dtk::Format(
                     "Show the A file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::A)].second)),
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::A)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::A)].second)),
                 dtk::Format(
                     "Show the B file\n"
                     "\n"
                     "Shortcut: {0}").
                     arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::B)].second)),
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::B)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::B)].second)),
                 dtk::Format(
                     "Wipe between the A and B files\n"
                     "\n"
@@ -96,8 +96,8 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Wipe)].second)),
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::Wipe)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::Wipe)].second)),
                 "Show the A file over the B file with transparency",
                 "Show the difference between the A and B files",
                 "Show the A and B files side by side",
@@ -107,43 +107,43 @@ namespace tl
                     "\n"
                     "Shortcut: {0}").
                     arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::CompareMode::Tile)].second))
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::Tile)].first,
+                        compareShortcuts[static_cast<size_t>(timeline::Compare::Tile)].second))
             };
-            const auto compareEnums = timeline::getCompareModeEnums();
-            const auto comapreLabels = timeline::getCompareModeLabels();
+            const auto compareEnums = timeline::getCompareEnums();
+            const auto comapreLabels = timeline::getCompareLabels();
             for (size_t i = 0; i < compareEnums.size(); ++i)
             {
-                const auto mode = compareEnums[i];
+                const auto compare = compareEnums[i];
                 p.actions[comapreLabels[i]] = std::make_shared<dtk::Action>(
-                    timeline::getLabel(mode),
+                    timeline::getLabel(compare),
                     compareIcons[i],
                     compareShortcuts[i].first,
                     compareShortcuts[i].second,
-                    [appWeak, mode]
+                    [appWeak, compare]
                     {
                         if (auto app = appWeak.lock())
                         {
                             auto options = app->getFilesModel()->getCompareOptions();
-                            options.mode = mode;
+                            options.compare = compare;
                             app->getFilesModel()->setCompareOptions(options);
                         }
                     });
                 p.actions[comapreLabels[i]]->toolTip = compareToolTips[i];
             }
 
-            const auto compareTimeEnums = timeline::getCompareTimeModeEnums();
-            const auto comapreTimeLabels = timeline::getCompareTimeModeLabels();
+            const auto compareTimeEnums = timeline::getCompareTimeEnums();
+            const auto comapreTimeLabels = timeline::getCompareTimeLabels();
             for (size_t i = 0; i < compareTimeEnums.size(); ++i)
             {
-                const auto mode = compareTimeEnums[i];
+                const auto compareTime = compareTimeEnums[i];
                 p.actions[comapreTimeLabels[i]] = std::make_shared<dtk::Action>(
                     comapreTimeLabels[i],
-                    [appWeak, mode]
+                    [appWeak, compareTime]
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->getFilesModel()->setCompareTime(mode);
+                            app->getFilesModel()->setCompareTime(compareTime);
                         }
                     });
             }

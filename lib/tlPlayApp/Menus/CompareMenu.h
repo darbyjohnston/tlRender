@@ -43,7 +43,7 @@ namespace tl
             void _filesUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
             void _bUpdate(const std::vector<int>&);
             void _compareUpdate(const timeline::CompareOptions&);
-            void _compareTimeUpdate(timeline::CompareTimeMode);
+            void _compareTimeUpdate(timeline::CompareTime);
 
             DTK_PRIVATE();
         };

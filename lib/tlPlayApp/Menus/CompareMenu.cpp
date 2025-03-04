@@ -21,7 +21,7 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<int> > bIndexesObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::CompareTimeMode> > compareTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
         };
 
         void CompareMenu::_init(
@@ -40,14 +40,14 @@ namespace tl
             addItem(p.actions["Next"]);
             addItem(p.actions["Prev"]);
             addDivider();
-            const auto compareLabels = timeline::getCompareModeLabels();
+            const auto compareLabels = timeline::getCompareLabels();
             for (const auto& label : compareLabels)
             {
                 addItem(p.actions[label]);
             }
             addDivider();
             p.menus["Time"] = addSubMenu("Time");
-            const auto timeLabels = timeline::getCompareTimeModeLabels();
+            const auto timeLabels = timeline::getCompareTimeLabels();
             for (const auto& label : timeLabels)
             {
                 p.menus["Time"]->addItem(p.actions[label]);
@@ -74,9 +74,9 @@ namespace tl
                     _compareUpdate(value);
                 });
 
-            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTimeMode>::create(
+            p.compareTimeObserver = dtk::ValueObserver<timeline::CompareTime>::create(
                 app->getFilesModel()->observeCompareTime(),
-                [this](timeline::CompareTimeMode value)
+                [this](timeline::CompareTime value)
                 {
                     _compareTimeUpdate(value);
                 });
@@ -158,19 +158,19 @@ namespace tl
         void CompareMenu::_compareUpdate(const timeline::CompareOptions& value)
         {
             DTK_P();
-            const auto enums = timeline::getCompareModeEnums();
-            const auto labels = timeline::getCompareModeLabels();
+            const auto enums = timeline::getCompareEnums();
+            const auto labels = timeline::getCompareLabels();
             for (size_t i = 0; i < enums.size(); ++i)
             {
-                setItemChecked(p.actions[labels[i]], enums[i] == value.mode);
+                setItemChecked(p.actions[labels[i]], enums[i] == value.compare);
             }
         }
 
-        void CompareMenu::_compareTimeUpdate(timeline::CompareTimeMode value)
+        void CompareMenu::_compareTimeUpdate(timeline::CompareTime value)
         {
             DTK_P();
-            const auto enums = timeline::getCompareTimeModeEnums();
-            const auto labels = timeline::getCompareTimeModeLabels();
+            const auto enums = timeline::getCompareTimeEnums();
+            const auto labels = timeline::getCompareTimeLabels();
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 p.menus["Time"]->setItemChecked(p.actions[labels[i]], enums[i] == value);

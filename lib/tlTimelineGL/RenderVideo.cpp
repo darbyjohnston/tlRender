@@ -29,9 +29,9 @@ namespace tl
             {
                 _drawBackground(boxes, backgroundOptions);
             }
-            switch (compareOptions.mode)
+            switch (compareOptions.compare)
             {
-            case timeline::CompareMode::A:
+            case timeline::Compare::A:
                 _drawVideoA(
                     videoData,
                     boxes,
@@ -39,7 +39,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::B:
+            case timeline::Compare::B:
                 _drawVideoB(
                     videoData,
                     boxes,
@@ -47,7 +47,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Wipe:
+            case timeline::Compare::Wipe:
                 _drawVideoWipe(
                     videoData,
                     boxes,
@@ -55,7 +55,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Overlay:
+            case timeline::Compare::Overlay:
                 _drawVideoOverlay(
                     videoData,
                     boxes,
@@ -63,7 +63,7 @@ namespace tl
                     displayOptions,
                     compareOptions);
                 break;
-            case timeline::CompareMode::Difference:
+            case timeline::Compare::Difference:
                 if (videoData.size() > 1)
                 {
                     _drawVideoDifference(
@@ -83,9 +83,9 @@ namespace tl
                         compareOptions);
                 }
                 break;
-            case timeline::CompareMode::Horizontal:
-            case timeline::CompareMode::Vertical:
-            case timeline::CompareMode::Tile:
+            case timeline::Compare::Horizontal:
+            case timeline::Compare::Vertical:
+            case timeline::Compare::Tile:
                 _drawVideoTile(
                     videoData,
                     boxes,

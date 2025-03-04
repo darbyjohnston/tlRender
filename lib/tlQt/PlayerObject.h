@@ -53,7 +53,7 @@ namespace tl
                 WRITE setCompare
                 NOTIFY compareChanged)
             Q_PROPERTY(
-                tl::timeline::CompareTimeMode compareTime
+                tl::timeline::CompareTime compareTime
                 READ compareTime
                 WRITE setCompareTime
                 NOTIFY compareTimeChanged)
@@ -210,7 +210,7 @@ namespace tl
             const std::vector<std::shared_ptr<timeline::Timeline> >& compare() const;
 
             //! Get the comparison time mode.
-            timeline::CompareTimeMode compareTime() const;
+            timeline::CompareTime compareTime() const;
 
             ///@}
 
@@ -347,7 +347,7 @@ namespace tl
             void setCompare(const std::vector<std::shared_ptr<timeline::Timeline> >&);
 
             //! Set the comparison time mode.
-            void setCompareTime(timeline::CompareTimeMode);
+            void setCompareTime(timeline::CompareTime);
 
             ///@}
 
@@ -418,7 +418,7 @@ namespace tl
             void compareChanged(const std::vector<std::shared_ptr<timeline::Timeline> >&);
 
             //! This signal is emitted when the comparison time mode is changed.
-            void compareTimeChanged(tl::timeline::CompareTimeMode);
+            void compareTimeChanged(tl::timeline::CompareTime);
 
             ///@}
 
