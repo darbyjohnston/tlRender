@@ -19,6 +19,42 @@ namespace tl
             "Checkers",
             "Gradient");
 
+        bool Outline::operator == (const Outline& other) const
+        {
+            return
+                enabled == other.enabled &&
+                width == other.width &&
+                color == other.color;
+        }
+
+        bool Outline::operator != (const Outline& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool BackgroundOptions::operator == (const BackgroundOptions& other) const
+        {
+            return
+                type == other.type &&
+                solidColor == other.solidColor &&
+                checkersColor == other.checkersColor &&
+                checkersSize == other.checkersSize &&
+                gradientColor == other.gradientColor &&
+                outline == other.outline;
+        }
+
+        bool BackgroundOptions::operator != (const BackgroundOptions& other) const
+        {
+            return !(*this == other);
+        }
+
+        void to_json(nlohmann::json& json, const Outline& in)
+        {
+            json["enabled"] = in.enabled;
+            json["width"] = in.width;
+            json["color"] = in.color;
+        }
+
         void to_json(nlohmann::json& json, const BackgroundOptions& in)
         {
             json["type"] = to_string(in.type);
@@ -28,6 +64,14 @@ namespace tl
             json["checkersSize"] = in.checkersSize;
             json["gradientColor"].push_back(in.gradientColor.first);
             json["gradientColor"].push_back(in.gradientColor.second);
+            json["outline"] = in.outline;
+        }
+
+        void from_json(const nlohmann::json& json, Outline& out)
+        {
+            json.at("enabled").get_to(out.enabled);
+            json.at("width").get_to(out.width);
+            json.at("color").get_to(out.color);
         }
 
         void from_json(const nlohmann::json& json, BackgroundOptions& out)
@@ -39,6 +83,7 @@ namespace tl
             json.at("checkersSize").get_to(out.checkersSize);
             json.at("gradientColor")[0].get_to(out.gradientColor.first);
             json.at("gradientColor")[1].get_to(out.gradientColor.second);
+            json.at("outline").get_to(out.outline);
         }
     }
 }

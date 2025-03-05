@@ -8,6 +8,7 @@
 
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ForegroundOptions.h>
 
 namespace tl
 {
@@ -66,7 +67,7 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _optionsUpdate(const timeline::DisplayOptions&);
+            void _optionsUpdate(const timeline::BackgroundOptions&);
 
             DTK_PRIVATE();
         };
@@ -95,7 +96,7 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _optionsUpdate(const timeline::DisplayOptions&);
+            void _optionsUpdate(const timeline::ForegroundOptions&);
 
             DTK_PRIVATE();
         };

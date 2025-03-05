@@ -24,6 +24,17 @@ namespace tl
         };
         DTK_ENUM(Background);
 
+        //! Outline.
+        struct Outline
+        {
+            bool         enabled = false;
+            int          width = 2;
+            dtk::Color4F color = dtk::Color4F(1.F, 0.F, 0.F);
+
+            bool operator == (const Outline&) const;
+            bool operator != (const Outline&) const;
+        };
+
         //! Background options.
         struct BackgroundOptions
         {
@@ -44,6 +55,8 @@ namespace tl
                 dtk::Color4F(1.F, 1.F, 1.F)
             };
 
+            Outline outline;
+
             bool operator == (const BackgroundOptions&) const;
             bool operator != (const BackgroundOptions&) const;
         };
@@ -51,12 +64,12 @@ namespace tl
         //! \name Serialize
         ///@{
 
+        void to_json(nlohmann::json&, const Outline&);
         void to_json(nlohmann::json&, const BackgroundOptions&);
 
+        void from_json(const nlohmann::json&, Outline&);
         void from_json(const nlohmann::json&, BackgroundOptions&);
 
         ///@}
     }
 }
-
-#include <tlTimeline/BackgroundOptionsInline.h>

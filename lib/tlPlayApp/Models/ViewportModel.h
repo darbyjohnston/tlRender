@@ -6,6 +6,7 @@
 
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ForegroundOptions.h>
 
 #include <dtk/core/ObservableValue.h>
 
@@ -74,6 +75,15 @@ namespace tl
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
+
+            //! Get the foreground options.
+            const timeline::ForegroundOptions& getForegroundOptions() const;
+
+            //! Observe the foreground options.
+            std::shared_ptr<dtk::IObservableValue<timeline::ForegroundOptions> > observeForegroundOptions() const;
+
+            //! Set the foreground options.
+            void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Get the color buffer type.
             dtk::ImageType getColorBuffer() const;

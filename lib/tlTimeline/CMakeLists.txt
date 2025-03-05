@@ -2,7 +2,6 @@ set(HEADERS
     Audio.h
     AudioInline.h
     BackgroundOptions.h
-    BackgroundOptionsInline.h
     ColorOptions.h
     ColorOptionsInline.h
     CompareOptions.h
@@ -10,6 +9,7 @@ set(HEADERS
     DisplayOptions.h
     DisplayOptionsInline.h
     Edit.h
+    ForegroundOptions.h
     IRender.h
     Init.h
     MemoryReference.h
@@ -35,6 +35,7 @@ set(SOURCE
     CompareOptions.cpp
     DisplayOptions.cpp
     Edit.cpp
+    ForegroundOptions.cpp
     IRender.cpp
     Init.cpp
     MemoryReference.cpp

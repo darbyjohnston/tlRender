@@ -66,32 +66,6 @@ namespace tl
             return !(*this == other);
         }
 
-        inline bool Outline::operator == (const Outline& other) const
-        {
-            return
-                enabled == other.enabled &&
-                width == other.width &&
-                color == other.color;
-        }
-
-        inline bool Outline::operator != (const Outline& other) const
-        {
-            return !(*this == other);
-        }
-
-        inline bool Grid::operator == (const Grid& other) const
-        {
-            return
-                enabled == other.enabled &&
-                size == other.size &&
-                color == other.color;
-        }
-
-        inline bool Grid::operator != (const Grid& other) const
-        {
-            return !(*this == other);
-        }
-
         inline bool DisplayOptions::operator == (const DisplayOptions& other) const
         {
             return
@@ -102,9 +76,7 @@ namespace tl
                 exrDisplay == other.exrDisplay &&
                 softClip == other.softClip &&
                 imageFilters == other.imageFilters &&
-                videoLevels == other.videoLevels &&
-                outline == other.outline &&
-                grid == other.grid;
+                videoLevels == other.videoLevels;
         }
 
         inline bool DisplayOptions::operator != (const DisplayOptions& other) const

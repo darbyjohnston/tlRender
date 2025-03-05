@@ -466,15 +466,16 @@ namespace tl
                             1.F);
                         render->setTransform(pm);
 
-                        render->drawBackground(p.backgroundOptions);
-
+                        const auto boxes = timeline::getBoxes(p.compareOptions.compare, p.videoData);
                         dtk::M44F vm;
                         vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
                         vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
+                        render->drawBackground(boxes, vm, p.backgroundOptions);
+
                         render->setTransform(pm * vm);
                         render->drawVideo(
                             p.videoData,
-                            timeline::getBoxes(p.compareOptions.compare, p.videoData),
+                            boxes,
                             p.imageOptions,
                             p.displayOptions,
                             p.compareOptions);

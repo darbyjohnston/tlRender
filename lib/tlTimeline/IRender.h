@@ -8,6 +8,7 @@
 #include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ForegroundOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <dtk/core/IRender.h>
@@ -29,7 +30,10 @@ namespace tl
             virtual void setLUTOptions(const LUTOptions&) = 0;
 
             //! Draw the background.
-            virtual void drawBackground(const BackgroundOptions&) = 0;
+            virtual void drawBackground(
+                const std::vector<dtk::Box2I>&,
+                const dtk::M44F&,
+                const BackgroundOptions&) = 0;
 
             //! Draw timeline video data.
             virtual void drawVideo(
@@ -38,6 +42,12 @@ namespace tl
                 const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
                 const CompareOptions& = CompareOptions()) = 0;
+
+            //! Draw the foreground.
+            virtual void drawForeground(
+                const std::vector<dtk::Box2I>&,
+                const dtk::M44F&,
+                const ForegroundOptions&) = 0;
         };
     }
 }

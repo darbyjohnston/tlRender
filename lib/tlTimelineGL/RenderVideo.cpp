@@ -15,7 +15,10 @@ namespace tl
 {
     namespace timeline_gl
     {
-        void Render::drawBackground(const timeline::BackgroundOptions& options)
+        void Render::drawBackground(
+            const std::vector<dtk::Box2I>& boxes,
+            const dtk::M44F& m,
+            const timeline::BackgroundOptions& options)
         {
             const dtk::Box2I rect(dtk::V2I(0, 0), getRenderSize());
             switch (options.type)
@@ -63,6 +66,55 @@ namespace tl
                 break;
             }
             default: break;
+            }
+
+            if (options.outline.enabled && !boxes.empty())
+            {
+                dtk::Box2I bounds = boxes.front();
+                for (size_t i = 1; i < boxes.size(); ++i)
+                {
+                    bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
+                    bounds.min.y = std::min(bounds.min.y, boxes[i].min.y);
+                    bounds.max.x = std::max(bounds.max.x, boxes[i].max.x);
+                    bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
+                }
+
+                dtk::TriMesh2F mesh;
+                mesh.v.push_back(dtk::V2F(bounds.min.x, bounds.min.y));
+                mesh.v.push_back(dtk::V2F(bounds.max.x + 1, bounds.min.y));
+                mesh.v.push_back(dtk::V2F(bounds.max.x + 1, bounds.max.y + 1));
+                mesh.v.push_back(dtk::V2F(bounds.min.x, bounds.max.y + 1));
+                for (auto& v : mesh.v)
+                {
+                    dtk::V3F v3 = m * dtk::V3F(v.x, v.y, 0.F);
+                    v.x = v3.x;
+                    v.y = v3.y;
+                }
+                mesh.v.push_back(
+                    dtk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
+                    dtk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
+                    mesh.v[0]);
+                mesh.v.push_back(
+                    dtk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
+                    dtk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
+                    mesh.v[1]);
+                mesh.v.push_back(
+                    dtk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
+                    dtk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
+                    mesh.v[2]);
+                mesh.v.push_back(
+                    dtk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
+                    dtk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
+                    mesh.v[3]);
+                mesh.triangles.push_back({ dtk::Vertex2(1), dtk::Vertex2(2), dtk::Vertex2(5) });
+                mesh.triangles.push_back({ dtk::Vertex2(2), dtk::Vertex2(6), dtk::Vertex2(5) });
+                mesh.triangles.push_back({ dtk::Vertex2(2), dtk::Vertex2(3), dtk::Vertex2(6) });
+                mesh.triangles.push_back({ dtk::Vertex2(3), dtk::Vertex2(7), dtk::Vertex2(6) });
+                mesh.triangles.push_back({ dtk::Vertex2(3), dtk::Vertex2(4), dtk::Vertex2(7) });
+                mesh.triangles.push_back({ dtk::Vertex2(4), dtk::Vertex2(8), dtk::Vertex2(7) });
+                mesh.triangles.push_back({ dtk::Vertex2(4), dtk::Vertex2(1), dtk::Vertex2(8) });
+                mesh.triangles.push_back({ dtk::Vertex2(1), dtk::Vertex2(5), dtk::Vertex2(8) });
+                drawMesh(mesh, options.outline.color);
             }
         }
 
@@ -883,6 +935,13 @@ namespace tl
 
             imageShader->bind();
             imageShader->setUniform("transform.mvp", getTransform());
+        }
+
+        void Render::drawForeground(
+            const std::vector<dtk::Box2I>&,
+            const dtk::M44F&,
+            const timeline::ForegroundOptions& options)
+        {
         }
     }
 }

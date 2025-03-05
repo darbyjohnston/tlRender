@@ -216,7 +216,7 @@ namespace tl
             std::shared_ptr<dtk::ColorSwatch> colorSwatch;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
         };
 
         void OutlineWidget::_init(
@@ -231,6 +231,7 @@ namespace tl
             p.enabledCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.widthSlider = dtk::IntEditSlider::create(context);
+            p.widthSlider->setRange(dtk::RangeI(1, 100));
 
             p.colorSwatch = dtk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
@@ -243,9 +244,9 @@ namespace tl
             p.layout->addRow("Width:", p.widthSlider);
             p.layout->addRow("Color:", p.colorSwatch);
 
-            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
-                app->getViewportModel()->observeDisplayOptions(),
-                [this](const timeline::DisplayOptions& value)
+            p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
+                app->getViewportModel()->observeBackgroundOptions(),
+                [this](const timeline::BackgroundOptions& value)
                 {
                     _optionsUpdate(value);
                 });
@@ -256,9 +257,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getBackgroundOptions();
                         options.outline.enabled = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
 
@@ -267,9 +268,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getBackgroundOptions();
                         options.outline.width = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
 
@@ -278,9 +279,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getBackgroundOptions();
                         options.outline.color = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setBackgroundOptions(options);
                     }
                 });
         }
@@ -314,7 +315,7 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void OutlineWidget::_optionsUpdate(const timeline::DisplayOptions& value)
+        void OutlineWidget::_optionsUpdate(const timeline::BackgroundOptions& value)
         {
             DTK_P();
             p.enabledCheckBox->setChecked(value.outline.enabled);
@@ -329,7 +330,7 @@ namespace tl
             std::shared_ptr<dtk::ColorSwatch> colorSwatch;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > optionsObservers;
         };
 
         void GridWidget::_init(
@@ -357,9 +358,9 @@ namespace tl
             p.layout->addRow("Size:", p.sizeSlider);
             p.layout->addRow("Color:", p.colorSwatch);
 
-            p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
-                app->getViewportModel()->observeDisplayOptions(),
-                [this](const timeline::DisplayOptions& value)
+            p.optionsObservers = dtk::ValueObserver<timeline::ForegroundOptions>::create(
+                app->getViewportModel()->observeForegroundOptions(),
+                [this](const timeline::ForegroundOptions& value)
                 {
                     _optionsUpdate(value);
                 });
@@ -370,9 +371,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getForegroundOptions();
                         options.grid.enabled = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setForegroundOptions(options);
                     }
                 });
 
@@ -381,10 +382,10 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getForegroundOptions();
                         options.grid.size.w = value;
                         options.grid.size.h = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setForegroundOptions(options);
                     }
                 });
 
@@ -393,9 +394,9 @@ namespace tl
                 {
                     if (auto app = appWeak.lock())
                     {
-                        auto options = app->getViewportModel()->getDisplayOptions();
+                        auto options = app->getViewportModel()->getForegroundOptions();
                         options.grid.color = value;
-                        app->getViewportModel()->setDisplayOptions(options);
+                        app->getViewportModel()->setForegroundOptions(options);
                     }
                 });
         }
@@ -429,7 +430,7 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void GridWidget::_optionsUpdate(const timeline::DisplayOptions& value)
+        void GridWidget::_optionsUpdate(const timeline::ForegroundOptions& value)
         {
             DTK_P();
             p.enabledCheckBox->setChecked(value.grid.enabled);

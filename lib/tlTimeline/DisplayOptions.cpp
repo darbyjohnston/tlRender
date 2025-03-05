@@ -115,20 +115,6 @@ namespace tl
             json["value"] = in.value;
         }
 
-        void to_json(nlohmann::json& json, const Outline& in)
-        {
-            json["enabled"] = in.enabled;
-            json["width"] = in.width;
-            json["color"] = in.color;
-        }
-
-        void to_json(nlohmann::json& json, const Grid& in)
-        {
-            json["enabled"] = in.enabled;
-            json["size"] = in.size;
-            json["color"] = in.color;
-        }
-
         void to_json(nlohmann::json& json, const DisplayOptions& in)
         {
             json["channels"] = to_string(in.channels);
@@ -138,8 +124,6 @@ namespace tl
             json["softClip"] = in.softClip;
             json["imageFilters"] = in.imageFilters;
             json["videoLevels"] = to_string(in.videoLevels);
-            json["outline"] = in.outline;
-            json["grid"] = in.grid;
         }
 
         void from_json(const nlohmann::json& json, Color& out)
@@ -178,20 +162,6 @@ namespace tl
             json.at("value").get_to(out.value);
         }
 
-        void from_json(const nlohmann::json& json, Outline& out)
-        {
-            json.at("enabled").get_to(out.enabled);
-            json.at("width").get_to(out.width);
-            json.at("color").get_to(out.color);
-        }
-
-        void from_json(const nlohmann::json& json, Grid& out)
-        {
-            json.at("enabled").get_to(out.enabled);
-            json.at("size").get_to(out.size);
-            json.at("color").get_to(out.color);
-        }
-
         void from_json(const nlohmann::json& json, DisplayOptions& out)
         {
             from_string(json.at("channels").get<std::string>(), out.channels);
@@ -201,8 +171,6 @@ namespace tl
             json.at("softClip").get_to(out.softClip);
             json.at("imageFilters").get_to(out.imageFilters);
             from_string(json.at("videoLevels").get<std::string>(), out.videoLevels);
-            json.at("outline").get_to(out.outline);
-            json.at("grid").get_to(out.grid);
         }
     }
 }

@@ -16,8 +16,9 @@ namespace tl
             std::shared_ptr<dtk::Settings> settings;
             std::shared_ptr<dtk::ObservableValue<dtk::Color4F> > colorPicker;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageOptions> > imageOptions;
-            std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::DisplayOptions> > displayOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
+            std::shared_ptr<dtk::ObservableValue<timeline::ForegroundOptions> > foregroundOptions;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
         };
 
@@ -36,14 +37,19 @@ namespace tl
             p.settings->getT("Viewport/Image", imageOptions);
             p.imageOptions = dtk::ObservableValue<dtk::ImageOptions>::create(imageOptions);
 
+            timeline::DisplayOptions displayOptions;
+            p.settings->getT("Viewport/Display", displayOptions);
+            p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create(displayOptions);
+
             timeline::BackgroundOptions backgroundOptions;
             p.settings->getT("Viewport/Background", backgroundOptions);
             p.backgroundOptions = dtk::ObservableValue<timeline::BackgroundOptions>::create(
                 backgroundOptions);
 
-            timeline::DisplayOptions displayOptions;
-            p.settings->getT("Viewport/Display", displayOptions);
-            p.displayOptions = dtk::ObservableValue<timeline::DisplayOptions>::create(displayOptions);
+            timeline::ForegroundOptions foregroundOptions;
+            p.settings->getT("Viewport/Foreground", foregroundOptions);
+            p.foregroundOptions = dtk::ObservableValue<timeline::ForegroundOptions>::create(
+                foregroundOptions);
 
             dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8;
             std::string s = dtk::to_string(colorBuffer);
@@ -60,8 +66,9 @@ namespace tl
         {
             DTK_P();
             p.settings->setT("Viewport/Image", p.imageOptions->get());
-            p.settings->setT("Viewport/Background", p.backgroundOptions->get());
             p.settings->setT("Viewport/Display", p.displayOptions->get());
+            p.settings->setT("Viewport/Background", p.backgroundOptions->get());
+            p.settings->setT("Viewport/Foreground", p.foregroundOptions->get());
             p.settings->set("Viewport/ColorBuffer", dtk::to_string(p.colorBuffer->get()));
         }
 
@@ -133,6 +140,22 @@ namespace tl
         {
             _p->settings->setT("Viewport/Background", value);
             _p->backgroundOptions->setIfChanged(value);
+        }
+
+        const timeline::ForegroundOptions& ViewportModel::getForegroundOptions() const
+        {
+            return _p->foregroundOptions->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<timeline::ForegroundOptions> > ViewportModel::observeForegroundOptions() const
+        {
+            return _p->foregroundOptions;
+        }
+
+        void ViewportModel::setForegroundOptions(const timeline::ForegroundOptions& value)
+        {
+            _p->settings->setT("Viewport/Foreground", value);
+            _p->foregroundOptions->setIfChanged(value);
         }
 
         dtk::ImageType ViewportModel::getColorBuffer() const
