@@ -26,7 +26,8 @@ namespace tl
             timeline::LUTOptions lutOptions;
             std::vector<dtk::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
-            timeline::BackgroundOptions backgroundOptions;
+            timeline::BackgroundOptions bgOptions;
+            timeline::ForegroundOptions fgOptions;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
@@ -163,9 +164,19 @@ namespace tl
         void Viewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             DTK_P();
-            if (value == p.backgroundOptions)
+            if (value == p.bgOptions)
                 return;
-            p.backgroundOptions = value;
+            p.bgOptions = value;
+            p.doRender = true;
+            _setDrawUpdate();
+        }
+
+        void Viewport::setForegroundOptions(const timeline::ForegroundOptions& value)
+        {
+            DTK_P();
+            if (value == p.fgOptions)
+                return;
+            p.fgOptions = value;
             p.doRender = true;
             _setDrawUpdate();
         }
@@ -470,7 +481,7 @@ namespace tl
                         dtk::M44F vm;
                         vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
                         vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
-                        render->drawBackground(boxes, vm, p.backgroundOptions);
+                        render->drawBackground(boxes, vm, p.bgOptions);
 
                         render->setTransform(pm * vm);
                         render->drawVideo(
@@ -479,6 +490,9 @@ namespace tl
                             p.imageOptions,
                             p.displayOptions,
                             p.compareOptions);
+
+                        render->setTransform(pm);
+                        render->drawForeground(boxes, vm, p.fgOptions);
 
                         if (!p.videoData.empty())
                         {

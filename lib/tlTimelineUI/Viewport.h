@@ -7,6 +7,7 @@
 #include <tlTimeline/BackgroundOptions.h>
 #include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ForegroundOptions.h>
 #include <tlTimeline/Player.h>
 
 #include <dtk/ui/IWidget.h>
@@ -55,6 +56,9 @@ namespace tl
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
+
+            //! Set the foreground options.
+            void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Get the color buffer type.
             dtk::ImageType getColorBuffer() const;

@@ -90,6 +90,11 @@ namespace tl
             _p->viewport->setBackgroundOptions(value);
         }
 
+        void Viewport::setForegroundOptions(const timeline::ForegroundOptions& value)
+        {
+            _p->viewport->setForegroundOptions(value);
+        }
+
         void Viewport::setColorBuffer(dtk::ImageType value)
         {
             _p->viewport->setColorBuffer(value);

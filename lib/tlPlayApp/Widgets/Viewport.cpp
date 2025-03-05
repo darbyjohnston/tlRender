@@ -49,7 +49,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > bgOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > fgOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
         };
 
@@ -140,11 +141,18 @@ namespace tl
                    setDisplayOptions({ value });
                 });
 
-            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
+            p.bgOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
-                   setBackgroundOptions(value);
+                    setBackgroundOptions(value);
+                });
+
+            p.fgOptionsObserver = dtk::ValueObserver<timeline::ForegroundOptions>::create(
+                app->getViewportModel()->observeForegroundOptions(),
+                [this](const timeline::ForegroundOptions& value)
+                {
+                    setForegroundOptions(value);
                 });
 
             p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(

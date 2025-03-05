@@ -86,26 +86,26 @@ namespace tl
                 mesh.v.push_back(dtk::V2F(bounds.min.x, bounds.max.y + 1));
                 for (auto& v : mesh.v)
                 {
-                    dtk::V3F v3 = m * dtk::V3F(v.x, v.y, 0.F);
+                    const dtk::V3F v3 = m * dtk::V3F(v.x, v.y, 0.F);
                     v.x = v3.x;
                     v.y = v3.y;
                 }
-                mesh.v.push_back(
+                mesh.v.push_back(dtk::round(
                     dtk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
                     dtk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
-                    mesh.v[0]);
-                mesh.v.push_back(
+                    mesh.v[0]));
+                mesh.v.push_back(dtk::round(
                     dtk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
                     dtk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
-                    mesh.v[1]);
-                mesh.v.push_back(
+                    mesh.v[1]));
+                mesh.v.push_back(dtk::round(
                     dtk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
                     dtk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
-                    mesh.v[2]);
-                mesh.v.push_back(
+                    mesh.v[2]));
+                mesh.v.push_back(dtk::round(
                     dtk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
                     dtk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
-                    mesh.v[3]);
+                    mesh.v[3]));
                 mesh.triangles.push_back({ dtk::Vertex2(1), dtk::Vertex2(2), dtk::Vertex2(5) });
                 mesh.triangles.push_back({ dtk::Vertex2(2), dtk::Vertex2(6), dtk::Vertex2(5) });
                 mesh.triangles.push_back({ dtk::Vertex2(2), dtk::Vertex2(3), dtk::Vertex2(6) });
@@ -938,10 +938,55 @@ namespace tl
         }
 
         void Render::drawForeground(
-            const std::vector<dtk::Box2I>&,
-            const dtk::M44F&,
+            const std::vector<dtk::Box2I>& boxes,
+            const dtk::M44F& m,
             const timeline::ForegroundOptions& options)
         {
+            if (options.grid.enabled && !boxes.empty())
+            {
+                const dtk::V3F v0 = m * dtk::V3F(0.F, 0.F, 0.F);
+                const dtk::V3F v1 = m * dtk::V3F(options.grid.size, 0.F, 0.F);
+                if (dtk::length(v1 - v0) > options.grid.lineWidth + 10.F)
+                {
+                    dtk::Box2I bounds = boxes.front();
+                    for (size_t i = 1; i < boxes.size(); ++i)
+                    {
+                        bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
+                        bounds.min.y = std::min(bounds.min.y, boxes[i].min.y);
+                        bounds.max.x = std::max(bounds.max.x, boxes[i].max.x);
+                        bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
+                    }
+
+                    const dtk::Size2I& renderSize = getRenderSize();
+                    const dtk::Box2F vp(0, 0, renderSize.w, renderSize.h);
+                    std::vector<std::pair<dtk::V2F, dtk::V2F> > lines;
+                    dtk::LineOptions lineOptions;
+                    lineOptions.width = options.grid.lineWidth;
+                    for (int y = bounds.min.y; y <= bounds.max.y + 1; y += options.grid.size)
+                    {
+                        const dtk::V3F v0 = m * dtk::V3F(bounds.min.x, y, 0.F);
+                        const dtk::V3F v1 = m * dtk::V3F(bounds.max.x + 1, y, 0.F);
+                        const dtk::V2F v2(std::round(v0.x), std::round(v0.y));
+                        const dtk::V2F v3(std::round(v1.x), std::round(v1.y));
+                        if (dtk::intersects(dtk::Box2F(v2, v3), vp))
+                        {
+                            lines.push_back(std::make_pair(v2, v3));
+                        }
+                    }
+                    for (int x = bounds.min.x; x <= bounds.max.x + 1; x += options.grid.size)
+                    {
+                        const dtk::V3F v0 = m * dtk::V3F(x, bounds.min.y, 0.F);
+                        const dtk::V3F v1 = m * dtk::V3F(x, bounds.max.y + 1, 0.F);
+                        const dtk::V2F v2(std::round(v0.x), std::round(v0.y));
+                        const dtk::V2F v3(std::round(v1.x), std::round(v1.y));
+                        if (dtk::intersects(dtk::Box2F(v2, v3), vp))
+                        {
+                            lines.push_back(std::make_pair(v2, v3));
+                        }
+                    }
+                    drawLines(lines, options.grid.color, lineOptions);
+                }
+            }
         }
     }
 }

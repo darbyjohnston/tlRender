@@ -18,6 +18,7 @@ namespace tl
             return
                 enabled == other.enabled &&
                 size == other.size &&
+                lineWidth == other.lineWidth &&
                 color == other.color;
         }
 
@@ -41,6 +42,7 @@ namespace tl
         {
             json["enabled"] = in.enabled;
             json["size"] = in.size;
+            json["lineWidth"] = in.lineWidth;
             json["color"] = in.color;
         }
 
@@ -49,16 +51,17 @@ namespace tl
             json["grid"] = in.grid;
         }
 
-        void from_json(const nlohmann::json& json, ForegroundOptions& out)
-        {
-            json.at("grid").get_to(out.grid);
-        }
-
         void from_json(const nlohmann::json& json, Grid& out)
         {
             json.at("enabled").get_to(out.enabled);
             json.at("size").get_to(out.size);
+            json.at("lineWidth").get_to(out.lineWidth);
             json.at("color").get_to(out.color);
+        }
+
+        void from_json(const nlohmann::json& json, ForegroundOptions& out)
+        {
+            json.at("grid").get_to(out.grid);
         }
     }
 }

@@ -327,6 +327,7 @@ namespace tl
         {
             std::shared_ptr<dtk::CheckBox> enabledCheckBox;
             std::shared_ptr<dtk::IntEditSlider> sizeSlider;
+            std::shared_ptr<dtk::IntEditSlider> lineWidthSlider;
             std::shared_ptr<dtk::ColorSwatch> colorSwatch;
             std::shared_ptr<dtk::FormLayout> layout;
 
@@ -347,6 +348,9 @@ namespace tl
             p.sizeSlider = dtk::IntEditSlider::create(context);
             p.sizeSlider->setRange(dtk::RangeI(1, 1000));
 
+            p.lineWidthSlider = dtk::IntEditSlider::create(context);
+            p.lineWidthSlider->setRange(dtk::RangeI(1, 10));
+
             p.colorSwatch = dtk::ColorSwatch::create(context);
             p.colorSwatch->setEditable(true);
             p.colorSwatch->setHAlign(dtk::HAlign::Left);
@@ -356,6 +360,7 @@ namespace tl
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.layout->addRow("Enabled:", p.enabledCheckBox);
             p.layout->addRow("Size:", p.sizeSlider);
+            p.layout->addRow("Line width:", p.lineWidthSlider);
             p.layout->addRow("Color:", p.colorSwatch);
 
             p.optionsObservers = dtk::ValueObserver<timeline::ForegroundOptions>::create(
@@ -383,8 +388,18 @@ namespace tl
                     if (auto app = appWeak.lock())
                     {
                         auto options = app->getViewportModel()->getForegroundOptions();
-                        options.grid.size.w = value;
-                        options.grid.size.h = value;
+                        options.grid.size = value;
+                        app->getViewportModel()->setForegroundOptions(options);
+                    }
+                });
+
+            p.lineWidthSlider->setCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getForegroundOptions();
+                        options.grid.lineWidth = value;
                         app->getViewportModel()->setForegroundOptions(options);
                     }
                 });
@@ -434,7 +449,8 @@ namespace tl
         {
             DTK_P();
             p.enabledCheckBox->setChecked(value.grid.enabled);
-            p.sizeSlider->setValue(value.grid.size.w);
+            p.sizeSlider->setValue(value.grid.size);
+            p.lineWidthSlider->setValue(value.grid.lineWidth);
             p.colorSwatch->setColor(value.grid.color);
         }
 

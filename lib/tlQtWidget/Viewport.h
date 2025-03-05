@@ -12,6 +12,7 @@
 #include <tlTimeline/ColorOptions.h>
 #include <tlTimeline/CompareOptions.h>
 #include <tlTimeline/DisplayOptions.h>
+#include <tlTimeline/ForegroundOptions.h>
 
 #include <QSharedPointer>
 #include <QVector>
@@ -69,6 +70,9 @@ namespace tl
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
+
+            //! Set the foreground options.
+            void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Set the color buffer type.
             void setColorBuffer(dtk::ImageType);
