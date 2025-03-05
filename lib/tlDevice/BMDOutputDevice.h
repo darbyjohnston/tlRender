@@ -108,6 +108,9 @@ namespace tl
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
 
+            //! Set the foreground options.
+            void setForegroundOptions(const timeline::ForegroundOptions&);
+
             //! Set the overlay.
             void setOverlay(const std::shared_ptr<dtk::Image>&);
 
@@ -144,7 +147,8 @@ namespace tl
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                const timeline::BackgroundOptions&);
+                const timeline::BackgroundOptions&,
+                const timeline::ForegroundOptions&);
             void _read();
 
             DTK_PRIVATE();

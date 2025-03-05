@@ -84,7 +84,8 @@ namespace tl
                 HDRMode hdrMode = HDRMode::FromFile;
                 image::HDRData hdrData;
                 timeline::CompareOptions compareOptions;
-                timeline::BackgroundOptions backgroundOptions;
+                timeline::BackgroundOptions bgOptions;
+                timeline::ForegroundOptions fgOptions;
                 dtk::V2I viewPos;
                 double viewZoom = 1.0;
                 bool frameView = true;
@@ -347,7 +348,17 @@ namespace tl
             DTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.backgroundOptions = value;
+                p.mutex.bgOptions = value;
+            }
+            p.thread.cv.notify_one();
+        }
+
+        void OutputDevice::setForegroundOptions(const timeline::ForegroundOptions& value)
+        {
+            DTK_P();
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                p.mutex.fgOptions = value;
             }
             p.thread.cv.notify_one();
         }
@@ -561,7 +572,8 @@ namespace tl
             std::vector<dtk::ImageOptions> imageOptions;
             std::vector<timeline::DisplayOptions> displayOptions;
             timeline::CompareOptions compareOptions;
-            timeline::BackgroundOptions backgroundOptions;
+            timeline::BackgroundOptions bgOptions;
+            timeline::ForegroundOptions fgOptions;
             timeline::Playback playback = timeline::Playback::Stop;
             double speed = 0.0;
             OTIO_NS::RationalTime currentTime = time::invalidTime;
@@ -591,7 +603,7 @@ namespace tl
                         timeout,
                         [this, config, enabled, videoFrameDelay,
                         ocioOptions, lutOptions, imageOptions,
-                        displayOptions, compareOptions, backgroundOptions,
+                        displayOptions, compareOptions, bgOptions, fgOptions,
                         playback, speed, currentTime, seek,
                         volume, mute, channelMute, audioOffset, audioData]
                         {
@@ -606,7 +618,8 @@ namespace tl
                                 _p->thread.hdrMode != _p->mutex.hdrMode ||
                                 _p->thread.hdrData != _p->mutex.hdrData ||
                                 compareOptions != _p->mutex.compareOptions ||
-                                backgroundOptions != _p->mutex.backgroundOptions ||
+                                bgOptions != _p->mutex.bgOptions ||
+                                fgOptions != _p->mutex.fgOptions ||
                                 _p->thread.viewPos != _p->mutex.viewPos ||
                                 _p->thread.viewZoom != _p->mutex.viewZoom ||
                                 _p->thread.frameView != _p->mutex.frameView ||
@@ -648,7 +661,8 @@ namespace tl
                             p.thread.hdrMode != p.mutex.hdrMode ||
                             p.thread.hdrData != p.mutex.hdrData ||
                             compareOptions != p.mutex.compareOptions ||
-                            backgroundOptions != p.mutex.backgroundOptions ||
+                            bgOptions != p.mutex.bgOptions ||
+                            fgOptions != p.mutex.fgOptions ||
                             p.thread.viewPos != p.mutex.viewPos ||
                             p.thread.viewZoom != p.mutex.viewZoom ||
                             p.thread.frameView != p.mutex.frameView ||
@@ -661,7 +675,8 @@ namespace tl
                         p.thread.hdrMode = p.mutex.hdrMode;
                         p.thread.hdrData = p.mutex.hdrData;
                         compareOptions = p.mutex.compareOptions;
-                        backgroundOptions = p.mutex.backgroundOptions;
+                        bgOptions = p.mutex.bgOptions;
+                        fgOptions = p.mutex.fgOptions;
                         p.thread.viewPos = p.mutex.viewPos;
                         p.thread.viewZoom = p.mutex.viewZoom;
                         p.thread.frameView = p.mutex.frameView;
@@ -742,7 +757,8 @@ namespace tl
                             imageOptions,
                             displayOptions,
                             compareOptions,
-                            backgroundOptions);
+                            bgOptions,
+                            fgOptions);
                     }
                     catch (const std::exception& e)
                     {
@@ -993,7 +1009,8 @@ namespace tl
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            const timeline::BackgroundOptions& backgroundOptions)
+            const timeline::BackgroundOptions& bgOptions,
+            const timeline::ForegroundOptions& fgOptions)
         {
             DTK_P();
 
@@ -1043,7 +1060,7 @@ namespace tl
                 dtk::M44F vm;
                 vm = vm * dtk::translate(dtk::V3F(viewPosTmp.x, viewPosTmp.y, 0.F));
                 vm = vm * dtk::scale(dtk::V3F(viewZoomTmp, viewZoomTmp, 1.F));
-                p.thread.render->drawBackground(boxes, vm, backgroundOptions);
+                p.thread.render->drawBackground(boxes, vm, bgOptions);
 
                 const auto pm = dtk::ortho(
                     0.F,
@@ -1060,9 +1077,11 @@ namespace tl
                     displayOptions,
                     compareOptions);
 
+                p.thread.render->setTransform(pm);
+                p.thread.render->drawForeground(boxes, vm, fgOptions);
+
                 if (p.thread.overlay)
                 {
-                    p.thread.render->setTransform(pm);
                     dtk::ImageOptions imageOptions;
                     imageOptions.alphaBlend = dtk::AlphaBlend::Premultiplied;
                     p.thread.render->drawImage(

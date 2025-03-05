@@ -130,7 +130,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > bgOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > fgOptionsObserver;
 #endif // TLRENDER_BMD
         };
 
@@ -549,8 +550,7 @@ namespace tl
                     p.bmdOutputVideoLevels = value.videoLevels;
                     timeline::DisplayOptions displayOptions = p.viewportModel->getDisplayOptions();
                     displayOptions.videoLevels = p.bmdOutputVideoLevels;
-                    std::vector<timeline::DisplayOptions> displayOptionsList;
-                    p.bmdOutputDevice->setDisplayOptions({ displayOptionsList });
+                    p.bmdOutputDevice->setDisplayOptions({ displayOptions });
                     p.bmdOutputDevice->setHDR(value.hdrMode, value.hdrData);
                 });
             p.bmdActiveObserver = dtk::ValueObserver<bool>::create(
@@ -610,11 +610,18 @@ namespace tl
                     _p->bmdOutputDevice->setCompareOptions(value);
                 });
 
-            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
+            p.bgOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 p.viewportModel->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
                     _p->bmdOutputDevice->setBackgroundOptions(value);
+                });
+
+            p.fgOptionsObserver = dtk::ValueObserver<timeline::ForegroundOptions>::create(
+                p.viewportModel->observeForegroundOptions(),
+                [this](const timeline::ForegroundOptions& value)
+                {
+                    _p->bmdOutputDevice->setForegroundOptions(value);
                 });
 #endif // TLRENDER_BMD
         }
