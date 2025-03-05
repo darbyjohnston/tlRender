@@ -33,6 +33,20 @@ namespace tl
             "Relative",
             "Absolute");
 
+        bool CompareOptions::operator == (const CompareOptions& other) const
+        {
+            return
+                compare == other.compare &&
+                wipeCenter == other.wipeCenter &&
+                wipeRotation == other.wipeRotation &&
+                overlay == other.overlay;
+        }
+
+        bool CompareOptions::operator != (const CompareOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         std::vector<dtk::Box2I> getBoxes(Compare compare, const std::vector<dtk::ImageInfo>& infos)
         {
             std::vector<dtk::Box2I> out;

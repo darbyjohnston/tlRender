@@ -16,6 +16,19 @@ namespace tl
 {
     namespace timeline
     {
+        bool PlayerCacheInfo::operator == (const PlayerCacheInfo& other) const
+        {
+            return
+                videoPercentage == other.videoPercentage &&
+                videoFrames == other.videoFrames &&
+                audioFrames == other.audioFrames;
+        }
+
+        bool PlayerCacheInfo::operator != (const PlayerCacheInfo& other) const
+        {
+            return !(*this == other);
+        }
+
         DTK_ENUM_IMPL(
             Playback,
             "Stop",

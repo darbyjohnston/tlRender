@@ -23,10 +23,39 @@ namespace tl
 {
     namespace timeline
     {
+        bool OCIOOptions::operator == (const OCIOOptions& other) const
+        {
+            return
+                enabled == other.enabled &&
+                fileName == other.fileName &&
+                input == other.input &&
+                display == other.display &&
+                view == other.view &&
+                look == other.look;
+        }
+
+        bool OCIOOptions::operator != (const OCIOOptions& other) const
+        {
+            return !(*this == other);
+        }
+
         DTK_ENUM_IMPL(
             LUTOrder,
             "PostColorConfig",
             "PreColorConfig");
+
+        bool LUTOptions::operator == (const LUTOptions& other) const
+        {
+            return
+                enabled == other.enabled &&
+                fileName == other.fileName &&
+                order == other.order;
+        }
+
+        bool LUTOptions::operator != (const LUTOptions& other) const
+        {
+            return !(*this == other);
+        }
 
         std::vector<std::string> getLUTFormatNames()
         {

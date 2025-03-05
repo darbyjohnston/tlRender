@@ -33,5 +33,3 @@ namespace tl
         bool isTimeEqual(const AudioData&, const AudioData&);
     }
 }
-
-#include <tlTimeline/AudioInline.h>

@@ -2,23 +2,25 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
+#include <tlTimeline/PlayerOptions.h>
+
 namespace tl
 {
     namespace timeline
     {
-        inline bool PlayerCacheOptions::operator == (const PlayerCacheOptions& other) const
+        bool PlayerCacheOptions::operator == (const PlayerCacheOptions& other) const
         {
             return
                 readAhead == other.readAhead &&
                 readBehind == other.readBehind;
         }
 
-        inline bool PlayerCacheOptions::operator != (const PlayerCacheOptions& other) const
+        bool PlayerCacheOptions::operator != (const PlayerCacheOptions& other) const
         {
             return !(*this == other);
         }
 
-        inline bool PlayerOptions::operator == (const PlayerOptions& other) const
+        bool PlayerOptions::operator == (const PlayerOptions& other) const
         {
             return
                 audioDevice == other.audioDevice &&
@@ -29,7 +31,7 @@ namespace tl
                 currentTime == other.currentTime;
         }
 
-        inline bool PlayerOptions::operator != (const PlayerOptions& other) const
+        bool PlayerOptions::operator != (const PlayerOptions& other) const
         {
             return !(*this == other);
         }

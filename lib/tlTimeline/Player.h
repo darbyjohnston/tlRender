@@ -372,5 +372,3 @@ namespace tl
         };
     }
 }
-
-#include <tlTimeline/PlayerInline.h>

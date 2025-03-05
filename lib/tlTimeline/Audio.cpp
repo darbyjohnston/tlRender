@@ -2,32 +2,34 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
+#include <tlTimeline/Audio.h>
+
 namespace tl
 {
     namespace timeline
     {
-        inline bool AudioLayer::operator == (const AudioLayer& other) const
+        bool AudioLayer::operator == (const AudioLayer& other) const
         {
             return audio == other.audio;
         }
 
-        inline bool AudioLayer::operator != (const AudioLayer& other) const
+        bool AudioLayer::operator != (const AudioLayer& other) const
         {
             return !(*this == other);
         }
 
-        inline bool AudioData::operator == (const AudioData& other) const
+        bool AudioData::operator == (const AudioData& other) const
         {
             return seconds == other.seconds &&
                 layers == other.layers;
         }
 
-        inline bool AudioData::operator != (const AudioData& other) const
+        bool AudioData::operator != (const AudioData& other) const
         {
             return !(*this == other);
         }
 
-        inline bool isTimeEqual(const AudioData& a, const AudioData& b)
+        bool isTimeEqual(const AudioData& a, const AudioData& b)
         {
             return a.seconds == b.seconds;
         }

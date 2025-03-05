@@ -1,35 +1,28 @@
 set(HEADERS
     Audio.h
-    AudioInline.h
     BackgroundOptions.h
     ColorOptions.h
-    ColorOptionsInline.h
     CompareOptions.h
-    CompareOptionsInline.h
     DisplayOptions.h
-    DisplayOptionsInline.h
     Edit.h
     ForegroundOptions.h
     IRender.h
     Init.h
     MemoryReference.h
     Player.h
-    PlayerInline.h
     PlayerOptions.h
-    PlayerOptionsInline.h
     RenderUtil.h
     TimeUnits.h
     Timeline.h
     Transition.h
     Util.h
-    UtilInline.h
-    Video.h
-    VideoInline.h)
+    Video.h)
 set(PRIVATE_HEADERS
     PlayerPrivate.h
     TimelinePrivate.h)
 
 set(SOURCE
+    Audio.cpp
     BackgroundOptions.cpp
     ColorOptions.cpp
     CompareOptions.cpp
@@ -41,6 +34,7 @@ set(SOURCE
     MemoryReference.cpp
     Player.cpp
     PlayerAudio.cpp
+    PlayerOptions.cpp
     PlayerPrivate.cpp
     RenderUtil.cpp
     TimeUnits.cpp
@@ -48,7 +42,8 @@ set(SOURCE
     TimelineCreate.cpp
     TimelinePrivate.cpp
     Transition.cpp
-    Util.cpp)
+    Util.cpp
+    Video.cpp)
 
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 target_link_libraries(tlTimeline tlIO)

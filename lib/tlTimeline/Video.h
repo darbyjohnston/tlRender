@@ -46,5 +46,3 @@ namespace tl
         bool isTimeEqual(const VideoData&, const VideoData&);
     }
 }
-
-#include <tlTimeline/VideoInline.h>

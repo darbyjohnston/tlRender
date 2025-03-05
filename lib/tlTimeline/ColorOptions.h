@@ -70,5 +70,3 @@ namespace tl
         ///@}
     }
 }
-
-#include <tlTimeline/ColorOptionsInline.h>

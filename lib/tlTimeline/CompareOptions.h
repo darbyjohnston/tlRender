@@ -72,5 +72,3 @@ namespace tl
             CompareTime);
     }
 }
-
-#include <tlTimeline/CompareOptionsInline.h>

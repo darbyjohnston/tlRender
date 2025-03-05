@@ -14,6 +14,23 @@ namespace tl
 {
     namespace timeline
     {
+        bool Color::operator == (const Color& other) const
+        {
+            return
+                enabled == other.enabled &&
+                add == other.add &&
+                brightness == other.brightness &&
+                contrast == other.contrast &&
+                saturation == other.saturation &&
+                tint == other.tint &&
+                invert == other.invert;
+        }
+
+        bool Color::operator != (const Color& other) const
+        {
+            return !(*this == other);
+        }
+
         dtk::M44F brightness(const dtk::V3F& value)
         {
             return dtk::M44F(
@@ -77,6 +94,67 @@ namespace tl
                 contrast(in.contrast) *
                 saturation(in.saturation) *
                 tint(in.tint);
+        }
+
+        bool Levels::operator == (const Levels& other) const
+        {
+            return
+                enabled == other.enabled &&
+                inLow == other.inLow &&
+                inHigh == other.inHigh &&
+                gamma == other.gamma &&
+                outLow == other.outLow &&
+                outHigh == other.outHigh;
+        }
+
+        bool Levels::operator != (const Levels& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool EXRDisplay::operator == (const EXRDisplay& other) const
+        {
+            return
+                enabled == other.enabled &&
+                exposure == other.exposure &&
+                defog == other.defog &&
+                kneeLow == other.kneeLow &&
+                kneeHigh == other.kneeHigh;
+        }
+
+        bool EXRDisplay::operator != (const EXRDisplay& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool SoftClip::operator == (const SoftClip& other) const
+        {
+            return
+                enabled == other.enabled &&
+                value == other.value;
+        }
+
+        bool SoftClip::operator != (const SoftClip& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool DisplayOptions::operator == (const DisplayOptions& other) const
+        {
+            return
+                channels == other.channels &&
+                mirror == other.mirror &&
+                color == other.color &&
+                levels == other.levels &&
+                exrDisplay == other.exrDisplay &&
+                softClip == other.softClip &&
+                imageFilters == other.imageFilters &&
+                videoLevels == other.videoLevels;
+        }
+
+        bool DisplayOptions::operator != (const DisplayOptions& other) const
+        {
+            return !(*this == other);
         }
 
         void to_json(nlohmann::json& json, const Color& in)

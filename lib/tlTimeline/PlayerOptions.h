@@ -50,5 +50,3 @@ namespace tl
         };
     }
 }
-
-#include <tlTimeline/PlayerOptionsInline.h>

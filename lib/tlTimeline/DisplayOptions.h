@@ -115,5 +115,3 @@ namespace tl
         ///@}
     }
 }
-
-#include <tlTimeline/DisplayOptionsInline.h>
