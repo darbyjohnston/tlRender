@@ -1042,6 +1042,15 @@ namespace tl
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 
+                const auto pm = dtk::ortho(
+                    0.F,
+                    static_cast<float>(p.thread.size.w),
+                    0.F,
+                    static_cast<float>(p.thread.size.h),
+                    -1.F,
+                    1.F);
+                p.thread.render->setTransform(pm);
+
                 const auto boxes = timeline::getBoxes(compareOptions.compare, p.thread.videoData);
                 dtk::V2I viewPosTmp = p.thread.viewPos;
                 double viewZoomTmp = p.thread.viewZoom;
@@ -1062,13 +1071,6 @@ namespace tl
                 vm = vm * dtk::scale(dtk::V3F(viewZoomTmp, viewZoomTmp, 1.F));
                 p.thread.render->drawBackground(boxes, vm, bgOptions);
 
-                const auto pm = dtk::ortho(
-                    0.F,
-                    static_cast<float>(p.thread.size.w),
-                    0.F,
-                    static_cast<float>(p.thread.size.h),
-                    -1.F,
-                    1.F);
                 p.thread.render->setTransform(pm * vm);
                 p.thread.render->drawVideo(
                     p.thread.videoData,
