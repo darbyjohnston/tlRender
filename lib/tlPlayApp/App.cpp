@@ -417,7 +417,7 @@ namespace tl
 
             p.timeUnitsModel = TimeUnitsModel::create(_context, p.settings);
             
-            p.filesModel = FilesModel::create(_context);
+            p.filesModel = FilesModel::create(_context, p.settings);
 
             p.recentFilesModel = RecentFilesModel::create(_context, p.settings);
 

@@ -14,6 +14,7 @@
 namespace dtk
 {
     class Context;
+    class Settings;
 }
 
 namespace tl
@@ -38,7 +39,9 @@ namespace tl
             DTK_NON_COPYABLE(FilesModel);
 
         protected:
-            void _init(const std::shared_ptr<dtk::Context>&);
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<dtk::Settings>&);
 
             FilesModel();
 
@@ -46,7 +49,9 @@ namespace tl
             ~FilesModel();
 
             //! Create a new model.
-            static std::shared_ptr<FilesModel> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<FilesModel> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<dtk::Settings>&);
 
             //! Get the files.
             const std::vector<std::shared_ptr<FilesModelItem> >& getFiles() const;

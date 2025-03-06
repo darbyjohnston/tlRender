@@ -252,5 +252,21 @@ namespace tl
             }
             return out;
         }
+
+        void to_json(nlohmann::json& json, const CompareOptions& in)
+        {
+            json["compare"] = to_string(in.compare);
+            json["wipeCenter"] = in.wipeCenter;
+            json["wipeRotation"] = in.wipeRotation;
+            json["overlay"] = in.overlay;
+        }
+
+        void from_json(const nlohmann::json& json, CompareOptions& out)
+        {
+            from_string(json.at("compare").get<std::string>(), out.compare);
+            json.at("wipeCenter").get_to(out.wipeCenter);
+            json.at("wipeRotation").get_to(out.wipeRotation);
+            json.at("overlay").get_to(out.overlay);
+        }
     }
 }

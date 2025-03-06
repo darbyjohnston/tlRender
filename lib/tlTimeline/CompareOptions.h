@@ -70,5 +70,14 @@ namespace tl
             const OTIO_NS::TimeRange& sourceTimeRange,
             const OTIO_NS::TimeRange& compareTimeRange,
             CompareTime);
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const CompareOptions&);
+
+        void from_json(const nlohmann::json&, CompareOptions&);
+
+        ///@}
     }
 }
