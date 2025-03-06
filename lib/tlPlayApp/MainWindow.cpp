@@ -54,7 +54,6 @@
 #include <dtk/ui/Menu.h>
 #include <dtk/ui/MenuBar.h>
 #include <dtk/ui/RowLayout.h>
-#include <dtk/ui/Settings.h>
 #include <dtk/ui/Spacer.h>
 #include <dtk/ui/Splitter.h>
 #include <dtk/ui/ToolButton.h>
@@ -137,7 +136,8 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            Window::_init(context, "tlplay", app->getSettingsModel()->getWindow().size);
+            const WindowOptions& windowOptions = app->getSettingsModel()->getWindow();
+            Window::_init(context, "tlplay", windowOptions.size);
             DTK_P();
 
             setBackgroundRole(dtk::ColorRole::Window);
@@ -334,7 +334,9 @@ namespace tl
             p.dividers["View"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.toolsToolBar->setParent(hLayout);
             p.splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, p.layout);
+            p.splitter->setSplit(windowOptions.splitter);
             p.splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, p.splitter);
+            p.splitter2->setSplit(windowOptions.splitter2);
             p.viewport->setParent(p.splitter2);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
@@ -524,6 +526,8 @@ namespace tl
             //! \bug The window size needs to be scaled on macOS?
             options.size = options.size / getDisplayScale();
 #endif // __APPLE__
+            options.splitter = p.splitter->getSplit();
+            options.splitter2 = p.splitter2->getSplit();
             p.settingsModel->setWindow(options);
         }
 
