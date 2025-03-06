@@ -41,7 +41,7 @@ namespace tl
             std::shared_ptr<dtk::DoubleEdit> readBehind;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<CacheOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<CacheSettings> > settingsObserver;
         };
 
         void CacheSettingsWidget::_init(
@@ -74,9 +74,9 @@ namespace tl
             p.layout->addRow("Read ahead (seconds):", p.readAhead);
             p.layout->addRow("Read behind (seconds):", p.readBehind);
 
-            p.optionsObserver = dtk::ValueObserver<CacheOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<CacheSettings>::create(
                 p.model->observeCache(),
-                [this](const CacheOptions& value)
+                [this](const CacheSettings& value)
                 {
                     DTK_P();
                     p.sizeGB->setValue(value.sizeGB);
@@ -88,27 +88,27 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    CacheOptions options = p.model->getCache();
-                    options.sizeGB = value;
-                    p.model->setCache(options);
+                    CacheSettings settings = p.model->getCache();
+                    settings.sizeGB = value;
+                    p.model->setCache(settings);
                 });
 
             p.readAhead->setCallback(
                 [this](double value)
                 {
                     DTK_P();
-                    CacheOptions options = p.model->getCache();
-                    options.readAhead = value;
-                    p.model->setCache(options);
+                    CacheSettings settings = p.model->getCache();
+                    settings.readAhead = value;
+                    p.model->setCache(settings);
                 });
 
             p.readBehind->setCallback(
                 [this](double value)
                 {
                     DTK_P();
-                    CacheOptions options = p.model->getCache();
-                    options.readBehind = value;
-                    p.model->setCache(options);
+                    CacheSettings settings = p.model->getCache();
+                    settings.readBehind = value;
+                    p.model->setCache(settings);
                 });
         }
 
@@ -148,7 +148,7 @@ namespace tl
             std::shared_ptr<dtk::CheckBox> nfdCheckBox;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<FileBrowserOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<FileBrowserSettings> > settingsObserver;
         };
 
         void FileBrowserSettingsWidget::_init(
@@ -168,9 +168,9 @@ namespace tl
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.layout->addRow("Native file dialog:", p.nfdCheckBox);
 
-            p.optionsObserver = dtk::ValueObserver<FileBrowserOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<FileBrowserSettings>::create(
                 p.model->observeFileBrowser(),
-                [this](const FileBrowserOptions& value)
+                [this](const FileBrowserSettings& value)
                 {
                     DTK_P();
                     p.nfdCheckBox->setChecked(value.nativeFileDialog);
@@ -180,9 +180,9 @@ namespace tl
                 [this](bool value)
                 {
                     DTK_P();
-                    auto options = p.model->getFileBrowser();
-                    options.nativeFileDialog = value;
-                    p.model->setFileBrowser(options);
+                    auto settings = p.model->getFileBrowser();
+                    settings.nativeFileDialog = value;
+                    p.model->setFileBrowser(settings);
                 });
         }
 
@@ -227,7 +227,7 @@ namespace tl
             std::shared_ptr<dtk::IntEdit> threadsEdit;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<FileSequenceOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<FileSequenceSettings> > settingsObserver;
         };
 
         void FileSequenceSettingsWidget::_init(
@@ -267,9 +267,9 @@ namespace tl
             p.layout->addRow("Default speed (FPS):", p.defaultSpeedEdit);
             p.layout->addRow("I/O threads:", p.threadsEdit);
 
-            p.optionsObserver = dtk::ValueObserver<FileSequenceOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<FileSequenceSettings>::create(
                 p.model->observeFileSequence(),
-                [this](const FileSequenceOptions& value)
+                [this](const FileSequenceSettings& value)
                 {
                     DTK_P();
                     p.audioComboBox->setCurrentIndex(static_cast<int>(value.audio));
@@ -284,54 +284,54 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.audio = static_cast<timeline::FileSequenceAudio>(value);
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.audio = static_cast<timeline::FileSequenceAudio>(value);
+                    p.model->setFileSequence(settings);
                 });
 
             p.audioFileNameEdit->setTextCallback(
                 [this](const std::string& value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.audioFileName = value;
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.audioFileName = value;
+                    p.model->setFileSequence(settings);
                 });
 
             p.audioDirectoryEdit->setTextCallback(
                 [this](const std::string& value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.audioDirectory = value;
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.audioDirectory = value;
+                    p.model->setFileSequence(settings);
                 });
 
             p.maxDigitsEdit->setCallback(
                 [this](int value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.maxDigits = value;
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.maxDigits = value;
+                    p.model->setFileSequence(settings);
                 });
 
             p.defaultSpeedEdit->setCallback(
                 [this](double value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.io.defaultSpeed = value;
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.io.defaultSpeed = value;
+                    p.model->setFileSequence(settings);
                 });
 
             p.threadsEdit->setCallback(
                 [this](int value)
                 {
                     DTK_P();
-                    FileSequenceOptions options = p.model->getFileSequence();
-                    options.io.threadCount = value;
-                    p.model->setFileSequence(options);
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.io.threadCount = value;
+                    p.model->setFileSequence(settings);
                 });
         }
 
@@ -371,7 +371,7 @@ namespace tl
             std::shared_ptr<dtk::CheckBox> tooltipsCheckBox;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<MiscOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<MiscSettings> > settingsObserver;
         };
 
         void MiscSettingsWidget::_init(
@@ -391,9 +391,9 @@ namespace tl
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.layout->addRow("Enable tooltips:", p.tooltipsCheckBox);
 
-            p.optionsObserver = dtk::ValueObserver<MiscOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<MiscSettings>::create(
                 p.model->observeMisc(),
-                [this](const MiscOptions& value)
+                [this](const MiscSettings& value)
                 {
                     DTK_P();
                     p.tooltipsCheckBox->setChecked(value.tooltipsEnabled);
@@ -403,9 +403,9 @@ namespace tl
                 [this](bool value)
                 {
                     DTK_P();
-                    auto options = p.model->getMisc();
-                    options.tooltipsEnabled = value;
-                    p.model->setMisc(options);
+                    auto settings = p.model->getMisc();
+                    settings.tooltipsEnabled = value;
+                    p.model->setMisc(settings);
                 });
         }
 
@@ -447,7 +447,7 @@ namespace tl
             std::shared_ptr<dtk::IntEdit> audioRequestsEdit;
             std::shared_ptr<dtk::VerticalLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<PerformanceOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<PerformanceSettings> > settingsObserver;
         };
 
         void PerformanceSettingsWidget::_init(
@@ -481,9 +481,9 @@ namespace tl
             formLayout->addRow("Video requests:", p.videoRequestsEdit);
             formLayout->addRow("Audio requests:", p.audioRequestsEdit);
 
-            p.optionsObserver = dtk::ValueObserver<PerformanceOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<PerformanceSettings>::create(
                 p.model->observePerformance(),
-                [this](const PerformanceOptions& value)
+                [this](const PerformanceSettings& value)
                 {
                     DTK_P();
                     p.audioBufferFramesEdit->setValue(value.audioBufferFrameCount);
@@ -495,27 +495,27 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    auto options = p.model->getPerformance();
-                    options.audioBufferFrameCount = value;
-                    p.model->setPerformance(options);
+                    auto settings = p.model->getPerformance();
+                    settings.audioBufferFrameCount = value;
+                    p.model->setPerformance(settings);
                 });
 
             p.videoRequestsEdit->setCallback(
                 [this](int value)
                 {
                     DTK_P();
-                    auto options = p.model->getPerformance();
-                    options.videoRequestCount = value;
-                    p.model->setPerformance(options);
+                    auto settings = p.model->getPerformance();
+                    settings.videoRequestCount = value;
+                    p.model->setPerformance(settings);
                 });
 
             p.audioRequestsEdit->setCallback(
                 [this](int value)
                 {
                     DTK_P();
-                    auto options = p.model->getPerformance();
-                    options.audioRequestCount = value;
-                    p.model->setPerformance(options);
+                    auto settings = p.model->getPerformance();
+                    settings.audioRequestCount = value;
+                    p.model->setPerformance(settings);
                 });
         }
 
@@ -568,7 +568,7 @@ namespace tl
             std::shared_ptr<dtk::ComboBox> displayScaleComboBox;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<StyleOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<StyleSettings> > settingsObserver;
         };
 
         void StyleSettingsWidget::_init(
@@ -600,9 +600,9 @@ namespace tl
             p.layout->addRow("Color style:", p.colorStyleComboBox);
             p.layout->addRow("Display scale:", p.displayScaleComboBox);
 
-            p.optionsObserver = dtk::ValueObserver<StyleOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<StyleSettings>::create(
                 app->getSettingsModel()->observeStyle(),
-                [this](const StyleOptions& value)
+                [this](const StyleSettings& value)
                 {
                     DTK_P();
                     p.colorStyleComboBox->setCurrentIndex(static_cast<int>(value.colorStyle));
@@ -620,21 +620,21 @@ namespace tl
                 [this](int value)
                 {
                     DTK_P();
-                    auto options = p.model->getStyle();
-                    options.colorStyle = static_cast<dtk::ColorStyle>(value);
-                    p.model->setStyle(options);
+                    auto settings = p.model->getStyle();
+                    settings.colorStyle = static_cast<dtk::ColorStyle>(value);
+                    p.model->setStyle(settings);
                 });
 
             p.displayScaleComboBox->setIndexCallback(
                 [this](int value)
                 {
                     DTK_P();
-                    auto options = p.model->getStyle();
+                    auto settings = p.model->getStyle();
                     if (value >= 0 && value < p.displayScales.size())
                     {
-                        options.displayScale = p.displayScales[value];
+                        settings.displayScale = p.displayScales[value];
                     }
-                    p.model->setStyle(options);
+                    p.model->setStyle(settings);
                 });
         }
 
@@ -733,12 +733,10 @@ namespace tl
 
         FFmpegSettingsWidget::FFmpegSettingsWidget() :
             _p(new Private)
-        {
-        }
+        {}
 
         FFmpegSettingsWidget::~FFmpegSettingsWidget()
-        {
-        }
+        {}
 
         std::shared_ptr<FFmpegSettingsWidget> FFmpegSettingsWidget::create(
             const std::shared_ptr<dtk::Context>& context,
@@ -903,12 +901,10 @@ namespace tl
 
         USDSettingsWidget::USDSettingsWidget() :
             _p(new Private)
-        {
-        }
+        {}
 
         USDSettingsWidget::~USDSettingsWidget()
-        {
-        }
+        {}
 
         std::shared_ptr<USDSettingsWidget> USDSettingsWidget::create(
             const std::shared_ptr<dtk::Context>& context,
@@ -1035,12 +1031,10 @@ namespace tl
 
         SettingsTool::SettingsTool() :
             _p(new Private)
-        {
-        }
+        {}
 
         SettingsTool::~SettingsTool()
-        {
-        }
+        {}
 
         std::shared_ptr<SettingsTool> SettingsTool::create(
             const std::shared_ptr<dtk::Context>& context,

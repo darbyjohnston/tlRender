@@ -62,7 +62,7 @@ namespace tl
             void _playerUpdate(const std::shared_ptr<timeline::Player>&);
             void _showSpeedPopup();
             void _showAudioPopup();
-            void _windowOptionsUpdate(const WindowOptions&);
+            void _settingsUpdate(const WindowSettings&);
 
             DTK_PRIVATE();
         };

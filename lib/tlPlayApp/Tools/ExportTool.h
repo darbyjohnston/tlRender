@@ -10,7 +10,7 @@ namespace tl
 {
     namespace play
     {
-        struct ExportOptions;
+        struct ExportSettings;
 
         class App;
 
@@ -36,7 +36,7 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
         private:
-            void _widgetUpdate(const ExportOptions&);
+            void _widgetUpdate(const ExportSettings&);
 
             DTK_PRIVATE();
         };

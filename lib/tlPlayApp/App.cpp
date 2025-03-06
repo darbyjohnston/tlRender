@@ -108,7 +108,7 @@ namespace tl
             dtk::VideoLevels bmdOutputVideoLevels = dtk::VideoLevels::LegalRange;
 #endif // TLRENDER_BMD
 
-            std::shared_ptr<dtk::ValueObserver<CacheOptions> > cacheObserver;
+            std::shared_ptr<dtk::ValueObserver<CacheSettings> > cacheObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
@@ -118,8 +118,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ListObserver<bool> > channelMuteObserver;
             std::shared_ptr<dtk::ValueObserver<double> > syncOffsetObserver;
-            std::shared_ptr<dtk::ValueObserver<StyleOptions> > styleOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<MiscOptions> > miscOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<StyleSettings> > styleSettingsObserver;
+            std::shared_ptr<dtk::ValueObserver<MiscSettings> > miscSettingsObserver;
 #if defined(TLRENDER_BMD)
             std::shared_ptr<dtk::ValueObserver<bmd::DevicesModelData> > bmdDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > bmdActiveObserver;
@@ -447,9 +447,9 @@ namespace tl
 
             p.player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
 
-            p.cacheObserver = dtk::ValueObserver<CacheOptions>::create(
+            p.cacheObserver = dtk::ValueObserver<CacheSettings>::create(
                 p.settingsModel->observeCache(),
-                [this](const CacheOptions& value)
+                [this](const CacheSettings& value)
                 {
                     _cacheUpdate(value);
                 });
@@ -516,17 +516,17 @@ namespace tl
                     _audioUpdate();
                 });
 
-            p.styleOptionsObserver = dtk::ValueObserver<StyleOptions>::create(
+            p.styleSettingsObserver = dtk::ValueObserver<StyleSettings>::create(
                 p.settingsModel->observeStyle(),
-                [this](const StyleOptions& value)
+                [this](const StyleSettings& value)
                 {
                     setColorStyle(value.colorStyle);
                     setDisplayScale(value.displayScale);
                 });
 
-            p.miscOptionsObserver = dtk::ValueObserver<MiscOptions>::create(
+            p.miscSettingsObserver = dtk::ValueObserver<MiscSettings>::create(
                 p.settingsModel->observeMisc(),
-                [this](const MiscOptions& value)
+                [this](const MiscSettings& value)
                 {
                     setTooltipsEnabled(value.tooltipsEnabled);
                 });
@@ -925,11 +925,11 @@ namespace tl
                     try
                     {
                         timeline::Options options;
-                        const FileSequenceOptions fileSequence = p.settingsModel->getFileSequence();
+                        const FileSequenceSettings fileSequence = p.settingsModel->getFileSequence();
                         options.fileSequenceAudio = fileSequence.audio;
                         options.fileSequenceAudioFileName = fileSequence.audioFileName;
                         options.fileSequenceAudioDirectory = fileSequence.audioDirectory;
-                        const PerformanceOptions performance = p.settingsModel->getPerformance();
+                        const PerformanceSettings performance = p.settingsModel->getPerformance();
                         options.videoRequestCount = performance.videoRequestCount;
                         options.audioRequestCount = performance.audioRequestCount;
                         options.ioOptions = _getIOOptions();
@@ -1061,7 +1061,7 @@ namespace tl
             }
         }
 
-        void App::_cacheUpdate(const CacheOptions& options)
+        void App::_cacheUpdate(const CacheSettings& options)
         {
             DTK_P();
 

@@ -129,15 +129,15 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<dtk::ValueObserver<WindowOptions> > windowOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<WindowSettings> > settingsObserver;
         };
 
         void MainWindow::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            const WindowOptions& windowOptions = app->getSettingsModel()->getWindow();
-            Window::_init(context, "tlplay", windowOptions.size);
+            const WindowSettings& settings = app->getSettingsModel()->getWindow();
+            Window::_init(context, "tlplay", settings.size);
             DTK_P();
 
             setBackgroundRole(dtk::ColorRole::Window);
@@ -153,15 +153,15 @@ namespace tl
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
-            const TimelineOptions timelineOptions = p.settingsModel->getTimeline();
-            p.timelineWidget->setEditable(timelineOptions.editable);
-            p.timelineWidget->setFrameView(timelineOptions.frameView);
+            const TimelineSettings timelineSettings = p.settingsModel->getTimeline();
+            p.timelineWidget->setEditable(timelineSettings.editable);
+            p.timelineWidget->setFrameView(timelineSettings.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setScrollToCurrentFrame(timelineOptions.scroll);
-            p.timelineWidget->setStopOnScrub(timelineOptions.stopOnScrub);
-            p.timelineWidget->setItemOptions(timelineOptions.item);
-            timelineui::DisplayOptions timeineDisplayOptions = timelineOptions.display;
-            if (timelineOptions.firstTrack)
+            p.timelineWidget->setScrollToCurrentFrame(timelineSettings.scroll);
+            p.timelineWidget->setStopOnScrub(timelineSettings.stopOnScrub);
+            p.timelineWidget->setItemOptions(timelineSettings.item);
+            timelineui::DisplayOptions timeineDisplayOptions = timelineSettings.display;
+            if (timelineSettings.firstTrack)
             {
                 timeineDisplayOptions.tracks = { 0 };
             }
@@ -334,9 +334,9 @@ namespace tl
             p.dividers["View"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.toolsToolBar->setParent(hLayout);
             p.splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, p.layout);
-            p.splitter->setSplit(windowOptions.splitter);
+            p.splitter->setSplit(settings.splitter);
             p.splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, p.splitter);
-            p.splitter2->setSplit(windowOptions.splitter2);
+            p.splitter2->setSplit(settings.splitter2);
             p.viewport->setParent(p.splitter2);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
@@ -501,11 +501,11 @@ namespace tl
                     _p->muteButton->setChecked(value);
                 });
 
-            p.windowOptionsObserver = dtk::ValueObserver<WindowOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<WindowSettings>::create(
                 p.settingsModel->observeWindow(),
-                [this](const WindowOptions& value)
+                [this](const WindowSettings& value)
                 {
-                    _windowOptionsUpdate(value);
+                    _settingsUpdate(value);
                 });
         }
 
@@ -520,15 +520,15 @@ namespace tl
             p.viewport->setParent(nullptr);
             p.timelineWidget->setParent(nullptr);
 
-            WindowOptions options = p.settingsModel->getWindow();
-            options.size = getGeometry().size();
+            WindowSettings settings = p.settingsModel->getWindow();
+            settings.size = getGeometry().size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
-            options.size = options.size / getDisplayScale();
+            settings.size = settings.size / getDisplayScale();
 #endif // __APPLE__
-            options.splitter = p.splitter->getSplit();
-            options.splitter2 = p.splitter2->getSplit();
-            p.settingsModel->setWindow(options);
+            settings.splitter = p.splitter->getSplit();
+            settings.splitter2 = p.splitter2->getSplit();
+            p.settingsModel->setWindow(settings);
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
@@ -711,33 +711,33 @@ namespace tl
             }
         }
 
-        void MainWindow::_windowOptionsUpdate(const WindowOptions& options)
+        void MainWindow::_settingsUpdate(const WindowSettings& settings)
         {
             DTK_P();
-            p.fileToolBar->setVisible(options.fileToolBar);
-            p.dividers["File"]->setVisible(options.fileToolBar);
+            p.fileToolBar->setVisible(settings.fileToolBar);
+            p.dividers["File"]->setVisible(settings.fileToolBar);
 
-            p.compareToolBar->setVisible(options.compareToolBar);
-            p.dividers["Compare"]->setVisible(options.compareToolBar);
+            p.compareToolBar->setVisible(settings.compareToolBar);
+            p.dividers["Compare"]->setVisible(settings.compareToolBar);
 
-            p.windowToolBar->setVisible(options.windowToolBar);
-            p.dividers["Window"]->setVisible(options.windowToolBar);
+            p.windowToolBar->setVisible(settings.windowToolBar);
+            p.dividers["Window"]->setVisible(settings.windowToolBar);
 
-            p.viewToolBar->setVisible(options.viewToolBar);
-            p.dividers["View"]->setVisible(options.viewToolBar);
+            p.viewToolBar->setVisible(settings.viewToolBar);
+            p.dividers["View"]->setVisible(settings.viewToolBar);
 
-            p.toolsToolBar->setVisible(options.toolsToolBar);
+            p.toolsToolBar->setVisible(settings.toolsToolBar);
 
-            p.timelineWidget->setVisible(options.timeline);
+            p.timelineWidget->setVisible(settings.timeline);
 
-            p.bottomLayout->setVisible(options.bottomToolBar);
-            p.dividers["Bottom"]->setVisible(options.bottomToolBar);
+            p.bottomLayout->setVisible(settings.bottomToolBar);
+            p.dividers["Bottom"]->setVisible(settings.bottomToolBar);
 
-            p.statusBar->setVisible(options.statusToolBar);
-            p.dividers["Status"]->setVisible(options.statusToolBar);
+            p.statusBar->setVisible(settings.statusToolBar);
+            p.dividers["Status"]->setVisible(settings.statusToolBar);
 
-            p.splitter->setSplit(options.splitter);
-            p.splitter2->setSplit(options.splitter2);
+            p.splitter->setSplit(settings.splitter);
+            p.splitter2->setSplit(settings.splitter2);
         }
     }
 }

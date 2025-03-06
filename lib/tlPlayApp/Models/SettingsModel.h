@@ -32,15 +32,15 @@ namespace tl
 {
     namespace play
     {
-        //! Cache options.
-        struct CacheOptions
+        //! Cache settings.
+        struct CacheSettings
         {
             size_t sizeGB = 4;
             double readAhead = 4.F;
             double readBehind = .5F;
 
-            bool operator == (const CacheOptions&) const;
-            bool operator != (const CacheOptions&) const;
+            bool operator == (const CacheSettings&) const;
+            bool operator != (const CacheSettings&) const;
         };
 
         //! Export render size.
@@ -71,8 +71,8 @@ namespace tl
         };
         DTK_ENUM(ExportFileType);
 
-        //! Export options.
-        struct ExportOptions
+        //! Export settings.
+        struct ExportSettings
         {
             std::string directory;
             ExportRenderSize renderSize = ExportRenderSize::Default;
@@ -85,23 +85,23 @@ namespace tl
             std::string movieExtension;
             std::string movieCodec;
 
-            bool operator == (const ExportOptions&) const;
-            bool operator != (const ExportOptions&) const;
+            bool operator == (const ExportSettings&) const;
+            bool operator != (const ExportSettings&) const;
         };
 
-        //! File browser options.
-        struct FileBrowserOptions
+        //! File browser settings.
+        struct FileBrowserSettings
         {
             bool nativeFileDialog = true;
             std::string path;
             dtk::FileBrowserOptions options;
 
-            bool operator == (const FileBrowserOptions&) const;
-            bool operator != (const FileBrowserOptions&) const;
+            bool operator == (const FileBrowserSettings&) const;
+            bool operator != (const FileBrowserSettings&) const;
         };
 
-        //! File sequence options.
-        struct FileSequenceOptions
+        //! File sequence settings.
+        struct FileSequenceSettings
         {
             timeline::FileSequenceAudio audio = timeline::FileSequenceAudio::BaseName;
             std::string audioFileName;
@@ -109,42 +109,42 @@ namespace tl
             size_t maxDigits = 9;
             io::SequenceOptions io;
 
-            bool operator == (const FileSequenceOptions&) const;
-            bool operator != (const FileSequenceOptions&) const;
+            bool operator == (const FileSequenceSettings&) const;
+            bool operator != (const FileSequenceSettings&) const;
         };
 
-        //! Miscellaneous options.
-        struct MiscOptions
+        //! Miscellaneous settings.
+        struct MiscSettings
         {
             bool tooltipsEnabled = true;
 
-            bool operator == (const MiscOptions&) const;
-            bool operator != (const MiscOptions&) const;
+            bool operator == (const MiscSettings&) const;
+            bool operator != (const MiscSettings&) const;
         };
 
-        //! Performance options.
-        struct PerformanceOptions
+        //! Performance settings.
+        struct PerformanceSettings
         {
             size_t audioBufferFrameCount = timeline::PlayerOptions().audioBufferFrameCount;
             size_t videoRequestCount = 16;
             size_t audioRequestCount = 16;
 
-            bool operator == (const PerformanceOptions&) const;
-            bool operator != (const PerformanceOptions&) const;
+            bool operator == (const PerformanceSettings&) const;
+            bool operator != (const PerformanceSettings&) const;
         };
 
-        //! Style options.
-        struct StyleOptions
+        //! Style settings.
+        struct StyleSettings
         {
             dtk::ColorStyle colorStyle = dtk::ColorStyle::Dark;
             float displayScale = 0.F;
 
-            bool operator == (const StyleOptions&) const;
-            bool operator != (const StyleOptions&) const;
+            bool operator == (const StyleSettings&) const;
+            bool operator != (const StyleSettings&) const;
         };
 
-        //! Timeline options.
-        struct TimelineOptions
+        //! Timeline settings.
+        struct TimelineSettings
         {
             bool editable = false;
             bool frameView = true;
@@ -154,12 +154,12 @@ namespace tl
             timelineui::DisplayOptions display;
             bool firstTrack = false;
 
-            bool operator == (const TimelineOptions&) const;
-            bool operator != (const TimelineOptions&) const;
+            bool operator == (const TimelineSettings&) const;
+            bool operator != (const TimelineSettings&) const;
         };
 
-        //! Window options.
-        struct WindowOptions
+        //! Window settings.
+        struct WindowSettings
         {
             dtk::Size2I size = dtk::Size2I(1920, 1080);
             bool fileToolBar = true;
@@ -173,8 +173,8 @@ namespace tl
             float splitter = .7F;
             float splitter2 = .7F;
 
-            bool operator == (const WindowOptions&) const;
-            bool operator != (const WindowOptions&) const;
+            bool operator == (const WindowSettings&) const;
+            bool operator != (const WindowSettings&) const;
         };
 
         //! Settings model.
@@ -203,81 +203,81 @@ namespace tl
             //! \name Cache
             ///@{
 
-            const CacheOptions& getCache() const;
-            std::shared_ptr<dtk::IObservableValue<CacheOptions> > observeCache() const;
-            void setCache(const CacheOptions&);
+            const CacheSettings& getCache() const;
+            std::shared_ptr<dtk::IObservableValue<CacheSettings> > observeCache() const;
+            void setCache(const CacheSettings&);
 
             ///@}
 
             //! \name Export
             ///@{
 
-            const ExportOptions& getExport() const;
-            std::shared_ptr<dtk::IObservableValue<ExportOptions> > observeExport() const;
-            void setExport(const ExportOptions&);
+            const ExportSettings& getExport() const;
+            std::shared_ptr<dtk::IObservableValue<ExportSettings> > observeExport() const;
+            void setExport(const ExportSettings&);
 
             ///@}
 
             //! \name File Browser
             ///@{
 
-            const FileBrowserOptions& getFileBrowser() const;
-            std::shared_ptr<dtk::IObservableValue<FileBrowserOptions> > observeFileBrowser() const;
-            void setFileBrowser(const FileBrowserOptions&);
+            const FileBrowserSettings& getFileBrowser() const;
+            std::shared_ptr<dtk::IObservableValue<FileBrowserSettings> > observeFileBrowser() const;
+            void setFileBrowser(const FileBrowserSettings&);
 
             ///@}
 
             //! \name File Sequences
             ///@{
 
-            const FileSequenceOptions& getFileSequence() const;
-            std::shared_ptr<dtk::IObservableValue<FileSequenceOptions> > observeFileSequence() const;
-            void setFileSequence(const FileSequenceOptions&);
+            const FileSequenceSettings& getFileSequence() const;
+            std::shared_ptr<dtk::IObservableValue<FileSequenceSettings> > observeFileSequence() const;
+            void setFileSequence(const FileSequenceSettings&);
 
             ///@}
 
             //! \name Miscellaneous
             ///@{
 
-            const MiscOptions& getMisc() const;
-            std::shared_ptr<dtk::IObservableValue<MiscOptions> > observeMisc() const;
-            void setMisc(const MiscOptions&);
+            const MiscSettings& getMisc() const;
+            std::shared_ptr<dtk::IObservableValue<MiscSettings> > observeMisc() const;
+            void setMisc(const MiscSettings&);
 
             ///@}
 
             //! \name Performance
             ///@{
 
-            const PerformanceOptions& getPerformance() const;
-            std::shared_ptr<dtk::IObservableValue<PerformanceOptions> > observePerformance() const;
-            void setPerformance(const PerformanceOptions&);
+            const PerformanceSettings& getPerformance() const;
+            std::shared_ptr<dtk::IObservableValue<PerformanceSettings> > observePerformance() const;
+            void setPerformance(const PerformanceSettings&);
 
             ///@}
 
             //! \name Style
             ///@{
 
-            const StyleOptions& getStyle() const;
-            std::shared_ptr<dtk::IObservableValue<StyleOptions> > observeStyle() const;
-            void setStyle(const StyleOptions&);
+            const StyleSettings& getStyle() const;
+            std::shared_ptr<dtk::IObservableValue<StyleSettings> > observeStyle() const;
+            void setStyle(const StyleSettings&);
 
             ///@}
 
             //! \name Timeline
             ///@{
 
-            const TimelineOptions& getTimeline() const;
-            std::shared_ptr<dtk::IObservableValue<TimelineOptions> > observeTimeline() const;
-            void setTimeline(const TimelineOptions&);
+            const TimelineSettings& getTimeline() const;
+            std::shared_ptr<dtk::IObservableValue<TimelineSettings> > observeTimeline() const;
+            void setTimeline(const TimelineSettings&);
 
             ///@}
 
             //! \name Window
             ///@{
 
-            const WindowOptions& getWindow() const;
-            std::shared_ptr<dtk::IObservableValue<WindowOptions> > observeWindow() const;
-            void setWindow(const WindowOptions&);
+            const WindowSettings& getWindow() const;
+            std::shared_ptr<dtk::IObservableValue<WindowSettings> > observeWindow() const;
+            void setWindow(const WindowSettings&);
 
             ///@}
 
@@ -314,25 +314,25 @@ namespace tl
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const CacheOptions&);
-        void to_json(nlohmann::json&, const ExportOptions&);
-        void to_json(nlohmann::json&, const FileBrowserOptions&);
-        void to_json(nlohmann::json&, const FileSequenceOptions&);
-        void to_json(nlohmann::json&, const MiscOptions&);
-        void to_json(nlohmann::json&, const PerformanceOptions&);
-        void to_json(nlohmann::json&, const StyleOptions&);
-        void to_json(nlohmann::json&, const TimelineOptions&);
-        void to_json(nlohmann::json&, const WindowOptions&);
+        void to_json(nlohmann::json&, const CacheSettings&);
+        void to_json(nlohmann::json&, const ExportSettings&);
+        void to_json(nlohmann::json&, const FileBrowserSettings&);
+        void to_json(nlohmann::json&, const FileSequenceSettings&);
+        void to_json(nlohmann::json&, const MiscSettings&);
+        void to_json(nlohmann::json&, const PerformanceSettings&);
+        void to_json(nlohmann::json&, const StyleSettings&);
+        void to_json(nlohmann::json&, const TimelineSettings&);
+        void to_json(nlohmann::json&, const WindowSettings&);
 
-        void from_json(const nlohmann::json&, CacheOptions&);
-        void from_json(const nlohmann::json&, ExportOptions&);
-        void from_json(const nlohmann::json&, FileBrowserOptions&);
-        void from_json(const nlohmann::json&, FileSequenceOptions&);
-        void from_json(const nlohmann::json&, MiscOptions&);
-        void from_json(const nlohmann::json&, PerformanceOptions&);
-        void from_json(const nlohmann::json&, StyleOptions&);
-        void from_json(const nlohmann::json&, TimelineOptions&);
-        void from_json(const nlohmann::json&, WindowOptions&);
+        void from_json(const nlohmann::json&, CacheSettings&);
+        void from_json(const nlohmann::json&, ExportSettings&);
+        void from_json(const nlohmann::json&, FileBrowserSettings&);
+        void from_json(const nlohmann::json&, FileSequenceSettings&);
+        void from_json(const nlohmann::json&, MiscSettings&);
+        void from_json(const nlohmann::json&, PerformanceSettings&);
+        void from_json(const nlohmann::json&, StyleSettings&);
+        void from_json(const nlohmann::json&, TimelineSettings&);
+        void from_json(const nlohmann::json&, WindowSettings&);
 
         ///@}
     }

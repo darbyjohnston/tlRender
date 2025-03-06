@@ -14,7 +14,7 @@ namespace tl
 {
     namespace play
     {
-        bool CacheOptions::operator == (const CacheOptions& other) const
+        bool CacheSettings::operator == (const CacheSettings& other) const
         {
             return
                 sizeGB == other.sizeGB &&
@@ -22,7 +22,7 @@ namespace tl
                 readBehind == other.readBehind;
         }
 
-        bool CacheOptions::operator != (const CacheOptions& other) const
+        bool CacheSettings::operator != (const CacheSettings& other) const
         {
             return !(*this == other);
         }
@@ -40,7 +40,7 @@ namespace tl
             "Images",
             "Movie");
 
-        bool ExportOptions::operator == (const ExportOptions& other) const
+        bool ExportSettings::operator == (const ExportSettings& other) const
         {
             return
                 directory == other.directory &&
@@ -55,12 +55,12 @@ namespace tl
                 movieCodec == other.movieCodec;
         }
 
-        bool ExportOptions::operator != (const ExportOptions& other) const
+        bool ExportSettings::operator != (const ExportSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool FileBrowserOptions::operator == (const FileBrowserOptions& other) const
+        bool FileBrowserSettings::operator == (const FileBrowserSettings& other) const
         {
             return
                 nativeFileDialog == other.nativeFileDialog &&
@@ -68,12 +68,12 @@ namespace tl
                 options == other.options;
         }
 
-        bool FileBrowserOptions::operator != (const FileBrowserOptions& other) const
+        bool FileBrowserSettings::operator != (const FileBrowserSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool FileSequenceOptions::operator == (const FileSequenceOptions& other) const
+        bool FileSequenceSettings::operator == (const FileSequenceSettings& other) const
         {
             return
                 audio == other.audio &&
@@ -83,23 +83,23 @@ namespace tl
                 io == other.io;
         }
 
-        bool FileSequenceOptions::operator != (const FileSequenceOptions& other) const
+        bool FileSequenceSettings::operator != (const FileSequenceSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool MiscOptions::operator == (const MiscOptions& other) const
+        bool MiscSettings::operator == (const MiscSettings& other) const
         {
             return
                 tooltipsEnabled == other.tooltipsEnabled;
         }
 
-        bool MiscOptions::operator != (const MiscOptions& other) const
+        bool MiscSettings::operator != (const MiscSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool PerformanceOptions::operator == (const PerformanceOptions& other) const
+        bool PerformanceSettings::operator == (const PerformanceSettings& other) const
         {
             return
                 audioBufferFrameCount == other.audioBufferFrameCount &&
@@ -107,24 +107,24 @@ namespace tl
                 audioRequestCount == other.audioRequestCount;
         }
 
-        bool PerformanceOptions::operator != (const PerformanceOptions& other) const
+        bool PerformanceSettings::operator != (const PerformanceSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool StyleOptions::operator == (const StyleOptions& other) const
+        bool StyleSettings::operator == (const StyleSettings& other) const
         {
             return
                 colorStyle == other.colorStyle &&
                 displayScale == other.displayScale;
         }
 
-        bool StyleOptions::operator != (const StyleOptions& other) const
+        bool StyleSettings::operator != (const StyleSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool TimelineOptions::operator == (const TimelineOptions& other) const
+        bool TimelineSettings::operator == (const TimelineSettings& other) const
         {
             return
                 editable == other.editable &&
@@ -136,12 +136,12 @@ namespace tl
                 firstTrack == other.firstTrack;
         }
 
-        bool TimelineOptions::operator != (const TimelineOptions& other) const
+        bool TimelineSettings::operator != (const TimelineSettings& other) const
         {
             return !(*this == other);
         }
 
-        bool WindowOptions::operator == (const WindowOptions& other) const
+        bool WindowSettings::operator == (const WindowSettings& other) const
         {
             return
                 size == other.size &&
@@ -157,7 +157,7 @@ namespace tl
                 splitter2 == other.splitter2;
         }
 
-        bool WindowOptions::operator != (const WindowOptions& other) const
+        bool WindowSettings::operator != (const WindowSettings& other) const
         {
             return !(*this == other);
         }
@@ -167,15 +167,15 @@ namespace tl
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::Settings> settings;
 
-            std::shared_ptr<dtk::ObservableValue<CacheOptions> > cache;
-            std::shared_ptr<dtk::ObservableValue<ExportOptions> > exportOptions;
-            std::shared_ptr<dtk::ObservableValue<FileBrowserOptions> > fileBrowser;
-            std::shared_ptr<dtk::ObservableValue<FileSequenceOptions> > fileSequence;
-            std::shared_ptr<dtk::ObservableValue<MiscOptions> > misc;
-            std::shared_ptr<dtk::ObservableValue<PerformanceOptions> > performance;
-            std::shared_ptr<dtk::ObservableValue<StyleOptions> > style;
-            std::shared_ptr<dtk::ObservableValue<TimelineOptions> > timeline;
-            std::shared_ptr<dtk::ObservableValue<WindowOptions> > window;
+            std::shared_ptr<dtk::ObservableValue<CacheSettings> > cache;
+            std::shared_ptr<dtk::ObservableValue<ExportSettings> > exportSettings;
+            std::shared_ptr<dtk::ObservableValue<FileBrowserSettings> > fileBrowser;
+            std::shared_ptr<dtk::ObservableValue<FileSequenceSettings> > fileSequence;
+            std::shared_ptr<dtk::ObservableValue<MiscSettings> > misc;
+            std::shared_ptr<dtk::ObservableValue<PerformanceSettings> > performance;
+            std::shared_ptr<dtk::ObservableValue<StyleSettings> > style;
+            std::shared_ptr<dtk::ObservableValue<TimelineSettings> > timeline;
+            std::shared_ptr<dtk::ObservableValue<WindowSettings> > window;
 #if defined(TLRENDER_FFMPEG)
             std::shared_ptr<dtk::ObservableValue<ffmpeg::Options> > ffmpeg;
 #endif // TLRENDER_FFMPEG
@@ -193,45 +193,45 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
-            CacheOptions cache;
+            CacheSettings cache;
             settings->getT("Cache", cache);
-            p.cache = dtk::ObservableValue<CacheOptions>::create(cache);
+            p.cache = dtk::ObservableValue<CacheSettings>::create(cache);
 
-            ExportOptions exportOptions;
-            settings->getT("Export", exportOptions);
-            p.exportOptions = dtk::ObservableValue<ExportOptions>::create(exportOptions);
+            ExportSettings exportSettings;
+            settings->getT("Export", exportSettings);
+            p.exportSettings = dtk::ObservableValue<ExportSettings>::create(exportSettings);
 
-            FileBrowserOptions fileBrowser;
+            FileBrowserSettings fileBrowser;
             settings->getT("FileBrowser", fileBrowser);
-            p.fileBrowser = dtk::ObservableValue<FileBrowserOptions>::create(fileBrowser);
+            p.fileBrowser = dtk::ObservableValue<FileBrowserSettings>::create(fileBrowser);
             auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
             fileBrowserSystem->setPath(fileBrowser.path);
             fileBrowserSystem->setOptions(fileBrowser.options);
             fileBrowserSystem->setNativeFileDialog(fileBrowser.nativeFileDialog);
 
-            FileSequenceOptions fileSequence;
+            FileSequenceSettings fileSequence;
             settings->getT("FileSequence", fileSequence);
-            p.fileSequence = dtk::ObservableValue<FileSequenceOptions>::create(fileSequence);
+            p.fileSequence = dtk::ObservableValue<FileSequenceSettings>::create(fileSequence);
 
-            MiscOptions misc;
+            MiscSettings misc;
             settings->getT("Misc", misc);
-            p.misc = dtk::ObservableValue<MiscOptions>::create(misc);
+            p.misc = dtk::ObservableValue<MiscSettings>::create(misc);
 
-            PerformanceOptions performance;
+            PerformanceSettings performance;
             settings->getT("Performance", performance);
-            p.performance = dtk::ObservableValue<PerformanceOptions>::create(performance);
+            p.performance = dtk::ObservableValue<PerformanceSettings>::create(performance);
 
-            StyleOptions style;
+            StyleSettings style;
             settings->getT("Style", style);
-            p.style = dtk::ObservableValue<StyleOptions>::create(style);
+            p.style = dtk::ObservableValue<StyleSettings>::create(style);
 
-            TimelineOptions timeline;
+            TimelineSettings timeline;
             settings->getT("Timeline", timeline);
-            p.timeline = dtk::ObservableValue<TimelineOptions>::create(timeline);
+            p.timeline = dtk::ObservableValue<TimelineSettings>::create(timeline);
 
-            WindowOptions window;
+            WindowSettings window;
             settings->getT("Window", window);
-            p.window = dtk::ObservableValue<WindowOptions>::create(window);
+            p.window = dtk::ObservableValue<WindowSettings>::create(window);
 
 #if defined(TLRENDER_FFMPEG)
             ffmpeg::Options ffmpeg;
@@ -255,9 +255,9 @@ namespace tl
             DTK_P();
             p.settings->setT("Cache", p.cache->get());
 
-            p.settings->setT("Export", p.exportOptions->get());
+            p.settings->setT("Export", p.exportSettings->get());
 
-            FileBrowserOptions fileBrowser = p.fileBrowser->get();
+            FileBrowserSettings fileBrowser = p.fileBrowser->get();
             if (auto context = p.context.lock())
             {
                 auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
@@ -298,15 +298,15 @@ namespace tl
 
         void SettingsModel::reset()
         {
-            setCache(CacheOptions());
-            setExport(ExportOptions());
-            setFileBrowser(FileBrowserOptions());
-            setFileSequence(FileSequenceOptions());
-            setMisc(MiscOptions());
-            setPerformance(PerformanceOptions());
-            setStyle(StyleOptions());
-            setTimeline(TimelineOptions());
-            setWindow(WindowOptions());
+            setCache(CacheSettings());
+            setExport(ExportSettings());
+            setFileBrowser(FileBrowserSettings());
+            setFileSequence(FileSequenceSettings());
+            setMisc(MiscSettings());
+            setPerformance(PerformanceSettings());
+            setStyle(StyleSettings());
+            setTimeline(TimelineSettings());
+            setWindow(WindowSettings());
 #if defined(TLRENDER_FFMPEG)
             setFFmpeg(ffmpeg::Options());
 #endif // TLRENDER_FFMPEG
@@ -315,47 +315,47 @@ namespace tl
 #endif // TLRENDER_USD
         }
 
-        const CacheOptions& SettingsModel::getCache() const
+        const CacheSettings& SettingsModel::getCache() const
         {
             return _p->cache->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<CacheOptions> > SettingsModel::observeCache() const
+        std::shared_ptr<dtk::IObservableValue<CacheSettings> > SettingsModel::observeCache() const
         {
             return _p->cache;
         }
 
-        void SettingsModel::setCache(const CacheOptions& value)
+        void SettingsModel::setCache(const CacheSettings& value)
         {
             _p->cache->setIfChanged(value);
         }
 
-        const ExportOptions& SettingsModel::getExport() const
+        const ExportSettings& SettingsModel::getExport() const
         {
-            return _p->exportOptions->get();
+            return _p->exportSettings->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<ExportOptions> > SettingsModel::observeExport() const
+        std::shared_ptr<dtk::IObservableValue<ExportSettings> > SettingsModel::observeExport() const
         {
-            return _p->exportOptions;
+            return _p->exportSettings;
         }
 
-        void SettingsModel::setExport(const ExportOptions& value)
+        void SettingsModel::setExport(const ExportSettings& value)
         {
-            _p->exportOptions->setIfChanged(value);
+            _p->exportSettings->setIfChanged(value);
         }
 
-        const FileBrowserOptions& SettingsModel::getFileBrowser() const
+        const FileBrowserSettings& SettingsModel::getFileBrowser() const
         {
             return _p->fileBrowser->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<FileBrowserOptions> > SettingsModel::observeFileBrowser() const
+        std::shared_ptr<dtk::IObservableValue<FileBrowserSettings> > SettingsModel::observeFileBrowser() const
         {
             return _p->fileBrowser;
         }
 
-        void SettingsModel::setFileBrowser(const FileBrowserOptions& value)
+        void SettingsModel::setFileBrowser(const FileBrowserSettings& value)
         {
             DTK_P();
             if (p.fileBrowser->setIfChanged(value))
@@ -368,92 +368,92 @@ namespace tl
             }
         }
 
-        const FileSequenceOptions& SettingsModel::getFileSequence() const
+        const FileSequenceSettings& SettingsModel::getFileSequence() const
         {
             return _p->fileSequence->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<FileSequenceOptions> > SettingsModel::observeFileSequence() const
+        std::shared_ptr<dtk::IObservableValue<FileSequenceSettings> > SettingsModel::observeFileSequence() const
         {
             return _p->fileSequence;
         }
 
-        void SettingsModel::setFileSequence(const FileSequenceOptions& value)
+        void SettingsModel::setFileSequence(const FileSequenceSettings& value)
         {
             _p->fileSequence->setIfChanged(value);
         }
 
-        const MiscOptions& SettingsModel::getMisc() const
+        const MiscSettings& SettingsModel::getMisc() const
         {
             return _p->misc->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<MiscOptions> > SettingsModel::observeMisc() const
+        std::shared_ptr<dtk::IObservableValue<MiscSettings> > SettingsModel::observeMisc() const
         {
             return _p->misc;
         }
 
-        void SettingsModel::setMisc(const MiscOptions& value)
+        void SettingsModel::setMisc(const MiscSettings& value)
         {
             _p->misc->setIfChanged(value);
         }
 
-        const PerformanceOptions& SettingsModel::getPerformance() const
+        const PerformanceSettings& SettingsModel::getPerformance() const
         {
             return _p->performance->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<PerformanceOptions> > SettingsModel::observePerformance() const
+        std::shared_ptr<dtk::IObservableValue<PerformanceSettings> > SettingsModel::observePerformance() const
         {
             return _p->performance;
         }
 
-        void SettingsModel::setPerformance(const PerformanceOptions& value)
+        void SettingsModel::setPerformance(const PerformanceSettings& value)
         {
             _p->performance->setIfChanged(value);
         }
 
-        const StyleOptions& SettingsModel::getStyle() const
+        const StyleSettings& SettingsModel::getStyle() const
         {
             return _p->style->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<StyleOptions> > SettingsModel::observeStyle() const
+        std::shared_ptr<dtk::IObservableValue<StyleSettings> > SettingsModel::observeStyle() const
         {
             return _p->style;
         }
 
-        void SettingsModel::setStyle(const StyleOptions& value)
+        void SettingsModel::setStyle(const StyleSettings& value)
         {
             _p->style->setIfChanged(value);
         }
 
-        const TimelineOptions& SettingsModel::getTimeline() const
+        const TimelineSettings& SettingsModel::getTimeline() const
         {
             return _p->timeline->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<TimelineOptions> > SettingsModel::observeTimeline() const
+        std::shared_ptr<dtk::IObservableValue<TimelineSettings> > SettingsModel::observeTimeline() const
         {
             return _p->timeline;
         }
 
-        void SettingsModel::setTimeline(const TimelineOptions& value)
+        void SettingsModel::setTimeline(const TimelineSettings& value)
         {
             _p->timeline->setIfChanged(value);
         }
 
-        const WindowOptions& SettingsModel::getWindow() const
+        const WindowSettings& SettingsModel::getWindow() const
         {
             return _p->window->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<WindowOptions> > SettingsModel::observeWindow() const
+        std::shared_ptr<dtk::IObservableValue<WindowSettings> > SettingsModel::observeWindow() const
         {
             return _p->window;
         }
 
-        void SettingsModel::setWindow(const WindowOptions& value)
+        void SettingsModel::setWindow(const WindowSettings& value)
         {
             _p->window->setIfChanged(value);
         }
@@ -492,14 +492,14 @@ namespace tl
         }
 #endif // TLRENDER_USD
 
-        void to_json(nlohmann::json& json, const CacheOptions& value)
+        void to_json(nlohmann::json& json, const CacheSettings& value)
         {
             json["sizeGB"] = value.sizeGB;
             json["readAhead"] = value.readAhead;
             json["readBehind"] = value.readBehind;
         }
 
-        void to_json(nlohmann::json& json, const ExportOptions& value)
+        void to_json(nlohmann::json& json, const ExportSettings& value)
         {
             json["directory"] = value.directory;
             json["renderSize"] = to_string(value.renderSize);
@@ -513,14 +513,14 @@ namespace tl
             json["movieCodec"] = value.movieCodec;
         }
 
-        void to_json(nlohmann::json& json, const FileBrowserOptions& value)
+        void to_json(nlohmann::json& json, const FileBrowserSettings& value)
         {
             json["nativeFileDialog"] = value.nativeFileDialog;
             json["path"] = value.path;
             json["options"] = value.options;
         }
 
-        void to_json(nlohmann::json& json, const FileSequenceOptions& value)
+        void to_json(nlohmann::json& json, const FileSequenceSettings& value)
         {
             json["audio"] = timeline::to_string(value.audio);
             json["audioFileName"] = value.audioFileName;
@@ -529,25 +529,25 @@ namespace tl
             json["io"] = value.io;
         }
 
-        void to_json(nlohmann::json& json, const MiscOptions& value)
+        void to_json(nlohmann::json& json, const MiscSettings& value)
         {
             json["tooltipsEnabled"] = value.tooltipsEnabled;
         }
 
-        void to_json(nlohmann::json& json, const PerformanceOptions& value)
+        void to_json(nlohmann::json& json, const PerformanceSettings& value)
         {
             json["audioBufferFrameCount"] = value.audioBufferFrameCount;
             json["videoRequestCount"] = value.videoRequestCount;
             json["audioRequestCount"] = value.audioRequestCount;
         }
 
-        void to_json(nlohmann::json& json, const StyleOptions& value)
+        void to_json(nlohmann::json& json, const StyleSettings& value)
         {
             json["colorStyle"] = value.colorStyle;
             json["displayScale"] = value.displayScale;
         }
 
-        void to_json(nlohmann::json& json, const TimelineOptions& value)
+        void to_json(nlohmann::json& json, const TimelineSettings& value)
         {
             json["editable"] = value.editable;
             json["frameView"] = value.frameView;
@@ -558,7 +558,7 @@ namespace tl
             json["firstTrack"] = value.firstTrack;
         }
 
-        void to_json(nlohmann::json& json, const WindowOptions& in)
+        void to_json(nlohmann::json& json, const WindowSettings& in)
         {
             json = nlohmann::json
             {
@@ -576,14 +576,14 @@ namespace tl
             };
         }
 
-        void from_json(const nlohmann::json& json, CacheOptions& value)
+        void from_json(const nlohmann::json& json, CacheSettings& value)
         {
             json.at("sizeGB").get_to(value.sizeGB);
             json.at("readAhead").get_to(value.readAhead);
             json.at("readBehind").get_to(value.readBehind);
         }
 
-        void from_json(const nlohmann::json& json, ExportOptions& value)
+        void from_json(const nlohmann::json& json, ExportSettings& value)
         {
             json.at("directory").get_to(value.directory);
             from_string(json.at("renderSize").get<std::string>(), value.renderSize);
@@ -597,14 +597,14 @@ namespace tl
             json.at("movieCodec").get_to(value.movieCodec);
         }
 
-        void from_json(const nlohmann::json& json, FileBrowserOptions& value)
+        void from_json(const nlohmann::json& json, FileBrowserSettings& value)
         {
             json.at("nativeFileDialog").get_to(value.nativeFileDialog);
             json.at("path").get_to(value.path);
             json.at("options").get_to(value.options);
         }
 
-        void from_json(const nlohmann::json& json, FileSequenceOptions& value)
+        void from_json(const nlohmann::json& json, FileSequenceSettings& value)
         {
             timeline::from_string(json.at("audio").get<std::string>(), value.audio);
             json.at("audioFileName").get_to(value.audioFileName);
@@ -613,25 +613,25 @@ namespace tl
             json.at("io").get_to(value.io);
         }
 
-        void from_json(const nlohmann::json& json, MiscOptions& value)
+        void from_json(const nlohmann::json& json, MiscSettings& value)
         {
             json.at("tooltipsEnabled").get_to(value.tooltipsEnabled);
         }
 
-        void from_json(const nlohmann::json& json, PerformanceOptions& value)
+        void from_json(const nlohmann::json& json, PerformanceSettings& value)
         {
             json.at("audioBufferFrameCount").get_to(value.audioBufferFrameCount);
             json.at("videoRequestCount").get_to(value.videoRequestCount);
             json.at("audioRequestCount").get_to(value.audioRequestCount);
         }
 
-        void from_json(const nlohmann::json& json, StyleOptions& value)
+        void from_json(const nlohmann::json& json, StyleSettings& value)
         {
             json.at("colorStyle").get_to(value.colorStyle);
             json.at("displayScale").get_to(value.displayScale);
         }
 
-        void from_json(const nlohmann::json& json, TimelineOptions& value)
+        void from_json(const nlohmann::json& json, TimelineSettings& value)
         {
             json.at("editable").get_to(value.editable);
             json.at("frameView").get_to(value.frameView);
@@ -642,7 +642,7 @@ namespace tl
             json.at("firstTrack").get_to(value.firstTrack);
         }
 
-        void from_json(const nlohmann::json& json, WindowOptions& out)
+        void from_json(const nlohmann::json& json, WindowSettings& out)
         {
             json.at("size").get_to(out.size);
             json.at("fileToolBar").get_to(out.fileToolBar);

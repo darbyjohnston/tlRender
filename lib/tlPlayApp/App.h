@@ -148,7 +148,7 @@ namespace tl
             void _filesUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
             void _activeUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
             void _layersUpdate(const std::vector<int>&);
-            void _cacheUpdate(const CacheOptions&);
+            void _cacheUpdate(const CacheSettings&);
             void _viewUpdate(const dtk::V2I& pos, double zoom, bool frame);
             void _audioUpdate();
 

@@ -34,7 +34,7 @@ namespace tl
             std::shared_ptr<dtk::ComboBox> movieCodecComboBox;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<ExportOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<ExportSettings> > settingsObserver;
         };
 
         void ExportTool::_init(
@@ -73,9 +73,9 @@ namespace tl
             scrollWidget->setWidget(p.layout);
             _setWidget(scrollWidget);
 
-            p.optionsObserver = dtk::ValueObserver<ExportOptions>::create(
+            p.settingsObserver = dtk::ValueObserver<ExportSettings>::create(
                 p.model->observeExport(),
-                [this](const ExportOptions& value)
+                [this](const ExportSettings& value)
                 {
                     _widgetUpdate(value);
                 });
@@ -134,16 +134,16 @@ namespace tl
             return out;
         }
 
-        void ExportTool::_widgetUpdate(const ExportOptions& options)
+        void ExportTool::_widgetUpdate(const ExportSettings& settings)
         {
             DTK_P();
-            p.directoryEdit->setPath(std::filesystem::u8path(options.directory));
-            p.renderSizeComboBox->setCurrentIndex(static_cast<int>(options.renderSize));
-            p.renderWidthEdit->setValue(options.customRenderSize.w);
-            p.renderHeightEdit->setValue(options.customRenderSize.h);
+            p.directoryEdit->setPath(std::filesystem::u8path(settings.directory));
+            p.renderSizeComboBox->setCurrentIndex(static_cast<int>(settings.renderSize));
+            p.renderWidthEdit->setValue(settings.customRenderSize.w);
+            p.renderHeightEdit->setValue(settings.customRenderSize.h);
 
-            p.layout->setRowVisible(p.renderWidthEdit, ExportRenderSize::Custom == options.renderSize);
-            p.layout->setRowVisible(p.renderHeightEdit, ExportRenderSize::Custom == options.renderSize);
+            p.layout->setRowVisible(p.renderWidthEdit, ExportRenderSize::Custom == settings.renderSize);
+            p.layout->setRowVisible(p.renderHeightEdit, ExportRenderSize::Custom == settings.renderSize);
         }
     }
 }
