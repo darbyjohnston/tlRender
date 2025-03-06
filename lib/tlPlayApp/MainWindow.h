@@ -63,6 +63,7 @@ namespace tl
             void _showSpeedPopup();
             void _showAudioPopup();
             void _settingsUpdate(const WindowSettings&);
+            void _settingsUpdate(const TimelineSettings&);
 
             DTK_PRIVATE();
         };

@@ -11,6 +11,8 @@
 #include <dtk/ui/Label.h>
 #include <dtk/ui/ToolButton.h>
 #include <dtk/ui/RowLayout.h>
+#include <dtk/ui/Settings.h>
+#include <dtk/core/Format.h>
 
 namespace tl
 {
@@ -18,7 +20,10 @@ namespace tl
     {
         struct IToolWidget::Private
         {
+            std::shared_ptr<dtk::Settings> settings;
+
             Tool tool;
+            
             std::shared_ptr<dtk::Icon> icon;
             std::shared_ptr<dtk::Label> label;
             std::shared_ptr<dtk::ToolButton> closeButton;
@@ -37,6 +42,9 @@ namespace tl
             DTK_P();
 
             _app = app;
+
+            p.settings = app->getSettings();
+
             p.tool = tool;
 
             p.icon = dtk::Icon::create(context, getIcon(tool));
@@ -90,6 +98,32 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_p->layout->getSizeHint());
+        }
+
+        void IToolWidget::_loadSettings(const std::map<std::string, std::shared_ptr<dtk::Bellows> >& value)
+        {
+            DTK_P();
+            nlohmann::json json;
+            p.settings->get(dtk::Format("{0}/Bellows").arg(getLabel(p.tool)), json);
+            for (auto i = json.begin(); i != json.end(); ++i)
+            {
+                auto j = value.find(i.key());
+                if (j != value.end() && i.value().is_boolean())
+                {
+                    j->second->setOpen(i.value().get<bool>());
+                }
+            }
+        }
+
+        void IToolWidget::_saveSettings(const std::map<std::string, std::shared_ptr<dtk::Bellows> >& value)
+        {
+            DTK_P();
+            nlohmann::json json;
+            for (const auto& i : value)
+            {
+                json[i.first] = i.second->isOpen();
+            }
+            p.settings->set(dtk::Format("{0}/Bellows").arg(getLabel(p.tool)), json);
         }
 
         void IToolWidget::_setWidget(const std::shared_ptr<dtk::IWidget>& value)

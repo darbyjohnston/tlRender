@@ -4,7 +4,7 @@
 
 #include <tlPlayApp/Actions/ToolsActions.h>
 
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/core/Format.h>

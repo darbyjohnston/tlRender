@@ -26,6 +26,7 @@ set(HEADERS_MODELS
     Models/RecentFilesModel.h
     Models/SettingsModel.h
     Models/TimeUnitsModel.h
+    Models/ToolsModel.h
     Models/ViewportModel.h)
 if(TLRENDER_BMD)
     list(APPEND HEADERS_MODELS Models/BMDDevicesModel.h)
@@ -37,18 +38,17 @@ set(HEADERS_TOOLS
     Tools/DevicesTool.h
     Tools/ExportTool.h
     Tools/FilesTool.h
+    Tools/IToolWidget.h
     Tools/InfoTool.h
     Tools/MessagesTool.h
     Tools/SettingsTool.h
     Tools/SystemLogTool.h
+    Tools/ToolsWidget.h
     Tools/ViewTool.h)
 set(HEADERS_PRIVATE_TOOLS
     Tools/ColorControlsPrivate.h
     Tools/FilesToolPrivate.h
-    Tools/IToolWidget.h
     Tools/SettingsToolPrivate.h
-    Tools/Tools.h
-    Tools/ToolsWidget.h
     Tools/ViewToolPrivate.h)
 set(HEADERS_WIDGETS
     Widgets/AudioPopup.h
@@ -104,6 +104,7 @@ set(SOURCE_MODELS
     Models/RecentFilesModel.cpp
     Models/SettingsModel.cpp
     Models/TimeUnitsModel.cpp
+    Models/ToolsModel.cpp
     Models/ViewportModel.cpp)
 if(TLRENDER_BMD)
     list(APPEND SOURCE_MODELS Models/BMDDevicesModel.cpp)
@@ -121,7 +122,6 @@ set(SOURCE_TOOLS
     Tools/MessagesTool.cpp
     Tools/SettingsTool.cpp
     Tools/SystemLogTool.cpp
-    Tools/Tools.cpp
     Tools/ToolsWidget.cpp
     Tools/ViewTool.cpp)
 set(SOURCE_WIDGETS

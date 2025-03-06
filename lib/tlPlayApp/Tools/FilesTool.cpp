@@ -16,6 +16,7 @@
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/Settings.h>
 #include <dtk/ui/ToolButton.h>
 
 namespace tl
@@ -24,6 +25,8 @@ namespace tl
     {
         struct FilesTool::Private
         {
+            std::shared_ptr<dtk::Settings> settings;
+
             std::shared_ptr<dtk::ButtonGroup> aButtonGroup;
             std::shared_ptr<dtk::ButtonGroup> bButtonGroup;
             std::map<std::shared_ptr<FilesModelItem>, std::shared_ptr<FileButton> > aButtons;
@@ -37,6 +40,7 @@ namespace tl
             std::shared_ptr<dtk::Label> wipeLabel;
             std::shared_ptr<dtk::FloatEditSlider> overlaySlider;
             std::shared_ptr<dtk::FormLayout> compareLayout;
+            std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
             std::shared_ptr<dtk::GridLayout> widgetLayout;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
@@ -59,6 +63,8 @@ namespace tl
                 "tl::play_app::FilesTool",
                 parent);
             DTK_P();
+
+            p.settings = app->getSettings();
 
             p.aButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Radio);
             p.bButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Check);
@@ -94,7 +100,6 @@ namespace tl
 
             dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
 
-            auto bellows = dtk::Bellows::create(context, "Compare", layout);
             auto vLayout = dtk::VerticalLayout::create(context);
             vLayout->setMarginRole(dtk::SizeRole::MarginSmall);
             vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
@@ -107,12 +112,15 @@ namespace tl
             p.compareLayout->addRow("Rotation:", p.wipeRotationSlider);
             p.compareLayout->addRow("Amount:", p.overlaySlider);
             p.wipeLabel = dtk::Label::create(context, "Alt+click in the viewport to move wipe", vLayout);
-            bellows->setWidget(vLayout);
+            p.bellows["compare"] = dtk::Bellows::create(context, "Compare", layout);
+            p.bellows["compare"]->setWidget(vLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
             scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
+
+            _loadSettings(p.bellows);
 
             auto appWeak = std::weak_ptr<App>(app);
             p.aButtonGroup->setCheckedCallback(
@@ -246,7 +254,9 @@ namespace tl
         {}
 
         FilesTool::~FilesTool()
-        {}
+        {
+            _saveSettings(_p->bellows);
+        }
 
         std::shared_ptr<FilesTool> FilesTool::create(
             const std::shared_ptr<dtk::Context>& context,

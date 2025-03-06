@@ -24,6 +24,8 @@ namespace tl
     {
         struct BackgroundWidget::Private
         {
+            std::shared_ptr<dtk::Settings> settings;
+
             std::shared_ptr<dtk::ComboBox> typeComboBox;
             std::shared_ptr<dtk::ColorSwatch> solidSwatch;
             std::pair< std::shared_ptr<dtk::ColorSwatch>, std::shared_ptr<dtk::ColorSwatch> > checkersSwatch;
@@ -31,7 +33,7 @@ namespace tl
             std::pair< std::shared_ptr<dtk::ColorSwatch>, std::shared_ptr<dtk::ColorSwatch> > gradientSwatch;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > optionsObservers;
+            std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > backgroundOptionsObserver;
         };
 
         void BackgroundWidget::_init(
@@ -41,6 +43,8 @@ namespace tl
         {
             dtk::IWidget::_init(context, "tl::play_app::BackgroundWidget", parent);
             DTK_P();
+
+            p.settings = app->getSettings();
 
             p.typeComboBox = dtk::ComboBox::create(
                 context,
@@ -74,7 +78,7 @@ namespace tl
             p.layout->addRow("Color 1:", p.gradientSwatch.first);
             p.layout->addRow("Color 2:", p.gradientSwatch.second);
 
-            p.optionsObservers = dtk::ValueObserver<timeline::BackgroundOptions>::create(
+            p.backgroundOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
                 app->getViewportModel()->observeBackgroundOptions(),
                 [this](const timeline::BackgroundOptions& value)
                 {
@@ -459,6 +463,7 @@ namespace tl
             std::shared_ptr<BackgroundWidget> backgroundWidget;
             std::shared_ptr<OutlineWidget> outlineWidget;
             std::shared_ptr<GridWidget> gridWidget;
+            std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
         };
 
         void ViewTool::_init(
@@ -480,16 +485,18 @@ namespace tl
 
             auto layout = dtk::VerticalLayout::create(context);
             layout->setSpacingRole(dtk::SizeRole::None);
-            auto bellows = dtk::Bellows::create(context, "Background", layout);
-            bellows->setWidget(p.backgroundWidget);
-            bellows = dtk::Bellows::create(context, "Outline", layout);
-            bellows->setWidget(p.outlineWidget);
-            bellows = dtk::Bellows::create(context, "Grid", layout);
-            bellows->setWidget(p.gridWidget);
+            p.bellows["background"] = dtk::Bellows::create(context, "Background", layout);
+            p.bellows["background"]->setWidget(p.backgroundWidget);
+            p.bellows["outline"] = dtk::Bellows::create(context, "Outline", layout);
+            p.bellows["outline"]->setWidget(p.outlineWidget);
+            p.bellows["grid"] = dtk::Bellows::create(context, "Grid", layout);
+            p.bellows["grid"]->setWidget(p.gridWidget);
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
+
+            _loadSettings(p.bellows);
         }
 
         ViewTool::ViewTool() :
@@ -497,7 +504,9 @@ namespace tl
         {}
 
         ViewTool::~ViewTool()
-        {}
+        {
+            _saveSettings(_p->bellows);
+        }
 
         std::shared_ptr<ViewTool> ViewTool::create(
             const std::shared_ptr<dtk::Context>& context,

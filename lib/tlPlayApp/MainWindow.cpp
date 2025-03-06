@@ -129,7 +129,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<dtk::ValueObserver<WindowSettings> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<TimelineSettings> > timelineSettingsObserver;
+            std::shared_ptr<dtk::ValueObserver<WindowSettings> > windowSettingsObserver;
         };
 
         void MainWindow::_init(
@@ -153,20 +154,7 @@ namespace tl
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
-            const TimelineSettings timelineSettings = p.settingsModel->getTimeline();
-            p.timelineWidget->setEditable(timelineSettings.editable);
-            p.timelineWidget->setFrameView(timelineSettings.frameView);
             p.timelineWidget->setScrollBarsVisible(false);
-            p.timelineWidget->setScrollToCurrentFrame(timelineSettings.scroll);
-            p.timelineWidget->setStopOnScrub(timelineSettings.stopOnScrub);
-            p.timelineWidget->setItemOptions(timelineSettings.item);
-            timelineui::DisplayOptions timeineDisplayOptions = timelineSettings.display;
-            if (timelineSettings.firstTrack)
-            {
-                timeineDisplayOptions.tracks = { 0 };
-            }
-            timeineDisplayOptions.waveformHeight = timeineDisplayOptions.thumbnailHeight / 2;
-            p.timelineWidget->setDisplayOptions(timeineDisplayOptions);
 
             p.fileActions = FileActions::create(context, app);
             p.compareActions = CompareActions::create(context, app);
@@ -316,7 +304,6 @@ namespace tl
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-            p.toolsWidget->hide();
 
             p.layout = dtk::VerticalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);
@@ -501,9 +488,16 @@ namespace tl
                     _p->muteButton->setChecked(value);
                 });
 
-            p.settingsObserver = dtk::ValueObserver<WindowSettings>::create(
+            p.windowSettingsObserver = dtk::ValueObserver<WindowSettings>::create(
                 p.settingsModel->observeWindow(),
                 [this](const WindowSettings& value)
+                {
+                    _settingsUpdate(value);
+                });
+
+            p.timelineSettingsObserver = dtk::ValueObserver<TimelineSettings>::create(
+                p.settingsModel->observeTimeline(),
+                [this](const TimelineSettings& value)
                 {
                     _settingsUpdate(value);
                 });
@@ -714,6 +708,7 @@ namespace tl
         void MainWindow::_settingsUpdate(const WindowSettings& settings)
         {
             DTK_P();
+
             p.fileToolBar->setVisible(settings.fileToolBar);
             p.dividers["File"]->setVisible(settings.fileToolBar);
 
@@ -738,6 +733,23 @@ namespace tl
 
             p.splitter->setSplit(settings.splitter);
             p.splitter2->setSplit(settings.splitter2);
+        }
+
+        void MainWindow::_settingsUpdate(const TimelineSettings& settings)
+        {
+            DTK_P();
+            p.timelineWidget->setEditable(settings.editable);
+            p.timelineWidget->setFrameView(settings.frameView);
+            p.timelineWidget->setScrollToCurrentFrame(settings.scroll);
+            p.timelineWidget->setStopOnScrub(settings.stopOnScrub);
+            p.timelineWidget->setItemOptions(settings.item);
+            timelineui::DisplayOptions display = settings.display;
+            if (settings.firstTrack)
+            {
+                display.tracks = { 0 };
+            }
+            display.waveformHeight = display.thumbnailHeight / 2;
+            p.timelineWidget->setDisplayOptions(display);
         }
     }
 }

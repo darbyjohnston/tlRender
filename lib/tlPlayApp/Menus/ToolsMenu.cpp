@@ -5,7 +5,7 @@
 #include <tlPlayApp/Menus/ToolsMenu.h>
 
 #include <tlPlayApp/Actions/ToolsActions.h>
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 #include <tlPlayApp/App.h>
 
 namespace tl

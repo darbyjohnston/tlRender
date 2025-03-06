@@ -14,6 +14,7 @@ namespace tl
         struct FilesModel::Private
         {
             std::shared_ptr<dtk::Settings> settings;
+
             std::shared_ptr<dtk::ObservableList<std::shared_ptr<FilesModelItem> > > files;
             std::shared_ptr<dtk::ObservableValue<std::shared_ptr<FilesModelItem> > > a;
             std::shared_ptr<dtk::ObservableValue<int> > aIndex;
@@ -25,9 +26,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<timeline::CompareTime> > compareTime;
         };
 
-        void FilesModel::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<dtk::Settings>& settings)
+        void FilesModel::_init(const std::shared_ptr<dtk::Settings>& settings)
         {
             DTK_P();
 
@@ -41,10 +40,10 @@ namespace tl
             p.active = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
             p.layers = dtk::ObservableList<int>::create();
             timeline::CompareOptions compareOptions;
-            p.settings->getT("Files/CompareOptions", compareOptions);
+            p.settings->getT("Files/compareOptions", compareOptions);
             p.compareOptions = dtk::ObservableValue<timeline::CompareOptions>::create(compareOptions);
             std::string s;
-            p.settings->get("Files/CompareTime", s);
+            p.settings->get("Files/compareTime", s);
             timeline::CompareTime compareTime = timeline::CompareTime::First;
             from_string(s, compareTime);
             p.compareTime = dtk::ObservableValue<timeline::CompareTime>::create(compareTime);
@@ -57,16 +56,14 @@ namespace tl
         FilesModel::~FilesModel()
         {
             DTK_P();
-            p.settings->setT("Files/CompareOptions", p.compareOptions->get());
-            p.settings->set("Files/CompareTime", to_string(p.compareTime->get()));
+            p.settings->setT("Files/compareOptions", p.compareOptions->get());
+            p.settings->set("Files/compareTime", to_string(p.compareTime->get()));
         }
 
-        std::shared_ptr<FilesModel> FilesModel::create(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<dtk::Settings>& settings)
+        std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<dtk::Settings>& settings)
         {
             auto out = std::shared_ptr<FilesModel>(new FilesModel);
-            out->_init(context, settings);
+            out->_init(settings);
             return out;
         }
 

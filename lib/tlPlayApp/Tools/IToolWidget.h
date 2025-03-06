@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 
-#include <dtk/ui/IWidget.h>
+#include <dtk/ui/Bellows.h>
 
 namespace tl
 {
@@ -36,6 +36,9 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         protected:
+            void _loadSettings(const std::map<std::string, std::shared_ptr<dtk::Bellows> >&);
+            void _saveSettings(const std::map<std::string, std::shared_ptr<dtk::Bellows> >&);
+
             void _setWidget(const std::shared_ptr<dtk::IWidget>&);
 
             std::weak_ptr<App> _app;

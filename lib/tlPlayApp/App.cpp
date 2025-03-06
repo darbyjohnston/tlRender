@@ -9,11 +9,11 @@
 #include <tlPlayApp/Models/FilesModel.h>
 #include <tlPlayApp/Models/RecentFilesModel.h>
 #include <tlPlayApp/Models/TimeUnitsModel.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #if defined(TLRENDER_BMD)
 #include <tlPlayApp/Models/BMDDevicesModel.h>
 #endif // TLRENDER_BMD
-#include <tlPlayApp/Tools/Tools.h>
 #include <tlPlayApp/Widgets/SeparateAudioDialog.h>
 #include <tlPlayApp/Widgets/Viewport.h>
 #include <tlPlayApp/MainWindow.h>
@@ -214,6 +214,11 @@ namespace tl
                 p.filesModel->add(item);
                 p.recentFilesModel->addRecent(path.get());
             }
+        }
+
+        const std::shared_ptr<dtk::Settings>& App::getSettings() const
+        {
+            return _p->settings;
         }
 
         const std::shared_ptr<SettingsModel>& App::getSettingsModel() const
@@ -417,7 +422,7 @@ namespace tl
 
             p.timeUnitsModel = TimeUnitsModel::create(_context, p.settings);
             
-            p.filesModel = FilesModel::create(_context, p.settings);
+            p.filesModel = FilesModel::create(p.settings);
 
             p.recentFilesModel = RecentFilesModel::create(_context, p.settings);
 
@@ -429,7 +434,7 @@ namespace tl
 
             p.audioModel = AudioModel::create(_context, p.settings);
 
-            p.toolsModel = ToolsModel::create();
+            p.toolsModel = ToolsModel::create(p.settings);
         }
 
         void App::_devicesInit()

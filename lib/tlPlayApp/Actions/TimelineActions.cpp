@@ -5,7 +5,6 @@
 #include <tlPlayApp/Actions/TimelineActions.h>
 
 #include <tlPlayApp/App.h>
-#include <tlPlayApp/MainWindow.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
 
@@ -25,85 +24,91 @@ namespace tl
         {
             DTK_P();
 
-            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+            auto appWeak = std::weak_ptr<App>(app);
             p.actions["FrameView"] = std::make_shared<dtk::Action>(
                 "Frame Timeline View",
-                [mainWindowWeak](bool value)
+                [appWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        mainWindow->getTimelineWidget()->setFrameView(value);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.frameView = value;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["ScrollToCurrentFrame"] = std::make_shared<dtk::Action>(
                 "Scroll To Current Frame",
-                [mainWindowWeak](bool value)
+                [appWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        mainWindow->getTimelineWidget()->setScrollToCurrentFrame(value);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.scroll = value;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["StopOnScrub"] = std::make_shared<dtk::Action>(
                 "Stop Playback When Scrubbing",
-                [mainWindowWeak](bool value)
+                [appWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        mainWindow->getTimelineWidget()->setStopOnScrub(value);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.stopOnScrub = value;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["Thumbnails"] = std::make_shared<dtk::Action>(
                 "Thumbnails",
-                [mainWindowWeak](bool value)
+                [appWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.thumbnails = value;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.display.thumbnails = value;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["Thumbnails100"] = std::make_shared<dtk::Action>(
                 "Small",
-                [mainWindowWeak]
+                [appWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.thumbnailHeight = 100;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.display.thumbnailHeight = 100;
+                        settings.display.waveformHeight = settings.display.thumbnailHeight / 2;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["Thumbnails200"] = std::make_shared<dtk::Action>(
                 "Medium",
-                [mainWindowWeak]
+                [appWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.thumbnailHeight = 200;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.display.thumbnailHeight = 200;
+                        settings.display.waveformHeight = settings.display.thumbnailHeight / 2;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
 
             p.actions["Thumbnails300"] = std::make_shared<dtk::Action>(
                 "Large",
-                [mainWindowWeak]
+                [appWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
-                        options.thumbnailHeight = 300;
-                        options.waveformHeight = options.thumbnailHeight / 2;
-                        mainWindow->getTimelineWidget()->setDisplayOptions(options);
+                        auto settings = app->getSettingsModel()->getTimeline();
+                        settings.display.thumbnailHeight = 300;
+                        settings.display.waveformHeight = settings.display.thumbnailHeight / 2;
+                        app->getSettingsModel()->setTimeline(settings);
                     }
                 });
         }

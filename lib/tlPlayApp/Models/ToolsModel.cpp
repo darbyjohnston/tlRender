@@ -2,8 +2,9 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 
+#include <dtk/ui/Settings.h>
 #include <dtk/core/Error.h>
 #include <dtk/core/String.h>
 
@@ -152,13 +153,22 @@ namespace tl
 
         struct ToolsModel::Private
         {
+            std::shared_ptr<dtk::Settings> settings;
+
             std::shared_ptr<dtk::ObservableValue<Tool> > activeTool;
         };
 
-        void ToolsModel::_init()
+        void ToolsModel::_init(const std::shared_ptr<dtk::Settings>& settings)
         {
             DTK_P();
-            p.activeTool = dtk::ObservableValue<Tool>::create(Tool::None);
+
+            p.settings = settings;
+
+            std::string s;
+            p.settings->get("Tools/Tool", s);
+            Tool tool = Tool::None;
+            from_string(s, tool);
+            p.activeTool = dtk::ObservableValue<Tool>::create(tool);
         }
 
         ToolsModel::ToolsModel() :
@@ -166,12 +176,15 @@ namespace tl
         {}
 
         ToolsModel::~ToolsModel()
-        {}
+        {
+            DTK_P();
+            p.settings->set("Tools/Tool", to_string(p.activeTool->get()));
+        }
 
-        std::shared_ptr<ToolsModel> ToolsModel::create()
+        std::shared_ptr<ToolsModel> ToolsModel::create(const std::shared_ptr<dtk::Settings>& settings)
         {
             auto out = std::shared_ptr<ToolsModel>(new ToolsModel);
-            out->_init();
+            out->_init(settings);
             return out;
         }
 

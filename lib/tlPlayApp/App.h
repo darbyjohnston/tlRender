@@ -75,6 +75,9 @@ namespace tl
             //! Open a file and separate audio dialog.
             void openSeparateAudioDialog();
 
+            //! Get the settings.
+            const std::shared_ptr<dtk::Settings>& getSettings() const;
+
             //! Get the settings model.
             const std::shared_ptr<SettingsModel>& getSettingsModel() const;
 

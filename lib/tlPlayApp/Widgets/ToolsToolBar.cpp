@@ -4,7 +4,7 @@
 
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/ButtonGroup.h>

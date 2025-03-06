@@ -4,7 +4,7 @@
 
 #include <tlPlayApp/Widgets/StatusBar.h>
 
-#include <tlPlayApp/Tools/Tools.h>
+#include <tlPlayApp/Models/ToolsModel.h>
 #include <tlPlayApp/App.h>
 
 #if defined(TLRENDER_BMD)

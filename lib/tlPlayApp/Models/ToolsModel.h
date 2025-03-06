@@ -7,6 +7,11 @@
 #include <dtk/ui/Event.h>
 #include <dtk/core/ObservableValue.h>
 
+namespace dtk
+{
+    class Settings;
+}
+
 namespace tl
 {
     namespace play
@@ -53,7 +58,7 @@ namespace tl
             DTK_NON_COPYABLE(ToolsModel);
 
         protected:
-            void _init();
+            void _init(const std::shared_ptr<dtk::Settings>&);
 
             ToolsModel();
 
@@ -61,7 +66,8 @@ namespace tl
             ~ToolsModel();
 
             //! Create a new model.
-            static std::shared_ptr<ToolsModel> create();
+            static std::shared_ptr<ToolsModel> create(
+                const std::shared_ptr<dtk::Settings>&);
 
             //! Get the active tool.
             Tool getActiveTool() const;
