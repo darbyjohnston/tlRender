@@ -40,28 +40,28 @@ namespace tl
 
         void to_json(nlohmann::json& json, const Grid& in)
         {
-            json["enabled"] = in.enabled;
-            json["size"] = in.size;
-            json["lineWidth"] = in.lineWidth;
-            json["color"] = in.color;
+            json["Enabled"] = in.enabled;
+            json["Size"] = in.size;
+            json["LineWidth"] = in.lineWidth;
+            json["Color"] = in.color;
         }
 
         void to_json(nlohmann::json& json, const ForegroundOptions& in)
         {
-            json["grid"] = in.grid;
+            json["Grid"] = in.grid;
         }
 
         void from_json(const nlohmann::json& json, Grid& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("size").get_to(out.size);
-            json.at("lineWidth").get_to(out.lineWidth);
-            json.at("color").get_to(out.color);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Size").get_to(out.size);
+            json.at("LineWidth").get_to(out.lineWidth);
+            json.at("Color").get_to(out.color);
         }
 
         void from_json(const nlohmann::json& json, ForegroundOptions& out)
         {
-            json.at("grid").get_to(out.grid);
+            json.at("Grid").get_to(out.grid);
         }
     }
 }

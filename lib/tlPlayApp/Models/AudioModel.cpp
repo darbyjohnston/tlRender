@@ -38,11 +38,11 @@ namespace tl
             p.device = dtk::ObservableValue<audio::DeviceID>::create();
 
             float volume = 1.F;
-            p.settings->get("Audio/Volume", volume);
+            p.settings->get("/Audio/Volume", volume);
             p.volume = dtk::ObservableValue<float>::create(volume);
 
             bool mute = false;
-            p.settings->get("Audio/Mute", mute);
+            p.settings->get("/Audio/Mute", mute);
             p.mute = dtk::ObservableValue<bool>::create(mute);
 
             p.channelMute = dtk::ObservableList<bool>::create();
@@ -70,8 +70,8 @@ namespace tl
         AudioModel::~AudioModel()
         {
             DTK_P();
-            p.settings->set("Audio/Volume", p.volume->get());
-            p.settings->set("Audio/Mute", p.mute->get());
+            p.settings->set("/Audio/Volume", p.volume->get());
+            p.settings->set("/Audio/Mute", p.mute->get());
         }
 
         std::shared_ptr<AudioModel> AudioModel::create(

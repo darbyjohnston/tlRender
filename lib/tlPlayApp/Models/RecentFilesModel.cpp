@@ -26,7 +26,7 @@ namespace tl
 
             std::vector<std::filesystem::path> recent;
             nlohmann::json json;
-            if (p.settings->get("Files/Recent", json))
+            if (p.settings->get("/Files/Recent", json))
             {
                 for (auto i = json.begin(); i != json.end(); ++i)
                 {
@@ -38,7 +38,7 @@ namespace tl
             }
             setRecent(recent);
             size_t max = 10;
-            p.settings->get("Files/RecentMax", max);
+            p.settings->get("/Files/RecentMax", max);
             setRecentMax(max);
         }
 
@@ -54,8 +54,8 @@ namespace tl
             {
                 json.push_back(path.u8string());
             }
-            p.settings->set("Files/Recent", json);
-            p.settings->set("Files/RecentMax", getRecentMax());
+            p.settings->set("/Files/Recent", json);
+            p.settings->set("/Files/RecentMax", getRecentMax());
         }
 
         std::shared_ptr<RecentFilesModel> RecentFilesModel::create(

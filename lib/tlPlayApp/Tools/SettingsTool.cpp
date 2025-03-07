@@ -933,6 +933,7 @@ namespace tl
         {
             std::shared_ptr<dtk::ScrollWidget> scrollWidget;
             std::shared_ptr<dtk::ToolButton> resetButton;
+            std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
             std::shared_ptr<dtk::VerticalLayout> layout;
         };
 
@@ -964,25 +965,25 @@ namespace tl
 
             auto vLayout = dtk::VerticalLayout::create(context);
             vLayout->setSpacingRole(dtk::SizeRole::None);
-            auto bellows = dtk::Bellows::create(context, "Cache", vLayout);
-            bellows->setWidget(cacheWidget);
-            bellows = dtk::Bellows::create(context, "File Browser", vLayout);
-            bellows->setWidget(fileBrowserWidget);
-            bellows = dtk::Bellows::create(context, "File Sequences", vLayout);
-            bellows->setWidget(fileSequenceWidget);
-            bellows = dtk::Bellows::create(context, "Miscellaneous", vLayout);
-            bellows->setWidget(miscWidget);
-            bellows = dtk::Bellows::create(context, "Performance", vLayout);
-            bellows->setWidget(performanceWidget);
-            bellows = dtk::Bellows::create(context, "Style", vLayout);
-            bellows->setWidget(styleWidget);
+            p.bellows["Cache"] = dtk::Bellows::create(context, "Cache", vLayout);
+            p.bellows["Cache"]->setWidget(cacheWidget);
+            p.bellows["FileBrowser"] = dtk::Bellows::create(context, "File Browser", vLayout);
+            p.bellows["FileBrowser"]->setWidget(fileBrowserWidget);
+            p.bellows["FileSequences"] = dtk::Bellows::create(context, "File Sequences", vLayout);
+            p.bellows["FileSequences"]->setWidget(fileSequenceWidget);
+            p.bellows["Misc"] = dtk::Bellows::create(context, "Miscellaneous", vLayout);
+            p.bellows["Misc"]->setWidget(miscWidget);
+            p.bellows["Performance"] = dtk::Bellows::create(context, "Performance", vLayout);
+            p.bellows["Performance"]->setWidget(performanceWidget);
+            p.bellows["Style"] = dtk::Bellows::create(context, "Style", vLayout);
+            p.bellows["Style"]->setWidget(styleWidget);
 #if defined(TLRENDER_FFMPEG)
-            bellows = dtk::Bellows::create(context, "FFmpeg", vLayout);
-            bellows->setWidget(ffmpegWidget);
+            p.bellows["FFmpeg"] = dtk::Bellows::create(context, "FFmpeg", vLayout);
+            p.bellows["FFmpeg"]->setWidget(ffmpegWidget);
 #endif // TLRENDER_USD
 #if defined(TLRENDER_USD)
-            bellows = dtk::Bellows::create(context, "USD", vLayout);
-            bellows->setWidget(usdWidget);
+            p.bellows["USD"] = dtk::Bellows::create(context, "USD", vLayout);
+            p.bellows["USD"]->setWidget(usdWidget);
 #endif // TLRENDER_USD
 
             p.scrollWidget = dtk::ScrollWidget::create(context);
@@ -1001,6 +1002,8 @@ namespace tl
             hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.resetButton->setParent(hLayout);
             _setWidget(p.layout);
+
+            _loadSettings(p.bellows);
 
             std::weak_ptr<App> appWeak(app);
             p.resetButton->setClickedCallback(
@@ -1034,7 +1037,9 @@ namespace tl
         {}
 
         SettingsTool::~SettingsTool()
-        {}
+        {
+            _saveSettings(_p->bellows);
+        }
 
         std::shared_ptr<SettingsTool> SettingsTool::create(
             const std::shared_ptr<dtk::Context>& context,

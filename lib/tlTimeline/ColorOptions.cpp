@@ -88,34 +88,34 @@ namespace tl
 
         void to_json(nlohmann::json& json, const OCIOOptions& value)
         {
-            json["enabled"] = value.enabled;
-            json["input"] = value.input;
-            json["display"] = value.display;
-            json["view"] = value.view;
-            json["look"] = value.look;
+            json["Enabled"] = value.enabled;
+            json["Input"] = value.input;
+            json["Display"] = value.display;
+            json["View"] = value.view;
+            json["Look"] = value.look;
         }
 
         void to_json(nlohmann::json& json, const LUTOptions& value)
         {
-            json["enabled"] = value.enabled;
-            json["fileName"] = value.fileName;
-            json["order"] = to_string(value.order);
+            json["Enabled"] = value.enabled;
+            json["FileName"] = value.fileName;
+            json["Order"] = to_string(value.order);
         }
 
         void from_json(const nlohmann::json& json, OCIOOptions& value)
         {
-            json.at("enabled").get_to(value.enabled);
-            json.at("input").get_to(value.input);
-            json.at("display").get_to(value.display);
-            json.at("view").get_to(value.view);
-            json.at("look").get_to(value.look);
+            json.at("Enabled").get_to(value.enabled);
+            json.at("Input").get_to(value.input);
+            json.at("Display").get_to(value.display);
+            json.at("View").get_to(value.view);
+            json.at("Look").get_to(value.look);
         }
 
         void from_json(const nlohmann::json& json, LUTOptions& value)
         {
-            json.at("enabled").get_to(value.enabled);
-            json.at("fileName").get_to(value.fileName);
-            from_string(json.at("order").get<std::string>(), value.order);
+            json.at("Enabled").get_to(value.enabled);
+            json.at("FileName").get_to(value.fileName);
+            from_string(json.at("Order").get<std::string>(), value.order);
         }
     }
 }

@@ -139,24 +139,24 @@ namespace tl
 
         void to_json(nlohmann::json& json, const Options& value)
         {
-            json["renderWidth"] = value.renderWidth;
-            json["complexity"] = value.complexity;
-            json["drawMode"] = to_string(value.drawMode);
-            json["enableLighting"] = value.enableLighting;
+            json["RenderWidth"] = value.renderWidth;
+            json["Complexity"] = value.complexity;
+            json["DrawMode"] = to_string(value.drawMode);
+            json["EnableLighting"] = value.enableLighting;
             json["sRGB"] = value.sRGB;
-            json["stageCache"] = value.stageCache;
-            json["diskCache"] = value.diskCache;
+            json["StageCache"] = value.stageCache;
+            json["DiskCache"] = value.diskCache;
         }
 
         void from_json(const nlohmann::json& json, Options& value)
         {
-            json.at("renderWidth").get_to(value.renderWidth);
-            json.at("complexity").get_to(value.complexity);
-            from_string(json.at("drawMode").get<std::string>(), value.drawMode);
-            json.at("enableLighting").get_to(value.enableLighting);
+            json.at("RenderWidth").get_to(value.renderWidth);
+            json.at("Complexity").get_to(value.complexity);
+            from_string(json.at("DrawMode").get<std::string>(), value.drawMode);
+            json.at("EnableLighting").get_to(value.enableLighting);
             json.at("sRGB").get_to(value.sRGB);
-            json.at("stageCache").get_to(value.stageCache);
-            json.at("diskCache").get_to(value.diskCache);
+            json.at("StageCache").get_to(value.stageCache);
+            json.at("DiskCache").get_to(value.diskCache);
         }
     }
 }

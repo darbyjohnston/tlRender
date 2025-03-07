@@ -194,15 +194,15 @@ namespace tl
             p.settings = settings;
 
             CacheSettings cache;
-            settings->getT("Cache", cache);
+            settings->getT("/Cache", cache);
             p.cache = dtk::ObservableValue<CacheSettings>::create(cache);
 
             ExportSettings exportSettings;
-            settings->getT("Export", exportSettings);
+            settings->getT("/Export", exportSettings);
             p.exportSettings = dtk::ObservableValue<ExportSettings>::create(exportSettings);
 
             FileBrowserSettings fileBrowser;
-            settings->getT("FileBrowser", fileBrowser);
+            settings->getT("/FileBrowser", fileBrowser);
             p.fileBrowser = dtk::ObservableValue<FileBrowserSettings>::create(fileBrowser);
             auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
             fileBrowserSystem->setPath(fileBrowser.path);
@@ -210,38 +210,38 @@ namespace tl
             fileBrowserSystem->setNativeFileDialog(fileBrowser.nativeFileDialog);
 
             FileSequenceSettings fileSequence;
-            settings->getT("FileSequence", fileSequence);
+            settings->getT("/FileSequence", fileSequence);
             p.fileSequence = dtk::ObservableValue<FileSequenceSettings>::create(fileSequence);
 
             MiscSettings misc;
-            settings->getT("Misc", misc);
+            settings->getT("/Misc", misc);
             p.misc = dtk::ObservableValue<MiscSettings>::create(misc);
 
             PerformanceSettings performance;
-            settings->getT("Performance", performance);
+            settings->getT("/Performance", performance);
             p.performance = dtk::ObservableValue<PerformanceSettings>::create(performance);
 
             StyleSettings style;
-            settings->getT("Style", style);
+            settings->getT("/Style", style);
             p.style = dtk::ObservableValue<StyleSettings>::create(style);
 
             TimelineSettings timeline;
-            settings->getT("Timeline", timeline);
+            settings->getT("/Timeline", timeline);
             p.timeline = dtk::ObservableValue<TimelineSettings>::create(timeline);
 
             WindowSettings window;
-            settings->getT("Window", window);
+            settings->getT("/Window", window);
             p.window = dtk::ObservableValue<WindowSettings>::create(window);
 
 #if defined(TLRENDER_FFMPEG)
             ffmpeg::Options ffmpeg;
-            settings->getT("FFmpeg", ffmpeg);
+            settings->getT("/FFmpeg", ffmpeg);
             p.ffmpeg = dtk::ObservableValue<ffmpeg::Options>::create(ffmpeg);
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
             usd::Options usd;
-            settings->getT("USD", usd);
+            settings->getT("/USD", usd);
             p.usd = dtk::ObservableValue<usd::Options>::create(usd);
 #endif // TLRENDER_USD
         }
@@ -253,9 +253,9 @@ namespace tl
         SettingsModel::~SettingsModel()
         {
             DTK_P();
-            p.settings->setT("Cache", p.cache->get());
+            p.settings->setT("/Cache", p.cache->get());
 
-            p.settings->setT("Export", p.exportSettings->get());
+            p.settings->setT("/Export", p.exportSettings->get());
 
             FileBrowserSettings fileBrowser = p.fileBrowser->get();
             if (auto context = p.context.lock())
@@ -264,26 +264,26 @@ namespace tl
                 fileBrowser.path = fileBrowserSystem->getPath().u8string();
                 fileBrowser.options = fileBrowserSystem->getOptions();
             }
-            p.settings->setT("FileBrowser", fileBrowser);
+            p.settings->setT("/FileBrowser", fileBrowser);
 
-            p.settings->setT("FileSequence", p.fileSequence->get());
+            p.settings->setT("/FileSequence", p.fileSequence->get());
 
-            p.settings->setT("Misc", p.misc->get());
+            p.settings->setT("/Misc", p.misc->get());
 
-            p.settings->setT("Performance", p.performance->get());
+            p.settings->setT("/Performance", p.performance->get());
 
-            p.settings->setT("Style", p.style->get());
+            p.settings->setT("/Style", p.style->get());
 
-            p.settings->setT("Timeline", p.timeline->get());
+            p.settings->setT("/Timeline", p.timeline->get());
 
-            p.settings->setT("Window", p.window->get());
+            p.settings->setT("/Window", p.window->get());
 
 #if defined(TLRENDER_FFMPEG)
-            p.settings->setT("FFmpeg", p.ffmpeg->get());
+            p.settings->setT("/FFmpeg", p.ffmpeg->get());
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
-            p.settings->setT("USD", p.usd->get());
+            p.settings->setT("/USD", p.usd->get());
 #endif // TLRENDER_USD
         }
 
@@ -494,167 +494,167 @@ namespace tl
 
         void to_json(nlohmann::json& json, const CacheSettings& value)
         {
-            json["sizeGB"] = value.sizeGB;
-            json["readAhead"] = value.readAhead;
-            json["readBehind"] = value.readBehind;
+            json["SizeGB"] = value.sizeGB;
+            json["ReadAhead"] = value.readAhead;
+            json["ReadBehind"] = value.readBehind;
         }
 
         void to_json(nlohmann::json& json, const ExportSettings& value)
         {
-            json["directory"] = value.directory;
-            json["renderSize"] = to_string(value.renderSize);
-            json["customRenderSize"] = value.customRenderSize;
-            json["fileType"] = to_string(value.fileType);
-            json["imageBaseName"] = value.imageBaseName;
-            json["imagePad"] = value.imagePad;
-            json["imageExtension"] = value.imageExtension;
-            json["movieBaseName"] = value.movieBaseName;
-            json["movieExtension"] = value.movieExtension;
-            json["movieCodec"] = value.movieCodec;
+            json["Directory"] = value.directory;
+            json["RenderSize"] = to_string(value.renderSize);
+            json["CustomRenderSize"] = value.customRenderSize;
+            json["FileType"] = to_string(value.fileType);
+            json["ImageBaseName"] = value.imageBaseName;
+            json["ImagePad"] = value.imagePad;
+            json["ImageExtension"] = value.imageExtension;
+            json["MovieBaseName"] = value.movieBaseName;
+            json["MovieExtension"] = value.movieExtension;
+            json["MovieCodec"] = value.movieCodec;
         }
 
         void to_json(nlohmann::json& json, const FileBrowserSettings& value)
         {
-            json["nativeFileDialog"] = value.nativeFileDialog;
-            json["path"] = value.path;
-            json["options"] = value.options;
+            json["NativeFileDialog"] = value.nativeFileDialog;
+            json["Path"] = value.path;
+            json["Options"] = value.options;
         }
 
         void to_json(nlohmann::json& json, const FileSequenceSettings& value)
         {
-            json["audio"] = timeline::to_string(value.audio);
-            json["audioFileName"] = value.audioFileName;
-            json["audioDirectory"] = value.audioDirectory;
-            json["maxDigits"] = value.maxDigits;
-            json["io"] = value.io;
+            json["Audio"] = timeline::to_string(value.audio);
+            json["AudioFileName"] = value.audioFileName;
+            json["AudioDirectory"] = value.audioDirectory;
+            json["MaxDigits"] = value.maxDigits;
+            json["IO"] = value.io;
         }
 
         void to_json(nlohmann::json& json, const MiscSettings& value)
         {
-            json["tooltipsEnabled"] = value.tooltipsEnabled;
+            json["TooltipsEnabled"] = value.tooltipsEnabled;
         }
 
         void to_json(nlohmann::json& json, const PerformanceSettings& value)
         {
-            json["audioBufferFrameCount"] = value.audioBufferFrameCount;
-            json["videoRequestCount"] = value.videoRequestCount;
-            json["audioRequestCount"] = value.audioRequestCount;
+            json["AudioBufferFrameCount"] = value.audioBufferFrameCount;
+            json["VideoRequestCount"] = value.videoRequestCount;
+            json["AudioRequestCount"] = value.audioRequestCount;
         }
 
         void to_json(nlohmann::json& json, const StyleSettings& value)
         {
-            json["colorStyle"] = value.colorStyle;
-            json["displayScale"] = value.displayScale;
+            json["ColorStyle"] = value.colorStyle;
+            json["DisplayScale"] = value.displayScale;
         }
 
         void to_json(nlohmann::json& json, const TimelineSettings& value)
         {
-            json["editable"] = value.editable;
-            json["frameView"] = value.frameView;
-            json["scroll"] = value.scroll;
-            json["stopOnScrub"] = value.stopOnScrub;
-            json["item"] = value.item;
-            json["display"] = value.display;
-            json["firstTrack"] = value.firstTrack;
+            json["Editable"] = value.editable;
+            json["FrameView"] = value.frameView;
+            json["Scroll"] = value.scroll;
+            json["StopOnScrub"] = value.stopOnScrub;
+            json["Item"] = value.item;
+            json["Display"] = value.display;
+            json["FirstTrack"] = value.firstTrack;
         }
 
         void to_json(nlohmann::json& json, const WindowSettings& in)
         {
             json = nlohmann::json
             {
-                { "size", in.size },
-                { "fileToolBar", in.fileToolBar },
-                { "compareToolBar", in.compareToolBar },
-                { "windowToolBar", in.windowToolBar },
-                { "viewToolBar", in.viewToolBar },
-                { "toolsToolBar", in.toolsToolBar },
-                { "timeline", in.timeline },
-                { "bottomToolBar", in.bottomToolBar },
-                { "statusToolBar", in.statusToolBar },
-                { "splitter", in.splitter },
-                { "splitter2", in.splitter2 }
+                { "Size", in.size },
+                { "FileToolBar", in.fileToolBar },
+                { "CompareToolBar", in.compareToolBar },
+                { "WindowToolBar", in.windowToolBar },
+                { "ViewToolBar", in.viewToolBar },
+                { "ToolsToolBar", in.toolsToolBar },
+                { "Timeline", in.timeline },
+                { "BottomToolBar", in.bottomToolBar },
+                { "StatusToolBar", in.statusToolBar },
+                { "Splitter", in.splitter },
+                { "Splitter2", in.splitter2 }
             };
         }
 
         void from_json(const nlohmann::json& json, CacheSettings& value)
         {
-            json.at("sizeGB").get_to(value.sizeGB);
-            json.at("readAhead").get_to(value.readAhead);
-            json.at("readBehind").get_to(value.readBehind);
+            json.at("SizeGB").get_to(value.sizeGB);
+            json.at("ReadAhead").get_to(value.readAhead);
+            json.at("ReadBehind").get_to(value.readBehind);
         }
 
         void from_json(const nlohmann::json& json, ExportSettings& value)
         {
-            json.at("directory").get_to(value.directory);
-            from_string(json.at("renderSize").get<std::string>(), value.renderSize);
-            json.at("customRenderSize").get_to(value.customRenderSize);
-            from_string(json.at("fileType").get<std::string>(), value.fileType);
-            json.at("imageBaseName").get_to(value.imageBaseName);
-            json.at("imagePad").get_to(value.imagePad);
-            json.at("imageExtension").get_to(value.imageExtension);
-            json.at("movieBaseName").get_to(value.movieBaseName);
-            json.at("movieExtension").get_to(value.movieExtension);
-            json.at("movieCodec").get_to(value.movieCodec);
+            json.at("Directory").get_to(value.directory);
+            from_string(json.at("RenderSize").get<std::string>(), value.renderSize);
+            json.at("CustomRenderSize").get_to(value.customRenderSize);
+            from_string(json.at("FileType").get<std::string>(), value.fileType);
+            json.at("ImageBaseName").get_to(value.imageBaseName);
+            json.at("ImagePad").get_to(value.imagePad);
+            json.at("ImageExtension").get_to(value.imageExtension);
+            json.at("MovieBaseName").get_to(value.movieBaseName);
+            json.at("MovieExtension").get_to(value.movieExtension);
+            json.at("MovieCodec").get_to(value.movieCodec);
         }
 
         void from_json(const nlohmann::json& json, FileBrowserSettings& value)
         {
-            json.at("nativeFileDialog").get_to(value.nativeFileDialog);
-            json.at("path").get_to(value.path);
-            json.at("options").get_to(value.options);
+            json.at("NativeFileDialog").get_to(value.nativeFileDialog);
+            json.at("Path").get_to(value.path);
+            json.at("Options").get_to(value.options);
         }
 
         void from_json(const nlohmann::json& json, FileSequenceSettings& value)
         {
-            timeline::from_string(json.at("audio").get<std::string>(), value.audio);
-            json.at("audioFileName").get_to(value.audioFileName);
-            json.at("audioDirectory").get_to(value.audioDirectory);
-            json.at("maxDigits").get_to(value.maxDigits);
-            json.at("io").get_to(value.io);
+            timeline::from_string(json.at("Audio").get<std::string>(), value.audio);
+            json.at("AudioFileName").get_to(value.audioFileName);
+            json.at("AudioDirectory").get_to(value.audioDirectory);
+            json.at("MaxDigits").get_to(value.maxDigits);
+            json.at("IO").get_to(value.io);
         }
 
         void from_json(const nlohmann::json& json, MiscSettings& value)
         {
-            json.at("tooltipsEnabled").get_to(value.tooltipsEnabled);
+            json.at("TooltipsEnabled").get_to(value.tooltipsEnabled);
         }
 
         void from_json(const nlohmann::json& json, PerformanceSettings& value)
         {
-            json.at("audioBufferFrameCount").get_to(value.audioBufferFrameCount);
-            json.at("videoRequestCount").get_to(value.videoRequestCount);
-            json.at("audioRequestCount").get_to(value.audioRequestCount);
+            json.at("AudioBufferFrameCount").get_to(value.audioBufferFrameCount);
+            json.at("VideoRequestCount").get_to(value.videoRequestCount);
+            json.at("AudioRequestCount").get_to(value.audioRequestCount);
         }
 
         void from_json(const nlohmann::json& json, StyleSettings& value)
         {
-            json.at("colorStyle").get_to(value.colorStyle);
-            json.at("displayScale").get_to(value.displayScale);
+            json.at("ColorStyle").get_to(value.colorStyle);
+            json.at("DisplayScale").get_to(value.displayScale);
         }
 
         void from_json(const nlohmann::json& json, TimelineSettings& value)
         {
-            json.at("editable").get_to(value.editable);
-            json.at("frameView").get_to(value.frameView);
-            json.at("scroll").get_to(value.scroll);
-            json.at("stopOnScrub").get_to(value.stopOnScrub);
-            json.at("item").get_to(value.item);
-            json.at("display").get_to(value.display);
-            json.at("firstTrack").get_to(value.firstTrack);
+            json.at("Editable").get_to(value.editable);
+            json.at("FrameView").get_to(value.frameView);
+            json.at("Scroll").get_to(value.scroll);
+            json.at("StopOnScrub").get_to(value.stopOnScrub);
+            json.at("Item").get_to(value.item);
+            json.at("Display").get_to(value.display);
+            json.at("FirstTrack").get_to(value.firstTrack);
         }
 
         void from_json(const nlohmann::json& json, WindowSettings& out)
         {
-            json.at("size").get_to(out.size);
-            json.at("fileToolBar").get_to(out.fileToolBar);
-            json.at("compareToolBar").get_to(out.compareToolBar);
-            json.at("windowToolBar").get_to(out.windowToolBar);
-            json.at("viewToolBar").get_to(out.viewToolBar);
-            json.at("toolsToolBar").get_to(out.toolsToolBar);
-            json.at("timeline").get_to(out.timeline);
-            json.at("bottomToolBar").get_to(out.bottomToolBar);
-            json.at("statusToolBar").get_to(out.statusToolBar);
-            json.at("splitter").get_to(out.splitter);
-            json.at("splitter2").get_to(out.splitter2);
+            json.at("Size").get_to(out.size);
+            json.at("FileToolBar").get_to(out.fileToolBar);
+            json.at("CompareToolBar").get_to(out.compareToolBar);
+            json.at("WindowToolBar").get_to(out.windowToolBar);
+            json.at("ViewToolBar").get_to(out.viewToolBar);
+            json.at("ToolsToolBar").get_to(out.toolsToolBar);
+            json.at("Timeline").get_to(out.timeline);
+            json.at("BottomToolBar").get_to(out.bottomToolBar);
+            json.at("StatusToolBar").get_to(out.statusToolBar);
+            json.at("Splitter").get_to(out.splitter);
+            json.at("Splitter2").get_to(out.splitter2);
         }
     }
 }

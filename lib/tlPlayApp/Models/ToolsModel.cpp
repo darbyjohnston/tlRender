@@ -165,7 +165,7 @@ namespace tl
             p.settings = settings;
 
             std::string s;
-            p.settings->get("Tools/Tool", s);
+            p.settings->get("/Tools/Tool", s);
             Tool tool = Tool::None;
             from_string(s, tool);
             p.activeTool = dtk::ObservableValue<Tool>::create(tool);
@@ -178,7 +178,7 @@ namespace tl
         ToolsModel::~ToolsModel()
         {
             DTK_P();
-            p.settings->set("Tools/Tool", to_string(p.activeTool->get()));
+            p.settings->set("/Tools/Tool", to_string(p.activeTool->get()));
         }
 
         std::shared_ptr<ToolsModel> ToolsModel::create(const std::shared_ptr<dtk::Settings>& settings)

@@ -111,9 +111,9 @@ namespace tl
             p.compareLayout->addRow("Y:", p.wipeYSlider);
             p.compareLayout->addRow("Rotation:", p.wipeRotationSlider);
             p.compareLayout->addRow("Amount:", p.overlaySlider);
-            p.wipeLabel = dtk::Label::create(context, "Alt+click in the viewport to move wipe", vLayout);
-            p.bellows["compare"] = dtk::Bellows::create(context, "Compare", layout);
-            p.bellows["compare"]->setWidget(vLayout);
+            p.wipeLabel = dtk::Label::create(context, "Alt+click to move the wipe position", vLayout);
+            p.bellows["Compare"] = dtk::Bellows::create(context, "Compare", layout);
+            p.bellows["Compare"]->setWidget(vLayout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context, dtk::ScrollType::Both);
             scrollWidget->setBorder(false);

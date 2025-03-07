@@ -205,10 +205,10 @@ namespace tl
 
         void to_json(nlohmann::json& json, const DevicesModelData& value)
         {
-            json["deviceIndex"] = value.deviceIndex;
-            json["displayModeIndex"] = value.displayModeIndex;
-            json["pixelTypeIndex"] = value.pixelTypeIndex;
-            json["deviceEnabled"] = value.deviceEnabled;
+            json["DeviceIndex"] = value.deviceIndex;
+            json["DisplayModeIndex"] = value.displayModeIndex;
+            json["PixelTypeIndex"] = value.pixelTypeIndex;
+            json["DeviceEnabled"] = value.deviceEnabled;
             nlohmann::json json2;
             for (const auto& i : value.boolOptions)
             {
@@ -216,25 +216,25 @@ namespace tl
                 ss << i.first;
                 json2[ss.str()] = i.second;
             }
-            json["boolOptions"] = json2;
-            json["hdrMode"] = to_string(value.hdrMode);
-            json["hdrData"] = value.hdrData;
+            json["BoolOptions"] = json2;
+            json["HDRMode"] = to_string(value.hdrMode);
+            json["HDRData"] = value.hdrData;
         }
 
         void from_json(const nlohmann::json& json, DevicesModelData& value)
         {
-            json.at("deviceIndex").get_to(value.deviceIndex);
-            json.at("displayModeIndex").get_to(value.displayModeIndex);
-            json.at("pixelTypeIndex").get_to(value.pixelTypeIndex);
-            json.at("deviceEnabled").get_to(value.deviceEnabled);
+            json.at("DeviceIndex").get_to(value.deviceIndex);
+            json.at("DisplayModeIndex").get_to(value.displayModeIndex);
+            json.at("PixelTypeIndex").get_to(value.pixelTypeIndex);
+            json.at("DeviceEnabled").get_to(value.deviceEnabled);
             for (const auto& i : getOptionEnums())
             {
                 std::stringstream ss;
                 ss << i;
-                value.boolOptions[i] = json.at("boolOptions").find(ss.str())->get<bool>();
+                value.boolOptions[i] = json.at("BoolOptions").find(ss.str())->get<bool>();
             }
-            from_string(json.at("hdrMode").get<std::string>(), value.hdrMode);
-            json.at("hdrData").get_to(value.hdrData);
+            from_string(json.at("HDRMode").get<std::string>(), value.hdrMode);
+            json.at("HDRData").get_to(value.hdrData);
         }
     }
 }

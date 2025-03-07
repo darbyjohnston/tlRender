@@ -159,96 +159,96 @@ namespace tl
 
         void to_json(nlohmann::json& json, const Color& in)
         {
-            json["enabled"] = in.enabled;
-            json["add"] = in.add;
-            json["brightness"] = in.brightness;
-            json["contrast"] = in.contrast;
-            json["saturation"] = in.saturation;
-            json["tint"] = in.tint;
-            json["invert"] = in.invert;
+            json["Enabled"] = in.enabled;
+            json["Add"] = in.add;
+            json["Brightness"] = in.brightness;
+            json["Contrast"] = in.contrast;
+            json["Saturation"] = in.saturation;
+            json["Tint"] = in.tint;
+            json["Invert"] = in.invert;
         }
 
         void to_json(nlohmann::json& json, const Levels& in)
         {
-            json["enabled"] = in.enabled;
-            json["inLow"] = in.inLow;
-            json["inHigh"] = in.inHigh;
-            json["gamma"] = in.gamma;
-            json["outLow"] = in.outLow;
-            json["outHigh"] = in.outHigh;
+            json["Enabled"] = in.enabled;
+            json["InLow"] = in.inLow;
+            json["InHigh"] = in.inHigh;
+            json["Gamma"] = in.gamma;
+            json["OutLow"] = in.outLow;
+            json["OutHigh"] = in.outHigh;
         }
 
         void to_json(nlohmann::json& json, const EXRDisplay& in)
         {
-            json["enabled"] = in.enabled;
-            json["exposure"] = in.exposure;
-            json["defog"] = in.defog;
-            json["kneeLow"] = in.kneeLow;
-            json["kneeHigh"] = in.kneeHigh;
+            json["Enabled"] = in.enabled;
+            json["Exposure"] = in.exposure;
+            json["Defog"] = in.defog;
+            json["KneeLow"] = in.kneeLow;
+            json["KneeHigh"] = in.kneeHigh;
         }
 
         void to_json(nlohmann::json& json, const SoftClip& in)
         {
-            json["enabled"] = in.enabled;
-            json["value"] = in.value;
+            json["Enabled"] = in.enabled;
+            json["Value"] = in.value;
         }
 
         void to_json(nlohmann::json& json, const DisplayOptions& in)
         {
-            json["channels"] = to_string(in.channels);
-            json["color"] = in.color;
-            json["levels"] = in.levels;
-            json["exrDisplay"] = in.exrDisplay;
-            json["softClip"] = in.softClip;
-            json["imageFilters"] = in.imageFilters;
-            json["videoLevels"] = to_string(in.videoLevels);
+            json["Channels"] = to_string(in.channels);
+            json["Color"] = in.color;
+            json["Levels"] = in.levels;
+            json["EXRDisplay"] = in.exrDisplay;
+            json["SoftClip"] = in.softClip;
+            json["ImageFilters"] = in.imageFilters;
+            json["VideoLevels"] = to_string(in.videoLevels);
         }
 
         void from_json(const nlohmann::json& json, Color& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("add").get_to(out.add);
-            json.at("brightness").get_to(out.brightness);
-            json.at("contrast").get_to(out.contrast);
-            json.at("saturation").get_to(out.saturation);
-            json.at("tint").get_to(out.tint);
-            json.at("invert").get_to(out.invert);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Add").get_to(out.add);
+            json.at("Brightness").get_to(out.brightness);
+            json.at("Contrast").get_to(out.contrast);
+            json.at("Saturation").get_to(out.saturation);
+            json.at("Tint").get_to(out.tint);
+            json.at("Invert").get_to(out.invert);
         }
 
         void from_json(const nlohmann::json& json, Levels& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("inLow").get_to(out.inLow);
-            json.at("inHigh").get_to(out.inHigh);
-            json.at("gamma").get_to(out.gamma);
-            json.at("outLow").get_to(out.outLow);
-            json.at("outHigh").get_to(out.outHigh);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("InLow").get_to(out.inLow);
+            json.at("InHigh").get_to(out.inHigh);
+            json.at("Gamma").get_to(out.gamma);
+            json.at("OutLow").get_to(out.outLow);
+            json.at("OutHigh").get_to(out.outHigh);
         }
 
         void from_json(const nlohmann::json& json, EXRDisplay& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("exposure").get_to(out.exposure);
-            json.at("defog").get_to(out.defog);
-            json.at("kneeLow").get_to(out.kneeLow);
-            json.at("kneeHigh").get_to(out.kneeHigh);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Exposure").get_to(out.exposure);
+            json.at("Defog").get_to(out.defog);
+            json.at("KneeLow").get_to(out.kneeLow);
+            json.at("KneeHigh").get_to(out.kneeHigh);
         }
 
         void from_json(const nlohmann::json& json, SoftClip& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("value").get_to(out.value);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Value").get_to(out.value);
         }
 
         void from_json(const nlohmann::json& json, DisplayOptions& out)
         {
-            from_string(json.at("channels").get<std::string>(), out.channels);
-            json.at("color").get_to(out.color);
-            json.at("levels").get_to(out.levels);
-            json.at("exrDisplay").get_to(out.exrDisplay);
-            json.at("softClip").get_to(out.softClip);
-            json.at("imageFilters").get_to(out.imageFilters);
-            from_string(json.at("videoLevels").get<std::string>(), out.videoLevels);
+            from_string(json.at("Channels").get<std::string>(), out.channels);
+            json.at("Color").get_to(out.color);
+            json.at("Levels").get_to(out.levels);
+            json.at("EXRDisplay").get_to(out.exrDisplay);
+            json.at("SoftClip").get_to(out.softClip);
+            json.at("ImageFilters").get_to(out.imageFilters);
+            from_string(json.at("VideoLevels").get<std::string>(), out.videoLevels);
         }
     }
 }

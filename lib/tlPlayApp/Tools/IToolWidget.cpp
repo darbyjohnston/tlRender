@@ -104,7 +104,7 @@ namespace tl
         {
             DTK_P();
             nlohmann::json json;
-            p.settings->get(dtk::Format("{0}/Bellows").arg(getLabel(p.tool)), json);
+            p.settings->get(dtk::Format("/{0}/Bellows").arg(getLabel(p.tool)), json);
             for (auto i = json.begin(); i != json.end(); ++i)
             {
                 auto j = value.find(i.key());
@@ -123,7 +123,7 @@ namespace tl
             {
                 json[i.first] = i.second->isOpen();
             }
-            p.settings->set(dtk::Format("{0}/Bellows").arg(getLabel(p.tool)), json);
+            p.settings->set(dtk::Format("/{0}/Bellows").arg(getLabel(p.tool)), json);
         }
 
         void IToolWidget::_setWidget(const std::shared_ptr<dtk::IWidget>& value)

@@ -26,7 +26,7 @@ namespace tl
 
             timeline::TimeUnits units = timeline::TimeUnits::Timecode;
             std::string s = timeline::to_string(units);
-            p.settings->get("TimeUnits", s);
+            p.settings->get("/TimeUnits", s);
             timeline::from_string(s, units);
             setTimeUnits(units);
         }
@@ -38,7 +38,7 @@ namespace tl
         TimeUnitsModel::~TimeUnitsModel()
         {
             DTK_P();
-            p.settings->set("TimeUnits", timeline::to_string(getTimeUnits()));
+            p.settings->set("/TimeUnits", timeline::to_string(getTimeUnits()));
         }
 
         std::shared_ptr<TimeUnitsModel> TimeUnitsModel::create(

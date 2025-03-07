@@ -911,6 +911,8 @@ namespace tl
             scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);
             _setWidget(scrollWidget);
+
+            _loadSettings(p.bellows);
         }
 
         ColorControlsTool::ColorControlsTool() :
@@ -918,7 +920,9 @@ namespace tl
         {}
 
         ColorControlsTool::~ColorControlsTool()
-        {}
+        {
+            _saveSettings(_p->bellows);
+        }
 
         std::shared_ptr<ColorControlsTool> ColorControlsTool::create(
             const std::shared_ptr<dtk::Context>& context,

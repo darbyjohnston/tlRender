@@ -40,10 +40,10 @@ namespace tl
             p.active = dtk::ObservableList<std::shared_ptr<FilesModelItem> >::create();
             p.layers = dtk::ObservableList<int>::create();
             timeline::CompareOptions compareOptions;
-            p.settings->getT("Files/compareOptions", compareOptions);
+            p.settings->getT("/Files/CompareOptions", compareOptions);
             p.compareOptions = dtk::ObservableValue<timeline::CompareOptions>::create(compareOptions);
             std::string s;
-            p.settings->get("Files/compareTime", s);
+            p.settings->get("/Files/CompareTime", s);
             timeline::CompareTime compareTime = timeline::CompareTime::First;
             from_string(s, compareTime);
             p.compareTime = dtk::ObservableValue<timeline::CompareTime>::create(compareTime);
@@ -56,8 +56,8 @@ namespace tl
         FilesModel::~FilesModel()
         {
             DTK_P();
-            p.settings->setT("Files/compareOptions", p.compareOptions->get());
-            p.settings->set("Files/compareTime", to_string(p.compareTime->get()));
+            p.settings->setT("/Files/CompareOptions", p.compareOptions->get());
+            p.settings->set("/Files/CompareTime", to_string(p.compareTime->get()));
         }
 
         std::shared_ptr<FilesModel> FilesModel::create(const std::shared_ptr<dtk::Settings>& settings)

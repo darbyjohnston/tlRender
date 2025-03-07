@@ -50,40 +50,40 @@ namespace tl
 
         void to_json(nlohmann::json& json, const Outline& in)
         {
-            json["enabled"] = in.enabled;
-            json["width"] = in.width;
-            json["color"] = in.color;
+            json["Enabled"] = in.enabled;
+            json["Width"] = in.width;
+            json["Color"] = in.color;
         }
 
         void to_json(nlohmann::json& json, const BackgroundOptions& in)
         {
-            json["type"] = to_string(in.type);
-            json["solidColor"] = in.solidColor;
-            json["checkersColor"].push_back(in.checkersColor.first);
-            json["checkersColor"].push_back(in.checkersColor.second);
-            json["checkersSize"] = in.checkersSize;
-            json["gradientColor"].push_back(in.gradientColor.first);
-            json["gradientColor"].push_back(in.gradientColor.second);
-            json["outline"] = in.outline;
+            json["Type"] = to_string(in.type);
+            json["SolidColor"] = in.solidColor;
+            json["CheckersColor"].push_back(in.checkersColor.first);
+            json["CheckersColor"].push_back(in.checkersColor.second);
+            json["CheckersSize"] = in.checkersSize;
+            json["GradientColor"].push_back(in.gradientColor.first);
+            json["GradientColor"].push_back(in.gradientColor.second);
+            json["Outline"] = in.outline;
         }
 
         void from_json(const nlohmann::json& json, Outline& out)
         {
-            json.at("enabled").get_to(out.enabled);
-            json.at("width").get_to(out.width);
-            json.at("color").get_to(out.color);
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Width").get_to(out.width);
+            json.at("Color").get_to(out.color);
         }
 
         void from_json(const nlohmann::json& json, BackgroundOptions& out)
         {
-            from_string(json.at("type").get<std::string>(), out.type);
-            json.at("solidColor").get_to(out.solidColor);
-            json.at("checkersColor")[0].get_to(out.checkersColor.first);
-            json.at("checkersColor")[1].get_to(out.checkersColor.second);
-            json.at("checkersSize").get_to(out.checkersSize);
-            json.at("gradientColor")[0].get_to(out.gradientColor.first);
-            json.at("gradientColor")[1].get_to(out.gradientColor.second);
-            json.at("outline").get_to(out.outline);
+            from_string(json.at("Type").get<std::string>(), out.type);
+            json.at("SolidColor").get_to(out.solidColor);
+            json.at("CheckersColor")[0].get_to(out.checkersColor.first);
+            json.at("CheckersColor")[1].get_to(out.checkersColor.second);
+            json.at("CheckersSize").get_to(out.checkersSize);
+            json.at("GradientColor")[0].get_to(out.gradientColor.first);
+            json.at("GradientColor")[1].get_to(out.gradientColor.second);
+            json.at("Outline").get_to(out.outline);
         }
     }
 }

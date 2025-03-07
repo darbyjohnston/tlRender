@@ -25,7 +25,7 @@ namespace tl
             p.settings = settings;
 
             bmd::DevicesModelData data;
-            p.settings->getT("BMD", data);
+            p.settings->getT("/BMD", data);
             setDeviceIndex(data.deviceIndex);
             setDisplayModeIndex(data.displayModeIndex);
             setPixelTypeIndex(data.pixelTypeIndex);
@@ -42,7 +42,7 @@ namespace tl
         BMDDevicesModel::~BMDDevicesModel()
         {
             DTK_P();
-            p.settings->setT("BMD", observeData()->get());
+            p.settings->setT("/BMD", observeData()->get());
         }
 
         std::shared_ptr<BMDDevicesModel> BMDDevicesModel::create(

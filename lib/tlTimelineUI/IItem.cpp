@@ -266,63 +266,63 @@ namespace tl
 
         void to_json(nlohmann::json& json, const ItemOptions& value)
         {
-            json["inputEnabled"] = value.inputEnabled;
-            json["editAssociatedClips"] = value.editAssociatedClips;
+            json["InputEnabled"] = value.inputEnabled;
+            json["EditAssociatedClips"] = value.editAssociatedClips;
         }
 
         void to_json(nlohmann::json& json, const DisplayOptions& value)
         {
-            json["inOutDisplay"] = to_string(value.inOutDisplay);
-            json["cacheDisplay"] = to_string(value.cacheDisplay);
+            json["InOutDisplay"] = to_string(value.inOutDisplay);
+            json["CacheDisplay"] = to_string(value.cacheDisplay);
             nlohmann::json json2;
             for (size_t i = 0; i < value.tracks.size(); ++i)
             {
                 json2.push_back(value.tracks[i]);
             }
-            json["tracks"] = json2;
-            json["trackInfo"] = value.trackInfo;
-            json["clipInfo"] = value.clipInfo;
-            json["thumbnails"] = value.thumbnails;
-            json["thumbnailHeight"] = value.thumbnailHeight;
-            json["waveformWidth"] = value.waveformWidth;
-            json["waveformHeight"] = value.waveformHeight;
-            json["waveformPrim"] = to_string(value.waveformPrim);
-            json["regularFont"] = value.regularFont;
-            json["monoFont"] = value.monoFont;
-            json["fontSize"] = value.fontSize;
-            json["clipRectScale"] = value.clipRectScale;
-            json["ocio"] = value.ocio;
-            json["lut"] = value.lut;
+            json["Tracks"] = json2;
+            json["TrackInfo"] = value.trackInfo;
+            json["ClipInfo"] = value.clipInfo;
+            json["Thumbnails"] = value.thumbnails;
+            json["ThumbnailHeight"] = value.thumbnailHeight;
+            json["WaveformWidth"] = value.waveformWidth;
+            json["WaveformHeight"] = value.waveformHeight;
+            json["WaveformPrim"] = to_string(value.waveformPrim);
+            json["RegularFont"] = value.regularFont;
+            json["MonoFont"] = value.monoFont;
+            json["FontSize"] = value.fontSize;
+            json["ClipRectScale"] = value.clipRectScale;
+            json["OCIO"] = value.ocio;
+            json["LUT"] = value.lut;
         }
 
         void from_json(const nlohmann::json& json, ItemOptions& value)
         {
-            json.at("inputEnabled").get_to(value.inputEnabled);
-            json.at("editAssociatedClips").get_to(value.editAssociatedClips);
+            json.at("InputEnabled").get_to(value.inputEnabled);
+            json.at("EditAssociatedClips").get_to(value.editAssociatedClips);
         }
 
         void from_json(const nlohmann::json& json, DisplayOptions& value)
         {
-            from_string(json["inOutDisplay"].get<std::string>(), value.inOutDisplay);
-            from_string(json["cacheDisplay"].get<std::string>(), value.cacheDisplay);
-            auto& json2 = json["tracks"];
+            from_string(json["InOutDisplay"].get<std::string>(), value.inOutDisplay);
+            from_string(json["CacheDisplay"].get<std::string>(), value.cacheDisplay);
+            auto& json2 = json["Tracks"];
             for (auto i = json2.begin(); i != json2.end(); ++i)
             {
                 value.tracks.push_back(i->get<int>());
             }
-            json["trackInfo"].get_to(value.trackInfo);
-            json["clipInfo"].get_to(value.clipInfo);
-            json["thumbnails"].get_to(value.thumbnails);
-            json["thumbnailHeight"].get_to(value.thumbnailHeight);
-            json["waveformWidth"].get_to(value.waveformWidth);
-            json["waveformHeight"].get_to(value.waveformHeight);
-            from_string(json["waveformPrim"].get<std::string>(), value.waveformPrim);
-            json["regularFont"].get_to(value.regularFont);
-            json["monoFont"].get_to(value.monoFont);
-            json["fontSize"].get_to(value.fontSize);
-            json["clipRectScale"].get_to(value.clipRectScale);
-            json["ocio"].get_to(value.ocio);
-            json["lut"].get_to(value.lut);
+            json["TrackInfo"].get_to(value.trackInfo);
+            json["ClipInfo"].get_to(value.clipInfo);
+            json["Thumbnails"].get_to(value.thumbnails);
+            json["ThumbnailHeight"].get_to(value.thumbnailHeight);
+            json["WaveformWidth"].get_to(value.waveformWidth);
+            json["WaveformHeight"].get_to(value.waveformHeight);
+            from_string(json["WaveformPrim"].get<std::string>(), value.waveformPrim);
+            json["RegularFont"].get_to(value.regularFont);
+            json["MonoFont"].get_to(value.monoFont);
+            json["FontSize"].get_to(value.fontSize);
+            json["ClipRectScale"].get_to(value.clipRectScale);
+            json["OCIO"].get_to(value.ocio);
+            json["LUT"].get_to(value.lut);
         }
     }
 }
