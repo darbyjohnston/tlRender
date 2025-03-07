@@ -151,6 +151,15 @@ namespace tl
             //! Set the playback mode.
             void setPlayback(Playback);
 
+            //! Stop playback.
+            void stop();
+
+            //! Start forward playback.
+            void forward();
+
+            //! Start reverse playback.
+            void reverse();
+
             //! Get the playback loop.
             Loop getLoop() const;
 

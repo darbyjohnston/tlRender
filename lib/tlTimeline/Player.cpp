@@ -371,6 +371,21 @@ namespace tl
             }
         }
 
+        void Player::stop()
+        {
+            setPlayback(Playback::Stop);
+        }
+
+        void Player::forward()
+        {
+            setPlayback(Playback::Forward);
+        }
+
+        void Player::reverse()
+        {
+            setPlayback(Playback::Reverse);
+        }
+
         Loop Player::getLoop() const
         {
             return _p->loop->get();
