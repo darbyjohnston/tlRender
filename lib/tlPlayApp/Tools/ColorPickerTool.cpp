@@ -43,7 +43,7 @@ namespace tl
             layout->setMarginRole(dtk::SizeRole::MarginSmall);
             layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.colorWidget->setParent(layout);
-            dtk::Label::create(context, "Shift+click to pick colors", layout);
+            dtk::Label::create(context, "Click in the viewport to pick colors", layout);
 
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setBorder(false);

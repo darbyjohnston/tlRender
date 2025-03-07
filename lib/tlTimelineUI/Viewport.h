@@ -69,6 +69,9 @@ namespace tl
             //! Set the color buffer type.
             void setColorBuffer(dtk::ImageType);
 
+            //! Get the timeline player.
+            const std::shared_ptr<timeline::Player>& getPlayer() const;
+
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 

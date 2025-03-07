@@ -201,6 +201,11 @@ namespace tl
             }
         }
 
+        const std::shared_ptr<timeline::Player>& Viewport::getPlayer() const
+        {
+            return _p->player;
+        }
+
         void Viewport::setPlayer(const std::shared_ptr<timeline::Player>& value)
         {
             DTK_P();

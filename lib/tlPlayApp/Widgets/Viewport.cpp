@@ -9,6 +9,8 @@
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
+#include <tlTimeline/Util.h>
+
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/Spacer.h>
@@ -32,13 +34,13 @@ namespace tl
             enum class MouseMode
             {
                 None,
+                Shuttle,
                 ColorPicker
             };
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                size_t index = 0;
-                dtk::V2I offset;
+                OTIO_NS::RationalTime shuttleStart = time::invalidTime;
             };
             MouseData mouse;
 
@@ -220,6 +222,25 @@ namespace tl
             DTK_P();
             switch (p.mouse.mode)
             {
+            case Private::MouseMode::Shuttle:
+                if (auto player = getPlayer())
+                {
+                    const OTIO_NS::RationalTime offset = OTIO_NS::RationalTime(
+                        (event.pos.x - _getMousePressPos().x) * .05F,
+                        p.mouse.shuttleStart.rate()).round();
+                    const OTIO_NS::TimeRange& timeRange = player->getTimeRange();
+                    OTIO_NS::RationalTime t = p.mouse.shuttleStart + offset;
+                    if (t < timeRange.start_time())
+                    {
+                        t = timeRange.end_time_exclusive() - (timeRange.start_time() - t);
+                    }
+                    else if (t > timeRange.end_time_exclusive())
+                    {
+                        t = timeRange.start_time() + (t - timeRange.end_time_exclusive());
+                    }
+                    player->seek(t);
+                }
+                break;
             case Private::MouseMode::ColorPicker:
                 if (auto app = p.app.lock())
                 {
@@ -236,9 +257,17 @@ namespace tl
             timelineui::Viewport::mousePressEvent(event);
             DTK_P();
             takeKeyFocus();
-            if (Private::MouseMode::None == p.mouse.mode &&
-                0 == event.button &&
+            if (0 == event.button &&
                 event.modifiers & static_cast<int>(dtk::KeyModifier::Shift))
+            {
+                p.mouse.mode = Private::MouseMode::Shuttle;
+                if (auto player = getPlayer())
+                {
+                    player->stop();
+                    p.mouse.shuttleStart = player->getCurrentTime();
+                }
+            }
+            else if (0 == event.button)
             {
                 p.mouse.mode = Private::MouseMode::ColorPicker;
                 if (auto app = p.app.lock())
