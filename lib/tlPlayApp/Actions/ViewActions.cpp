@@ -312,11 +312,11 @@ namespace tl
                 "HUD",
                 dtk::Key::H,
                 static_cast<int>(dtk::KeyModifier::Control),
-                [mainWindowWeak](bool value)
+                [appWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto app = appWeak.lock())
                     {
-                        mainWindow->getViewport()->setHUD(value);
+                        app->getViewportModel()->setHUD(value);
                     }
                 });
             p.actions["HUD"]->toolTip = "Toggle the HUD (Heads Up Display)";

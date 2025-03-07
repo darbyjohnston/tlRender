@@ -22,10 +22,10 @@ namespace tl
             std::map<std::string, std::shared_ptr<Menu> > menus;
 
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
         };
 
         void ViewMenu::_init(
@@ -89,13 +89,6 @@ namespace tl
                 [this](bool value)
                 {
                     setItemChecked(_p->actions["Frame"], value);
-                });
-
-            p.hudObserver = dtk::ValueObserver<bool>::create(
-                mainWindow->getViewport()->observeHUD(),
-                [this](bool value)
-                {
-                    setItemChecked(_p->actions["HUD"], value);
                 });
 
             p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
@@ -174,6 +167,13 @@ namespace tl
                             _p->actions[ss.str()],
                             type == value);
                     }
+                });
+
+            p.hudObserver = dtk::ValueObserver<bool>::create(
+                app->getViewportModel()->observeHUD(),
+                [this](bool value)
+                {
+                    setItemChecked(_p->actions["HUD"], value);
                 });
         }
 

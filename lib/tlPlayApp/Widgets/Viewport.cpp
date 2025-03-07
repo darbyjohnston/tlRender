@@ -11,8 +11,10 @@
 
 #include <tlTimeline/Util.h>
 
+#include <dtk/ui/ColorSwatch.h>
 #include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
+#include <dtk/ui/RowLayout.h>
 #include <dtk/ui/Spacer.h>
 #include <dtk/core/Format.h>
 
@@ -23,11 +25,14 @@ namespace tl
         struct Viewport::Private
         {
             std::weak_ptr<App> app;
-            std::shared_ptr<dtk::ObservableValue<bool> > hud;
+            bool hud = false;
             double fps = 0.0;
             size_t droppedFrames = 0;
+            dtk::Color4F colorPicker;
 
             std::shared_ptr<dtk::Label> fpsLabel;
+            std::shared_ptr<dtk::ColorSwatch> colorPickerSwatch;
+            std::shared_ptr<dtk::Label> colorPickerLabel;
             std::shared_ptr<dtk::Label> colorBufferLabel;
             std::shared_ptr<dtk::GridLayout> hudLayout;
 
@@ -49,11 +54,13 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::Color4F> > colorPickerObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::BackgroundOptions> > bgOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > fgOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
         };
 
         void Viewport::_init(
@@ -68,12 +75,18 @@ namespace tl
             _setMousePressEnabled(true);
 
             p.app = app;
-            p.hud = dtk::ObservableValue<bool>::create(false);
 
             p.fpsLabel = dtk::Label::create(context);
             p.fpsLabel->setFontRole(dtk::FontRole::Mono);
             p.fpsLabel->setMarginRole(dtk::SizeRole::MarginInside);
             p.fpsLabel->setBackgroundRole(dtk::ColorRole::Base);
+
+            p.colorPickerSwatch = dtk::ColorSwatch::create(context);
+            p.colorPickerSwatch->setSizeRole(dtk::SizeRole::MarginLarge);
+            p.colorPickerLabel = dtk::Label::create(context);
+            p.colorPickerLabel->setFontRole(dtk::FontRole::Mono);
+            p.colorPickerLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.colorPickerLabel->setBackgroundRole(dtk::ColorRole::Base);
 
             p.colorBufferLabel = dtk::Label::create(context);
             p.colorBufferLabel->setFontRole(dtk::FontRole::Mono);
@@ -85,11 +98,16 @@ namespace tl
             p.hudLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.fpsLabel->setParent(p.hudLayout);
             p.hudLayout->setGridPos(p.fpsLabel, 0, 0);
-            p.colorBufferLabel->setParent(p.hudLayout);
-            p.hudLayout->setGridPos(p.colorBufferLabel, 0, 2);
             auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.hudLayout);
             spacer->setStretch(dtk::Stretch::Expanding, dtk::Stretch::Expanding);
             p.hudLayout->setGridPos(spacer, 1, 1);
+            auto hLayout = dtk::HorizontalLayout::create(context, p.hudLayout);
+            p.hudLayout->setGridPos(hLayout, 2, 0);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.colorPickerSwatch->setParent(hLayout);
+            p.colorPickerLabel->setParent(hLayout);
+            p.colorBufferLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.colorBufferLabel, 2, 2);
             p.hudLayout->hide();
 
             p.fpsObserver = dtk::ValueObserver<double>::create(
@@ -129,6 +147,14 @@ namespace tl
                    setLUTOptions(value);
                 });
 
+            p.colorPickerObserver = dtk::ValueObserver<dtk::Color4F>::create(
+                app->getViewportModel()->observeColorPicker(),
+                [this](const dtk::Color4F& value)
+                {
+                    _p->colorPicker = value;
+                    _hudUpdate();
+                });
+
             p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
                 app->getViewportModel()->observeImageOptions(),
                 [this](const dtk::ImageOptions& value)
@@ -164,6 +190,14 @@ namespace tl
                     setColorBuffer(value);
                     _hudUpdate();
                 });
+
+            p.hudObserver = dtk::ValueObserver<bool>::create(
+                app->getViewportModel()->observeHUD(),
+                [this](bool value)
+                {
+                    _p->hud = value;
+                    _hudUpdate();
+                });
         }
 
         Viewport::Viewport() :
@@ -181,25 +215,6 @@ namespace tl
             auto out = std::shared_ptr<Viewport>(new Viewport);
             out->_init(context, app, parent);
             return out;
-        }
-
-        bool Viewport::hasHUD() const
-        {
-            return _p->hud->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<bool> > Viewport::observeHUD() const
-        {
-            return _p->hud;
-        }
-
-        void Viewport::setHUD(bool value)
-        {
-            DTK_P();
-            if (p.hud->setIfChanged(value))
-            {
-                p.hudLayout->setVisible(value);
-            }
         }
 
         void Viewport::setGeometry(const dtk::Box2I& value)
@@ -288,13 +303,25 @@ namespace tl
         void Viewport::_hudUpdate()
         {
             DTK_P();
+
             p.fpsLabel->setText(
                 dtk::Format("FPS: {0} ({1} dropped)").
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
+
+            p.colorPickerSwatch->setColor(p.colorPicker);
+            p.colorPickerLabel->setText(
+                dtk::Format("Color picker: {0} {1} {2} {3}").
+                arg(p.colorPicker.r, 2).
+                arg(p.colorPicker.g, 2).
+                arg(p.colorPicker.b, 2).
+                arg(p.colorPicker.a, 2));
+
             p.colorBufferLabel->setText(
                 dtk::Format("Color buffer: {0}").
                 arg(getColorBuffer()));
+
+            p.hudLayout->setVisible(p.hud);
         }
     }
 }

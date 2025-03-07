@@ -94,6 +94,15 @@ namespace tl
             //! Set the color buffer type.
             void setColorBuffer(dtk::ImageType);
 
+            //! Get whether the HUD is enabled.
+            bool getHUD() const;
+
+            //! Observe whether the HUD is enabled.
+            std::shared_ptr<dtk::IObservableValue<bool> > observeHUD() const;
+
+            //! Set whether the HUD is enabled.
+            void setHUD(bool);
+
         private:
             DTK_PRIVATE();
         };

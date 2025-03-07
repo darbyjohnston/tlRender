@@ -20,6 +20,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<timeline::BackgroundOptions> > backgroundOptions;
             std::shared_ptr<dtk::ObservableValue<timeline::ForegroundOptions> > foregroundOptions;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
+            std::shared_ptr<dtk::ObservableValue<bool> > hud;
         };
 
         void ViewportModel::_init(
@@ -56,6 +57,10 @@ namespace tl
             p.settings->get("/Viewport/ColorBuffer", s);
             dtk::from_string(s, colorBuffer);
             p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(colorBuffer);
+
+            bool hud = false;
+            p.settings->get("/Viewport/HUD", hud);
+            p.hud = dtk::ObservableValue<bool>::create(hud);
         }
 
         ViewportModel::ViewportModel() :
@@ -70,6 +75,7 @@ namespace tl
             p.settings->setT("/Viewport/Background", p.backgroundOptions->get());
             p.settings->setT("/Viewport/Foreground", p.foregroundOptions->get());
             p.settings->set("/Viewport/ColorBuffer", dtk::to_string(p.colorBuffer->get()));
+            p.settings->set("/Viewport/HUD", p.hud->get());
         }
 
         std::shared_ptr<ViewportModel> ViewportModel::create(
@@ -171,6 +177,21 @@ namespace tl
         void ViewportModel::setColorBuffer(dtk::ImageType value)
         {
             _p->colorBuffer->setIfChanged(value);
+        }
+
+        bool ViewportModel::getHUD() const
+        {
+            return _p->hud->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<bool> > ViewportModel::observeHUD() const
+        {
+            return _p->hud;
+        }
+
+        void ViewportModel::setHUD(bool value)
+        {
+            _p->hud->setIfChanged(value);
         }
     }
 }

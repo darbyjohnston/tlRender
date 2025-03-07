@@ -33,15 +33,6 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Get whether the HUD is enabled.
-            bool hasHUD() const;
-
-            //! Observe whether the HUD is enabled.
-            std::shared_ptr<dtk::IObservableValue<bool> > observeHUD() const;
-
-            //! Set whether the HUD is enabled.
-            void setHUD(bool);
-
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void mouseMoveEvent(dtk::MouseMoveEvent&) override;
