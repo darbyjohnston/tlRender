@@ -6,6 +6,7 @@
 
 #include <tlPlayApp/Models/ColorModel.h>
 #include <tlPlayApp/Models/FilesModel.h>
+#include <tlPlayApp/Models/TimeUnitsModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
@@ -26,10 +27,14 @@ namespace tl
         {
             std::weak_ptr<App> app;
             bool hud = false;
+            OTIO_NS::RationalTime currentTime = time::invalidTime;
             double fps = 0.0;
             size_t droppedFrames = 0;
             dtk::Color4F colorPicker;
+            dtk::KeyModifier colorPickerModifier = dtk::KeyModifier::None;
+            dtk::KeyModifier frameShuttleModifier = dtk::KeyModifier::Shift;
 
+            std::shared_ptr<dtk::Label> currentTimeLabel;
             std::shared_ptr<dtk::Label> fpsLabel;
             std::shared_ptr<dtk::ColorSwatch> colorPickerSwatch;
             std::shared_ptr<dtk::Label> colorPickerLabel;
@@ -49,6 +54,7 @@ namespace tl
             };
             MouseData mouse;
 
+            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
@@ -61,6 +67,8 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > fgOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<dtk::ValueObserver<MouseSettings> > mouseSettingsObserver;
         };
 
         void Viewport::_init(
@@ -76,28 +84,35 @@ namespace tl
 
             p.app = app;
 
+            p.currentTimeLabel = dtk::Label::create(context);
+            p.currentTimeLabel->setFontRole(dtk::FontRole::Mono);
+            p.currentTimeLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.currentTimeLabel->setBackgroundRole(dtk::ColorRole::Overlay);
+
             p.fpsLabel = dtk::Label::create(context);
             p.fpsLabel->setFontRole(dtk::FontRole::Mono);
             p.fpsLabel->setMarginRole(dtk::SizeRole::MarginInside);
-            p.fpsLabel->setBackgroundRole(dtk::ColorRole::Base);
+            p.fpsLabel->setBackgroundRole(dtk::ColorRole::Overlay);
 
             p.colorPickerSwatch = dtk::ColorSwatch::create(context);
             p.colorPickerSwatch->setSizeRole(dtk::SizeRole::MarginLarge);
             p.colorPickerLabel = dtk::Label::create(context);
             p.colorPickerLabel->setFontRole(dtk::FontRole::Mono);
             p.colorPickerLabel->setMarginRole(dtk::SizeRole::MarginInside);
-            p.colorPickerLabel->setBackgroundRole(dtk::ColorRole::Base);
+            p.colorPickerLabel->setBackgroundRole(dtk::ColorRole::Overlay);
 
             p.colorBufferLabel = dtk::Label::create(context);
             p.colorBufferLabel->setFontRole(dtk::FontRole::Mono);
             p.colorBufferLabel->setMarginRole(dtk::SizeRole::MarginInside);
-            p.colorBufferLabel->setBackgroundRole(dtk::ColorRole::Base);
+            p.colorBufferLabel->setBackgroundRole(dtk::ColorRole::Overlay);
 
             p.hudLayout = dtk::GridLayout::create(context, shared_from_this());
             p.hudLayout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.hudLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.currentTimeLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.currentTimeLabel, 0, 0);
             p.fpsLabel->setParent(p.hudLayout);
-            p.hudLayout->setGridPos(p.fpsLabel, 0, 0);
+            p.hudLayout->setGridPos(p.fpsLabel, 0, 2);
             auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.hudLayout);
             spacer->setStretch(dtk::Stretch::Expanding, dtk::Stretch::Expanding);
             p.hudLayout->setGridPos(spacer, 1, 1);
@@ -198,6 +213,27 @@ namespace tl
                     _p->hud = value;
                     _hudUpdate();
                 });
+
+            p.timeUnitsObserver = dtk::ValueObserver<timeline::TimeUnits>::create(
+                app->getTimeUnitsModel()->observeTimeUnits(),
+                [this](timeline::TimeUnits value)
+                {
+                    _hudUpdate();
+                });
+
+            p.mouseSettingsObserver = dtk::ValueObserver<MouseSettings>::create(
+                app->getSettingsModel()->observeMouse(),
+                [this](const MouseSettings& value)
+                {
+                    auto i = value.actions.find(MouseAction::PanView);
+                    setPanModifier(i != value.actions.end() ? i->second : dtk::KeyModifier::None);
+                    i = value.actions.find(MouseAction::CompareWipe);
+                    setWipeModifier(i != value.actions.end() ? i->second : dtk::KeyModifier::None);
+                    i = value.actions.find(MouseAction::ColorPicker);
+                    _p->colorPickerModifier = i != value.actions.end() ? i->second : dtk::KeyModifier::None;
+                    i = value.actions.find(MouseAction::FrameShuttle);
+                    _p->frameShuttleModifier = i != value.actions.end() ? i->second : dtk::KeyModifier::None;
+                });
         }
 
         Viewport::Viewport() :
@@ -215,6 +251,26 @@ namespace tl
             auto out = std::shared_ptr<Viewport>(new Viewport);
             out->_init(context, app, parent);
             return out;
+        }
+
+        void Viewport::setPlayer(const std::shared_ptr<timeline::Player>& player)
+        {
+            timelineui::Viewport::setPlayer(player);
+            DTK_P();
+            if (player)
+            {
+                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+                    player->observeCurrentTime(),
+                    [this](const OTIO_NS::RationalTime& value)
+                    {
+                        _p->currentTime = value;
+                        _hudUpdate();
+                    });
+            }
+            else
+            {
+                p.currentTimeObserver.reset();
+            }
         }
 
         void Viewport::setGeometry(const dtk::Box2I& value)
@@ -273,22 +329,23 @@ namespace tl
             DTK_P();
             takeKeyFocus();
             if (0 == event.button &&
-                event.modifiers & static_cast<int>(dtk::KeyModifier::Shift))
-            {
-                p.mouse.mode = Private::MouseMode::Shuttle;
-                if (auto player = getPlayer())
-                {
-                    player->stop();
-                    p.mouse.shuttleStart = player->getCurrentTime();
-                }
-            }
-            else if (0 == event.button)
+                dtk::checkKeyModifier(p.colorPickerModifier, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::ColorPicker;
                 if (auto app = p.app.lock())
                 {
                     const dtk::Color4F color = getColorSample(event.pos);
                     app->getViewportModel()->setColorPicker(color);
+                }
+            }
+            else if (0 == event.button &&
+                dtk::checkKeyModifier(p.frameShuttleModifier, event.modifiers))
+            {
+                p.mouse.mode = Private::MouseMode::Shuttle;
+                if (auto player = getPlayer())
+                {
+                    player->stop();
+                    p.mouse.shuttleStart = player->getCurrentTime();
                 }
             }
         }
@@ -303,6 +360,16 @@ namespace tl
         void Viewport::_hudUpdate()
         {
             DTK_P();
+
+            std::string s;
+            if (auto app = p.app.lock())
+            {
+                auto timeUnitsModel = app->getTimeUnitsModel();
+                s = timeUnitsModel->getLabel(p.currentTime);
+            }
+            p.currentTimeLabel->setText(
+                dtk::Format("Current time: {0}").
+                arg(s));
 
             p.fpsLabel->setText(
                 dtk::Format("FPS: {0} ({1} dropped)").

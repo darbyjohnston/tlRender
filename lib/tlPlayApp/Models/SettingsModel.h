@@ -122,6 +122,34 @@ namespace tl
             bool operator != (const MiscSettings&) const;
         };
 
+        //! Mouse actions.
+        enum class MouseAction
+        {
+            PanView,
+            CompareWipe,
+            ColorPicker,
+            FrameShuttle,
+
+            Count,
+            First = ColorPicker
+        };
+        DTK_ENUM(MouseAction);
+
+        //! Mouse settings.
+        struct MouseSettings
+        {
+            std::map<MouseAction, dtk::KeyModifier> actions =
+            {
+                { MouseAction::ColorPicker, dtk::KeyModifier::None },
+                { MouseAction::PanView, dtk::KeyModifier::Control },
+                { MouseAction::FrameShuttle, dtk::KeyModifier::Shift },
+                { MouseAction::CompareWipe, dtk::KeyModifier::Alt }
+            };
+
+            bool operator == (const MouseSettings&) const;
+            bool operator != (const MouseSettings&) const;
+        };
+
         //! Performance settings.
         struct PerformanceSettings
         {
@@ -245,6 +273,15 @@ namespace tl
 
             ///@}
 
+            //! \name Mouse
+            ///@{
+
+            const MouseSettings& getMouse() const;
+            std::shared_ptr<dtk::IObservableValue<MouseSettings> > observeMouse() const;
+            void setMouse(const MouseSettings&);
+
+            ///@}
+
             //! \name Performance
             ///@{
 
@@ -319,6 +356,7 @@ namespace tl
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const FileSequenceSettings&);
         void to_json(nlohmann::json&, const MiscSettings&);
+        void to_json(nlohmann::json&, const MouseSettings&);
         void to_json(nlohmann::json&, const PerformanceSettings&);
         void to_json(nlohmann::json&, const StyleSettings&);
         void to_json(nlohmann::json&, const TimelineSettings&);
@@ -329,6 +367,7 @@ namespace tl
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, FileSequenceSettings&);
         void from_json(const nlohmann::json&, MiscSettings&);
+        void from_json(const nlohmann::json&, MouseSettings&);
         void from_json(const nlohmann::json&, PerformanceSettings&);
         void from_json(const nlohmann::json&, StyleSettings&);
         void from_json(const nlohmann::json&, TimelineSettings&);

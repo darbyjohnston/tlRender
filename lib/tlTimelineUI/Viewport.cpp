@@ -50,6 +50,8 @@ namespace tl
                 double frame = 0.0;
             };
             DroppedFramesData droppedFramesData;
+            dtk::KeyModifier panModifier = dtk::KeyModifier::Control;
+            dtk::KeyModifier wipeModifier = dtk::KeyModifier::Alt;
 
             bool doRender = false;
             std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
@@ -402,6 +404,16 @@ namespace tl
             return out;
         }
 
+        void Viewport::setPanModifier(dtk::KeyModifier value)
+        {
+            _p->panModifier = value;
+        }
+
+        void Viewport::setWipeModifier(dtk::KeyModifier value)
+        {
+            _p->wipeModifier = value;
+        }
+
         void Viewport::setGeometry(const dtk::Box2I& value)
         {
             const bool changed = value != getGeometry();
@@ -574,13 +586,13 @@ namespace tl
             DTK_P();
             takeKeyFocus();
             if (0 == event.button &&
-                event.modifiers & static_cast<int>(dtk::KeyModifier::Control))
+                dtk::checkKeyModifier(p.panModifier, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::View;
                 p.mouse.viewPos = p.viewPos;
             }
             else if (0 == event.button &&
-                event.modifiers & static_cast<int>(dtk::KeyModifier::Alt))
+                dtk::checkKeyModifier(p.wipeModifier, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
             }

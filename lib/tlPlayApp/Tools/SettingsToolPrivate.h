@@ -123,6 +123,34 @@ namespace tl
             DTK_PRIVATE();
         };
 
+        //! Mouse settings widget.
+        class MouseSettingsWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(MouseSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            MouseSettingsWidget();
+
+        public:
+            virtual ~MouseSettingsWidget();
+
+            static std::shared_ptr<MouseSettingsWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            DTK_PRIVATE();
+        };
+
         //! Performance settings widget.
         class PerformanceSettingsWidget : public dtk::IWidget
         {

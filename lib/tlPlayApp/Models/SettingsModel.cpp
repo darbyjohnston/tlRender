@@ -90,11 +90,27 @@ namespace tl
 
         bool MiscSettings::operator == (const MiscSettings& other) const
         {
-            return
-                tooltipsEnabled == other.tooltipsEnabled;
+            return tooltipsEnabled == other.tooltipsEnabled;
         }
 
         bool MiscSettings::operator != (const MiscSettings& other) const
+        {
+            return !(*this == other);
+        }
+
+        DTK_ENUM_IMPL(
+            MouseAction,
+            "PanView",
+            "CompareWipe",
+            "ColorPicker",
+            "FrameShuttle");
+
+        bool MouseSettings::operator == (const MouseSettings& other) const
+        {
+            return actions == other.actions;
+        }
+
+        bool MouseSettings::operator != (const MouseSettings& other) const
         {
             return !(*this == other);
         }
@@ -172,6 +188,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<FileBrowserSettings> > fileBrowser;
             std::shared_ptr<dtk::ObservableValue<FileSequenceSettings> > fileSequence;
             std::shared_ptr<dtk::ObservableValue<MiscSettings> > misc;
+            std::shared_ptr<dtk::ObservableValue<MouseSettings> > mouse;
             std::shared_ptr<dtk::ObservableValue<PerformanceSettings> > performance;
             std::shared_ptr<dtk::ObservableValue<StyleSettings> > style;
             std::shared_ptr<dtk::ObservableValue<TimelineSettings> > timeline;
@@ -216,6 +233,10 @@ namespace tl
             MiscSettings misc;
             settings->getT("/Misc", misc);
             p.misc = dtk::ObservableValue<MiscSettings>::create(misc);
+
+            MouseSettings mouse;
+            settings->getT("/Mouse", mouse);
+            p.mouse = dtk::ObservableValue<MouseSettings>::create(mouse);
 
             PerformanceSettings performance;
             settings->getT("/Performance", performance);
@@ -270,6 +291,8 @@ namespace tl
 
             p.settings->setT("/Misc", p.misc->get());
 
+            p.settings->setT("/Mouse", p.mouse->get());
+
             p.settings->setT("/Performance", p.performance->get());
 
             p.settings->setT("/Style", p.style->get());
@@ -303,6 +326,7 @@ namespace tl
             setFileBrowser(FileBrowserSettings());
             setFileSequence(FileSequenceSettings());
             setMisc(MiscSettings());
+            setMouse(MouseSettings());
             setPerformance(PerformanceSettings());
             setStyle(StyleSettings());
             setTimeline(TimelineSettings());
@@ -396,6 +420,21 @@ namespace tl
         void SettingsModel::setMisc(const MiscSettings& value)
         {
             _p->misc->setIfChanged(value);
+        }
+
+        const MouseSettings& SettingsModel::getMouse() const
+        {
+            return _p->mouse->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<MouseSettings> > SettingsModel::observeMouse() const
+        {
+            return _p->mouse;
+        }
+
+        void SettingsModel::setMouse(const MouseSettings& value)
+        {
+            _p->mouse->setIfChanged(value);
         }
 
         const PerformanceSettings& SettingsModel::getPerformance() const
@@ -534,6 +573,11 @@ namespace tl
             json["TooltipsEnabled"] = value.tooltipsEnabled;
         }
 
+        void to_json(nlohmann::json& json, const MouseSettings& value)
+        {
+            json["Actions"] = value.actions;
+        }
+
         void to_json(nlohmann::json& json, const PerformanceSettings& value)
         {
             json["AudioBufferFrameCount"] = value.audioBufferFrameCount;
@@ -616,6 +660,11 @@ namespace tl
         void from_json(const nlohmann::json& json, MiscSettings& value)
         {
             json.at("TooltipsEnabled").get_to(value.tooltipsEnabled);
+        }
+
+        void from_json(const nlohmann::json& json, MouseSettings& value)
+        {
+            json.at("Actions").get_to(value.actions);
         }
 
         void from_json(const nlohmann::json& json, PerformanceSettings& value)

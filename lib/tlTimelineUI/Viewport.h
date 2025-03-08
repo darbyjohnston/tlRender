@@ -73,7 +73,7 @@ namespace tl
             const std::shared_ptr<timeline::Player>& getPlayer() const;
 
             //! Set the timeline player.
-            void setPlayer(const std::shared_ptr<timeline::Player>&);
+            virtual void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the view position.
             const dtk::V2I& getViewPos() const;
@@ -126,6 +126,12 @@ namespace tl
             
             //! Sample a color from the viewport.
             dtk::Color4F getColorSample(const dtk::V2I&);
+
+            //! Set the keyboard modifier for panning.
+            void setPanModifier(dtk::KeyModifier);
+
+            //! Set the keyboard modifier for wiping.
+            void setWipeModifier(dtk::KeyModifier);
 
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;

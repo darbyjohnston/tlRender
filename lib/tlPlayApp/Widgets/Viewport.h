@@ -33,6 +33,8 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            void setPlayer(const std::shared_ptr<timeline::Player>&) override;
+
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void mouseMoveEvent(dtk::MouseMoveEvent&) override;

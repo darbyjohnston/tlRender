@@ -438,6 +438,125 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
+        struct MouseSettingsWidget::Private
+        {
+            std::shared_ptr<SettingsModel> model;
+            std::vector<std::string> actionLabels;
+            std::vector<dtk::KeyModifier> modifiers;
+            std::vector<std::string> modifierLabels;
+
+            std::map<MouseAction, std::shared_ptr<dtk::ComboBox> > modifierComboBoxes;
+            std::shared_ptr<dtk::FormLayout> layout;
+
+            std::shared_ptr<dtk::ValueObserver<MouseSettings> > settingsObserver;
+        };
+
+        void MouseSettingsWidget::_init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init(context, "tl::play_app::MouseSettingsWidget", parent);
+            DTK_P();
+
+            p.model = app->getSettingsModel();
+
+            p.actionLabels.push_back("Pan view");
+            p.actionLabels.push_back("Compare wipe");
+            p.actionLabels.push_back("Color picker");
+            p.actionLabels.push_back("Frame shuttle");
+
+            p.modifiers.push_back(dtk::KeyModifier::None);
+            p.modifiers.push_back(dtk::KeyModifier::Shift);
+            p.modifiers.push_back(dtk::KeyModifier::Control);
+            p.modifiers.push_back(dtk::KeyModifier::Alt);
+            p.modifiers.push_back(dtk::KeyModifier::Super);
+            p.modifierLabels.push_back("Click");
+            p.modifierLabels.push_back(dtk::to_string(dtk::KeyModifier::Shift) + " + click");
+            p.modifierLabels.push_back(dtk::to_string(dtk::KeyModifier::Control) + " + click");
+            p.modifierLabels.push_back(dtk::to_string(dtk::KeyModifier::Alt) + " + click");
+            p.modifierLabels.push_back(dtk::to_string(dtk::KeyModifier::Super) + " + click");
+
+            for (const auto mouseAction : getMouseActionEnums())
+            {
+                p.modifierComboBoxes[mouseAction] = dtk::ComboBox::create(context, p.modifierLabels);
+                p.modifierComboBoxes[mouseAction]->setHStretch(dtk::Stretch::Expanding);
+            }
+
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            for (const auto mouseAction : getMouseActionEnums())
+            {
+                p.modifierComboBoxes[mouseAction]->setParent(p.layout);
+                p.layout->addRow(dtk::Format("{0}:").arg(p.actionLabels[static_cast<size_t>(mouseAction)]), p.modifierComboBoxes[mouseAction]);
+            }
+
+            p.settingsObserver = dtk::ValueObserver<MouseSettings>::create(
+                p.model->observeMouse(),
+                [this](const MouseSettings& value)
+                {
+                    DTK_P();
+                    for (const auto& i : value.actions)
+                    {
+                        const auto j = p.modifierComboBoxes.find(i.first);
+                        if (j != p.modifierComboBoxes.end())
+                        {
+                            const auto k = std::find(p.modifiers.begin(), p.modifiers.end(), i.second);
+                            if (k != p.modifiers.end())
+                            {
+
+                                j->second->setCurrentIndex(k - p.modifiers.begin());
+                            }
+                        }
+                    }
+                });
+
+            for (const auto mouseAction : getMouseActionEnums())
+            {
+                p.modifierComboBoxes[mouseAction]->setIndexCallback(
+                    [this, mouseAction](int index)
+                    {
+                        DTK_P();
+                        if (index >= 0 && index < p.modifiers.size())
+                        {
+                            auto settings = p.model->getMouse();
+                            settings.actions[mouseAction] = p.modifiers[index];
+                            p.model->setMouse(settings);
+                        }
+                    });
+            }
+        }
+
+        MouseSettingsWidget::MouseSettingsWidget() :
+            _p(new Private)
+        {}
+
+        MouseSettingsWidget::~MouseSettingsWidget()
+        {}
+
+        std::shared_ptr<MouseSettingsWidget> MouseSettingsWidget::create(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<MouseSettingsWidget>(new MouseSettingsWidget);
+            out->_init(context, app, parent);
+            return out;
+        }
+
+        void MouseSettingsWidget::setGeometry(const dtk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void MouseSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _setSizeHint(_p->layout->getSizeHint());
+        }
+
         struct PerformanceSettingsWidget::Private
         {
             std::shared_ptr<SettingsModel> model;
@@ -954,6 +1073,7 @@ namespace tl
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(context, app);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(context, app);
             auto miscWidget = MiscSettingsWidget::create(context, app);
+            auto mouseWidget = MouseSettingsWidget::create(context, app);
             auto performanceWidget = PerformanceSettingsWidget::create(context, app);
             auto styleWidget = StyleSettingsWidget::create(context, app);
 #if defined(TLRENDER_FFMPEG)
@@ -973,6 +1093,8 @@ namespace tl
             p.bellows["FileSequences"]->setWidget(fileSequenceWidget);
             p.bellows["Misc"] = dtk::Bellows::create(context, "Miscellaneous", vLayout);
             p.bellows["Misc"]->setWidget(miscWidget);
+            p.bellows["Mouse"] = dtk::Bellows::create(context, "Mouse", vLayout);
+            p.bellows["Mouse"]->setWidget(mouseWidget);
             p.bellows["Performance"] = dtk::Bellows::create(context, "Performance", vLayout);
             p.bellows["Performance"]->setWidget(performanceWidget);
             p.bellows["Style"] = dtk::Bellows::create(context, "Style", vLayout);
