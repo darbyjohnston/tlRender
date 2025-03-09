@@ -4,21 +4,16 @@
 
 #pragma once
 
-#include <tlPlayApp/Models/SettingsModel.h>
-
-#include <dtk/ui/Action.h>
+#include <tlPlayApp/Actions/IActions.h>
 
 namespace tl
 {
     namespace play
     {
-        class App;
-
         //! File actions.
         //!
-        //! \todo Add actions for opening the next/previous file in the
-        //! directory.
-        class FileActions : public std::enable_shared_from_this<FileActions>
+        //! \todo Add actions for opening the next/previous file in the directory.
+        class FileActions : public IActions
         {
             DTK_NON_COPYABLE(FileActions);
 
@@ -27,7 +22,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            FileActions();
+            FileActions() = default;
 
         public:
             ~FileActions();
@@ -35,13 +30,6 @@ namespace tl
             static std::shared_ptr<FileActions> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
-
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
-
-        private:
-            void _keyShortcutsUpdate(const KeyShortcutsSettings&);
-
-            DTK_PRIVATE();
         };
     }
 }

@@ -7,28 +7,19 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
-#include <dtk/core/Format.h>
-
 namespace tl
 {
     namespace play
     {
-        struct FrameActions::Private
-        {
-            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-
-            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
-        };
-
         void FrameActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
-            DTK_P();
+            IActions::_init(context, app, "Frame");
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Start"] = dtk::Action::create(
+            _actions["Start"] = dtk::Action::create(
                 "Go To Start",
                 "TimeStart",
                 [appWeak]
@@ -42,7 +33,7 @@ namespace tl
                     }
                 });
 
-            p.actions["End"] = dtk::Action::create(
+            _actions["End"] = dtk::Action::create(
                 "Go To End",
                 "TimeEnd",
                 [appWeak]
@@ -56,7 +47,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Prev"] = dtk::Action::create(
+            _actions["Prev"] = dtk::Action::create(
                 "Previous Frame",
                 "FramePrev",
                 [appWeak]
@@ -70,7 +61,7 @@ namespace tl
                     }
                 });
 
-            p.actions["PrevX10"] = dtk::Action::create(
+            _actions["PrevX10"] = dtk::Action::create(
                 "Previous Frame X10",
                 [appWeak]
                 {
@@ -83,7 +74,7 @@ namespace tl
                     }
                 });
 
-            p.actions["PrevX100"] = dtk::Action::create(
+            _actions["PrevX100"] = dtk::Action::create(
                 "Previous Frame X100",
                 [appWeak]
                 {
@@ -96,7 +87,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Next"] = dtk::Action::create(
+            _actions["Next"] = dtk::Action::create(
                 "Next Frame",
                 "FrameNext",
                 [appWeak]
@@ -110,7 +101,7 @@ namespace tl
                     }
                 });
 
-            p.actions["NextX10"] = dtk::Action::create(
+            _actions["NextX10"] = dtk::Action::create(
                 "Next Frame X10",
                 [appWeak]
                 {
@@ -123,7 +114,7 @@ namespace tl
                     }
                 });
 
-            p.actions["NextX100"] = dtk::Action::create(
+            _actions["NextX100"] = dtk::Action::create(
                 "Next Frame X100",
                 [appWeak]
                 {
@@ -137,7 +128,7 @@ namespace tl
                 });
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["FocusCurrent"] = dtk::Action::create(
+            _actions["FocusCurrent"] = dtk::Action::create(
                 "Focus Current Frame",
                 [mainWindowWeak]
                 {
@@ -147,17 +138,21 @@ namespace tl
                     }
                 });
 
-            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
-                app->getSettingsModel()->observeKeyShortcuts(),
-                [this](const KeyShortcutsSettings& value)
-                {
-                    _keyShortcutsUpdate(value);
-                });
-        }
+            _tooltips =
+            {
+                { "Start", "Go to the start frame." },
+                { "End", "Go to the end frame." },
+                { "Prev", "Go to the previous frame." },
+                { "PrevX10", "Go to the previous frame X10." },
+                { "PrevX100", "Go to the previous frame X100." },
+                { "Next", "Go to the next frame." },
+                { "NextX10", "Go to the next frame X10." },
+                { "NextX100", "Go to the next frame X100." },
+                { "FocusCurrent", "Set the keyboard focus to the current frame editor." }
+            };
 
-        FrameActions::FrameActions() :
-            _p(new Private)
-        {}
+            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+        }
 
         FrameActions::~FrameActions()
         {}
@@ -170,115 +165,6 @@ namespace tl
             auto out = std::shared_ptr<FrameActions>(new FrameActions);
             out->_init(context, app, mainWindow);
             return out;
-        }
-
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& FrameActions::getActions() const
-        {
-            return _p->actions;
-        }
-
-        void FrameActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
-        {
-            DTK_P();
-            auto i = value.shortcuts.find("Frame/Start");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["Start"]->setShortcut(i->second.key);
-                p.actions["Start"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["Start"]->setTooltip(dtk::Format(
-                    "Go to the start frame.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/End");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["End"]->setShortcut(i->second.key);
-                p.actions["End"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["End"]->setTooltip(dtk::Format(
-                    "Go to the end frame.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/Prev");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["Prev"]->setShortcut(i->second.key);
-                p.actions["Prev"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["Prev"]->setTooltip(dtk::Format(
-                    "Go to the previous frame.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/PrevX10");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["PrevX10"]->setShortcut(i->second.key);
-                p.actions["PrevX10"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["PrevX10"]->setTooltip(dtk::Format(
-                    "Go to the previous frame X10.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/PrevX100");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["PrevX100"]->setShortcut(i->second.key);
-                p.actions["PrevX100"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["PrevX100"]->setTooltip(dtk::Format(
-                    "Go to the previous frame X100.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/Next");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["Next"]->setShortcut(i->second.key);
-                p.actions["Next"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["Next"]->setTooltip(dtk::Format(
-                    "Go to the next frame.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/NextX10");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["NextX10"]->setShortcut(i->second.key);
-                p.actions["NextX10"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["NextX10"]->setTooltip(dtk::Format(
-                    "Go to the next frame X10.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/NextX100");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["NextX100"]->setShortcut(i->second.key);
-                p.actions["NextX100"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["NextX100"]->setTooltip(dtk::Format(
-                    "Go to the next frame X100.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
-            i = value.shortcuts.find("Frame/FocusCurrent");
-            if (i != value.shortcuts.end())
-            {
-                p.actions["FocusCurrent"]->setShortcut(i->second.key);
-                p.actions["FocusCurrent"]->setShortcutModifiers(i->second.modifiers);
-                p.actions["FocusCurrent"]->setTooltip(dtk::Format(
-                    "Set the keyboard focus to the current frame editor.\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
-            }
         }
     }
 }

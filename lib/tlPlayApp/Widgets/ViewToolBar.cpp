@@ -4,7 +4,6 @@
 
 #include <tlPlayApp/Widgets/ViewToolBar.h>
 
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/Widgets/Viewport.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
@@ -19,7 +18,7 @@ namespace tl
         struct ViewToolBar::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::map<std::string, std::shared_ptr<ToolBarButton> > buttons;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
         };
 
@@ -38,8 +37,8 @@ namespace tl
 
             p.actions = actions;
 
-            p.buttons["Frame"] = ToolBarButton::create(context, p.actions["Frame"]);
-            p.buttons["ZoomReset"] = ToolBarButton::create(context, p.actions["ZoomReset"]);
+            p.buttons["Frame"] = dtk::ToolButton::create(context, p.actions["Frame"]);
+            p.buttons["ZoomReset"] = dtk::ToolButton::create(context, p.actions["ZoomReset"]);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);

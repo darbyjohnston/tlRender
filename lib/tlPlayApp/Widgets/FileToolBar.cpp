@@ -4,7 +4,6 @@
 
 #include <tlPlayApp/Widgets/FileToolBar.h>
 
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/RowLayout.h>
@@ -17,7 +16,7 @@ namespace tl
         struct FileToolBar::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::map<std::string, std::shared_ptr<ToolBarButton> > buttons;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
@@ -37,10 +36,10 @@ namespace tl
 
             p.actions = actions;
 
-            p.buttons["Open"] = ToolBarButton::create(context, p.actions["Open"]);
-            p.buttons["OpenSeparateAudio"] = ToolBarButton::create(context, p.actions["OpenSeparateAudio"]);
-            p.buttons["Close"] = ToolBarButton::create(context, p.actions["Close"]);
-            p.buttons["CloseAll"] = ToolBarButton::create(context, p.actions["CloseAll"]);
+            p.buttons["Open"] = dtk::ToolButton::create(context, p.actions["Open"]);
+            p.buttons["OpenSeparateAudio"] = dtk::ToolButton::create(context, p.actions["OpenSeparateAudio"]);
+            p.buttons["Close"] = dtk::ToolButton::create(context, p.actions["Close"]);
+            p.buttons["CloseAll"] = dtk::ToolButton::create(context, p.actions["CloseAll"]);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);

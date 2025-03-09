@@ -4,7 +4,6 @@
 
 #include <tlPlayApp/Widgets/WindowToolBar.h>
 
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
@@ -18,7 +17,7 @@ namespace tl
         struct WindowToolBar::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::map<std::string, std::shared_ptr<ToolBarButton> > buttons;
+            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
         };
 
@@ -37,8 +36,8 @@ namespace tl
 
             p.actions = actions;
 
-            p.buttons["FullScreen"] = ToolBarButton::create(context, p.actions["FullScreen"]);
-            p.buttons["Secondary"] = ToolBarButton::create(context, p.actions["Secondary"]);
+            p.buttons["FullScreen"] = dtk::ToolButton::create(context, p.actions["FullScreen"]);
+            p.buttons["Secondary"] = dtk::ToolButton::create(context, p.actions["Secondary"]);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);

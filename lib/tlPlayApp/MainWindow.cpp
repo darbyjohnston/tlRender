@@ -33,7 +33,6 @@
 #include <tlPlayApp/Widgets/FileToolBar.h>
 #include <tlPlayApp/Widgets/SpeedPopup.h>
 #include <tlPlayApp/Widgets/StatusBar.h>
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 #include <tlPlayApp/Widgets/ViewToolBar.h>
 #include <tlPlayApp/Widgets/Viewport.h>
@@ -232,16 +231,16 @@ namespace tl
                 p.toolsActions->getActions());
 
             auto playbackActions = p.playbackActions->getActions();
-            auto stopButton = ToolBarButton::create(context, playbackActions["Stop"]);
-            auto forwardButton = ToolBarButton::create(context, playbackActions["Forward"]);
-            auto reverseButton = ToolBarButton::create(context, playbackActions["Reverse"]);
+            auto stopButton = dtk::ToolButton::create(context, playbackActions["Stop"]);
+            auto forwardButton = dtk::ToolButton::create(context, playbackActions["Forward"]);
+            auto reverseButton = dtk::ToolButton::create(context, playbackActions["Reverse"]);
 
             auto frameActions = p.frameActions->getActions();
-            auto timeStartButton = ToolBarButton::create(context, frameActions["Start"]);
-            auto timeEndButton = ToolBarButton::create(context, frameActions["End"]);
-            auto framePrevButton = ToolBarButton::create(context, frameActions["Prev"]);
+            auto timeStartButton = dtk::ToolButton::create(context, frameActions["Start"]);
+            auto timeEndButton = dtk::ToolButton::create(context, frameActions["End"]);
+            auto framePrevButton = dtk::ToolButton::create(context, frameActions["Prev"]);
             framePrevButton->setRepeatClick(true);
-            auto frameNextButton = ToolBarButton::create(context, frameActions["Next"]);
+            auto frameNextButton = dtk::ToolButton::create(context, frameActions["Next"]);
             frameNextButton->setRepeatClick(true);
 
             p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
@@ -267,10 +266,8 @@ namespace tl
             p.audioButton = dtk::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
             p.audioButton->setTooltip("Audio volume");
-            p.muteButton = dtk::ToolButton::create(context);
-            p.muteButton->setCheckable(true);
-            p.muteButton->setIcon("Mute");
-            p.muteButton->setTooltip("Mute the audio");
+            auto audioActions = p.audioActions->getActions();
+            p.muteButton = dtk::ToolButton::create(context, audioActions["Mute"]);
 
             p.statusBar = StatusBar::create(context, app);
             p.statusBar->setHStretch(dtk::Stretch::Expanding);

@@ -9,31 +9,21 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
-#include <dtk/core/Format.h>
-
 #include <sstream>
 
 namespace tl
 {
     namespace play
     {
-        struct ViewActions::Private
-        {
-            std::vector<dtk::ImageType> colorBuffers;
-            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-
-            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
-        };
-
         void ViewActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
-            DTK_P();
+            IActions::_init(context, app, "View");
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["Frame"] = dtk::Action::create(
+            _actions["Frame"] = dtk::Action::create(
                 "Frame",
                 "ViewFrame",
                 [mainWindowWeak](bool value)
@@ -44,7 +34,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ZoomReset"] = dtk::Action::create(
+            _actions["ZoomReset"] = dtk::Action::create(
                 "Zoom Reset",
                 "ViewZoomReset",
                 [mainWindowWeak]
@@ -55,7 +45,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ZoomIn"] = dtk::Action::create(
+            _actions["ZoomIn"] = dtk::Action::create(
                 "Zoom In",
                 "ViewZoomIn",
                 [mainWindowWeak]
@@ -66,7 +56,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ZoomOut"] = dtk::Action::create(
+            _actions["ZoomOut"] = dtk::Action::create(
                 "Zoom Out",
                 "ViewZoomOut",
                 [mainWindowWeak]
@@ -78,7 +68,7 @@ namespace tl
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Red"] = dtk::Action::create(
+            _actions["Red"] = dtk::Action::create(
                 "Red Channel",
                 [appWeak](bool value)
                 {
@@ -92,7 +82,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Green"] = dtk::Action::create(
+            _actions["Green"] = dtk::Action::create(
                 "Green Channel",
                 [appWeak](bool value)
                 {
@@ -106,7 +96,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Blue"] = dtk::Action::create(
+            _actions["Blue"] = dtk::Action::create(
                 "Blue Channel",
                 [appWeak](bool value)
                 {
@@ -120,7 +110,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Alpha"] = dtk::Action::create(
+            _actions["Alpha"] = dtk::Action::create(
                 "Alpha Channel",
                 [appWeak](bool value)
                 {
@@ -134,7 +124,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorHorizontal"] = dtk::Action::create(
+            _actions["MirrorHorizontal"] = dtk::Action::create(
                 "Mirror Horizontal",
                 [appWeak](bool value)
                 {
@@ -146,7 +136,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorVertical"] = dtk::Action::create(
+            _actions["MirrorVertical"] = dtk::Action::create(
                 "Mirror Vertical",
                 [appWeak](bool value)
                 {
@@ -158,7 +148,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyNearest"] = dtk::Action::create(
+            _actions["MinifyNearest"] = dtk::Action::create(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -170,7 +160,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyLinear"] = dtk::Action::create(
+            _actions["MinifyLinear"] = dtk::Action::create(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -182,7 +172,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyNearest"] = dtk::Action::create(
+            _actions["MagnifyNearest"] = dtk::Action::create(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -194,7 +184,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyLinear"] = dtk::Action::create(
+            _actions["MagnifyLinear"] = dtk::Action::create(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -207,7 +197,7 @@ namespace tl
                 });
 
 
-            p.actions["FromFile"] = dtk::Action::create(
+            _actions["FromFile"] = dtk::Action::create(
                 "From File",
                 [appWeak](bool value)
                 {
@@ -219,7 +209,7 @@ namespace tl
                     }
                 });
 
-            p.actions["FullRange"] = dtk::Action::create(
+            _actions["FullRange"] = dtk::Action::create(
                 "Full Range",
                 [appWeak](bool value)
                 {
@@ -231,7 +221,7 @@ namespace tl
                     }
                 });
 
-            p.actions["LegalRange"] = dtk::Action::create(
+            _actions["LegalRange"] = dtk::Action::create(
                 "Legal Range",
                 [appWeak](bool value)
                 {
@@ -243,7 +233,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendNone"] = dtk::Action::create(
+            _actions["AlphaBlendNone"] = dtk::Action::create(
                 "None",
                 [appWeak](bool value)
                 {
@@ -255,7 +245,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendStraight"] = dtk::Action::create(
+            _actions["AlphaBlendStraight"] = dtk::Action::create(
                 "Straight",
                 [appWeak](bool value)
                 {
@@ -267,7 +257,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendPremultiplied"] = dtk::Action::create(
+            _actions["AlphaBlendPremultiplied"] = dtk::Action::create(
                 "Premultiplied",
                 [appWeak](bool value)
                 {
@@ -279,15 +269,15 @@ namespace tl
                     }
                 });
 
-            p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
-            p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
-            p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
-            for (size_t i = 0; i < p.colorBuffers.size(); ++i)
+            _colorBuffers.push_back(dtk::ImageType::RGBA_U8);
+            _colorBuffers.push_back(dtk::ImageType::RGBA_F16);
+            _colorBuffers.push_back(dtk::ImageType::RGBA_F32);
+            for (size_t i = 0; i < _colorBuffers.size(); ++i)
             {
-                const dtk::ImageType imageType = p.colorBuffers[i];
+                const dtk::ImageType imageType = _colorBuffers[i];
                 std::stringstream ss;
                 ss << imageType;
-                p.actions[ss.str()] = dtk::Action::create(
+                _actions[ss.str()] = dtk::Action::create(
                     ss.str(),
                     [appWeak, imageType](bool value)
                     {
@@ -298,7 +288,7 @@ namespace tl
                     });
             }
 
-            p.actions["HUD"] = dtk::Action::create(
+            _actions["HUD"] = dtk::Action::create(
                 "HUD",
                 [appWeak](bool value)
                 {
@@ -308,17 +298,17 @@ namespace tl
                     }
                 });
 
-            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
-                app->getSettingsModel()->observeKeyShortcuts(),
-                [this](const KeyShortcutsSettings& value)
-                {
-                    _keyShortcutsUpdate(value);
-                });
-        }
+            _tooltips =
+            {
+                { "Frame",  "Frame the view to fit the window." },
+                { "ZoomReset", "Reset the view zoom to 1:1." },
+                { "ZoomIn", "Zoom the view in." },
+                { "ZoomOut", "Zoom the view out." },
+                { "HUD", "Toggle the HUD (Heads Up Display)." }
+            };
 
-        ViewActions::ViewActions() :
-            _p(new Private)
-        {}
+            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+        }
 
         ViewActions::~ViewActions()
         {}
@@ -335,65 +325,7 @@ namespace tl
 
         const std::vector<dtk::ImageType>& ViewActions::getColorBuffers() const
         {
-            return _p->colorBuffers;
-        }
-
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& ViewActions::getActions() const
-        {
-            return _p->actions;
-        }
-
-        void ViewActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
-        {
-            DTK_P();
-            const std::map<std::string, std::string> tooltips =
-            {
-                {
-                    "Frame",
-                    "Frame the view to fit the window.\n"
-                    "\n"
-                    "Shortcut: {0}"
-                },
-                {
-                    "ZoomReset",
-                    "Reset the view zoom to 1:1.\n"
-                    "\n"
-                    "Shortcut: {0}"
-                },
-                {
-                    "ZoomIn",
-                    "Zoom the view in.\n"
-                    "\n"
-                    "Shortcut: {0}"
-                },
-                {
-                    "ZoomOut",
-                    "Zoom the view out.\n"
-                    "\n"
-                    "Shortcut: {0}"
-                },
-                {
-                    "HUD",
-                    "Toggle the HUD (Heads Up Display).\n"
-                    "\n"
-                    "Shortcut: {0}"
-                }
-            };
-            for (const auto& i : p.actions)
-            {
-                auto j = value.shortcuts.find(dtk::Format("View/{0}").arg(i.first));
-                if (j != value.shortcuts.end())
-                {
-                    i.second->setShortcut(j->second.key);
-                    i.second->setShortcutModifiers(j->second.modifiers);
-                    const auto k = tooltips.find(i.first);
-                    if (k != tooltips.end())
-                    {
-                        i.second->setTooltip(dtk::Format(k->second).
-                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
-                    }
-                }
-            }
+            return _colorBuffers;
         }
     }
 }

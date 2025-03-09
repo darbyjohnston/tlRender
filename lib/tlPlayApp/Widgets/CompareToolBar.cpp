@@ -5,10 +5,10 @@
 #include <tlPlayApp/Widgets/CompareToolBar.h>
 
 #include <tlPlayApp/Models/FilesModel.h>
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -17,7 +17,7 @@ namespace tl
         struct CompareToolBar::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::map<timeline::Compare, std::shared_ptr<ToolBarButton> > buttons;
+            std::map<timeline::Compare, std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
@@ -42,7 +42,7 @@ namespace tl
             for (size_t i = 0; i < enums.size(); ++i)
             {
                 const auto compare = enums[i];
-                p.buttons[compare] = ToolBarButton::create(context, p.actions[labels[i]]);
+                p.buttons[compare] = dtk::ToolButton::create(context, p.actions[labels[i]]);
             }
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());

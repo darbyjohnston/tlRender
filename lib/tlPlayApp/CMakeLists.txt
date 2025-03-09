@@ -3,6 +3,7 @@ set(HEADERS_ACTIONS
     Actions/CompareActions.h
     Actions/FileActions.h
     Actions/FrameActions.h
+    Actions/IActions.h
     Actions/PlaybackActions.h
     Actions/TimelineActions.h
     Actions/ToolsActions.h
@@ -57,7 +58,6 @@ set(HEADERS_WIDGETS
     Widgets/SeparateAudioDialog.h
     Widgets/SpeedPopup.h
     Widgets/StatusBar.h
-    Widgets/ToolBarButton.h
     Widgets/ToolsToolBar.h
     Widgets/ViewToolBar.h
     Widgets/Viewport.h
@@ -83,6 +83,7 @@ set(SOURCE_ACTIONS
     Actions/CompareActions.cpp
     Actions/FileActions.cpp
     Actions/FrameActions.cpp
+    Actions/IActions.cpp
     Actions/PlaybackActions.cpp
     Actions/TimelineActions.cpp
     Actions/ToolsActions.cpp
@@ -134,7 +135,6 @@ set(SOURCE_WIDGETS
     Widgets/SeparateAudioWidget.cpp
     Widgets/SpeedPopup.cpp
     Widgets/StatusBar.cpp
-    Widgets/ToolBarButton.cpp
     Widgets/ToolsToolBar.cpp
     Widgets/ViewToolBar.cpp
     Widgets/Viewport.cpp

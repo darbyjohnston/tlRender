@@ -4,18 +4,14 @@
 
 #pragma once
 
-#include <tlPlayApp/Models/SettingsModel.h>
-
-#include <dtk/ui/Action.h>
+#include <tlPlayApp/Actions/IActions.h>
 
 namespace tl
 {
     namespace play
     {
-        class App;
-
         //! Playback actions.
-        class PlaybackActions : public std::enable_shared_from_this<PlaybackActions>
+        class PlaybackActions : public IActions
         {
             DTK_NON_COPYABLE(PlaybackActions);
 
@@ -24,7 +20,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            PlaybackActions();
+            PlaybackActions() = default;
 
         public:
             ~PlaybackActions();
@@ -33,12 +29,8 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
-
         private:
-            void _keyShortcutsUpdate(const KeyShortcutsSettings&);
-
-            DTK_PRIVATE();
+            timeline::Playback _playbackPrev = timeline::Playback::Forward;
         };
     }
 }

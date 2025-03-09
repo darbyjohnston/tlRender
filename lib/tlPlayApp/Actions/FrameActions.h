@@ -4,19 +4,16 @@
 
 #pragma once
 
-#include <tlPlayApp/Models/SettingsModel.h>
-
-#include <dtk/ui/Action.h>
+#include <tlPlayApp/Actions/IActions.h>
 
 namespace tl
 {
     namespace play
     {
-        class App;
         class MainWindow;
 
         //! Frame actions.
-        class FrameActions : public std::enable_shared_from_this<FrameActions>
+        class FrameActions : public IActions
         {
             DTK_NON_COPYABLE(FrameActions);
 
@@ -26,7 +23,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            FrameActions();
+            FrameActions() = default;
 
         public:
             ~FrameActions();
@@ -35,13 +32,6 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
-
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
-
-        private:
-            void _keyShortcutsUpdate(const KeyShortcutsSettings&);
-
-            DTK_PRIVATE();
         };
     }
 }

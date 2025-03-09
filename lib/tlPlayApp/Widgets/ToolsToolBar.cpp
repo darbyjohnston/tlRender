@@ -5,10 +5,10 @@
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 
 #include <tlPlayApp/Models/ToolsModel.h>
-#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/RowLayout.h>
+#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -18,7 +18,7 @@ namespace tl
         {
             std::vector<Tool> tools;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::vector<std::shared_ptr<ToolBarButton> > buttons;
+            std::vector<std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
             std::shared_ptr<dtk::ValueObserver<Tool> > activeObserver;
         };
@@ -41,7 +41,7 @@ namespace tl
 
             for (const auto tool : p.tools)
             {
-                auto button = ToolBarButton::create(context, p.actions[getLabel(tool)]);
+                auto button = dtk::ToolButton::create(context, p.actions[getLabel(tool)]);
                 p.buttons.push_back(button);
             }
 
