@@ -50,11 +50,18 @@ namespace tl
         {
             for (const auto& i : _actions)
             {
-                auto j = value.shortcuts.find(dtk::Format("{0}/{1}").arg(_name).arg(i.first));
+                const std::string name = dtk::Format("{0}/{1}").arg(_name).arg(i.first);
+                const auto j = std::find_if(
+                    value.shortcuts.begin(),
+                    value.shortcuts.end(),
+                    [name](const KeyShortcut& value)
+                    {
+                        return name == value.name;
+                    });
                 if (j != value.shortcuts.end())
                 {
-                    i.second->setShortcut(j->second.key);
-                    i.second->setShortcutModifiers(j->second.modifiers);
+                    i.second->setShortcut(j->key);
+                    i.second->setShortcutModifiers(j->modifiers);
                     const auto k = _tooltips.find(i.first);
                     if (k != _tooltips.end())
                     {
@@ -63,7 +70,7 @@ namespace tl
                             "\n"
                             "Shortcut: {1}").
                             arg(k->second).
-                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                            arg(dtk::getShortcutLabel(j->key, j->modifiers)));
                     }
                 }
             }

@@ -14,10 +14,14 @@ namespace tl
         struct KeyShortcut
         {
             KeyShortcut() = default;
-            explicit KeyShortcut(dtk::Key, int modifiers = 0);
+            explicit KeyShortcut(
+                const std::string&,
+                dtk::Key = dtk::Key::Unknown,
+                int modifiers = 0);
 
-            dtk::Key key       = dtk::Key::Unknown;
-            int      modifiers = 0;
+            std::string name;
+            dtk::Key    key       = dtk::Key::Unknown;
+            int         modifiers = 0;
 
             bool operator == (const KeyShortcut&) const;
             bool operator != (const KeyShortcut&) const;

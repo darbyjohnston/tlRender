@@ -120,7 +120,7 @@ namespace tl
         {
             KeyShortcutsSettings();
 
-            std::map<std::string, KeyShortcut> shortcuts;
+            std::vector<KeyShortcut> shortcuts;
 
             bool operator == (const KeyShortcutsSettings&) const;
             bool operator != (const KeyShortcutsSettings&) const;

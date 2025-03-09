@@ -8,7 +8,11 @@ namespace tl
 {
     namespace play
     {
-        KeyShortcut::KeyShortcut(dtk::Key key, int modifiers) :
+        KeyShortcut::KeyShortcut(
+            const std::string& name,
+            dtk::Key key,
+            int modifiers) :
+            name(name),
             key(key),
             modifiers(modifiers)
         {}
@@ -16,6 +20,7 @@ namespace tl
         bool KeyShortcut::operator == (const KeyShortcut& other) const
         {
             return
+                name == other.name &&
                 key == other.key &&
                 modifiers == other.modifiers;
         }
@@ -27,12 +32,14 @@ namespace tl
 
         void to_json(nlohmann::json& json, const KeyShortcut& in)
         {
+            json["Name"] = in.name;
             json["Key"] = to_string(in.key);
             json["Modifiers"] = in.modifiers;
         }
 
         void from_json(const nlohmann::json& json, KeyShortcut& out)
         {
+            json.at("Name").get_to(out.name);
             from_string(json.at("Key").get<std::string>(), out.key);
             json.at("Modifiers").get_to(out.modifiers);
         }

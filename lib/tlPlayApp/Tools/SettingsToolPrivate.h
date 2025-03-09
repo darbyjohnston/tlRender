@@ -6,6 +6,8 @@
 
 #include <tlPlayApp/Tools/SettingsTool.h>
 
+#include <tlPlayApp/Models/SettingsModel.h>
+
 namespace tl
 {
     namespace play
@@ -92,6 +94,65 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
+            DTK_PRIVATE();
+        };
+
+        //! Keyboard shortcut widget.
+        class KeyShortcutWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(KeyShortcutWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            KeyShortcutWidget();
+
+        public:
+            virtual ~KeyShortcutWidget();
+
+            static std::shared_ptr<KeyShortcutWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setShortcut(const KeyShortcut&);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent&) override;
+
+        private:
+            DTK_PRIVATE();
+        };
+
+        //! Keyboard shortcuts settings widget.
+        class KeyShortcutsSettingsWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(KeyShortcutsSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            KeyShortcutsSettingsWidget();
+
+        public:
+            virtual ~KeyShortcutsSettingsWidget();
+
+            static std::shared_ptr<KeyShortcutsSettingsWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            void _widgetUpdate(const KeyShortcutsSettings&);
+
             DTK_PRIVATE();
         };
 
