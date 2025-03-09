@@ -156,7 +156,7 @@ namespace tl
             p.currentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
-                auto item = std::make_shared<dtk::Action>(
+                auto item = dtk::Action::create(
                     value[i]->path.get(-1, file::PathType::FileName),
                     [this, i]
                     {
@@ -181,7 +181,7 @@ namespace tl
             {
                 for (size_t i = 0; i < value->videoLayers.size(); ++i)
                 {
-                    auto item = std::make_shared<dtk::Action>(
+                    auto item = dtk::Action::create(
                         value->videoLayers[i],
                         [this, value, i]
                         {
@@ -191,7 +191,7 @@ namespace tl
                                 app->getFilesModel()->setLayer(value, i);
                             }
                         });
-                    item->checked = i == value->videoLayer;
+                    item->setChecked(i == value->videoLayer);
                     p.menus["Layers"]->addItem(item);
                     p.layersItems.push_back(item);
                 }
@@ -233,7 +233,7 @@ namespace tl
                 {
                     const auto path = *i;
                     auto weak = std::weak_ptr<FileMenu>(std::dynamic_pointer_cast<FileMenu>(shared_from_this()));
-                    auto item = std::make_shared<dtk::Action>(
+                    auto item = dtk::Action::create(
                         path.u8string(),
                         [weak, path]
                         {

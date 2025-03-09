@@ -43,17 +43,17 @@ namespace tl
             p.actions = actions->getActions();
 
             addItem(p.actions["FrameView"]);
-            addItem(p.actions["ScrollToCurrentFrame"]);
+            addItem(p.actions["Scroll"]);
             addItem(p.actions["StopOnScrub"]);
             addItem(p.actions["Thumbnails"]);
             p.menus["ThumbnailSize"] = addSubMenu("Thumbnails Size");
-            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails100"]);
-            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails200"]);
-            p.menus["ThumbnailSize"]->addItem(p.actions["Thumbnails300"]);
+            p.menus["ThumbnailSize"]->addItem(p.actions["ThumbnailsSmall"]);
+            p.menus["ThumbnailSize"]->addItem(p.actions["ThumbnailsMedium"]);
+            p.menus["ThumbnailSize"]->addItem(p.actions["ThumbnailsLarge"]);
 
-            p.thumbnailsSizeItems[100] = p.actions["Thumbnails100"];
-            p.thumbnailsSizeItems[200] = p.actions["Thumbnails200"];
-            p.thumbnailsSizeItems[300] = p.actions["Thumbnails300"];
+            p.thumbnailsSizeItems[100] = p.actions["ThumbnailsSmall"];
+            p.thumbnailsSizeItems[200] = p.actions["ThumbnailsMedium"];
+            p.thumbnailsSizeItems[300] = p.actions["ThumbnailsLarge"];
 
             _thumbnailsSizeUpdate();
 
@@ -68,7 +68,7 @@ namespace tl
                 mainWindow->getTimelineWidget()->observeScrollToCurrentFrame(),
                 [this](bool value)
                 {
-                    setItemChecked(_p->actions["ScrollToCurrentFrame"], value);
+                    setItemChecked(_p->actions["Scroll"], value);
                 });
 
             p.stopOnScrubObserver = dtk::ValueObserver<bool>::create(

@@ -43,12 +43,6 @@ namespace tl
         //! Get the tool icon.
         std::string getIcon(Tool);
 
-        //! Get the tool keyboard shortcut.
-        dtk::Key getShortcut(Tool);
-
-        //! Get the tool tooltip.
-        std::string getTooltip(Tool);
-
         //! Get the tools shown in the toolbar.
         std::vector<Tool> getToolsInToolbar();
 

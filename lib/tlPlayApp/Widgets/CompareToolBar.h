@@ -42,8 +42,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            void _compareUpdate(const timeline::CompareOptions&);
-
             DTK_PRIVATE();
         };
     }

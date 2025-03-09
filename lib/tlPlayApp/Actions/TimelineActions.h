@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlPlayApp/Models/SettingsModel.h>
+
 #include <dtk/ui/Action.h>
 
 namespace tl
@@ -37,6 +39,8 @@ namespace tl
             const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
 
         private:
+            void _keyShortcutsUpdate(const KeyShortcutsSettings&);
+
             DTK_PRIVATE();
         };
     }

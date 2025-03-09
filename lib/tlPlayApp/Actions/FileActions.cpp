@@ -16,6 +16,8 @@ namespace tl
         struct FileActions::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void FileActions::_init(
@@ -25,11 +27,9 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Open"] = std::make_shared<dtk::Action>(
+            p.actions["Open"] = dtk::Action::create(
                 "Open",
                 "FileOpen",
-                dtk::Key::O,
-                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -37,20 +37,10 @@ namespace tl
                         app->openDialog();
                     }
                 });
-            p.actions["Open"]->toolTip = dtk::Format(
-                "Open a file\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["Open"]->shortcut,
-                    p.actions["Open"]->shortcutModifiers));
 
-            p.actions["OpenSeparateAudio"] = std::make_shared<dtk::Action>(
+            p.actions["OpenSeparateAudio"] = dtk::Action::create(
                 "Open With Separate Audio",
                 "FileOpenSeparateAudio",
-                dtk::Key::O,
-                static_cast<int>(dtk::KeyModifier::Shift) |
-                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -58,19 +48,10 @@ namespace tl
                         app->openSeparateAudioDialog();
                     }
                 });
-            p.actions["OpenSeparateAudio"]->toolTip = dtk::Format(
-                "Open a file with separate audio\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["OpenSeparateAudio"]->shortcut,
-                    p.actions["OpenSeparateAudio"]->shortcutModifiers));
 
-            p.actions["Close"] = std::make_shared<dtk::Action>(
+            p.actions["Close"] = dtk::Action::create(
                 "Close",
                 "FileClose",
-                dtk::Key::E,
-                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -78,20 +59,10 @@ namespace tl
                         app->getFilesModel()->close();
                     }
                 });
-            p.actions["Close"]->toolTip = dtk::Format(
-                "Close the current file\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["Close"]->shortcut,
-                    p.actions["Close"]->shortcutModifiers));
 
-            p.actions["CloseAll"] = std::make_shared<dtk::Action>(
+            p.actions["CloseAll"] = dtk::Action::create(
                 "Close All",
                 "FileCloseAll",
-                dtk::Key::E,
-                static_cast<int>(dtk::KeyModifier::Shift) |
-                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -99,15 +70,8 @@ namespace tl
                         app->getFilesModel()->closeAll();
                     }
                 });
-            p.actions["CloseAll"]->toolTip = dtk::Format(
-                "Close all files\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["Close"]->shortcut,
-                    p.actions["Close"]->shortcutModifiers));
 
-            p.actions["Reload"] = std::make_shared<dtk::Action>(
+            p.actions["Reload"] = dtk::Action::create(
                 "Reload",
                 [appWeak]
                 {
@@ -117,11 +81,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Next"] = std::make_shared<dtk::Action>(
+            p.actions["Next"] = dtk::Action::create(
                 "Next",
                 "Next",
-                dtk::Key::PageDown,
-                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -130,11 +92,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Prev"] = std::make_shared<dtk::Action>(
+            p.actions["Prev"] = dtk::Action::create(
                 "Previous",
                 "Prev",
-                dtk::Key::PageUp,
-                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -143,11 +103,9 @@ namespace tl
                     }
                 });
 
-            p.actions["NextLayer"] = std::make_shared<dtk::Action>(
+            p.actions["NextLayer"] = dtk::Action::create(
                 "Next Layer",
                 "Next",
-                dtk::Key::Equal,
-                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -156,11 +114,9 @@ namespace tl
                     }
                 });
 
-            p.actions["PrevLayer"] = std::make_shared<dtk::Action>(
+            p.actions["PrevLayer"] = dtk::Action::create(
                 "Previous Layer",
                 "Prev",
-                dtk::Key::Minus,
-                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -169,16 +125,21 @@ namespace tl
                     }
                 });
 
-            p.actions["Exit"] = std::make_shared<dtk::Action>(
+            p.actions["Exit"] = dtk::Action::create(
                 "Exit",
-                dtk::Key::Q,
-                static_cast<int>(dtk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
                     {
                         app->exit();
                     }
+                });
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
                 });
         }
 
@@ -201,6 +162,89 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& FileActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void FileActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            const std::map<std::string, std::string> tooltips =
+            {
+                {
+                    "Open",
+                    "Open a file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "OpenSeparateAudio",
+                    "Open a file with separate audio.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Close",
+                    "Close the current file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "CloseAll",
+                    "Close all files.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Reload",
+                    "Reload the current file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Next",
+                    "Change to the next file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Prev",
+                    "Change to the previous file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "NextLayer",
+                    "Change to the next layer.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "PrevLayer",
+                    "Change to the previous layer.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Exit",
+                    "Exit the application.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                }
+            };
+            for (const auto& i : p.actions)
+            {
+                auto j = value.shortcuts.find(dtk::Format("File/{0}").arg(i.first));
+                if (j != value.shortcuts.end())
+                {
+                    i.second->setShortcut(j->second.key);
+                    i.second->setShortcutModifiers(j->second.modifiers);
+                    const auto k = tooltips.find(i.first);
+                    if (k != tooltips.end())
+                    {
+                        i.second->setTooltip(dtk::Format(k->second).
+                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                    }
+                }
+            }
         }
     }
 }

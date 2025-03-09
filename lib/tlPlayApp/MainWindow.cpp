@@ -33,6 +33,7 @@
 #include <tlPlayApp/Widgets/FileToolBar.h>
 #include <tlPlayApp/Widgets/SpeedPopup.h>
 #include <tlPlayApp/Widgets/StatusBar.h>
+#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 #include <tlPlayApp/Widgets/ViewToolBar.h>
 #include <tlPlayApp/Widgets/Viewport.h>
@@ -101,8 +102,6 @@ namespace tl
             std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ViewToolBar> viewToolBar;
             std::shared_ptr<ToolsToolBar> toolsToolBar;
-            std::shared_ptr<dtk::ButtonGroup> playbackButtonGroup;
-            std::shared_ptr<dtk::ButtonGroup> frameButtonGroup;
             std::shared_ptr<timelineui::TimeEdit> currentTimeEdit;
             std::shared_ptr<timelineui::TimeLabel> durationLabel;
             std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
@@ -123,7 +122,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<dtk::ValueObserver<double> > speedObserver;
             std::shared_ptr<dtk::ValueObserver<double> > speedObserver2;
-            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
@@ -234,40 +232,17 @@ namespace tl
                 p.toolsActions->getActions());
 
             auto playbackActions = p.playbackActions->getActions();
-            auto stopButton = dtk::ToolButton::create(context);
-            stopButton->setIcon(playbackActions["Stop"]->icon);
-            stopButton->setTooltip(playbackActions["Stop"]->toolTip);
-            auto forwardButton = dtk::ToolButton::create(context);
-            forwardButton->setIcon(playbackActions["Forward"]->icon);
-            forwardButton->setTooltip(playbackActions["Forward"]->toolTip);
-            auto reverseButton = dtk::ToolButton::create(context);
-            reverseButton->setIcon(playbackActions["Reverse"]->icon);
-            reverseButton->setTooltip(playbackActions["Reverse"]->toolTip);
-            p.playbackButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Radio);
-            p.playbackButtonGroup->addButton(stopButton);
-            p.playbackButtonGroup->addButton(forwardButton);
-            p.playbackButtonGroup->addButton(reverseButton);
+            auto stopButton = ToolBarButton::create(context, playbackActions["Stop"]);
+            auto forwardButton = ToolBarButton::create(context, playbackActions["Forward"]);
+            auto reverseButton = ToolBarButton::create(context, playbackActions["Reverse"]);
 
             auto frameActions = p.frameActions->getActions();
-            auto timeStartButton = dtk::ToolButton::create(context);
-            timeStartButton->setIcon(frameActions["Start"]->icon);
-            timeStartButton->setTooltip(frameActions["Start"]->toolTip);
-            auto timeEndButton = dtk::ToolButton::create(context);
-            timeEndButton->setIcon(frameActions["End"]->icon);
-            timeEndButton->setTooltip(frameActions["End"]->toolTip);
-            auto framePrevButton = dtk::ToolButton::create(context);
-            framePrevButton->setIcon(frameActions["Prev"]->icon);
-            framePrevButton->setTooltip(frameActions["Prev"]->toolTip);
+            auto timeStartButton = ToolBarButton::create(context, frameActions["Start"]);
+            auto timeEndButton = ToolBarButton::create(context, frameActions["End"]);
+            auto framePrevButton = ToolBarButton::create(context, frameActions["Prev"]);
             framePrevButton->setRepeatClick(true);
-            auto frameNextButton = dtk::ToolButton::create(context);
-            frameNextButton->setIcon(frameActions["Next"]->icon);
-            frameNextButton->setTooltip(frameActions["Next"]->toolTip);
+            auto frameNextButton = ToolBarButton::create(context, frameActions["Next"]);
             frameNextButton->setRepeatClick(true);
-            p.frameButtonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Click);
-            p.frameButtonGroup->addButton(timeStartButton);
-            p.frameButtonGroup->addButton(framePrevButton);
-            p.frameButtonGroup->addButton(frameNextButton);
-            p.frameButtonGroup->addButton(timeEndButton);
 
             p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
             p.currentTimeEdit->setTooltip("Current time");
@@ -384,38 +359,6 @@ namespace tl
                     {
                         app->getTimeUnitsModel()->setTimeUnits(
                             static_cast<timeline::TimeUnits>(value));
-                    }
-                });
-
-            p.playbackButtonGroup->setCheckedCallback(
-                [this](int index, bool value)
-                {
-                    if (_p->player)
-                    {
-                        _p->player->setPlayback(static_cast<timeline::Playback>(index));
-                    }
-                });
-
-            p.frameButtonGroup->setClickedCallback(
-                [this](int index)
-                {
-                    if (_p->player)
-                    {
-                        switch (index)
-                        {
-                        case 0:
-                            _p->player->timeAction(timeline::TimeAction::Start);
-                            break;
-                        case 1:
-                            _p->player->timeAction(timeline::TimeAction::FramePrev);
-                            break;
-                        case 2:
-                            _p->player->timeAction(timeline::TimeAction::FrameNext);
-                            break;
-                        case 3:
-                            _p->player->timeAction(timeline::TimeAction::End);
-                            break;
-                        }
                     }
                 });
 
@@ -583,7 +526,6 @@ namespace tl
             DTK_P();
 
             p.speedObserver.reset();
-            p.playbackObserver.reset();
             p.currentTimeObserver.reset();
 
             p.player = value;
@@ -604,13 +546,6 @@ namespace tl
                         _p->speedModel->setValue(value);
                     });
 
-                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
-                    p.player->observePlayback(),
-                    [this](timeline::Playback value)
-                    {
-                        _p->playbackButtonGroup->setChecked(static_cast<int>(value), true);
-                    });
-
                 p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
                     [this](const OTIO_NS::RationalTime& value)
@@ -621,7 +556,6 @@ namespace tl
             else
             {
                 p.speedModel->setValue(0.0);
-                p.playbackButtonGroup->setChecked(0, true);
                 p.currentTimeEdit->setValue(time::invalidTime);
             }
         }

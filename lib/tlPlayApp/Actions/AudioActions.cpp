@@ -7,6 +7,8 @@
 #include <tlPlayApp/Models/AudioModel.h>
 #include <tlPlayApp/App.h>
 
+#include <dtk/core/Format.h>
+
 namespace tl
 {
     namespace play
@@ -14,6 +16,8 @@ namespace tl
         struct AudioActions::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void AudioActions::_init(
@@ -23,10 +27,8 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["VolumeUp"] = std::make_shared<dtk::Action>(
+            p.actions["VolumeUp"] = dtk::Action::create(
                 "Volume Up",
-                dtk::Key::Period,
-                0,
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -35,10 +37,8 @@ namespace tl
                     }
                 });
 
-            p.actions["VolumeDown"] = std::make_shared<dtk::Action>(
+            p.actions["VolumeDown"] = dtk::Action::create(
                 "Volume Down",
-                dtk::Key::Comma,
-                0,
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -47,17 +47,22 @@ namespace tl
                     }
                 });
 
-            p.actions["Mute"] = std::make_shared<dtk::Action>(
+            p.actions["Mute"] = dtk::Action::create(
                 "Mute",
                 "Mute",
-                dtk::Key::M,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
                     {
                         app->getAudioModel()->setMute(value);
                     }
+                });
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
                 });
         }
 
@@ -80,6 +85,47 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& AudioActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void AudioActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            const std::map<std::string, std::string> tooltips =
+            {
+                {
+                    "VolumeUp",
+                    "Increase the audio volume.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "VolumeDown",
+                    "Decrease the audio volume.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Mute",
+                    "Toggle the autio mute.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+            };
+            for (const auto& i : p.actions)
+            {
+                auto j = value.shortcuts.find(dtk::Format("Audio/{0}").arg(i.first));
+                if (j != value.shortcuts.end())
+                {
+                    i.second->setShortcut(j->second.key);
+                    i.second->setShortcutModifiers(j->second.modifiers);
+                    const auto k = tooltips.find(i.first);
+                    if (k != tooltips.end())
+                    {
+                        i.second->setTooltip(dtk::Format(k->second).
+                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                    }
+                }
+            }
         }
     }
 }

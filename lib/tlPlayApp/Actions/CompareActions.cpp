@@ -16,6 +16,8 @@ namespace tl
         struct CompareActions::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void CompareActions::_init(
@@ -25,11 +27,9 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Next"] = std::make_shared<dtk::Action>(
+            p.actions["Next"] = dtk::Action::create(
                 "Next",
                 "Next",
-                dtk::Key::PageDown,
-                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -38,11 +38,9 @@ namespace tl
                     }
                 });
 
-            p.actions["Prev"] = std::make_shared<dtk::Action>(
+            p.actions["Prev"] = dtk::Action::create(
                 "Previous",
                 "Prev",
-                dtk::Key::PageUp,
-                static_cast<int>(dtk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -51,102 +49,136 @@ namespace tl
                     }
                 });
 
-            const std::array<std::string, static_cast<size_t>(timeline::Compare::Count)> compareIcons =
-            {
+            p.actions["A"] = dtk::Action::create(
+                "A",
                 "CompareA",
-                "CompareB",
-                "CompareWipe",
-                "CompareOverlay",
-                "CompareDifference",
-                "CompareHorizontal",
-                "CompareVertical",
-                "CompareTile"
-            };
-            const std::array<std::pair<dtk::Key, int>, static_cast<size_t>(timeline::Compare::Count)> compareShortcuts =
-            {
-                std::make_pair(dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)),
-                std::make_pair(dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)),
-                std::make_pair(dtk::Key::W, static_cast<int>(dtk::KeyModifier::Control)),
-                std::make_pair(dtk::Key::Unknown, 0),
-                std::make_pair(dtk::Key::Unknown, 0),
-                std::make_pair(dtk::Key::Unknown, 0),
-                std::make_pair(dtk::Key::Unknown, 0),
-                std::make_pair(dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control))
-            };
-            const std::array<std::string, static_cast<size_t>(timeline::Compare::Count)> compareToolTips =
-            {
-                dtk::Format(
-                    "Show the A file\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::A)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::A)].second)),
-                dtk::Format(
-                    "Show the B file\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::B)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::B)].second)),
-                dtk::Format(
-                    "Wipe between the A and B files\n"
-                    "\n"
-                    "Use the Alt key + left mouse button to move the wipe\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::Wipe)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::Wipe)].second)),
-                "Show the A file over the B file with transparency",
-                "Show the difference between the A and B files",
-                "Show the A and B files side by side",
-                "Show the A file above the B file",
-                dtk::Format(
-                    "Tile the A and B files\n"
-                    "\n"
-                    "Shortcut: {0}").
-                    arg(dtk::getShortcutLabel(
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::Tile)].first,
-                        compareShortcuts[static_cast<size_t>(timeline::Compare::Tile)].second))
-            };
-            const auto compareEnums = timeline::getCompareEnums();
-            const auto comapreLabels = timeline::getCompareLabels();
-            for (size_t i = 0; i < compareEnums.size(); ++i)
-            {
-                const auto compare = compareEnums[i];
-                p.actions[comapreLabels[i]] = std::make_shared<dtk::Action>(
-                    timeline::getLabel(compare),
-                    compareIcons[i],
-                    compareShortcuts[i].first,
-                    compareShortcuts[i].second,
-                    [appWeak, compare]
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
                     {
-                        if (auto app = appWeak.lock())
-                        {
-                            auto options = app->getFilesModel()->getCompareOptions();
-                            options.compare = compare;
-                            app->getFilesModel()->setCompareOptions(options);
-                        }
-                    });
-                p.actions[comapreLabels[i]]->toolTip = compareToolTips[i];
-            }
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::A;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
 
-            const auto compareTimeEnums = timeline::getCompareTimeEnums();
-            const auto comapreTimeLabels = timeline::getCompareTimeLabels();
-            for (size_t i = 0; i < compareTimeEnums.size(); ++i)
-            {
-                const auto compareTime = compareTimeEnums[i];
-                p.actions[comapreTimeLabels[i]] = std::make_shared<dtk::Action>(
-                    comapreTimeLabels[i],
-                    [appWeak, compareTime]
+            p.actions["B"] = dtk::Action::create(
+                "B",
+                "CompareB",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
                     {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->getFilesModel()->setCompareTime(compareTime);
-                        }
-                    });
-            }
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::B;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Wipe"] = dtk::Action::create(
+                "Wipe",
+                "CompareWipe",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Wipe;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Overlay"] = dtk::Action::create(
+                "Overlay",
+                "CompareOverlay",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Overlay;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Difference"] = dtk::Action::create(
+                "Difference",
+                "CompareDifference",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Difference;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Horizontal"] = dtk::Action::create(
+                "Horizontal",
+                "CompareHorizontal",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Horizontal;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Vertical"] = dtk::Action::create(
+                "Vertical",
+                "CompareVertical",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Vertical;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Tile"] = dtk::Action::create(
+                "Tile",
+                "CompareTile",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getFilesModel()->getCompareOptions();
+                        options.compare = timeline::Compare::Tile;
+                        app->getFilesModel()->setCompareOptions(options);
+                    }
+                });
+
+            p.actions["Relative"] = dtk::Action::create(
+                "Relative",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->setCompareTime(timeline::CompareTime::Relative);
+                    }
+                });
+
+            p.actions["Absolute"] = dtk::Action::create(
+                "Absolute",
+                [appWeak]
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getFilesModel()->setCompareTime(timeline::CompareTime::Absolute);
+                    }
+                });
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
+                });
         }
 
         CompareActions::CompareActions() :
@@ -168,6 +200,89 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& CompareActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void CompareActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            const std::map<std::string, std::string> tooltips =
+            {
+                {
+                    "Next",
+                    "Go to the next B file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Prev",
+                    "Go to the previous B file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "A",
+                    "Show the A file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "B",
+                    "Show the B file.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Wipe",
+                    "Wipe between the A and B files.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Overlay",
+                    "Overlay the A and B files.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Difference",
+                    "Show the difference between the A and B files.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Horizontal",
+                    "Show the A and B files side by side.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Vertical",
+                    "Show the A and B files over and under.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Tile",
+                    "Show the A and B files tiled.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+            };
+            for (const auto& i : p.actions)
+            {
+                auto j = value.shortcuts.find(dtk::Format("Compare/{0}").arg(i.first));
+                if (j != value.shortcuts.end())
+                {
+                    i.second->setShortcut(j->second.key);
+                    i.second->setShortcutModifiers(j->second.modifiers);
+                    const auto k = tooltips.find(i.first);
+                    if (k != tooltips.end())
+                    {
+                        i.second->setTooltip(dtk::Format(k->second).
+                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                    }
+                }
+            }
         }
     }
 }

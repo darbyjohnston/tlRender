@@ -4,6 +4,7 @@
 
 #include <tlPlayApp/Widgets/ViewToolBar.h>
 
+#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/Widgets/Viewport.h>
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
@@ -17,13 +18,9 @@ namespace tl
     {
         struct ViewToolBar::Private
         {
-            std::weak_ptr<App> app;
-
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::map<std::string, std::shared_ptr<ToolBarButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
-
-            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
         };
 
         void ViewToolBar::_init(
@@ -39,48 +36,15 @@ namespace tl
                 parent);
             DTK_P();
 
-            p.app = app;
             p.actions = actions;
 
-            p.buttons["Frame"] = dtk::ToolButton::create(context);
-            p.buttons["Frame"]->setIcon(p.actions["Frame"]->icon);
-            p.buttons["Frame"]->setCheckable(p.actions["Frame"]->checkable);
-            p.buttons["Frame"]->setTooltip(p.actions["Frame"]->toolTip);
-
-            p.buttons["ZoomReset"] = dtk::ToolButton::create(context);
-            p.buttons["ZoomReset"]->setIcon(p.actions["ZoomReset"]->icon);
-            p.buttons["ZoomReset"]->setTooltip(p.actions["ZoomReset"]->toolTip);
+            p.buttons["Frame"] = ToolBarButton::create(context, p.actions["Frame"]);
+            p.buttons["ZoomReset"] = ToolBarButton::create(context, p.actions["ZoomReset"]);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);
             p.buttons["Frame"]->setParent(p.layout);
             p.buttons["ZoomReset"]->setParent(p.layout);
-
-            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.buttons["Frame"]->setCheckedCallback(
-                [mainWindowWeak](bool value)
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        mainWindow->getViewport()->setFrameView(value);
-                    }
-                });
-
-            p.buttons["ZoomReset"]->setClickedCallback(
-                [mainWindowWeak]
-                {
-                    if (auto mainWindow = mainWindowWeak.lock())
-                    {
-                        mainWindow->getViewport()->viewZoomReset();
-                    }
-                });
-
-            p.frameViewObserver = dtk::ValueObserver<bool>::create(
-                mainWindow->getViewport()->observeFrameView(),
-                [this](bool value)
-                {
-                    _p->buttons["Frame"]->setChecked(value);
-                });
         }
 
         ViewToolBar::ViewToolBar() :

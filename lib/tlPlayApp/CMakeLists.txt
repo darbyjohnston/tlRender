@@ -57,6 +57,7 @@ set(HEADERS_WIDGETS
     Widgets/SeparateAudioDialog.h
     Widgets/SpeedPopup.h
     Widgets/StatusBar.h
+    Widgets/ToolBarButton.h
     Widgets/ToolsToolBar.h
     Widgets/ViewToolBar.h
     Widgets/Viewport.h
@@ -66,6 +67,7 @@ set(HEADERS_PRIVATE_WIDGETS
 set(HEADERS
     App.h
     MainWindow.h
+    KeyShortcuts.h
     SecondaryWindow.h
     ${HEADERS_ACTIONS}
     ${HEADERS_MENUS}
@@ -132,12 +134,14 @@ set(SOURCE_WIDGETS
     Widgets/SeparateAudioWidget.cpp
     Widgets/SpeedPopup.cpp
     Widgets/StatusBar.cpp
+    Widgets/ToolBarButton.cpp
     Widgets/ToolsToolBar.cpp
     Widgets/ViewToolBar.cpp
     Widgets/Viewport.cpp
     Widgets/WindowToolBar.cpp)
 set(SOURCE
     App.cpp
+    KeyShortcuts.cpp
     MainWindow.cpp
     SecondaryWindow.cpp
     ${SOURCE_ACTIONS}

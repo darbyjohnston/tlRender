@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <tlPlayApp/KeyShortcuts.h>
+
 #include <tlTimelineUI/IItem.h>
 
 #include <tlTimeline/Player.h>
@@ -111,6 +113,17 @@ namespace tl
 
             bool operator == (const FileSequenceSettings&) const;
             bool operator != (const FileSequenceSettings&) const;
+        };
+
+        //! Keyboard shortcuts settings.
+        struct KeyShortcutsSettings
+        {
+            KeyShortcutsSettings();
+
+            std::map<std::string, KeyShortcut> shortcuts;
+
+            bool operator == (const KeyShortcutsSettings&) const;
+            bool operator != (const KeyShortcutsSettings&) const;
         };
 
         //! Miscellaneous settings.
@@ -264,6 +277,15 @@ namespace tl
 
             ///@}
 
+            //! \name Keyboard Shortcuts
+            ///@{
+
+            const KeyShortcutsSettings& getKeyShortcuts() const;
+            std::shared_ptr<dtk::IObservableValue<KeyShortcutsSettings> > observeKeyShortcuts() const;
+            void setKeyShortcuts(const KeyShortcutsSettings&);
+
+            ///@}
+
             //! \name Miscellaneous
             ///@{
 
@@ -355,6 +377,7 @@ namespace tl
         void to_json(nlohmann::json&, const ExportSettings&);
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const FileSequenceSettings&);
+        void to_json(nlohmann::json&, const KeyShortcutsSettings&);
         void to_json(nlohmann::json&, const MiscSettings&);
         void to_json(nlohmann::json&, const MouseSettings&);
         void to_json(nlohmann::json&, const PerformanceSettings&);
@@ -366,6 +389,7 @@ namespace tl
         void from_json(const nlohmann::json&, ExportSettings&);
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, FileSequenceSettings&);
+        void from_json(const nlohmann::json&, KeyShortcutsSettings&);
         void from_json(const nlohmann::json&, MiscSettings&);
         void from_json(const nlohmann::json&, MouseSettings&);
         void from_json(const nlohmann::json&, PerformanceSettings&);

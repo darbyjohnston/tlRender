@@ -47,7 +47,7 @@ namespace tl
             };
             for (const auto size : sizes)
             {
-                auto action = std::make_shared<dtk::Action>(
+                auto action = dtk::Action::create(
                     dtk::Format("{0}x{1}").arg(size.w).arg(size.h),
                     [mainWindowWeak, size]
                     {

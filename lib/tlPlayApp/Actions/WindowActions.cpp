@@ -17,6 +17,8 @@ namespace tl
         {
             std::shared_ptr<SettingsModel> model;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void WindowActions::_init(
@@ -29,11 +31,9 @@ namespace tl
             p.model = app->getSettingsModel();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["FullScreen"] = std::make_shared<dtk::Action>(
+            p.actions["FullScreen"] = dtk::Action::create(
                 "Full Screen",
                 "WindowFullScreen",
-                dtk::Key::U,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -41,15 +41,8 @@ namespace tl
                         app->getMainWindow()->setFullScreen(value);
                     }
                 });
-            p.actions["FullScreen"]->toolTip = dtk::Format(
-                "Toggle the window full screen\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["FullScreen"]->shortcut,
-                    p.actions["FullScreen"]->shortcutModifiers));
 
-            p.actions["FloatOnTop"] = std::make_shared<dtk::Action>(
+            p.actions["FloatOnTop"] = dtk::Action::create(
                 "Float On Top",
                 [appWeak](bool value)
                 {
@@ -59,7 +52,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Secondary"] = std::make_shared<dtk::Action>(
+            p.actions["Secondary"] = dtk::Action::create(
                 "Secondary",
                 "WindowSecondary",
                 dtk::Key::Y,
@@ -71,15 +64,8 @@ namespace tl
                         app->setSecondaryWindow(value);
                     }
                 });
-            p.actions["Secondary"]->toolTip = dtk::Format(
-                "Toggle the secondary window\n"
-                "\n"
-                "Shortcut: {0}").
-                arg(dtk::getShortcutLabel(
-                    p.actions["Secondary"]->shortcut,
-                    p.actions["Secondary"]->shortcutModifiers));
 
-            p.actions["FileToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["FileToolBar"] = dtk::Action::create(
                 "File Tool Bar",
                 [this](bool value)
                 {
@@ -89,7 +75,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["CompareToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["CompareToolBar"] = dtk::Action::create(
                 "Compare Tool Bar",
                 [this](bool value)
                 {
@@ -99,7 +85,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["WindowToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["WindowToolBar"] = dtk::Action::create(
                 "Window Tool Bar",
                 [this](bool value)
                 {
@@ -109,7 +95,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["ViewToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["ViewToolBar"] = dtk::Action::create(
                 "View Tool Bar",
                 [this](bool value)
                 {
@@ -119,7 +105,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["ToolsToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["ToolsToolBar"] = dtk::Action::create(
                 "Tools Tool Bar",
                 [this](bool value)
                 {
@@ -129,7 +115,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["Timeline"] = std::make_shared<dtk::Action>(
+            p.actions["Timeline"] = dtk::Action::create(
                 "Timeline",
                 [this](bool value)
                 {
@@ -139,7 +125,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["BottomToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["BottomToolBar"] = dtk::Action::create(
                 "Bottom Tool Bar",
                 [this](bool value)
                 {
@@ -149,7 +135,7 @@ namespace tl
                     p.model->setWindow(options);
                 });
 
-            p.actions["StatusToolBar"] = std::make_shared<dtk::Action>(
+            p.actions["StatusToolBar"] = dtk::Action::create(
                 "Status Tool Bar",
                 [this](bool value)
                 {
@@ -157,6 +143,13 @@ namespace tl
                     auto options = p.model->getWindow();
                     options.statusToolBar = value;
                     p.model->setWindow(options);
+                });
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
                 });
         }
 
@@ -180,6 +173,41 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& WindowActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void WindowActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            const std::map<std::string, std::string> tooltips =
+            {
+                {
+                    "FullScreen",
+                    "Toggle the window full screen.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "Secondary",
+                    "Toggle the secondary window.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+            };
+            for (const auto& i : p.actions)
+            {
+                auto j = value.shortcuts.find(dtk::Format("Window/{0}").arg(i.first));
+                if (j != value.shortcuts.end())
+                {
+                    i.second->setShortcut(j->second.key);
+                    i.second->setShortcutModifiers(j->second.modifiers);
+                    const auto k = tooltips.find(i.first);
+                    if (k != tooltips.end())
+                    {
+                        i.second->setTooltip(dtk::Format(k->second).
+                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                    }
+                }
+            }
         }
     }
 }

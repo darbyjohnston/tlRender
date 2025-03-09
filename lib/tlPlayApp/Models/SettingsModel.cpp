@@ -88,6 +88,136 @@ namespace tl
             return !(*this == other);
         }
 
+        KeyShortcutsSettings::KeyShortcutsSettings()
+        {
+            shortcuts =
+            {
+                { "Audio/VolumeUp", KeyShortcut(dtk::Key::Period) },
+                { "Audio/VolumeDown", KeyShortcut(dtk::Key::Comma) },
+                { "Audio/Mute", KeyShortcut(dtk::Key::M) },
+
+                { "Compare/Next", KeyShortcut(dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Compare/Prev", KeyShortcut(dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Compare/A", KeyShortcut(dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Compare/B", KeyShortcut(dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Compare/Wipe", KeyShortcut(dtk::Key::W, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Compare/Overlay", KeyShortcut() },
+                { "Compare/Difference", KeyShortcut() },
+                { "Compare/Horizontal", KeyShortcut() },
+                { "Compare/Vertical", KeyShortcut() },
+                { "Compare/Tile", KeyShortcut(dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Compare/Relative", KeyShortcut() },
+                { "Compare/Absolute", KeyShortcut() },
+
+                {"File/Open", KeyShortcut(dtk::Key::O, static_cast<int>(dtk::commandKeyModifier))},
+                { "File/OpenSeparateAudio", KeyShortcut(
+                    dtk::Key::O,
+                    static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)) },
+                { "File/Close", KeyShortcut(dtk::Key::E, static_cast<int>(dtk::commandKeyModifier)) },
+                { "File/CloseAll", KeyShortcut(
+                    dtk::Key::E,
+                    static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)) },
+                { "File/Reload", KeyShortcut(
+                    dtk::Key::R,
+                    static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)) },
+                { "File/Next", KeyShortcut(dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "File/Prev", KeyShortcut(dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "File/NextLayer", KeyShortcut(dtk::Key::Equal, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "File/PrevLayer", KeyShortcut(dtk::Key::Minus, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "File/Exit", KeyShortcut(dtk::Key::Q, static_cast<int>(dtk::commandKeyModifier)) },
+
+                { "Frame/Start", KeyShortcut(dtk::Key::Home) },
+                { "Frame/End", KeyShortcut(dtk::Key::End) },
+                { "Frame/Prev", KeyShortcut(dtk::Key::Left) },
+                { "Frame/PrevX10", KeyShortcut(dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Frame/PrevX100", KeyShortcut(dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Frame/Next", KeyShortcut(dtk::Key::Right) },
+                { "Frame/NextX10", KeyShortcut(dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Frame/NextX100", KeyShortcut(dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Frame/FocusCurrent", KeyShortcut(dtk::Key::F, static_cast<int>(dtk::KeyModifier::Control)) },
+
+                { "Playback/Stop", KeyShortcut(dtk::Key::K) },
+                { "Playback/Forward", KeyShortcut(dtk::Key::L) },
+                { "Playback/Reverse", KeyShortcut(dtk::Key::J) },
+                { "Playback/Toggle", KeyShortcut(dtk::Key::Space) },
+                { "Playback/JumpBack1s", KeyShortcut(dtk::Key::J, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Playback/JumpBack10s", KeyShortcut(dtk::Key::J, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Playback/JumpForward1s", KeyShortcut(dtk::Key::L, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Playback/JumpForward10s", KeyShortcut(dtk::Key::L, static_cast<int>(dtk::KeyModifier::Control)) },
+                { "Playback/Loop", KeyShortcut() },
+                { "Playback/Once", KeyShortcut() },
+                { "Playback/PingPong", KeyShortcut() },
+                { "Playback/SetInPoint", KeyShortcut(dtk::Key::I) },
+                { "Playback/ResetInPoint", KeyShortcut(dtk::Key::I, static_cast<int>(dtk::KeyModifier::Shift)) },
+                { "Playback/SetOutPoint", KeyShortcut(dtk::Key::O) },
+                { "Playback/ResetOutPoint", KeyShortcut(dtk::Key::O, static_cast<int>(dtk::KeyModifier::Shift)) },
+
+                { "Timeline/FrameView", KeyShortcut() },
+                { "Timeline/Scroll", KeyShortcut() },
+                { "Timeline/StopOnScrub", KeyShortcut() },
+                { "Timeline/Thumbnails", KeyShortcut() },
+                { "Timeline/ThumbnailsSmall", KeyShortcut() },
+                { "Timeline/ThumbnailsMedium", KeyShortcut() },
+                { "Timeline/ThumbnailsLarge", KeyShortcut() },
+
+                { "Tools/Files", KeyShortcut(dtk::Key::F1) },
+                { "Tools/Export", KeyShortcut(dtk::Key::F2) },
+                { "Tools/View", KeyShortcut(dtk::Key::F3) },
+                { "Tools/ColorPicker", KeyShortcut(dtk::Key::F4) },
+                { "Tools/ColorControls", KeyShortcut(dtk::Key::F5) },
+                { "Tools/Info", KeyShortcut(dtk::Key::F6) },
+                { "Tools/Audio", KeyShortcut(dtk::Key::F7) },
+                { "Tools/Devices", KeyShortcut(dtk::Key::F8) },
+                { "Tools/Settings", KeyShortcut(dtk::Key::F9) },
+                { "Tools/Messages", KeyShortcut(dtk::Key::F10) },
+                { "Tools/SystemLog", KeyShortcut(dtk::Key::F11) },
+
+                { "View/Frame", KeyShortcut(dtk::Key::Backspace) },
+                { "View/ZoomReset", KeyShortcut(dtk::Key::_0) },
+                { "View/ZoomIn", KeyShortcut(dtk::Key::Equal) },
+                { "View/ZoomOut", KeyShortcut(dtk::Key::Minus) },
+                { "View/Red", KeyShortcut(dtk::Key::R) },
+                { "View/Green", KeyShortcut(dtk::Key::G) },
+                { "View/Blue", KeyShortcut(dtk::Key::B) },
+                { "View/Alpha", KeyShortcut(dtk::Key::A) },
+                { "View/MirrorHorizontal", KeyShortcut(dtk::Key::H) },
+                { "View/MirrorVertical", KeyShortcut(dtk::Key::V) },
+                { "View/MinifyNearest", KeyShortcut() },
+                { "View/MinifyLinear", KeyShortcut() },
+                { "View/MagnifyNearest", KeyShortcut() },
+                { "View/MagnifyLinear", KeyShortcut() },
+                { "View/FromFile", KeyShortcut() },
+                { "View/FullRange", KeyShortcut() },
+                { "View/LegalRange", KeyShortcut() },
+                { "View/AlphaBlendNone", KeyShortcut() },
+                { "View/AlphaBlendStraight", KeyShortcut() },
+                { "View/AlphaBlendPremultiplied", KeyShortcut() },
+                { "View/HUD", KeyShortcut(dtk::Key::H, static_cast<int>(dtk::KeyModifier::Control)) },
+
+                { "Window/FullScreen", KeyShortcut(dtk::Key::U) },
+                { "Window/FloatOnTop", KeyShortcut() },
+                { "Window/Secondary", KeyShortcut(dtk::Key::Y) },
+                { "Window/FileToolBar", KeyShortcut() },
+                { "Window/CompareToolBar", KeyShortcut() },
+                { "Window/WindowToolBar", KeyShortcut() },
+                { "Window/ViewToolBar", KeyShortcut() },
+                { "Window/ToolsToolBar", KeyShortcut() },
+                { "Window/Timeline", KeyShortcut() },
+                { "Window/BottomToolBar", KeyShortcut() },
+                { "Window/StatusToolBar", KeyShortcut() }
+            };
+        }
+
+        bool KeyShortcutsSettings::operator == (const KeyShortcutsSettings& other) const
+        {
+            return shortcuts == other.shortcuts;
+        }
+
+        bool KeyShortcutsSettings::operator != (const KeyShortcutsSettings& other) const
+        {
+            return !(*this == other);
+        }
+
         bool MiscSettings::operator == (const MiscSettings& other) const
         {
             return tooltipsEnabled == other.tooltipsEnabled;
@@ -187,6 +317,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<ExportSettings> > exportSettings;
             std::shared_ptr<dtk::ObservableValue<FileBrowserSettings> > fileBrowser;
             std::shared_ptr<dtk::ObservableValue<FileSequenceSettings> > fileSequence;
+            std::shared_ptr<dtk::ObservableValue<KeyShortcutsSettings> > keyShortcuts;
             std::shared_ptr<dtk::ObservableValue<MiscSettings> > misc;
             std::shared_ptr<dtk::ObservableValue<MouseSettings> > mouse;
             std::shared_ptr<dtk::ObservableValue<PerformanceSettings> > performance;
@@ -229,6 +360,10 @@ namespace tl
             FileSequenceSettings fileSequence;
             settings->getT("/FileSequence", fileSequence);
             p.fileSequence = dtk::ObservableValue<FileSequenceSettings>::create(fileSequence);
+
+            KeyShortcutsSettings keyShortcuts;
+            settings->getT("/KeyShortcuts", keyShortcuts);
+            p.keyShortcuts = dtk::ObservableValue<KeyShortcutsSettings>::create(keyShortcuts);
 
             MiscSettings misc;
             settings->getT("/Misc", misc);
@@ -289,6 +424,8 @@ namespace tl
 
             p.settings->setT("/FileSequence", p.fileSequence->get());
 
+            p.settings->setT("/KeyShortcuts", p.keyShortcuts->get());
+
             p.settings->setT("/Misc", p.misc->get());
 
             p.settings->setT("/Mouse", p.mouse->get());
@@ -325,6 +462,7 @@ namespace tl
             setExport(ExportSettings());
             setFileBrowser(FileBrowserSettings());
             setFileSequence(FileSequenceSettings());
+            setKeyShortcuts(KeyShortcutsSettings());
             setMisc(MiscSettings());
             setMouse(MouseSettings());
             setPerformance(PerformanceSettings());
@@ -405,6 +543,21 @@ namespace tl
         void SettingsModel::setFileSequence(const FileSequenceSettings& value)
         {
             _p->fileSequence->setIfChanged(value);
+        }
+
+        const KeyShortcutsSettings& SettingsModel::getKeyShortcuts() const
+        {
+            return _p->keyShortcuts->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<KeyShortcutsSettings> > SettingsModel::observeKeyShortcuts() const
+        {
+            return _p->keyShortcuts;
+        }
+
+        void SettingsModel::setKeyShortcuts(const KeyShortcutsSettings& value)
+        {
+            _p->keyShortcuts->setIfChanged(value);
         }
 
         const MiscSettings& SettingsModel::getMisc() const
@@ -568,6 +721,14 @@ namespace tl
             json["IO"] = value.io;
         }
 
+        void to_json(nlohmann::json& json, const KeyShortcutsSettings& value)
+        {
+            for (const auto& i : value.shortcuts)
+            {
+                json["Shortcuts"][i.first] = i.second;
+            }
+        }
+
         void to_json(nlohmann::json& json, const MiscSettings& value)
         {
             json["TooltipsEnabled"] = value.tooltipsEnabled;
@@ -575,7 +736,10 @@ namespace tl
 
         void to_json(nlohmann::json& json, const MouseSettings& value)
         {
-            json["Actions"] = value.actions;
+            for (const auto& i : value.actions)
+            {
+                json["Actions"][to_string(i.first)] = to_string(i.second);
+            }
         }
 
         void to_json(nlohmann::json& json, const PerformanceSettings& value)
@@ -587,7 +751,7 @@ namespace tl
 
         void to_json(nlohmann::json& json, const StyleSettings& value)
         {
-            json["ColorStyle"] = value.colorStyle;
+            json["ColorStyle"] = to_string(value.colorStyle);
             json["DisplayScale"] = value.displayScale;
         }
 
@@ -664,7 +828,20 @@ namespace tl
 
         void from_json(const nlohmann::json& json, MouseSettings& value)
         {
-            json.at("Actions").get_to(value.actions);
+            for (auto i = json.find("Shortcuts"); i != json.end(); ++i)
+            {
+                MouseAction mouseAction = MouseAction::First;
+                from_string(i.key(), mouseAction);
+                from_string(i->at(i.key()).get<std::string>(), value.actions[mouseAction]);
+            }
+        }
+
+        void from_json(const nlohmann::json& json, KeyShortcutsSettings& value)
+        {
+            for (auto i = json.find("Shortcuts"); i != json.end(); ++i)
+            {
+                i->at(i.key()).get_to(value.shortcuts[i.key()]);
+            }
         }
 
         void from_json(const nlohmann::json& json, PerformanceSettings& value)
@@ -676,7 +853,7 @@ namespace tl
 
         void from_json(const nlohmann::json& json, StyleSettings& value)
         {
-            json.at("ColorStyle").get_to(value.colorStyle);
+            from_string(json.at("ColorStyle").get<std::string>(), value.colorStyle);
             json.at("DisplayScale").get_to(value.displayScale);
         }
 

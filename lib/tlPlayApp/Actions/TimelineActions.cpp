@@ -8,6 +8,8 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
+#include <dtk/core/Format.h>
+
 namespace tl
 {
     namespace play
@@ -15,6 +17,8 @@ namespace tl
         struct TimelineActions::Private
         {
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void TimelineActions::_init(
@@ -25,7 +29,7 @@ namespace tl
             DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["FrameView"] = std::make_shared<dtk::Action>(
+            p.actions["FrameView"] = dtk::Action::create(
                 "Frame Timeline View",
                 [appWeak](bool value)
                 {
@@ -37,7 +41,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ScrollToCurrentFrame"] = std::make_shared<dtk::Action>(
+            p.actions["Scroll"] = dtk::Action::create(
                 "Scroll To Current Frame",
                 [appWeak](bool value)
                 {
@@ -49,7 +53,7 @@ namespace tl
                     }
                 });
 
-            p.actions["StopOnScrub"] = std::make_shared<dtk::Action>(
+            p.actions["StopOnScrub"] = dtk::Action::create(
                 "Stop Playback When Scrubbing",
                 [appWeak](bool value)
                 {
@@ -61,7 +65,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails"] = std::make_shared<dtk::Action>(
+            p.actions["Thumbnails"] = dtk::Action::create(
                 "Thumbnails",
                 [appWeak](bool value)
                 {
@@ -73,7 +77,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails100"] = std::make_shared<dtk::Action>(
+            p.actions["ThumbnailsSmall"] = dtk::Action::create(
                 "Small",
                 [appWeak]
                 {
@@ -86,7 +90,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails200"] = std::make_shared<dtk::Action>(
+            p.actions["ThumbnailsMedium"] = dtk::Action::create(
                 "Medium",
                 [appWeak]
                 {
@@ -99,7 +103,7 @@ namespace tl
                     }
                 });
 
-            p.actions["Thumbnails300"] = std::make_shared<dtk::Action>(
+            p.actions["ThumbnailsLarge"] = dtk::Action::create(
                 "Large",
                 [appWeak]
                 {
@@ -110,6 +114,13 @@ namespace tl
                         settings.display.waveformHeight = settings.display.thumbnailHeight / 2;
                         app->getSettingsModel()->setTimeline(settings);
                     }
+                });
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
                 });
         }
 
@@ -133,6 +144,88 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& TimelineActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void TimelineActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            auto i = value.shortcuts.find("Timeline/FrameView");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["FrameView"]->setShortcut(i->second.key);
+                p.actions["FrameView"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["FrameView"]->setTooltip(dtk::Format(
+                    "Frame the timeline view.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/Scroll");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["Scroll"]->setShortcut(i->second.key);
+                p.actions["Scroll"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["Scroll"]->setTooltip(dtk::Format(
+                    "Scroll the timeline view to the current frame.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/StopOnScrub");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["StopOnScrub"]->setShortcut(i->second.key);
+                p.actions["StopOnScrub"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["StopOnScrub"]->setTooltip(dtk::Format(
+                    "Stop playback when scrubbing the timeline.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/Thumbnails");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["Thumbnails"]->setShortcut(i->second.key);
+                p.actions["Thumbnails"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["Thumbnails"]->setTooltip(dtk::Format(
+                    "Toggle timeline thumbnails.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/ThumbnailsSmall");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["ThumbnailsSmall"]->setShortcut(i->second.key);
+                p.actions["ThumbnailsSmall"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["ThumbnailsSmall"]->setTooltip(dtk::Format(
+                    "Small timeline thumbnails.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/ThumbnailsMedium");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["ThumbnailsMedium"]->setShortcut(i->second.key);
+                p.actions["ThumbnailsMedium"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["ThumbnailsMedium"]->setTooltip(dtk::Format(
+                    "Medium timeline thumbnails.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
+            i = value.shortcuts.find("Timeline/ThumbnailsLarge");
+            if (i != value.shortcuts.end())
+            {
+                p.actions["ThumbnailsLarge"]->setShortcut(i->second.key);
+                p.actions["ThumbnailsLarge"]->setShortcutModifiers(i->second.modifiers);
+                p.actions["ThumbnailsLarge"]->setTooltip(dtk::Format(
+                    "Large timeline thumbnails.\n"
+                    "\n"
+                    "Shortcut: {0}").
+                    arg(dtk::getShortcutLabel(i->second.key, i->second.modifiers)));
+            }
         }
     }
 }

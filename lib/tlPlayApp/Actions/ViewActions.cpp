@@ -9,6 +9,8 @@
 #include <tlPlayApp/App.h>
 #include <tlPlayApp/MainWindow.h>
 
+#include <dtk/core/Format.h>
+
 #include <sstream>
 
 namespace tl
@@ -19,6 +21,8 @@ namespace tl
         {
             std::vector<dtk::ImageType> colorBuffers;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
+
+            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
         };
 
         void ViewActions::_init(
@@ -29,7 +33,7 @@ namespace tl
             DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            p.actions["Frame"] = std::make_shared<dtk::Action>(
+            p.actions["Frame"] = dtk::Action::create(
                 "Frame",
                 "ViewFrame",
                 [mainWindowWeak](bool value)
@@ -39,9 +43,8 @@ namespace tl
                         mainWindow->getViewport()->setFrameView(value);
                     }
                 });
-            p.actions["Frame"]->toolTip = "Frame the view to fit the window";
 
-            p.actions["ZoomReset"] = std::make_shared<dtk::Action>(
+            p.actions["ZoomReset"] = dtk::Action::create(
                 "Zoom Reset",
                 "ViewZoomReset",
                 [mainWindowWeak]
@@ -51,9 +54,8 @@ namespace tl
                         mainWindow->getViewport()->viewZoomReset();
                     }
                 });
-            p.actions["ZoomReset"]->toolTip = "Reset the view zoom to 1:1";
 
-            p.actions["ZoomIn"] = std::make_shared<dtk::Action>(
+            p.actions["ZoomIn"] = dtk::Action::create(
                 "Zoom In",
                 "ViewZoomIn",
                 [mainWindowWeak]
@@ -64,7 +66,7 @@ namespace tl
                     }
                 });
 
-            p.actions["ZoomOut"] = std::make_shared<dtk::Action>(
+            p.actions["ZoomOut"] = dtk::Action::create(
                 "Zoom Out",
                 "ViewZoomOut",
                 [mainWindowWeak]
@@ -76,10 +78,8 @@ namespace tl
                 });
 
             auto appWeak = std::weak_ptr<App>(app);
-            p.actions["Red"] = std::make_shared<dtk::Action>(
+            p.actions["Red"] = dtk::Action::create(
                 "Red Channel",
-                dtk::Key::R,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -92,10 +92,8 @@ namespace tl
                     }
                 });
 
-            p.actions["Green"] = std::make_shared<dtk::Action>(
+            p.actions["Green"] = dtk::Action::create(
                 "Green Channel",
-                dtk::Key::G,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -108,10 +106,8 @@ namespace tl
                     }
                 });
 
-            p.actions["Blue"] = std::make_shared<dtk::Action>(
+            p.actions["Blue"] = dtk::Action::create(
                 "Blue Channel",
-                dtk::Key::B,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -124,10 +120,8 @@ namespace tl
                     }
                 });
 
-            p.actions["Alpha"] = std::make_shared<dtk::Action>(
+            p.actions["Alpha"] = dtk::Action::create(
                 "Alpha Channel",
-                dtk::Key::A,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -140,10 +134,8 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorHorizontal"] = std::make_shared<dtk::Action>(
+            p.actions["MirrorHorizontal"] = dtk::Action::create(
                 "Mirror Horizontal",
-                dtk::Key::H,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -154,10 +146,8 @@ namespace tl
                     }
                 });
 
-            p.actions["MirrorVertical"] = std::make_shared<dtk::Action>(
+            p.actions["MirrorVertical"] = dtk::Action::create(
                 "Mirror Vertical",
-                dtk::Key::V,
-                0,
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -168,7 +158,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyNearest"] = std::make_shared<dtk::Action>(
+            p.actions["MinifyNearest"] = dtk::Action::create(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -180,7 +170,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MinifyLinear"] = std::make_shared<dtk::Action>(
+            p.actions["MinifyLinear"] = dtk::Action::create(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -192,7 +182,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyNearest"] = std::make_shared<dtk::Action>(
+            p.actions["MagnifyNearest"] = dtk::Action::create(
                 "Nearest",
                 [appWeak](bool value)
                 {
@@ -204,7 +194,7 @@ namespace tl
                     }
                 });
 
-            p.actions["MagnifyLinear"] = std::make_shared<dtk::Action>(
+            p.actions["MagnifyLinear"] = dtk::Action::create(
                 "Linear",
                 [appWeak](bool value)
                 {
@@ -217,7 +207,7 @@ namespace tl
                 });
 
 
-            p.actions["FromFile"] = std::make_shared<dtk::Action>(
+            p.actions["FromFile"] = dtk::Action::create(
                 "From File",
                 [appWeak](bool value)
                 {
@@ -229,7 +219,7 @@ namespace tl
                     }
                 });
 
-            p.actions["FullRange"] = std::make_shared<dtk::Action>(
+            p.actions["FullRange"] = dtk::Action::create(
                 "Full Range",
                 [appWeak](bool value)
                 {
@@ -241,7 +231,7 @@ namespace tl
                     }
                 });
 
-            p.actions["LegalRange"] = std::make_shared<dtk::Action>(
+            p.actions["LegalRange"] = dtk::Action::create(
                 "Legal Range",
                 [appWeak](bool value)
                 {
@@ -253,7 +243,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendNone"] = std::make_shared<dtk::Action>(
+            p.actions["AlphaBlendNone"] = dtk::Action::create(
                 "None",
                 [appWeak](bool value)
                 {
@@ -265,7 +255,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendStraight"] = std::make_shared<dtk::Action>(
+            p.actions["AlphaBlendStraight"] = dtk::Action::create(
                 "Straight",
                 [appWeak](bool value)
                 {
@@ -277,7 +267,7 @@ namespace tl
                     }
                 });
 
-            p.actions["AlphaBlendPremultiplied"] = std::make_shared<dtk::Action>(
+            p.actions["AlphaBlendPremultiplied"] = dtk::Action::create(
                 "Premultiplied",
                 [appWeak](bool value)
                 {
@@ -297,7 +287,7 @@ namespace tl
                 const dtk::ImageType imageType = p.colorBuffers[i];
                 std::stringstream ss;
                 ss << imageType;
-                p.actions[ss.str()] = std::make_shared<dtk::Action>(
+                p.actions[ss.str()] = dtk::Action::create(
                     ss.str(),
                     [appWeak, imageType](bool value)
                     {
@@ -308,10 +298,8 @@ namespace tl
                     });
             }
 
-            p.actions["HUD"] = std::make_shared<dtk::Action>(
+            p.actions["HUD"] = dtk::Action::create(
                 "HUD",
-                dtk::Key::H,
-                static_cast<int>(dtk::KeyModifier::Control),
                 [appWeak](bool value)
                 {
                     if (auto app = appWeak.lock())
@@ -319,7 +307,13 @@ namespace tl
                         app->getViewportModel()->setHUD(value);
                     }
                 });
-            p.actions["HUD"]->toolTip = "Toggle the HUD (Heads Up Display)";
+
+            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
+                app->getSettingsModel()->observeKeyShortcuts(),
+                [this](const KeyShortcutsSettings& value)
+                {
+                    _keyShortcutsUpdate(value);
+                });
         }
 
         ViewActions::ViewActions() :
@@ -347,6 +341,59 @@ namespace tl
         const std::map<std::string, std::shared_ptr<dtk::Action> >& ViewActions::getActions() const
         {
             return _p->actions;
+        }
+
+        void ViewActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        {
+            DTK_P();
+            const std::map<std::string, std::string> tooltips =
+            {
+                {
+                    "Frame",
+                    "Frame the view to fit the window.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "ZoomReset",
+                    "Reset the view zoom to 1:1.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "ZoomIn",
+                    "Zoom the view in.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "ZoomOut",
+                    "Zoom the view out.\n"
+                    "\n"
+                    "Shortcut: {0}"
+                },
+                {
+                    "HUD",
+                    "Toggle the HUD (Heads Up Display).\n"
+                    "\n"
+                    "Shortcut: {0}"
+                }
+            };
+            for (const auto& i : p.actions)
+            {
+                auto j = value.shortcuts.find(dtk::Format("View/{0}").arg(i.first));
+                if (j != value.shortcuts.end())
+                {
+                    i.second->setShortcut(j->second.key);
+                    i.second->setShortcutModifiers(j->second.modifiers);
+                    const auto k = tooltips.find(i.first);
+                    if (k != tooltips.end())
+                    {
+                        i.second->setTooltip(dtk::Format(k->second).
+                            arg(dtk::getShortcutLabel(j->second.key, j->second.modifiers)));
+                    }
+                }
+            }
         }
     }
 }

@@ -5,11 +5,10 @@
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 
 #include <tlPlayApp/Models/ToolsModel.h>
+#include <tlPlayApp/Widgets/ToolBarButton.h>
 #include <tlPlayApp/App.h>
 
-#include <dtk/ui/ButtonGroup.h>
 #include <dtk/ui/RowLayout.h>
-#include <dtk/ui/ToolButton.h>
 
 namespace tl
 {
@@ -19,8 +18,7 @@ namespace tl
         {
             std::vector<Tool> tools;
             std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-            std::shared_ptr<dtk::ButtonGroup> buttonGroup;
-            std::vector<std::shared_ptr<dtk::ToolButton> > buttons;
+            std::vector<std::shared_ptr<ToolBarButton> > buttons;
             std::shared_ptr<dtk::HorizontalLayout> layout;
             std::shared_ptr<dtk::ValueObserver<Tool> > activeObserver;
         };
@@ -41,15 +39,9 @@ namespace tl
 
             p.actions = actions;
 
-            p.buttonGroup = dtk::ButtonGroup::create(context, dtk::ButtonGroupType::Toggle);
             for (const auto tool : p.tools)
             {
-                auto button = dtk::ToolButton::create(context);
-                auto action = p.actions[getLabel(tool)];
-                button->setIcon(action->icon);
-                button->setCheckable(action->checkable);
-                button->setTooltip(action->toolTip);
-                p.buttonGroup->addButton(button);
+                auto button = ToolBarButton::create(context, p.actions[getLabel(tool)]);
                 p.buttons.push_back(button);
             }
 
@@ -59,21 +51,6 @@ namespace tl
             {
                 button->setParent(p.layout);
             }
-
-            auto appWeak = std::weak_ptr<App>(app);
-            p.buttonGroup->setCheckedCallback(
-                [this, appWeak](int index, bool value)
-                {
-                    DTK_P();
-                    if (index >= 0 && index < p.tools.size())
-                    {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->getToolsModel()->setActiveTool(
-                                value ? _p->tools[index] : Tool::None);
-                        }
-                    }
-                });
 
             p.activeObserver = dtk::ValueObserver<Tool>::create(
                 app->getToolsModel()->observeActiveTool(),

@@ -127,7 +127,7 @@ namespace tl
                 const auto bIndexes = app->getFilesModel()->getBIndexes();
                 for (size_t i = 0; i < value.size(); ++i)
                 {
-                    auto action = std::make_shared<dtk::Action>(
+                    auto action = dtk::Action::create(
                         value[i]->path.get(-1, file::PathType::FileName),
                         [this, i]
                         {
@@ -138,7 +138,7 @@ namespace tl
                             }
                         });
                     const auto j = std::find(bIndexes.begin(), bIndexes.end(), i);
-                    action->checked = j != bIndexes.end();
+                    action->setChecked(j != bIndexes.end());
                     p.menus["B"]->addItem(action);
                     p.bActions.push_back(action);
                 }
