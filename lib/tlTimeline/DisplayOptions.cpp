@@ -196,6 +196,7 @@ namespace tl
         void to_json(nlohmann::json& json, const DisplayOptions& in)
         {
             json["Channels"] = to_string(in.channels);
+            json["Mirror"] = in.mirror;
             json["Color"] = in.color;
             json["Levels"] = in.levels;
             json["EXRDisplay"] = in.exrDisplay;
@@ -243,6 +244,7 @@ namespace tl
         void from_json(const nlohmann::json& json, DisplayOptions& out)
         {
             from_string(json.at("Channels").get<std::string>(), out.channels);
+            json.at("Mirror").get_to(out.mirror);
             json.at("Color").get_to(out.color);
             json.at("Levels").get_to(out.levels);
             json.at("EXRDisplay").get_to(out.exrDisplay);
