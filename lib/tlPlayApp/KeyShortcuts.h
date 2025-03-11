@@ -14,12 +14,14 @@ namespace tl
         struct KeyShortcut
         {
             KeyShortcut() = default;
-            explicit KeyShortcut(
-                const std::string&,
+            KeyShortcut(
+                const std::string& name,
+                const std::string& text,
                 dtk::Key = dtk::Key::Unknown,
                 int modifiers = 0);
 
             std::string name;
+            std::string text;
             dtk::Key    key       = dtk::Key::Unknown;
             int         modifiers = 0;
 

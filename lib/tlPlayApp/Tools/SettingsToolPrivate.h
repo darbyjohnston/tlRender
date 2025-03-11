@@ -117,12 +117,23 @@ namespace tl
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setShortcut(const KeyShortcut&);
+            void setCallback(const std::function<void(const KeyShortcut&)>&);
+            void setCollision(bool);
 
             void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent&) override;
+            void mouseEnterEvent(dtk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
+            void keyFocusEvent(bool) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
 
         private:
+            void _widgetUpdate();
+
             DTK_PRIVATE();
         };
 

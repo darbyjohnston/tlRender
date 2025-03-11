@@ -122,6 +122,7 @@ set(SOURCE_TOOLS
     Tools/FilesTool.cpp
     Tools/IToolWidget.cpp
     Tools/InfoTool.cpp
+    Tools/KeyShortcutsWidgets.cpp
     Tools/MessagesTool.cpp
     Tools/SettingsTool.cpp
     Tools/SystemLogTool.cpp

@@ -92,119 +92,125 @@ namespace tl
         {
             shortcuts =
             {
-                KeyShortcut("Audio/VolumeUp", dtk::Key::Period),
-                KeyShortcut("Audio/VolumeDown", dtk::Key::Comma),
-                KeyShortcut("Audio/Mute", dtk::Key::M),
+                KeyShortcut("Audio/VolumeUp", "Volume up", dtk::Key::Period),
+                KeyShortcut("Audio/VolumeDown", "Volume down", dtk::Key::Comma),
+                KeyShortcut("Audio/Mute", "Mute", dtk::Key::M),
 
-                KeyShortcut("Compare/Next", dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Compare/Prev", dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Compare/A", dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Compare/B", dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Compare/Wipe", dtk::Key::W, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Compare/Overlay"),
-                KeyShortcut("Compare/Difference"),
-                KeyShortcut("Compare/Horizontal"),
-                KeyShortcut("Compare/Vertical"),
-                KeyShortcut("Compare/Tile", dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Compare/Relative"),
-                KeyShortcut("Compare/Absolute"),
+                KeyShortcut("Compare/Next", "Next", dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Compare/Prev", "Previous", dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Compare/A", "A", dtk::Key::A, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Compare/B", "B", dtk::Key::B, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Compare/Wipe", "Wipe", dtk::Key::W, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Compare/Overlay", "Overlay"),
+                KeyShortcut("Compare/Difference", "Difference"),
+                KeyShortcut("Compare/Horizontal", "Horizontal"),
+                KeyShortcut("Compare/Vertical", "Vertical"),
+                KeyShortcut("Compare/Tile", "Tile", dtk::Key::T, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Compare/Relative", "Relative"),
+                KeyShortcut("Compare/Absolute", "Absolute"),
 
-                KeyShortcut("File/Open", dtk::Key::O, static_cast<int>(dtk::commandKeyModifier)),
-                KeyShortcut("File/OpenSeparateAudio",
+                KeyShortcut("File/Open", "Open", dtk::Key::O, static_cast<int>(dtk::commandKeyModifier)),
+                KeyShortcut(
+                    "File/OpenSeparateAudio",
+                    "Open separate audio",
                     dtk::Key::O,
                     static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)),
-                KeyShortcut("File/Close", dtk::Key::E, static_cast<int>(dtk::commandKeyModifier)),
-                KeyShortcut("File/CloseAll",
+                KeyShortcut("File/Close", "Close", dtk::Key::E, static_cast<int>(dtk::commandKeyModifier)),
+                KeyShortcut(
+                    "File/CloseAll",
+                    "Close all",
                     dtk::Key::E,
                     static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)),
-                KeyShortcut("File/Reload",
+                KeyShortcut(
+                    "File/Reload",
+                    "Reload",
                     dtk::Key::R,
                     static_cast<int>(dtk::KeyModifier::Shift) | static_cast<int>(dtk::commandKeyModifier)),
-                KeyShortcut("File/Next", dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("File/Prev", dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("File/NextLayer", dtk::Key::Equal, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("File/PrevLayer", dtk::Key::Minus, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("File/Exit", dtk::Key::Q, static_cast<int>(dtk::commandKeyModifier)),
+                KeyShortcut("File/Next", "Next", dtk::Key::PageDown, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("File/Prev", "Previous", dtk::Key::PageUp, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("File/NextLayer", "Next layer", dtk::Key::Equal, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("File/PrevLayer", "Previous layer", dtk::Key::Minus, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("File/Exit", "Exit", dtk::Key::Q, static_cast<int>(dtk::commandKeyModifier)),
 
-                KeyShortcut("Frame/Start", dtk::Key::Home),
-                KeyShortcut("Frame/End", dtk::Key::End),
-                KeyShortcut("Frame/Prev", dtk::Key::Left),
-                KeyShortcut("Frame/PrevX10", dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Frame/PrevX100", dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Frame/Next", dtk::Key::Right),
-                KeyShortcut("Frame/NextX10", dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Frame/NextX100", dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Frame/FocusCurrent", dtk::Key::F, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Frame/Start", "Start", dtk::Key::Home),
+                KeyShortcut("Frame/End", "End", dtk::Key::End),
+                KeyShortcut("Frame/Prev", "Previous", dtk::Key::Left),
+                KeyShortcut("Frame/PrevX10", "Previous X10", dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Frame/PrevX100", "Previous X100", dtk::Key::Left, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Frame/Next", "Next", dtk::Key::Right),
+                KeyShortcut("Frame/NextX10", "Next X10", dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Frame/NextX100", "Next X100", dtk::Key::Right, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Frame/FocusCurrent", "Focus current", dtk::Key::F, static_cast<int>(dtk::KeyModifier::Control)),
 
-                KeyShortcut("Playback/Stop", dtk::Key::K),
-                KeyShortcut("Playback/Forward", dtk::Key::L),
-                KeyShortcut("Playback/Reverse", dtk::Key::J),
-                KeyShortcut("Playback/Toggle", dtk::Key::Space),
-                KeyShortcut("Playback/JumpBack1s", dtk::Key::J, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Playback/JumpBack10s", dtk::Key::J, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Playback/JumpForward1s", dtk::Key::L, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Playback/JumpForward10s", dtk::Key::L, static_cast<int>(dtk::KeyModifier::Control)),
-                KeyShortcut("Playback/Loop"),
-                KeyShortcut("Playback/Once"),
-                KeyShortcut("Playback/PingPong"),
-                KeyShortcut("Playback/SetInPoint", dtk::Key::I),
-                KeyShortcut("Playback/ResetInPoint", dtk::Key::I, static_cast<int>(dtk::KeyModifier::Shift)),
-                KeyShortcut("Playback/SetOutPoint", dtk::Key::O),
-                KeyShortcut("Playback/ResetOutPoint", dtk::Key::O, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Playback/Stop", "Stop", dtk::Key::K),
+                KeyShortcut("Playback/Forward", "Forward", dtk::Key::L),
+                KeyShortcut("Playback/Reverse", "Reverse", dtk::Key::J),
+                KeyShortcut("Playback/Toggle", "Toggle", dtk::Key::Space),
+                KeyShortcut("Playback/JumpBack1s", "Jump back 1s", dtk::Key::J, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Playback/JumpBack10s", "Jump back 10s", dtk::Key::J, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Playback/JumpForward1s", "Jump forward 1s", dtk::Key::L, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Playback/JumpForward10s", "Jump forward 10s", dtk::Key::L, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("Playback/Loop", "Loop"),
+                KeyShortcut("Playback/Once", "Once"),
+                KeyShortcut("Playback/PingPong", "Ping pong"),
+                KeyShortcut("Playback/SetInPoint", "Set in point", dtk::Key::I),
+                KeyShortcut("Playback/ResetInPoint", "Reset in point", dtk::Key::I, static_cast<int>(dtk::KeyModifier::Shift)),
+                KeyShortcut("Playback/SetOutPoint", "Set out point", dtk::Key::O),
+                KeyShortcut("Playback/ResetOutPoint", "Reset out point", dtk::Key::O, static_cast<int>(dtk::KeyModifier::Shift)),
 
-                KeyShortcut("Timeline/FrameView"),
-                KeyShortcut("Timeline/Scroll"),
-                KeyShortcut("Timeline/StopOnScrub"),
-                KeyShortcut("Timeline/Thumbnails"),
-                KeyShortcut("Timeline/ThumbnailsSmall"),
-                KeyShortcut("Timeline/ThumbnailsMedium"),
-                KeyShortcut("Timeline/ThumbnailsLarge"),
+                KeyShortcut("Timeline/FrameView", "Frame view"),
+                KeyShortcut("Timeline/Scroll", "Scroll"),
+                KeyShortcut("Timeline/StopOnScrub", "Stop on scrub"),
+                KeyShortcut("Timeline/Thumbnails", "Thumbnails"),
+                KeyShortcut("Timeline/ThumbnailsSmall", "Thumbnails small"),
+                KeyShortcut("Timeline/ThumbnailsMedium", "Thumbnails medium"),
+                KeyShortcut("Timeline/ThumbnailsLarge", "Thumbnails large"),
 
-                KeyShortcut("Tools/Files", dtk::Key::F1),
-                KeyShortcut("Tools/Export", dtk::Key::F2),
-                KeyShortcut("Tools/View", dtk::Key::F3),
-                KeyShortcut("Tools/ColorPicker", dtk::Key::F4),
-                KeyShortcut("Tools/ColorControls", dtk::Key::F5),
-                KeyShortcut("Tools/Info", dtk::Key::F6),
-                KeyShortcut("Tools/Audio", dtk::Key::F7),
-                KeyShortcut("Tools/Devices", dtk::Key::F8),
-                KeyShortcut("Tools/Settings", dtk::Key::F9),
-                KeyShortcut("Tools/Messages", dtk::Key::F10),
-                KeyShortcut("Tools/SystemLog", dtk::Key::F11),
+                KeyShortcut("Tools/Files", "Files", dtk::Key::F1),
+                KeyShortcut("Tools/Export", "Export", dtk::Key::F2),
+                KeyShortcut("Tools/View", "View", dtk::Key::F3),
+                KeyShortcut("Tools/ColorPicker", "Color picker", dtk::Key::F4),
+                KeyShortcut("Tools/ColorControls", "Color controls", dtk::Key::F5),
+                KeyShortcut("Tools/Info", "Information", dtk::Key::F6),
+                KeyShortcut("Tools/Audio", "Audio", dtk::Key::F7),
+                KeyShortcut("Tools/Devices", "Devices", dtk::Key::F8),
+                KeyShortcut("Tools/Settings", "Settings", dtk::Key::F9),
+                KeyShortcut("Tools/Messages", "Messages", dtk::Key::F10),
+                KeyShortcut("Tools/SystemLog", "System log", dtk::Key::F11),
 
-                KeyShortcut("View/Frame", dtk::Key::Backspace),
-                KeyShortcut("View/ZoomReset", dtk::Key::_0),
-                KeyShortcut("View/ZoomIn", dtk::Key::Equal),
-                KeyShortcut("View/ZoomOut", dtk::Key::Minus),
-                KeyShortcut("View/Red", dtk::Key::R),
-                KeyShortcut("View/Green", dtk::Key::G),
-                KeyShortcut("View/Blue", dtk::Key::B),
-                KeyShortcut("View/Alpha", dtk::Key::A),
-                KeyShortcut("View/MirrorHorizontal", dtk::Key::H),
-                KeyShortcut("View/MirrorVertical", dtk::Key::V),
-                KeyShortcut("View/MinifyNearest"),
-                KeyShortcut("View/MinifyLinear"),
-                KeyShortcut("View/MagnifyNearest"),
-                KeyShortcut("View/MagnifyLinear"),
-                KeyShortcut("View/FromFile"),
-                KeyShortcut("View/FullRange"),
-                KeyShortcut("View/LegalRange"),
-                KeyShortcut("View/AlphaBlendNone"),
-                KeyShortcut("View/AlphaBlendStraight"),
-                KeyShortcut("View/AlphaBlendPremultiplied"),
-                KeyShortcut("View/HUD", dtk::Key::H, static_cast<int>(dtk::KeyModifier::Control)),
+                KeyShortcut("View/Frame", "Frame", dtk::Key::Backspace),
+                KeyShortcut("View/ZoomReset", "Zoom reset", dtk::Key::_0),
+                KeyShortcut("View/ZoomIn", "Zoom in", dtk::Key::Equal),
+                KeyShortcut("View/ZoomOut", "Zoom out", dtk::Key::Minus),
+                KeyShortcut("View/Red", "Red", dtk::Key::R),
+                KeyShortcut("View/Green", "Green", dtk::Key::G),
+                KeyShortcut("View/Blue", "Blue", dtk::Key::B),
+                KeyShortcut("View/Alpha", "Alpha", dtk::Key::A),
+                KeyShortcut("View/MirrorHorizontal", "Mirror horizontal", dtk::Key::H),
+                KeyShortcut("View/MirrorVertical", "Mirror vertical", dtk::Key::V),
+                KeyShortcut("View/MinifyNearest", "Minify nearest"),
+                KeyShortcut("View/MinifyLinear", "Minify linear"),
+                KeyShortcut("View/MagnifyNearest", "Magnify nearest"),
+                KeyShortcut("View/MagnifyLinear", "Magnify linear"),
+                KeyShortcut("View/FromFile", "From file"),
+                KeyShortcut("View/FullRange", "Full range"),
+                KeyShortcut("View/LegalRange", "Legal range"),
+                KeyShortcut("View/AlphaBlendNone", "Alpha blend none"),
+                KeyShortcut("View/AlphaBlendStraight", "Alpha blend straight"),
+                KeyShortcut("View/AlphaBlendPremultiplied", "Alpha blend premultiplied"),
+                KeyShortcut("View/HUD", "HUD", dtk::Key::H, static_cast<int>(dtk::KeyModifier::Control)),
 
-                KeyShortcut("Window/FullScreen", dtk::Key::U),
-                KeyShortcut("Window/FloatOnTop"),
-                KeyShortcut("Window/Secondary", dtk::Key::Y),
-                KeyShortcut("Window/FileToolBar"),
-                KeyShortcut("Window/CompareToolBar"),
-                KeyShortcut("Window/WindowToolBar"),
-                KeyShortcut("Window/ViewToolBar"),
-                KeyShortcut("Window/ToolsToolBar"),
-                KeyShortcut("Window/Timeline"),
-                KeyShortcut("Window/BottomToolBar"),
-                KeyShortcut("Window/StatusToolBar")
+                KeyShortcut("Window/FullScreen", "Full screen", dtk::Key::U),
+                KeyShortcut("Window/FloatOnTop", "Float on top"),
+                KeyShortcut("Window/Secondary", "Secondary", dtk::Key::Y),
+                KeyShortcut("Window/FileToolBar", "File tool bar"),
+                KeyShortcut("Window/CompareToolBar", "Compare tool bar"),
+                KeyShortcut("Window/WindowToolBar", "Window tool bar"),
+                KeyShortcut("Window/ViewToolBar", "View tool bar"),
+                KeyShortcut("Window/ToolsToolBar", "Tools tool bar"),
+                KeyShortcut("Window/Timeline", "Timeline"),
+                KeyShortcut("Window/BottomToolBar", "Bottom tool bar"),
+                KeyShortcut("Window/StatusToolBar", "Status tool bar")
             };
         }
 
@@ -723,7 +729,7 @@ namespace tl
 
         void to_json(nlohmann::json& json, const KeyShortcutsSettings& value)
         {
-            for (const auto& shortcut : value.shortcuts)
+            for (const auto shortcut : value.shortcuts)
             {
                 json["Shortcuts"].push_back(shortcut);
             }
@@ -828,7 +834,7 @@ namespace tl
 
         void from_json(const nlohmann::json& json, MouseSettings& value)
         {
-            for (auto i = json.find("Shortcuts"); i != json.end(); ++i)
+            for (auto i = json.at("Actions").begin(); i != json.at("Actions").end(); ++i)
             {
                 MouseAction mouseAction = MouseAction::First;
                 from_string(i.key(), mouseAction);
@@ -838,9 +844,24 @@ namespace tl
 
         void from_json(const nlohmann::json& json, KeyShortcutsSettings& value)
         {
-            for (auto i = json.find("Shortcuts"); i != json.end(); ++i)
+            for (auto i = json.at("Shortcuts").begin(); i != json.at("Shortcuts").end(); ++i)
             {
-                value.shortcuts.push_back(i->get<KeyShortcut>());
+                const KeyShortcut shortcut = i->get<KeyShortcut>();
+                const auto j = std::find_if(
+                    value.shortcuts.begin(),
+                    value.shortcuts.end(),
+                    [shortcut](const KeyShortcut& value)
+                    {
+                        return shortcut.name == value.name;
+                    });
+                if (j != value.shortcuts.end())
+                {
+                    *j = shortcut;
+                }
+                else
+                {
+                    value.shortcuts.push_back(shortcut);
+                }
             }
         }
 
