@@ -7,7 +7,6 @@
 #include <tlPlayApp/App.h>
 
 #include <dtk/ui/GroupBox.h>
-#include <dtk/ui/CheckBox.h>
 #include <dtk/ui/DrawUtil.h>
 #include <dtk/ui/FormLayout.h>
 #include <dtk/ui/Label.h>

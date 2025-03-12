@@ -160,6 +160,7 @@ namespace tl
             p.model = app->getSettingsModel();
 
             p.nfdCheckBox = dtk::CheckBox::create(context);
+            p.nfdCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
@@ -383,6 +384,7 @@ namespace tl
             p.model = app->getSettingsModel();
 
             p.tooltipsCheckBox = dtk::CheckBox::create(context);
+            p.tooltipsCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
@@ -807,6 +809,7 @@ namespace tl
             p.model = app->getSettingsModel();
 
             p.yuvToRGBCheckBox = dtk::CheckBox::create(context);
+            p.yuvToRGBCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.threadsEdit = dtk::IntEdit::create(context);
             p.threadsEdit->setRange(dtk::RangeI(0, 64));
@@ -915,8 +918,10 @@ namespace tl
             p.drawModeComboBox->setHStretch(dtk::Stretch::Expanding);
 
             p.lightingCheckBox = dtk::CheckBox::create(context);
+            p.lightingCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.sRGBCheckBox = dtk::CheckBox::create(context);
+            p.sRGBCheckBox->setHStretch(dtk::Stretch::Expanding);
 
             p.stageCacheEdit = dtk::IntEdit::create(context);
             p.stageCacheEdit->setRange(dtk::RangeI(0, 10));

@@ -458,7 +458,11 @@ namespace tl
             settings.size = getGeometry().size();
 #if defined(__APPLE__)
             //! \bug The window size needs to be scaled on macOS?
-            settings.size = settings.size / getDisplayScale();
+            const float displayScale = getDisplayScale();
+            if (displayScale > 0.F)
+            {
+                settings.size = settings.size / displayScale;
+            }
 #endif // __APPLE__
             settings.splitter = p.splitter->getSplit();
             settings.splitter2 = p.splitter2->getSplit();
