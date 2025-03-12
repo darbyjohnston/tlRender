@@ -55,6 +55,8 @@ namespace tl
 
             bool doRender = false;
             std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> bgBuffer;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> fgBuffer;
 
             enum class MouseMode
             {
@@ -446,13 +448,31 @@ namespace tl
 
             auto render = std::dynamic_pointer_cast<timeline::IRender>(event.render);
             const dtk::Box2I& g = getGeometry();
+            render->drawRect(g, dtk::Color4F(0.F, 0.F, 0.F));
+
             if (p.doRender)
             {
                 p.doRender = false;
                 try
                 {
+                    // Create the background and foreground buffers.
                     const dtk::Size2I size = g.size();
                     dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = dtk::ImageType::RGBA_U8;
+                    offscreenBufferOptions.colorFilters.minify = dtk::ImageFilter::Nearest;
+                    offscreenBufferOptions.colorFilters.magnify = dtk::ImageFilter::Nearest;
+                    if (dtk::gl::doCreate(p.bgBuffer, size, offscreenBufferOptions))
+                    {
+                        p.bgBuffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+                    if (dtk::gl::doCreate(p.fgBuffer, size, offscreenBufferOptions))
+                    {
+                        p.fgBuffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
+                    }
+
+                    // Create the main buffer.
+                    offscreenBufferOptions.colorFilters.minify = dtk::ImageFilter::Linear;
+                    offscreenBufferOptions.colorFilters.magnify = dtk::ImageFilter::Linear;
                     offscreenBufferOptions.color = p.colorBuffer->get();
                     if (!p.displayOptions.empty())
                     {
@@ -469,37 +489,36 @@ namespace tl
                         p.buffer = dtk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
                     }
 
+                    // Setup the transforms.
+                    const auto pm = dtk::ortho(
+                        0.F,
+                        static_cast<float>(g.w()),
+                        0.F,
+                        static_cast<float>(g.h()),
+                        -1.F,
+                        1.F);
+                    const auto boxes = timeline::getBoxes(p.compareOptions.compare, p.videoData);
+                    dtk::M44F vm;
+                    vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
+                    vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
+
+                    // Setup the state.
+                    const dtk::ViewportState viewportState(render);
+                    const dtk::ClipRectEnabledState clipRectEnabledState(render);
+                    const dtk::ClipRectState clipRectState(render);
+                    const dtk::TransformState transformState(render);
+                    const dtk::RenderSizeState renderSizeState(render);
+                    render->setRenderSize(size);
+                    render->setViewport(dtk::Box2I(0, 0, g.w(), g.h()));
+                    render->setClipRectEnabled(false);
+
+                    // Draw the main buffer.
                     if (p.buffer)
                     {
-                        const dtk::ViewportState viewportState(render);
-                        const dtk::ClipRectEnabledState clipRectEnabledState(render);
-                        const dtk::ClipRectState clipRectState(render);
-                        const dtk::TransformState transformState(render);
-                        const dtk::RenderSizeState renderSizeState(render);
-
                         dtk::gl::OffscreenBufferBinding binding(p.buffer);
-                        render->setRenderSize(size);
-                        render->setViewport(dtk::Box2I(0, 0, g.w(), g.h()));
-                        render->setClipRectEnabled(false);
-                        render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
+                        render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F, 0.F));
                         render->setOCIOOptions(p.ocioOptions);
                         render->setLUTOptions(p.lutOptions);
-
-                        const auto pm = dtk::ortho(
-                            0.F,
-                            static_cast<float>(g.w()),
-                            0.F,
-                            static_cast<float>(g.h()),
-                            -1.F,
-                            1.F);
-                        render->setTransform(pm);
-
-                        const auto boxes = timeline::getBoxes(p.compareOptions.compare, p.videoData);
-                        dtk::M44F vm;
-                        vm = vm * dtk::translate(dtk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
-                        vm = vm * dtk::scale(dtk::V3F(p.viewZoom, p.viewZoom, 1.F));
-                        render->drawBackground(boxes, vm, p.bgOptions);
-
                         render->setTransform(pm * vm);
                         render->drawVideo(
                             p.videoData,
@@ -508,13 +527,28 @@ namespace tl
                             p.displayOptions,
                             p.compareOptions);
 
-                        render->setTransform(pm);
-                        render->drawForeground(boxes, vm, p.fgOptions);
-
                         if (!p.videoData.empty())
                         {
                             _droppedFramesUpdate(p.videoData[0].time);
                         }
+                    }
+
+                    // Draw the background buffer.
+                    if (p.bgBuffer)
+                    {
+                        dtk::gl::OffscreenBufferBinding binding(p.bgBuffer);
+                        render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F, 0.F));
+                        render->setTransform(pm);
+                        render->drawBackground(boxes, vm, p.bgOptions);
+                    }
+
+                    // Draw the foreground buffer.
+                    if (p.fgBuffer)
+                    {
+                        dtk::gl::OffscreenBufferBinding binding(p.fgBuffer);
+                        render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F, 0.F));
+                        render->setTransform(pm);
+                        render->drawForeground(boxes, vm, p.fgOptions);
                     }
                 }
                 catch (const std::exception& e)
@@ -526,10 +560,17 @@ namespace tl
                 }
             }
 
+            if (p.bgBuffer)
+            {
+                render->drawTexture(p.bgBuffer->getColorID(), g);
+            }
             if (p.buffer)
             {
-                const unsigned int id = p.buffer->getColorID();
-                render->drawTexture(id, g);
+                render->drawTexture(p.buffer->getColorID(), g);
+            }
+            if (p.fgBuffer)
+            {
+                render->drawTexture(p.fgBuffer->getColorID(), g);
             }
         }
 
