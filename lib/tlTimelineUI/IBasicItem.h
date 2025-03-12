@@ -19,7 +19,7 @@ namespace tl
             void _init(
                 const std::shared_ptr<dtk::Context>&,
                 const std::string& label,
-                const dtk::Color4F&,
+                dtk::ColorRole,
                 const std::string& objectName,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>&,
                 double scale,

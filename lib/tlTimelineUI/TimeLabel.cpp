@@ -177,8 +177,6 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             DTK_P();
 
-            //event.render->drawRect(_geometry, dtk::Color4F(.5F, .3F, .3F));
-
             const dtk::Box2I g = dtk::margin(
                 align(
                     getGeometry(),

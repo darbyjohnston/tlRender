@@ -52,7 +52,7 @@ namespace tl
             IBasicItem::_init(
                 context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                dtk::Color4F(.3F, .25F, .4F),
+                dtk::ColorRole::AudioClip,
                 "tl::timelineui::AudioClipItem",
                 clip.value,
                 scale,

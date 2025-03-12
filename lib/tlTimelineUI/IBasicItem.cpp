@@ -15,7 +15,7 @@ namespace tl
         {
             std::string label;
             std::string durationLabel;
-            dtk::Color4F color;
+            dtk::ColorRole colorRole = dtk::ColorRole::None;
             std::vector<Marker> markers;
 
             struct SizeData
@@ -44,7 +44,7 @@ namespace tl
         void IBasicItem::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::string& label,
-            const dtk::Color4F& color,
+            dtk::ColorRole colorRole,
             const std::string& objectName,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>& item,
             double scale,
@@ -73,7 +73,7 @@ namespace tl
             DTK_P();
 
             p.label = label;
-            p.color = color;
+            p.colorRole = colorRole;
             p.markers = getMarkers(item.value);
 
             _textUpdate();
@@ -169,7 +169,9 @@ namespace tl
             const dtk::Box2I g2 = dtk::margin(g, -(p.size.border * 2));
             event.render->drawRect(
                 g2,
-                isEnabled() ? p.color : dtk::greyscale(p.color));
+                isEnabled() ?
+                    event.style->getColorRole(p.colorRole) :
+                    dtk::greyscale(event.style->getColorRole(p.colorRole)));
 
             const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
             const dtk::ClipRectState clipRectState(event.render);

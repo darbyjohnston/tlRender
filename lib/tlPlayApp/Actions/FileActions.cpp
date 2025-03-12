@@ -64,6 +64,7 @@ namespace tl
 
             _actions["Reload"] = dtk::Action::create(
                 "Reload",
+                "FileReload",
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())

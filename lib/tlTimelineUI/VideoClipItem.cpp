@@ -55,7 +55,7 @@ namespace tl
             IBasicItem::_init(
                 context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                dtk::Color4F(.2F, .4F, .4F),
+                dtk::ColorRole::VideoClip,
                 "tl::timelineui::VideoClipItem",
                 clip.value,
                 scale,

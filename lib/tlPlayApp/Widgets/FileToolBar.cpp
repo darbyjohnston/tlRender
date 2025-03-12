@@ -40,6 +40,7 @@ namespace tl
             p.buttons["OpenSeparateAudio"] = dtk::ToolButton::create(context, p.actions["OpenSeparateAudio"]);
             p.buttons["Close"] = dtk::ToolButton::create(context, p.actions["Close"]);
             p.buttons["CloseAll"] = dtk::ToolButton::create(context, p.actions["CloseAll"]);
+            p.buttons["Reload"] = dtk::ToolButton::create(context, p.actions["Reload"]);
 
             p.layout = dtk::HorizontalLayout::create(context, shared_from_this());
             p.layout->setSpacingRole(dtk::SizeRole::None);
@@ -47,6 +48,7 @@ namespace tl
             p.buttons["OpenSeparateAudio"]->setParent(p.layout);
             p.buttons["Close"]->setParent(p.layout);
             p.buttons["CloseAll"]->setParent(p.layout);
+            p.buttons["Reload"]->setParent(p.layout);
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),

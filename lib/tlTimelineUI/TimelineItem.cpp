@@ -150,8 +150,8 @@ namespace tl
                             item = GapItem::create(
                                 context,
                                 TrackType::Video == track.type ?
-                                    dtk::Color4F(.25F, .31F, .31F) :
-                                    dtk::Color4F(.25F, .24F, .3F),
+                                    dtk::ColorRole::VideoGap :
+                                    dtk::ColorRole::AudioGap,
                                 gap,
                                 scale,
                                 options,
