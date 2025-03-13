@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(dtk_GIT_REPOSITORY "https://github.com/darbyjohnston/dtk.git")
-set(dtk_GIT_TAG "8ca2a9f7474a044d45c5140b6e87fe56fbbabbb4")
+set(dtk_GIT_TAG "2cf011c033e5989b7c5c2006d244f283b9d698c7")
 
 set(dtk_DEPS dtk-deps)
 set(dtk_ARGS

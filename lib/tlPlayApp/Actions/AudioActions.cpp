@@ -11,11 +11,18 @@ namespace tl
 {
     namespace play
     {
+        struct AudioActions::Private
+        {
+            std::shared_ptr<dtk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
+        };
+
         void AudioActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             IActions::_init(context, app, "Audio");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["VolumeUp"] = dtk::Action::create(
@@ -57,7 +64,26 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.volumeObserver = dtk::ValueObserver<float>::create(
+                app->getAudioModel()->observeVolume(),
+                [this](float value)
+                {
+                    _actions["VolumeUp"]->setEnabled(value < 1.F);
+                    _actions["VolumeDown"]->setEnabled(value > 0.F);
+                });
+
+            p.muteObserver = dtk::ValueObserver<bool>::create(
+                app->getAudioModel()->observeMute(),
+                [this](bool value)
+                {
+                    _actions["Mute"]->setChecked(value);
+                });
         }
+
+        AudioActions::AudioActions() :
+            _p(new Private)
+        {}
 
         AudioActions::~AudioActions()
         {}

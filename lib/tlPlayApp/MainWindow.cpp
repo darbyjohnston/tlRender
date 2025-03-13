@@ -125,7 +125,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > muteObserver;
             std::shared_ptr<dtk::ValueObserver<TimelineSettings> > timelineSettingsObserver;
             std::shared_ptr<dtk::ValueObserver<WindowSettings> > windowSettingsObserver;
         };
@@ -190,7 +189,7 @@ namespace tl
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.timelineActions);
-            p.audioMenu = AudioMenu::create(context, app, p.audioActions);
+            p.audioMenu = AudioMenu::create(context, p.audioActions);
             p.toolsMenu = ToolsMenu::create(context, app, p.toolsActions);
             p.menuBar = dtk::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
@@ -411,13 +410,6 @@ namespace tl
                 [this](dtk::ImageType value)
                 {
                     setFrameBufferType(value);
-                });
-
-            p.muteObserver = dtk::ValueObserver<bool>::create(
-                app->getAudioModel()->observeMute(),
-                [this](bool value)
-                {
-                    _p->muteButton->setChecked(value);
                 });
 
             p.windowSettingsObserver = dtk::ValueObserver<WindowSettings>::create(

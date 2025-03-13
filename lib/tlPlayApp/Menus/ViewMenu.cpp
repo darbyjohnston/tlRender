@@ -10,18 +10,12 @@ namespace tl
 {
     namespace play
     {
-        struct ViewMenu::Private
-        {
-            std::map<std::string, std::shared_ptr<Menu> > menus;
-        };
-
         void ViewMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<ViewActions>& viewActions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            DTK_P();
 
             auto actions = viewActions->getActions();
             addItem(actions["Frame"]);
@@ -39,10 +33,6 @@ namespace tl
             addDivider();
             addItem(actions["HUD"]);
         }
-
-        ViewMenu::ViewMenu() :
-            _p(new Private)
-        {}
 
         ViewMenu::~ViewMenu()
         {}

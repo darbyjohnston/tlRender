@@ -20,7 +20,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            AudioActions() = default;
+            AudioActions();
 
         public:
             ~AudioActions();
@@ -28,6 +28,9 @@ namespace tl
             static std::shared_ptr<AudioActions> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
+
+        private:
+            DTK_PRIVATE();
         };
     }
 }

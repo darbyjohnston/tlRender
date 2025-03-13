@@ -23,7 +23,7 @@ namespace tl
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ViewMenu();
+            ViewMenu() = default;
 
         public:
             ~ViewMenu();
@@ -32,9 +32,6 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-        private:
-            DTK_PRIVATE();
         };
     }
 }

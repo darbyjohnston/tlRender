@@ -10,7 +10,6 @@ namespace tl
 {
     namespace play
     {
-        class App;
         class AudioActions;
 
         //! Audio menu.
@@ -21,23 +20,18 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<AudioActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            AudioMenu();
+            AudioMenu() = default;
 
         public:
             ~AudioMenu();
 
             static std::shared_ptr<AudioMenu> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<AudioActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-        private:
-            DTK_PRIVATE();
         };
     }
 }
