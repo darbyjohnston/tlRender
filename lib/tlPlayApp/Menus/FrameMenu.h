@@ -12,9 +12,7 @@ namespace tl
 {
     namespace play
     {
-        class App;
         class FrameActions;
-        class MainWindow;
 
         //! Frame menu.
         class FrameMenu : public dtk::Menu
@@ -24,23 +22,18 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<FrameActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            FrameMenu();
+            FrameMenu() = default;
 
         public:
             ~FrameMenu();
 
             static std::shared_ptr<FrameMenu> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<FrameActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-        private:
-            DTK_PRIVATE();
         };
     }
 }

@@ -5,6 +5,7 @@
 #include <tlPlayApp/Actions/TimelineActions.h>
 
 #include <tlPlayApp/App.h>
+#include <tlPlayApp/MainWindow.h>
 
 #include <tlTimelineUI/TimelineWidget.h>
 
@@ -12,12 +13,26 @@ namespace tl
 {
     namespace play
     {
+        struct TimelineActions::Private
+        {
+            std::weak_ptr<MainWindow> mainWindow;
+            std::map<int, std::shared_ptr<dtk::Action> > thumbnailsSizeItems;
+
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > scrollToCurrentFrameObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > stopOnScrubObserver;
+            std::shared_ptr<dtk::ValueObserver<timelineui::DisplayOptions> > displayOptionsObserver;
+        };
+
         void TimelineActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             IActions::_init(context, app, "Timeline");
+            DTK_P();
+
+            p.mainWindow = mainWindow;
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["FrameView"] = dtk::Action::create(
@@ -118,8 +133,45 @@ namespace tl
                 { "ThumbnailsLarge", "Large timeline thumbnails." }
             };
 
+            p.thumbnailsSizeItems[100] = _actions["ThumbnailsSmall"];
+            p.thumbnailsSizeItems[200] = _actions["ThumbnailsMedium"];
+            p.thumbnailsSizeItems[300] = _actions["ThumbnailsLarge"];
+
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->getTimelineWidget()->observeFrameView(),
+                [this](bool value)
+                {
+                    _actions["FrameView"]->setChecked(value);
+                });
+
+            p.scrollToCurrentFrameObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->getTimelineWidget()->observeScrollToCurrentFrame(),
+                [this](bool value)
+                {
+                    _actions["Scroll"]->setChecked(value);
+                });
+
+            p.stopOnScrubObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->getTimelineWidget()->observeStopOnScrub(),
+                [this](bool value)
+                {
+                    _actions["StopOnScrub"]->setChecked(value);
+                });
+
+            p.displayOptionsObserver = dtk::ValueObserver<timelineui::DisplayOptions>::create(
+                mainWindow->getTimelineWidget()->observeDisplayOptions(),
+                [this](const timelineui::DisplayOptions& value)
+                {
+                    _actions["Thumbnails"]->setChecked(value.thumbnails);
+                    _thumbnailsSizeUpdate();
+                });
         }
+
+        TimelineActions::TimelineActions() :
+            _p(new Private)
+        {}
 
         TimelineActions::~TimelineActions()
         {}
@@ -132,6 +184,25 @@ namespace tl
             auto out = std::shared_ptr<TimelineActions>(new TimelineActions);
             out->_init(context, app, mainWindow);
             return out;
+        }
+
+        void TimelineActions::_thumbnailsSizeUpdate()
+        {
+            DTK_P();
+            if (auto mainWindow = p.mainWindow.lock())
+            {
+                const auto options = mainWindow->getTimelineWidget()->getDisplayOptions();
+                auto i = p.thumbnailsSizeItems.find(options.thumbnailHeight);
+                if (i == p.thumbnailsSizeItems.end())
+                {
+                    i = p.thumbnailsSizeItems.begin();
+                }
+                for (auto item : p.thumbnailsSizeItems)
+                {
+                    const bool checked = item == *i;
+                    item.second->setChecked(checked);
+                }
+            }
         }
     }
 }

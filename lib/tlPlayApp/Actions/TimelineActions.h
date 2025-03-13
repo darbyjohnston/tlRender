@@ -23,7 +23,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            TimelineActions() = default;
+            TimelineActions();
 
         public:
             ~TimelineActions();
@@ -32,6 +32,11 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
+
+        private:
+            void _thumbnailsSizeUpdate();
+
+            DTK_PRIVATE();
         };
     }
 }

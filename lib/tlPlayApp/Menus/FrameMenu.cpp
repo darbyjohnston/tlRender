@@ -5,58 +5,43 @@
 #include <tlPlayApp/Menus/FrameMenu.h>
 
 #include <tlPlayApp/Actions/FrameActions.h>
-#include <tlPlayApp/App.h>
-#include <tlPlayApp/MainWindow.h>
 
 namespace tl
 {
     namespace play
     {
-        struct FrameMenu::Private
-        {
-            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
-        };
-
         void FrameMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<FrameActions>& actions,
+            const std::shared_ptr<FrameActions>& frameActions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
-            DTK_P();
 
-            p.actions = actions->getActions();
-
-            addItem(p.actions["Start"]);
-            addItem(p.actions["End"]);
+            auto actions = frameActions->getActions();
+            addItem(actions["Start"]);
+            addItem(actions["End"]);
             addDivider();
-            addItem(p.actions["Prev"]);
-            addItem(p.actions["PrevX10"]);
-            addItem(p.actions["PrevX100"]);
+            addItem(actions["Prev"]);
+            addItem(actions["PrevX10"]);
+            addItem(actions["PrevX100"]);
             addDivider();
-            addItem(p.actions["Next"]);
-            addItem(p.actions["NextX10"]);
-            addItem(p.actions["NextX100"]);
+            addItem(actions["Next"]);
+            addItem(actions["NextX10"]);
+            addItem(actions["NextX100"]);
             addDivider();
-            addItem(p.actions["FocusCurrent"]);
+            addItem(actions["FocusCurrent"]);
         }
-
-        FrameMenu::FrameMenu() :
-            _p(new Private)
-        {}
 
         FrameMenu::~FrameMenu()
         {}
 
         std::shared_ptr<FrameMenu> FrameMenu::create(
             const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<FrameActions>& actions,
+            const std::shared_ptr<FrameActions>& frameActions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FrameMenu>(new FrameMenu);
-            out->_init(context, app, actions, parent);
+            out->_init(context, frameActions, parent);
             return out;
         }
     }

@@ -10,8 +10,6 @@ namespace tl
 {
     namespace play
     {
-        class App;
-        class MainWindow;
         class TimelineActions;
 
         //! Timeline menu.
@@ -22,8 +20,6 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<TimelineActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,16 +30,10 @@ namespace tl
 
             static std::shared_ptr<TimelineMenu> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<TimelineActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void close() override;
-
         private:
-            void _thumbnailsSizeUpdate();
-
             DTK_PRIVATE();
         };
     }

@@ -12,7 +12,6 @@ namespace tl
 {
     namespace play
     {
-        class App;
         class PlaybackActions;
 
         //! Playback menu.
@@ -23,27 +22,18 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<PlaybackActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            PlaybackMenu();
+            PlaybackMenu() = default;
 
         public:
             ~PlaybackMenu();
 
             static std::shared_ptr<PlaybackMenu> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::shared_ptr<PlaybackActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-        private:
-            void _setPlayer(const std::shared_ptr<timeline::Player>&);
-            void _playbackUpdate();
-            void _loopUpdate();
-
-            DTK_PRIVATE();
         };
     }
 }

@@ -20,7 +20,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            PlaybackActions() = default;
+            PlaybackActions();
 
         public:
             ~PlaybackActions();
@@ -30,7 +30,13 @@ namespace tl
                 const std::shared_ptr<App>&);
 
         private:
+            void _setPlayer(const std::shared_ptr<timeline::Player>&);
+            void _playbackUpdate();
+            void _loopUpdate();
+
             timeline::Playback _playbackPrev = timeline::Playback::Forward;
+
+            DTK_PRIVATE();
         };
     }
 }
