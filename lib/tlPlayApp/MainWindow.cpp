@@ -178,7 +178,6 @@ namespace tl
             p.compareMenu = CompareMenu::create(context, app, p.compareActions);
             p.windowMenu = WindowMenu::create(
                 context,
-                app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.windowActions);
             p.viewMenu = ViewMenu::create(context, p.viewActions);
@@ -186,7 +185,7 @@ namespace tl
             p.frameMenu = FrameMenu::create(context, p.frameActions);
             p.timelineMenu = TimelineMenu::create(context, p.timelineActions);
             p.audioMenu = AudioMenu::create(context, p.audioActions);
-            p.toolsMenu = ToolsMenu::create(context, app, p.toolsActions);
+            p.toolsMenu = ToolsMenu::create(context, p.toolsActions);
             p.menuBar = dtk::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);

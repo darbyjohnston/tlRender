@@ -23,7 +23,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            WindowActions() = default;
+            WindowActions();
 
         public:
             ~WindowActions();
@@ -32,6 +32,9 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
+
+        private:
+            DTK_PRIVATE();
         };
     }
 }

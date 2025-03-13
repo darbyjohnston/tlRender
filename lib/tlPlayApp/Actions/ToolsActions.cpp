@@ -11,11 +11,17 @@ namespace tl
 {
     namespace play
     {
+        struct ToolsActions::Private
+        {
+            std::shared_ptr<dtk::ValueObserver<Tool> > activeObserver;
+        };
+
         void ToolsActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             IActions::_init(context, app, "Tools");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             const auto enums = getToolEnums();
@@ -54,7 +60,23 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.activeObserver = dtk::ValueObserver<Tool>::create(
+                app->getToolsModel()->observeActiveTool(),
+                [this](Tool value)
+                {
+                    const auto enums = getToolEnums();
+                    const auto labels = getToolLabels();
+                    for (size_t i = 0; i < enums.size(); ++i)
+                    {
+                        _actions[labels[i]]->setChecked(enums[i] == value);
+                    }
+                });
         }
+
+        ToolsActions::ToolsActions() :
+            _p(new Private)
+        {}
 
         ToolsActions::~ToolsActions()
         {}

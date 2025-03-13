@@ -11,12 +11,21 @@ namespace tl
 {
     namespace play
     {
+        struct WindowActions::Private
+        {
+            std::shared_ptr<dtk::ValueObserver<bool> > fullScreenObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > floatOnTopObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > secondaryObserver;
+            std::shared_ptr<dtk::ValueObserver<WindowSettings> > settingsObserver;
+        };
+
         void WindowActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             IActions::_init(context, app, "Window");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["FullScreen"] = dtk::Action::create(
@@ -154,7 +163,46 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.fullScreenObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->observeFullScreen(),
+                [this](bool value)
+                {
+                    _actions["FullScreen"]->setChecked(value);
+                });
+
+            p.floatOnTopObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->observeFloatOnTop(),
+                [this](bool value)
+                {
+                    _actions["FloatOnTop"]->setChecked(value);
+                });
+
+            p.secondaryObserver = dtk::ValueObserver<bool>::create(
+                app->observeSecondaryWindow(),
+                [this](bool value)
+                {
+                    _actions["Secondary"]->setChecked(value);
+                });
+
+            p.settingsObserver = dtk::ValueObserver<WindowSettings>::create(
+                app->getSettingsModel()->observeWindow(),
+                [this](const WindowSettings& value)
+                {
+                    _actions["FileToolBar"]->setChecked(value.fileToolBar);
+                    _actions["CompareToolBar"]->setChecked(value.compareToolBar);
+                    _actions["WindowToolBar"]->setChecked(value.windowToolBar);
+                    _actions["ViewToolBar"]->setChecked(value.viewToolBar);
+                    _actions["ToolsToolBar"]->setChecked(value.toolsToolBar);
+                    _actions["Timeline"]->setChecked(value.timeline);
+                    _actions["BottomToolBar"]->setChecked(value.bottomToolBar);
+                    _actions["StatusToolBar"]->setChecked(value.statusToolBar);
+                });
         }
+
+        WindowActions::WindowActions() :
+            _p(new Private)
+        {}
 
         WindowActions::~WindowActions()
         {}
