@@ -25,7 +25,7 @@ namespace tl
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            ViewActions() = default;
+            ViewActions();
 
         public:
             ~ViewActions();
@@ -34,6 +34,9 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
+
+        private:
+            DTK_PRIVATE();
         };
     }
 }

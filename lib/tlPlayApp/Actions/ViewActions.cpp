@@ -15,12 +15,21 @@ namespace tl
 {
     namespace play
     {
+        struct ViewActions::Private
+        {
+
+            std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
+        };
+
         void ViewActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             IActions::_init(context, app, "View");
+            DTK_P();
 
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
             _actions["Frame"] = dtk::Action::create(
@@ -168,7 +177,38 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.frameViewObserver = dtk::ValueObserver<bool>::create(
+                mainWindow->getViewport()->observeFrameView(),
+                [this](bool value)
+                {
+                    _actions["Frame"]->setChecked(value);
+                });
+
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    _actions["Red"]->setChecked(dtk::ChannelDisplay::Red == value.channels);
+                    _actions["Green"]->setChecked(dtk::ChannelDisplay::Green == value.channels);
+                    _actions["Blue"]->setChecked(dtk::ChannelDisplay::Blue == value.channels);
+                    _actions["Alpha"]->setChecked(dtk::ChannelDisplay::Alpha == value.channels);
+
+                    _actions["MirrorHorizontal"]->setChecked(value.mirror.x);
+                    _actions["MirrorVertical"]->setChecked(value.mirror.y);
+                });
+
+            p.hudObserver = dtk::ValueObserver<bool>::create(
+                app->getViewportModel()->observeHUD(),
+                [this](bool value)
+                {
+                    _actions["HUD"]->setChecked(value);
+                });
         }
+
+        ViewActions::ViewActions() :
+            _p(new Private)
+        {}
 
         ViewActions::~ViewActions()
         {}

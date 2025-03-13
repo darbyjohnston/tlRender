@@ -13,8 +13,7 @@ namespace tl
 {
     namespace play
     {
-        class App;
-        class MainWindow;
+        class ViewActions;
 
         //! View tool bar.
         class ViewToolBar : public dtk::IWidget
@@ -24,9 +23,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
             ViewToolBar();
@@ -36,9 +33,7 @@ namespace tl
 
             static std::shared_ptr<ViewToolBar> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             void setGeometry(const dtk::Box2I&) override;

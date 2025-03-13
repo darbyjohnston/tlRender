@@ -10,8 +10,6 @@ namespace tl
 {
     namespace play
     {
-        class App;
-        class MainWindow;
         class ViewActions;
 
         //! View menu.
@@ -22,8 +20,6 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,8 +30,6 @@ namespace tl
 
             static std::shared_ptr<ViewMenu> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<MainWindow>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 

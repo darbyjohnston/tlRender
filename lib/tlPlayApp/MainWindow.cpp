@@ -182,11 +182,7 @@ namespace tl
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.windowActions);
-            p.viewMenu = ViewMenu::create(
-                context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.viewActions);
+            p.viewMenu = ViewMenu::create(context, p.viewActions);
             p.playbackMenu = PlaybackMenu::create(context, app, p.playbackActions);
             p.frameMenu = FrameMenu::create(context, app, p.frameActions);
             p.timelineMenu = TimelineMenu::create(
@@ -220,11 +216,7 @@ namespace tl
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.windowActions->getActions());
-            p.viewToolBar = ViewToolBar::create(
-                context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.viewActions->getActions());
+            p.viewToolBar = ViewToolBar::create(context, p.viewActions);
             p.toolsToolBar = ToolsToolBar::create(
                 context,
                 app,
