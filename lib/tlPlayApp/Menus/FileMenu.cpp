@@ -22,7 +22,6 @@ namespace tl
             std::vector<std::string> extensions;
             std::shared_ptr<dtk::RecentFilesModel> recentFilesModel;
 
-            std::map<std::string, std::shared_ptr<dtk::Action> > actions;
             std::vector<std::shared_ptr<dtk::Action> > currentItems;
             std::vector<std::shared_ptr<dtk::Action> > layersItems;
             std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
@@ -37,7 +36,7 @@ namespace tl
         void FileMenu::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<FileActions>& actions,
+            const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
         {
             Menu::_init(context, parent);
@@ -55,24 +54,23 @@ namespace tl
 
             p.recentFilesModel = app->getRecentFilesModel();
 
-            p.actions = actions->getActions();
-
-            addItem(p.actions["Open"]);
-            addItem(p.actions["OpenSeparateAudio"]);
-            addItem(p.actions["Close"]);
-            addItem(p.actions["CloseAll"]);
-            addItem(p.actions["Reload"]);
+            auto actions = fileActions->getActions();
+            addItem(actions["Open"]);
+            addItem(actions["OpenSeparateAudio"]);
+            addItem(actions["Close"]);
+            addItem(actions["CloseAll"]);
+            addItem(actions["Reload"]);
             p.menus["Recent"] = addSubMenu("Recent");
             addDivider();
             p.menus["Current"] = addSubMenu("Current");
-            addItem(p.actions["Next"]);
-            addItem(p.actions["Prev"]);
+            addItem(actions["Next"]);
+            addItem(actions["Prev"]);
             addDivider();
             p.menus["Layers"] = addSubMenu("Layers");
-            addItem(p.actions["NextLayer"]);
-            addItem(p.actions["PrevLayer"]);
+            addItem(actions["NextLayer"]);
+            addItem(actions["PrevLayer"]);
             addDivider();
-            addItem(p.actions["Exit"]);
+            addItem(actions["Exit"]);
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
@@ -123,11 +121,11 @@ namespace tl
         std::shared_ptr<FileMenu> FileMenu::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<FileActions>& actions,
+            const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<FileMenu>(new FileMenu);
-            out->_init(context, app, actions, parent);
+            out->_init(context, app, fileActions, parent);
             return out;
         }
 
@@ -145,13 +143,6 @@ namespace tl
             const std::vector<std::shared_ptr<FilesModelItem> >& value)
         {
             DTK_P();
-
-            setItemEnabled(p.actions["Close"], !value.empty());
-            setItemEnabled(p.actions["CloseAll"], !value.empty());
-            setItemEnabled(p.actions["Reload"], !value.empty());
-            setItemEnabled(p.actions["Next"], value.size() > 1);
-            setItemEnabled(p.actions["Prev"], value.size() > 1);
-
             p.menus["Current"]->clear();
             p.currentItems.clear();
             for (size_t i = 0; i < value.size(); ++i)
@@ -196,9 +187,6 @@ namespace tl
                     p.layersItems.push_back(item);
                 }
             }
-
-            setItemEnabled(p.actions["NextLayer"], value ? value->videoLayers.size() > 1 : false);
-            setItemEnabled(p.actions["PrevLayer"], value ? value->videoLayers.size() > 1 : false);
         }
 
         void FileMenu::_aIndexUpdate(int value)

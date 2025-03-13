@@ -22,7 +22,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            FileActions() = default;
+            FileActions();
 
         public:
             ~FileActions();
@@ -30,6 +30,9 @@ namespace tl
             static std::shared_ptr<FileActions> create(
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
+
+        private:
+            DTK_PRIVATE();
         };
     }
 }

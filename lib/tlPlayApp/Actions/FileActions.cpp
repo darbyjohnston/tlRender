@@ -11,11 +11,18 @@ namespace tl
 {
     namespace play
     {
+        struct FileActions::Private
+        {
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<FilesModelItem> > > aObserver;
+        };
+
         void FileActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             IActions::_init(context, app, "File");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["Open"] = dtk::Action::create(
@@ -142,7 +149,31 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->getFilesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+                {
+                    DTK_P();
+                    _actions["Close"]->setEnabled(!value.empty());
+                    _actions["CloseAll"]->setEnabled(!value.empty());
+                    _actions["Reload"]->setEnabled(!value.empty());
+                    _actions["Next"]->setEnabled(value.size() > 1);
+                    _actions["Prev"]->setEnabled(value.size() > 1);
+                });
+
+            p.aObserver = dtk::ValueObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->getFilesModel()->observeA(),
+                [this](const std::shared_ptr<FilesModelItem>& value)
+                {
+                    _actions["NextLayer"]->setEnabled(value ? value->videoLayers.size() > 1 : false);
+                    _actions["PrevLayer"]->setEnabled(value ? value->videoLayers.size() > 1 : false);
+                });
         }
+
+        FileActions::FileActions() :
+            _p(new Private)
+        {}
 
         FileActions::~FileActions()
         {}
