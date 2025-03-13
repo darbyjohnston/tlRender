@@ -11,11 +11,19 @@ namespace tl
 {
     namespace play
     {
+        struct CompareActions::Private
+        {
+            std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > optionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::CompareTime> > timeObserver;
+        };
+
         void CompareActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             IActions::_init(context, app, "Compare");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["Next"] = dtk::Action::create(
@@ -179,7 +187,45 @@ namespace tl
             };
 
             _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+
+            p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
+                app->getFilesModel()->observeFiles(),
+                [this](const std::vector<std::shared_ptr<FilesModelItem> >& value)
+                {
+                    DTK_P();
+                    _actions["Next"]->setEnabled(value.size() > 1);
+                    _actions["Prev"]->setEnabled(value.size() > 1);
+                });
+
+            p.optionsObserver = dtk::ValueObserver<timeline::CompareOptions>::create(
+                app->getFilesModel()->observeCompareOptions(),
+                [this](const timeline::CompareOptions& value)
+                {
+                    DTK_P();
+                    const auto enums = timeline::getCompareEnums();
+                    const auto labels = timeline::getCompareLabels();
+                    for (size_t i = 0; i < enums.size(); ++i)
+                    {
+                        _actions[labels[i]]->setChecked(enums[i] == value.compare);
+                    }
+                });
+
+            p.timeObserver = dtk::ValueObserver<timeline::CompareTime>::create(
+                app->getFilesModel()->observeCompareTime(),
+                [this](timeline::CompareTime value)
+                {
+                    const auto enums = timeline::getCompareTimeEnums();
+                    const auto labels = timeline::getCompareTimeLabels();
+                    for (size_t i = 0; i < enums.size(); ++i)
+                    {
+                        _actions[labels[i]]->setChecked(enums[i] == value);
+                    }
+                });
         }
+
+        CompareActions::CompareActions() :
+            _p(new Private)
+        {}
 
         CompareActions::~CompareActions()
         {}

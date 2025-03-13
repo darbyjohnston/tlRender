@@ -20,7 +20,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&);
 
-            CompareActions() = default;
+            CompareActions();
 
         public:
             ~CompareActions();
@@ -30,6 +30,7 @@ namespace tl
                 const std::shared_ptr<App>&);
 
         private:
+            DTK_PRIVATE();
         };
     }
 }
