@@ -42,7 +42,8 @@ namespace tl
             void drawTexture(
                 unsigned int,
                 const dtk::Box2I&,
-                const dtk::Color4F & = dtk::Color4F(1.F, 1.F, 1.F)) override;
+                const dtk::Color4F & = dtk::Color4F(1.F, 1.F, 1.F),
+                dtk::AlphaBlend = dtk::AlphaBlend::Straight) override;
             void drawBackground(
                 const std::vector<dtk::Box2I>&,
                 const dtk::M44F&,

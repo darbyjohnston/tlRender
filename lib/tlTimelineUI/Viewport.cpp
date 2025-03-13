@@ -566,7 +566,16 @@ namespace tl
             }
             if (p.buffer)
             {
-                render->drawTexture(p.buffer->getColorID(), g);
+                dtk::AlphaBlend alphaBlend = dtk::AlphaBlend::Straight;
+                if (!p.imageOptions.empty())
+                {
+                    alphaBlend = p.imageOptions.front().alphaBlend;
+                }
+                render->drawTexture(
+                    p.buffer->getColorID(),
+                    g,
+                    dtk::Color4F(1.F, 1.F, 1.F),
+                    alphaBlend);
             }
             if (p.fgBuffer)
             {

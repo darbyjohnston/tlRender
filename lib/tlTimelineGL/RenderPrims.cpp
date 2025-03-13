@@ -60,9 +60,10 @@ namespace tl
         void Render::drawTexture(
             unsigned int id,
             const dtk::Box2I& rect,
-            const dtk::Color4F& color)
+            const dtk::Color4F& color,
+            dtk::AlphaBlend alphaBlend)
         {
-            _p->baseRender->drawTexture(id, rect, color);
+            _p->baseRender->drawTexture(id, rect, color, alphaBlend);
         }
 
         void Render::drawText(
