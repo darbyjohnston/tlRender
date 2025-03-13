@@ -14,6 +14,33 @@ namespace tl
 {
     namespace play
     {
+        class ViewOptionsWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(ViewOptionsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            ViewOptionsWidget();
+
+        public:
+            virtual ~ViewOptionsWidget();
+
+            static std::shared_ptr<ViewOptionsWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            DTK_PRIVATE();
+        };
+
         class BackgroundWidget : public dtk::IWidget
         {
             DTK_NON_COPYABLE(BackgroundWidget);

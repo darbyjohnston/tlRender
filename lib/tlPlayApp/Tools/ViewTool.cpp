@@ -18,14 +18,199 @@
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
 
+#include <sstream>
+
 namespace tl
 {
     namespace play
     {
+        struct ViewOptionsWidget::Private
+        {
+            std::vector<dtk::ImageType> colorBuffers;
+
+            std::shared_ptr<dtk::ComboBox> minifyComboBox;
+            std::shared_ptr<dtk::ComboBox> magnifyComboBox;
+            std::shared_ptr<dtk::ComboBox> videoLevelsComboBox;
+            std::shared_ptr<dtk::ComboBox> alphaBlendComboBox;
+            std::shared_ptr<dtk::ComboBox> colorBufferComboBox;
+            std::shared_ptr<dtk::FormLayout> layout;
+
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
+            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
+        };
+
+        void ViewOptionsWidget::_init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<dtk::IWidget>& parent)
+        {
+            dtk::IWidget::_init(context, "tl::play_app::ViewOptionsWidget", parent);
+            DTK_P();
+
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_U8);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F16);
+            p.colorBuffers.push_back(dtk::ImageType::RGBA_F32);
+
+            p.minifyComboBox = dtk::ComboBox::create(
+                context,
+                dtk::getImageFilterLabels());
+            p.minifyComboBox->setHStretch(dtk::Stretch::Expanding);
+
+            p.magnifyComboBox = dtk::ComboBox::create(
+                context,
+                dtk::getImageFilterLabels());
+            p.magnifyComboBox->setHStretch(dtk::Stretch::Expanding);
+
+            p.videoLevelsComboBox = dtk::ComboBox::create(
+                context,
+                dtk::getInputVideoLevelsLabels());
+            p.videoLevelsComboBox->setHStretch(dtk::Stretch::Expanding);
+
+            p.alphaBlendComboBox = dtk::ComboBox::create(
+                context,
+                dtk::getAlphaBlendLabels());
+            p.videoLevelsComboBox->setHStretch(dtk::Stretch::Expanding);
+
+            std::vector<std::string> items;
+            for (size_t i = 0; i < p.colorBuffers.size(); ++i)
+            {
+                std::stringstream ss;
+                ss << p.colorBuffers[i];
+                items.push_back(ss.str());
+            }
+            p.colorBufferComboBox = dtk::ComboBox::create(context, items);
+
+            p.layout = dtk::FormLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.layout->addRow("Minify:", p.minifyComboBox);
+            p.layout->addRow("Magnify:", p.magnifyComboBox);
+            p.layout->addRow("Video levels:", p.videoLevelsComboBox);
+            p.layout->addRow("Alpha blend:", p.alphaBlendComboBox);
+            p.layout->addRow("Color buffer:", p.colorBufferComboBox);
+
+            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
+                app->getViewportModel()->observeImageOptions(),
+                [this](const dtk::ImageOptions& value)
+                {
+                    _p->alphaBlendComboBox->setCurrentIndex(static_cast<int>(value.alphaBlend));
+                });
+
+            p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
+                app->getViewportModel()->observeDisplayOptions(),
+                [this](const timeline::DisplayOptions& value)
+                {
+                    DTK_P();
+                    p.minifyComboBox->setCurrentIndex(static_cast<int>(value.imageFilters.minify));
+                    p.magnifyComboBox->setCurrentIndex(static_cast<int>(value.imageFilters.magnify));
+                    p.videoLevelsComboBox->setCurrentIndex(static_cast<int>(value.videoLevels));
+                });
+
+            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
+                app->getViewportModel()->observeColorBuffer(),
+                [this](dtk::ImageType value)
+                {
+                    DTK_P();
+                    int index = -1;
+                    const auto i = std::find(p.colorBuffers.begin(), p.colorBuffers.end(), value);
+                    if (i != p.colorBuffers.end())
+                    {
+                        index = i - p.colorBuffers.begin();
+                    }
+                    _p->colorBufferComboBox->setCurrentIndex(index);
+                });
+
+            auto appWeak = std::weak_ptr<App>(app);
+            p.minifyComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.imageFilters.minify = static_cast<dtk::ImageFilter>(value);
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.magnifyComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.imageFilters.magnify = static_cast<dtk::ImageFilter>(value);
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.videoLevelsComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getDisplayOptions();
+                        options.videoLevels = static_cast<dtk::VideoLevels>(value);
+                        app->getViewportModel()->setDisplayOptions(options);
+                    }
+                });
+
+            p.alphaBlendComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getViewportModel()->getImageOptions();
+                        options.alphaBlend = static_cast<dtk::AlphaBlend>(value);
+                        app->getViewportModel()->setImageOptions(options);
+                    }
+                });
+
+            p.colorBufferComboBox->setIndexCallback(
+                [this, appWeak](int value)
+                {
+                    DTK_P();
+                    if (auto app = appWeak.lock())
+                    {
+                        if (value >= 0 && value < p.colorBuffers.size())
+                        {
+                            app->getViewportModel()->setColorBuffer(p.colorBuffers[value]);
+                        }
+                    }
+                });
+        }
+
+        ViewOptionsWidget::ViewOptionsWidget() :
+            _p(new Private)
+        {}
+
+        ViewOptionsWidget::~ViewOptionsWidget()
+        {}
+
+        std::shared_ptr<ViewOptionsWidget> ViewOptionsWidget::create(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<ViewOptionsWidget>(new ViewOptionsWidget);
+            out->_init(context, app, parent);
+            return out;
+        }
+
+        void ViewOptionsWidget::setGeometry(const dtk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void ViewOptionsWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
+        {
+            IWidget::sizeHintEvent(value);
+            _setSizeHint(_p->layout->getSizeHint());
+        }
+
         struct BackgroundWidget::Private
         {
-            std::shared_ptr<dtk::Settings> settings;
-
             std::shared_ptr<dtk::ComboBox> typeComboBox;
             std::shared_ptr<dtk::ColorSwatch> solidSwatch;
             std::pair< std::shared_ptr<dtk::ColorSwatch>, std::shared_ptr<dtk::ColorSwatch> > checkersSwatch;
@@ -43,8 +228,6 @@ namespace tl
         {
             dtk::IWidget::_init(context, "tl::play_app::BackgroundWidget", parent);
             DTK_P();
-
-            p.settings = app->getSettings();
 
             p.typeComboBox = dtk::ComboBox::create(
                 context,
@@ -460,6 +643,7 @@ namespace tl
 
         struct ViewTool::Private
         {
+            std::shared_ptr<ViewOptionsWidget> viewOptionsWidget;
             std::shared_ptr<BackgroundWidget> backgroundWidget;
             std::shared_ptr<OutlineWidget> outlineWidget;
             std::shared_ptr<GridWidget> gridWidget;
@@ -479,12 +663,15 @@ namespace tl
                 parent);
             DTK_P();
 
+            p.viewOptionsWidget = ViewOptionsWidget::create(context, app);
             p.backgroundWidget = BackgroundWidget::create(context, app);
             p.outlineWidget = OutlineWidget::create(context, app);
             p.gridWidget = GridWidget::create(context, app);
 
             auto layout = dtk::VerticalLayout::create(context);
             layout->setSpacingRole(dtk::SizeRole::None);
+            p.bellows["options"] = dtk::Bellows::create(context, "Options", layout);
+            p.bellows["options"]->setWidget(p.viewOptionsWidget);
             p.bellows["background"] = dtk::Bellows::create(context, "Background", layout);
             p.bellows["background"]->setWidget(p.backgroundWidget);
             p.bellows["outline"] = dtk::Bellows::create(context, "Outline", layout);

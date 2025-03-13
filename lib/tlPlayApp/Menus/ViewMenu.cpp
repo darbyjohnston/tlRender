@@ -23,8 +23,6 @@ namespace tl
 
             std::shared_ptr<dtk::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > displayOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<dtk::ImageOptions> > imageOptionsObserver;
-            std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
         };
 
@@ -52,35 +50,6 @@ namespace tl
             addDivider();
             addItem(p.actions["MirrorHorizontal"]);
             addItem(p.actions["MirrorVertical"]);
-            addDivider();
-
-            p.menus["MinifyFilter"] = addSubMenu("Minify Filter");
-            p.menus["MinifyFilter"]->addItem(p.actions["MinifyNearest"]);
-            p.menus["MinifyFilter"]->addItem(p.actions["MinifyLinear"]);
-
-            p.menus["MagnifyFilter"] = addSubMenu("Magnify Filter");
-            p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyNearest"]);
-            p.menus["MagnifyFilter"]->addItem(p.actions["MagnifyLinear"]);
-
-            p.menus["VideoLevels"] = addSubMenu("Video Levels");
-            p.menus["VideoLevels"]->addItem(p.actions["FromFile"]);
-            p.menus["VideoLevels"]->addItem(p.actions["FullRange"]);
-            p.menus["VideoLevels"]->addItem(p.actions["LegalRange"]);
-
-            p.menus["AlphaBlend"] = addSubMenu("Alpha Blend");
-            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendNone"]);
-            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendStraight"]);
-            p.menus["AlphaBlend"]->addItem(p.actions["AlphaBlendPremultiplied"]);
-
-            p.menus["ColorBuffer"] = addSubMenu("Color Buffer");
-            std::vector<dtk::ImageType> colorBuffers = actions->getColorBuffers();
-            for (auto type : colorBuffers)
-            {
-                std::stringstream ss;
-                ss << type;
-                p.menus["ColorBuffer"]->addItem(p.actions[ss.str()]);
-            }
-
             addDivider();
             addItem(p.actions["HUD"]);
 
@@ -114,59 +83,6 @@ namespace tl
                     setItemChecked(
                         _p->actions["MirrorVertical"],
                         value.mirror.y);
-
-                    _p->menus["MinifyFilter"]->setItemChecked(
-                        _p->actions["MinifyNearest"],
-                        dtk::ImageFilter::Nearest == value.imageFilters.minify);
-                    _p->menus["MinifyFilter"]->setItemChecked(
-                        _p->actions["MinifyLinear"],
-                        dtk::ImageFilter::Linear == value.imageFilters.minify);
-
-                    _p->menus["MagnifyFilter"]->setItemChecked(
-                        _p->actions["MagnifyNearest"],
-                        dtk::ImageFilter::Nearest == value.imageFilters.magnify);
-                    _p->menus["MagnifyFilter"]->setItemChecked(
-                        _p->actions["MagnifyLinear"],
-                        dtk::ImageFilter::Linear == value.imageFilters.magnify);
-                });
-
-            p.imageOptionsObserver = dtk::ValueObserver<dtk::ImageOptions>::create(
-                app->getViewportModel()->observeImageOptions(),
-                [this](const dtk::ImageOptions& value)
-                {
-                    _p->menus["VideoLevels"]->setItemChecked(
-                        _p->actions["FromFile"],
-                        dtk::InputVideoLevels::FromFile == value.videoLevels);
-                    _p->menus["VideoLevels"]->setItemChecked(
-                        _p->actions["FullRange"],
-                        dtk::InputVideoLevels::FullRange == value.videoLevels);
-                    _p->menus["VideoLevels"]->setItemChecked(
-                        _p->actions["LegalRange"],
-                        dtk::InputVideoLevels::LegalRange == value.videoLevels);
-
-                    _p->menus["AlphaBlend"]->setItemChecked(
-                        _p->actions["AlphaBlendNone"],
-                        dtk::AlphaBlend::None == value.alphaBlend);
-                    _p->menus["AlphaBlend"]->setItemChecked(
-                        _p->actions["AlphaBlendStraight"],
-                        dtk::AlphaBlend::Straight == value.alphaBlend);
-                    _p->menus["AlphaBlend"]->setItemChecked(
-                        _p->actions["AlphaBlendPremultiplied"],
-                        dtk::AlphaBlend::Premultiplied == value.alphaBlend);
-                });
-
-            p.colorBufferObserver = dtk::ValueObserver<dtk::ImageType>::create(
-                app->getViewportModel()->observeColorBuffer(),
-                [this, colorBuffers](dtk::ImageType value)
-                {
-                    for (auto type : colorBuffers)
-                    {
-                        std::stringstream ss;
-                        ss << type;
-                        _p->menus["ColorBuffer"]->setItemChecked(
-                            _p->actions[ss.str()],
-                            type == value);
-                    }
                 });
 
             p.hudObserver = dtk::ValueObserver<bool>::create(

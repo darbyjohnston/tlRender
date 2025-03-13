@@ -34,11 +34,6 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
-
-            const std::vector<dtk::ImageType>& getColorBuffers() const;
-
-        private:
-            std::vector<dtk::ImageType> _colorBuffers;
         };
     }
 }
