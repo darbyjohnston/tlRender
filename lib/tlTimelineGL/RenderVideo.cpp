@@ -86,7 +86,7 @@ namespace tl
                 mesh.v.push_back(dtk::V2F(bounds.min.x, bounds.max.y + 1));
                 for (auto& v : mesh.v)
                 {
-                    const dtk::V3F v3 = m * dtk::V3F(v.x, v.y, 0.F);
+                    const dtk::V3F v3 = dtk::V3F(v.x, v.y, 0.F) * m;
                     v.x = v3.x;
                     v.y = v3.y;
                 }
@@ -944,8 +944,8 @@ namespace tl
         {
             if (options.grid.enabled && !boxes.empty())
             {
-                const dtk::V3F v0 = m * dtk::V3F(0.F, 0.F, 0.F);
-                const dtk::V3F v1 = m * dtk::V3F(options.grid.size, 0.F, 0.F);
+                const dtk::V3F v0 = dtk::V3F(0.F, 0.F, 0.F) * m;
+                const dtk::V3F v1 = dtk::V3F(options.grid.size, 0.F, 0.F) * m;
                 if (dtk::length(v1 - v0) > options.grid.lineWidth + 10.F)
                 {
                     dtk::Box2I bounds = boxes.front();
@@ -964,8 +964,8 @@ namespace tl
                     lineOptions.width = options.grid.lineWidth;
                     for (int y = bounds.min.y; y <= bounds.max.y + 1; y += options.grid.size)
                     {
-                        const dtk::V3F v0 = m * dtk::V3F(bounds.min.x, y, 0.F);
-                        const dtk::V3F v1 = m * dtk::V3F(bounds.max.x + 1, y, 0.F);
+                        const dtk::V3F v0 = dtk::V3F(bounds.min.x, y, 0.F) * m;
+                        const dtk::V3F v1 = dtk::V3F(bounds.max.x + 1, y, 0.F) * m;
                         const dtk::V2F v2(std::round(v0.x), std::round(v0.y));
                         const dtk::V2F v3(std::round(v1.x), std::round(v1.y));
                         if (dtk::intersects(dtk::Box2F(v2, v3), vp))
@@ -975,8 +975,8 @@ namespace tl
                     }
                     for (int x = bounds.min.x; x <= bounds.max.x + 1; x += options.grid.size)
                     {
-                        const dtk::V3F v0 = m * dtk::V3F(x, bounds.min.y, 0.F);
-                        const dtk::V3F v1 = m * dtk::V3F(x, bounds.max.y + 1, 0.F);
+                        const dtk::V3F v0 = dtk::V3F(x, bounds.min.y, 0.F) * m;
+                        const dtk::V3F v1 = dtk::V3F(x, bounds.max.y + 1, 0.F) * m;
                         const dtk::V2F v2(std::round(v0.x), std::round(v0.y));
                         const dtk::V2F v3(std::round(v1.x), std::round(v1.y));
                         if (dtk::intersects(dtk::Box2F(v2, v3), vp))

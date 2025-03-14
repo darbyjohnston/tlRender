@@ -137,7 +137,7 @@ namespace tl
             p.thumbnailsSizeItems[200] = _actions["ThumbnailsMedium"];
             p.thumbnailsSizeItems[300] = _actions["ThumbnailsLarge"];
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getTimelineWidget()->observeFrameView(),

@@ -162,7 +162,7 @@ namespace tl
                 { "Secondary", "Toggle the secondary window." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.fullScreenObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->observeFullScreen(),

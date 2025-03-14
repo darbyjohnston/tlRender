@@ -97,76 +97,6 @@ namespace tl
             DTK_PRIVATE();
         };
 
-        //! Keyboard shortcut widget.
-        class KeyShortcutWidget : public dtk::IWidget
-        {
-            DTK_NON_COPYABLE(KeyShortcutWidget);
-
-        protected:
-            void _init(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<IWidget>& parent);
-
-            KeyShortcutWidget();
-
-        public:
-            virtual ~KeyShortcutWidget();
-
-            static std::shared_ptr<KeyShortcutWidget> create(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setShortcut(const KeyShortcut&);
-            void setCallback(const std::function<void(const KeyShortcut&)>&);
-            void setCollision(bool);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-            void drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent&) override;
-            void mouseEnterEvent(dtk::MouseEnterEvent&) override;
-            void mouseLeaveEvent() override;
-            void mousePressEvent(dtk::MouseClickEvent&) override;
-            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
-            void keyFocusEvent(bool) override;
-            void keyPressEvent(dtk::KeyEvent&) override;
-            void keyReleaseEvent(dtk::KeyEvent&) override;
-
-        private:
-            void _widgetUpdate();
-
-            DTK_PRIVATE();
-        };
-
-        //! Keyboard shortcuts settings widget.
-        class KeyShortcutsSettingsWidget : public dtk::IWidget
-        {
-            DTK_NON_COPYABLE(KeyShortcutsSettingsWidget);
-
-        protected:
-            void _init(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent);
-
-            KeyShortcutsSettingsWidget();
-
-        public:
-            virtual ~KeyShortcutsSettingsWidget();
-
-            static std::shared_ptr<KeyShortcutsSettingsWidget> create(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            void _widgetUpdate(const KeyShortcutsSettings&);
-
-            DTK_PRIVATE();
-        };
-
         //! Miscellaneous settings widget.
         class MiscSettingsWidget : public dtk::IWidget
         {
@@ -250,6 +180,76 @@ namespace tl
             DTK_PRIVATE();
         };
 
+        //! Keyboard shortcut widget.
+        class ShortcutWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(ShortcutWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            ShortcutWidget();
+
+        public:
+            virtual ~ShortcutWidget();
+
+            static std::shared_ptr<ShortcutWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setShortcut(const Shortcut&);
+            void setCallback(const std::function<void(const Shortcut&)>&);
+            void setCollision(bool);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent&) override;
+            void mouseEnterEvent(dtk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
+            void mousePressEvent(dtk::MouseClickEvent&) override;
+            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
+            void keyFocusEvent(bool) override;
+            void keyPressEvent(dtk::KeyEvent&) override;
+            void keyReleaseEvent(dtk::KeyEvent&) override;
+
+        private:
+            void _widgetUpdate();
+
+            DTK_PRIVATE();
+        };
+
+        //! Keyboard shortcuts settings widget.
+        class ShortcutsSettingsWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(ShortcutsSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            ShortcutsSettingsWidget();
+
+        public:
+            virtual ~ShortcutsSettingsWidget();
+
+            static std::shared_ptr<ShortcutsSettingsWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            void _widgetUpdate(const ShortcutsSettings&);
+
+            DTK_PRIVATE();
+        };
+
         //! Style settings widget.
         class StyleSettingsWidget : public dtk::IWidget
         {
@@ -275,6 +275,8 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
+            void _widgetUpdate(const StyleSettings&);
+
             DTK_PRIVATE();
         };
 

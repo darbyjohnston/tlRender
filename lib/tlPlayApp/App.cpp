@@ -525,7 +525,9 @@ namespace tl
                 p.settingsModel->observeStyle(),
                 [this](const StyleSettings& value)
                 {
+                    getStyle()->setColorControls(value.colorControls);
                     setColorStyle(value.colorStyle);
+                    setCustomColorRoles(value.customColorRoles);
                     setDisplayScale(value.displayScale);
                 });
 

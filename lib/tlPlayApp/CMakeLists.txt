@@ -67,8 +67,8 @@ set(HEADERS_PRIVATE_WIDGETS
 set(HEADERS
     App.h
     MainWindow.h
-    KeyShortcuts.h
     SecondaryWindow.h
+    Shortcuts.h
     ${HEADERS_ACTIONS}
     ${HEADERS_MENUS}
     ${HEADERS_MODELS}
@@ -122,9 +122,10 @@ set(SOURCE_TOOLS
     Tools/FilesTool.cpp
     Tools/IToolWidget.cpp
     Tools/InfoTool.cpp
-    Tools/KeyShortcutsWidgets.cpp
     Tools/MessagesTool.cpp
     Tools/SettingsTool.cpp
+    Tools/ShortcutsWidget.cpp
+    Tools/StyleWidget.cpp
     Tools/SystemLogTool.cpp
     Tools/ToolsWidget.cpp
     Tools/ViewTool.cpp)
@@ -142,9 +143,9 @@ set(SOURCE_WIDGETS
     Widgets/WindowToolBar.cpp)
 set(SOURCE
     App.cpp
-    KeyShortcuts.cpp
     MainWindow.cpp
     SecondaryWindow.cpp
+    Shortcuts.cpp
     ${SOURCE_ACTIONS}
     ${SOURCE_MENUS}
     ${SOURCE_MODELS}

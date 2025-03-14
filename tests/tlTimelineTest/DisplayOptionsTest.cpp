@@ -7,6 +7,7 @@
 #include <tlTimeline/DisplayOptions.h>
 
 #include <dtk/core/Assert.h>
+#include <dtk/core/Format.h>
 #include <dtk/core/String.h>
 
 using namespace tl::timeline;
@@ -33,30 +34,15 @@ namespace tl
                 DTK_ASSERT(color != Color());
             }
             {
-                const auto mat = brightness(dtk::V3F(2.F, 1.F, 1.F));
-                const auto vec = mat * dtk::V3F(1.F, 1.F, 1.F);
-            }
-            {
-                const auto mat = contrast(dtk::V3F(2.F, 1.F, 1.F));
-                const auto vec = mat * dtk::V3F(1.F, 1.F, 1.F);
-            }
-            {
-                const auto mat = saturation(dtk::V3F(2.F, 1.F, 1.F));
-                const auto vec = mat * dtk::V3F(1.F, 1.F, 1.F);
-            }
-            {
-                const auto mat = tint(2.F);
-                const auto vec = mat * dtk::V3F(1.F, 1.F, 1.F);
-            }
-            {
                 Color color;
                 color.brightness = dtk::V3F(2.F, 1.F, 1.F);
                 color.contrast = dtk::V3F(2.F, 1.F, 1.F);
                 color.saturation = dtk::V3F(2.F, 1.F, 1.F);
                 color.tint = 2.F;
                 color.invert = true;
-                const auto mat = timeline::color(color);
-                const auto vec = mat * dtk::V3F(1.F, 1.F, 1.F);
+                const dtk::V3F v(1.F, 1.F, 1.F);
+                const auto m = timeline::color(color);
+                _print(dtk::Format("{0} color: {1}").arg(v).arg(v * m));
             }
             {
                 Levels levels;

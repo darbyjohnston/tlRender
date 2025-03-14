@@ -176,7 +176,7 @@ namespace tl
                 { "HUD", "Toggle the HUD (Heads Up Display)." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.frameViewObserver = dtk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeFrameView(),

@@ -28,7 +28,7 @@ namespace tl
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
+                "    gl_Position = vec4(vPos, 1.0) * transform.mvp;\n"
                 "    fTexture = vTexture;\n"
                 "}\n";
         }
@@ -153,7 +153,7 @@ namespace tl
                 "    tmp[1] = value[1] + add[1];\n"
                 "    tmp[2] = value[2] + add[2];\n"
                 "    tmp[3] = 1.0;\n"
-                "    tmp *= m;\n"
+                "    tmp = tmp * m;\n"
                 "    tmp[3] = value[3];\n"
                 "    return tmp;\n"
                 "}\n"

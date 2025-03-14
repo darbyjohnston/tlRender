@@ -21,9 +21,9 @@
 #include <dtk/ui/IntEdit.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/LineEdit.h>
+#include <dtk/ui/PushButton.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
-#include <dtk/ui/ToolButton.h>
 #include <dtk/core/Format.h>
 
 namespace tl
@@ -667,125 +667,6 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        struct StyleSettingsWidget::Private
-        {
-            std::shared_ptr<SettingsModel> model;
-
-            const std::vector<float> displayScales =
-            {
-                0.F,
-                1.F,
-                1.5F,
-                2.F,
-                2.5F,
-                3.F,
-                3.5F,
-                4.F
-            };
-
-            std::shared_ptr<dtk::ComboBox> colorStyleComboBox;
-            std::shared_ptr<dtk::ComboBox> displayScaleComboBox;
-            std::shared_ptr<dtk::FormLayout> layout;
-
-            std::shared_ptr<dtk::ValueObserver<StyleSettings> > settingsObserver;
-        };
-
-        void StyleSettingsWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<IWidget>& parent)
-        {
-            IWidget::_init(context, "tl::play_app::StyleSettingsWidget", parent);
-            DTK_P();
-
-            p.model = app->getSettingsModel();
-
-            p.colorStyleComboBox = dtk::ComboBox::create(context, dtk::getColorStyleLabels());
-            p.colorStyleComboBox->setHStretch(dtk::Stretch::Expanding);
-
-            std::vector<std::string> labels;
-            for (auto d : p.displayScales)
-            {
-                labels.push_back(0.F == d ?
-                    std::string("Automatic") :
-                    dtk::Format("{0}").arg(d).operator std::string());
-            }
-            p.displayScaleComboBox = dtk::ComboBox::create(context, labels);            
-            p.displayScaleComboBox->setHStretch(dtk::Stretch::Expanding);
-
-            p.layout = dtk::FormLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.layout->addRow("Color style:", p.colorStyleComboBox);
-            p.layout->addRow("Display scale:", p.displayScaleComboBox);
-
-            p.settingsObserver = dtk::ValueObserver<StyleSettings>::create(
-                app->getSettingsModel()->observeStyle(),
-                [this](const StyleSettings& value)
-                {
-                    DTK_P();
-                    p.colorStyleComboBox->setCurrentIndex(static_cast<int>(value.colorStyle));
-                    const auto i = std::find(
-                        p.displayScales.begin(),
-                        p.displayScales.end(),
-                        value.displayScale);
-                    p.displayScaleComboBox->setCurrentIndex(
-                        i != p.displayScales.end() ?
-                        (i - p.displayScales.begin()) :
-                        -1);
-                });
-
-            p.colorStyleComboBox->setIndexCallback(
-                [this](int value)
-                {
-                    DTK_P();
-                    auto settings = p.model->getStyle();
-                    settings.colorStyle = static_cast<dtk::ColorStyle>(value);
-                    p.model->setStyle(settings);
-                });
-
-            p.displayScaleComboBox->setIndexCallback(
-                [this](int value)
-                {
-                    DTK_P();
-                    auto settings = p.model->getStyle();
-                    if (value >= 0 && value < p.displayScales.size())
-                    {
-                        settings.displayScale = p.displayScales[value];
-                    }
-                    p.model->setStyle(settings);
-                });
-        }
-
-        StyleSettingsWidget::StyleSettingsWidget() :
-            _p(new Private)
-        {}
-
-        StyleSettingsWidget::~StyleSettingsWidget()
-        {}
-
-        std::shared_ptr<StyleSettingsWidget> StyleSettingsWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<IWidget>& parent)
-        {
-            auto out = std::shared_ptr<StyleSettingsWidget>(new StyleSettingsWidget);
-            out->_init(context, app, parent);
-            return out;
-        }
-
-        void StyleSettingsWidget::setGeometry(const dtk::Box2I& value)
-        {
-            IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
-        }
-
-        void StyleSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
-        {
-            IWidget::sizeHintEvent(event);
-            _setSizeHint(_p->layout->getSizeHint());
-        }
-
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
@@ -1054,7 +935,7 @@ namespace tl
         struct SettingsTool::Private
         {
             std::shared_ptr<dtk::ScrollWidget> scrollWidget;
-            std::shared_ptr<dtk::ToolButton> resetButton;
+            std::shared_ptr<dtk::PushButton> resetButton;
             std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
             std::shared_ptr<dtk::VerticalLayout> layout;
         };
@@ -1075,10 +956,10 @@ namespace tl
             auto cacheWidget = CacheSettingsWidget::create(context, app);
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(context, app);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(context, app);
-            auto keyShortcutsWidget = KeyShortcutsSettingsWidget::create(context, app);
             auto miscWidget = MiscSettingsWidget::create(context, app);
             auto mouseWidget = MouseSettingsWidget::create(context, app);
             auto performanceWidget = PerformanceSettingsWidget::create(context, app);
+            auto shortcutsWidget = ShortcutsSettingsWidget::create(context, app);
             auto styleWidget = StyleSettingsWidget::create(context, app);
 #if defined(TLRENDER_FFMPEG)
             auto ffmpegWidget = FFmpegSettingsWidget::create(context, app);
@@ -1095,14 +976,14 @@ namespace tl
             p.bellows["FileBrowser"]->setWidget(fileBrowserWidget);
             p.bellows["FileSequences"] = dtk::Bellows::create(context, "File Sequences", vLayout);
             p.bellows["FileSequences"]->setWidget(fileSequenceWidget);
-            p.bellows["KeyShortcuts"] = dtk::Bellows::create(context, "Keyboard Shortcuts", vLayout);
-            p.bellows["KeyShortcuts"]->setWidget(keyShortcutsWidget);
             p.bellows["Misc"] = dtk::Bellows::create(context, "Miscellaneous", vLayout);
             p.bellows["Misc"]->setWidget(miscWidget);
             p.bellows["Mouse"] = dtk::Bellows::create(context, "Mouse", vLayout);
             p.bellows["Mouse"]->setWidget(mouseWidget);
             p.bellows["Performance"] = dtk::Bellows::create(context, "Performance", vLayout);
             p.bellows["Performance"]->setWidget(performanceWidget);
+            p.bellows["Shortcuts"] = dtk::Bellows::create(context, "Keyboard Shortcuts", vLayout);
+            p.bellows["Shortcuts"]->setWidget(shortcutsWidget);
             p.bellows["Style"] = dtk::Bellows::create(context, "Style", vLayout);
             p.bellows["Style"]->setWidget(styleWidget);
 #if defined(TLRENDER_FFMPEG)
@@ -1119,15 +1000,16 @@ namespace tl
             p.scrollWidget->setBorder(false);
             p.scrollWidget->setVStretch(dtk::Stretch::Expanding);
 
-            p.resetButton = dtk::ToolButton::create(context, "Default Settings");
+            p.resetButton = dtk::PushButton::create(context, "Default Settings");
+            p.resetButton->setHStretch(dtk::Stretch::Expanding);
 
             p.layout = dtk::VerticalLayout::create(context);
             p.layout->setSpacingRole(dtk::SizeRole::None);
             p.scrollWidget->setParent(p.layout);
             dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             auto hLayout = dtk::HorizontalLayout::create(context, p.layout);
-            hLayout->setMarginRole(dtk::SizeRole::MarginInside);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
+            hLayout->setMarginRole(dtk::SizeRole::MarginSmall);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.resetButton->setParent(hLayout);
             _setWidget(p.layout);
 

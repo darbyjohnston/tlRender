@@ -2,13 +2,13 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlPlayApp/KeyShortcuts.h>
+#include <tlPlayApp/Shortcuts.h>
 
 namespace tl
 {
     namespace play
     {
-        KeyShortcut::KeyShortcut(
+        Shortcut::Shortcut(
             const std::string& name,
             const std::string& text,
             dtk::Key key,
@@ -19,7 +19,7 @@ namespace tl
             modifiers(modifiers)
         {}
 
-        bool KeyShortcut::operator == (const KeyShortcut& other) const
+        bool Shortcut::operator == (const Shortcut& other) const
         {
             return
                 name == other.name &&
@@ -28,12 +28,12 @@ namespace tl
                 modifiers == other.modifiers;
         }
 
-        bool KeyShortcut::operator != (const KeyShortcut& other) const
+        bool Shortcut::operator != (const Shortcut& other) const
         {
             return !(*this == other);
         }
 
-        void to_json(nlohmann::json& json, const KeyShortcut& in)
+        void to_json(nlohmann::json& json, const Shortcut& in)
         {
             json["Name"] = in.name;
             json["Text"] = in.text;
@@ -41,7 +41,7 @@ namespace tl
             json["Modifiers"] = in.modifiers;
         }
 
-        void from_json(const nlohmann::json& json, KeyShortcut& out)
+        void from_json(const nlohmann::json& json, Shortcut& out)
         {
             json.at("Name").get_to(out.name);
             json.at("Text").get_to(out.text);

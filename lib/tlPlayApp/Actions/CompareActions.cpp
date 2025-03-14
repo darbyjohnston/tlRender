@@ -186,7 +186,7 @@ namespace tl
                 { "Tile", "Show the A and B files tiled." },
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),

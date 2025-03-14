@@ -265,7 +265,7 @@ namespace tl
                 { "ResetOutPoint", "Reet the playback out point." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
             _playbackUpdate();
             _loopUpdate();
 

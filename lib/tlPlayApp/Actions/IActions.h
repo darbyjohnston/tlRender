@@ -33,7 +33,7 @@ namespace tl
             const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
 
         protected:
-            void _keyShortcutsUpdate(const KeyShortcutsSettings&);
+            void _shortcutsUpdate(const ShortcutsSettings&);
 
             std::string _name;
             std::map<std::string, std::shared_ptr<dtk::Action> > _actions;

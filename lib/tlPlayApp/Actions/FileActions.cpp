@@ -148,7 +148,7 @@ namespace tl
                 { "Exit", "Exit the application." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),

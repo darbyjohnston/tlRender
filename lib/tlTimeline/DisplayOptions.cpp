@@ -90,9 +90,9 @@ namespace tl
         dtk::M44F color(const Color& in)
         {
             return
-                brightness(in.brightness) *
-                contrast(in.contrast) *
-                saturation(in.saturation) *
+                dtk::brightness(in.brightness) *
+                dtk::contrast(in.contrast) *
+                dtk::saturation(in.saturation) *
                 tint(in.tint);
         }
 

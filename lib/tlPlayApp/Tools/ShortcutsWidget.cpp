@@ -16,14 +16,14 @@ namespace tl
 {
     namespace play
     {
-        struct KeyShortcutWidget::Private
+        struct ShortcutWidget::Private
         {
-            KeyShortcut shortcut;
+            Shortcut shortcut;
             bool collision = false;
 
             std::shared_ptr<dtk::Label> label;
 
-            std::function<void(const KeyShortcut&)> callback;
+            std::function<void(const Shortcut&)> callback;
 
             struct SizeData
             {
@@ -32,11 +32,11 @@ namespace tl
             SizeData size;
         };
 
-        void KeyShortcutWidget::_init(
+        void ShortcutWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, "tl::play_app::KeyShortcutWidget", parent);
+            IWidget::_init(context, "tl::play_app::ShortcutWidget", parent);
             DTK_P();
             
             setHStretch(dtk::Stretch::Expanding);
@@ -50,23 +50,23 @@ namespace tl
             _widgetUpdate();
         }
 
-        KeyShortcutWidget::KeyShortcutWidget() :
+        ShortcutWidget::ShortcutWidget() :
             _p(new Private)
         {}
 
-        KeyShortcutWidget::~KeyShortcutWidget()
+        ShortcutWidget::~ShortcutWidget()
         {}
 
-        std::shared_ptr<KeyShortcutWidget> KeyShortcutWidget::create(
+        std::shared_ptr<ShortcutWidget> ShortcutWidget::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<KeyShortcutWidget>(new KeyShortcutWidget);
+            auto out = std::shared_ptr<ShortcutWidget>(new ShortcutWidget);
             out->_init(context, parent);
             return out;
         }
 
-        void KeyShortcutWidget::setShortcut(const KeyShortcut& value)
+        void ShortcutWidget::setShortcut(const Shortcut& value)
         {
             DTK_P();
             if (value == p.shortcut)
@@ -75,12 +75,12 @@ namespace tl
             _widgetUpdate();
         }
 
-        void KeyShortcutWidget::setCallback(const std::function<void(const KeyShortcut&)>& value)
+        void ShortcutWidget::setCallback(const std::function<void(const Shortcut&)>& value)
         {
             _p->callback = value;
         }
 
-        void KeyShortcutWidget::setCollision(bool value)
+        void ShortcutWidget::setCollision(bool value)
         {
             DTK_P();
             if (value == p.collision)
@@ -89,7 +89,7 @@ namespace tl
             _widgetUpdate();
         }
 
-        void KeyShortcutWidget::setGeometry(const dtk::Box2I& value)
+        void ShortcutWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             DTK_P();
@@ -97,7 +97,7 @@ namespace tl
             p.label->setGeometry(g);
         }
 
-        void KeyShortcutWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void ShortcutWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             DTK_P();
@@ -105,7 +105,7 @@ namespace tl
             _setSizeHint(_p->label->getSizeHint() + p.size.border * 2);
         }
 
-        void KeyShortcutWidget::drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent& event)
+        void ShortcutWidget::drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             DTK_P();
@@ -128,19 +128,19 @@ namespace tl
             }
         }
 
-        void KeyShortcutWidget::mouseEnterEvent(dtk::MouseEnterEvent& event)
+        void ShortcutWidget::mouseEnterEvent(dtk::MouseEnterEvent& event)
         {
             IWidget::mouseEnterEvent(event);
             _setDrawUpdate();
         }
 
-        void KeyShortcutWidget::mouseLeaveEvent()
+        void ShortcutWidget::mouseLeaveEvent()
         {
             IWidget::mouseLeaveEvent();
             _setDrawUpdate();
         }
 
-        void KeyShortcutWidget::mousePressEvent(dtk::MouseClickEvent& event)
+        void ShortcutWidget::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
             if (0 == event.button)
@@ -151,7 +151,7 @@ namespace tl
             }
         }
 
-        void KeyShortcutWidget::mouseReleaseEvent(dtk::MouseClickEvent& event)
+        void ShortcutWidget::mouseReleaseEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
             if (0 == event.button)
@@ -160,13 +160,13 @@ namespace tl
             }
         }
 
-        void KeyShortcutWidget::keyFocusEvent(bool value)
+        void ShortcutWidget::keyFocusEvent(bool value)
         {
             IWidget::keyFocusEvent(value);
             _setDrawUpdate();
         }
 
-        void KeyShortcutWidget::keyPressEvent(dtk::KeyEvent& event)
+        void ShortcutWidget::keyPressEvent(dtk::KeyEvent& event)
         {
             IWidget::keyPressEvent(event);
             DTK_P();
@@ -206,25 +206,25 @@ namespace tl
             }
         }
 
-        void KeyShortcutWidget::keyReleaseEvent(dtk::KeyEvent& event)
+        void ShortcutWidget::keyReleaseEvent(dtk::KeyEvent& event)
         {
             IWidget::keyReleaseEvent(event);
             event.accept = true;
         }
 
-        void KeyShortcutWidget::_widgetUpdate()
+        void ShortcutWidget::_widgetUpdate()
         {
             DTK_P();
             p.label->setText(dtk::getShortcutLabel(p.shortcut.key, p.shortcut.modifiers));
         }
 
-        struct KeyShortcutsSettingsWidget::Private
+        struct ShortcutsSettingsWidget::Private
         {
             std::shared_ptr<SettingsModel> model;
             struct Group
             {
                 std::string name;
-                std::vector<KeyShortcut> shortcuts;
+                std::vector<Shortcut> shortcuts;
 
                 bool operator == (const Group& other) const
                 {
@@ -245,19 +245,19 @@ namespace tl
             };
             std::vector<Group> groups;
 
-            std::map<std::string, std::shared_ptr<KeyShortcutWidget> > widgets;
+            std::map<std::string, std::shared_ptr<ShortcutWidget> > widgets;
             std::vector<std::shared_ptr<dtk::GroupBox> > groupBoxes;
             std::shared_ptr<dtk::VerticalLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<ShortcutsSettings> > settingsObserver;
         };
 
-        void KeyShortcutsSettingsWidget::_init(
+        void ShortcutsSettingsWidget::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, "tl::play_app::KeyShortcutsSettingsWidget", parent);
+            IWidget::_init(context, "tl::play_app::ShortcutsSettingsWidget", parent);
             DTK_P();
 
             p.model = app->getSettingsModel();
@@ -266,44 +266,44 @@ namespace tl
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
 
-            p.settingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
-                p.model->observeKeyShortcuts(),
-                [this](const KeyShortcutsSettings& value)
+            p.settingsObserver = dtk::ValueObserver<ShortcutsSettings>::create(
+                p.model->observeShortcuts(),
+                [this](const ShortcutsSettings& value)
                 {
                     _widgetUpdate(value);
                 });
         }
 
-        KeyShortcutsSettingsWidget::KeyShortcutsSettingsWidget() :
+        ShortcutsSettingsWidget::ShortcutsSettingsWidget() :
             _p(new Private)
         {}
 
-        KeyShortcutsSettingsWidget::~KeyShortcutsSettingsWidget()
+        ShortcutsSettingsWidget::~ShortcutsSettingsWidget()
         {}
 
-        std::shared_ptr<KeyShortcutsSettingsWidget> KeyShortcutsSettingsWidget::create(
+        std::shared_ptr<ShortcutsSettingsWidget> ShortcutsSettingsWidget::create(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
-            auto out = std::shared_ptr<KeyShortcutsSettingsWidget>(new KeyShortcutsSettingsWidget);
+            auto out = std::shared_ptr<ShortcutsSettingsWidget>(new ShortcutsSettingsWidget);
             out->_init(context, app, parent);
             return out;
         }
 
-        void KeyShortcutsSettingsWidget::setGeometry(const dtk::Box2I& value)
+        void ShortcutsSettingsWidget::setGeometry(const dtk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
         }
 
-        void KeyShortcutsSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void ShortcutsSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void KeyShortcutsSettingsWidget::_widgetUpdate(const KeyShortcutsSettings& settings)
+        void ShortcutsSettingsWidget::_widgetUpdate(const ShortcutsSettings& settings)
         {
             DTK_P();
 
@@ -358,27 +358,27 @@ namespace tl
                         formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
                         for (const auto& shortcut : group.shortcuts)
                         {
-                            auto widget = KeyShortcutWidget::create(context);
+                            auto widget = ShortcutWidget::create(context);
                             widget->setShortcut(shortcut);
                             p.widgets[shortcut.name] = widget;
                             formLayout->addRow(shortcut.text + ":", widget);
                             widget->setCallback(
-                                [this](const KeyShortcut& value)
+                                [this](const Shortcut& value)
                                 {
                                     DTK_P();
-                                    auto settings = p.model->getKeyShortcuts();
+                                    auto settings = p.model->getShortcuts();
                                     const auto shortcut = value;
                                     const auto i = std::find_if(
                                         settings.shortcuts.begin(),
                                         settings.shortcuts.end(),
-                                        [shortcut](const KeyShortcut& other)
+                                        [shortcut](const Shortcut& other)
                                         {
                                             return shortcut.name == other.name;
                                         });
                                     if (i != settings.shortcuts.end())
                                     {
                                         *i = value;
-                                        p.model->setKeyShortcuts(settings);
+                                        p.model->setShortcuts(settings);
                                     }
                                 });
                         }
@@ -395,7 +395,7 @@ namespace tl
                     const auto j = std::find_if(
                         settings.shortcuts.begin(),
                         settings.shortcuts.end(),
-                        [shortcut](const KeyShortcut& value)
+                        [shortcut](const Shortcut& value)
                         {
                             return shortcut.name == value.name;
                         });

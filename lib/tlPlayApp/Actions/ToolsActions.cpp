@@ -59,7 +59,7 @@ namespace tl
                 { "SystemLog", "Toggle the system log." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.activeObserver = dtk::ValueObserver<Tool>::create(
                 app->getToolsModel()->observeActiveTool(),

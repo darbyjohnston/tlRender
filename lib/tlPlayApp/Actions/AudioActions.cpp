@@ -63,7 +63,7 @@ namespace tl
                 { "Mute", "Toggle the autio mute." },
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
 
             p.volumeObserver = dtk::ValueObserver<float>::create(
                 app->getAudioModel()->observeVolume(),

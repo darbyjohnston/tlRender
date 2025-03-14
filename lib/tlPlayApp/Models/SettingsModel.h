@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlPlayApp/KeyShortcuts.h>
+#include <tlPlayApp/Shortcuts.h>
 
 #include <tlTimelineUI/IItem.h>
 
@@ -115,17 +115,6 @@ namespace tl
             bool operator != (const FileSequenceSettings&) const;
         };
 
-        //! Keyboard shortcuts settings.
-        struct KeyShortcutsSettings
-        {
-            KeyShortcutsSettings();
-
-            std::vector<KeyShortcut> shortcuts;
-
-            bool operator == (const KeyShortcutsSettings&) const;
-            bool operator != (const KeyShortcutsSettings&) const;
-        };
-
         //! Miscellaneous settings.
         struct MiscSettings
         {
@@ -174,11 +163,24 @@ namespace tl
             bool operator != (const PerformanceSettings&) const;
         };
 
+        //! Keyboard shortcuts settings.
+        struct ShortcutsSettings
+        {
+            ShortcutsSettings();
+
+            std::vector<Shortcut> shortcuts;
+
+            bool operator == (const ShortcutsSettings&) const;
+            bool operator != (const ShortcutsSettings&) const;
+        };
+
         //! Style settings.
         struct StyleSettings
         {
-            dtk::ColorStyle colorStyle = dtk::ColorStyle::Dark;
             float displayScale = 0.F;
+            dtk::ColorControls colorControls;
+            dtk::ColorStyle colorStyle = dtk::ColorStyle::Dark;
+            std::map<dtk::ColorRole, dtk::Color4F> customColorRoles = dtk::getCustomColorRoles();
 
             bool operator == (const StyleSettings&) const;
             bool operator != (const StyleSettings&) const;
@@ -277,15 +279,6 @@ namespace tl
 
             ///@}
 
-            //! \name Keyboard Shortcuts
-            ///@{
-
-            const KeyShortcutsSettings& getKeyShortcuts() const;
-            std::shared_ptr<dtk::IObservableValue<KeyShortcutsSettings> > observeKeyShortcuts() const;
-            void setKeyShortcuts(const KeyShortcutsSettings&);
-
-            ///@}
-
             //! \name Miscellaneous
             ///@{
 
@@ -310,6 +303,15 @@ namespace tl
             const PerformanceSettings& getPerformance() const;
             std::shared_ptr<dtk::IObservableValue<PerformanceSettings> > observePerformance() const;
             void setPerformance(const PerformanceSettings&);
+
+            ///@}
+
+            //! \name Keyboard Shortcuts
+            ///@{
+
+            const ShortcutsSettings& getShortcuts() const;
+            std::shared_ptr<dtk::IObservableValue<ShortcutsSettings> > observeShortcuts() const;
+            void setShortcuts(const ShortcutsSettings&);
 
             ///@}
 
@@ -377,10 +379,10 @@ namespace tl
         void to_json(nlohmann::json&, const ExportSettings&);
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const FileSequenceSettings&);
-        void to_json(nlohmann::json&, const KeyShortcutsSettings&);
         void to_json(nlohmann::json&, const MiscSettings&);
         void to_json(nlohmann::json&, const MouseSettings&);
         void to_json(nlohmann::json&, const PerformanceSettings&);
+        void to_json(nlohmann::json&, const ShortcutsSettings&);
         void to_json(nlohmann::json&, const StyleSettings&);
         void to_json(nlohmann::json&, const TimelineSettings&);
         void to_json(nlohmann::json&, const WindowSettings&);
@@ -389,10 +391,10 @@ namespace tl
         void from_json(const nlohmann::json&, ExportSettings&);
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, FileSequenceSettings&);
-        void from_json(const nlohmann::json&, KeyShortcutsSettings&);
         void from_json(const nlohmann::json&, MiscSettings&);
         void from_json(const nlohmann::json&, MouseSettings&);
         void from_json(const nlohmann::json&, PerformanceSettings&);
+        void from_json(const nlohmann::json&, ShortcutsSettings&);
         void from_json(const nlohmann::json&, StyleSettings&);
         void from_json(const nlohmann::json&, TimelineSettings&);
         void from_json(const nlohmann::json&, WindowSettings&);

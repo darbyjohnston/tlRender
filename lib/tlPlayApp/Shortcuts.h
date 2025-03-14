@@ -11,10 +11,10 @@ namespace tl
     namespace play
     {
         //! Keyboard shortcut.
-        struct KeyShortcut
+        struct Shortcut
         {
-            KeyShortcut() = default;
-            KeyShortcut(
+            Shortcut() = default;
+            Shortcut(
                 const std::string& name,
                 const std::string& text,
                 dtk::Key = dtk::Key::Unknown,
@@ -25,16 +25,16 @@ namespace tl
             dtk::Key    key       = dtk::Key::Unknown;
             int         modifiers = 0;
 
-            bool operator == (const KeyShortcut&) const;
-            bool operator != (const KeyShortcut&) const;
+            bool operator == (const Shortcut&) const;
+            bool operator != (const Shortcut&) const;
         };
 
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const KeyShortcut&);
+        void to_json(nlohmann::json&, const Shortcut&);
 
-        void from_json(const nlohmann::json&, KeyShortcut&);
+        void from_json(const nlohmann::json&, Shortcut&);
 
         ///@}
     }

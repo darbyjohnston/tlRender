@@ -151,7 +151,7 @@ namespace tl
                 { "FocusCurrent", "Set the keyboard focus to the current frame editor." }
             };
 
-            _keyShortcutsUpdate(app->getSettingsModel()->getKeyShortcuts());
+            _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
         }
 
         FrameActions::~FrameActions()

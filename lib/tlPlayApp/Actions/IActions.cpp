@@ -14,7 +14,7 @@ namespace tl
     {
         struct IActions::Private
         {
-            std::shared_ptr<dtk::ValueObserver<KeyShortcutsSettings> > keyShortcutsSettingsObserver;
+            std::shared_ptr<dtk::ValueObserver<ShortcutsSettings> > shortcutsSettingsObserver;
         };
 
         void IActions::_init(
@@ -26,11 +26,11 @@ namespace tl
 
             _name = name;
 
-            p.keyShortcutsSettingsObserver = dtk::ValueObserver<KeyShortcutsSettings>::create(
-                app->getSettingsModel()->observeKeyShortcuts(),
-                [this](const KeyShortcutsSettings& value)
+            p.shortcutsSettingsObserver = dtk::ValueObserver<ShortcutsSettings>::create(
+                app->getSettingsModel()->observeShortcuts(),
+                [this](const ShortcutsSettings& value)
                 {
-                    _keyShortcutsUpdate(value);
+                    _shortcutsUpdate(value);
                 });
         }
 
@@ -46,7 +46,7 @@ namespace tl
             return _actions;
         }
 
-        void IActions::_keyShortcutsUpdate(const KeyShortcutsSettings& value)
+        void IActions::_shortcutsUpdate(const ShortcutsSettings& value)
         {
             for (const auto& i : _actions)
             {
@@ -54,7 +54,7 @@ namespace tl
                 const auto j = std::find_if(
                     value.shortcuts.begin(),
                     value.shortcuts.end(),
-                    [name](const KeyShortcut& value)
+                    [name](const Shortcut& value)
                     {
                         return name == value.name;
                     });
