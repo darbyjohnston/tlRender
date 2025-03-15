@@ -53,7 +53,8 @@ namespace tl
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
-                const timeline::CompareOptions& = timeline::CompareOptions()) override;
+                const timeline::CompareOptions& = timeline::CompareOptions(),
+                dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8) override;
             void drawForeground(
                 const std::vector<dtk::Box2I>&,
                 const dtk::M44F&,
@@ -122,42 +123,49 @@ namespace tl
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideoB(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideoWipe(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideoOverlay(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideoDifference(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideoTile(
                 const std::vector<timeline::VideoData>&,
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
-                const timeline::CompareOptions&);
+                const timeline::CompareOptions&,
+                dtk::ImageType colorBuffer);
             void _drawVideo(
                 const timeline::VideoData&,
                 const dtk::Box2I&,
                 const std::shared_ptr<dtk::ImageOptions>&,
-                const timeline::DisplayOptions&);
+                const timeline::DisplayOptions&,
+                dtk::ImageType colorBuffer);
 
             DTK_PRIVATE();
         };

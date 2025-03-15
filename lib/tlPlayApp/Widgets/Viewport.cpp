@@ -33,8 +33,9 @@ namespace tl
             double fps = 0.0;
             size_t droppedFrames = 0;
             dtk::Color4F colorPicker;
-            io::Info ioInfo;
+            io::Info info;
             std::string infoRegEx;
+            dtk::ImageTags infoFiltered;
             dtk::KeyModifier colorPickerModifier = dtk::KeyModifier::None;
             dtk::KeyModifier frameShuttleModifier = dtk::KeyModifier::Shift;
 
@@ -272,7 +273,7 @@ namespace tl
             DTK_P();
             if (player)
             {
-                p.ioInfo = player->getIOInfo();
+                p.info = player->getIOInfo();
 
                 p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     player->observeCurrentTime(),
@@ -284,7 +285,7 @@ namespace tl
             }
             else
             {
-                p.ioInfo = io::Info();
+                p.info = io::Info();
                 p.currentTimeObserver.reset();
                 _hudUpdate();
             }
@@ -399,26 +400,39 @@ namespace tl
                 arg(p.colorPicker.b, 2).
                 arg(p.colorPicker.a, 2));
 
-            p.infoLayout->clear();
+            dtk::ImageTags infoFiltered;
             if (!p.infoRegEx.empty())
             {
-                if (auto context = getContext())
+                try
                 {
-                    try
+                    const std::regex r(p.infoRegEx);
+                    for (const auto& i : p.info.tags)
                     {
-                        const std::regex r(p.infoRegEx);
-                        for (const auto& tag : p.ioInfo.tags)
+                        if (std::regex_search(i.first, r))
                         {
-                            if (std::regex_search(tag.first, r))
-                            {
-                                p.infoLayout->addRow(
-                                    dtk::Format("{0}:").arg(tag.first),
-                                    dtk::Label::create(context, tag.second));
-                            }
+                            infoFiltered.insert(i);
                         }
                     }
-                    catch (const std::exception&)
-                    {}
+                }
+                catch (const std::exception&)
+                {}
+            }
+            if (infoFiltered != p.infoFiltered)
+            {
+                p.infoFiltered = infoFiltered;
+                p.infoLayout->clear();
+                if (auto context = getContext())
+                {
+                    for (const auto& i : p.infoFiltered)
+                    {
+                        auto label = dtk::Label::create(
+                            context,
+                            dtk::elide(i.second));
+                        label->setTooltip(i.second);
+                        p.infoLayout->addRow(
+                            dtk::Format("{0}:").arg(dtk::elide(i.first)),
+                            label);
+                    }
                 }
             }
 

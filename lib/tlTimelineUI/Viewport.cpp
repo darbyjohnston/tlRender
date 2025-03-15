@@ -14,6 +14,8 @@
 #include <dtk/core/LogSystem.h>
 #include <dtk/core/RenderUtil.h>
 
+#include <cmath>
+
 namespace tl
 {
     namespace timelineui
@@ -390,6 +392,7 @@ namespace tl
                 std::vector<float> sample(4);
                 dtk::gl::OffscreenBufferBinding binding(p.buffer);
                 glPixelStorei(GL_PACK_ALIGNMENT, 1);
+                glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
                 glReadPixels(
                     pos.x,
                     pos.y,
@@ -398,10 +401,10 @@ namespace tl
                     GL_RGBA,
                     GL_FLOAT,
                     sample.data());
-                out.r = sample[0];
-                out.g = sample[1];
-                out.b = sample[2];
-                out.a = sample[3];
+                out.r = std::isnan(sample[0]) || std::isinf(sample[0]) ? 0.F : sample[0];
+                out.g = std::isnan(sample[1]) || std::isinf(sample[1]) ? 0.F : sample[1];
+                out.b = std::isnan(sample[2]) || std::isinf(sample[2]) ? 0.F : sample[2];
+                out.a = std::isnan(sample[3]) || std::isinf(sample[3]) ? 0.F : sample[3];
             }
             return out;
         }
@@ -525,7 +528,8 @@ namespace tl
                             boxes,
                             p.imageOptions,
                             p.displayOptions,
-                            p.compareOptions);
+                            p.compareOptions,
+                            p.colorBuffer->get());
 
                         if (!p.videoData.empty())
                         {

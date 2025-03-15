@@ -123,7 +123,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             switch (compareOptions.compare)
             {
@@ -133,7 +134,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    colorBuffer);
                 break;
             case timeline::Compare::B:
                 _drawVideoB(
@@ -141,7 +143,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    colorBuffer);
                 break;
             case timeline::Compare::Wipe:
                 _drawVideoWipe(
@@ -149,7 +152,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    colorBuffer);
                 break;
             case timeline::Compare::Overlay:
                 _drawVideoOverlay(
@@ -157,7 +161,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    colorBuffer);
                 break;
             case timeline::Compare::Difference:
                 if (videoData.size() > 1)
@@ -167,7 +172,8 @@ namespace tl
                         boxes,
                         imageOptions,
                         displayOptions,
-                        compareOptions);
+                        compareOptions,
+                        colorBuffer);
                 }
                 else
                 {
@@ -176,7 +182,8 @@ namespace tl
                         boxes,
                         imageOptions,
                         displayOptions,
-                        compareOptions);
+                        compareOptions,
+                        colorBuffer);
                 }
                 break;
             case timeline::Compare::Horizontal:
@@ -187,7 +194,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    colorBuffer);
                 break;
             default: break;
             }
@@ -198,7 +206,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             if (!videoData.empty() && !boxes.empty())
             {
@@ -206,7 +215,8 @@ namespace tl
                     videoData[0],
                     boxes[0],
                     !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
-                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
         }
 
@@ -215,7 +225,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             if (videoData.size() > 1 && boxes.size() > 1)
             {
@@ -223,7 +234,8 @@ namespace tl
                     videoData[1],
                     boxes[1],
                     imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
         }
 
@@ -232,7 +244,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             DTK_P();
 
@@ -297,7 +310,8 @@ namespace tl
                     videoData[0],
                     boxes[0],
                     !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
-                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                    !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
 
             glViewport(
@@ -338,7 +352,8 @@ namespace tl
                     videoData[1],
                     boxes[1],
                     imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
         }
 
@@ -347,7 +362,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             DTK_P();
 
@@ -357,7 +373,8 @@ namespace tl
                     videoData[1],
                     boxes[1],
                     imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
-                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                    displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
             if (!videoData.empty() && !boxes.empty())
             {
@@ -365,7 +382,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.color = getRenderOptions().colorBuffer;
+                offscreenBufferOptions.color = colorBuffer;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -408,7 +425,8 @@ namespace tl
                         videoData[0],
                         dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
                         !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
-                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
+                        colorBuffer);
 
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform("transform.mvp", getTransform());
@@ -453,7 +471,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             DTK_P();
             if (!videoData.empty() && !boxes.empty())
@@ -462,7 +481,7 @@ namespace tl
                     boxes[0].w(),
                     boxes[0].h());
                 dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                offscreenBufferOptions.color = getRenderOptions().colorBuffer;
+                offscreenBufferOptions.color = colorBuffer;
                 if (!displayOptions.empty())
                 {
                     offscreenBufferOptions.colorFilters = displayOptions[0].imageFilters;
@@ -505,7 +524,8 @@ namespace tl
                         videoData[0],
                         dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
                         !imageOptions.empty() ? std::make_shared<dtk::ImageOptions>(imageOptions[0]) : nullptr,
-                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions());
+                        !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
+                        colorBuffer);
 
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform("transform.mvp", getTransform());
@@ -514,7 +534,7 @@ namespace tl
                 if (videoData.size() > 1)
                 {
                     offscreenBufferOptions = dtk::gl::OffscreenBufferOptions();
-                    offscreenBufferOptions.color = getRenderOptions().colorBuffer;
+                    offscreenBufferOptions.color = colorBuffer;
                     if (displayOptions.size() > 1)
                     {
                         offscreenBufferOptions.colorFilters = displayOptions[1].imageFilters;
@@ -557,7 +577,8 @@ namespace tl
                             videoData[1],
                             dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
                             imageOptions.size() > 1 ? std::make_shared<dtk::ImageOptions>(imageOptions[1]) : nullptr,
-                            displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions());
+                            displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
+                            colorBuffer);
                     }
                 }
                 else
@@ -607,7 +628,8 @@ namespace tl
             const std::vector<dtk::Box2I>& boxes,
             const std::vector<dtk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
-            const timeline::CompareOptions& compareOptions)
+            const timeline::CompareOptions& compareOptions,
+            dtk::ImageType colorBuffer)
         {
             for (size_t i = 0; i < videoData.size() && i < boxes.size(); ++i)
             {
@@ -615,7 +637,8 @@ namespace tl
                     videoData[i],
                     boxes[i],
                     i < imageOptions.size() ? std::make_shared<dtk::ImageOptions>(imageOptions[i]) : nullptr,
-                    i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions());
+                    i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions(),
+                    colorBuffer);
             }
         }
         
@@ -655,7 +678,8 @@ namespace tl
             const timeline::VideoData& videoData,
             const dtk::Box2I& box,
             const std::shared_ptr<dtk::ImageOptions>& imageOptions,
-            const timeline::DisplayOptions& displayOptions)
+            const timeline::DisplayOptions& displayOptions,
+            dtk::ImageType colorBuffer)
         {
             DTK_P();
             
@@ -675,7 +699,7 @@ namespace tl
 
             const dtk::Size2I& offscreenBufferSize = box.size();
             dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-            offscreenBufferOptions.color = getRenderOptions().colorBuffer;
+            offscreenBufferOptions.color = colorBuffer;
             offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
             if (doCreate(
                 p.buffers["video"],

@@ -1036,9 +1036,7 @@ namespace tl
             {
                 dtk::gl::OffscreenBufferBinding binding(p.thread.offscreenBuffer);
 
-                dtk::RenderOptions renderOptions;
-                renderOptions.colorBuffer = getColorBuffer(p.thread.outputPixelType);
-                p.thread.render->begin(p.thread.size, renderOptions);
+                p.thread.render->begin(p.thread.size);
                 p.thread.render->setOCIOOptions(ocioOptions);
                 p.thread.render->setLUTOptions(lutOptions);
 
@@ -1077,7 +1075,8 @@ namespace tl
                     boxes,
                     imageOptions,
                     displayOptions,
-                    compareOptions);
+                    compareOptions,
+                    getColorBuffer(p.thread.outputPixelType));
 
                 p.thread.render->setTransform(pm);
                 p.thread.render->drawForeground(boxes, vm, fgOptions);

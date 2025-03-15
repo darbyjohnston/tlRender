@@ -13,6 +13,7 @@
 #include <dtk/ui/CheckBox.h>
 #include <dtk/ui/ComboBox.h>
 #include <dtk/ui/FileEdit.h>
+#include <dtk/ui/FloatEdit.h>
 #include <dtk/ui/FloatEditSlider.h>
 #include <dtk/ui/FormLayout.h>
 #include <dtk/ui/Label.h>
@@ -496,8 +497,10 @@ namespace tl
             p.enabledCheckBox = dtk::CheckBox::create(context);
 
             p.sliders["InLow"] = dtk::FloatEditSlider::create(context);
+            p.sliders["InLow"]->setRange(dtk::RangeF(-1000.F, 1000.0F));
             p.sliders["InLow"]->setDefaultValue(0.F);
             p.sliders["InHigh"] = dtk::FloatEditSlider::create(context);
+            p.sliders["InHigh"]->setRange(dtk::RangeF(-1000.F, 1000.0F));
             p.sliders["InHigh"]->setDefaultValue(1.F);
             p.sliders["Gamma"] = dtk::FloatEditSlider::create(context);
             p.sliders["Gamma"]->setRange(dtk::RangeF(.1F, 4.F));

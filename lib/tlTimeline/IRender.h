@@ -41,7 +41,8 @@ namespace tl
                 const std::vector<dtk::Box2I>&,
                 const std::vector<dtk::ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
-                const CompareOptions& = CompareOptions()) = 0;
+                const CompareOptions& = CompareOptions(),
+                dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8) = 0;
 
             //! Draw the foreground.
             virtual void drawForeground(
