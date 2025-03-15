@@ -845,7 +845,7 @@ namespace tl
             {
                 MouseAction mouseAction = MouseAction::First;
                 from_string(i.key(), mouseAction);
-                from_string(i->at(i.key()).get<std::string>(), value.actions[mouseAction]);
+                from_string(i.value().get<std::string>(), value.actions[mouseAction]);
             }
         }
 
@@ -888,7 +888,7 @@ namespace tl
             {
                 dtk::ColorRole colorRole = dtk::ColorRole::None;
                 from_string(i.key(), colorRole);
-                i->at(i.key()).get_to(value.customColorRoles[colorRole]);
+                i.value().get_to(value.customColorRoles[colorRole]);
             }
         }
 

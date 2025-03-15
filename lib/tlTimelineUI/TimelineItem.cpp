@@ -984,6 +984,7 @@ namespace tl
 
             const dtk::Box2I& g = getGeometry();
 
+            // Draw the video cache.
             if (CacheDisplay::VideoAndAudio == _displayOptions.cacheDisplay ||
                 CacheDisplay::VideoOnly == _displayOptions.cacheDisplay)
             {
@@ -1018,11 +1019,13 @@ namespace tl
                 }
                 if (!mesh.v.empty())
                 {
-                    const dtk::Color4F color(.3F, .7F, .7F);
-                    event.render->drawMesh(mesh, color);
+                    event.render->drawMesh(
+                        mesh,
+                        event.style->getColorRole(dtk::ColorRole::VideoClip));
                 }
             }
 
+            // Draw the audio cache.
             if (CacheDisplay::VideoAndAudio == _displayOptions.cacheDisplay)
             {
                 dtk::TriMesh2F mesh;
@@ -1054,8 +1057,9 @@ namespace tl
                 }
                 if (!mesh.v.empty())
                 {
-                    const dtk::Color4F color(.3F, .25F, .4F);
-                    event.render->drawMesh(mesh, color);
+                    event.render->drawMesh(
+                        mesh,
+                        event.style->getColorRole(dtk::ColorRole::AudioClip));
                 }
             }
         }

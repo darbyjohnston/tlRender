@@ -21,6 +21,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<timeline::ForegroundOptions> > foregroundOptions;
             std::shared_ptr<dtk::ObservableValue<dtk::ImageType> > colorBuffer;
             std::shared_ptr<dtk::ObservableValue<bool> > hud;
+            std::shared_ptr<dtk::ObservableValue<std::string> > hudInfo;
         };
 
         void ViewportModel::_init(
@@ -59,8 +60,12 @@ namespace tl
             p.colorBuffer = dtk::ObservableValue<dtk::ImageType>::create(colorBuffer);
 
             bool hud = false;
-            p.settings->get("/Viewport/HUD", hud);
+            p.settings->get("/Viewport/HUD/Enabled", hud);
             p.hud = dtk::ObservableValue<bool>::create(hud);
+
+            std::string hudInfo;
+            p.settings->get("/Viewport/HUD/Info", hudInfo);
+            p.hudInfo = dtk::ObservableValue<std::string>::create(hudInfo);
         }
 
         ViewportModel::ViewportModel() :
@@ -75,7 +80,8 @@ namespace tl
             p.settings->setT("/Viewport/Background", p.backgroundOptions->get());
             p.settings->setT("/Viewport/Foreground", p.foregroundOptions->get());
             p.settings->set("/Viewport/ColorBuffer", dtk::to_string(p.colorBuffer->get()));
-            p.settings->set("/Viewport/HUD", p.hud->get());
+            p.settings->set("/Viewport/HUD/Enabled", p.hud->get());
+            p.settings->set("/Viewport/HUD/Info", p.hudInfo->get());
         }
 
         std::shared_ptr<ViewportModel> ViewportModel::create(
@@ -192,6 +198,21 @@ namespace tl
         void ViewportModel::setHUD(bool value)
         {
             _p->hud->setIfChanged(value);
+        }
+
+        const std::string& ViewportModel::getHUDInfo() const
+        {
+            return _p->hudInfo->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<std::string> > ViewportModel::observeHUDInfo() const
+        {
+            return _p->hudInfo;
+        }
+
+        void ViewportModel::setHUDInfo(const std::string& value)
+        {
+            _p->hudInfo->setIfChanged(value);
         }
     }
 }

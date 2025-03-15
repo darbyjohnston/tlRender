@@ -231,7 +231,7 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << i;
-                value.boolOptions[i] = json.at("BoolOptions").find(ss.str())->get<bool>();
+                value.boolOptions[i] = json.at("BoolOptions").at(ss.str()).get<bool>();
             }
             from_string(json.at("HDRMode").get<std::string>(), value.hdrMode);
             json.at("HDRData").get_to(value.hdrData);

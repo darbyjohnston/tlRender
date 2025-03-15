@@ -103,6 +103,15 @@ namespace tl
             //! Set whether the HUD is enabled.
             void setHUD(bool);
 
+            //! Get the HUD information regular expression.
+            const std::string& getHUDInfo() const;
+
+            //! Observe the HUD information regular expression.
+            std::shared_ptr<dtk::IObservableValue<std::string> > observeHUDInfo() const;
+
+            //! Set the HUD information regular expression.
+            void setHUDInfo(const std::string&);
+
         private:
             DTK_PRIVATE();
         };
