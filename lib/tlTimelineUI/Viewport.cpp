@@ -392,7 +392,9 @@ namespace tl
                 std::vector<float> sample(4);
                 dtk::gl::OffscreenBufferBinding binding(p.buffer);
                 glPixelStorei(GL_PACK_ALIGNMENT, 1);
+#if defined(dtk_API_GL_4_1)
                 glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
+#endif // dtk_API_GL_4_1
                 glReadPixels(
                     pos.x,
                     pos.y,
