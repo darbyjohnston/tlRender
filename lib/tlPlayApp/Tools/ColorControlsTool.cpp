@@ -19,6 +19,7 @@
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
+#include <dtk/ui/Settings.h>
 #include <dtk/ui/StackLayout.h>
 
 namespace tl
@@ -479,8 +480,11 @@ namespace tl
 
         struct LevelsWidget::Private
         {
+            std::shared_ptr<dtk::Settings> settings;
+
             std::shared_ptr<dtk::CheckBox> enabledCheckBox;
             std::map<std::string, std::shared_ptr<dtk::FloatEditSlider> > sliders;
+            std::map<std::string, std::shared_ptr<dtk::FloatEdit> > rangeEdits;
             std::shared_ptr<dtk::FormLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<timeline::DisplayOptions> > optionsObservers;
@@ -494,21 +498,48 @@ namespace tl
             dtk::IWidget::_init(context, "tl::play_app::LevelsWidget", parent);
             DTK_P();
 
+            p.settings = app->getSettings();
+
             p.enabledCheckBox = dtk::CheckBox::create(context);
 
+            dtk::RangeF range(0.F, 1.F);
+            p.settings->getT("/ColorControls/Levels/InRange", range);
             p.sliders["InLow"] = dtk::FloatEditSlider::create(context);
-            p.sliders["InLow"]->setRange(dtk::RangeF(-1000.F, 1000.0F));
+            p.sliders["InLow"]->setRange(range);
             p.sliders["InLow"]->setDefaultValue(0.F);
+
             p.sliders["InHigh"] = dtk::FloatEditSlider::create(context);
-            p.sliders["InHigh"]->setRange(dtk::RangeF(-1000.F, 1000.0F));
+            p.sliders["InHigh"]->setRange(range);
             p.sliders["InHigh"]->setDefaultValue(1.F);
+
+            p.rangeEdits["InMin"] = dtk::FloatEdit::create(context);
+            p.rangeEdits["InMin"]->setRange(dtk::RangeF(-1000000.F, 1000000.F));
+            p.rangeEdits["InMin"]->setValue(range.min());
+
+            p.rangeEdits["InMax"] = dtk::FloatEdit::create(context);
+            p.rangeEdits["InMax"]->setRange(dtk::RangeF(-1000000.F, 1000000.F));
+            p.rangeEdits["InMax"]->setValue(range.max());
+
             p.sliders["Gamma"] = dtk::FloatEditSlider::create(context);
             p.sliders["Gamma"]->setRange(dtk::RangeF(.1F, 4.F));
             p.sliders["Gamma"]->setDefaultValue(1.F);
+
+            p.settings->getT("/ColorControls/Levels/OutRange", range);
             p.sliders["OutLow"] = dtk::FloatEditSlider::create(context);
+            p.sliders["OutLow"]->setRange(range);
             p.sliders["OutLow"]->setDefaultValue(0.F);
+
             p.sliders["OutHigh"] = dtk::FloatEditSlider::create(context);
+            p.sliders["OutHigh"]->setRange(range);
             p.sliders["OutHigh"]->setDefaultValue(1.F);
+
+            p.rangeEdits["OutMin"] = dtk::FloatEdit::create(context);
+            p.rangeEdits["OutMin"]->setRange(dtk::RangeF(-1000000.F, 1000000.F));
+            p.rangeEdits["OutMin"]->setValue(range.min());
+
+            p.rangeEdits["OutMax"] = dtk::FloatEdit::create(context);
+            p.rangeEdits["OutMax"]->setRange(dtk::RangeF(-1000000.F, 1000000.F));
+            p.rangeEdits["OutMax"]->setValue(range.max());
 
             p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
@@ -516,9 +547,19 @@ namespace tl
             p.layout->addRow("Enabled:", p.enabledCheckBox);
             p.layout->addRow("In low:", p.sliders["InLow"]);
             p.layout->addRow("In high:", p.sliders["InHigh"]);
+            auto hLayout = dtk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.rangeEdits["InMin"]->setParent(hLayout);
+            p.rangeEdits["InMax"]->setParent(hLayout);
+            p.layout->addRow("In range:", hLayout);
             p.layout->addRow("Gamma:", p.sliders["Gamma"]);
             p.layout->addRow("Out low:", p.sliders["OutLow"]);
             p.layout->addRow("Out high:", p.sliders["OutHigh"]);
+            hLayout = dtk::HorizontalLayout::create(context);
+            hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.rangeEdits["OutMin"]->setParent(hLayout);
+            p.rangeEdits["OutMax"]->setParent(hLayout);
+            p.layout->addRow("Out range:", hLayout);
 
             p.optionsObservers = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
@@ -568,6 +609,26 @@ namespace tl
                     }
                 });
 
+            p.rangeEdits["InMin"]->setCallback(
+                [this](float value)
+                {
+                    DTK_P();
+                    dtk::RangeF range = p.sliders["InLow"]->getRange();
+                    range = dtk::RangeF(value, range.max());
+                    p.sliders["InLow"]->setRange(range);
+                    p.sliders["InHigh"]->setRange(range);
+                });
+
+            p.rangeEdits["InMax"]->setCallback(
+                [this](float value)
+                {
+                    DTK_P();
+                    dtk::RangeF range = p.sliders["InLow"]->getRange();
+                    range = dtk::RangeF(range.min(), value);
+                    p.sliders["InLow"]->setRange(range);
+                    p.sliders["InHigh"]->setRange(range);
+                });
+
             p.sliders["Gamma"]->setCallback(
                 [appWeak](float value)
                 {
@@ -603,6 +664,26 @@ namespace tl
                         app->getViewportModel()->setDisplayOptions(options);
                     }
                 });
+
+            p.rangeEdits["OutMin"]->setCallback(
+                [this](float value)
+                {
+                    DTK_P();
+                    dtk::RangeF range = p.sliders["OutLow"]->getRange();
+                    range = dtk::RangeF(value, range.max());
+                    p.sliders["OutLow"]->setRange(range);
+                    p.sliders["OutHigh"]->setRange(range);
+                });
+
+            p.rangeEdits["OutMax"]->setCallback(
+                [this](float value)
+                {
+                    DTK_P();
+                    dtk::RangeF range = p.sliders["OutLow"]->getRange();
+                    range = dtk::RangeF(range.min(), value);
+                    p.sliders["OutLow"]->setRange(range);
+                    p.sliders["OutHigh"]->setRange(range);
+                });
         }
 
         LevelsWidget::LevelsWidget() :
@@ -610,7 +691,15 @@ namespace tl
         {}
 
         LevelsWidget::~LevelsWidget()
-        {}
+        {
+            DTK_P();
+            float min = p.rangeEdits["InMin"]->getValue();
+            float max = p.rangeEdits["InMax"]->getValue();
+            p.settings->setT("/ColorControls/Levels/InRange", dtk::RangeF(min, max));
+            min = p.rangeEdits["OutMin"]->getValue();
+            max = p.rangeEdits["OutMax"]->getValue();
+            p.settings->setT("/ColorControls/Levels/OutRange", dtk::RangeF(min, max));
+        }
 
         std::shared_ptr<LevelsWidget> LevelsWidget::create(
             const std::shared_ptr<dtk::Context>& context,
