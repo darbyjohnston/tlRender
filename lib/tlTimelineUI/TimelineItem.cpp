@@ -283,7 +283,7 @@ namespace tl
             DTK_P();
             if (changed)
             {
-                p.size.init = true;
+                p.size.displayScale.reset();
                 _tracksUpdate();
             }
         }
@@ -385,10 +385,9 @@ namespace tl
             IItem::sizeHintEvent(event);
             DTK_P();
 
-            const bool displayScaleChanged = event.displayScale != p.size.displayScale;
-            if (displayScaleChanged || p.size.init)
+            if (!p.size.displayScale.has_value() ||
+                (p.size.displayScale.has_value() && p.size.displayScale.value() != event.displayScale))
             {
-                p.size.init = false;
                 p.size.displayScale = event.displayScale;
                 p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginInside, event.displayScale);
                 p.size.spacing = event.style->getSizeRole(dtk::SizeRole::SpacingSmall, event.displayScale);

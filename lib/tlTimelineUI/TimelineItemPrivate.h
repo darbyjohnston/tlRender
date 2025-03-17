@@ -44,15 +44,13 @@ namespace tl
 
             struct SizeData
             {
-                bool init = true;
-                float displayScale = 0.F;
+                std::optional<float> displayScale;
                 int margin = 0;
                 int spacing = 0;
                 int border = 0;
                 int handle = 0;
                 dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
                 dtk::FontMetrics fontMetrics;
-
                 dtk::V2I scrollPos;
             };
             SizeData size;
@@ -61,7 +59,7 @@ namespace tl
             {
                 std::vector<dtk::Box2I> dropTargets;
             };
-            DrawData draw;
+            std::optional<DrawData> draw;
 
             enum class MouseMode
             {

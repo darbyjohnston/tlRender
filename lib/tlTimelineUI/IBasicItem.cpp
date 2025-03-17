@@ -20,12 +20,9 @@ namespace tl
 
             struct SizeData
             {
-                bool init = true;
-                float displayScale = 0.F;
+                std::optional<float> displayScale;
                 int margin = 0;
                 int border = 0;
-
-                bool textInit = true;
                 dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
                 dtk::FontMetrics fontMetrics;
                 dtk::Size2I labelSize;
@@ -38,7 +35,7 @@ namespace tl
                 std::vector<std::shared_ptr<dtk::Glyph> > labelGlyphs;
                 std::vector<std::shared_ptr<dtk::Glyph> > durationGlyphs;
             };
-            DrawData draw;
+            std::optional<DrawData> draw;
         };
 
         void IBasicItem::_init(
@@ -102,14 +99,12 @@ namespace tl
             IItem::sizeHintEvent(event);
             DTK_P();
 
-            const bool displayScaleChanged = event.displayScale != p.size.displayScale;
-            if (p.size.init || displayScaleChanged)
+            if (!p.size.displayScale.has_value() ||
+                (p.size.displayScale.has_value() && p.size.displayScale.value() != event.displayScale))
             {
+                p.size.displayScale = event.displayScale;
                 p.size.margin = event.style->getSizeRole(dtk::SizeRole::MarginInside, event.displayScale);
                 p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
-            }
-            if (p.size.init || displayScaleChanged || p.size.textInit)
-            {
                 p.size.fontInfo = dtk::FontInfo(
                     _displayOptions.regularFont,
                     _displayOptions.fontSize * event.displayScale);
@@ -120,12 +115,8 @@ namespace tl
                 p.size.durationSize = _displayOptions.clipInfo ?
                     event.fontSystem->getSize(p.durationLabel, p.size.fontInfo) :
                     dtk::Size2I();
-                p.draw.labelGlyphs.clear();
-                p.draw.durationGlyphs.clear();
+                p.draw.reset();
             }
-            p.size.init = false;
-            p.size.displayScale = event.displayScale;
-            p.size.textInit = false;
 
             dtk::Size2I sizeHint;
             sizeHint.w = _timeRange.duration().rescaled_to(1.0).value() * _scale;
@@ -145,8 +136,7 @@ namespace tl
             DTK_P();
             if (clipped)
             {
-                p.draw.labelGlyphs.clear();
-                p.draw.durationGlyphs.clear();
+                p.draw.reset();
             }
         }
 
@@ -156,6 +146,11 @@ namespace tl
         {
             IItem::drawEvent(drawRect, event);
             DTK_P();
+
+            if (!p.draw.has_value())
+            {
+                p.draw = Private::DrawData();
+            }
 
             const dtk::Box2I& g = getGeometry();
             dtk::ColorRole colorRole = getSelectRole();
@@ -188,12 +183,12 @@ namespace tl
                 const bool enabled = isEnabled();
                 if (dtk::intersects(drawRect, labelGeometry))
                 {
-                    if (!p.label.empty() && p.draw.labelGlyphs.empty())
+                    if (!p.label.empty() && p.draw->labelGlyphs.empty())
                     {
-                        p.draw.labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.fontInfo);
+                        p.draw->labelGlyphs = event.fontSystem->getGlyphs(p.label, p.size.fontInfo);
                     }
                     event.render->drawText(
-                        p.draw.labelGlyphs,
+                        p.draw->labelGlyphs,
                         p.size.fontMetrics,
                         labelGeometry.min,
                         event.style->getColorRole(
@@ -212,12 +207,12 @@ namespace tl
                 if (dtk::intersects(drawRect, durationGeometry) &&
                     !dtk::intersects(durationGeometry, labelGeometry))
                 {
-                    if (!p.durationLabel.empty() && p.draw.durationGlyphs.empty())
+                    if (!p.durationLabel.empty() && p.draw->durationGlyphs.empty())
                     {
-                        p.draw.durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.fontInfo);
+                        p.draw->durationGlyphs = event.fontSystem->getGlyphs(p.durationLabel, p.size.fontInfo);
                     }
                     event.render->drawText(
-                        p.draw.durationGlyphs,
+                        p.draw->durationGlyphs,
                         p.size.fontMetrics,
                         durationGeometry.min,
                         event.style->getColorRole(
@@ -254,7 +249,7 @@ namespace tl
         {
             DTK_P();
             p.durationLabel = _getDurationLabel(_timeRange.duration());
-            p.size.textInit = true;
+            p.size.displayScale.reset();
             _setSizeUpdate();
             _setDrawUpdate();
         }

@@ -8,6 +8,8 @@
 
 #include <dtk/ui/LayoutUtil.h>
 
+#include <optional>
+
 namespace tl
 {
     namespace timelineui
@@ -23,11 +25,8 @@ namespace tl
 
             struct SizeData
             {
-                bool init = true;
-                float displayScale = 0.F;
+                std::optional<float> displayScale;
                 int margin = 0;
-
-                bool textInit = true;
                 dtk::FontInfo fontInfo;
                 dtk::FontMetrics fontMetrics;
                 dtk::Size2I textSize;
@@ -39,7 +38,7 @@ namespace tl
             {
                 std::vector<std::shared_ptr<dtk::Glyph> > glyphs;
             };
-            DrawData draw;
+            std::optional<DrawData> draw;
 
             std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
@@ -112,7 +111,7 @@ namespace tl
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
-            p.size.init = true;
+            p.size.displayScale.reset();
             _setSizeUpdate();
             _setDrawUpdate();
         }
@@ -123,8 +122,7 @@ namespace tl
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
-            p.size.textInit = true;
-            p.draw.glyphs.clear();
+            p.size.displayScale.reset();
             _setSizeUpdate();
             _setDrawUpdate();
         }
@@ -134,21 +132,17 @@ namespace tl
             IWidget::sizeHintEvent(event);
             DTK_P();
 
-            if (p.size.init || event.displayScale != p.size.displayScale)
+            if (!p.size.displayScale.has_value() ||
+                (p.size.displayScale.has_value() && p.size.displayScale.value() != event.displayScale))
             {
+                p.size.displayScale = event.displayScale;
                 p.size.margin = event.style->getSizeRole(p.marginRole, event.displayScale);
-            }
-            if (p.size.init || event.displayScale != p.size.displayScale || p.size.textInit)
-            {
                 p.size.fontInfo = event.style->getFontRole(p.fontRole, event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
                 p.size.textSize = event.fontSystem->getSize(p.text, p.size.fontInfo);
                 p.size.formatSize = event.fontSystem->getSize(p.format, p.size.fontInfo);
-                p.draw.glyphs.clear();
+                p.draw.reset();
             }
-            p.size.init = false;
-            p.size.displayScale = event.displayScale;
-            p.size.textInit = false;
 
             dtk::Size2I sizeHint;
             sizeHint.w =
@@ -166,7 +160,7 @@ namespace tl
             DTK_P();
             if (clipped)
             {
-                p.draw.glyphs.clear();
+                p.draw.reset();
             }
         }
 
@@ -177,6 +171,11 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             DTK_P();
 
+            if (!p.draw.has_value())
+            {
+                p.draw = Private::DrawData();
+            }
+
             const dtk::Box2I g = dtk::margin(
                 align(
                     getGeometry(),
@@ -185,12 +184,12 @@ namespace tl
                     getVAlign()),
                 -p.size.margin);
 
-            if (!p.text.empty() && p.draw.glyphs.empty())
+            if (!p.text.empty() && p.draw->glyphs.empty())
             {
-                p.draw.glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
+                p.draw->glyphs = event.fontSystem->getGlyphs(p.text, p.size.fontInfo);
             }
             event.render->drawText(
-                p.draw.glyphs,
+                p.draw->glyphs,
                 p.size.fontMetrics,
                 g.min,
                 event.style->getColorRole(dtk::ColorRole::Text));
@@ -207,7 +206,7 @@ namespace tl
                 p.text = timeline::timeToText(p.value, timeUnits);
                 p.format = timeline::formatString(timeUnits);
             }
-            p.size.textInit = true;
+            p.size.displayScale.reset();
             _setSizeUpdate();
             _setDrawUpdate();
         }
