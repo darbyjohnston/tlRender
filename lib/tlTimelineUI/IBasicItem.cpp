@@ -213,10 +213,16 @@ namespace tl
             // Draw the labels.
             if (_displayOptions.clipInfo)
             {
-                const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
-                const dtk::ClipRectState clipRectState(event.render);
-                event.render->setClipRectEnabled(true);
-                event.render->setClipRect(dtk::intersect(p.draw->g2, drawRect));
+                std::unique_ptr<dtk::ClipRectEnabledState> clipRectEnabledState;
+                std::unique_ptr<dtk::ClipRectState> clipRectState;
+                if (!dtk::contains(p.draw->g2, p.draw->labelGeometry) ||
+                    !dtk::contains(p.draw->g2, p.draw->durationGeometry))
+                {
+                    clipRectEnabledState.reset(new dtk::ClipRectEnabledState(event.render));
+                    clipRectState.reset(new dtk::ClipRectState(event.render));
+                    event.render->setClipRectEnabled(true);
+                    event.render->setClipRect(dtk::intersect(p.draw->g2, drawRect));
+                }
 
                 const bool enabled = isEnabled();
                 if (dtk::intersects(drawRect, p.draw->labelGeometry))
