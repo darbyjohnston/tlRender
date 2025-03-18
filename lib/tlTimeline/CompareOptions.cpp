@@ -181,6 +181,11 @@ namespace tl
                         info = layer.image->getInfo();
                         break;
                     }
+                    else if (layer.imageB)
+                    {
+                        info = layer.imageB->getInfo();
+                        break;
+                    }
                 }
                 infos.push_back(info);
             }
@@ -216,6 +221,11 @@ namespace tl
                     if (layer.image)
                     {
                         info = layer.image->getInfo();
+                        break;
+                    }
+                    else if (layer.imageB)
+                    {
+                        info = layer.imageB->getInfo();
                         break;
                     }
                 }
