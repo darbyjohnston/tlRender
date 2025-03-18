@@ -19,10 +19,11 @@ namespace tl
         {
             Menu::_init(context, parent);
 
+            const auto labels = getToolLabels();
             auto actions = toolsActions->getActions();
-            for (const auto tool : getToolLabels())
+            for (size_t i = 1; i < labels.size(); ++i)
             {
-                addItem(actions[tool]);
+                addItem(actions[labels[i]]);
             }
         }
 

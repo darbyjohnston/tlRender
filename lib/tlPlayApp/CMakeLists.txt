@@ -57,6 +57,7 @@ set(HEADERS_WIDGETS
     Widgets/CompareToolBar.h
     Widgets/FileToolBar.h
     Widgets/SeparateAudioDialog.h
+    Widgets/ShuttleWidget.h
     Widgets/SpeedPopup.h
     Widgets/StatusBar.h
     Widgets/ToolsToolBar.h
@@ -137,6 +138,7 @@ set(SOURCE_WIDGETS
     Widgets/FileToolBar.cpp
     Widgets/SeparateAudioDialog.cpp
     Widgets/SeparateAudioWidget.cpp
+    Widgets/ShuttleWidget.cpp
     Widgets/SpeedPopup.cpp
     Widgets/StatusBar.cpp
     Widgets/ToolsToolBar.cpp

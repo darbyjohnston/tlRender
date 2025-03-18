@@ -26,7 +26,7 @@ namespace tl
             auto appWeak = std::weak_ptr<App>(app);
             const auto enums = getToolEnums();
             const auto labels = getToolLabels();
-            for (size_t i = 0; i < enums.size(); ++i)
+            for (size_t i = 1; i < enums.size(); ++i)
             {
                 const auto tool = enums[i];
                 auto action = dtk::Action::create(
@@ -67,7 +67,7 @@ namespace tl
                 {
                     const auto enums = getToolEnums();
                     const auto labels = getToolLabels();
-                    for (size_t i = 0; i < enums.size(); ++i)
+                    for (size_t i = 1; i < enums.size(); ++i)
                     {
                         _actions[labels[i]]->setChecked(enums[i] == value);
                     }

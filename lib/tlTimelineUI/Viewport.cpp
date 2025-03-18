@@ -439,9 +439,7 @@ namespace tl
             _setSizeHint(dtk::Size2I(sa, sa));
         }
 
-        void Viewport::drawEvent(
-            const dtk::Box2I& drawRect,
-            const dtk::DrawEvent& event)
+        void Viewport::drawEvent(const dtk::Box2I& drawRect, const dtk::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
             DTK_P();

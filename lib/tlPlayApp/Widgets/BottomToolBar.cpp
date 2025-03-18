@@ -10,6 +10,7 @@
 #include <tlPlayApp/Models/AudioModel.h>
 #include <tlPlayApp/Models/TimeUnitsModel.h>
 #include <tlPlayApp/Widgets/AudioPopup.h>
+#include <tlPlayApp/Widgets/ShuttleWidget.h>
 #include <tlPlayApp/Widgets/SpeedPopup.h>
 #include <tlPlayApp/App.h>
 
@@ -36,6 +37,8 @@ namespace tl
             std::shared_ptr<dtk::DoubleModel> speedModel;
 
             std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
+            std::shared_ptr<ShuttleWidget> playbackShuttle;
+            std::shared_ptr<ShuttleWidget> frameShuttle;
             std::shared_ptr<timelineui::TimeEdit> currentTimeEdit;
             std::shared_ptr<timelineui::TimeLabel> durationLabel;
             std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
@@ -79,6 +82,8 @@ namespace tl
             p.buttons["Forward"] = dtk::ToolButton::create(context, actions["Forward"]);
             p.buttons["Reverse"] = dtk::ToolButton::create(context, actions["Reverse"]);
 
+            p.playbackShuttle = ShuttleWidget::create(context, "PlaybackShuttle");
+
             actions = frameActions->getActions();
             p.buttons["Start"] = dtk::ToolButton::create(context, actions["Start"]);
             p.buttons["End"] = dtk::ToolButton::create(context, actions["End"]);
@@ -86,6 +91,8 @@ namespace tl
             p.buttons["Prev"]->setRepeatClick(true);
             p.buttons["Next"] = dtk::ToolButton::create(context, actions["Next"]);
             p.buttons["Next"]->setRepeatClick(true);
+
+            p.frameShuttle = ShuttleWidget::create(context, "FrameShuttle");
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
@@ -122,10 +129,12 @@ namespace tl
             p.buttons["Reverse"]->setParent(hLayout);
             p.buttons["Stop"]->setParent(hLayout);
             p.buttons["Forward"]->setParent(hLayout);
+            p.playbackShuttle->setParent(hLayout);
             p.buttons["Start"]->setParent(hLayout);
             p.buttons["Prev"]->setParent(hLayout);
             p.buttons["Next"]->setParent(hLayout);
             p.buttons["End"]->setParent(hLayout);
+            p.frameShuttle->setParent(hLayout);
             p.currentTimeEdit->setParent(p.layout);
             p.durationLabel->setParent(p.layout);
             p.timeUnitsComboBox->setParent(p.layout);
