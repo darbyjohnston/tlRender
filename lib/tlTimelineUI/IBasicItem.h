@@ -33,8 +33,10 @@ namespace tl
         public:
             virtual ~IBasicItem() = 0;
 
+            void setScale(double) override;
             void setDisplayOptions(const DisplayOptions&) override;
 
+            void setGeometry(const dtk::Box2I&) override;
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
             void clipEvent(const dtk::Box2I&, bool) override;
             void drawEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;

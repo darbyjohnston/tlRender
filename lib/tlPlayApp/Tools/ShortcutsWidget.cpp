@@ -27,9 +27,18 @@ namespace tl
 
             struct SizeData
             {
+                std::optional<float> displayScale;
                 int border = 0;
             };
             SizeData size;
+
+            struct DrawData
+            {
+                dtk::Box2I g;
+                dtk::Box2I g2;
+                dtk::TriMesh2F border;
+            };
+            std::optional<DrawData> draw;
         };
 
         void ShortcutWidget::_init(
@@ -91,17 +100,32 @@ namespace tl
 
         void ShortcutWidget::setGeometry(const dtk::Box2I& value)
         {
+            bool changed = value != getGeometry();
             IWidget::setGeometry(value);
             DTK_P();
+
             const dtk::Box2I g = dtk::margin(value, -p.size.border);
             p.label->setGeometry(g);
+
+            if (changed)
+            {
+                p.draw.reset();
+            }
         }
 
         void ShortcutWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             DTK_P();
-            p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
+
+            if (!p.size.displayScale.has_value() ||
+                (p.size.displayScale.has_value() && p.size.displayScale.value() != event.displayScale))
+            {
+                p.size.displayScale = event.displayScale;
+                p.size.border = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
+                p.draw.reset();
+            }
+
             _setSizeHint(_p->label->getSizeHint() + p.size.border * 2);
         }
 
@@ -110,20 +134,26 @@ namespace tl
             IWidget::drawEvent(drawRect, event);
             DTK_P();
 
-            const dtk::Box2I& g = getGeometry();
+            if (!p.draw.has_value())
+            {
+                p.draw = Private::DrawData();
+                p.draw->g = getGeometry();
+                p.draw->g2 = dtk::margin(p.draw->g, -p.size.border);
+                p.draw->border = dtk::border(p.draw->g, p.size.border);
+            }
+
             event.render->drawMesh(
-                dtk::border(g, p.size.border),
+                p.draw->border,
                 event.style->getColorRole(hasKeyFocus() ? dtk::ColorRole::KeyFocus : dtk::ColorRole::Border));
 
-            const dtk::Box2I g2 = dtk::margin(g, -p.size.border);
             event.render->drawRect(
-                g2,
+                p.draw->g2,
                 event.style->getColorRole(p.collision ? dtk::ColorRole::Red : dtk::ColorRole::Base));
 
             if (_isMouseInside())
             {
                 event.render->drawRect(
-                    g,
+                    p.draw->g,
                     event.style->getColorRole(dtk::ColorRole::Hover));
             }
         }
@@ -264,7 +294,7 @@ namespace tl
 
             p.layout = dtk::VerticalLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::Spacing);
 
             p.settingsObserver = dtk::ValueObserver<ShortcutsSettings>::create(
                 p.model->observeShortcuts(),

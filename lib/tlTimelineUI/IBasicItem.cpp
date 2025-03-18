@@ -32,6 +32,11 @@ namespace tl
 
             struct DrawData
             {
+                dtk::Box2I g;
+                dtk::Box2I g2;
+                dtk::Box2I labelGeometry;
+                dtk::Box2I durationGeometry;
+                dtk::TriMesh2F border;
                 std::vector<std::shared_ptr<dtk::Glyph> > labelGlyphs;
                 std::vector<std::shared_ptr<dtk::Glyph> > durationGlyphs;
             };
@@ -83,6 +88,17 @@ namespace tl
         IBasicItem::~IBasicItem()
         {}
 
+        void IBasicItem::setScale(double value)
+        {
+            const bool changed = value != _scale;
+            IItem::setScale(value);
+            DTK_P();
+            if (changed)
+            {
+                p.draw.reset();
+            }
+        }
+
         void IBasicItem::setDisplayOptions(const DisplayOptions& value)
         {
             const bool changed = value != _displayOptions;
@@ -91,6 +107,17 @@ namespace tl
             if (changed)
             {
                 _textUpdate();
+            }
+        }
+
+        void IBasicItem::setGeometry(const dtk::Box2I& value)
+        {
+            bool changed = value != getGeometry();
+            IItem::setGeometry(value);
+            DTK_P();
+            if (changed)
+            {
+                p.draw.reset();
             }
         }
 
@@ -150,38 +177,49 @@ namespace tl
             if (!p.draw.has_value())
             {
                 p.draw = Private::DrawData();
+                p.draw->g = getGeometry();
+                p.draw->g2 = dtk::margin(p.draw->g, -(p.size.border * 2));
+                p.draw->labelGeometry = dtk::Box2I(
+                    p.draw->g2.min.x + p.size.margin,
+                    p.draw->g2.min.y + p.size.margin,
+                    p.size.labelSize.w,
+                    p.size.fontMetrics.lineHeight);
+                p.draw->durationGeometry = dtk::Box2I(
+                    p.draw->g2.max.x -
+                    p.size.durationSize.w -
+                    p.size.margin,
+                    p.draw->g2.min.y + p.size.margin,
+                    p.size.durationSize.w,
+                    p.size.fontMetrics.lineHeight);
+                p.draw->border = dtk::border(p.draw->g, p.size.border * 2);
             }
 
-            const dtk::Box2I& g = getGeometry();
+            // Draw the selection border.
             dtk::ColorRole colorRole = getSelectRole();
             if (colorRole != dtk::ColorRole::None)
             {
                 event.render->drawMesh(
-                    dtk::border(g, p.size.border * 2),
+                    p.draw->border,
                     event.style->getColorRole(colorRole));
             }
 
-            const dtk::Box2I g2 = dtk::margin(g, -(p.size.border * 2));
+            // Draw the background.
             event.render->drawRect(
-                g2,
+                p.draw->g2,
                 isEnabled() ?
                     event.style->getColorRole(p.colorRole) :
                     dtk::greyscale(event.style->getColorRole(p.colorRole)));
 
-            const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
-            const dtk::ClipRectState clipRectState(event.render);
-            event.render->setClipRectEnabled(true);
-            event.render->setClipRect(dtk::intersect(g2, drawRect));
-
+            // Draw the labels.
             if (_displayOptions.clipInfo)
             {
-                const dtk::Box2I labelGeometry(
-                    g2.min.x + p.size.margin,
-                    g2.min.y + p.size.margin,
-                    p.size.labelSize.w,
-                    p.size.fontMetrics.lineHeight);
+                const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
+                const dtk::ClipRectState clipRectState(event.render);
+                event.render->setClipRectEnabled(true);
+                event.render->setClipRect(dtk::intersect(p.draw->g2, drawRect));
+
                 const bool enabled = isEnabled();
-                if (dtk::intersects(drawRect, labelGeometry))
+                if (dtk::intersects(drawRect, p.draw->labelGeometry))
                 {
                     if (!p.label.empty() && p.draw->labelGlyphs.empty())
                     {
@@ -190,22 +228,15 @@ namespace tl
                     event.render->drawText(
                         p.draw->labelGlyphs,
                         p.size.fontMetrics,
-                        labelGeometry.min,
+                        p.draw->labelGeometry.min,
                         event.style->getColorRole(
                             enabled ?
                             dtk::ColorRole::Text :
                             dtk::ColorRole::TextDisabled));
                 }
 
-                const dtk::Box2I durationGeometry(
-                    g2.max.x -
-                    p.size.durationSize.w -
-                    p.size.margin,
-                    g2.min.y + p.size.margin,
-                    p.size.durationSize.w,
-                    p.size.fontMetrics.lineHeight);
-                if (dtk::intersects(drawRect, durationGeometry) &&
-                    !dtk::intersects(durationGeometry, labelGeometry))
+                if (dtk::intersects(drawRect, p.draw->durationGeometry) &&
+                    !dtk::intersects(p.draw->durationGeometry, p.draw->labelGeometry))
                 {
                     if (!p.durationLabel.empty() && p.draw->durationGlyphs.empty())
                     {
@@ -214,7 +245,7 @@ namespace tl
                     event.render->drawText(
                         p.draw->durationGlyphs,
                         p.size.fontMetrics,
-                        durationGeometry.min,
+                        p.draw->durationGeometry.min,
                         event.style->getColorRole(
                             enabled ?
                             dtk::ColorRole::Text :
