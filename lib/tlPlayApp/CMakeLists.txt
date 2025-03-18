@@ -53,6 +53,7 @@ set(HEADERS_PRIVATE_TOOLS
     Tools/ViewToolPrivate.h)
 set(HEADERS_WIDGETS
     Widgets/AudioPopup.h
+    Widgets/BottomToolBar.h
     Widgets/CompareToolBar.h
     Widgets/FileToolBar.h
     Widgets/SeparateAudioDialog.h
@@ -131,6 +132,7 @@ set(SOURCE_TOOLS
     Tools/ViewTool.cpp)
 set(SOURCE_WIDGETS
     Widgets/AudioPopup.cpp
+    Widgets/BottomToolBar.cpp
     Widgets/CompareToolBar.cpp
     Widgets/FileToolBar.cpp
     Widgets/SeparateAudioDialog.cpp

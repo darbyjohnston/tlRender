@@ -60,8 +60,6 @@ namespace tl
 
         private:
             void _playerUpdate(const std::shared_ptr<timeline::Player>&);
-            void _showSpeedPopup();
-            void _showAudioPopup();
             void _settingsUpdate(const WindowSettings&);
             void _settingsUpdate(const TimelineSettings&);
 

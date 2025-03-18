@@ -16,13 +16,29 @@ set(RESOURCES
     etc/Icons/Export.svg
     etc/Icons/FileOpenSeparateAudio.svg
     etc/Icons/Files.svg
+    etc/Icons/FrameShuttle0.svg
+    etc/Icons/FrameShuttle1.svg
+    etc/Icons/FrameShuttle2.svg
+    etc/Icons/FrameShuttle3.svg
+    etc/Icons/FrameShuttle4.svg
+    etc/Icons/FrameShuttle5.svg
+    etc/Icons/FrameShuttle6.svg
+    etc/Icons/FrameShuttle7.svg
     etc/Icons/Hidden.svg
     etc/Icons/Info.svg
     etc/Icons/Messages.svg
-    etc/Icons/tlRender.svg
+    etc/Icons/PlaybackShuttle0.svg
+    etc/Icons/PlaybackShuttle1.svg
+    etc/Icons/PlaybackShuttle2.svg
+    etc/Icons/PlaybackShuttle3.svg
+    etc/Icons/PlaybackShuttle4.svg
+    etc/Icons/PlaybackShuttle5.svg
+    etc/Icons/PlaybackShuttle6.svg
+    etc/Icons/PlaybackShuttle7.svg
     etc/Icons/View.svg
     etc/Icons/Visible.svg
-    etc/Icons/WindowSecondary.svg)
+    etc/Icons/WindowSecondary.svg
+    etc/Icons/tlRender.svg)
 foreach(RESOURCE ${RESOURCES})
     get_filename_component(RESOURCE_BASE ${RESOURCE} NAME_WE)
     add_custom_command(

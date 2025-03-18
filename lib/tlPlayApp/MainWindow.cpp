@@ -23,15 +23,13 @@
 #include <tlPlayApp/Menus/ToolsMenu.h>
 #include <tlPlayApp/Menus/ViewMenu.h>
 #include <tlPlayApp/Menus/WindowMenu.h>
-#include <tlPlayApp/Models/AudioModel.h>
 #include <tlPlayApp/Models/ColorModel.h>
 #include <tlPlayApp/Models/TimeUnitsModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/Tools/ToolsWidget.h>
-#include <tlPlayApp/Widgets/AudioPopup.h>
+#include <tlPlayApp/Widgets/BottomToolBar.h>
 #include <tlPlayApp/Widgets/CompareToolBar.h>
 #include <tlPlayApp/Widgets/FileToolBar.h>
-#include <tlPlayApp/Widgets/SpeedPopup.h>
 #include <tlPlayApp/Widgets/StatusBar.h>
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 #include <tlPlayApp/Widgets/ViewToolBar.h>
@@ -39,22 +37,16 @@
 #include <tlPlayApp/Widgets/WindowToolBar.h>
 #include <tlPlayApp/App.h>
 
-#include <tlTimelineUI/TimeEdit.h>
-#include <tlTimelineUI/TimeLabel.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
 #include <tlTimelineGL/Render.h>
 
 #include <dtk/ui/ButtonGroup.h>
-#include <dtk/ui/ComboBox.h>
 #include <dtk/ui/Divider.h>
-#include <dtk/ui/DoubleEdit.h>
-#include <dtk/ui/DoubleModel.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/Menu.h>
 #include <dtk/ui/MenuBar.h>
 #include <dtk/ui/RowLayout.h>
-#include <dtk/ui/Spacer.h>
 #include <dtk/ui/Splitter.h>
 #include <dtk/ui/ToolButton.h>
 
@@ -71,9 +63,7 @@ namespace tl
         {
             std::weak_ptr<App> app;
             std::shared_ptr<SettingsModel> settingsModel;
-            std::shared_ptr<dtk::DoubleModel> speedModel;
             timelineui::ItemOptions itemOptions;
-            std::shared_ptr<timeline::Player> player;
 
             std::shared_ptr<Viewport> viewport;
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
@@ -101,27 +91,15 @@ namespace tl
             std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ViewToolBar> viewToolBar;
             std::shared_ptr<ToolsToolBar> toolsToolBar;
-            std::shared_ptr<timelineui::TimeEdit> currentTimeEdit;
-            std::shared_ptr<timelineui::TimeLabel> durationLabel;
-            std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
-            std::shared_ptr<dtk::DoubleEdit> speedEdit;
-            std::shared_ptr<dtk::ToolButton> speedButton;
-            std::shared_ptr<SpeedPopup> speedPopup;
-            std::shared_ptr<dtk::ToolButton> audioButton;
-            std::shared_ptr<AudioPopup> audioPopup;
-            std::shared_ptr<dtk::ToolButton> muteButton;
+            std::shared_ptr<BottomToolBar> bottomToolBar;
             std::shared_ptr<StatusBar> statusBar;
             std::shared_ptr<ToolsWidget> toolsWidget;
             std::map<std::string, std::shared_ptr<dtk::Divider> > dividers;
             std::shared_ptr<dtk::Splitter> splitter;
             std::shared_ptr<dtk::Splitter> splitter2;
-            std::shared_ptr<dtk::HorizontalLayout> bottomLayout;
             std::shared_ptr<dtk::VerticalLayout> layout;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
-            std::shared_ptr<dtk::ValueObserver<double> > speedObserver;
-            std::shared_ptr<dtk::ValueObserver<double> > speedObserver2;
-            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::OCIOOptions> > ocioOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::LUTOptions> > lutOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
@@ -141,10 +119,6 @@ namespace tl
 
             p.app = app;
             p.settingsModel = app->getSettingsModel();
-            p.speedModel = dtk::DoubleModel::create(context);
-            p.speedModel->setRange(dtk::RangeD(0.0, 1000000.0));
-            p.speedModel->setStep(1.F);
-            p.speedModel->setLargeStep(10.F);
 
             p.viewport = Viewport::create(context, app);
 
@@ -201,59 +175,31 @@ namespace tl
                 context,
                 app,
                 p.fileActions->getActions());
+
             p.compareToolBar = CompareToolBar::create(
                 context,
                 app,
                 p.compareActions->getActions());
+
             p.windowToolBar = WindowToolBar::create(
                 context,
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.windowActions->getActions());
+
             p.viewToolBar = ViewToolBar::create(context, p.viewActions);
+
             p.toolsToolBar = ToolsToolBar::create(
                 context,
                 app,
                 p.toolsActions->getActions());
 
-            auto playbackActions = p.playbackActions->getActions();
-            auto stopButton = dtk::ToolButton::create(context, playbackActions["Stop"]);
-            auto forwardButton = dtk::ToolButton::create(context, playbackActions["Forward"]);
-            auto reverseButton = dtk::ToolButton::create(context, playbackActions["Reverse"]);
-
-            auto frameActions = p.frameActions->getActions();
-            auto timeStartButton = dtk::ToolButton::create(context, frameActions["Start"]);
-            auto timeEndButton = dtk::ToolButton::create(context, frameActions["End"]);
-            auto framePrevButton = dtk::ToolButton::create(context, frameActions["Prev"]);
-            framePrevButton->setRepeatClick(true);
-            auto frameNextButton = dtk::ToolButton::create(context, frameActions["Next"]);
-            frameNextButton->setRepeatClick(true);
-
-            p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
-            p.currentTimeEdit->setTooltip("Current time");
-
-            p.durationLabel = timelineui::TimeLabel::create(context, timeUnitsModel);
-            p.durationLabel->setFontRole(dtk::FontRole::Mono);
-            p.durationLabel->setMarginRole(dtk::SizeRole::MarginInside);
-            p.durationLabel->setTooltip("Duration");
-
-            p.timeUnitsComboBox = dtk::ComboBox::create(context);
-            p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
-            p.timeUnitsComboBox->setCurrentIndex(
-                static_cast<int>(timeUnitsModel->getTimeUnits()));
-            p.timeUnitsComboBox->setTooltip("Time units");
-
-            p.speedEdit = dtk::DoubleEdit::create(context, p.speedModel);
-            p.speedEdit->setTooltip("Current speed");
-            p.speedButton = dtk::ToolButton::create(context, "FPS");
-            p.speedButton->setIcon("MenuArrow");
-            p.speedButton->setTooltip("Speed menu");
-
-            p.audioButton = dtk::ToolButton::create(context);
-            p.audioButton->setIcon("Volume");
-            p.audioButton->setTooltip("Audio volume");
-            auto audioActions = p.audioActions->getActions();
-            p.muteButton = dtk::ToolButton::create(context, audioActions["Mute"]);
+            p.bottomToolBar = BottomToolBar::create(
+                context,
+                app,
+                p.playbackActions,
+                p.frameActions,
+                p.audioActions);
 
             p.statusBar = StatusBar::create(context, app);
             p.statusBar->setHStretch(dtk::Stretch::Expanding);
@@ -286,31 +232,7 @@ namespace tl
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
             p.dividers["Bottom"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
-            p.bottomLayout = dtk::HorizontalLayout::create(context, p.layout);
-            p.bottomLayout->setMarginRole(dtk::SizeRole::MarginInside);
-            p.bottomLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(dtk::SizeRole::None);
-            reverseButton->setParent(hLayout);
-            stopButton->setParent(hLayout);
-            forwardButton->setParent(hLayout);
-            timeStartButton->setParent(hLayout);
-            framePrevButton->setParent(hLayout);
-            frameNextButton->setParent(hLayout);
-            timeEndButton->setParent(hLayout);
-            p.currentTimeEdit->setParent(p.bottomLayout);
-            p.durationLabel->setParent(p.bottomLayout);
-            p.timeUnitsComboBox->setParent(p.bottomLayout);
-            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
-            p.speedEdit->setParent(hLayout);
-            p.speedButton->setParent(hLayout);
-            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.bottomLayout);
-            spacer->setHStretch(dtk::Stretch::Expanding);
-            hLayout = dtk::HorizontalLayout::create(context, p.bottomLayout);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
-            p.audioButton->setParent(hLayout);
-            p.muteButton->setParent(hLayout);
+            p.bottomToolBar->setParent(p.layout);
             p.dividers["Status"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             p.statusBar->setParent(p.layout);
 
@@ -323,63 +245,11 @@ namespace tl
                         app->getFilesModel()->setCompareOptions(value);
                     }
                 });
-
-            p.currentTimeEdit->setCallback(
-                [this](const OTIO_NS::RationalTime& value)
-                {
-                    if (_p->player)
-                    {
-                        _p->player->setPlayback(timeline::Playback::Stop);
-                        _p->player->seek(value);
-                        _p->currentTimeEdit->setValue(_p->player->getCurrentTime());
-                    }
-                });
-
-            p.timeUnitsComboBox->setIndexCallback(
-                [appWeak](int value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getTimeUnitsModel()->setTimeUnits(
-                            static_cast<timeline::TimeUnits>(value));
-                    }
-                });
-
-            p.speedButton->setPressedCallback(
-                [this]
-                {
-                    _showSpeedPopup();
-                });
-
-            p.audioButton->setPressedCallback(
-                [this]
-                {
-                    _showAudioPopup();
-                });
-            p.muteButton->setCheckedCallback(
-                [appWeak](bool value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getAudioModel()->setMute(value);
-                    }
-                });
-
             p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
                     _playerUpdate(value);
-                });
-
-            p.speedObserver2 = dtk::ValueObserver<double>::create(
-                p.speedModel->observeValue(),
-                [this](double value)
-                {
-                    if (_p->player)
-                    {
-                        _p->player->setSpeed(value);
-                    }
                 });
 
             p.ocioOptionsObserver = dtk::ValueObserver<timeline::OCIOOptions>::create(
@@ -469,7 +339,7 @@ namespace tl
 
         void MainWindow::focusCurrentFrame()
         {
-            _p->currentTimeEdit->takeKeyFocus();
+            _p->bottomToolBar->focusCurrentFrame();
         }
 
         void MainWindow::setGeometry(const dtk::Box2I& value)
@@ -501,122 +371,11 @@ namespace tl
             }
         }
 
-        void MainWindow::_playerUpdate(const std::shared_ptr<timeline::Player>& value)
+        void MainWindow::_playerUpdate(const std::shared_ptr<timeline::Player>& player)
         {
             DTK_P();
-
-            p.speedObserver.reset();
-            p.currentTimeObserver.reset();
-
-            p.player = value;
-
-            p.viewport->setPlayer(p.player);
-            p.timelineWidget->setPlayer(p.player);
-            p.durationLabel->setValue(
-                p.player ?
-                p.player->getTimeRange().duration() :
-                time::invalidTime);
-
-            if (p.player)
-            {
-                p.speedObserver = dtk::ValueObserver<double>::create(
-                    p.player->observeSpeed(),
-                    [this](double value)
-                    {
-                        _p->speedModel->setValue(value);
-                    });
-
-                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
-                    p.player->observeCurrentTime(),
-                    [this](const OTIO_NS::RationalTime& value)
-                    {
-                        _p->currentTimeEdit->setValue(value);
-                    });
-            }
-            else
-            {
-                p.speedModel->setValue(0.0);
-                p.currentTimeEdit->setValue(time::invalidTime);
-            }
-        }
-
-        void MainWindow::_showSpeedPopup()
-        {
-            DTK_P();
-            if (auto context = getContext())
-            {
-                if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
-                {
-                    if (!p.speedPopup)
-                    {
-                        const double defaultSpeed =
-                            p.player ?
-                            p.player->getDefaultSpeed() :
-                            0.0;
-                        p.speedPopup = SpeedPopup::create(context, defaultSpeed);
-                        p.speedPopup->open(window, p.speedButton->getGeometry());
-                        auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-                        p.speedPopup->setCallback(
-                            [weak](double value)
-                            {
-                                if (auto widget = weak.lock())
-                                {
-                                    if (widget->_p->player)
-                                    {
-                                        widget->_p->player->setSpeed(value);
-                                    }
-                                    widget->_p->speedPopup->close();
-                                }
-                            });
-                        p.speedPopup->setCloseCallback(
-                            [weak]
-                            {
-                                if (auto widget = weak.lock())
-                                {
-                                    widget->_p->speedPopup.reset();
-                                }
-                            });
-                    }
-                    else
-                    {
-                        p.speedPopup->close();
-                        p.speedPopup.reset();
-                    }
-                }
-            }
-        }
-
-        void MainWindow::_showAudioPopup()
-        {
-            DTK_P();
-            if (auto context = getContext())
-            {
-                if (auto app = p.app.lock())
-                {
-                    if (auto window = std::dynamic_pointer_cast<IWindow>(shared_from_this()))
-                    {
-                        if (!p.audioPopup)
-                        {
-                            p.audioPopup = AudioPopup::create(context, app);
-                            p.audioPopup->open(window, p.audioButton->getGeometry());
-                            auto weak = std::weak_ptr<MainWindow>(std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-                            p.audioPopup->setCloseCallback(
-                                [weak]
-                                {
-                                    if (auto widget = weak.lock())
-                                    {
-                                        widget->_p->audioPopup.reset();
-                                    }
-                                });
-                        }
-                        else
-                        {
-                            p.audioPopup->close();
-                            p.audioPopup.reset();
-                        }
-                    }
-                }
-            }
+            p.viewport->setPlayer(player);
+            p.timelineWidget->setPlayer(player);
         }
 
         void MainWindow::_settingsUpdate(const WindowSettings& settings)
@@ -639,7 +398,7 @@ namespace tl
 
             p.timelineWidget->setVisible(settings.timeline);
 
-            p.bottomLayout->setVisible(settings.bottomToolBar);
+            p.bottomToolBar->setVisible(settings.bottomToolBar);
             p.dividers["Bottom"]->setVisible(settings.bottomToolBar);
 
             p.statusBar->setVisible(settings.statusToolBar);
