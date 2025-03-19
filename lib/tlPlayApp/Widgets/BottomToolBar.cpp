@@ -176,7 +176,7 @@ namespace tl
                     if (p.player)
                     {
                         const double v = value * 2.0;
-                        const double speed = std::max(0.0, p.startSpeed + v);
+                        const double speed = std::max(1.0, p.startSpeed + v);
                         p.player->setSpeed(speed);
                     }
                 });

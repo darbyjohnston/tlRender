@@ -209,7 +209,6 @@ namespace tl
             void mouseEnterEvent(dtk::MouseEnterEvent&) override;
             void mouseLeaveEvent() override;
             void mousePressEvent(dtk::MouseClickEvent&) override;
-            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
             void keyFocusEvent(bool) override;
             void keyPressEvent(dtk::KeyEvent&) override;
             void keyReleaseEvent(dtk::KeyEvent&) override;

@@ -21,7 +21,7 @@ namespace tl
     {
         namespace
         {
-            const int messagesMax = 20;
+            const int messagesMax = 100;
         }
 
         struct SystemLogTool::Private

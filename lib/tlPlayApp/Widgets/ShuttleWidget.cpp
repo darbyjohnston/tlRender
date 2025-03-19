@@ -162,7 +162,6 @@ namespace tl
         {
             IWidget::mousePressEvent(event);
             DTK_P();
-            event.accept = true;
             _setDrawUpdate();
             if (p.activeCallback)
             {
@@ -174,7 +173,6 @@ namespace tl
         {
             IWidget::mouseReleaseEvent(event);
             DTK_P();
-            event.accept = true;
             p.iconIndex = 0;
             _setDrawUpdate();
             if (p.activeCallback)

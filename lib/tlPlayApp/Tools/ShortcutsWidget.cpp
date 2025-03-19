@@ -173,21 +173,8 @@ namespace tl
         void ShortcutWidget::mousePressEvent(dtk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            if (0 == event.button)
-            {
-                event.accept = true;
-                takeKeyFocus();
-                _setDrawUpdate();
-            }
-        }
-
-        void ShortcutWidget::mouseReleaseEvent(dtk::MouseClickEvent& event)
-        {
-            IWidget::mouseReleaseEvent(event);
-            if (0 == event.button)
-            {
-                event.accept = true;
-            }
+            takeKeyFocus();
+            _setDrawUpdate();
         }
 
         void ShortcutWidget::keyFocusEvent(bool value)
