@@ -8,6 +8,8 @@
 #include <tlPlayApp/Models/RecentFilesModel.h>
 #include <tlPlayApp/App.h>
 
+#include <tlTimeline/Util.h>
+
 #include <dtk/ui/FileBrowser.h>
 
 #include <tlIO/System.h>
@@ -44,13 +46,7 @@ namespace tl
 
             p.app = app;
 
-            auto ioSystem = context->getSystem<io::System>();
-            for (const auto& extension : ioSystem->getExtensions())
-            {
-                p.extensions.push_back(extension);
-            }
-            p.extensions.push_back(".otio");
-            p.extensions.push_back(".otioz");
+            p.extensions = timeline::getExtensions(context);
 
             p.recentFilesModel = app->getRecentFilesModel();
 

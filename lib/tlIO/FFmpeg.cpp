@@ -187,13 +187,13 @@ namespace tl
             return std::string(buf);
         }
 
-        std::weak_ptr<dtk::LogSystem> Plugin::_logSystemWeak;
+        std::weak_ptr<dtk::LogSystem> ReadPlugin::_logSystemWeak;
 
-        void Plugin::_init(
+        void ReadPlugin::_init(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IPlugin::_init(
+            IReadPlugin::_init(
                 "FFmpeg",
                 {
                     { ".avi", io::FileType::Movie },
@@ -227,30 +227,30 @@ namespace tl
             //std::cout << dtk::join(codecNames, ", ") << std::endl;
             if (auto logSystem = _logSystemWeak.lock())
             {
-                logSystem->print("tl::io::ffmpeg::Plugin", "Codecs: " + dtk::join(codecNames, ", "));
+                logSystem->print("tl::io::ffmpeg::ReadPlugin", "Codecs: " + dtk::join(codecNames, ", "));
             }
         }
 
-        Plugin::Plugin()
+        ReadPlugin::ReadPlugin()
         {}
 
-        std::shared_ptr<Plugin> Plugin::create(
+        std::shared_ptr<ReadPlugin> ReadPlugin::create(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            auto out = std::shared_ptr<Plugin>(new Plugin);
+            auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(cache, logSystem);
             return out;
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const io::Options& options)
         {
             return Read::create(path, options, _cache, _logSystem.lock());
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
@@ -258,7 +258,86 @@ namespace tl
             return Read::create(path, memory, options, _cache, _logSystem.lock());
         }
 
-        dtk::ImageInfo Plugin::getWriteInfo(
+        void ReadPlugin::_logCallback(void*, int level, const char* fmt, va_list vl)
+        {
+            switch (level)
+            {
+            case AV_LOG_PANIC:
+            case AV_LOG_FATAL:
+            case AV_LOG_ERROR:
+            case AV_LOG_WARNING:
+            case AV_LOG_INFO:
+                if (auto logSystem = _logSystemWeak.lock())
+                {
+                    char buf[dtk::cStringSize];
+                    vsnprintf(buf, dtk::cStringSize, fmt, vl);
+                    std::string s(buf);
+                    dtk::removeTrailingNewlines(s);
+                    logSystem->print("tl::io::ffmpeg::ReadPlugin", s);
+                }
+                break;
+            case AV_LOG_VERBOSE:
+            default: break;
+            }
+        }
+
+        std::weak_ptr<dtk::LogSystem> WritePlugin::_logSystemWeak;
+
+        void WritePlugin::_init(
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        {
+            IWritePlugin::_init(
+                "FFmpeg",
+                {
+                    { ".mov", io::FileType::Movie },
+                    { ".mp4", io::FileType::Movie },
+                    { ".m4v", io::FileType::Movie }
+                },
+                logSystem);
+
+            _logSystemWeak = logSystem;
+            //av_log_set_level(AV_LOG_QUIET);
+            av_log_set_level(AV_LOG_VERBOSE);
+            //av_log_set_callback(_logCallback);
+
+            const AVCodec* avCodec = nullptr;
+            void* avCodecIterate = nullptr;
+            std::vector<std::string> codecNames;
+            while ((avCodec = av_codec_iterate(&avCodecIterate)))
+            {
+                codecNames.push_back(avCodec->name);
+            }
+            std::sort(codecNames.begin(), codecNames.end());
+            //std::cout << dtk::join(codecNames, ", ") << std::endl;
+            if (auto logSystem = _logSystemWeak.lock())
+            {
+                logSystem->print("tl::io::ffmpeg::WritePlugin", "Codecs: " + dtk::join(codecNames, ", "));
+            }
+        }
+
+        WritePlugin::WritePlugin()
+        {}
+
+        std::shared_ptr<WritePlugin> WritePlugin::create(
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        {
+            auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
+            out->_init(logSystem);
+            return out;
+        }
+
+        std::vector<std::string> WritePlugin::getCodecs() const
+        {
+            return
+            {
+                "h264",
+                "mjpeg",
+                "v210",
+                "v410"
+            };
+        }
+
+        dtk::ImageInfo WritePlugin::getInfo(
             const dtk::ImageInfo& info,
             const io::Options& options) const
         {
@@ -279,19 +358,19 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<io::IWrite> Plugin::write(
+        std::shared_ptr<io::IWrite> WritePlugin::write(
             const file::Path& path,
             const io::Info& info,
             const io::Options& options)
         {
-            if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
+            if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
                 throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));
             return Write::create(path, info, options, _logSystem.lock());
         }
 
-        void Plugin::_logCallback(void*, int level, const char* fmt, va_list vl)
+        void WritePlugin::_logCallback(void*, int level, const char* fmt, va_list vl)
         {
             switch (level)
             {
@@ -306,7 +385,7 @@ namespace tl
                     vsnprintf(buf, dtk::cStringSize, fmt, vl);
                     std::string s(buf);
                     dtk::removeTrailingNewlines(s);
-                    logSystem->print("tl::io::ffmpeg::Plugin", s);
+                    logSystem->print("tl::io::ffmpeg::WritePlugin", s);
                 }
                 break;
             case AV_LOG_VERBOSE:

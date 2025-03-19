@@ -7,11 +7,12 @@ set(HEADERS
     Init.h
     PPM.h
     Plugin.h
-    PluginInline.h
+    Read.h
     SGI.h
     SequenceIO.h
     System.h
-    SystemInline.h)
+    SystemInline.h
+    Write.h)
 set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
@@ -29,13 +30,15 @@ set(SOURCE
     PPMRead.cpp
     PPMWrite.cpp
     Plugin.cpp
+    Read.cpp
     SGI.cpp
     SGIRead.cpp
     SGIWrite.cpp
     SequenceIO.cpp
     SequenceIORead.cpp
     SequenceIOWrite.cpp
-    System.cpp)
+    System.cpp
+    Write.cpp)
 
 set(LIBRARIES)
 set(LIBRARIES_PRIVATE)

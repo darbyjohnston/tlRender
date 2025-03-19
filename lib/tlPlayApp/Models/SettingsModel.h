@@ -78,14 +78,14 @@ namespace tl
         {
             std::string directory;
             ExportRenderSize renderSize = ExportRenderSize::Default;
-            dtk::Size2I customRenderSize = dtk::Size2I(1920, 1080);
+            dtk::Size2I customSize = dtk::Size2I(1920, 1080);
             ExportFileType fileType = ExportFileType::Images;
-            std::string imageBaseName;
-            size_t imagePad = 0;
-            std::string imageExtension;
-            std::string movieBaseName;
-            std::string movieExtension;
-            std::string movieCodec;
+            std::string imageBaseName = "render.";
+            size_t imageZeroPad = 0;
+            std::string imageExtension = ".tif";
+            std::string movieBaseName = "render";
+            std::string movieExtension = ".mov";
+            std::string movieCodec = "mjpeg";
 
             bool operator == (const ExportSettings&) const;
             bool operator != (const ExportSettings&) const;

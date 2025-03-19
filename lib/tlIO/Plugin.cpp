@@ -13,12 +13,10 @@ namespace tl
         void IIO::_init(
             const file::Path& path,
             const Options& options,
-            const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             _path = path;
             _options = options;
-            _cache = cache;
             _logSystem = logSystem;
         }
 
@@ -28,68 +26,23 @@ namespace tl
         IIO::~IIO()
         {}
 
-        void IRead::_init(
-            const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
-            const Options& options,
-            const std::shared_ptr<Cache>& cache,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        const file::Path& IIO::getPath() const
         {
-            IIO::_init(path, options, cache, logSystem);
-            _memory = memory;
+            return _path;
         }
-
-        IRead::IRead()
-        {}
-
-        IRead::~IRead()
-        {}
-
-        std::future<VideoData> IRead::readVideo(
-            const OTIO_NS::RationalTime&,
-            const Options&)
-        {
-            return std::future<VideoData>();
-        }
-
-        std::future<AudioData> IRead::readAudio(
-            const OTIO_NS::TimeRange&,
-            const Options&)
-        {
-            return std::future<AudioData>();
-        }
-
-        void IWrite::_init(
-            const file::Path& path,
-            const Options& options,
-            const Info& info,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
-        {
-            IIO::_init(path, options, nullptr, logSystem);
-            _info = info;
-        }
-
-        IWrite::IWrite()
-        {}
-
-        IWrite::~IWrite()
-        {}
 
         struct IPlugin::Private
         {
             std::string name;
             std::map<std::string, FileType> extensions;
-            std::shared_ptr<Cache> cache;
         };
 
         void IPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             DTK_P();
-            _cache = cache;
             _logSystem = logSystem;
             p.name = name;
             p.extensions = extensions;
@@ -118,11 +71,6 @@ namespace tl
                 }
             }
             return out;
-        }
-
-        bool IPlugin::_isWriteCompatible(const dtk::ImageInfo& info, const Options& options) const
-        {
-            return info.type != dtk::ImageType::None && info == getWriteInfo(info, options);
         }
     }
 }

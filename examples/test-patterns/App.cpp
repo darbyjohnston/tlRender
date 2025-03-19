@@ -101,7 +101,7 @@ namespace tl
                         otioTrack->append_child(otioClip);
 
                         // Create the I/O plugin.
-                        auto writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(output));
+                        auto writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(output));
                         if (!writerPlugin)
                         {
                             throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));
@@ -110,7 +110,7 @@ namespace tl
                         info.size.w = size.w;
                         info.size.h = size.h;
                         info.type = dtk::ImageType::RGB_U10;
-                        info = writerPlugin->getWriteInfo(info);
+                        info = writerPlugin->getInfo(info);
                         if (dtk::ImageType::None == info.type)
                         {
                             throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(output));

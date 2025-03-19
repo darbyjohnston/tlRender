@@ -13,14 +13,14 @@ namespace tl
 {
     namespace sgi
     {
-        Plugin::Plugin()
+        ReadPlugin::ReadPlugin()
         {}
 
-        std::shared_ptr<Plugin> Plugin::create(
+        std::shared_ptr<ReadPlugin> ReadPlugin::create(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            auto out = std::shared_ptr<Plugin>(new Plugin);
+            auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(
                 "SGI",
                 {
@@ -34,14 +34,14 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const io::Options& options)
         {
             return Read::create(path, options, _cache, _logSystem.lock());
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
@@ -49,7 +49,23 @@ namespace tl
             return Read::create(path, memory, options, _cache, _logSystem.lock());
         }
 
-        dtk::ImageInfo Plugin::getWriteInfo(const dtk::ImageInfo& info, const io::Options& options) const
+        WritePlugin::WritePlugin()
+        {}
+
+        std::shared_ptr<WritePlugin> WritePlugin::create(
+            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        {
+            auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
+            out->_init(
+                "SGI",
+                {
+                    { ".sgi", io::FileType::Sequence }
+                },
+                logSystem);
+            return out;
+        }
+
+        dtk::ImageInfo WritePlugin::getInfo(const dtk::ImageInfo& info, const io::Options& options) const
         {
             dtk::ImageInfo out;
             out.size = info.size;
@@ -71,12 +87,12 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<io::IWrite> Plugin::write(
+        std::shared_ptr<io::IWrite> WritePlugin::write(
             const file::Path& path,
             const io::Info& info,
             const io::Options& options)
         {
-            if (info.video.empty() || (!info.video.empty() && !_isWriteCompatible(info.video[0], options)))
+            if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
                 throw std::runtime_error(dtk::Format("{0}: {1}").
                     arg(path.get()).
                     arg("Unsupported video"));

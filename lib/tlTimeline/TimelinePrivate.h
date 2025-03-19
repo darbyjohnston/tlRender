@@ -6,7 +6,7 @@
 
 #include <tlTimeline/Timeline.h>
 
-#include <tlIO/Plugin.h>
+#include <tlIO/Read.h>
 
 #include <dtk/core/LRUCache.h>
 

@@ -30,6 +30,7 @@
 #include <tlDevice/BMDOutputDevice.h>
 #endif // TLRENDER_BMD
 
+#include <tlIO/Cache.h>
 #include <tlIO/System.h>
 #if defined(TLRENDER_USD)
 #include <tlIO/USD.h>
@@ -268,7 +269,7 @@ namespace tl
             auto thumbnailSytem = _context->getSystem<timelineui::ThumbnailSystem>();
             thumbnailSytem->getCache()->clear();
 
-            auto ioSystem = _context->getSystem<io::System>();
+            auto ioSystem = _context->getSystem<io::ReadSystem>();
             ioSystem->getCache()->clear();
 
             _filesUpdate(files);
@@ -1072,7 +1073,7 @@ namespace tl
         {
             DTK_P();
 
-            auto ioSystem = _context->getSystem<io::System>();
+            auto ioSystem = _context->getSystem<io::ReadSystem>();
             ioSystem->getCache()->setMax(options.sizeGB * dtk::gigabyte);
 
             timeline::PlayerCacheOptions cacheOptions;

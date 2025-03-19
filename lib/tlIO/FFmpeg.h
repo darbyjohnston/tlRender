@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlIO/Plugin.h>
+#include <tlIO/Read.h>
+#include <tlIO/Write.h>
 
 #include <tlCore/HDR.h>
 
@@ -161,19 +162,19 @@ namespace tl
             DTK_PRIVATE();
         };
 
-        //! FFmpeg Plugin
-        class Plugin : public io::IPlugin
+        //! FFmpeg read plugin.
+        class ReadPlugin : public io::IReadPlugin
         {
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
-            Plugin();
+            ReadPlugin();
 
         public:
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create(
+            static std::shared_ptr<ReadPlugin> create(
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
@@ -184,13 +185,38 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
-            dtk::ImageInfo getWriteInfo(
+
+        private:
+            static void _logCallback(void*, int, const char*, va_list);
+
+            //! \todo What is a better way to access the log system from the
+            //! FFmpeg callback?
+            static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
+        };
+
+        //! FFmpeg write plugin.
+        class WritePlugin : public io::IWritePlugin
+        {
+        protected:
+            void _init(const std::shared_ptr<dtk::LogSystem>&);
+
+            WritePlugin();
+
+        public:
+            //! Create a new plugin.
+            static std::shared_ptr<WritePlugin> create(
+                const std::shared_ptr<dtk::LogSystem>&);
+
+            //! Get the list of codecs.
+            std::vector<std::string> getCodecs() const;
+
+            dtk::ImageInfo getInfo(
                 const dtk::ImageInfo&,
-                const io::Options& = io::Options()) const override;
+                const io::Options & = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,
                 const io::Info&,
-                const io::Options& = io::Options()) override;
+                const io::Options & = io::Options()) override;
 
         private:
             static void _logCallback(void*, int, const char*, va_list);

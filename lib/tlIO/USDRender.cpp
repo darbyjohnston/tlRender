@@ -4,6 +4,8 @@
 
 #include <tlIO/USDPrivate.h>
 
+#include <tlIO/Cache.h>
+
 #include <dtk/core/File.h>
 #include <dtk/core/FileIO.h>
 #include <dtk/core/Format.h>

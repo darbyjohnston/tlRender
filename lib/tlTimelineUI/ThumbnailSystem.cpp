@@ -654,7 +654,7 @@ namespace tl
                 {
                     if (auto context = p.context.lock())
                     {
-                        auto ioSystem = context->getSystem<io::System>();
+                        auto ioSystem = context->getSystem<io::ReadSystem>();
                         try
                         {
                             const std::string& fileName = request->path.get();
@@ -708,7 +708,7 @@ namespace tl
                 {
                     if (auto context = p.context.lock())
                     {
-                        auto ioSystem = context->getSystem<io::System>();
+                        auto ioSystem = context->getSystem<io::ReadSystem>();
                         try
                         {
                             const std::string& fileName = request->path.get();
@@ -717,7 +717,6 @@ namespace tl
                             std::shared_ptr<io::IRead> read;
                             if (!p.thumbnailThread.ioCache.get(fileName, read))
                             {
-                                auto ioSystem = context->getSystem<io::System>();
                                 read = ioSystem->read(
                                     request->path,
                                     request->memoryRead,
@@ -991,7 +990,7 @@ namespace tl
                             std::shared_ptr<io::IRead> read;
                             if (!p.waveformThread.ioCache.get(fileName, read))
                             {
-                                auto ioSystem = context->getSystem<io::System>();
+                                auto ioSystem = context->getSystem<io::ReadSystem>();
                                 read = ioSystem->read(
                                     request->path,
                                     request->memoryRead,

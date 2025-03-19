@@ -45,10 +45,10 @@ namespace tl
             return
                 directory == other.directory &&
                 renderSize == other.renderSize &&
-                customRenderSize == other.customRenderSize &&
+                customSize == other.customSize &&
                 fileType == other.fileType &&
                 imageBaseName == other.imageBaseName &&
-                imagePad == other.imagePad &&
+                imageZeroPad == other.imageZeroPad &&
                 imageExtension == other.imageExtension &&
                 movieBaseName == other.movieBaseName &&
                 movieExtension == other.movieExtension &&
@@ -703,10 +703,10 @@ namespace tl
         {
             json["Directory"] = value.directory;
             json["RenderSize"] = to_string(value.renderSize);
-            json["CustomRenderSize"] = value.customRenderSize;
+            json["CustomSize"] = value.customSize;
             json["FileType"] = to_string(value.fileType);
             json["ImageBaseName"] = value.imageBaseName;
-            json["ImagePad"] = value.imagePad;
+            json["ImageZeroPad"] = value.imageZeroPad;
             json["ImageExtension"] = value.imageExtension;
             json["MovieBaseName"] = value.movieBaseName;
             json["MovieExtension"] = value.movieExtension;
@@ -808,10 +808,10 @@ namespace tl
         {
             json.at("Directory").get_to(value.directory);
             from_string(json.at("RenderSize").get<std::string>(), value.renderSize);
-            json.at("CustomRenderSize").get_to(value.customRenderSize);
+            json.at("CustomSize").get_to(value.customSize);
             from_string(json.at("FileType").get<std::string>(), value.fileType);
             json.at("ImageBaseName").get_to(value.imageBaseName);
-            json.at("ImagePad").get_to(value.imagePad);
+            json.at("ImageZeroPad").get_to(value.imageZeroPad);
             json.at("ImageExtension").get_to(value.imageExtension);
             json.at("MovieBaseName").get_to(value.movieBaseName);
             json.at("MovieExtension").get_to(value.movieExtension);

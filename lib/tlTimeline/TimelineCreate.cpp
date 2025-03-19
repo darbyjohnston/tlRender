@@ -40,7 +40,7 @@ namespace tl
                 const file::PathOptions& pathOptions)
             {
                 file::Path out;
-                auto ioSystem = context->getSystem<io::System>();
+                auto ioSystem = context->getSystem<io::ReadSystem>();
                 const auto audioExtensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Audio));
                 switch (fileSequenceAudio)
                 {
@@ -307,7 +307,7 @@ namespace tl
             file::Path audioPath = inputAudioPath;
             try
             {
-                auto ioSystem = context->getSystem<io::System>();
+                auto ioSystem = context->getSystem<io::ReadSystem>();
 
                 // Is the input a sequence?
                 const bool isSequence =

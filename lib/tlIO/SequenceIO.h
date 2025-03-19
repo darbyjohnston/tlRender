@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include <tlIO/Plugin.h>
+#include <tlIO/Read.h>
+#include <tlIO/Write.h>
 
 namespace tl
 {

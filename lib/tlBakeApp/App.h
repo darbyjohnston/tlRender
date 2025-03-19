@@ -108,7 +108,7 @@ namespace tl
             std::shared_ptr<timeline::IRender> _render;
             std::shared_ptr<dtk::gl::OffscreenBuffer> _buffer;
 
-            std::shared_ptr<io::IPlugin> _writerPlugin;
+            std::shared_ptr<io::IWritePlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;
             std::shared_ptr<dtk::Image> _outputImage;
 

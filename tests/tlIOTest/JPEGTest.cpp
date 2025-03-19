@@ -4,6 +4,7 @@
 
 #include <tlIOTest/JPEGTest.h>
 
+#include <tlIO/Cache.h>
 #include <tlIO/JPEG.h>
 #include <tlIO/System.h>
 
@@ -27,7 +28,7 @@ namespace tl
         namespace
         {
             void write(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IWritePlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 const dtk::ImageInfo& imageInfo,
@@ -43,7 +44,7 @@ namespace tl
             }
 
             void read(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
@@ -80,7 +81,7 @@ namespace tl
             }
 
             void readError(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
@@ -108,8 +109,10 @@ namespace tl
 
         void JPEGTest::run()
         {
-            auto system = _context->getSystem<System>();
-            auto plugin = system->getPlugin<jpeg::Plugin>();
+            auto readSystem = _context->getSystem<ReadSystem>();
+            auto readPlugin = readSystem->getPlugin<jpeg::ReadPlugin>();
+            auto writeSystem = _context->getSystem<WriteSystem>();
+            auto writePlugin = writeSystem->getPlugin<jpeg::WritePlugin>();
 
             const dtk::ImageTags tags =
             {
@@ -149,7 +152,7 @@ namespace tl
                             {
                                 Options options;
                                 options[option.first] = option.second;
-                                const auto imageInfo = plugin->getWriteInfo(dtk::ImageInfo(size, pixelType));
+                                const auto imageInfo = writePlugin->getInfo(dtk::ImageInfo(size, pixelType));
                                 if (imageInfo.isValid())
                                 {
                                     file::Path path;
@@ -164,11 +167,11 @@ namespace tl
                                     image->setTags(tags);
                                     try
                                     {
-                                        write(plugin, image, path, imageInfo, tags, options);
-                                        read(plugin, image, path, memoryIO, tags, options);
-                                        system->getCache()->clear();
-                                        readError(plugin, image, path, memoryIO, options);
-                                        system->getCache()->clear();
+                                        write(writePlugin, image, path, imageInfo, tags, options);
+                                        read(readPlugin, image, path, memoryIO, tags, options);
+                                        readSystem->getCache()->clear();
+                                        readError(readPlugin, image, path, memoryIO, options);
+                                        readSystem->getCache()->clear();
                                     }
                                     catch (const std::exception& e)
                                     {

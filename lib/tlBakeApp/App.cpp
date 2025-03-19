@@ -229,7 +229,7 @@ namespace tl
             _buffer = dtk::gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
 
             // Create the writer.
-            _writerPlugin = _context->getSystem<io::System>()->getPlugin(file::Path(_output));
+            _writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(_output));
             if (!_writerPlugin)
             {
                 throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
@@ -240,7 +240,7 @@ namespace tl
             _outputInfo.type = _options.outputPixelType != dtk::ImageType::None ?
                 _options.outputPixelType :
                 info.video[0].type;
-            _outputInfo = _writerPlugin->getWriteInfo(_outputInfo);
+            _outputInfo = _writerPlugin->getInfo(_outputInfo);
             if (dtk::ImageType::None == _outputInfo.type)
             {
                 _outputInfo.type = dtk::ImageType::RGB_U8;

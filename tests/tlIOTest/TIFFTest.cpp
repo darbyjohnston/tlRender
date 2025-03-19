@@ -4,6 +4,7 @@
 
 #include <tlIOTest/TIFFTest.h>
 
+#include <tlIO/Cache.h>
 #include <tlIO/System.h>
 #include <tlIO/TIFF.h>
 
@@ -27,7 +28,7 @@ namespace tl
         namespace
         {
             void write(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IWritePlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 const dtk::ImageInfo& imageInfo,
@@ -42,7 +43,7 @@ namespace tl
             }
 
             void read(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
@@ -83,7 +84,7 @@ namespace tl
             }
 
             void readError(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
@@ -110,8 +111,10 @@ namespace tl
 
         void TIFFTest::run()
         {
-            auto system = _context->getSystem<System>();
-            auto plugin = system->getPlugin<tiff::Plugin>();
+            auto readSystem = _context->getSystem<ReadSystem>();
+            auto readPlugin = readSystem->getPlugin<tiff::ReadPlugin>();
+            auto writeSystem = _context->getSystem<WriteSystem>();
+            auto writePlugin = writeSystem->getPlugin<tiff::WritePlugin>();
 
             const dtk::ImageTags tags =
             {
@@ -145,7 +148,7 @@ namespace tl
                     {
                         for (const auto pixelType : dtk::getImageTypeEnums())
                         {
-                            const auto imageInfo = plugin->getWriteInfo(dtk::ImageInfo(size, pixelType));
+                            const auto imageInfo = writePlugin->getInfo(dtk::ImageInfo(size, pixelType));
                             if (imageInfo.isValid())
                             {
                                 file::Path path;
@@ -160,11 +163,11 @@ namespace tl
                                 image->setTags(tags);
                                 try
                                 {
-                                    write(plugin, image, path, imageInfo, tags);
-                                    read(plugin, image, path, memoryIO, tags);
-                                    system->getCache()->clear();
-                                    readError(plugin, image, path, memoryIO);
-                                    system->getCache()->clear();
+                                    write(writePlugin, image, path, imageInfo, tags);
+                                    read(readPlugin, image, path, memoryIO, tags);
+                                    readSystem->getCache()->clear();
+                                    readError(readPlugin, image, path, memoryIO);
+                                    readSystem->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

@@ -19,7 +19,8 @@ namespace tl
         {
             tl::init(context);
             dtk::gl::init(context);
-            System::create(context);
+            ReadSystem::create(context);
+            WriteSystem::create(context);
         }
     }
 }

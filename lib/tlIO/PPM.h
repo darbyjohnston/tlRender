@@ -123,15 +123,15 @@ namespace tl
             Data _data = Data::Binary;
         };
 
-        //! PPM plugin.
-        class Plugin : public io::IPlugin
+        //! PPM read plugin.
+        class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            Plugin();
+            ReadPlugin();
 
         public:
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create(
+            static std::shared_ptr<ReadPlugin> create(
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
@@ -142,13 +142,26 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
-            dtk::ImageInfo getWriteInfo(
+        };
+
+        //! PPM write plugin.
+        class WritePlugin : public io::IWritePlugin
+        {
+        protected:
+            WritePlugin();
+
+        public:
+            //! Create a new plugin.
+            static std::shared_ptr<WritePlugin> create(
+                const std::shared_ptr<dtk::LogSystem>&);
+
+            dtk::ImageInfo getInfo(
                 const dtk::ImageInfo&,
-                const io::Options& = io::Options()) const override;
+                const io::Options & = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,
                 const io::Info&,
-                const io::Options& = io::Options()) override;
+                const io::Options & = io::Options()) override;
         };
     }
 }

@@ -4,6 +4,8 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
+#include <tlIO/Cache.h>
+
 #include <dtk/core/Assert.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>

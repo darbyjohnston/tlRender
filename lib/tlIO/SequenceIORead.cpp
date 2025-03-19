@@ -4,6 +4,8 @@
 
 #include <tlIO/SequenceIOReadPrivate.h>
 
+#include <tlIO/Cache.h>
+
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
 

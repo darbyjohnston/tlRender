@@ -4,6 +4,7 @@
 
 #include <tlIOTest/SGITest.h>
 
+#include <tlIO/Cache.h>
 #include <tlIO/SGI.h>
 #include <tlIO/System.h>
 
@@ -32,7 +33,7 @@ namespace tl
         namespace
         {
             void write(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IWritePlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 const dtk::ImageInfo& imageInfo)
@@ -45,7 +46,7 @@ namespace tl
             }
 
             void read(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
@@ -78,7 +79,7 @@ namespace tl
             }
 
             void readError(
-                const std::shared_ptr<io::IPlugin>& plugin,
+                const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<dtk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
@@ -105,8 +106,10 @@ namespace tl
 
         void SGITest::_io()
         {
-            auto system = _context->getSystem<System>();
-            auto plugin = system->getPlugin<sgi::Plugin>();
+            auto readSystem = _context->getSystem<ReadSystem>();
+            auto readPlugin = readSystem->getPlugin<sgi::ReadPlugin>();
+            auto writeSystem = _context->getSystem<WriteSystem>();
+            auto writePlugin = writeSystem->getPlugin<sgi::WritePlugin>();
 
             const std::vector<std::string> fileNames =
             {
@@ -133,7 +136,7 @@ namespace tl
                     {
                         for (const auto pixelType : dtk::getImageTypeEnums())
                         {
-                            const auto imageInfo = plugin->getWriteInfo(dtk::ImageInfo(size, pixelType));
+                            const auto imageInfo = writePlugin->getInfo(dtk::ImageInfo(size, pixelType));
                             if (imageInfo.isValid())
                             {
                                 file::Path path;
@@ -147,11 +150,11 @@ namespace tl
                                 image->zero();
                                 try
                                 {
-                                    write(plugin, image, path, imageInfo);
-                                    read(plugin, image, path, memoryIO);
-                                    system->getCache()->clear();
-                                    readError(plugin, image, path, memoryIO);
-                                    system->getCache()->clear();
+                                    write(writePlugin, image, path, imageInfo);
+                                    read(readPlugin, image, path, memoryIO);
+                                    readSystem->getCache()->clear();
+                                    readError(readPlugin, image, path, memoryIO);
+                                    readSystem->getCache()->clear();
                                 }
                                 catch (const std::exception& e)
                                 {

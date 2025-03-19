@@ -63,7 +63,7 @@ namespace tl
 
         namespace
         {
-            class DummyPlugin : public IPlugin
+            class DummyReadPlugin : public IReadPlugin
             {
             public:
                 std::shared_ptr<IRead> read(
@@ -72,10 +72,14 @@ namespace tl
                 {
                     return nullptr;
                 }
+            };
 
-                dtk::ImageInfo getWriteInfo(
+            class DummyWritePlugin : public IWritePlugin
+            {
+            public:
+                dtk::ImageInfo getInfo(
                     const dtk::ImageInfo&,
-                    const io::Options& = io::Options()) const override
+                    const io::Options & = io::Options()) const override
                 {
                     return dtk::ImageInfo();
                 }
@@ -83,7 +87,7 @@ namespace tl
                 std::shared_ptr<IWrite> write(
                     const file::Path&,
                     const Info&,
-                    const Options& = Options()) override
+                    const Options & = Options()) override
                 {
                     return nullptr;
                 }
@@ -92,7 +96,7 @@ namespace tl
 
         void IOTest::_ioSystem()
         {
-            auto system = _context->getSystem<System>();
+            auto system = _context->getSystem<ReadSystem>();
             {
                 std::vector<std::string> plugins;
                 for (const auto& plugin : system->getPlugins())
@@ -118,7 +122,7 @@ namespace tl
                     DTK_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
                 DTK_ASSERT(!system->getPlugin(file::Path()));
-                DTK_ASSERT(!system->getPlugin<DummyPlugin>());
+                DTK_ASSERT(!system->getPlugin<DummyReadPlugin>());
             }
             {
                 std::vector<std::string> extensions;

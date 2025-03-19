@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlIO/Plugin.h>
+#include <tlIO/Read.h>
 
 namespace tl
 {
@@ -85,21 +85,21 @@ namespace tl
             DTK_PRIVATE();
         };
 
-        //! USD plugin.
-        class Plugin : public io::IPlugin
+        //! USD read plugin.
+        class ReadPlugin : public io::IReadPlugin
         {
         protected:
             void _init(
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
             
-            Plugin();
+            ReadPlugin();
 
         public:
-            virtual ~Plugin();
+            virtual ~ReadPlugin();
 
             //! Create a new plugin.
-            static std::shared_ptr<Plugin> create(
+            static std::shared_ptr<ReadPlugin> create(
                 const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
             
@@ -109,13 +109,6 @@ namespace tl
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
-                const io::Options& = io::Options()) override;
-            dtk::ImageInfo getWriteInfo(
-                const dtk::ImageInfo&,
-                const io::Options& = io::Options()) const override;
-            std::shared_ptr<io::IWrite> write(
-                const file::Path&,
-                const io::Info&,
                 const io::Options& = io::Options()) override;
                 
         private:

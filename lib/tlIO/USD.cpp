@@ -52,18 +52,18 @@ namespace tl
             return out;
         }
 
-        struct Plugin::Private
+        struct ReadPlugin::Private
         {
             int64_t id = -1;
             std::mutex mutex;
             std::shared_ptr<Render> render;
         };
         
-        void Plugin::_init(
+        void ReadPlugin::_init(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IPlugin::_init(
+            IReadPlugin::_init(
                 "USD",
                 {
                     { ".usd", io::FileType::Sequence },
@@ -77,23 +77,23 @@ namespace tl
             p.render = Render::create(cache, logSystem);
         }
         
-        Plugin::Plugin() :
+        ReadPlugin::ReadPlugin() :
             _p(new Private)
         {}
         
-        Plugin::~Plugin()
+        ReadPlugin::~ReadPlugin()
         {}
 
-        std::shared_ptr<Plugin> Plugin::create(
+        std::shared_ptr<ReadPlugin> ReadPlugin::create(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            auto out = std::shared_ptr<Plugin>(new Plugin);
+            auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(cache, logSystem);
             return out;
         }
 
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const io::Options& options)
         {
@@ -107,7 +107,7 @@ namespace tl
             return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
         }
         
-        std::shared_ptr<io::IRead> Plugin::read(
+        std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
@@ -120,21 +120,6 @@ namespace tl
                 id = p.id;
             }
             return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
-        }
-        
-        dtk::ImageInfo Plugin::getWriteInfo(
-            const dtk::ImageInfo&,
-            const io::Options&) const
-        {
-            return dtk::ImageInfo();
-        }
-        
-        std::shared_ptr<io::IWrite> Plugin::write(
-            const file::Path&,
-            const io::Info&,
-            const io::Options&)
-        {
-            return nullptr;
         }
 
         void to_json(nlohmann::json& json, const Options& value)

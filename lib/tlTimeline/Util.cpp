@@ -42,7 +42,7 @@ namespace tl
                 out.push_back(".otio");
                 out.push_back(".otioz");
             }
-            if (auto ioSystem = context->getSystem<io::System>())
+            if (auto ioSystem = context->getSystem<io::ReadSystem>())
             {
                 for (const auto& plugin : ioSystem->getPlugins())
                 {
@@ -237,7 +237,7 @@ namespace tl
             {
             case file::Type::Directory:
             {
-                auto ioSystem = context->getSystem<io::System>();
+                auto ioSystem = context->getSystem<io::ReadSystem>();
                 file::ListOptions listOptions;
                 listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
                 std::vector<file::FileInfo> list;

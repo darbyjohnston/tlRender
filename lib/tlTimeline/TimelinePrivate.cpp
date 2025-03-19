@@ -478,7 +478,7 @@ namespace tl
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
                     options["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").arg(timeRange.duration().rate());
-                    const auto ioSystem = context->getSystem<io::System>();
+                    const auto ioSystem = context->getSystem<io::ReadSystem>();
                     out = ioSystem->read(path, memoryRead, options);
                     readCache.add(key, out);
                 }
