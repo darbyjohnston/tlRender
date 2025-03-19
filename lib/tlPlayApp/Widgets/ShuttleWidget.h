@@ -31,7 +31,7 @@ namespace tl
                 const std::string& iconPrefix,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setStartCallback(const std::function<void(void)>&);
+            void setActiveCallback(const std::function<void(bool)>&);
             void setCallback(const std::function<void(int)>&);
 
             void sizeHintEvent(const dtk::SizeHintEvent&) override;

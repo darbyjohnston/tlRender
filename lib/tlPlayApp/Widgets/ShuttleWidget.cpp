@@ -18,7 +18,7 @@ namespace tl
             std::vector<std::shared_ptr<dtk::Image> > iconImages;
             int iconIndex = 0;
             float iconScale = 1.F;
-            std::function<void(void)> startCallback;
+            std::function<void(bool)> activeCallback;
             std::function<void(int)> callback;
         };
 
@@ -56,9 +56,9 @@ namespace tl
             return out;
         }
 
-        void ShuttleWidget::setStartCallback(const std::function<void(void)>& value)
+        void ShuttleWidget::setActiveCallback(const std::function<void(bool)>& value)
         {
-            _p->startCallback = value;
+            _p->activeCallback = value;
         }
 
         void ShuttleWidget::setCallback(const std::function<void(int)>& value)
@@ -145,10 +145,10 @@ namespace tl
             if (_isMousePressed() && g.isValid())
             {
                 const int d = event.pos.x - _getMousePressPos().x;
-                const int i = (d / (g.w() / 4)) % p.iconImages.size();
+                const int i = d / (g.w() / 4);
                 if (i != p.iconIndex)
                 {
-                    p.iconIndex = i;
+                    p.iconIndex = i % p.iconImages.size();
                     _setDrawUpdate();
                     if (p.callback)
                     {
@@ -164,9 +164,9 @@ namespace tl
             DTK_P();
             event.accept = true;
             _setDrawUpdate();
-            if (p.startCallback)
+            if (p.activeCallback)
             {
-                p.startCallback();
+                p.activeCallback(true);
             }
         }
 
@@ -177,6 +177,10 @@ namespace tl
             event.accept = true;
             p.iconIndex = 0;
             _setDrawUpdate();
+            if (p.activeCallback)
+            {
+                p.activeCallback(false);
+            }
         }
     }
 }

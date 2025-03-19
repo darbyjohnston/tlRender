@@ -35,6 +35,8 @@ namespace tl
             std::weak_ptr<App> app;
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<dtk::DoubleModel> speedModel;
+            double startSpeed = 0.0;
+            OTIO_NS::RationalTime startTime = time::invalidTime;
 
             std::map<std::string, std::shared_ptr<dtk::ToolButton> > buttons;
             std::shared_ptr<ShuttleWidget> playbackShuttle;
@@ -83,6 +85,7 @@ namespace tl
             p.buttons["Reverse"] = dtk::ToolButton::create(context, actions["Reverse"]);
 
             p.playbackShuttle = ShuttleWidget::create(context, "PlaybackShuttle");
+            p.playbackShuttle->setTooltip("Playback shuttle");
 
             actions = frameActions->getActions();
             p.buttons["Start"] = dtk::ToolButton::create(context, actions["Start"]);
@@ -93,6 +96,7 @@ namespace tl
             p.buttons["Next"]->setRepeatClick(true);
 
             p.frameShuttle = ShuttleWidget::create(context, "FrameShuttle");
+            p.frameShuttle->setTooltip("Frame shuttle");
 
             auto timeUnitsModel = app->getTimeUnitsModel();
             p.currentTimeEdit = timelineui::TimeEdit::create(context, timeUnitsModel);
@@ -149,14 +153,65 @@ namespace tl
             p.audioButton->setParent(hLayout);
             p.muteButton->setParent(hLayout);
 
+            p.playbackShuttle->setActiveCallback(
+                [this](bool value)
+                {
+                    DTK_P();
+                    if (p.player)
+                    {
+                        if (value)
+                        {
+                            p.startSpeed = p.player->getSpeed();
+                        }
+                        else
+                        {
+                            p.player->setSpeed(p.startSpeed);
+                        }
+                    }
+                });
+            p.playbackShuttle->setCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    if (p.player)
+                    {
+                        const double v = value * 2.0;
+                        const double speed = std::max(0.0, p.startSpeed + v);
+                        p.player->setSpeed(speed);
+                    }
+                });
+
+            p.frameShuttle->setActiveCallback(
+                [this](bool)
+                {
+                    DTK_P();
+                    if (p.player)
+                    {
+                        p.player->setPlayback(timeline::Playback::Stop);
+                        p.startTime = p.player->getCurrentTime();
+                    }
+                });
+            p.frameShuttle->setCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    if (p.player)
+                    {
+                        p.player->seek(OTIO_NS::RationalTime(
+                            p.startTime.value() + value,
+                            p.startTime.rate()));
+                    }
+                });
+
             p.currentTimeEdit->setCallback(
                 [this](const OTIO_NS::RationalTime& value)
                 {
-                    if (_p->player)
+                    DTK_P();
+                    if (p.player)
                     {
-                        _p->player->setPlayback(timeline::Playback::Stop);
-                        _p->player->seek(value);
-                        _p->currentTimeEdit->setValue(_p->player->getCurrentTime());
+                        p.player->setPlayback(timeline::Playback::Stop);
+                        p.player->seek(value);
+                        p.currentTimeEdit->setValue(p.player->getCurrentTime());
                     }
                 });
 
@@ -202,9 +257,10 @@ namespace tl
                 p.speedModel->observeValue(),
                 [this](double value)
                 {
-                    if (_p->player)
+                    DTK_P();
+                    if (p.player)
                     {
-                        _p->player->setSpeed(value);
+                        p.player->setSpeed(value);
                     }
                 });
         }
