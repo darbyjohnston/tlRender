@@ -44,14 +44,14 @@ namespace tl
                 std::chrono::steady_clock::time_point timer;
                 size_t frameCount = 0;
             };
-            FpsData fpsData;
+            std::optional<FpsData> fpsData;
             std::shared_ptr<dtk::ObservableValue<size_t> > droppedFrames;
             struct DroppedFramesData
             {
                 bool init = true;
                 double frame = 0.0;
             };
-            DroppedFramesData droppedFramesData;
+            std::optional<DroppedFramesData> droppedFramesData;
             dtk::KeyModifier panModifier = dtk::KeyModifier::Control;
             dtk::KeyModifier wipeModifier = dtk::KeyModifier::Alt;
 
@@ -216,11 +216,10 @@ namespace tl
         {
             DTK_P();
 
-            p.fpsData.timer = std::chrono::steady_clock::now();
-            p.fpsData.frameCount = 0;
             p.fps->setIfChanged(0.0);
-            p.droppedFramesData.init = true;
+            p.fpsData.reset();
             p.droppedFrames->setIfChanged(0);
+            p.droppedFramesData.reset();
             p.playbackObserver.reset();
             p.videoDataObserver.reset();
 
@@ -232,36 +231,47 @@ namespace tl
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
+                        DTK_P();
                         switch (value)
                         {
                         case timeline::Playback::Forward:
                         case timeline::Playback::Reverse:
-                            _p->fpsData.timer = std::chrono::steady_clock::now();
-                            _p->fpsData.frameCount = 0;
-                            _p->droppedFramesData.init = true;
+                            p.fpsData = Private::FpsData();
+                            p.fpsData->timer = std::chrono::steady_clock::now();
+                            p.fpsData->frameCount = 0;
                             break;
-                        default: break;
+                        default:
+                            p.fps->setIfChanged(0.0);
+                            p.fpsData.reset();
+                            p.droppedFrames->setIfChanged(0);
+                            p.droppedFramesData.reset();
+                            break;
                         }
                     });
+
                 p.videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
                     p.player->observeCurrentVideo(),
                     [this](const std::vector<timeline::VideoData>& value)
                     {
-                        _p->videoData = value;
+                        DTK_P();
+                        p.videoData = value;
 
-                        _p->fpsData.frameCount = _p->fpsData.frameCount + 1;
-                        const auto now = std::chrono::steady_clock::now();
-                        const std::chrono::duration<double> diff = now - _p->fpsData.timer;
-                        if (diff.count() > 1.0)
+                        if (p.fpsData.has_value())
                         {
-                            const double fps = _p->fpsData.frameCount / diff.count();
-                            //std::cout << "FPS: " << fps << std::endl;
-                            _p->fps->setIfChanged(fps);
-                            _p->fpsData.timer = now;
-                            _p->fpsData.frameCount = 0;
+                            p.fpsData->frameCount = p.fpsData->frameCount + 1;
+                            const auto now = std::chrono::steady_clock::now();
+                            const std::chrono::duration<double> diff = now - p.fpsData->timer;
+                            if (diff.count() > 1.0)
+                            {
+                                const double fps = p.fpsData->frameCount / diff.count();
+                                //std::cout << "FPS: " << fps << std::endl;
+                                p.fps->setIfChanged(fps);
+                                p.fpsData->timer = now;
+                                p.fpsData->frameCount = 0;
+                            }
                         }
 
-                        _p->doRender = true;
+                        p.doRender = true;
                         _setDrawUpdate();
                     });
             }
@@ -531,7 +541,7 @@ namespace tl
                             p.compareOptions,
                             p.colorBuffer->get());
 
-                        if (!p.videoData.empty())
+                        if (!p.videoData.empty() && p.fpsData.has_value())
                         {
                             _droppedFramesUpdate(p.videoData[0].time);
                         }
@@ -765,20 +775,19 @@ namespace tl
         void Viewport::_droppedFramesUpdate(const OTIO_NS::RationalTime& value)
         {
             DTK_P();
-            if (value != time::invalidTime && p.droppedFramesData.init)
+            if (!p.droppedFramesData.has_value())
             {
-                p.droppedFramesData.init = false;
-                p.droppedFrames->setIfChanged(0);
+                p.droppedFramesData = Private::DroppedFramesData();
             }
             else
             {
-                const double frameDiff = value.value() - p.droppedFramesData.frame;
+                const double frameDiff = value.value() - p.droppedFramesData->frame;
                 if (std::abs(frameDiff) > 1.0)
                 {
                     p.droppedFrames->setIfChanged(p.droppedFrames->get() + 1);
                 }
             }
-            p.droppedFramesData.frame = value.value();
+            p.droppedFramesData->frame = value.value();
         }
     }
 }

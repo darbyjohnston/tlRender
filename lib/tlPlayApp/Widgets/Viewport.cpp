@@ -286,6 +286,7 @@ namespace tl
             else
             {
                 p.info = io::Info();
+                p.currentTime = time::invalidTime;
                 p.currentTimeObserver.reset();
                 _hudUpdate();
             }
