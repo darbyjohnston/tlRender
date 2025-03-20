@@ -27,6 +27,12 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             std::vector<std::string>& argv)
         {
+            std::vector<std::string> ffmpegCodecs;
+#if defined(TLRENDER_FFMPEG)
+            auto ioSystem = context->getSystem<io::WriteSystem>();
+            auto ffmpegPlugin = ioSystem->getPlugin<ffmpeg::WritePlugin>();
+            ffmpegCodecs = ffmpegPlugin->getCodecs();
+#endif // TLRENDER_FFMPEG
             IApp::_init(
                 context,
                 argv,
@@ -112,11 +118,11 @@ namespace tl
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
                     dtk::CmdLineValueOption<std::string>::create(
-                        _options.ffmpegWriteProfile,
-                        { "-ffmpegProfile", "-ffp" },
-                        "FFmpeg output profile.",
+                        _options.ffmpegCodec,
+                        { "-ffmpegCodec", "-ffc" },
+                        "FFmpeg output codec.",
                         std::string(),
-                        dtk::join(ffmpeg::getProfileLabels(), ", ")),
+                        dtk::join(ffmpegCodecs, ", ")),
                     dtk::CmdLineValueOption<int>::create(
                         _options.ffmpegThreadCount,
                         { "-ffmpegThreadCount" },
@@ -298,9 +304,9 @@ namespace tl
 #endif // TLRENDER_EXR
 
 #if defined(TLRENDER_FFMPEG)
-            if (!_options.ffmpegWriteProfile.empty())
+            if (!_options.ffmpegCodec.empty())
             {
-                out["FFmpeg/WriteProfile"] = _options.ffmpegWriteProfile;
+                out["FFmpeg/Codec"] = _options.ffmpegCodec;
             }
             {
                 std::stringstream ss;

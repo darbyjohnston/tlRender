@@ -81,7 +81,7 @@ namespace tl
                     {
                         if (_player)
                         {
-                            _player->setPlayback(timeline::Playback::Stop);
+                            _player->stop();
                             _player->seek(value);
                         }
                     });

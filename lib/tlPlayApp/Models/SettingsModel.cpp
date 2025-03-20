@@ -35,6 +35,19 @@ namespace tl
             "4096x2160",
             "Custom");
 
+        dtk::Size2I getSize(ExportRenderSize value)
+        {
+            const std::array<dtk::Size2I, static_cast<size_t>(ExportRenderSize::Count)> data =
+            {
+                dtk::Size2I(),
+                dtk::Size2I(1920, 1080),
+                dtk::Size2I(3840, 2160),
+                dtk::Size2I(4096, 2160),
+                dtk::Size2I()
+            };
+            return data[static_cast<size_t>(value)];
+        }
+
         DTK_ENUM_IMPL(
             ExportFileType,
             "Images",

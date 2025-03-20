@@ -151,6 +151,9 @@ namespace tl
             //! Set the playback mode.
             void setPlayback(Playback);
 
+            //! Get whether playback is stopped.
+            bool isStopped() const;
+
             //! Stop playback.
             void stop();
 

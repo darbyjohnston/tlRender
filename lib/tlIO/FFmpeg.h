@@ -20,22 +20,6 @@ namespace tl
     //! FFmpeg video and audio I/O
     namespace ffmpeg
     {
-        //! Write profiles.
-        enum class Profile
-        {
-            None,
-            H264,
-            ProRes,
-            ProRes_Proxy,
-            ProRes_LT,
-            ProRes_HQ,
-            ProRes_4444,
-            ProRes_XQ,
-
-            Count
-        };
-        DTK_ENUM(Profile);
-
         //! FFmpeg options.
         struct Options
         {

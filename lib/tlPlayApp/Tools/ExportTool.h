@@ -37,6 +37,7 @@ namespace tl
 
         private:
             void _widgetUpdate(const ExportSettings&);
+            void _export();
 
             DTK_PRIVATE();
         };

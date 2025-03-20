@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
         mainWindow->show();
 
         // Start playback.
-        player->setPlayback(tl::timeline::Playback::Forward);
+        player->forward();
 
         // Start the application.
         r = app.exec();

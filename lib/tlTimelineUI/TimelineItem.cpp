@@ -605,7 +605,7 @@ namespace tl
                     p.mouse.mode = Private::MouseMode::CurrentTime;
                     if (p.stopOnScrub)
                     {
-                        p.player->setPlayback(timeline::Playback::Stop);
+                        p.player->stop();
                     }
                     const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                     p.scrub->setIfChanged(true);

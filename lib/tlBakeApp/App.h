@@ -49,7 +49,7 @@ namespace tl
 #endif // TLRENDER_EXR
 
 #if defined(TLRENDER_FFMPEG)
-            std::string ffmpegWriteProfile;
+            std::string ffmpegCodec;
             int ffmpegThreadCount = ffmpeg::Options().threadCount;
 #endif // TLRENDER_FFMPEG
 

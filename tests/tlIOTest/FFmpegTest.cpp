@@ -31,14 +31,8 @@ namespace tl
 
         void FFmpegTest::run()
         {
-            _enums();
             _util();
             _io();
-        }
-
-        void FFmpegTest::_enums()
-        {
-            _enum<ffmpeg::Profile>("Profile", ffmpeg::getProfileEnums);
         }
 
         void FFmpegTest::_util()

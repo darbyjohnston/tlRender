@@ -162,6 +162,10 @@ namespace tl
                         if (value)
                         {
                             p.startSpeed = p.player->getSpeed();
+                            if (p.player->isStopped())
+                            {
+                                p.player->forward();
+                            }
                         }
                         else
                         {
@@ -187,7 +191,7 @@ namespace tl
                     DTK_P();
                     if (p.player)
                     {
-                        p.player->setPlayback(timeline::Playback::Stop);
+                        p.player->stop();
                         p.startTime = p.player->getCurrentTime();
                     }
                 });
@@ -209,7 +213,7 @@ namespace tl
                     DTK_P();
                     if (p.player)
                     {
-                        p.player->setPlayback(timeline::Playback::Stop);
+                        p.player->stop();
                         p.player->seek(value);
                         p.currentTimeEdit->setValue(p.player->getCurrentTime());
                     }

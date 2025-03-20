@@ -41,7 +41,7 @@ namespace tl
                     {
                         if (auto player = app->observePlayer()->get())
                         {
-                            player->setPlayback(timeline::Playback::Stop);
+                            player->stop();
                         }
                     }
                 });
@@ -55,7 +55,7 @@ namespace tl
                     {
                         if (auto player = app->observePlayer()->get())
                         {
-                            player->setPlayback(timeline::Playback::Forward);
+                            player->forward();
                         }
                     }
                 });
@@ -69,7 +69,7 @@ namespace tl
                     {
                         if (auto player = app->observePlayer()->get())
                         {
-                            player->setPlayback(timeline::Playback::Reverse);
+                            player->reverse();
                         }
                     }
                 });

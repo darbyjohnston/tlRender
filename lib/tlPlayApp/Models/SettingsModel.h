@@ -60,7 +60,7 @@ namespace tl
         DTK_ENUM(ExportRenderSize);
 
         //! Get an export render size.
-        const dtk::Size2I& getSize(ExportRenderSize);
+        dtk::Size2I getSize(ExportRenderSize);
 
         //! Export file type.
         enum class ExportFileType

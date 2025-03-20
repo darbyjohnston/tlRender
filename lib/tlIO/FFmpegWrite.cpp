@@ -48,45 +48,12 @@ namespace tl
             }
 
             AVCodecID avCodecID = AV_CODEC_ID_MPEG4;
-            Profile profile = Profile::None;
             int avProfile = FF_PROFILE_UNKNOWN;
-            auto option = options.find("FFmpeg/WriteProfile");
+            auto option = options.find("FFmpeg/Codec");
+            std::string codec;
             if (option != options.end())
             {
-                std::stringstream ss(option->second);
-                ss >> profile;
-            }
-            switch (profile)
-            {
-            case Profile::H264:
-                avCodecID = AV_CODEC_ID_H264;
-                avProfile = FF_PROFILE_H264_HIGH;
-                break;
-            case Profile::ProRes:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_STANDARD;
-                break;
-            case Profile::ProRes_Proxy:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_PROXY;
-                break;
-            case Profile::ProRes_LT:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_LT;
-                break;
-            case Profile::ProRes_HQ:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_HQ;
-                break;
-            case Profile::ProRes_4444:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_4444;
-                break;
-            case Profile::ProRes_XQ:
-                avCodecID = AV_CODEC_ID_PRORES;
-                avProfile = FF_PROFILE_PRORES_XQ;
-                break;
-            default: break;
+                codec = option->second;
             }
 
             int r = avformat_alloc_output_context2(&p.avFormatContext, NULL, NULL, p.fileName.c_str());
@@ -94,7 +61,7 @@ namespace tl
             {
                 throw std::runtime_error(dtk::Format("{0}: {1}").arg(p.fileName).arg(getErrorLabel(r)));
             }
-            const AVCodec* avCodec = avcodec_find_encoder(avCodecID);
+            const AVCodec* avCodec = avcodec_find_encoder_by_name(codec.c_str());
             if (!avCodec)
             {
                 throw std::runtime_error(dtk::Format("{0}: Cannot find encoder").arg(p.fileName));

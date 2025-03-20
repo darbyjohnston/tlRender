@@ -174,6 +174,9 @@ namespace tl
             //! Get the playback mode.
             timeline::Playback playback() const;
 
+            //! Get whether playback is stopped.
+            bool isStopped() const;
+
             //! Get the playback loop mode.
             timeline::Loop loop() const;
 

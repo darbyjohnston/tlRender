@@ -32,7 +32,7 @@ namespace tl
 
                 auto timeline = timeline::Timeline::create(_context, file::Path(_fileName));
                 _player = timeline::Player::create(_context, timeline);
-                _player->setPlayback(timeline::Playback::Forward);
+                _player->forward();
 
                 _window = MainWindow::create(
                     _context,

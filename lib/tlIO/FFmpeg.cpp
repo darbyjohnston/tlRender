@@ -5,10 +5,8 @@
 #include <tlIO/FFmpeg.h>
 
 #include <dtk/core/Assert.h>
-#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
-#include <dtk/core/String.h>
 
 extern "C"
 {
@@ -19,23 +17,10 @@ extern "C"
 #include <libavutil/mastering_display_metadata.h>
 }
 
-#include <array>
-
 namespace tl
 {
     namespace ffmpeg
     {
-        DTK_ENUM_IMPL(
-            Profile,
-            "None",
-            "H264",
-            "ProRes",
-            "ProRes_Proxy",
-            "ProRes_LT",
-            "ProRes_HQ",
-            "ProRes_4444",
-            "ProRes_XQ");
-
         bool Options::operator == (const Options& other) const
         {
             return

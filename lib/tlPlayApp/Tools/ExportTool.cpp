@@ -6,6 +6,9 @@
 
 #include <tlPlayApp/App.h>
 
+#include <tlTimeline/IRender.h>
+#include <tlTimeline/Util.h>
+
 #include <tlIO/System.h>
 #if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
@@ -16,9 +19,13 @@
 #include <dtk/ui/FormLayout.h>
 #include <dtk/ui/IntEdit.h>
 #include <dtk/ui/LineEdit.h>
+#include <dtk/ui/ProgressDialog.h>
 #include <dtk/ui/PushButton.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
+#include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/core/Format.h>
+#include <dtk/core/Timer.h>
 
 namespace tl
 {
@@ -26,10 +33,18 @@ namespace tl
     {
         struct ExportTool::Private
         {
+            std::shared_ptr<timeline::Player> player;
             std::shared_ptr<SettingsModel> model;
             std::vector<std::string> imageExtensions;
             std::vector<std::string> movieExtensions;
             std::vector<std::string> movieCodecs;
+            dtk::Size2I exportSize;
+            OTIO_NS::TimeRange exportRange;
+            int exportFrame = 0;
+            dtk::ImageInfo exportInfo;
+            std::shared_ptr<timeline::IRender> render;
+            std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
+            std::shared_ptr<io::IWrite> writer;
 
             std::shared_ptr<dtk::FileEdit> directoryEdit;
             std::shared_ptr<dtk::ComboBox> renderSizeComboBox;
@@ -46,9 +61,11 @@ namespace tl
             std::shared_ptr<dtk::HorizontalLayout> customSizeLayout;
             std::shared_ptr<dtk::FormLayout> formLayout;
             std::shared_ptr<dtk::VerticalLayout> layout;
+            std::shared_ptr<dtk::ProgressDialog> progressDialog;
+            std::shared_ptr<dtk::Timer> progressTimer;
 
-            std::shared_ptr<dtk::ValueObserver<ExportSettings> > settingsObserver;
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+            std::shared_ptr<dtk::ValueObserver<ExportSettings> > settingsObserver;
         };
 
         void ExportTool::_init(
@@ -123,18 +140,20 @@ namespace tl
             scrollWidget->setWidget(p.layout);
             _setWidget(scrollWidget);
 
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
+                {
+                    DTK_P();
+                    p.player = value;
+                    p.exportButton->setEnabled(value.get());
+                });
+
             p.settingsObserver = dtk::ValueObserver<ExportSettings>::create(
                 p.model->observeExport(),
                 [this](const ExportSettings& value)
                 {
                     _widgetUpdate(value);
-                });
-
-            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                app->observePlayer(),
-                [this](const std::shared_ptr<timeline::Player>& value)
-                {
-                    _p->exportButton->setEnabled(value.get());
                 });
 
             p.directoryEdit->setCallback(
@@ -244,6 +263,12 @@ namespace tl
                         p.model->setExport(options);
                     }
                 });
+
+            p.exportButton->setClickedCallback(
+                [this]
+                {
+                    _export();
+                });
         }
 
         ExportTool::ExportTool() :
@@ -287,6 +312,90 @@ namespace tl
             p.formLayout->setRowVisible(p.movieBaseNameEdit, ExportFileType::Movie == settings.fileType);
             p.formLayout->setRowVisible(p.movieExtensionComboBox, ExportFileType::Movie == settings.fileType);
             p.formLayout->setRowVisible(p.movieCodecComboBox, ExportFileType::Movie == settings.fileType);
+        }
+
+        void ExportTool::_export()
+        {
+            DTK_P();
+            auto context = getContext();
+            if (context && p.player)
+            {
+                try
+                {
+                    const auto options = p.model->getExport();
+                    switch (options.renderSize)
+                    {
+                    case ExportRenderSize::Default:
+                        if (!p.player->getIOInfo().video.empty())
+                        {
+                            p.exportSize = p.player->getIOInfo().video.front().size;
+                        }
+                        break;
+                    case ExportRenderSize::Custom:
+                        p.exportSize = options.customSize;
+                        break;
+                    default:
+                        p.exportSize = getSize(options.renderSize);
+                        break;
+                    }
+
+                    file::Path path;
+                    file::PathOptions pathOptions;
+                    switch (options.fileType)
+                    {
+                    case ExportFileType::Images:
+                    {
+                        std::stringstream ss;
+                        ss << options.imageBaseName;
+                        ss << std::setfill('0') << std::setw(options.imageZeroPad) << p.exportRange.start_time().value();
+                        ss << options.imageExtension;
+                        path = timeline::getPath(ss.str(), options.directory, pathOptions);
+                        break;
+                    }
+                    case ExportFileType::Movie:
+                    {
+                        std::stringstream ss;
+                        ss << options.movieBaseName << options.movieExtension;
+                        path = timeline::getPath(ss.str(), options.directory, pathOptions);
+                        break;
+                    }
+                    default: break;
+                    }
+
+                    p.exportRange = p.player->getInOutRange();
+                    p.exportFrame = p.exportRange.start_time().value();
+
+                    auto ioSystem = context->getSystem<io::WriteSystem>();
+                    io::Info ioInfo;
+                    io::Options ioOptions;
+                    p.writer = ioSystem->write(path, ioInfo, ioOptions);
+
+                    p.progressDialog = dtk::ProgressDialog::create(
+                        context,
+                        "Export",
+                        "Exporting:");
+                    p.progressDialog->setMessage(dtk::Format("{0} / {1}").
+                        arg(p.exportFrame).
+                        arg(p.exportRange.end_time_inclusive().value()));
+                    p.progressDialog->setCloseCallback(
+                        [this]
+                        {
+                            _p->progressTimer->stop();
+                            _p->progressDialog.reset();
+                        });
+                    p.progressDialog->open(getWindow());
+                    p.progressTimer->start(
+                        std::chrono::microseconds(500),
+                        [this]
+                        {
+                        });
+
+                }
+                catch (const std::exception& e)
+                {
+
+                }
+            }
         }
     }
 }

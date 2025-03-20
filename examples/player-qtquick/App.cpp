@@ -71,7 +71,7 @@ namespace tl
                 _qmlObject.reset(component.create());
 
                 // Start playback.
-                _player->setPlayback(timeline::Playback::Forward);
+                _player->forward();
             }
 
             App::~App()

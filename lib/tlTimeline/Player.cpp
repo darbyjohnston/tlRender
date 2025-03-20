@@ -371,6 +371,11 @@ namespace tl
             }
         }
 
+        bool Player::isStopped() const
+        {
+            return Playback::Stop == _p->playback->get();
+        }
+
         void Player::stop()
         {
             setPlayback(Playback::Stop);

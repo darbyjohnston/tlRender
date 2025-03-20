@@ -269,6 +269,11 @@ namespace tl
             return _p->player->getPlayback();
         }
 
+        bool PlayerObject::isStopped() const
+        {
+            return _p->player->isStopped();
+        }
+
         timeline::Loop PlayerObject::loop() const
         {
             return _p->player->getLoop();
@@ -366,17 +371,17 @@ namespace tl
 
         void PlayerObject::stop()
         {
-            _p->player->setPlayback(timeline::Playback::Stop);
+            _p->player->stop();
         }
 
         void PlayerObject::forward()
         {
-            _p->player->setPlayback(timeline::Playback::Forward);
+            _p->player->forward();
         }
 
         void PlayerObject::reverse()
         {
-            _p->player->setPlayback(timeline::Playback::Reverse);
+            _p->player->reverse();
         }
 
         void PlayerObject::togglePlayback()
