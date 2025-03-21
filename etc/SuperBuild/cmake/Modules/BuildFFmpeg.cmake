@@ -205,6 +205,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-demuxer=mjpeg
         --enable-demuxer=mov
         --enable-demuxer=mp3
+        --enable-demuxer=mp4
         --enable-demuxer=pcm_alaw
         --enable-demuxer=pcm_f32be
         --enable-demuxer=pcm_f32le
@@ -239,6 +240,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-muxer=m4v
         --enable-muxer=mjpeg
         --enable-muxer=mov
+        --enable-muxer=mp4
         --enable-muxer=mpeg2video
         --enable-muxer=pcm_alaw
         --enable-muxer=pcm_f32be
@@ -269,6 +271,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-parser=av1
         --enable-parser=flac
         --enable-parser=mjpeg
+        --enable-parser=mpeg4video
         --enable-parser=mpegaudio
         --enable-parser=mpegvideo
         --enable-parser=vp9
@@ -284,7 +287,8 @@ if(TLRENDER_FFMPEG_MINIMAL)
 endif()
 if(TLRENDER_AV1 AND NOT WIN32)
     list(APPEND FFmpeg_CONFIGURE_ARGS
-        --enable-libsvtav1)
+        --enable-libsvtav1
+        --enable-encoder=libsvtav1)
 endif()
 if(NOT WIN32)
     list(APPEND FFmpeg_CONFIGURE_ARGS
@@ -342,7 +346,7 @@ if(WIN32)
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swresample.lib ${CMAKE_INSTALL_PREFIX}/lib"
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swscale.lib ${CMAKE_INSTALL_PREFIX}/lib")
 else()
-    set(FFmpeg_CONFIGURE ${CMAKE_COMMAND} -E env PKG_CONFIG_PATH="${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" ./configure ${FFmpeg_CONFIGURE_ARGS})
+    set(FFmpeg_CONFIGURE ${CMAKE_COMMAND} -E env PKG_CONFIG_PATH=${CMAKE_INSTALL_PREFIX}/lib/pkgconfig ./configure ${FFmpeg_CONFIGURE_ARGS})
     set(FFmpeg_BUILD make -j${FFmpeg_BUILD_JOBS})
     set(FFmpeg_INSTALL make install)
     if(APPLE)
