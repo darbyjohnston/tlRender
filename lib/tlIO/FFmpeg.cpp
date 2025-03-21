@@ -174,52 +174,67 @@ namespace tl
 
         std::weak_ptr<dtk::LogSystem> ReadPlugin::_logSystemWeak;
 
+        struct ReadPlugin::Private
+        {
+            std::vector<AVCodecID> codecIds;
+            std::vector<std::string> codecNames;
+        };
+
         void ReadPlugin::_init(
             const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IReadPlugin::_init(
-                "FFmpeg",
+            DTK_P();
+
+            const AVCodec* avCodec = nullptr;
+            void* avCodecIterate = nullptr;
+            while ((avCodec = av_codec_iterate(&avCodecIterate)))
+            {
+                if ((AVMEDIA_TYPE_VIDEO == avCodec->type || AVMEDIA_TYPE_AUDIO == avCodec->type) &&
+                    av_codec_is_decoder(avCodec))
                 {
-                    { ".avi", io::FileType::Movie },
-                    { ".mov", io::FileType::Movie },
-                    { ".mp4", io::FileType::Movie },
-                    { ".mxf", io::FileType::Movie },
-                    { ".m4v", io::FileType::Movie },
-                    { ".y4m", io::FileType::Movie },
-                    { ".wmv", io::FileType::Movie },
-                    { ".aiff", io::FileType::Audio },
-                    { ".flac", io::FileType::Audio },
-                    { ".mp3", io::FileType::Audio },
-                    { ".wav", io::FileType::Audio }
-                },
-                cache,
-                logSystem);
+                    p.codecIds.push_back(avCodec->id);
+                    p.codecNames.push_back(avCodec->name);
+                }
+            }
+
+            std::map<std::string, io::FileType> extensions;
+            const AVInputFormat* avInputFormat = nullptr;
+            void* avInputFormatIterate = nullptr;
+            std::vector<std::string> formatLog;
+            while ((avInputFormat = av_demuxer_iterate(&avInputFormatIterate)))
+            {
+                if (avInputFormat->extensions)
+                {
+                    for (auto extension : dtk::split(avInputFormat->extensions, ','))
+                    {
+                        if (!extension.empty() && extension[0] != '.')
+                        {
+                            extension.insert(0, ".");
+                        }
+                        extensions[extension] = io::FileType::Movie;
+                    }
+                    formatLog.push_back(dtk::Format("    {0}: {1}").arg(avInputFormat->name).arg(avInputFormat->extensions));
+                }
+            }
+
+            IReadPlugin::_init("FFmpeg", extensions, cache, logSystem);
 
             _logSystemWeak = logSystem;
             //av_log_set_level(AV_LOG_QUIET);
             av_log_set_level(AV_LOG_VERBOSE);
             av_log_set_callback(_logCallback);
 
-            const AVCodec* avCodec = nullptr;
-            void* avCodecIterate = nullptr;
-            std::vector<std::string> codecNames;
-            while ((avCodec = av_codec_iterate(&avCodecIterate)))
-            {
-                if (av_codec_is_decoder(avCodec))
-                {
-                    codecNames.push_back(avCodec->name);
-                }
-            }
-            std::sort(codecNames.begin(), codecNames.end());
-            //std::cout << dtk::join(codecNames, ", ") << std::endl;
-            if (auto logSystem = _logSystemWeak.lock())
-            {
-                logSystem->print("tl::io::ffmpeg::ReadPlugin", "Codecs: " + dtk::join(codecNames, ", "));
-            }
+            logSystem->print(
+                "tl::io::ffmpeg::ReadPlugin",
+                "Codecs: " + dtk::join(p.codecNames, ", "));
+            logSystem->print(
+                "tl::io::ffmpeg::ReadPlugin",
+                "Formats:\n" + dtk::join(formatLog, '\n'));
         }
 
-        ReadPlugin::ReadPlugin()
+        ReadPlugin::ReadPlugin() :
+            _p(new Private)
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
@@ -271,42 +286,77 @@ namespace tl
 
         std::weak_ptr<dtk::LogSystem> WritePlugin::_logSystemWeak;
 
+        struct WritePlugin::Private
+        {
+            std::vector<AVCodecID> codecIds;
+            std::vector<std::string> codecNames;
+        };
+
         void WritePlugin::_init(
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IWritePlugin::_init(
-                "FFmpeg",
-                {
-                    { ".mov", io::FileType::Movie },
-                    { ".mp4", io::FileType::Movie },
-                    { ".m4v", io::FileType::Movie }
-                },
-                logSystem);
-
-            _logSystemWeak = logSystem;
-            //av_log_set_level(AV_LOG_QUIET);
-            av_log_set_level(AV_LOG_VERBOSE);
-            //av_log_set_callback(_logCallback);
+            DTK_P();
 
             const AVCodec* avCodec = nullptr;
             void* avCodecIterate = nullptr;
-            std::vector<std::string> codecNames;
             while ((avCodec = av_codec_iterate(&avCodecIterate)))
             {
-                if (av_codec_is_encoder(avCodec))
+                if (AVMEDIA_TYPE_VIDEO == avCodec->type && av_codec_is_encoder(avCodec))
                 {
-                    codecNames.push_back(avCodec->name);
+                    p.codecIds.push_back(avCodec->id);
+                    p.codecNames.push_back(avCodec->name);
                 }
             }
-            std::sort(codecNames.begin(), codecNames.end());
-            //std::cout << dtk::join(codecNames, ", ") << std::endl;
-            if (auto logSystem = _logSystemWeak.lock())
+
+            std::map<std::string, io::FileType> extensions;
+            const AVOutputFormat* avOutputFormat = nullptr;
+            void* avOutputFormatIterate = nullptr;
+            std::vector<std::string> formatLog;
+            while ((avOutputFormat = av_muxer_iterate(&avOutputFormatIterate)))
             {
-                logSystem->print("tl::io::ffmpeg::WritePlugin", "Codecs: " + dtk::join(codecNames, ", "));
+                if (avOutputFormat->extensions)
+                {
+                    bool match = false;
+                    for (const auto id : p.codecIds)
+                    {
+                        if (av_codec_get_tag(avOutputFormat->codec_tag, id) != 0)
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                    if (match)
+                    {
+                        for (auto extension : dtk::split(avOutputFormat->extensions, ','))
+                        {
+                            if (!extension.empty() && extension[0] != '.')
+                            {
+                                extension.insert(0, ".");
+                            }                            
+                            extensions[extension] = io::FileType::Movie;
+                        }
+                        formatLog.push_back(dtk::Format("    {0}: {1}").arg(avOutputFormat->name).arg(avOutputFormat->extensions));
+                    }
+                }
             }
+
+            IWritePlugin::_init("FFmpeg", extensions, logSystem);
+
+            //_logSystemWeak = logSystem;
+            //av_log_set_level(AV_LOG_QUIET);
+            //av_log_set_level(AV_LOG_VERBOSE);
+            //av_log_set_callback(_logCallback);
+
+            logSystem->print(
+                "tl::io::ffmpeg::WritePlugin",
+                "Codecs: " + dtk::join(p.codecNames, ", "));
+            logSystem->print(
+                "tl::io::ffmpeg::WritePlugin",
+                "Formats:\n" + dtk::join(formatLog, '\n'));
         }
 
-        WritePlugin::WritePlugin()
+        WritePlugin::WritePlugin() :
+            _p(new Private)
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
@@ -317,14 +367,9 @@ namespace tl
             return out;
         }
 
-        std::vector<std::string> WritePlugin::getCodecs() const
+        const std::vector<std::string>& WritePlugin::getCodecs() const
         {
-            return
-            {
-                "mjpeg",
-                "v210",
-                "v410"
-            };
+            return _p->codecNames;
         }
 
         dtk::ImageInfo WritePlugin::getInfo(

@@ -102,13 +102,17 @@ set(FFmpeg_CONFIGURE_ARGS
 if(TLRENDER_FFMPEG_MINIMAL)
     list(APPEND FFmpeg_CONFIGURE_ARGS
         --disable-decoders
+        --enable-decoder=aac
         --enable-decoder=ac3
         --enable-decoder=av1
         --enable-decoder=eac3
         --enable-decoder=flac
+        --enable-decoder=h264
+        --enable-decoder=hevc
         --enable-decoder=mjpeg
         --enable-decoder=mp3
         --enable-decoder=mpeg2video
+        --enable-decoder=mpeg4
         --enable-decoder=pcm_alaw
         --enable-decoder=pcm_bluray
         --enable-decoder=pcm_dvd
@@ -144,6 +148,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-decoder=pcm_u32le
         --enable-decoder=pcm_u8
         --enable-decoder=pcm_vidc
+        --enable-decoder=prores
         --enable-decoder=rawvideo
         --enable-decoder=v210
         --enable-decoder=v210x
@@ -158,6 +163,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-encoder=flac
         --enable-encoder=mjpeg
         --enable-encoder=mpeg2video
+        --enable-encoder=mpeg4
         --enable-encoder=pcm_alaw
         --enable-encoder=pcm_bluray
         --enable-encoder=pcm_dvd
@@ -189,6 +195,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-encoder=pcm_u32le
         --enable-encoder=pcm_u8
         --enable-encoder=pcm_vidc
+        --enable-encoder=prores
         --enable-encoder=rawvideo
         --enable-encoder=v210
         --enable-encoder=v308
@@ -196,11 +203,14 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-encoder=v410
         --enable-encoder=yuv4
         --disable-demuxers
+        --enable-demuxer=aac
         --enable-demuxer=ac3
         --enable-demuxer=aiff
         --enable-demuxer=av1
         --enable-demuxer=eac3
         --enable-demuxer=flac
+        --enable-demuxer=h264
+        --enable-demuxer=hevc
         --enable-demuxer=m4v
         --enable-demuxer=mjpeg
         --enable-demuxer=mov
@@ -237,6 +247,8 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-muxer=aiff
         --enable-muxer=eac3
         --enable-muxer=flac
+        --enable-muxer=h264
+        --enable-muxer=hevc
         --enable-muxer=m4v
         --enable-muxer=mjpeg
         --enable-muxer=mov
@@ -267,9 +279,12 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-muxer=wav
         --enable-muxer=yuv4mpegpipe
         --disable-parsers
+        --enable-parser=aac
         --enable-parser=ac3
         --enable-parser=av1
         --enable-parser=flac
+        --enable-parser=h264
+        --enable-parser=hevc
         --enable-parser=mjpeg
         --enable-parser=mpeg4video
         --enable-parser=mpegaudio

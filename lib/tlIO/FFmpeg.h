@@ -176,6 +176,8 @@ namespace tl
             //! \todo What is a better way to access the log system from the
             //! FFmpeg callback?
             static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
+
+            DTK_PRIVATE();
         };
 
         //! FFmpeg write plugin.
@@ -192,7 +194,7 @@ namespace tl
                 const std::shared_ptr<dtk::LogSystem>&);
 
             //! Get the list of codecs.
-            std::vector<std::string> getCodecs() const;
+            const std::vector<std::string>& getCodecs() const;
 
             dtk::ImageInfo getInfo(
                 const dtk::ImageInfo&,
@@ -208,6 +210,8 @@ namespace tl
             //! \todo What is a better way to access the log system from the
             //! FFmpeg callback?
             static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
+
+            DTK_PRIVATE();
         };
 
         //! \name Serialize
