@@ -300,7 +300,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-protocol=md5
         --enable-protocol=tls)
 endif()
-if(TLRENDER_AV1 AND NOT WIN32)
+if(TLRENDER_AV1)
     list(APPEND FFmpeg_CONFIGURE_ARGS
         --enable-libsvtav1
         --enable-encoder=libsvtav1)
@@ -346,11 +346,15 @@ if(WIN32)
             "cp ${CMAKE_INSTALL_PREFIX}/lib/libssl.lib ${CMAKE_INSTALL_PREFIX}/lib/ssl.lib && \
             cp ${CMAKE_INSTALL_PREFIX}/lib/libcrypto.lib ${CMAKE_INSTALL_PREFIX}/lib/crypto.lib &&")
     endif()
+    
+    set(FFmpeg_PKG_CONFIG ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig)
+    #string(REPLACE C: /C FFmpeg_PKG_CONFIG ${FFmpeg_PKG_CONFIG})
 
     list(JOIN FFmpeg_CONFIGURE_ARGS " " FFmpeg_CONFIGURE_ARGS_TMP)
     set(FFmpeg_CONFIGURE ${FFmpeg_MSYS2}
         -c "pacman -S diffutils make nasm --noconfirm && \
         ${FFmpeg_OPENSSL_COPY} \
+        export PKG_CONFIG_PATH=${FFmpeg_PKG_CONFIG} && \
         ./configure ${FFmpeg_CONFIGURE_ARGS_TMP}")
     set(FFmpeg_BUILD ${FFmpeg_MSYS2} -c "make -j${FFmpeg_BUILD_JOBS}")
     set(FFmpeg_INSTALL ${FFmpeg_MSYS2} -c "make install"

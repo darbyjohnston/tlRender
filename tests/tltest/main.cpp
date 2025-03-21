@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    //tests.push_back(core_tests::AudioTest::create(context));
+    //tests.push_back(timeline_tests::TimelineTest::create(context));
     coreTests(tests, context);
     ioTests(tests, context);
     timelineTests(tests, context);
