@@ -206,7 +206,10 @@ namespace tl
             std::vector<std::string> codecNames;
             while ((avCodec = av_codec_iterate(&avCodecIterate)))
             {
-                codecNames.push_back(avCodec->name);
+                if (av_codec_is_decoder(avCodec))
+                {
+                    codecNames.push_back(avCodec->name);
+                }
             }
             std::sort(codecNames.begin(), codecNames.end());
             //std::cout << dtk::join(codecNames, ", ") << std::endl;
@@ -290,7 +293,10 @@ namespace tl
             std::vector<std::string> codecNames;
             while ((avCodec = av_codec_iterate(&avCodecIterate)))
             {
-                codecNames.push_back(avCodec->name);
+                if (av_codec_is_encoder(avCodec))
+                {
+                    codecNames.push_back(avCodec->name);
+                }
             }
             std::sort(codecNames.begin(), codecNames.end());
             //std::cout << dtk::join(codecNames, ", ") << std::endl;
