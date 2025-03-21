@@ -342,7 +342,7 @@ if(WIN32)
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swresample.lib ${CMAKE_INSTALL_PREFIX}/lib"
         COMMAND ${FFmpeg_MSYS2} -c "mv ${CMAKE_INSTALL_PREFIX}/bin/swscale.lib ${CMAKE_INSTALL_PREFIX}/lib")
 else()
-    set(FFmpeg_CONFIGURE ./configure ${FFmpeg_CONFIGURE_ARGS})
+    set(FFmpeg_CONFIGURE ${CMAKE_COMMAND} -E env PKG_CONFIG_PATH="${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" ./configure ${FFmpeg_CONFIGURE_ARGS})
     set(FFmpeg_BUILD make -j${FFmpeg_BUILD_JOBS})
     set(FFmpeg_INSTALL make install)
     if(APPLE)
