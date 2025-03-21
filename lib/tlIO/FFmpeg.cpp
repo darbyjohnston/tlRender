@@ -315,7 +315,6 @@ namespace tl
         {
             return
             {
-                "h264",
                 "mjpeg",
                 "v210",
                 "v410"

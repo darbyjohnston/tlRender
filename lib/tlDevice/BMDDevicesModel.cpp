@@ -231,7 +231,10 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << i;
-                value.boolOptions[i] = json.at("BoolOptions").at(ss.str()).get<bool>();
+                if (json.at("BoolOptions").contains(ss.str()))
+                {
+                    value.boolOptions[i] = json.at("BoolOptions").at(ss.str()).get<bool>();
+                }
             }
             from_string(json.at("HDRMode").get<std::string>(), value.hdrMode);
             json.at("HDRData").get_to(value.hdrData);

@@ -176,14 +176,9 @@ namespace tl
                 { "FFmpeg/RequestTimeout", "1" },
                 { "FFmpeg/VideoBufferSize", "1" },
                 { "FFmpeg/AudioBufferSize", "1/1" },
-                { "FFmpeg/WriteProfile", "None" },
-                { "FFmpeg/WriteProfile", "H264" },
-                { "FFmpeg/WriteProfile", "ProRes" },
-                { "FFmpeg/WriteProfile", "ProRes_Proxy" },
-                { "FFmpeg/WriteProfile", "ProRes_LT" },
-                { "FFmpeg/WriteProfile", "ProRes_HQ" },
-                { "FFmpeg/WriteProfile", "ProRes_4444" },
-                { "FFmpeg/WriteProfile", "ProRes_XQ" }
+                { "FFmpeg/Codec", "mjpeg" },
+                { "FFmpeg/Codec", "v210" },
+                { "FFmpeg/Codec", "v410" }
             };
 
             for (const auto& fileName : fileNames)

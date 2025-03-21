@@ -221,7 +221,7 @@ namespace tl
             const auto& info = _timeline->getIOInfo();
             if (info.video.empty())
             {
-                throw std::runtime_error("No video information");
+                throw std::runtime_error("No video to render");
             }
             _renderSize = _options.renderSize.isValid() ?
                 _options.renderSize :
@@ -238,9 +238,8 @@ namespace tl
             _writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(_output));
             if (!_writerPlugin)
             {
-                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
             }
-            io::Info ioInfo;
             _outputInfo.size.w = _renderSize.w;
             _outputInfo.size.h = _renderSize.h;
             _outputInfo.type = _options.outputPixelType != dtk::ImageType::None ?
@@ -255,12 +254,13 @@ namespace tl
                 arg(_outputInfo.size).
                 arg(_outputInfo.type));
             _outputImage = dtk::Image::create(_outputInfo);
+            io::Info ioInfo;
             ioInfo.video.push_back(_outputInfo);
             ioInfo.videoTime = _timeRange;
             _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
             if (!_writer)
             {
-                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
             }
 
             // Start the main loop.
@@ -381,7 +381,7 @@ namespace tl
             const GLenum type = dtk::gl::getReadPixelsType(_outputInfo.type);
             if (GL_NONE == format || GL_NONE == type)
             {
-                throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
             }
             glReadPixels(
                 0,

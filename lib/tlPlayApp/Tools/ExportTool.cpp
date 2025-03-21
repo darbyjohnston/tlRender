@@ -4,7 +4,10 @@
 
 #include <tlPlayApp/Tools/ExportTool.h>
 
+#include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
+
+#include <tlTimelineGL/Render.h>
 
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Util.h>
@@ -15,6 +18,7 @@
 #endif // TLRENDER_FFMPEG
 
 #include <dtk/ui/ComboBox.h>
+#include <dtk/ui/DialogSystem.h>
 #include <dtk/ui/FileEdit.h>
 #include <dtk/ui/FormLayout.h>
 #include <dtk/ui/IntEdit.h>
@@ -23,7 +27,9 @@
 #include <dtk/ui/PushButton.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ScrollWidget.h>
+#include <dtk/gl/GL.h>
 #include <dtk/gl/OffscreenBuffer.h>
+#include <dtk/gl/Util.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/Timer.h>
 
@@ -33,18 +39,26 @@ namespace tl
     {
         struct ExportTool::Private
         {
+            std::weak_ptr<App> app;
             std::shared_ptr<timeline::Player> player;
             std::shared_ptr<SettingsModel> model;
             std::vector<std::string> imageExtensions;
             std::vector<std::string> movieExtensions;
             std::vector<std::string> movieCodecs;
-            dtk::Size2I exportSize;
-            OTIO_NS::TimeRange exportRange;
-            int exportFrame = 0;
-            dtk::ImageInfo exportInfo;
-            std::shared_ptr<timeline::IRender> render;
-            std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
-            std::shared_ptr<io::IWrite> writer;
+
+            struct ExportData
+            {
+                OTIO_NS::TimeRange range;
+                int64_t frame = 0;
+                file::Path path;
+                dtk::ImageInfo info;
+                std::shared_ptr<io::IWrite> writer;
+                std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
+                std::shared_ptr<timeline::IRender> render;
+                GLenum glFormat = 0;
+                GLenum glType = 0;
+            };
+            std::unique_ptr<ExportData> exportData;
 
             std::shared_ptr<dtk::FileEdit> directoryEdit;
             std::shared_ptr<dtk::ComboBox> renderSizeComboBox;
@@ -62,10 +76,11 @@ namespace tl
             std::shared_ptr<dtk::FormLayout> formLayout;
             std::shared_ptr<dtk::VerticalLayout> layout;
             std::shared_ptr<dtk::ProgressDialog> progressDialog;
-            std::shared_ptr<dtk::Timer> progressTimer;
 
             std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
             std::shared_ptr<dtk::ValueObserver<ExportSettings> > settingsObserver;
+
+            std::shared_ptr<dtk::Timer> progressTimer;
         };
 
         void ExportTool::_init(
@@ -81,8 +96,8 @@ namespace tl
                 parent);
             DTK_P();
 
+            p.app = app;
             p.model = app->getSettingsModel();
-
             auto ioSystem = context->getSystem<io::WriteSystem>();
             auto extensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Sequence));
             p.imageExtensions.insert(p.imageExtensions.end(), extensions.begin(), extensions.end());
@@ -269,6 +284,9 @@ namespace tl
                 {
                     _export();
                 });
+
+            p.progressTimer = dtk::Timer::create(context);
+            p.progressTimer->setRepeating(true);
         }
 
         ExportTool::ExportTool() :
@@ -318,82 +336,194 @@ namespace tl
         {
             DTK_P();
             auto context = getContext();
-            if (context && p.player)
+            auto app = p.app.lock();
+            if (app && context && p.player)
             {
                 try
                 {
+                    const io::Info ioInfo = p.player->getIOInfo();
+                    if (ioInfo.video.empty())
+                    {
+                        throw std::runtime_error("No video to render");
+                    }
+                    p.exportData.reset(new Private::ExportData);
+                    p.exportData->range = p.player->getInOutRange();
+                    p.exportData->frame = p.exportData->range.start_time().value();
+
+                    // Get the render size.
                     const auto options = p.model->getExport();
                     switch (options.renderSize)
                     {
                     case ExportRenderSize::Default:
-                        if (!p.player->getIOInfo().video.empty())
-                        {
-                            p.exportSize = p.player->getIOInfo().video.front().size;
-                        }
+                        p.exportData->info.size = ioInfo.video.front().size;
                         break;
                     case ExportRenderSize::Custom:
-                        p.exportSize = options.customSize;
+                        p.exportData->info.size = options.customSize;
                         break;
                     default:
-                        p.exportSize = getSize(options.renderSize);
+                        p.exportData->info.size = getSize(options.renderSize);
                         break;
                     }
 
-                    file::Path path;
-                    file::PathOptions pathOptions;
+                    // Get the export path.
+                    std::string fileName;
                     switch (options.fileType)
                     {
                     case ExportFileType::Images:
                     {
                         std::stringstream ss;
                         ss << options.imageBaseName;
-                        ss << std::setfill('0') << std::setw(options.imageZeroPad) << p.exportRange.start_time().value();
+                        ss << std::setfill('0') << std::setw(options.imageZeroPad) << p.exportData->range.start_time().value();
                         ss << options.imageExtension;
-                        path = timeline::getPath(ss.str(), options.directory, pathOptions);
+                        fileName = ss.str();
                         break;
                     }
                     case ExportFileType::Movie:
                     {
                         std::stringstream ss;
                         ss << options.movieBaseName << options.movieExtension;
-                        path = timeline::getPath(ss.str(), options.directory, pathOptions);
+                        fileName = ss.str();
                         break;
                     }
                     default: break;
                     }
+                    p.exportData->path = file::Path((std::filesystem::u8path(options.directory) /
+                        std::filesystem::u8path(fileName)).u8string());
 
-                    p.exportRange = p.player->getInOutRange();
-                    p.exportFrame = p.exportRange.start_time().value();
-
+                    // Get the writer.
                     auto ioSystem = context->getSystem<io::WriteSystem>();
-                    io::Info ioInfo;
+                    auto plugin = ioSystem->getPlugin(p.exportData->path);
+                    if (!plugin)
+                    {
+                        throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(p.exportData->path.get()));
+                    }
+                    p.exportData->info.type = ioInfo.video.front().type;
+                    p.exportData->info = plugin->getInfo(p.exportData->info);
+                    if (dtk::ImageType::None == p.exportData->info.type)
+                    {
+                        p.exportData->info.type = dtk::ImageType::RGBA_U8;
+                    }
+                    p.exportData->glFormat = dtk::gl::getReadPixelsFormat(p.exportData->info.type);
+                    p.exportData->glType = dtk::gl::getReadPixelsType(p.exportData->info.type);
+                    if (GL_NONE == p.exportData->glFormat || GL_NONE == p.exportData->glType)
+                    {
+                        throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(p.exportData->path.get()));
+                    }
+                    io::Info outputInfo;
+                    outputInfo.video.push_back(p.exportData->info);
+                    outputInfo.videoTime = OTIO_NS::TimeRange(
+                        OTIO_NS::RationalTime(0.0, p.exportData->range.duration().rate()),
+                        p.exportData->range.duration());
                     io::Options ioOptions;
-                    p.writer = ioSystem->write(path, ioInfo, ioOptions);
+                    ioOptions["FFmpeg/Codec"] = options.movieCodec;
+                    p.exportData->writer = plugin->write(p.exportData->path, outputInfo, ioOptions);
 
+                    // Create the renderer.
+                    p.exportData->render = timeline_gl::Render::create(context);
+                    dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = app->getViewportModel()->getColorBuffer();
+                    p.exportData->buffer = dtk::gl::OffscreenBuffer::create(
+                        p.exportData->info.size,
+                        offscreenBufferOptions);
+
+                    // Create the progress dialog.
                     p.progressDialog = dtk::ProgressDialog::create(
                         context,
                         "Export",
-                        "Exporting:");
-                    p.progressDialog->setMessage(dtk::Format("{0} / {1}").
-                        arg(p.exportFrame).
-                        arg(p.exportRange.end_time_inclusive().value()));
+                        "Rendering:");
+                    p.progressDialog->setRange(dtk::RangeD(0.0, p.exportData->range.duration().value() - 1.0));
+                    p.progressDialog->setMessage(dtk::Format("Frame: {0} / {1}").
+                        arg(p.exportData->frame).
+                        arg(p.exportData->range.end_time_inclusive().value()));
                     p.progressDialog->setCloseCallback(
                         [this]
                         {
-                            _p->progressTimer->stop();
-                            _p->progressDialog.reset();
+                            DTK_P();
+                            p.exportData.reset();
+                            p.progressTimer->stop();
+                            p.progressDialog.reset();
                         });
                     p.progressDialog->open(getWindow());
                     p.progressTimer->start(
                         std::chrono::microseconds(500),
                         [this]
                         {
+                            DTK_P();
+                            _exportFrame();
+                            p.progressDialog->setValue(p.exportData->frame - p.exportData->range.start_time().value());
+                            const int64_t end = p.exportData->range.end_time_inclusive().value();
+                            p.progressDialog->setMessage(dtk::Format("Frame: {0} / {1}").
+                                arg(p.exportData->frame).
+                                arg(end));
+                            if (p.exportData->frame >= end)
+                            {
+                                p.progressDialog->close();
+                            }
                         });
-
                 }
                 catch (const std::exception& e)
                 {
+                    if (p.progressDialog)
+                    {
+                        p.progressDialog->close();
+                    }
+                    p.exportData.reset();
+                    context->getSystem<dtk::DialogSystem>()->message(
+                        "ERROR",
+                        dtk::Format("Error: {0}").arg(e.what()),
+                        getWindow());
+                }
+            }
+        }
 
+        void ExportTool::_exportFrame()
+        {
+            DTK_P();
+            try
+            {
+                // Get the video.
+                OTIO_NS::RationalTime t(p.exportData->frame, p.exportData->range.duration().rate());
+                auto video = p.player->getTimeline()->getVideo(t).future.get();
+
+                // Render the video.
+                dtk::gl::OffscreenBufferBinding binding(p.exportData->buffer);
+                p.exportData->render->begin(p.exportData->info.size);
+                p.exportData->render->drawVideo(
+                    { video },
+                    { dtk::Box2I(0, 0, p.exportData->info.size.w, p.exportData->info.size.h) });
+                p.exportData->render->end();
+
+                // Write the output image.
+                auto image = dtk::Image::create(p.exportData->info);
+                glPixelStorei(GL_PACK_ALIGNMENT, p.exportData->info.layout.alignment);
+#if defined(dtk_API_GL_4_1)
+                glPixelStorei(GL_PACK_SWAP_BYTES, p.exportData->info.layout.endian != dtk::getEndian());
+#endif // dtk_API_GL_4_1
+                glReadPixels(
+                    0,
+                    0,
+                    p.exportData->info.size.w,
+                    p.exportData->info.size.h,
+                    p.exportData->glFormat,
+                    p.exportData->glType,
+                    image->getData());
+                p.exportData->writer->writeVideo(t - p.exportData->range.start_time(), image);
+
+                ++p.exportData->frame;
+            }
+            catch (const std::exception& e)
+            {
+                if (p.progressDialog)
+                {
+                    p.progressDialog->close();
+                }
+                p.exportData.reset();
+                if (auto context = getContext())
+                {
+                    context->getSystem<dtk::DialogSystem>()->message(
+                        "ERROR",
+                        dtk::Format("Error: {0}").arg(e.what()),
+                        getWindow());
                 }
             }
         }
