@@ -186,6 +186,7 @@ namespace tl
         {
             DTK_P();
 
+            // Get codecs.
             const AVCodec* avCodec = nullptr;
             void* avCodecIterate = nullptr;
             while ((avCodec = av_codec_iterate(&avCodecIterate)))
@@ -198,6 +199,7 @@ namespace tl
                 }
             }
 
+            // Get formats.
             std::map<std::string, io::FileType> extensions;
             const AVInputFormat* avInputFormat = nullptr;
             void* avInputFormatIterate = nullptr;
@@ -297,6 +299,7 @@ namespace tl
         {
             DTK_P();
 
+            // Get codecs.
             const AVCodec* avCodec = nullptr;
             void* avCodecIterate = nullptr;
             while ((avCodec = av_codec_iterate(&avCodecIterate)))
@@ -308,6 +311,7 @@ namespace tl
                 }
             }
 
+            // Get formats.
             std::map<std::string, io::FileType> extensions;
             const AVOutputFormat* avOutputFormat = nullptr;
             void* avOutputFormatIterate = nullptr;
@@ -316,6 +320,7 @@ namespace tl
             {
                 if (avOutputFormat->extensions)
                 {
+                    // Check if the format codec matches.
                     bool match = false;
                     for (const auto id : p.codecIds)
                     {
