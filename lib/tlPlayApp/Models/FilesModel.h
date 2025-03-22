@@ -30,6 +30,7 @@ namespace tl
             size_t videoLayer = 0;
 
             OTIO_NS::RationalTime currentTime = time::invalidTime;
+            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
         };
 
         //! Files model.

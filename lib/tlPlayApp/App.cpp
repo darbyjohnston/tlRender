@@ -263,6 +263,7 @@ namespace tl
                 if (auto player = p.player->get())
                 {
                     activeFiles.front()->currentTime = player->getCurrentTime();
+                    activeFiles.front()->inOutRange = player->getInOutRange();
                 }
             }
 
@@ -971,6 +972,7 @@ namespace tl
                 if (auto player = p.player->get())
                 {
                     p.activeFiles.front()->currentTime = player->getCurrentTime();
+                    p.activeFiles.front()->inOutRange = player->getInOutRange();
                 }
             }
 
@@ -1012,6 +1014,11 @@ namespace tl
             if (player)
             {
                 const OTIO_NS::RationalTime currentTime = activeFiles.front()->currentTime;
+                const OTIO_NS::TimeRange inOutRange = activeFiles.front()->inOutRange;
+                if (!time::compareExact(inOutRange, time::invalidTimeRange))
+                {
+                    player->setInOutRange(inOutRange);
+                }
                 if (!currentTime.strictly_equal(time::invalidTime))
                 {
                     player->seek(currentTime);
