@@ -4,6 +4,8 @@
 
 #include <tlPlayApp/Tools/ExportTool.h>
 
+#include <tlPlayApp/Models/ColorModel.h>
+#include <tlPlayApp/Models/FilesModel.h>
 #include <tlPlayApp/Models/ViewportModel.h>
 #include <tlPlayApp/App.h>
 
@@ -53,6 +55,11 @@ namespace tl
                 file::Path path;
                 dtk::ImageInfo info;
                 std::shared_ptr<io::IWrite> writer;
+                timeline::OCIOOptions ocioOptions;
+                timeline::LUTOptions lutOptions;
+                dtk::ImageOptions imageOptions;
+                timeline::DisplayOptions displayOptions;
+                dtk::ImageType colorBuffer = dtk::ImageType::RGBA_U8;
                 std::shared_ptr<dtk::gl::OffscreenBuffer> buffer;
                 std::shared_ptr<timeline::IRender> render;
                 GLenum glFormat = 0;
@@ -419,9 +426,14 @@ namespace tl
                     p.exportData->writer = plugin->write(p.exportData->path, outputInfo, ioOptions);
 
                     // Create the renderer.
+                    p.exportData->ocioOptions = app->getColorModel()->getOCIOOptions();
+                    p.exportData->lutOptions = app->getColorModel()->getLUTOptions();
+                    p.exportData->imageOptions = app->getViewportModel()->getImageOptions();
+                    p.exportData->displayOptions = app->getViewportModel()->getDisplayOptions();
+                    p.exportData->colorBuffer = app->getViewportModel()->getColorBuffer();
                     p.exportData->render = timeline_gl::Render::create(context);
                     dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = app->getViewportModel()->getColorBuffer();
+                    offscreenBufferOptions.color = p.exportData->colorBuffer;
                     p.exportData->buffer = dtk::gl::OffscreenBuffer::create(
                         p.exportData->info.size,
                         offscreenBufferOptions);
@@ -452,10 +464,13 @@ namespace tl
                             _exportFrame();
                             p.progressDialog->setValue(p.exportData->frame - p.exportData->range.start_time().value());
                             const int64_t end = p.exportData->range.end_time_inclusive().value();
-                            p.progressDialog->setMessage(dtk::Format("Frame: {0} / {1}").
-                                arg(p.exportData->frame).
-                                arg(end));
-                            if (p.exportData->frame >= end)
+                            if (p.exportData->frame <= end)
+                            {
+                                p.progressDialog->setMessage(dtk::Format("Frame: {0} / {1}").
+                                    arg(p.exportData->frame).
+                                    arg(end));
+                            }
+                            else
                             {
                                 p.progressDialog->close();
                             }
@@ -488,9 +503,15 @@ namespace tl
                 // Render the video.
                 dtk::gl::OffscreenBufferBinding binding(p.exportData->buffer);
                 p.exportData->render->begin(p.exportData->info.size);
+                p.exportData->render->setOCIOOptions(p.exportData->ocioOptions);
+                p.exportData->render->setLUTOptions(p.exportData->lutOptions);
                 p.exportData->render->drawVideo(
                     { video },
-                    { dtk::Box2I(0, 0, p.exportData->info.size.w, p.exportData->info.size.h) });
+                    { dtk::Box2I(0, 0, p.exportData->info.size.w, p.exportData->info.size.h) },
+                    { p.exportData->imageOptions },
+                    { p.exportData->displayOptions },
+                    timeline::CompareOptions(),
+                    p.exportData->colorBuffer);
                 p.exportData->render->end();
 
                 // Write the output image.
@@ -507,7 +528,7 @@ namespace tl
                     p.exportData->glFormat,
                     p.exportData->glType,
                     image->getData());
-                p.exportData->writer->writeVideo(t - p.exportData->range.start_time(), image);
+                p.exportData->writer->writeVideo(t, image);
 
                 ++p.exportData->frame;
             }
