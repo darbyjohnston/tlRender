@@ -826,10 +826,10 @@ namespace tl
                 {
                     p.thread.state = state;
                     p.thread.cacheDirection = cacheDirection;
-                    p.thread.videoDataCacheFrame = 0;
-                    p.thread.videoDataCacheFill = 0;
-                    p.thread.audioDataCacheSeconds = 0;
-                    p.thread.audioDataCacheFill = 0;
+                    p.thread.videoCache.currentFrame = 0;
+                    p.thread.videoCache.filledByteCount = 0;
+                    p.thread.audioCache.currentSeconds = 0;
+                    p.thread.audioCache.filledByteCount = 0;
                 }
 
                 // Clear requests.
@@ -851,7 +851,7 @@ namespace tl
                 if (!p.ioInfo.video.empty())
                 {
                     std::vector<VideoData> videoDataList;
-                    if (p.thread.videoDataCache.get(p.thread.state.currentTime, videoDataList))
+                    if (p.thread.videoCache.cache.get(p.thread.state.currentTime, videoDataList))
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
                         p.mutex.currentVideoData = videoDataList;

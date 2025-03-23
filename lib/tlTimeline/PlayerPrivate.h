@@ -126,22 +126,42 @@ namespace tl
 
                 struct VideoRequestData
                 {
+                    //! The size of the video request, used by the cache.
                     size_t byteCount = 0;
+                    //! The list of video requests for the main timeline and
+                    //! comparison timelines.
                     std::vector<VideoRequest> list;
                 };
                 std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
-                dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
-                int64_t videoDataCacheFrame = 0;
-                size_t videoDataCacheFill = 0;
+
+                struct VideoCacheData
+                {
+                    // The video data cache.
+                    dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > cache;
+                    // The current frame being filled.
+                    int64_t currentFrame = 0;
+                    // The amount of bytes filled.
+                    size_t filledByteCount = 0;
+                };
+                VideoCacheData videoCache;
 
                 struct AudioRequestData
                 {
+                    //! The size of the audio request, used by the cache.
                     size_t byteCount = 0;
+                    //! The audio request.
                     AudioRequest request;
                 };
                 std::map<int64_t, AudioRequestData> audioDataRequests;
-                int64_t audioDataCacheSeconds = 0;
-                size_t audioDataCacheFill = 0;
+
+                struct AudioCacheData
+                {
+                    // The current seconds being filled.
+                    int64_t currentSeconds = 0;
+                    // The amount of bytes filled.
+                    size_t filledByteCount = 0;
+                };
+                AudioCacheData audioCache;
 
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
