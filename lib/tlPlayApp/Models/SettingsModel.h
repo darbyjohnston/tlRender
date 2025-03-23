@@ -145,8 +145,8 @@ namespace tl
         struct PerformanceSettings
         {
             size_t audioBufferFrameCount = timeline::PlayerOptions().audioBufferFrameCount;
-            size_t videoRequestCount = 16;
-            size_t audioRequestCount = 16;
+            size_t videoRequestMax = 16;
+            size_t audioRequestMax = 16;
 
             bool operator == (const PerformanceSettings&) const;
             bool operator != (const PerformanceSettings&) const;

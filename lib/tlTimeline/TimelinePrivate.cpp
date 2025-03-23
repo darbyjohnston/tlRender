@@ -122,10 +122,10 @@ namespace tl
                         arg(path.get()).
                         arg(videoRequestsSize).
                         arg(thread.videoRequestsInProgress.size()).
-                        arg(options.videoRequestCount).
+                        arg(options.videoRequestMax).
                         arg(audioRequestsSize).
                         arg(thread.audioRequestsInProgress.size()).
-                        arg(options.audioRequestCount));
+                        arg(options.audioRequestMax));
                 }
                 t1 = std::chrono::steady_clock::now();
             }
@@ -160,13 +160,13 @@ namespace tl
                     mutex.otioTimelineChanged = true;
                 }
                 while (!mutex.videoRequests.empty() &&
-                    (thread.videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestCount)
+                    (thread.videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestMax)
                 {
                     newVideoRequests.push_back(mutex.videoRequests.front());
                     mutex.videoRequests.pop_front();
                 }
                 while (!mutex.audioRequests.empty() &&
-                    (thread.audioRequestsInProgress.size() + newAudioRequests.size()) < options.audioRequestCount)
+                    (thread.audioRequestsInProgress.size() + newAudioRequests.size()) < options.audioRequestMax)
                 {
                     newAudioRequests.push_back(mutex.audioRequests.front());
                     mutex.audioRequests.pop_front();

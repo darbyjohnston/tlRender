@@ -124,7 +124,7 @@ namespace tl
             //! Get the time range.
             const OTIO_NS::TimeRange& getTimeRange() const;
 
-            //! Get the I/O information. This information is retrieved from
+            //! Get the I/O information. The information is retrieved from
             //! the first clip in the timeline.
             const io::Info& getIOInfo() const;
 

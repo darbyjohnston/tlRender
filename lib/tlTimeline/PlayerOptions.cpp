@@ -26,6 +26,8 @@ namespace tl
             return
                 audioDevice == other.audioDevice &&
                 cache == other.cache &&
+                videoRequestMax == other.videoRequestMax &&
+                audioRequestMax == other.audioRequestMax &&
                 audioBufferFrameCount == other.audioBufferFrameCount &&
                 muteTimeout == other.muteTimeout &&
                 sleepTimeout == other.sleepTimeout &&

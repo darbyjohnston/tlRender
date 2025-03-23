@@ -255,8 +255,8 @@ namespace tl
         {
             return
                 audioBufferFrameCount == other.audioBufferFrameCount &&
-                videoRequestCount == other.videoRequestCount &&
-                audioRequestCount == other.audioRequestCount;
+                videoRequestMax == other.videoRequestMax &&
+                audioRequestMax == other.audioRequestMax;
         }
 
         bool PerformanceSettings::operator != (const PerformanceSettings& other) const
@@ -746,8 +746,8 @@ namespace tl
         void to_json(nlohmann::json& json, const PerformanceSettings& value)
         {
             json["AudioBufferFrameCount"] = value.audioBufferFrameCount;
-            json["VideoRequestCount"] = value.videoRequestCount;
-            json["AudioRequestCount"] = value.audioRequestCount;
+            json["VideoRequestMax"] = value.videoRequestMax;
+            json["AudioRequestMax"] = value.audioRequestMax;
         }
 
         void to_json(nlohmann::json& json, const StyleSettings& value)
@@ -861,8 +861,8 @@ namespace tl
         void from_json(const nlohmann::json& json, PerformanceSettings& value)
         {
             json.at("AudioBufferFrameCount").get_to(value.audioBufferFrameCount);
-            json.at("VideoRequestCount").get_to(value.videoRequestCount);
-            json.at("AudioRequestCount").get_to(value.audioRequestCount);
+            json.at("VideoRequestMax").get_to(value.videoRequestMax);
+            json.at("AudioRequestMax").get_to(value.audioRequestMax);
         }
 
         void from_json(const nlohmann::json& json, StyleSettings& value)

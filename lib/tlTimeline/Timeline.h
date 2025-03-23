@@ -40,16 +40,28 @@ namespace tl
         //! Timeline options.
         struct Options
         {
+            //! File sequence audio.
             FileSequenceAudio fileSequenceAudio = FileSequenceAudio::Extension;
+
+            //! File sequence audio extensions.
             std::vector<std::string> fileSequenceAudioExtensions = { ".wav", ".mp3" };
+
+            //! File sequence audio file name.
             std::string fileSequenceAudioFileName;
 
-            size_t videoRequestCount = 16;
-            size_t audioRequestCount = 16;
+            //! Maximum number of video requests.
+            size_t videoRequestMax = 16;
+
+            //! Maximum number of audio requests.
+            size_t audioRequestMax = 16;
+
+            //! Request timeout.
             std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(5);
 
+            //! I/O options.
             io::Options ioOptions;
 
+            //! Path options.
             file::PathOptions pathOptions;
 
             bool operator == (const Options&) const;

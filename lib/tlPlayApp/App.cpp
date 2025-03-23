@@ -939,8 +939,8 @@ namespace tl
                         options.fileSequenceAudioExtensions = fileSequence.audioExtensions;
                         options.fileSequenceAudioFileName = fileSequence.audioFileName;
                         const PerformanceSettings performance = p.settingsModel->getPerformance();
-                        options.videoRequestCount = performance.videoRequestCount;
-                        options.audioRequestCount = performance.audioRequestCount;
+                        options.videoRequestMax = performance.videoRequestMax;
+                        options.audioRequestMax = performance.audioRequestMax;
                         options.ioOptions = _getIOOptions();
                         options.pathOptions.maxNumberDigits = fileSequence.maxDigits;
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
@@ -999,6 +999,9 @@ namespace tl
                                 timeline::PlayerOptions playerOptions;
                                 playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache = p.settingsModel->getCache();
+                                const PerformanceSettings performance = p.settingsModel->getPerformance();
+                                playerOptions.videoRequestMax = performance.videoRequestMax;
+                                playerOptions.audioRequestMax = performance.audioRequestMax;
                                 playerOptions.audioBufferFrameCount = p.settingsModel->getPerformance().audioBufferFrameCount;
                                 player = timeline::Player::create(_context, timeline, playerOptions);
                             }

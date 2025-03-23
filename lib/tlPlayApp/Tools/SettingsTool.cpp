@@ -609,8 +609,8 @@ namespace tl
                 {
                     DTK_P();
                     p.audioBufferFramesEdit->setValue(value.audioBufferFrameCount);
-                    p.videoRequestsEdit->setValue(value.videoRequestCount);
-                    p.audioRequestsEdit->setValue(value.audioRequestCount);
+                    p.videoRequestsEdit->setValue(value.videoRequestMax);
+                    p.audioRequestsEdit->setValue(value.audioRequestMax);
                 });
 
             p.audioBufferFramesEdit->setCallback(
@@ -627,7 +627,7 @@ namespace tl
                 {
                     DTK_P();
                     auto settings = p.model->getPerformance();
-                    settings.videoRequestCount = value;
+                    settings.videoRequestMax = value;
                     p.model->setPerformance(settings);
                 });
 
@@ -636,7 +636,7 @@ namespace tl
                 {
                     DTK_P();
                     auto settings = p.model->getPerformance();
-                    settings.audioRequestCount = value;
+                    settings.audioRequestMax = value;
                     p.model->setPerformance(settings);
                 });
         }

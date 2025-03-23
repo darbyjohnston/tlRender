@@ -178,7 +178,7 @@ namespace tl
                     thread.state.cacheOptions.readBehind, 1.0).rescaled_to(thread.state.currentTime.rate()).value();
                 for (;
                     thread.videoCache.currentFrame < duration &&
-                    thread.videoDataRequests.size() < 16;
+                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
                     ++thread.videoCache.currentFrame)
                 {
                     const OTIO_NS::RationalTime offset(
@@ -245,7 +245,7 @@ namespace tl
                 const int64_t duration = thread.state.inOutRange.duration().rescaled_to(1.0).value();
                 for (;
                     thread.audioCache.currentSeconds < duration &&
-                    thread.audioDataRequests.size() < 16;
+                    thread.audioDataRequests.size() < playerOptions.audioRequestMax;
                     ++thread.audioCache.currentSeconds)
                 {
                     const int64_t offset =

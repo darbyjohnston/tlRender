@@ -38,6 +38,12 @@ namespace tl
             //! Cache options.
             PlayerCacheOptions cache;
 
+            //! Maximum number of video requests.
+            size_t videoRequestMax = 16;
+
+            //! Maximum number of audio requests.
+            size_t audioRequestMax = 16;
+
             //! Audio buffer frame count.
             size_t audioBufferFrameCount = 500;
 
@@ -47,7 +53,7 @@ namespace tl
             //! Timeout to sleep each tick.
             std::chrono::milliseconds sleepTimeout = std::chrono::milliseconds(5);
 
-            //! Current time.
+            //! Current time to start at.
             OTIO_NS::RationalTime currentTime = time::invalidTime;
 
             bool operator == (const PlayerOptions&) const;

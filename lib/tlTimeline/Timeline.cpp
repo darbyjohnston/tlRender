@@ -36,8 +36,8 @@ namespace tl
                 fileSequenceAudio == other.fileSequenceAudio &&
                 fileSequenceAudioExtensions == other.fileSequenceAudioExtensions &&
                 fileSequenceAudioFileName == other.fileSequenceAudioFileName &&
-                videoRequestCount == other.videoRequestCount &&
-                audioRequestCount == other.audioRequestCount &&
+                videoRequestMax == other.videoRequestMax &&
+                audioRequestMax == other.audioRequestMax &&
                 requestTimeout == other.requestTimeout &&
                 ioOptions == other.ioOptions &&
                 pathOptions == other.pathOptions;
@@ -65,10 +65,10 @@ namespace tl
                     arg(dtk::join(options.fileSequenceAudioExtensions, ", ")));
                 lines.push_back(dtk::Format("    File sequence audio file name: {0}").
                     arg(options.fileSequenceAudioFileName));
-                lines.push_back(dtk::Format("    Video request count: {0}").
-                    arg(options.videoRequestCount));
-                lines.push_back(dtk::Format("    Audio request count: {0}").
-                    arg(options.audioRequestCount));
+                lines.push_back(dtk::Format("    Video request max: {0}").
+                    arg(options.videoRequestMax));
+                lines.push_back(dtk::Format("    Audio request max: {0}").
+                    arg(options.audioRequestMax));
                 lines.push_back(dtk::Format("    Request timeout: {0}ms").
                     arg(options.requestTimeout.count()));
                 for (const auto& i : options.ioOptions)
