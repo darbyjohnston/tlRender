@@ -79,9 +79,6 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
-            OTIO_NS::RationalTime videoCacheTime = time::invalidTime;
-            OTIO_NS::RationalTime audioCacheTime = time::invalidTime;
-
             bool audioDevices = false;
             audio::Info audioInfo;
 #if defined(TLRENDER_SDL2)
@@ -92,7 +89,7 @@ namespace tl
 
             std::atomic<bool> running;
 
-            struct Mutex
+            struct PlaybackState
             {
                 Playback playback = Playback::Stop;
                 OTIO_NS::RationalTime currentTime = time::invalidTime;
@@ -102,13 +99,21 @@ namespace tl
                 io::Options ioOptions;
                 int videoLayer = 0;
                 std::vector<int> compareVideoLayers;
-                std::vector<VideoData> currentVideoData;
                 double audioOffset = 0.0;
-                std::vector<AudioData> currentAudioData;
+                PlayerCacheOptions cacheOptions;
+
+                bool operator == (const PlaybackState&) const;
+                bool operator != (const PlaybackState&) const;
+            };
+
+            struct Mutex
+            {
+                PlaybackState state;
                 bool clearRequests = false;
                 bool clearCache = false;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                PlayerCacheOptions cacheOptions;
+                std::vector<VideoData> currentVideoData;
+                std::vector<AudioData> currentAudioData;
                 PlayerCacheInfo cacheInfo;
                 std::mutex mutex;
             };
@@ -116,17 +121,9 @@ namespace tl
 
             struct Thread
             {
-                Playback playback = Playback::Stop;
-                OTIO_NS::RationalTime currentTime = time::invalidTime;
-                OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-                std::vector<std::shared_ptr<Timeline> > compare;
-                CompareTime compareTime = CompareTime::Relative;
-                io::Options ioOptions;
-                int videoLayer = 0;
-                std::vector<int> compareVideoLayers;
-                double audioOffset = 0.0;
+                PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-                PlayerCacheOptions cacheOptions;
+
                 struct VideoRequestData
                 {
                     size_t byteCount = 0;
@@ -134,19 +131,25 @@ namespace tl
                 };
                 std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
                 dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
+                int64_t videoDataCacheFrame = 0;
+                size_t videoDataCacheFill = 0;
+
                 struct AudioRequestData
                 {
                     size_t byteCount = 0;
                     AudioRequest request;
                 };
                 std::map<int64_t, AudioRequestData> audioDataRequests;
+                int64_t audioDataCacheSeconds = 0;
+                size_t audioDataCacheFill = 0;
+
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
                 std::thread thread;
             };
             Thread thread;
 
-            struct AudioMutex
+            struct AudioState
             {
                 Playback playback = Playback::Stop;
                 double speed = 0.0;
@@ -155,6 +158,14 @@ namespace tl
                 std::vector<bool> channelMute;
                 std::chrono::steady_clock::time_point muteTimeout;
                 double audioOffset = 0.0;
+
+                bool operator == (const AudioState&) const;
+                bool operator != (const AudioState&) const;
+            };
+
+            struct AudioMutex
+            {
+                AudioState state;
                 dtk::LRUCache<int64_t, AudioData> audioDataCache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;

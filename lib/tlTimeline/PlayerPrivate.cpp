@@ -47,12 +47,12 @@ namespace tl
                     playback->setIfChanged(Playback::Stop);
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playback = Playback::Stop;
+                        mutex.state.playback = Playback::Stop;
                         mutex.clearRequests = true;
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.playback = Playback::Stop;
+                        audioMutex.state.playback = Playback::Stop;
                     }
                 }
                 else if (out > range.end_time_inclusive() && Playback::Forward == playbackValue)
@@ -61,12 +61,12 @@ namespace tl
                     playback->setIfChanged(Playback::Stop);
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playback = Playback::Stop;
+                        mutex.state.playback = Playback::Stop;
                         mutex.clearRequests = true;
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.playback = Playback::Stop;
+                        audioMutex.state.playback = Playback::Stop;
                     }
                 }
                 break;
@@ -80,14 +80,14 @@ namespace tl
                     playback->setIfChanged(Playback::Forward);
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playback = Playback::Forward;
-                        mutex.currentTime = out;
+                        mutex.state.playback = Playback::Forward;
+                        mutex.state.currentTime = out;
                         mutex.clearRequests = true;
                         mutex.cacheDirection = CacheDirection::Forward;
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.playback = Playback::Forward;
+                        audioMutex.state.playback = Playback::Forward;
                         audioReset(out);
                     }
                     if (!hasAudio())
@@ -101,14 +101,14 @@ namespace tl
                     playback->setIfChanged(Playback::Reverse);
                     {
                         std::unique_lock<std::mutex> lock(mutex.mutex);
-                        mutex.playback = Playback::Reverse;
-                        mutex.currentTime = out;
+                        mutex.state.playback = Playback::Reverse;
+                        mutex.state.currentTime = out;
                         mutex.clearRequests = true;
                         mutex.cacheDirection = CacheDirection::Reverse;
                     }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.playback = Playback::Reverse;
+                        audioMutex.state.playback = Playback::Reverse;
                         audioReset(out);
                     }
                     if (!hasAudio())
@@ -126,7 +126,7 @@ namespace tl
 
         void Player::Private::clearRequests()
         {
-            std::vector<std::vector<uint64_t> > ids(1 + thread.compare.size());
+            std::vector<std::vector<uint64_t> > ids(1 + thread.state.compare.size());
             for (const auto& i : thread.videoDataRequests)
             {
                 for (size_t j = 0; j < i.second.list.size() && j < ids.size(); ++j)
@@ -139,9 +139,9 @@ namespace tl
                 ids[0].push_back(i.second.request.id);
             }
             timeline->cancelRequests(ids[0]);
-            for (size_t i = 0; i < thread.compare.size(); ++i)
+            for (size_t i = 0; i < thread.state.compare.size(); ++i)
             {
-                thread.compare[i]->cancelRequests(ids[i + 1]);
+                thread.state.compare[i]->cancelRequests(ids[i + 1]);
             }
             thread.videoDataRequests.clear();
             thread.audioDataRequests.clear();
@@ -164,68 +164,70 @@ namespace tl
         {
             //std::cout << "current time: " << currentTime->get() << std::endl;
 
-            thread.videoDataCache.setMax(thread.cacheOptions.videoGB * dtk::gigabyte);
+            thread.videoDataCache.setMax(thread.state.cacheOptions.videoGB * dtk::gigabyte);
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioMutex.audioDataCache.setMax(thread.cacheOptions.audioGB * dtk::gigabyte);
+                audioMutex.audioDataCache.setMax(thread.state.cacheOptions.audioGB * dtk::gigabyte);
             }
 
             // Fill the video cache.
             if (!ioInfo.video.empty())
             {
-                const int64_t duration = thread.inOutRange.duration().value();
+                const int64_t duration = thread.state.inOutRange.duration().value();
                 const int64_t readBehind = OTIO_NS::RationalTime(
-                    thread.cacheOptions.readBehind, 1.0).rescaled_to(thread.currentTime.rate()).value();
-                size_t totalByteCount = 0;
-                for (int64_t frame = 0; frame < duration; ++frame)
+                    thread.state.cacheOptions.readBehind, 1.0).rescaled_to(thread.state.currentTime.rate()).value();
+                for (;
+                    thread.videoDataCacheFrame < duration &&
+                    thread.videoDataRequests.size() < 16;
+                    ++thread.videoDataCacheFrame)
                 {
                     const OTIO_NS::RationalTime offset(
                         thread.cacheDirection == CacheDirection::Forward ?
-                        (frame - readBehind) :
-                        (readBehind - frame),
-                        thread.currentTime.rate());
+                        (thread.videoDataCacheFrame - readBehind) :
+                        (readBehind - thread.videoDataCacheFrame),
+                        thread.state.currentTime.rate());
                     const OTIO_NS::RationalTime t = timeline::loop(
-                        thread.currentTime + offset,
-                        thread.inOutRange);
+                        thread.state.currentTime + offset,
+                        thread.state.inOutRange);
                     size_t byteCount = timeline->getVideoSize(t).future.get();
-                    for (size_t i = 0; i < thread.compare.size(); ++i)
+                    for (size_t i = 0; i < thread.state.compare.size(); ++i)
                     {
                         const OTIO_NS::RationalTime t2 = timeline::getCompareTime(
                             t,
                             timeRange,
-                            thread.compare[i]->getTimeRange(),
-                            thread.compareTime);
-                        byteCount += thread.compare[i]->getVideoSize(t2).future.get();
+                            thread.state.compare[i]->getTimeRange(),
+                            thread.state.compareTime);
+                        byteCount += thread.state.compare[i]->getVideoSize(t2).future.get();
                     }
-                    totalByteCount += byteCount;
-                    if (totalByteCount >= thread.videoDataCache.getMax())
+                    thread.videoDataCacheFill += byteCount;
+                    if (thread.videoDataCacheFill >= thread.videoDataCache.getMax())
                     {
                         break;
                     }
                     if (!thread.videoDataCache.touch(t))
                     {
                         const auto i = thread.videoDataRequests.find(t);
-                        if (i == thread.videoDataRequests.end() && thread.videoDataRequests.size() < 16)
+                        if (i == thread.videoDataRequests.end())
                         {
                             //std::cout << this << " video request: " << t << std::endl;
                             auto& request = thread.videoDataRequests[t];
                             request.byteCount = byteCount;
-                            io::Options ioOptions2 = thread.ioOptions;
-                            ioOptions2["Layer"] = dtk::Format("{0}").arg(thread.videoLayer);
+                            io::Options ioOptions2 = thread.state.ioOptions;
+                            ioOptions2["Layer"] = dtk::Format("{0}").arg(thread.state.videoLayer);
                             request.list.clear();
                             request.list.push_back(timeline->getVideo(t, ioOptions2));
-                            for (size_t i = 0; i < thread.compare.size(); ++i)
+                            for (size_t i = 0; i < thread.state.compare.size(); ++i)
                             {
                                 const OTIO_NS::RationalTime time2 = timeline::getCompareTime(
                                     t,
                                     timeRange,
-                                    thread.compare[i]->getTimeRange(),
-                                    thread.compareTime);
+                                    thread.state.compare[i]->getTimeRange(),
+                                    thread.state.compareTime);
                                 ioOptions2["Layer"] = dtk::Format("{0}").
-                                    arg(i < thread.compareVideoLayers.size() ?
-                                        thread.compareVideoLayers[i] :
-                                        thread.videoLayer);
-                                request.list.push_back(thread.compare[i]->getVideo(time2, ioOptions2));
+                                    arg(i < thread.state.compareVideoLayers.size() ?
+                                        thread.state.compareVideoLayers[i] :
+                                        thread.state.videoLayer);
+                                request.list.push_back(thread.state.compare[i]->getVideo(time2, ioOptions2));
                             }
                         }
                     }
@@ -240,20 +242,22 @@ namespace tl
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
                     cacheMax = audioMutex.audioDataCache.getMax();
                 }
-                const int64_t duration = thread.inOutRange.duration().rescaled_to(1.0).value();
-                size_t totalByteCount = 0;
-                for (int64_t seconds = 0; seconds < duration; ++seconds)
+                const int64_t duration = thread.state.inOutRange.duration().rescaled_to(1.0).value();
+                for (;
+                    thread.audioDataCacheSeconds < duration &&
+                    thread.audioDataRequests.size() < 16;
+                    ++thread.audioDataCacheSeconds)
                 {
                     const int64_t offset =
                         thread.cacheDirection == CacheDirection::Forward ?
-                        (seconds - thread.cacheOptions.readBehind) :
-                        (thread.cacheOptions.readBehind - seconds);
+                        (thread.audioDataCacheSeconds - thread.state.cacheOptions.readBehind) :
+                        (thread.state.cacheOptions.readBehind - thread.audioDataCacheSeconds);
                     const int64_t t = timeline::loop(
-                        thread.currentTime.rescaled_to(1.0).floor().value() + offset,
-                        thread.inOutRange);
+                        thread.state.currentTime.rescaled_to(1.0).floor().value() + offset - thread.state.audioOffset,
+                        thread.state.inOutRange);
                     const size_t byteCount = timeline->getAudioSize(t).future.get();
-                    totalByteCount += byteCount;
-                    if (totalByteCount >= cacheMax)
+                    thread.audioDataCacheFill += byteCount;
+                    if (thread.audioDataCacheFill >= cacheMax)
                     {
                         break;
                     }
@@ -265,11 +269,11 @@ namespace tl
                     if (!found)
                     {
                         const auto i = thread.audioDataRequests.find(t);
-                        if (i == thread.audioDataRequests.end() && thread.audioDataRequests.size() < 16)
+                        if (i == thread.audioDataRequests.end())
                         {
                             auto& request = thread.audioDataRequests[t];
                             request.byteCount = byteCount;
-                            request.request = timeline->getAudio(t, thread.ioOptions);
+                            request.request = timeline->getAudio(t, thread.state.ioOptions);
                         }
                     }
                 }
@@ -344,11 +348,11 @@ namespace tl
                     cachedVideoFrames.push_back(key);
                 }
                 float cachedVideoPercentage = 0.F;
-                if (thread.cacheOptions.videoGB > 0.F)
+                if (thread.state.cacheOptions.videoGB > 0.F)
                 {
                     cachedVideoPercentage =
                         (thread.videoDataCache.getSize() / static_cast<float>(dtk::gigabyte)) /
-                        thread.cacheOptions.videoGB *
+                        thread.state.cacheOptions.videoGB *
                         100.F;
                 }
                 std::vector<OTIO_NS::RationalTime> cachedAudioFrames;
@@ -365,11 +369,11 @@ namespace tl
                     {
                         cachedAudioFrames.push_back(OTIO_NS::RationalTime(key, 1.0));
                     }
-                    if (thread.cacheOptions.audioGB > 0.F)
+                    if (thread.state.cacheOptions.audioGB > 0.F)
                     {
                         cachedAudioPercentage =
                             (cacheSize / static_cast<float>(dtk::gigabyte)) /
-                            thread.cacheOptions.audioGB *
+                            thread.state.cacheOptions.audioGB *
                             100.F;
                     }
                 }
@@ -409,9 +413,9 @@ namespace tl
             PlayerCacheInfo cacheInfo;
             {
                 std::unique_lock<std::mutex> lock(mutex.mutex);
-                currentTime = mutex.currentTime;
-                inOutRange = mutex.inOutRange;
-                ioOptions = mutex.ioOptions;
+                currentTime = mutex.state.currentTime;
+                inOutRange = mutex.state.inOutRange;
+                ioOptions = mutex.state.ioOptions;
                 cacheInfo = mutex.cacheInfo;
             }
             const size_t videoCacheByteCount = thread.videoDataCache.getSize();
@@ -501,6 +505,43 @@ namespace tl
                 arg(currentTimeDisplay).
                 arg(cachedVideoFramesDisplay).
                 arg(cachedAudioFramesDisplay));
+        }
+
+        bool Player::Private::PlaybackState::operator == (const PlaybackState& other) const
+        {
+            return
+                playback == other.playback &&
+                currentTime == other.currentTime &&
+                inOutRange == other.inOutRange &&
+                compare == other.compare &&
+                compareTime == other.compareTime &&
+                ioOptions == other.ioOptions &&
+                videoLayer == other.videoLayer &&
+                compareVideoLayers == other.compareVideoLayers &&
+                audioOffset == other.audioOffset &&
+                cacheOptions == other.cacheOptions;
+        }
+
+        bool Player::Private::PlaybackState::operator != (const PlaybackState& other) const
+        {
+            return !(*this == other);
+        }
+
+        bool Player::Private::AudioState::operator == (const AudioState& other) const
+        {
+            return
+                playback == other.playback &&
+                speed == other.speed &&
+                volume == other.volume &&
+                mute == other.mute &&
+                channelMute == other.channelMute &&
+                muteTimeout == other.muteTimeout &&
+                audioOffset == other.audioOffset;
+        }
+
+        bool Player::Private::AudioState::operator != (const AudioState& other) const
+        {
+            return !(*this == other);
         }
     }
 }

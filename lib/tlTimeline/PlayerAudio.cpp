@@ -51,7 +51,7 @@ namespace tl
             if (p.volume->setIfChanged(dtk::clamp(value, 0.F, 1.F)))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                p.audioMutex.volume = value;
+                p.audioMutex.state.volume = value;
             }
         }
 
@@ -71,7 +71,7 @@ namespace tl
             if (p.mute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                p.audioMutex.mute = value;
+                p.audioMutex.state.mute = value;
             }
         }
 
@@ -91,7 +91,7 @@ namespace tl
             if (p.channelMute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                p.audioMutex.channelMute = value;
+                p.audioMutex.state.channelMute = value;
             }
         }
 
@@ -112,11 +112,11 @@ namespace tl
             {
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                    p.mutex.audioOffset = value;
+                    p.mutex.state.audioOffset = value;
                 }
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
-                    p.audioMutex.audioOffset = value;
+                    p.audioMutex.state.audioOffset = value;
                 }
             }
         }
@@ -323,24 +323,12 @@ namespace tl
             int len)
         {
             // Get mutex protected values.
-            Playback playback = Playback::Stop;
-            double speed = 0.0;
-            float volume = 1.F;
-            bool mute = false;
-            std::vector<bool> channelMute;
-            std::chrono::steady_clock::time_point muteTimeout;
-            double audioOffset = 0.0;
+            AudioState state;
             bool reset = false;
             OTIO_NS::RationalTime start = time::invalidTime;
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                playback = audioMutex.playback;
-                speed = audioMutex.speed;
-                volume = audioMutex.volume;
-                mute = audioMutex.mute;
-                channelMute = audioMutex.channelMute;
-                muteTimeout = audioMutex.muteTimeout;
-                audioOffset = audioMutex.audioOffset;
+                state = audioMutex.state;
                 reset = audioMutex.reset;
                 audioMutex.reset = false;
                 start = audioMutex.start;
@@ -359,7 +347,7 @@ namespace tl
             std::memset(outputBuffer, 0, outputSamples * outputInfo.getByteCount());
 
             const audio::Info& inputInfo = ioInfo.audio;
-            if (playback != Playback::Stop && inputInfo.sampleRate > 0)
+            if (state.playback != Playback::Stop && inputInfo.sampleRate > 0)
             {
                 // Initialize on reset.
                 if (reset)
@@ -382,14 +370,14 @@ namespace tl
 
                 // Fill the audio buffer.
                 int64_t copySize = 0;
-                const double speedMult = std::max(timeRange.duration().rate() > 0.0 ? (speed / timeRange.duration().rate()) : 1.0, 1.0);
+                const double speedMult = std::max(timeRange.duration().rate() > 0.0 ? (state.speed / timeRange.duration().rate()) : 1.0, 1.0);
                 if (getSampleCount(audioThread.buffer) < outputSamples * 2 * speedMult)
                 {
                     // Get audio from the cache.
                     int64_t t =
                         start.rescaled_to(inputInfo.sampleRate).value() -
-                        OTIO_NS::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
-                    if (Playback::Forward == playback)
+                        OTIO_NS::RationalTime(state.audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                    if (Playback::Forward == state.playback)
                     {
                         t += audioThread.inputFrame;
                     }
@@ -420,7 +408,7 @@ namespace tl
                         audioLayers = audioCopy(
                             inputInfo,
                             audioDataList,
-                            playback,
+                            state.playback,
                             t,
                             copySize);
                     }
@@ -428,22 +416,22 @@ namespace tl
                     {
                         // Mix the audio layers.
                         const auto now = std::chrono::steady_clock::now();
-                        if (mute || now < muteTimeout)
+                        if (state.mute || now < state.muteTimeout)
                         {
-                            volume = 0.F;
+                            state.volume = 0.F;
                         }
-                        auto audio = audio::mix(audioLayers, volume, channelMute);
+                        auto audio = audio::mix(audioLayers, state.volume, state.channelMute);
 
                         // Reverse the audio.
-                        if (Playback::Reverse == playback)
+                        if (Playback::Reverse == state.playback)
                         {
                             audio = audio::reverse(audio);
                         }
 
                         // Change the audio speed.
-                        if (speed != timeRange.duration().rate() && speed > 0.0)
+                        if (state.speed != timeRange.duration().rate() && state.speed > 0.0)
                         {
-                            audio = audio::changeSpeed(audio, timeRange.duration().rate() / speed);
+                            audio = audio::changeSpeed(audio, timeRange.duration().rate() / state.speed);
                         }
 
                         // Resample the audio and add it to the buffer.
@@ -472,7 +460,7 @@ namespace tl
                 // Update the frame counter.
                 {
                     const double speedMult = timeRange.duration().rate() > 0.0 ?
-                        (speed / timeRange.duration().rate()) :
+                        (state.speed / timeRange.duration().rate()) :
                         0.0;
                     std::unique_lock<std::mutex> lock(audioMutex.mutex);
                     audioMutex.frame = audioThread.outputFrame * speedMult;

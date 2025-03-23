@@ -10,6 +10,7 @@
 
 #include <tlCore/FileInfo.h>
 
+#include <dtk/core/Assert.h>
 #include <dtk/core/Context.h>
 #include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
