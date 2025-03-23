@@ -319,7 +319,7 @@ namespace tl
                     {
                         cacheOptions = value;
                     });
-                cacheOptions.readAhead = OTIO_NS::RationalTime(1.0, 1.0);
+                cacheOptions.videoGB = 1.F;
                 player->setCacheOptions(cacheOptions);
                 DTK_ASSERT(cacheOptions == player->getCacheOptions());
 
@@ -352,7 +352,7 @@ namespace tl
                     {
                         {
                             std::stringstream ss;
-                            ss << "Video/audio cached frames: " << value.videoFrames.size() << "/" << value.audioFrames.size();
+                            ss << "Video/audio cached frames: " << value.video.size() << "/" << value.audio.size();
                             _print(ss.str());
                         }
                     });

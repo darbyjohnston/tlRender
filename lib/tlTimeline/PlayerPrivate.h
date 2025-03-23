@@ -127,9 +127,19 @@ namespace tl
                 double audioOffset = 0.0;
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
-                std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
+                struct VideoRequestData
+                {
+                    size_t byteCount = 0;
+                    std::vector<VideoRequest> list;
+                };
+                std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
                 dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
-                std::map<int64_t, AudioRequest> audioDataRequests;
+                struct AudioRequestData
+                {
+                    size_t byteCount = 0;
+                    AudioRequest request;
+                };
+                std::map<int64_t, AudioRequestData> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
                 std::thread thread;

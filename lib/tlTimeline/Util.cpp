@@ -91,21 +91,25 @@ namespace tl
             bool* looped)
         {
             auto out = value;
-            if (out < range.start_time())
+            const OTIO_NS::RationalTime duration = range.duration();
+            if (duration.value() > 0.0)
             {
-                if (looped)
+                while (out < range.start_time())
                 {
-                    *looped = true;
+                    if (looped)
+                    {
+                        *looped = true;
+                    }
+                    out += range.duration();
                 }
-                out = range.end_time_inclusive();
-            }
-            else if (out > range.end_time_inclusive())
-            {
-                if (looped)
+                while (out > range.end_time_inclusive())
                 {
-                    *looped = true;
+                    if (looped)
+                    {
+                        *looped = true;
+                    }
+                    out -= range.duration();
                 }
-                out = range.start_time();
             }
             return out;
         }
@@ -557,7 +561,7 @@ namespace tl
                 if (sizeTmp < outSize && secondsPlusOneIt != data.end())
                 {
                     // Copy audio from the second chunk.
-                    for (size_t i = 0; i < secondsPlusOneIt->layers.size(); ++i)
+                    for (size_t i = 0; i < secondsIt->layers.size() && i < secondsPlusOneIt->layers.size(); ++i)
                     {
                         if (secondsPlusOneIt->layers[i].audio &&
                             secondsPlusOneIt->layers[i].audio->getInfo() == info)

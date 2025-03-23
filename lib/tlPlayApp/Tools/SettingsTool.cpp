@@ -55,12 +55,18 @@ namespace tl
 
             p.videoEdit = dtk::FloatEdit::create(context);
             p.videoEdit->setRange(dtk::RangeF(0.F, 1024.F));
+            p.videoEdit->setStep(1.0);
+            p.videoEdit->setLargeStep(10.0);
 
             p.audioEdit = dtk::FloatEdit::create(context);
             p.audioEdit->setRange(dtk::RangeF(0.F, 1024.F));
+            p.audioEdit->setStep(1.0);
+            p.audioEdit->setLargeStep(10.0);
 
             p.readBehindEdit = dtk::FloatEdit::create(context);
             p.readBehindEdit->setRange(dtk::RangeF(0.F, 10.F));
+            p.readBehindEdit->setStep(0.1);
+            p.readBehindEdit->setLargeStep(1.0);
 
             p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);

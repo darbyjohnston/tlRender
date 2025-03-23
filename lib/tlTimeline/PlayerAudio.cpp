@@ -387,7 +387,7 @@ namespace tl
                 {
                     // Get audio from the cache.
                     int64_t t =
-                        (start - timeRange.start_time()).rescaled_to(inputInfo.sampleRate).value() -
+                        start.rescaled_to(inputInfo.sampleRate).value() -
                         OTIO_NS::RationalTime(audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
                     if (Playback::Forward == playback)
                     {
