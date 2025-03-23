@@ -18,9 +18,8 @@ namespace tl
         enum class FileType
         {
             Unknown  = 0,
-            Movie    = 1,
+            Media    = 1,
             Sequence = 2,
-            Audio    = 4,
 
             Count,
             First = Unknown

@@ -35,16 +35,15 @@ namespace tl
                 const std::shared_ptr<dtk::Context>& context,
                 const file::Path& path,
                 const FileSequenceAudio& fileSequenceAudio,
+                const std::vector<std::string>& fileSequenceAudioExtensions,
                 const std::string& fileSequenceAudioFileName,
-                const std::string& fileSequenceAudioDirectory,
                 const file::PathOptions& pathOptions)
             {
                 file::Path out;
                 auto ioSystem = context->getSystem<io::ReadSystem>();
-                const auto audioExtensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Audio));
                 switch (fileSequenceAudio)
                 {
-                case FileSequenceAudio::BaseName:
+                case FileSequenceAudio::Extension:
                 {
                     std::vector<std::string> names;
                     names.push_back(path.getDirectory() + path.getBaseName());
@@ -56,7 +55,7 @@ namespace tl
                     names.push_back(path.getDirectory() + tmp);
                     for (const auto& name : names)
                     {
-                        for (const auto& extension : audioExtensions)
+                        for (const auto& extension : fileSequenceAudioExtensions)
                         {
                             const file::Path audioPath(name + extension, pathOptions);
                             if (std::filesystem::exists(std::filesystem::u8path(audioPath.get())))
@@ -71,29 +70,6 @@ namespace tl
                 case FileSequenceAudio::FileName:
                     out = file::Path(path.getDirectory() + fileSequenceAudioFileName, pathOptions);
                     break;
-                case FileSequenceAudio::Directory:
-                {
-                    const file::Path directoryPath(path.getDirectory(), fileSequenceAudioDirectory, pathOptions);
-                    file::ListOptions listOptions;
-                    listOptions.maxNumberDigits = pathOptions.maxNumberDigits;
-                    std::vector<file::FileInfo> list;
-                    file::list(directoryPath.get(), list, listOptions);
-                    for (const auto& fileInfo : list)
-                    {
-                        if (file::Type::File == fileInfo.getType())
-                        {
-                            for (const auto& extension : audioExtensions)
-                            {
-                                if (extension == fileInfo.getPath().getExtension())
-                                {
-                                    out = fileInfo.getPath();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    break;
-                }
                 default: break;
                 }
                 return out;
@@ -342,8 +318,8 @@ namespace tl
                             context,
                             path,
                             options.fileSequenceAudio,
+                            options.fileSequenceAudioExtensions,
                             options.fileSequenceAudioFileName,
-                            options.fileSequenceAudioDirectory,
                             options.pathOptions);
                     }
                 }

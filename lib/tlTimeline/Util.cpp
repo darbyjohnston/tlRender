@@ -37,8 +37,7 @@ namespace tl
             int types)
         {
             std::vector<std::string> out;
-            //! \todo Get extensions for the Python adapters?
-            if (types & static_cast<int>(io::FileType::Movie))
+            if (types & static_cast<int>(io::FileType::Media))
             {
                 out.push_back(".otio");
                 out.push_back(".otioz");
@@ -205,9 +204,8 @@ namespace tl
                     const std::string extension = dtk::toLower(path.getExtension());
                     switch (ioSystem->getFileType(extension))
                     {
+                    case io::FileType::Media:
                     case io::FileType::Sequence:
-                    case io::FileType::Movie:
-                    case io::FileType::Audio:
                         out.push_back(path);
                         break;
                     default:

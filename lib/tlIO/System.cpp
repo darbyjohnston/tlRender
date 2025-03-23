@@ -151,7 +151,7 @@ namespace tl
             const std::string lower = dtk::toLower(extension);
             for (const auto& plugin : _plugins)
             {
-                for (auto fileType : { FileType::Movie, FileType::Sequence, FileType::Audio })
+                for (auto fileType : { FileType::Media, FileType::Sequence })
                 {
                     const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
                     const auto i = extensions.find(lower);
@@ -306,7 +306,7 @@ namespace tl
             const std::string lower = dtk::toLower(extension);
             for (const auto& plugin : _plugins)
             {
-                for (auto fileType : { FileType::Movie, FileType::Sequence, FileType::Audio })
+                for (auto fileType : { FileType::Media, FileType::Sequence })
                 {
                     const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
                     const auto i = extensions.find(lower);

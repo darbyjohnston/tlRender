@@ -27,15 +27,15 @@ namespace tl
         DTK_ENUM_IMPL(
             FileSequenceAudio,
             "None",
-            "BaseName",
-            "FileName",
-            "Directory");
+            "Extension",
+            "FileName");
 
         bool Options::operator == (const Options& other) const
         {
-            return fileSequenceAudio == other.fileSequenceAudio &&
+            return
+                fileSequenceAudio == other.fileSequenceAudio &&
+                fileSequenceAudioExtensions == other.fileSequenceAudioExtensions &&
                 fileSequenceAudioFileName == other.fileSequenceAudioFileName &&
-                fileSequenceAudioDirectory == other.fileSequenceAudioDirectory &&
                 videoRequestCount == other.videoRequestCount &&
                 audioRequestCount == other.audioRequestCount &&
                 requestTimeout == other.requestTimeout &&
@@ -61,10 +61,10 @@ namespace tl
                 lines.push_back(std::string());
                 lines.push_back(dtk::Format("    File sequence audio: {0}").
                     arg(options.fileSequenceAudio));
+                lines.push_back(dtk::Format("    File sequence audio extensions: {0}").
+                    arg(dtk::join(options.fileSequenceAudioExtensions, ", ")));
                 lines.push_back(dtk::Format("    File sequence audio file name: {0}").
                     arg(options.fileSequenceAudioFileName));
-                lines.push_back(dtk::Format("    File sequence audio directory: {0}").
-                    arg(options.fileSequenceAudioDirectory));
                 lines.push_back(dtk::Format("    Video request count: {0}").
                     arg(options.videoRequestCount));
                 lines.push_back(dtk::Format("    Audio request count: {0}").

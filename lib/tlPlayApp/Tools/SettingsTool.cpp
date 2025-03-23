@@ -222,8 +222,8 @@ namespace tl
             std::shared_ptr<SettingsModel> model;
 
             std::shared_ptr<dtk::ComboBox> audioComboBox;
+            std::shared_ptr<dtk::LineEdit> audioExtensionsEdit;
             std::shared_ptr<dtk::LineEdit> audioFileNameEdit;
-            std::shared_ptr<dtk::LineEdit> audioDirectoryEdit;
             std::shared_ptr<dtk::IntEdit> maxDigitsEdit;
             std::shared_ptr<dtk::DoubleEdit> defaultSpeedEdit;
             std::shared_ptr<dtk::IntEdit> threadsEdit;
@@ -245,11 +245,11 @@ namespace tl
             p.audioComboBox = dtk::ComboBox::create(context, timeline::getFileSequenceAudioLabels());
             p.audioComboBox->setHStretch(dtk::Stretch::Expanding);
 
+            p.audioExtensionsEdit = dtk::LineEdit::create(context);
+            p.audioExtensionsEdit->setHStretch(dtk::Stretch::Expanding);
+
             p.audioFileNameEdit = dtk::LineEdit::create(context);
             p.audioFileNameEdit->setHStretch(dtk::Stretch::Expanding);
-
-            p.audioDirectoryEdit = dtk::LineEdit::create(context);
-            p.audioDirectoryEdit->setHStretch(dtk::Stretch::Expanding);
 
             p.maxDigitsEdit = dtk::IntEdit::create(context);
 
@@ -263,8 +263,8 @@ namespace tl
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             p.layout->addRow("Audio:", p.audioComboBox);
+            p.layout->addRow("Audio extensions:", p.audioExtensionsEdit);
             p.layout->addRow("Audio file name:", p.audioFileNameEdit);
-            p.layout->addRow("Audio directory:", p.audioDirectoryEdit);
             p.layout->addRow("Maximum digits:", p.maxDigitsEdit);
             p.layout->addRow("Default speed (FPS):", p.defaultSpeedEdit);
             p.layout->addRow("I/O threads:", p.threadsEdit);
@@ -275,8 +275,8 @@ namespace tl
                 {
                     DTK_P();
                     p.audioComboBox->setCurrentIndex(static_cast<int>(value.audio));
+                    p.audioExtensionsEdit->setText(dtk::join(value.audioExtensions, ' '));
                     p.audioFileNameEdit->setText(value.audioFileName);
-                    p.audioDirectoryEdit->setText(value.audioDirectory);
                     p.maxDigitsEdit->setValue(value.maxDigits);
                     p.defaultSpeedEdit->setValue(value.io.defaultSpeed);
                     p.threadsEdit->setValue(value.io.threadCount);
@@ -291,21 +291,21 @@ namespace tl
                     p.model->setFileSequence(settings);
                 });
 
+            p.audioExtensionsEdit->setTextCallback(
+                [this](const std::string& value)
+                {
+                    DTK_P();
+                    FileSequenceSettings settings = p.model->getFileSequence();
+                    settings.audioExtensions = dtk::split(value, ' ');
+                    p.model->setFileSequence(settings);
+                });
+
             p.audioFileNameEdit->setTextCallback(
                 [this](const std::string& value)
                 {
                     DTK_P();
                     FileSequenceSettings settings = p.model->getFileSequence();
                     settings.audioFileName = value;
-                    p.model->setFileSequence(settings);
-                });
-
-            p.audioDirectoryEdit->setTextCallback(
-                [this](const std::string& value)
-                {
-                    DTK_P();
-                    FileSequenceSettings settings = p.model->getFileSequence();
-                    settings.audioDirectory = value;
                     p.model->setFileSequence(settings);
                 });
 

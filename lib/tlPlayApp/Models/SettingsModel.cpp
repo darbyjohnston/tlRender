@@ -77,8 +77,8 @@ namespace tl
         {
             return
                 audio == other.audio &&
+                audioExtensions == other.audioExtensions &&
                 audioFileName == other.audioFileName &&
-                audioDirectory == other.audioDirectory &&
                 maxDigits == other.maxDigits &&
                 io == other.io;
         }
@@ -716,8 +716,8 @@ namespace tl
         void to_json(nlohmann::json& json, const FileSequenceSettings& value)
         {
             json["Audio"] = timeline::to_string(value.audio);
+            json["AudioExtensions"] = value.audioExtensions;
             json["AudioFileName"] = value.audioFileName;
-            json["AudioDirectory"] = value.audioDirectory;
             json["MaxDigits"] = value.maxDigits;
             json["IO"] = value.io;
         }
@@ -814,8 +814,8 @@ namespace tl
         void from_json(const nlohmann::json& json, FileSequenceSettings& value)
         {
             timeline::from_string(json.at("Audio").get<std::string>(), value.audio);
+            json.at("AudioExtensions").get_to(value.audioExtensions);
             json.at("AudioFileName").get_to(value.audioFileName);
-            json.at("AudioDirectory").get_to(value.audioDirectory);
             json.at("MaxDigits").get_to(value.maxDigits);
             json.at("IO").get_to(value.io);
         }

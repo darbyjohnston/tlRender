@@ -48,9 +48,8 @@ namespace tl
         {
             for (const auto& i : getExtensions(
                 _context,
-                static_cast<int>(io::FileType::Movie) |
-                static_cast<int>(io::FileType::Sequence) |
-                static_cast<int>(io::FileType::Audio)))
+                static_cast<int>(io::FileType::Media) |
+                static_cast<int>(io::FileType::Sequence)))
             {
                 std::stringstream ss;
                 ss << "Timeline extension: " << i;

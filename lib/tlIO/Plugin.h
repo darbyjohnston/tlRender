@@ -74,9 +74,8 @@ namespace tl
 
             //! Get the supported file extensions.
             std::set<std::string> getExtensions(int types =
-                static_cast<int>(FileType::Movie) |
-                static_cast<int>(FileType::Sequence) |
-                static_cast<int>(FileType::Audio)) const;
+                static_cast<int>(FileType::Media) |
+                static_cast<int>(FileType::Sequence)) const;
 
         protected:
             std::weak_ptr<dtk::LogSystem> _logSystem;

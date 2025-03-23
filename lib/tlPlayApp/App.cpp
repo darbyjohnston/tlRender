@@ -936,8 +936,8 @@ namespace tl
                         timeline::Options options;
                         const FileSequenceSettings fileSequence = p.settingsModel->getFileSequence();
                         options.fileSequenceAudio = fileSequence.audio;
+                        options.fileSequenceAudioExtensions = fileSequence.audioExtensions;
                         options.fileSequenceAudioFileName = fileSequence.audioFileName;
-                        options.fileSequenceAudioDirectory = fileSequence.audioDirectory;
                         const PerformanceSettings performance = p.settingsModel->getPerformance();
                         options.videoRequestCount = performance.videoRequestCount;
                         options.audioRequestCount = performance.audioRequestCount;

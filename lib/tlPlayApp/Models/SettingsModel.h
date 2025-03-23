@@ -94,9 +94,9 @@ namespace tl
         //! File sequence settings.
         struct FileSequenceSettings
         {
-            timeline::FileSequenceAudio audio = timeline::FileSequenceAudio::BaseName;
+            timeline::FileSequenceAudio audio = timeline::FileSequenceAudio::Extension;
+            std::vector<std::string> audioExtensions;
             std::string audioFileName;
-            std::string audioDirectory;
             size_t maxDigits = 9;
             io::SequenceOptions io;
 

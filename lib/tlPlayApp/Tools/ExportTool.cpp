@@ -108,7 +108,7 @@ namespace tl
             auto ioSystem = context->getSystem<io::WriteSystem>();
             auto extensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Sequence));
             p.imageExtensions.insert(p.imageExtensions.end(), extensions.begin(), extensions.end());
-            extensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Movie));
+            extensions = ioSystem->getExtensions(static_cast<int>(io::FileType::Media));
             p.movieExtensions.insert(p.movieExtensions.end(), extensions.begin(), extensions.end());
 #if defined(TLRENDER_FFMPEG)
             auto ffmpegPlugin = ioSystem->getPlugin<ffmpeg::WritePlugin>();

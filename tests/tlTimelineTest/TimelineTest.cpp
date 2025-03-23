@@ -52,7 +52,7 @@ namespace tl
         void TimelineTest::_options()
         {
             Options a;
-            a.fileSequenceAudio = FileSequenceAudio::Directory;
+            a.fileSequenceAudio = FileSequenceAudio::FileName;
             DTK_ASSERT(a == a);
             DTK_ASSERT(a != Options());
         }
@@ -260,7 +260,7 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 _print(dtk::Format("Path: {0}").arg(path.get()));
                 Options options;
-                options.fileSequenceAudio = FileSequenceAudio::BaseName;
+                options.fileSequenceAudio = FileSequenceAudio::Extension;
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 DTK_ASSERT(!audioPath.isEmpty());
@@ -278,22 +278,6 @@ namespace tl
                 options.fileSequenceAudio = FileSequenceAudio::FileName;
                 options.fileSequenceAudioFileName = file::Path(
                     TLRENDER_SAMPLE_DATA, "AudioToneStereo.wav").get();
-                auto timeline = Timeline::create(_context, path, options);
-                const file::Path& audioPath = timeline->getAudioPath();
-                DTK_ASSERT(!audioPath.isEmpty());
-                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
-            }
-            catch (const std::exception& e)
-            {
-                _printError(e.what());
-            }
-            try
-            {
-                const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(dtk::Format("Path: {0}").arg(path.get()));
-                Options options;
-                options.fileSequenceAudio = FileSequenceAudio::Directory;
-                options.fileSequenceAudioDirectory = "";
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 DTK_ASSERT(!audioPath.isEmpty());

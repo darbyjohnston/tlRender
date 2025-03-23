@@ -212,11 +212,13 @@ namespace tl
                         {
                             extension.insert(0, ".");
                         }
-                        extensions[extension] = io::FileType::Movie;
+                        extensions[extension] = io::FileType::Media;
                     }
                     formatLog.push_back(dtk::Format("    {0}: {1}").arg(avInputFormat->name).arg(avInputFormat->extensions));
                 }
             }
+            //! \bug Why isn't .wav in the list of input formats?
+            extensions[".wav"] = io::FileType::Media;
 
             IReadPlugin::_init("FFmpeg", extensions, logSystem);
 
@@ -317,28 +319,15 @@ namespace tl
             {
                 if (avOutputFormat->extensions)
                 {
-                    // Check if the format codec matches.
-                    bool match = false;
-                    for (const auto id : p.codecIds)
+                    for (auto extension : dtk::split(avOutputFormat->extensions, ','))
                     {
-                        if (av_codec_get_tag(avOutputFormat->codec_tag, id) != 0)
+                        if (!extension.empty() && extension[0] != '.')
                         {
-                            match = true;
-                            break;
-                        }
+                            extension.insert(0, ".");
+                        }                            
+                        extensions[extension] = io::FileType::Media;
                     }
-                    if (match)
-                    {
-                        for (auto extension : dtk::split(avOutputFormat->extensions, ','))
-                        {
-                            if (!extension.empty() && extension[0] != '.')
-                            {
-                                extension.insert(0, ".");
-                            }                            
-                            extensions[extension] = io::FileType::Movie;
-                        }
-                        formatLog.push_back(dtk::Format("    {0}: {1}").arg(avOutputFormat->name).arg(avOutputFormat->extensions));
-                    }
+                    formatLog.push_back(dtk::Format("    {0}: {1}").arg(avOutputFormat->name).arg(avOutputFormat->extensions));
                 }
             }
 

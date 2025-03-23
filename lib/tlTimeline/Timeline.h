@@ -29,9 +29,8 @@ namespace tl
         enum class FileSequenceAudio
         {
             None,      //!< No audio
-            BaseName,  //!< Search for an audio file with the same base name as the file sequence
+            Extension, //!< Search for an audio file by extension
             FileName,  //!< Use the given audio file name
-            Directory, //!< Use the first audio file in the given directory
 
             Count,
             First = None
@@ -41,9 +40,9 @@ namespace tl
         //! Timeline options.
         struct Options
         {
-            FileSequenceAudio fileSequenceAudio = FileSequenceAudio::BaseName;
+            FileSequenceAudio fileSequenceAudio = FileSequenceAudio::Extension;
+            std::vector<std::string> fileSequenceAudioExtensions = { ".wav", ".mp3" };
             std::string fileSequenceAudioFileName;
-            std::string fileSequenceAudioDirectory;
 
             size_t videoRequestCount = 16;
             size_t audioRequestCount = 16;

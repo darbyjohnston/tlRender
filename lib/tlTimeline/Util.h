@@ -19,9 +19,8 @@ namespace tl
         std::vector<std::string> getExtensions(
             const std::shared_ptr<dtk::Context>&,
             int types =
-            static_cast<int>(io::FileType::Movie) |
-            static_cast<int>(io::FileType::Sequence) |
-            static_cast<int>(io::FileType::Audio));
+            static_cast<int>(io::FileType::Media) |
+            static_cast<int>(io::FileType::Sequence));
 
         //! Convert frames to ranges.
         std::vector<OTIO_NS::TimeRange> toRanges(std::vector<OTIO_NS::RationalTime>);
