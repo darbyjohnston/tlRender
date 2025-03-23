@@ -109,7 +109,7 @@ namespace tl
             dtk::VideoLevels bmdOutputVideoLevels = dtk::VideoLevels::LegalRange;
 #endif // TLRENDER_BMD
 
-            std::shared_ptr<dtk::ValueObserver<CacheSettings> > cacheObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheOptions> > cacheObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > activeObserver;
             std::shared_ptr<dtk::ListObserver<int> > layersObserver;
@@ -269,9 +269,6 @@ namespace tl
 
             auto thumbnailSytem = _context->getSystem<timelineui::ThumbnailSystem>();
             thumbnailSytem->getCache()->clear();
-
-            auto ioSystem = _context->getSystem<io::ReadSystem>();
-            ioSystem->getCache()->clear();
 
             _filesUpdate(files);
             _activeUpdate(activeFiles);
@@ -454,11 +451,14 @@ namespace tl
 
             p.player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
 
-            p.cacheObserver = dtk::ValueObserver<CacheSettings>::create(
+            p.cacheObserver = dtk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 p.settingsModel->observeCache(),
-                [this](const CacheSettings& value)
+                [this](const timeline::PlayerCacheOptions& value)
                 {
-                    _cacheUpdate(value);
+                    if (auto player = _p->player->get())
+                    {
+                        player->setCacheOptions(value);
+                    }
                 });
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -998,8 +998,7 @@ namespace tl
                             {
                                 timeline::PlayerOptions playerOptions;
                                 playerOptions.audioDevice = p.audioModel->getDevice();
-                                playerOptions.cache.readAhead = time::invalidTime;
-                                playerOptions.cache.readBehind = time::invalidTime;
+                                playerOptions.cache = p.settingsModel->getCache();
                                 playerOptions.audioBufferFrameCount = p.settingsModel->getPerformance().audioBufferFrameCount;
                                 player = timeline::Player::create(_context, timeline, playerOptions);
                             }
@@ -1044,7 +1043,6 @@ namespace tl
 #endif // TLRENDER_BMD
 
             _layersUpdate(p.filesModel->observeLayers()->get());
-            _cacheUpdate(p.settingsModel->getCache());
             _audioUpdate();
         }
 
@@ -1073,22 +1071,6 @@ namespace tl
                 }
                 player->setVideoLayer(videoLayer);
                 player->setCompareVideoLayers(compareVideoLayers);
-            }
-        }
-
-        void App::_cacheUpdate(const CacheSettings& options)
-        {
-            DTK_P();
-
-            auto ioSystem = _context->getSystem<io::ReadSystem>();
-            ioSystem->getCache()->setMax(options.sizeGB * dtk::gigabyte);
-
-            timeline::PlayerCacheOptions cacheOptions;
-            cacheOptions.readAhead = OTIO_NS::RationalTime(options.readAhead, 1.0);
-            cacheOptions.readBehind = OTIO_NS::RationalTime(options.readBehind, 1.0);
-            if (auto player = p.player->get())
-            {
-                player->setCacheOptions(cacheOptions);
             }
         }
 

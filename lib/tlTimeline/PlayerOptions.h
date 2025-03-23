@@ -7,6 +7,8 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Time.h>
 
+#include <dtk/core/Memory.h>
+
 namespace tl
 {
     namespace timeline
@@ -14,11 +16,14 @@ namespace tl
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
-            //! Cache read ahead.
-            OTIO_NS::RationalTime readAhead = OTIO_NS::RationalTime(2.0, 1.0);
+            // Video cache size in gigabytes.
+            float videoGB = 4.F;
 
-            //! Cache read behind.
-            OTIO_NS::RationalTime readBehind = OTIO_NS::RationalTime(0.5, 1.0);
+            // Audio cache size in gigabytes.
+            float audioGB = .5F;
+
+            // Number of seconds to read behind the current frame.
+            float readBehind = .5F;
 
             bool operator == (const PlayerCacheOptions&) const;
             bool operator != (const PlayerCacheOptions&) const;
@@ -48,5 +53,14 @@ namespace tl
             bool operator == (const PlayerOptions&) const;
             bool operator != (const PlayerOptions&) const;
         };
+
+        //! \name Serialize
+        ///@{
+
+        void to_json(nlohmann::json&, const PlayerCacheOptions&);
+
+        void from_json(const nlohmann::json&, PlayerCacheOptions&);
+
+        ///@}
     }
 }

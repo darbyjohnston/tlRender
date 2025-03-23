@@ -110,71 +110,23 @@ namespace tl
             return out;
         }
 
+        int64_t loop(
+            int64_t value,
+            const OTIO_NS::TimeRange& range,
+            bool* looped)
+        {
+            return loop(
+                OTIO_NS::RationalTime(value, 1.0),
+                OTIO_NS::TimeRange(
+                    range.start_time().rescaled_to(1.0),
+                    range.duration().rescaled_to(1.0)),
+                looped).value();
+        }
+
         DTK_ENUM_IMPL(
             CacheDirection,
             "Forward",
             "Reverse");
-
-        std::vector<OTIO_NS::TimeRange> loopCache(
-            const OTIO_NS::TimeRange& value,
-            const OTIO_NS::TimeRange& range,
-            CacheDirection direction)
-        {
-            std::vector<OTIO_NS::TimeRange> out;
-            switch (direction)
-            {
-            case CacheDirection::Forward:
-                if (value.duration() > range.duration())
-                {
-                    out.push_back(range);
-                }
-                else if (value.start_time() < range.start_time())
-                {
-                    const OTIO_NS::RationalTime a(range.start_time() - value.start_time());
-                    const OTIO_NS::RationalTime b(value.end_time_exclusive() - range.start_time());
-                    out.push_back(OTIO_NS::TimeRange(range.start_time(), b));
-                    out.push_back(OTIO_NS::TimeRange(range.end_time_exclusive() - a, a));
-                }
-                else if (value.end_time_inclusive() > range.end_time_inclusive())
-                {
-                    const OTIO_NS::RationalTime a(range.end_time_exclusive() - value.start_time());
-                    const OTIO_NS::RationalTime b(value.end_time_exclusive() - range.end_time_exclusive());
-                    out.push_back(OTIO_NS::TimeRange(value.start_time(), a));
-                    out.push_back(OTIO_NS::TimeRange(range.start_time(), b));
-                }
-                else
-                {
-                    out.push_back(value);
-                }
-                break;
-            case CacheDirection::Reverse:
-                if (value.duration() > range.duration())
-                {
-                    out.push_back(range);
-                }
-                else if (value.start_time() < range.start_time())
-                {
-                    const OTIO_NS::RationalTime a(range.start_time() - value.start_time());
-                    const OTIO_NS::RationalTime b(value.end_time_exclusive() - range.start_time());
-                    out.push_back(OTIO_NS::TimeRange(range.start_time(), b));
-                    out.push_back(OTIO_NS::TimeRange(range.end_time_exclusive() - a, a));
-                }
-                else if (value.end_time_inclusive() > range.end_time_inclusive())
-                {
-                    const OTIO_NS::RationalTime a(range.end_time_exclusive() - value.start_time());
-                    const OTIO_NS::RationalTime b(value.end_time_exclusive() - range.end_time_exclusive());
-                    out.push_back(OTIO_NS::TimeRange(range.start_time(), b));
-                    out.push_back(OTIO_NS::TimeRange(value.start_time(), a));
-                }
-                else
-                {
-                    out.push_back(value);
-                }
-                break;
-            default: break;
-            }
-            return out;
-        }
 
         const OTIO_NS::Composable* getRoot(const OTIO_NS::Composable* composable)
         {

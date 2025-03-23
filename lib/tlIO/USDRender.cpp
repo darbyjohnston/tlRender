@@ -4,8 +4,6 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <tlIO/Cache.h>
-
 #include <dtk/core/File.h>
 #include <dtk/core/FileIO.h>
 #include <dtk/core/Format.h>
@@ -42,9 +40,25 @@ namespace tl
 {
     namespace usd
     {
+        namespace
+        {
+            std::string getCacheKey(
+                const file::Path& path,
+                const OTIO_NS::RationalTime& time,
+                const io::Options& options)
+            {
+                std::stringstream ss;
+                ss << path.get() << ";" << path.getNumber() << ";" << time << ";";
+                for (const auto& i : options)
+                {
+                    ss << i.first << ":" << i.second << ";";
+                }
+                return ss.str();
+            }
+        }
+
         struct Render::Private
         {
-            std::shared_ptr<io::Cache> cache;
             std::weak_ptr<dtk::LogSystem> logSystem;
 
             GLFWwindow* glfwWindow = nullptr;
@@ -104,13 +118,10 @@ namespace tl
             Thread thread;
         };
         
-        void Render::_init(
-            const std::shared_ptr<io::Cache>& cache,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void Render::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             DTK_P();
 
-            p.cache = cache;
             p.logSystem = logSystem;
 
 #if defined(__APPLE__)
@@ -181,11 +192,10 @@ namespace tl
         }
 
         std::shared_ptr<Render> Render::create(
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Render>(new Render);
-            out->_init(cache, logSystem);
+            out->_init(logSystem);
             return out;
         }
         
@@ -485,12 +495,12 @@ namespace tl
                 {
                     ioOptions = request->options;
                 }
-                auto i = ioOptions.find("USD/StageCacheCount");
+                auto i = ioOptions.find("USD/StageCache");
                 if (i != ioOptions.end())
                 {
                     stageCacheCount = std::atoll(i->second.c_str());
                 }
-                i = ioOptions.find("USD/DiskCacheByteCount");
+                i = ioOptions.find("USD/DiskCache");
                 if (i != ioOptions.end())
                 {
                     diskCacheByteCount = std::atoll(i->second.c_str());
@@ -575,31 +585,14 @@ namespace tl
                     infoRequest->promise.set_value(info);
                 }
 
-                // Check the I/O cache.
-                io::VideoData videoData;
-                if (request && p.cache)
-                {
-                    const std::string cacheKey = io::getVideoCacheKey(
-                        request->path,
-                        request->time,
-                        ioOptions,
-                        {});
-                    if (p.cache->getVideo(cacheKey, videoData))
-                    {
-                        request->promise.set_value(videoData);
-                        request.reset();
-                    }
-                }
-
                 // Check the disk cache.
                 if (request)
                 {
                     std::shared_ptr<Private::DiskCacheItem> diskCacheItem;
-                    const std::string cacheKey = io::getVideoCacheKey(
+                    const std::string cacheKey = getCacheKey(
                         request->path,
                         request->time,
-                        ioOptions,
-                        {});
+                        ioOptions);
                     if (diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(cacheKey, diskCacheItem))
                     {
@@ -629,15 +622,10 @@ namespace tl
                             }
                         }
 
+                        io::VideoData videoData;
                         videoData.time = request->time;
                         videoData.image = image;
                         request->promise.set_value(videoData);
-
-                        if (p.cache)
-                        {
-                            p.cache->addVideo(cacheKey, videoData);
-                        }
-
                         request.reset();
                     }
                 }
@@ -646,11 +634,10 @@ namespace tl
                 if (request)
                 {
                     std::shared_ptr<dtk::Image> image;
-                    const std::string cacheKey = io::getVideoCacheKey(
+                    const std::string cacheKey = getCacheKey(
                         request->path,
                         request->time,
-                        ioOptions,
-                        {});
+                        ioOptions);
                     try
                     {
                         // Check the stage cache for a previously opened stage.
@@ -855,14 +842,10 @@ namespace tl
                         }
                     }
 
+                    io::VideoData videoData;
                     videoData.time = request->time;
                     videoData.image = image;
                     request->promise.set_value(videoData);
-
-                    if (p.cache)
-                    {
-                        p.cache->addVideo(cacheKey, videoData);
-                    }
                 }
 
                 // Logging.

@@ -16,6 +16,7 @@
 #include <dtk/ui/DialogSystem.h>
 #include <dtk/ui/Divider.h>
 #include <dtk/ui/DoubleEdit.h>
+#include <dtk/ui/FloatEdit.h>
 #include <dtk/ui/FloatEditSlider.h>
 #include <dtk/ui/FormLayout.h>
 #include <dtk/ui/IntEdit.h>
@@ -34,12 +35,12 @@ namespace tl
         {
             std::shared_ptr<SettingsModel> model;
 
-            std::shared_ptr<dtk::IntEdit> sizeGB;
-            std::shared_ptr<dtk::DoubleEdit> readAhead;
-            std::shared_ptr<dtk::DoubleEdit> readBehind;
+            std::shared_ptr<dtk::FloatEdit> videoEdit;
+            std::shared_ptr<dtk::FloatEdit> audioEdit;
+            std::shared_ptr<dtk::FloatEdit> readBehindEdit;
             std::shared_ptr<dtk::FormLayout> layout;
 
-            std::shared_ptr<dtk::ValueObserver<CacheSettings> > settingsObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheOptions> > settingsObserver;
         };
 
         void CacheSettingsWidget::_init(
@@ -52,59 +53,55 @@ namespace tl
 
             p.model = app->getSettingsModel();
 
-            p.sizeGB = dtk::IntEdit::create(context);
-            p.sizeGB->setRange(dtk::RangeI(0, 1024));
+            p.videoEdit = dtk::FloatEdit::create(context);
+            p.videoEdit->setRange(dtk::RangeF(0.F, 1024.F));
 
-            p.readAhead = dtk::DoubleEdit::create(context);
-            p.readAhead->setRange(dtk::RangeD(0.0, 60.0));
-            p.readAhead->setStep(1.0);
-            p.readAhead->setLargeStep(10.0);
+            p.audioEdit = dtk::FloatEdit::create(context);
+            p.audioEdit->setRange(dtk::RangeF(0.F, 1024.F));
 
-            p.readBehind = dtk::DoubleEdit::create(context);
-            p.readBehind->setRange(dtk::RangeD(0.0, 60.0));
-            p.readBehind->setStep(1.0);
-            p.readBehind->setLargeStep(10.0);
+            p.readBehindEdit = dtk::FloatEdit::create(context);
+            p.readBehindEdit->setRange(dtk::RangeF(0.F, 10.F));
 
             p.layout = dtk::FormLayout::create(context, shared_from_this());
             p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.layout->addRow("Cache size (GB):", p.sizeGB);
-            p.layout->addRow("Read ahead (seconds):", p.readAhead);
-            p.layout->addRow("Read behind (seconds):", p.readBehind);
+            p.layout->addRow("Video cache (GB):", p.videoEdit);
+            p.layout->addRow("Audio cache (GB):", p.audioEdit);
+            p.layout->addRow("Read behind (seconds):", p.readBehindEdit);
 
-            p.settingsObserver = dtk::ValueObserver<CacheSettings>::create(
+            p.settingsObserver = dtk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 p.model->observeCache(),
-                [this](const CacheSettings& value)
+                [this](const timeline::PlayerCacheOptions& value)
                 {
                     DTK_P();
-                    p.sizeGB->setValue(value.sizeGB);
-                    p.readAhead->setValue(value.readAhead);
-                    p.readBehind->setValue(value.readBehind);
+                    p.videoEdit->setValue(value.videoGB);
+                    p.audioEdit->setValue(value.audioGB);
+                    p.readBehindEdit->setValue(value.readBehind);
                 });
 
-            p.sizeGB->setCallback(
-                [this](int value)
+            p.videoEdit->setCallback(
+                [this](float value)
                 {
                     DTK_P();
-                    CacheSettings settings = p.model->getCache();
-                    settings.sizeGB = value;
+                    timeline::PlayerCacheOptions settings = p.model->getCache();
+                    settings.videoGB = value;
                     p.model->setCache(settings);
                 });
 
-            p.readAhead->setCallback(
-                [this](double value)
+            p.audioEdit->setCallback(
+                [this](float value)
                 {
                     DTK_P();
-                    CacheSettings settings = p.model->getCache();
-                    settings.readAhead = value;
+                    timeline::PlayerCacheOptions settings = p.model->getCache();
+                    settings.audioGB = value;
                     p.model->setCache(settings);
                 });
 
-            p.readBehind->setCallback(
-                [this](double value)
+            p.readBehindEdit->setCallback(
+                [this](float value)
                 {
                     DTK_P();
-                    CacheSettings settings = p.model->getCache();
+                    timeline::PlayerCacheOptions settings = p.model->getCache();
                     settings.readBehind = value;
                     p.model->setCache(settings);
                 });

@@ -14,19 +14,6 @@ namespace tl
 {
     namespace play
     {
-        bool CacheSettings::operator == (const CacheSettings& other) const
-        {
-            return
-                sizeGB == other.sizeGB &&
-                readAhead == other.readAhead &&
-                readBehind == other.readBehind;
-        }
-
-        bool CacheSettings::operator != (const CacheSettings& other) const
-        {
-            return !(*this == other);
-        }
-
         DTK_ENUM_IMPL(
             ExportRenderSize,
             "Default",
@@ -334,7 +321,7 @@ namespace tl
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::Settings> settings;
 
-            std::shared_ptr<dtk::ObservableValue<CacheSettings> > cache;
+            std::shared_ptr<dtk::ObservableValue<timeline::PlayerCacheOptions> > cache;
             std::shared_ptr<dtk::ObservableValue<ExportSettings> > exportSettings;
             std::shared_ptr<dtk::ObservableValue<FileBrowserSettings> > fileBrowser;
             std::shared_ptr<dtk::ObservableValue<FileSequenceSettings> > fileSequence;
@@ -362,9 +349,9 @@ namespace tl
             p.context = context;
             p.settings = settings;
 
-            CacheSettings cache;
+            timeline::PlayerCacheOptions cache;
             settings->getT("/Cache", cache);
-            p.cache = dtk::ObservableValue<CacheSettings>::create(cache);
+            p.cache = dtk::ObservableValue<timeline::PlayerCacheOptions>::create(cache);
 
             ExportSettings exportSettings;
             settings->getT("/Export", exportSettings);
@@ -479,7 +466,7 @@ namespace tl
 
         void SettingsModel::reset()
         {
-            setCache(CacheSettings());
+            setCache(timeline::PlayerCacheOptions());
             setExport(ExportSettings());
             setFileBrowser(FileBrowserSettings());
             setFileSequence(FileSequenceSettings());
@@ -498,17 +485,17 @@ namespace tl
 #endif // TLRENDER_USD
         }
 
-        const CacheSettings& SettingsModel::getCache() const
+        const timeline::PlayerCacheOptions& SettingsModel::getCache() const
         {
             return _p->cache->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<CacheSettings> > SettingsModel::observeCache() const
+        std::shared_ptr<dtk::IObservableValue<timeline::PlayerCacheOptions> > SettingsModel::observeCache() const
         {
             return _p->cache;
         }
 
-        void SettingsModel::setCache(const CacheSettings& value)
+        void SettingsModel::setCache(const timeline::PlayerCacheOptions& value)
         {
             _p->cache->setIfChanged(value);
         }
@@ -705,13 +692,6 @@ namespace tl
         }
 #endif // TLRENDER_USD
 
-        void to_json(nlohmann::json& json, const CacheSettings& value)
-        {
-            json["SizeGB"] = value.sizeGB;
-            json["ReadAhead"] = value.readAhead;
-            json["ReadBehind"] = value.readBehind;
-        }
-
         void to_json(nlohmann::json& json, const ExportSettings& value)
         {
             json["Directory"] = value.directory;
@@ -808,13 +788,6 @@ namespace tl
                 { "Splitter", in.splitter },
                 { "Splitter2", in.splitter2 }
             };
-        }
-
-        void from_json(const nlohmann::json& json, CacheSettings& value)
-        {
-            json.at("SizeGB").get_to(value.sizeGB);
-            json.at("ReadAhead").get_to(value.readAhead);
-            json.at("ReadBehind").get_to(value.readBehind);
         }
 
         void from_json(const nlohmann::json& json, ExportSettings& value)

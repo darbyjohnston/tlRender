@@ -58,7 +58,6 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
             Read();
@@ -72,7 +71,6 @@ namespace tl
                 const std::shared_ptr<Render>&,
                 const file::Path&,
                 const io::Options&,
-                const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
             std::future<io::Info> getInfo() override;
@@ -89,9 +87,7 @@ namespace tl
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            void _init(
-                const std::shared_ptr<io::Cache>&,
-                const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<dtk::LogSystem>&);
             
             ReadPlugin();
 
@@ -100,7 +96,6 @@ namespace tl
 
             //! Create a new plugin.
             static std::shared_ptr<ReadPlugin> create(
-                const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
             
             std::shared_ptr<io::IRead> read(

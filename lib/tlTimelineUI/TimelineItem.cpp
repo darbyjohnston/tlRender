@@ -989,7 +989,7 @@ namespace tl
             {
                 dtk::TriMesh2F mesh;
                 size_t i = 1;
-                for (const auto& t : p.cacheInfo.videoFrames)
+                for (const auto& t : p.cacheInfo.video)
                 {
                     const int x0 = timeToPos(t.start_time());
                     const int x1 = timeToPos(t.end_time_exclusive());
@@ -1029,7 +1029,7 @@ namespace tl
             {
                 dtk::TriMesh2F mesh;
                 size_t i = 1;
-                for (const auto& t : p.cacheInfo.audioFrames)
+                for (const auto& t : p.cacheInfo.audio)
                 {
                     const int x0 = timeToPos(t.start_time());
                     const int x1 = timeToPos(t.end_time_exclusive());

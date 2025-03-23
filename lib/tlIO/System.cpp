@@ -4,7 +4,6 @@
 
 #include <tlIO/System.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/Cineon.h>
 #include <tlIO/DPX.h>
 #include <tlIO/PPM.h>
@@ -43,7 +42,6 @@ namespace tl
     {
         struct ReadSystem::Private
         {
-            std::shared_ptr<Cache> cache;
             std::vector<std::string> names;
         };
 
@@ -53,35 +51,33 @@ namespace tl
         {
             DTK_P();
 
-            p.cache = Cache::create();
-
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-                _plugins.push_back(cineon::ReadPlugin::create(p.cache, logSystem));
-                _plugins.push_back(dpx::ReadPlugin::create(p.cache, logSystem));
-                _plugins.push_back(ppm::ReadPlugin::create(p.cache, logSystem));
-                _plugins.push_back(sgi::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(cineon::ReadPlugin::create(logSystem));
+                _plugins.push_back(dpx::ReadPlugin::create(logSystem));
+                _plugins.push_back(ppm::ReadPlugin::create(logSystem));
+                _plugins.push_back(sgi::ReadPlugin::create(logSystem));
 #if defined(TLRENDER_STB)
-                _plugins.push_back(stb::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(stb::ReadPlugin::create(logSystem));
 #endif
 #if defined(TLRENDER_FFMPEG)
-                _plugins.push_back(ffmpeg::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_JPEG)
-                _plugins.push_back(jpeg::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(jpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_JPEG
 #if defined(TLRENDER_EXR)
-                _plugins.push_back(exr::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(exr::ReadPlugin::create(logSystem));
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_PNG)
-                _plugins.push_back(png::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(png::ReadPlugin::create(logSystem));
 #endif // TLRENDER_PNG
 #if defined(TLRENDER_TIFF)
-                _plugins.push_back(tiff::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(tiff::ReadPlugin::create(logSystem));
 #endif // TLRENDER_TIFF
 #if defined(TLRENDER_USD)
-                _plugins.push_back(usd::ReadPlugin::create(p.cache, logSystem));
+                _plugins.push_back(usd::ReadPlugin::create(logSystem));
 #endif // TLRENDER_USD
             }
 
@@ -200,11 +196,6 @@ namespace tl
                 }
             }
             return nullptr;
-        }
-
-        const std::shared_ptr<Cache>& ReadSystem::getCache() const
-        {
-            return _p->cache;
         }
 
         struct WriteSystem::Private

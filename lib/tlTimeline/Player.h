@@ -17,14 +17,17 @@ namespace tl
         //! Timeline player cache information.
         struct PlayerCacheInfo
         {
-            //! Video cache percentage used.
+            //! Percentage used of the video cache.
             float videoPercentage = 0.F;
 
-            //! Cached video frames.
-            std::vector<OTIO_NS::TimeRange> videoFrames;
+            //! Percentage used of the video cache.
+            float audioPercentage = 0.F;
 
-            //! Cached audio frames.
-            std::vector<OTIO_NS::TimeRange> audioFrames;
+            //! Cached video.
+            std::vector<OTIO_NS::TimeRange> video;
+
+            //! Cached audio.
+            std::vector<OTIO_NS::TimeRange> audio;
 
             bool operator == (const PlayerCacheInfo&) const;
             bool operator != (const PlayerCacheInfo&) const;

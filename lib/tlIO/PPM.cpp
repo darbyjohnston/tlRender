@@ -114,14 +114,12 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(
                 "PPM",
                 { { ".ppm", io::FileType::Sequence } },
-                cache,
                 logSystem);
             return out;
         }
@@ -130,7 +128,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(path, options, _cache, _logSystem.lock());
+            return Read::create(path, options, _logSystem.lock());
         }
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
@@ -138,7 +136,7 @@ namespace tl
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            return Read::create(path, memory, options, _cache, _logSystem.lock());
+            return Read::create(path, memory, options, _logSystem.lock());
         }
 
         WritePlugin::WritePlugin()

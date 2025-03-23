@@ -180,9 +180,7 @@ namespace tl
             std::vector<std::string> codecNames;
         };
 
-        void ReadPlugin::_init(
-            const std::shared_ptr<io::Cache>& cache,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             DTK_P();
 
@@ -220,7 +218,7 @@ namespace tl
                 }
             }
 
-            IReadPlugin::_init("FFmpeg", extensions, cache, logSystem);
+            IReadPlugin::_init("FFmpeg", extensions, logSystem);
 
             _logSystemWeak = logSystem;
             //av_log_set_level(AV_LOG_QUIET);
@@ -240,11 +238,10 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
-            out->_init(cache, logSystem);
+            out->_init(logSystem);
             return out;
         }
 
@@ -252,7 +249,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(path, options, _cache, _logSystem.lock());
+            return Read::create(path, options, _logSystem.lock());
         }
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
@@ -260,7 +257,7 @@ namespace tl
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            return Read::create(path, memory, options, _cache, _logSystem.lock());
+            return Read::create(path, memory, options, _logSystem.lock());
         }
 
         void ReadPlugin::_logCallback(void*, int level, const char* fmt, va_list vl)

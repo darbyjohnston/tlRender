@@ -34,17 +34,6 @@ namespace tl
 {
     namespace play
     {
-        //! Cache settings.
-        struct CacheSettings
-        {
-            size_t sizeGB = 4;
-            double readAhead = 4.F;
-            double readBehind = .5F;
-
-            bool operator == (const CacheSettings&) const;
-            bool operator != (const CacheSettings&) const;
-        };
-
         //! Export render size.
         enum class ExportRenderSize
         {
@@ -246,9 +235,9 @@ namespace tl
             //! \name Cache
             ///@{
 
-            const CacheSettings& getCache() const;
-            std::shared_ptr<dtk::IObservableValue<CacheSettings> > observeCache() const;
-            void setCache(const CacheSettings&);
+            const timeline::PlayerCacheOptions& getCache() const;
+            std::shared_ptr<dtk::IObservableValue<timeline::PlayerCacheOptions> > observeCache() const;
+            void setCache(const timeline::PlayerCacheOptions&);
 
             ///@}
 
@@ -375,7 +364,6 @@ namespace tl
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const CacheSettings&);
         void to_json(nlohmann::json&, const ExportSettings&);
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const FileSequenceSettings&);
@@ -387,7 +375,6 @@ namespace tl
         void to_json(nlohmann::json&, const TimelineSettings&);
         void to_json(nlohmann::json&, const WindowSettings&);
 
-        void from_json(const nlohmann::json&, CacheSettings&);
         void from_json(const nlohmann::json&, ExportSettings&);
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, FileSequenceSettings&);

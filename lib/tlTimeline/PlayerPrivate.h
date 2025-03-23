@@ -10,6 +10,8 @@
 
 #include <tlCore/AudioResample.h>
 
+#include <dtk/core/LRUCache.h>
+
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
 #endif // TLRENDER_SDL2
@@ -77,6 +79,9 @@ namespace tl
             std::shared_ptr<dtk::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<dtk::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
+            OTIO_NS::RationalTime videoCacheTime = time::invalidTime;
+            OTIO_NS::RationalTime audioCacheTime = time::invalidTime;
+
             bool audioDevices = false;
             audio::Info audioInfo;
 #if defined(TLRENDER_SDL2)
@@ -123,7 +128,7 @@ namespace tl
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 PlayerCacheOptions cacheOptions;
                 std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
-                std::map<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
+                dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoDataCache;
                 std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
@@ -140,7 +145,7 @@ namespace tl
                 std::vector<bool> channelMute;
                 std::chrono::steady_clock::time_point muteTimeout;
                 double audioOffset = 0.0;
-                std::map<int64_t, AudioData> audioDataCache;
+                dtk::LRUCache<int64_t, AudioData> audioDataCache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;

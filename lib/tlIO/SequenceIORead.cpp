@@ -4,8 +4,6 @@
 
 #include <tlIO/SequenceIOReadPrivate.h>
 
-#include <tlIO/Cache.h>
-
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
 
@@ -25,10 +23,9 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IRead::_init(path, memory, options, cache, logSystem);
+            IRead::_init(path, memory, options, logSystem);
             DTK_P();
 
             const std::string& number = path.getNumber();
@@ -217,56 +214,43 @@ namespace tl
                     auto request = videoRequests.front();
                     videoRequests.pop_front();
 
-                    VideoData videoData;
-                    const std::string cacheKey = getVideoCacheKey(
-                        _path,
-                        request->time,
-                        _options,
-                        request->options);
-                    if (_cache && _cache->getVideo(cacheKey, videoData))
+                    bool seq = false;
+                    std::string fileName;
+                    if (!_path.getNumber().empty())
                     {
-                        request->promise.set_value(videoData);
+                        seq = true;
+                        fileName = _path.get(
+                            static_cast<int>(request->time.value()),
+                            file::PathType::Path);
                     }
                     else
                     {
-                        bool seq = false;
-                        std::string fileName;
-                        if (!_path.getNumber().empty())
-                        {
-                            seq = true;
-                            fileName = _path.get(
-                                static_cast<int>(request->time.value()),
-                                file::PathType::Path);
-                        }
-                        else
-                        {
-                            fileName = _path.get(-1, file::PathType::Path);
-                        }
-                        const OTIO_NS::RationalTime time = request->time;
-                        const Options options = request->options;
-                        request->future = std::async(
-                            std::launch::async,
-                            [this, seq, fileName, time, options]
-                            {
-                                VideoData out;
-                                try
-                                {
-                                    const int64_t frame = time.value();
-                                    const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
-                                    out = _readVideo(
-                                        fileName,
-                                        memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
-                                        time,
-                                        options);
-                                }
-                                catch (const std::exception&)
-                                {
-                                    //! \todo How should this be handled?
-                                }
-                                return out;
-                            });
-                        p.thread.videoRequestsInProgress.push_back(request);
+                        fileName = _path.get(-1, file::PathType::Path);
                     }
+                    const OTIO_NS::RationalTime time = request->time;
+                    const Options options = request->options;
+                    request->future = std::async(
+                        std::launch::async,
+                        [this, seq, fileName, time, options]
+                        {
+                            VideoData out;
+                            try
+                            {
+                                const int64_t frame = time.value();
+                                const int64_t memoryIndex = seq ? (frame - _startFrame) : 0;
+                                out = _readVideo(
+                                    fileName,
+                                    memoryIndex >= 0 && memoryIndex < _memory.size() ? &_memory[memoryIndex] : nullptr,
+                                    time,
+                                    options);
+                            }
+                            catch (const std::exception&)
+                            {
+                                //! \todo How should this be handled?
+                            }
+                            return out;
+                        });
+                    p.thread.videoRequestsInProgress.push_back(request);
                 }
 
                 // Check for finished video requests.
@@ -283,17 +267,6 @@ namespace tl
                         //std::cout << "finished: " << requestIt->time << std::endl;
                         auto videoData = (*requestIt)->future.get();
                         (*requestIt)->promise.set_value(videoData);
-                        
-                        if (_cache)
-                        {
-                            const std::string cacheKey = getVideoCacheKey(
-                                _path,
-                                (*requestIt)->time,
-                                _options,
-                                (*requestIt)->options);
-                            _cache->addVideo(cacheKey, videoData);
-                        }
-
                         requestIt = p.thread.videoRequestsInProgress.erase(requestIt);
                         continue;
                     }

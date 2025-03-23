@@ -73,11 +73,25 @@ namespace tl
             const file::Path& audioPath,
             const Options& = Options());
 
+        //! Video size request.
+        struct VideoSizeRequest
+        {
+            uint64_t id = 0;
+            std::future<size_t> future;
+        };
+
         //! Video request.
         struct VideoRequest
         {
             uint64_t id = 0;
             std::future<VideoData> future;
+        };
+
+        //! Audio size request.
+        struct AudioSizeRequest
+        {
+            uint64_t id = 0;
+            std::future<size_t> future;
         };
 
         //! Audio request.
@@ -176,9 +190,19 @@ namespace tl
             //! \name Video and Audio Data
             ///@{
 
+            //! Get video data size.
+            VideoSizeRequest getVideoSize(
+                const OTIO_NS::RationalTime&,
+                const io::Options& = io::Options());
+
             //! Get video data.
             VideoRequest getVideo(
                 const OTIO_NS::RationalTime&,
+                const io::Options& = io::Options());
+
+            //! Get audio data size.
+            AudioSizeRequest getAudioSize(
+                double seconds,
                 const io::Options& = io::Options());
 
             //! Get audio data.

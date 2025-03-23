@@ -47,8 +47,8 @@ namespace tl
             out["USD/DrawMode"] = dtk::Format("{0}").arg(value.drawMode);
             out["USD/EnableLighting"] = dtk::Format("{0}").arg(value.enableLighting);
             out["USD/sRGB"] = dtk::Format("{0}").arg(value.sRGB);
-            out["USD/StageCacheCount"] = dtk::Format("{0}").arg(value.stageCache);
-            out["USD/DiskCacheByteCount"] = dtk::Format("{0}").arg(value.diskCache);
+            out["USD/StageCache"] = dtk::Format("{0}").arg(value.stageCache);
+            out["USD/DiskCache"] = dtk::Format("{0}").arg(value.diskCache);
             return out;
         }
 
@@ -59,9 +59,7 @@ namespace tl
             std::shared_ptr<Render> render;
         };
         
-        void ReadPlugin::_init(
-            const std::shared_ptr<io::Cache>& cache,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "USD",
@@ -71,10 +69,9 @@ namespace tl
                     { ".usdc", io::FileType::Sequence },
                     { ".usdz", io::FileType::Sequence }
                 },
-                cache,
                 logSystem);
             DTK_P();
-            p.render = Render::create(cache, logSystem);
+            p.render = Render::create(logSystem);
         }
         
         ReadPlugin::ReadPlugin() :
@@ -85,11 +82,10 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
-            out->_init(cache, logSystem);
+            out->_init(logSystem);
             return out;
         }
 
@@ -104,7 +100,7 @@ namespace tl
                 ++(p.id);
                 id = p.id;
             }
-            return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
+            return Read::create(id, p.render, path, options, _logSystem.lock());
         }
         
         std::shared_ptr<io::IRead> ReadPlugin::read(
@@ -119,7 +115,7 @@ namespace tl
                 ++(p.id);
                 id = p.id;
             }
-            return Read::create(id, p.render, path, options, _cache, _logSystem.lock());
+            return Read::create(id, p.render, path, options, _logSystem.lock());
         }
 
         void to_json(nlohmann::json& json, const Options& value)

@@ -252,6 +252,23 @@ namespace tl
             return _p->ioInfo;
         }
 
+        VideoSizeRequest Timeline::getVideoSize(
+            const OTIO_NS::RationalTime&,
+            const io::Options&)
+        {
+            DTK_P();
+            VideoSizeRequest out;
+            std::promise<size_t> promise;
+            out.future = promise.get_future();
+            size_t byteCount = 0;
+            if (!p.ioInfo.video.empty())
+            {
+                byteCount = p.ioInfo.video.front().getByteCount();
+            }
+            promise.set_value(byteCount);
+            return out;
+        }
+
         VideoRequest Timeline::getVideo(
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
@@ -282,6 +299,18 @@ namespace tl
             {
                 request->promise.set_value(VideoData());
             }
+            return out;
+        }
+
+        AudioSizeRequest Timeline::getAudioSize(
+            double,
+            const io::Options&)
+        {
+            DTK_P();
+            AudioSizeRequest out;
+            std::promise<size_t> promise;
+            out.future = promise.get_future();
+            promise.set_value(p.ioInfo.audio.sampleRate * p.ioInfo.audio.getByteCount());
             return out;
         }
 

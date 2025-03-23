@@ -4,8 +4,6 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
-#include <tlIO/Cache.h>
-
 #include <dtk/core/Assert.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
@@ -69,10 +67,9 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            IRead::_init(path, memory, options, cache, logSystem);
+            IRead::_init(path, memory, options, logSystem);
 
             DTK_P();
 
@@ -232,11 +229,10 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, {}, options, cache, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
@@ -244,11 +240,10 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, memory, options, cache, logSystem);
+            out->_init(path, memory, options, logSystem);
             return out;
         }
 
@@ -379,22 +374,6 @@ namespace tl
                     request->promise.set_value(p.info);
                 }
 
-                // Check the cache.
-                io::VideoData videoData;
-                if (videoRequest && _cache)
-                {
-                    const std::string cacheKey = io::getVideoCacheKey(
-                        _path,
-                        videoRequest->time,
-                        _options,
-                        videoRequest->options);
-                    if (_cache->getVideo(cacheKey, videoData))
-                    {
-                        videoRequest->promise.set_value(videoData);
-                        videoRequest.reset();
-                    }
-                }
-
                 // Seek.
                 if (videoRequest &&
                     !videoRequest->time.strictly_equal(p.videoThread.currentTime))
@@ -422,16 +401,6 @@ namespace tl
                     }
                     videoRequest->promise.set_value(data);
                     
-                    if (_cache)
-                    {
-                        const std::string cacheKey = io::getVideoCacheKey(
-                            _path,
-                            videoRequest->time,
-                            _options,
-                            videoRequest->options);
-                        _cache->addVideo(cacheKey, data);
-                    }
-
                     p.videoThread.currentTime += OTIO_NS::RationalTime(1.0, p.info.videoTime.duration().rate());
                 }
 
@@ -498,23 +467,6 @@ namespace tl
                     }
                 }
 
-                // Check the cache.
-                io::AudioData audioData;
-                if (request && _cache)
-                {
-                    const std::string cacheKey = io::getAudioCacheKey(
-                        _path,
-                        request->timeRange,
-                        _options,
-                        request->options);
-                    if (_cache->getAudio(cacheKey, audioData))
-                    {
-                        p.audioThread.currentTime += request->timeRange.duration();
-                        request->promise.set_value(audioData);
-                        request.reset();
-                    }
-                }
-
                 // Seek.
                 if (seek)
                 {
@@ -557,18 +509,7 @@ namespace tl
                             audioData.audio->getData() + offset * p.info.audio.getByteCount(),
                             audioData.audio->getSampleCount() - offset);
                     }
-
                     request->promise.set_value(audioData);
-
-                    if (_cache)
-                    {
-                        const std::string cacheKey = io::getAudioCacheKey(
-                            _path,
-                            request->timeRange,
-                            _options,
-                            request->options);
-                        _cache->addAudio(cacheKey, audioData);
-                    }
 
                     p.audioThread.currentTime += request->timeRange.duration();
                 }

@@ -10,8 +10,6 @@ namespace tl
 {
     namespace io
     {
-        class Cache;
-
         //! Base class for readers.
         class IRead : public IIO
         {
@@ -20,7 +18,6 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const Options&,
-                const std::shared_ptr<Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
             IRead();
@@ -46,7 +43,6 @@ namespace tl
 
         protected:
             std::vector<dtk::InMemoryFile> _memory;
-            std::shared_ptr<Cache> _cache;
         };
 
         //! Base class for read plugins.
@@ -58,7 +54,6 @@ namespace tl
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
-                const std::shared_ptr<Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
             IReadPlugin();
@@ -76,9 +71,6 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const Options& = Options()) = 0;
-
-        protected:
-            std::shared_ptr<Cache> _cache;
 
         private:
             DTK_PRIVATE();

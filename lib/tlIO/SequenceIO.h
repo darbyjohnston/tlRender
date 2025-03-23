@@ -32,7 +32,6 @@ namespace tl
                 const file::Path&,
                 const std::vector<dtk::InMemoryFile>&,
                 const Options&,
-                const std::shared_ptr<io::Cache>&,
                 const std::shared_ptr<dtk::LogSystem>&);
 
             ISequenceRead();

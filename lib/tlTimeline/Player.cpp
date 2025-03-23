@@ -20,8 +20,9 @@ namespace tl
         {
             return
                 videoPercentage == other.videoPercentage &&
-                videoFrames == other.videoFrames &&
-                audioFrames == other.audioFrames;
+                audioPercentage == other.audioPercentage &&
+                video == other.video &&
+                audio == other.audio;
         }
 
         bool PlayerCacheInfo::operator != (const PlayerCacheInfo& other) const
@@ -66,8 +67,10 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(dtk::Format("    Cache read ahead: {0}").
-                    arg(playerOptions.cache.readAhead));
+                lines.push_back(dtk::Format("    Video cache: {0}GB").
+                    arg(playerOptions.cache.videoGB));
+                lines.push_back(dtk::Format("    Audio cache: {0}GB").
+                    arg(playerOptions.cache.audioGB));
                 lines.push_back(dtk::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
                 lines.push_back(dtk::Format("    Audio buffer frame count: {0}").
@@ -844,11 +847,11 @@ namespace tl
                 // Update the current video data.
                 if (!p.ioInfo.video.empty())
                 {
-                    const auto i = p.thread.videoDataCache.find(p.thread.currentTime);
-                    if (i != p.thread.videoDataCache.end())
+                    std::vector<VideoData> videoDataList;
+                    if (p.thread.videoDataCache.get(p.thread.currentTime, videoDataList))
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                        p.mutex.currentVideoData = i->second;
+                        p.mutex.currentVideoData = videoDataList;
                     }
                     else if (p.thread.playback != Playback::Stop)
                     {
@@ -892,10 +895,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                         {
-                            auto i = p.audioMutex.audioDataCache.find(s);
-                            if (i != p.audioMutex.audioDataCache.end())
+                            AudioData audioData;
+                            if (p.audioMutex.audioDataCache.get(s, audioData))
                             {
-                                audioDataList.push_back(i->second);
+                                audioDataList.push_back(audioData);
                             }
                         }
                     }

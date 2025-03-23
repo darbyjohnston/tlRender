@@ -66,9 +66,6 @@ namespace tl
                 const std::vector<dtk::InMemoryFile>&,
                 const Options& = Options());
 
-            //! Get the I/O cache.
-            const std::shared_ptr<Cache>& getCache() const;
-
         private:
             std::vector<std::shared_ptr<IReadPlugin> > _plugins;
 

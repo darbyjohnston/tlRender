@@ -169,9 +169,7 @@ namespace tl
                                     {
                                         write(writePlugin, image, path, imageInfo, tags, options);
                                         read(readPlugin, image, path, memoryIO, tags, options);
-                                        readSystem->getCache()->clear();
                                         readError(readPlugin, image, path, memoryIO, options);
-                                        readSystem->getCache()->clear();
                                     }
                                     catch (const std::exception& e)
                                     {

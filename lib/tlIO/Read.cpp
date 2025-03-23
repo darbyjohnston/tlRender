@@ -14,12 +14,10 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const Options& options,
-            const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _memory = memory;
-            _cache = cache;
         }
 
         IRead::IRead()
@@ -49,12 +47,9 @@ namespace tl
         void IReadPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IPlugin::_init(name, extensions, logSystem);
-            DTK_P();
-            _cache = cache;
         }
 
         IReadPlugin::IReadPlugin() :

@@ -329,10 +329,9 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
-            ISequenceRead::_init(path, memory, options, cache, logSystem);
+            ISequenceRead::_init(path, memory, options, logSystem);
 
             auto option = options.find("OpenEXR/ChannelGrouping");
             if (option != options.end())
@@ -353,11 +352,10 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, {}, options, cache, logSystem);
+            out->_init(path, {}, options, logSystem);
             return out;
         }
 
@@ -365,11 +363,10 @@ namespace tl
             const file::Path& path,
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
-            out->_init(path, memory, options, cache, logSystem);
+            out->_init(path, memory, options, logSystem);
             return out;
         }
 

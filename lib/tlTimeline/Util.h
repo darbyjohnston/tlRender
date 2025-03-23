@@ -32,6 +32,12 @@ namespace tl
             const OTIO_NS::TimeRange&,
             bool* looped = nullptr);
 
+        //! Loop seconds.
+        int64_t loop(
+            int64_t,
+            const OTIO_NS::TimeRange&,
+            bool* looped = nullptr);
+
         //! Cache direction.
         enum class CacheDirection
         {
@@ -42,12 +48,6 @@ namespace tl
             First = Forward
         };
         DTK_ENUM(CacheDirection);
-
-        //! Loop the cache time range.
-        std::vector<OTIO_NS::TimeRange> loopCache(
-            const OTIO_NS::TimeRange&,
-            const OTIO_NS::TimeRange&,
-            CacheDirection);
 
         //! Get the root (highest parent).
         const OTIO_NS::Composable* getRoot(const OTIO_NS::Composable*);

@@ -834,14 +834,11 @@ namespace tl
                 dtk::V2I(channel.xSampling, channel.ySampling));
         }
 
-        void ReadPlugin::_init(
-            const std::shared_ptr<io::Cache>& cache,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "OpenEXR",
                 { { ".exr", io::FileType::Sequence } },
-                cache,
                 logSystem);
 
             Imf::setGlobalThreadCount(0);
@@ -851,11 +848,10 @@ namespace tl
         {}
             
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<io::Cache>& cache,
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
-            out->_init(cache, logSystem);
+            out->_init(logSystem);
             return out;
         }
 
@@ -863,7 +859,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            return Read::create(path, options, _cache, _logSystem.lock());
+            return Read::create(path, options, _logSystem.lock());
         }
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
@@ -871,7 +867,7 @@ namespace tl
             const std::vector<dtk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            return Read::create(path, memory, options, _cache, _logSystem.lock());
+            return Read::create(path, memory, options, _logSystem.lock());
         }
 
         void WritePlugin::_init(
