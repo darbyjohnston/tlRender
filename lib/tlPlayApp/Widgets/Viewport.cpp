@@ -30,6 +30,7 @@ namespace tl
             std::weak_ptr<App> app;
             bool hud = false;
             OTIO_NS::RationalTime currentTime = time::invalidTime;
+            timeline::PlayerCacheInfo cacheInfo;
             double fps = 0.0;
             size_t droppedFrames = 0;
             dtk::Color4F colorPicker;
@@ -41,12 +42,14 @@ namespace tl
 
             std::shared_ptr<dtk::Label> currentTimeLabel;
             std::shared_ptr<dtk::Label> fpsLabel;
+            std::shared_ptr<dtk::Label> cacheLabel;
             std::shared_ptr<dtk::ColorSwatch> colorPickerSwatch;
             std::shared_ptr<dtk::Label> colorPickerLabel;
             std::shared_ptr<dtk::HorizontalLayout> hudLayout;
             std::shared_ptr<dtk::FormLayout> infoLayout;
 
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheObserver;
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::CompareOptions> > compareOptionsObserver;
@@ -96,6 +99,9 @@ namespace tl
             p.fpsLabel = dtk::Label::create(context);
             p.fpsLabel->setFontRole(dtk::FontRole::Mono);
 
+            p.cacheLabel = dtk::Label::create(context);
+            p.cacheLabel->setFontRole(dtk::FontRole::Mono);
+
             p.colorPickerSwatch = dtk::ColorSwatch::create(context);
             p.colorPickerSwatch->setSizeRole(dtk::SizeRole::MarginLarge);
             p.colorPickerLabel = dtk::Label::create(context);
@@ -111,8 +117,9 @@ namespace tl
             formLayout->setMarginRole(dtk::SizeRole::MarginInside);
             formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             formLayout->setBackgroundRole(dtk::ColorRole::Overlay);
-            formLayout->addRow("Time:", p.currentTimeLabel);
+            formLayout->addRow("Cache:", p.cacheLabel);
             formLayout->addRow("FPS:", p.fpsLabel);
+            formLayout->addRow("Time:", p.currentTimeLabel);
             auto spacer = dtk::Spacer::create(context, dtk::Orientation::Vertical, vLayout);
             spacer->setVStretch(dtk::Stretch::Expanding);
             hLayout = dtk::HorizontalLayout::create(context, vLayout);
@@ -282,12 +289,22 @@ namespace tl
                         _p->currentTime = value;
                         _hudUpdate();
                     });
+
+                p.cacheObserver = dtk::ValueObserver<timeline::PlayerCacheInfo>::create(
+                    player->observeCacheInfo(),
+                    [this](const timeline::PlayerCacheInfo& value)
+                    {
+                        _p->cacheInfo = value;
+                        _hudUpdate();
+                    });
             }
             else
             {
                 p.info = io::Info();
                 p.currentTime = time::invalidTime;
                 p.currentTimeObserver.reset();
+                p.cacheInfo = timeline::PlayerCacheInfo();
+                p.cacheObserver.reset();
                 _hudUpdate();
             }
         }
@@ -392,6 +409,11 @@ namespace tl
                 dtk::Format("{0} ({1} dropped)").
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
+
+            p.cacheLabel->setText(
+                dtk::Format("{0}% V {1}% A").
+                arg(p.cacheInfo.videoPercentage, 2, 5).
+                arg(p.cacheInfo.audioPercentage, 2, 5));
 
             p.colorPickerSwatch->setColor(p.colorPicker);
             p.colorPickerLabel->setText(

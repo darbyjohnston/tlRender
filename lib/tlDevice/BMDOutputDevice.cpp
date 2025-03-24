@@ -777,7 +777,7 @@ namespace tl
                     DLOutputCallbackData data;
                     data.playback = playback;
                     data.speed = speed;
-                    data.currentTime = currentTime - p.thread.timeRange.start_time();
+                    data.currentTime = currentTime;
                     data.seek = seek;
                     data.volume = volume;
                     data.mute = mute;

@@ -253,7 +253,7 @@ namespace tl
                         (thread.audioCache.currentSeconds - thread.state.cacheOptions.readBehind) :
                         (thread.state.cacheOptions.readBehind - thread.audioCache.currentSeconds);
                     const int64_t t = timeline::loop(
-                        thread.state.currentTime.rescaled_to(1.0).floor().value() + offset - thread.state.audioOffset,
+                        thread.state.currentTime.rescaled_to(1.0).floor().value() + offset + thread.state.audioOffset,
                         thread.state.inOutRange);
                     const size_t byteCount = timeline->getAudioSize(t).future.get();
                     thread.audioCache.filledByteCount += byteCount;

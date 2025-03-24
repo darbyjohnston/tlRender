@@ -892,9 +892,9 @@ namespace tl
                 {
                     std::vector<AudioData> audioDataList;
                     {
-                        const int64_t seconds = p.thread.state.currentTime.rescaled_to(1.0).value() -
-                            p.thread.state.audioOffset -
-                            p.timeRange.start_time().rescaled_to(1.0).value();
+                        const int64_t seconds =
+                            p.thread.state.currentTime.rescaled_to(1.0).value() -
+                            p.thread.state.audioOffset;
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                         {

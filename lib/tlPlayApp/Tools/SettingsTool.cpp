@@ -247,6 +247,10 @@ namespace tl
 
             p.audioExtensionsEdit = dtk::LineEdit::create(context);
             p.audioExtensionsEdit->setHStretch(dtk::Stretch::Expanding);
+            p.audioExtensionsEdit->setTooltip(
+                "List of audio file extensions to search for.\n"
+                "\n"
+                "Example: .wav .mp3");
 
             p.audioFileNameEdit = dtk::LineEdit::create(context);
             p.audioFileNameEdit->setHStretch(dtk::Stretch::Expanding);

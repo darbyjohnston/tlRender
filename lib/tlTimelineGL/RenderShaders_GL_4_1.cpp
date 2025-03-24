@@ -300,6 +300,30 @@ namespace tl
                 arg(args[4]);
         }
 
+        std::string dissolveFragmentSource()
+        {
+            return
+                "#version 410\n"
+                "\n"
+                "in vec2 fTexture;\n"
+                "out vec4 outColor;\n"
+                "\n"
+                "uniform float     dissolve;\n"
+                "uniform sampler2D textureSampler;\n"
+                "uniform sampler2D textureSampler2;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "    vec4 c = texture(textureSampler, fTexture);\n"
+                "    vec4 c2 = texture(textureSampler2, fTexture);\n"
+                "    float idissolve = 1.0 - dissolve;\n"
+                "    outColor.r = c.r * idissolve + c2.r * dissolve;\n"
+                "    outColor.g = c.g * idissolve + c2.g * dissolve;\n"
+                "    outColor.b = c.b * idissolve + c2.b * dissolve;\n"
+                "    outColor.a = c.a * idissolve + c2.a * dissolve;\n"
+                "}\n";
+        }
+
         std::string differenceFragmentSource()
         {
             return

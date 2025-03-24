@@ -114,7 +114,7 @@ namespace tl
             {
                 p.shaders["dissolve"] = dtk::gl::Shader::create(
                     vertexSource(),
-                    textureFragmentSource());
+                    dissolveFragmentSource());
             }
             _displayShader();
 

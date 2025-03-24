@@ -35,6 +35,7 @@ namespace tl
             const std::string& lutDef,
             const std::string& lut,
             timeline::LUTOrder);
+        std::string dissolveFragmentSource();
         std::string differenceFragmentSource();
 
 #if defined(TLRENDER_OCIO)

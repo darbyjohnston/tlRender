@@ -752,15 +752,14 @@ namespace tl
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
-                                    float v = 1.F - layer.transitionValue;
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::Straight;
+                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::None;
                                     IRender::drawImage(
                                         layer.image,
                                         timeline::getBox(
                                             layer.image->getAspect(),
                                             dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        dtk::Color4F(1.F, 1.F, 1.F, v),
+                                        dtk::Color4F(1.F, 1.F, 1.F),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve2"])
@@ -769,40 +768,29 @@ namespace tl
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
-                                    float v = layer.transitionValue;
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
-                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::Straight;
+                                    dissolveImageOptions.alphaBlend = dtk::AlphaBlend::None;
                                     IRender::drawImage(
                                         layer.imageB,
                                         timeline::getBox(
                                             layer.imageB->getAspect(),
                                             dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        dtk::Color4F(1.F, 1.F, 1.F, v),
+                                        dtk::Color4F(1.F, 1.F, 1.F),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve"] && p.buffers["dissolve2"])
                                 {
-                                    glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-
                                     p.shaders["dissolve"]->bind();
                                     p.shaders["dissolve"]->setUniform("transform.mvp", transform);
-                                    p.shaders["dissolve"]->setUniform("color", dtk::Color4F(1.F, 1.F, 1.F));
+                                    p.shaders["dissolve"]->setUniform("dissolve", layer.transitionValue);
                                     p.shaders["dissolve"]->setUniform("textureSampler", 0);
+                                    p.shaders["dissolve"]->setUniform("textureSampler2", 1);
+
+                                    dtk::gl::setAlphaBlend(dtk::AlphaBlend::Straight);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                                     glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve"]->getColorID());
-                                    if (p.vbos["video"])
-                                    {
-                                        p.vbos["video"]->copy(convert(
-                                            dtk::mesh(dtk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
-                                            p.vbos["video"]->getType()));
-                                    }
-                                    if (p.vaos["video"])
-                                    {
-                                        p.vaos["video"]->bind();
-                                        p.vaos["video"]->draw(GL_TRIANGLES, 0, p.vbos["video"]->getSize());
-                                    }
-
+                                    glActiveTexture(static_cast<GLenum>(GL_TEXTURE1));
                                     glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve2"]->getColorID());
                                     if (p.vbos["video"])
                                     {
