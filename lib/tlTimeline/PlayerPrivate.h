@@ -121,6 +121,9 @@ namespace tl
 
             struct Thread
             {
+                OTIO_NS::RationalTime getVideoTime(int64_t) const;
+                int64_t getAudioTime(int64_t) const;
+
                 PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
 

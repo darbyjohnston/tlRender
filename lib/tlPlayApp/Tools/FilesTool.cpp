@@ -96,7 +96,7 @@ namespace tl
 
             p.widgetLayout = dtk::GridLayout::create(context, layout);
             p.widgetLayout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.widgetLayout->setSpacingRole(dtk::SizeRole::None);
+            p.widgetLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
 
             dtk::Divider::create(context, dtk::Orientation::Vertical, layout);
 
@@ -302,6 +302,7 @@ namespace tl
                         bButton->setText("B");
                         const auto i = std::find(b.begin(), b.end(), item);
                         bButton->setChecked(i != b.end());
+                        bButton->setVAlign(dtk::VAlign::Center);
                         bButton->setTooltip("Set the B file(s)");
                         p.bButtons[item] = bButton;
                         p.bButtonGroup->addButton(bButton);
@@ -311,6 +312,7 @@ namespace tl
                         auto layerComboBox = dtk::ComboBox::create(context);
                         layerComboBox->setItems(item->videoLayers);
                         layerComboBox->setCurrentIndex(item->videoLayer);
+                        layerComboBox->setVAlign(dtk::VAlign::Center);
                         layerComboBox->setTooltip("Set the current layer");
                         p.layerComboBoxes.push_back(layerComboBox);
                         layerComboBox->setParent(p.widgetLayout);

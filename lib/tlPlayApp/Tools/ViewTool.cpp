@@ -637,112 +637,12 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        struct HUDWidget::Private
-        {
-            std::shared_ptr<dtk::CheckBox> enabledCheckBox;
-            std::shared_ptr<dtk::LineEdit> infoEdit;
-            std::shared_ptr<dtk::FormLayout> layout;
-
-            std::shared_ptr<dtk::ValueObserver<bool> > enabledObserver;
-            std::shared_ptr<dtk::ValueObserver<std::string> > infoObserver;
-        };
-
-        void HUDWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<dtk::IWidget>& parent)
-        {
-            dtk::IWidget::_init(context, "tl::play_app::HUDWidget", parent);
-            DTK_P();
-
-            p.enabledCheckBox = dtk::CheckBox::create(context);
-            p.enabledCheckBox->setHStretch(dtk::Stretch::Expanding);
-
-            p.infoEdit = dtk::LineEdit::create(context);
-            p.infoEdit->setTooltip(
-                "Use a regular expression to match information tags.\n"
-                "\n"
-                "Examples:\n"
-                "* Match all tags: \".\"\n"
-                "* Match tags with \"Video\": \"Video\"\n"
-                "* Match tags with \"Video\" or \"Audio\": \"Video|Audio\"");
-
-            p.layout = dtk::FormLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.layout->addRow("Enabled:", p.enabledCheckBox);
-            p.layout->addRow("Information:", p.infoEdit);
-
-            p.enabledObserver = dtk::ValueObserver<bool>::create(
-                app->getViewportModel()->observeHUD(),
-                [this](bool value)
-                {
-                    _p->enabledCheckBox->setChecked(value);
-                });
-
-            p.infoObserver = dtk::ValueObserver<std::string>::create(
-                app->getViewportModel()->observeHUDInfo(),
-                [this](const std::string& value)
-                {
-                    _p->infoEdit->setText(value);
-                });
-
-            auto appWeak = std::weak_ptr<App>(app);
-            p.enabledCheckBox->setCheckedCallback(
-                [appWeak](bool value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getViewportModel()->setHUD(value);
-                    }
-                });
-
-            p.infoEdit->setTextChangedCallback(
-                [appWeak](const std::string& value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        app->getViewportModel()->setHUDInfo(value);
-                    }
-                });
-        }
-
-        HUDWidget::HUDWidget() :
-            _p(new Private)
-        {}
-
-        HUDWidget::~HUDWidget()
-        {}
-
-        std::shared_ptr<HUDWidget> HUDWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<IWidget>& parent)
-        {
-            auto out = std::shared_ptr<HUDWidget>(new HUDWidget);
-            out->_init(context, app, parent);
-            return out;
-        }
-
-        void HUDWidget::setGeometry(const dtk::Box2I& value)
-        {
-            IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
-        }
-
-        void HUDWidget::sizeHintEvent(const dtk::SizeHintEvent& value)
-        {
-            IWidget::sizeHintEvent(value);
-            _setSizeHint(_p->layout->getSizeHint());
-        }
-
         struct ViewTool::Private
         {
             std::shared_ptr<ViewOptionsWidget> viewOptionsWidget;
             std::shared_ptr<BackgroundWidget> backgroundWidget;
             std::shared_ptr<OutlineWidget> outlineWidget;
             std::shared_ptr<GridWidget> gridWidget;
-            std::shared_ptr<HUDWidget> hudWidget;
             std::map<std::string, std::shared_ptr<dtk::Bellows> > bellows;
         };
 
@@ -763,7 +663,6 @@ namespace tl
             p.backgroundWidget = BackgroundWidget::create(context, app);
             p.outlineWidget = OutlineWidget::create(context, app);
             p.gridWidget = GridWidget::create(context, app);
-            p.hudWidget = HUDWidget::create(context, app);
 
             auto layout = dtk::VerticalLayout::create(context);
             layout->setSpacingRole(dtk::SizeRole::None);
@@ -775,8 +674,6 @@ namespace tl
             p.bellows["Outline"]->setWidget(p.outlineWidget);
             p.bellows["Grid"] = dtk::Bellows::create(context, "Grid", layout);
             p.bellows["Grid"]->setWidget(p.gridWidget);
-            p.bellows["HUD"] = dtk::Bellows::create(context, "HUD", layout);
-            p.bellows["HUD"]->setWidget(p.hudWidget);
             auto scrollWidget = dtk::ScrollWidget::create(context);
             scrollWidget->setBorder(false);
             scrollWidget->setWidget(layout);

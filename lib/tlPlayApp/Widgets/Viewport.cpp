@@ -13,7 +13,7 @@
 #include <tlTimeline/Util.h>
 
 #include <dtk/ui/ColorSwatch.h>
-#include <dtk/ui/FormLayout.h>
+#include <dtk/ui/GridLayout.h>
 #include <dtk/ui/Label.h>
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/Spacer.h>
@@ -29,24 +29,21 @@ namespace tl
         {
             std::weak_ptr<App> app;
             bool hud = false;
+            file::Path path;
             OTIO_NS::RationalTime currentTime = time::invalidTime;
-            timeline::PlayerCacheInfo cacheInfo;
             double fps = 0.0;
             size_t droppedFrames = 0;
             dtk::Color4F colorPicker;
-            io::Info info;
-            std::string infoRegEx;
-            dtk::ImageTags infoFiltered;
+            timeline::PlayerCacheInfo cacheInfo;
             dtk::KeyModifier colorPickerModifier = dtk::KeyModifier::None;
             dtk::KeyModifier frameShuttleModifier = dtk::KeyModifier::Shift;
 
-            std::shared_ptr<dtk::Label> currentTimeLabel;
-            std::shared_ptr<dtk::Label> fpsLabel;
-            std::shared_ptr<dtk::Label> cacheLabel;
+            std::shared_ptr<dtk::Label> fileNameLabel;
+            std::shared_ptr<dtk::Label> timeLabel;
             std::shared_ptr<dtk::ColorSwatch> colorPickerSwatch;
             std::shared_ptr<dtk::Label> colorPickerLabel;
-            std::shared_ptr<dtk::HorizontalLayout> hudLayout;
-            std::shared_ptr<dtk::FormLayout> infoLayout;
+            std::shared_ptr<dtk::Label> cacheLabel;
+            std::shared_ptr<dtk::GridLayout> hudLayout;
 
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheObserver;
@@ -62,7 +59,6 @@ namespace tl
             std::shared_ptr<dtk::ValueObserver<timeline::ForegroundOptions> > fgOptionsObserver;
             std::shared_ptr<dtk::ValueObserver<dtk::ImageType> > colorBufferObserver;
             std::shared_ptr<dtk::ValueObserver<bool> > hudObserver;
-            std::shared_ptr<dtk::ValueObserver<std::string> > hudInfoObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
             std::shared_ptr<dtk::ValueObserver<MouseSettings> > mouseSettingsObserver;
 
@@ -93,50 +89,49 @@ namespace tl
 
             p.app = app;
 
-            p.currentTimeLabel = dtk::Label::create(context);
-            p.currentTimeLabel->setFontRole(dtk::FontRole::Mono);
+            p.fileNameLabel = dtk::Label::create(context);
+            p.fileNameLabel->setFontRole(dtk::FontRole::Mono);
+            p.fileNameLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.fileNameLabel->setBackgroundRole(dtk::ColorRole::Overlay);
 
-            p.fpsLabel = dtk::Label::create(context);
-            p.fpsLabel->setFontRole(dtk::FontRole::Mono);
-
-            p.cacheLabel = dtk::Label::create(context);
-            p.cacheLabel->setFontRole(dtk::FontRole::Mono);
+            p.timeLabel = dtk::Label::create(context);
+            p.timeLabel->setFontRole(dtk::FontRole::Mono);
+            p.timeLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.timeLabel->setBackgroundRole(dtk::ColorRole::Overlay);
+            p.timeLabel->setHAlign(dtk::HAlign::Right);
 
             p.colorPickerSwatch = dtk::ColorSwatch::create(context);
             p.colorPickerSwatch->setSizeRole(dtk::SizeRole::MarginLarge);
             p.colorPickerLabel = dtk::Label::create(context);
             p.colorPickerLabel->setFontRole(dtk::FontRole::Mono);
 
-            p.hudLayout = dtk::HorizontalLayout::create(context, shared_from_this());
+            p.cacheLabel = dtk::Label::create(context);
+            p.cacheLabel->setFontRole(dtk::FontRole::Mono);
+            p.cacheLabel->setMarginRole(dtk::SizeRole::MarginInside);
+            p.cacheLabel->setBackgroundRole(dtk::ColorRole::Overlay);
+            p.cacheLabel->setHAlign(dtk::HAlign::Right);
+
+            p.hudLayout = dtk::GridLayout::create(context, shared_from_this());
             p.hudLayout->setMarginRole(dtk::SizeRole::MarginSmall);
             p.hudLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto vLayout = dtk::VerticalLayout::create(context, p.hudLayout);
-            vLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto hLayout = dtk::HorizontalLayout::create(context, vLayout);
-            auto formLayout = dtk::FormLayout::create(context, hLayout);
-            formLayout->setMarginRole(dtk::SizeRole::MarginInside);
-            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            formLayout->setBackgroundRole(dtk::ColorRole::Overlay);
-            formLayout->addRow("Cache:", p.cacheLabel);
-            formLayout->addRow("FPS:", p.fpsLabel);
-            formLayout->addRow("Time:", p.currentTimeLabel);
-            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Vertical, vLayout);
-            spacer->setVStretch(dtk::Stretch::Expanding);
-            hLayout = dtk::HorizontalLayout::create(context, vLayout);
+            p.fileNameLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.fileNameLabel, 0, 0);
+            p.timeLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.timeLabel, 0, 2);
+
+            auto spacer = dtk::Spacer::create(context, dtk::Orientation::Vertical, p.hudLayout);
+            spacer->setStretch(dtk::Stretch::Expanding);
+            p.hudLayout->setGridPos(spacer, 1, 1);
+
+            auto hLayout = dtk::HorizontalLayout::create(context, p.hudLayout);
+            p.hudLayout->setGridPos(hLayout, 2, 0);
             hLayout->setMarginRole(dtk::SizeRole::MarginInside);
             hLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
             hLayout->setBackgroundRole(dtk::ColorRole::Overlay);
             p.colorPickerSwatch->setParent(hLayout);
             p.colorPickerLabel->setParent(hLayout);
-            spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.hudLayout);
-            spacer->setStretch(dtk::Stretch::Expanding, dtk::Stretch::Expanding);
-            vLayout = dtk::VerticalLayout::create(context, p.hudLayout);
-            vLayout->setSpacingRole(dtk::SizeRole::None);
-            p.infoLayout = dtk::FormLayout::create(context, vLayout);
-            p.infoLayout->setMarginRole(dtk::SizeRole::MarginInside);
-            p.infoLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            p.infoLayout->setBackgroundRole(dtk::ColorRole::Overlay);
-            p.hudLayout->hide();
+            p.cacheLabel->setParent(p.hudLayout);
+            p.hudLayout->setGridPos(p.cacheLabel, 2, 2);
 
             p.fpsObserver = dtk::ValueObserver<double>::create(
                 observeFPS(),
@@ -227,14 +222,6 @@ namespace tl
                     _hudUpdate();
                 });
 
-            p.hudInfoObserver = dtk::ValueObserver<std::string>::create(
-                app->getViewportModel()->observeHUDInfo(),
-                [this](const std::string& value)
-                {
-                    _p->infoRegEx = value;
-                    _hudUpdate();
-                });
-
             p.timeUnitsObserver = dtk::ValueObserver<timeline::TimeUnits>::create(
                 app->getTimeUnitsModel()->observeTimeUnits(),
                 [this](timeline::TimeUnits value)
@@ -280,7 +267,7 @@ namespace tl
             DTK_P();
             if (player)
             {
-                p.info = player->getIOInfo();
+                p.path = player->getPath();
 
                 p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
                     player->observeCurrentTime(),
@@ -300,7 +287,7 @@ namespace tl
             }
             else
             {
-                p.info = io::Info();
+                p.path = file::Path();
                 p.currentTime = time::invalidTime;
                 p.currentTimeObserver.reset();
                 p.cacheInfo = timeline::PlayerCacheInfo();
@@ -397,23 +384,18 @@ namespace tl
         {
             DTK_P();
 
+            p.fileNameLabel->setText(dtk::elide(p.path.get(-1, file::PathType::FileName)));
+
             std::string s;
             if (auto app = p.app.lock())
             {
                 auto timeUnitsModel = app->getTimeUnitsModel();
                 s = timeUnitsModel->getLabel(p.currentTime);
             }
-            p.currentTimeLabel->setText(dtk::Format("{0}").arg(s));
-
-            p.fpsLabel->setText(
-                dtk::Format("{0} ({1} dropped)").
+            p.timeLabel->setText(dtk::Format("{0}, {1} FPS, {2} dropped").
+                arg(s).
                 arg(p.fps, 2, 4).
                 arg(p.droppedFrames));
-
-            p.cacheLabel->setText(
-                dtk::Format("{0}% V {1}% A").
-                arg(p.cacheInfo.videoPercentage, 2, 5).
-                arg(p.cacheInfo.audioPercentage, 2, 5));
 
             p.colorPickerSwatch->setColor(p.colorPicker);
             p.colorPickerLabel->setText(
@@ -423,41 +405,10 @@ namespace tl
                 arg(p.colorPicker.b, 2).
                 arg(p.colorPicker.a, 2));
 
-            dtk::ImageTags infoFiltered;
-            if (!p.infoRegEx.empty())
-            {
-                try
-                {
-                    const std::regex r(p.infoRegEx);
-                    for (const auto& i : p.info.tags)
-                    {
-                        if (std::regex_search(i.first, r))
-                        {
-                            infoFiltered.insert(i);
-                        }
-                    }
-                }
-                catch (const std::exception&)
-                {}
-            }
-            if (infoFiltered != p.infoFiltered)
-            {
-                p.infoFiltered = infoFiltered;
-                p.infoLayout->clear();
-                if (auto context = getContext())
-                {
-                    for (const auto& i : p.infoFiltered)
-                    {
-                        auto label = dtk::Label::create(
-                            context,
-                            dtk::elide(i.second));
-                        label->setTooltip(i.second);
-                        p.infoLayout->addRow(
-                            dtk::Format("{0}:").arg(dtk::elide(i.first)),
-                            label);
-                    }
-                }
-            }
+            p.cacheLabel->setText(
+                dtk::Format("Cache: {0}% V, {1}% A").
+                arg(p.cacheInfo.videoPercentage, 2, 5).
+                arg(p.cacheInfo.audioPercentage, 2, 5));
 
             p.hudLayout->setVisible(p.hud);
         }
