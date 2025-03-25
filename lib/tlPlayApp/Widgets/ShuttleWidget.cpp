@@ -109,7 +109,12 @@ namespace tl
                     g.min.y + g.h() / 2 - iconSize.h / 2,
                     iconSize.w,
                     iconSize.h);
-                event.render->drawImage(p.iconImages[p.iconIndex], g2);
+                event.render->drawImage(
+                    p.iconImages[p.iconIndex],
+                    g2,
+                    event.style->getColorRole(isEnabled() ?
+                        dtk::ColorRole::Text :
+                        dtk::ColorRole::TextDisabled));
             }
             if (_isMousePressed())
             {

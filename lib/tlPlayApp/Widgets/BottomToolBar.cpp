@@ -341,6 +341,13 @@ namespace tl
                 p.speedModel->setValue(0.0);
                 p.currentTimeEdit->setValue(time::invalidTime);
             }
+
+            p.playbackShuttle->setEnabled(p.player.get());
+            p.frameShuttle->setEnabled(p.player.get());
+            p.currentTimeEdit->setEnabled(p.player.get());
+            p.durationLabel->setEnabled(p.player.get());
+            p.speedEdit->setEnabled(p.player.get());
+            p.speedButton->setEnabled(p.player.get());
         }
 
         void BottomToolBar::_showSpeedPopup()

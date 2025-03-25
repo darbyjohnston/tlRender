@@ -11,12 +11,18 @@ namespace tl
 {
     namespace play
     {
+        struct FrameActions::Private
+        {
+            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > playerObserver;
+        };
+
         void FrameActions::_init(
             const std::shared_ptr<dtk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             IActions::_init(context, app, "Frame");
+            DTK_P();
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["Start"] = dtk::Action::create(
@@ -152,7 +158,26 @@ namespace tl
             };
 
             _shortcutsUpdate(app->getSettingsModel()->getShortcuts());
+
+            p.playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                app->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
+                {
+                    _actions["Start"]->setEnabled(value.get());
+                    _actions["End"]->setEnabled(value.get());
+                    _actions["Prev"]->setEnabled(value.get());
+                    _actions["PrevX10"]->setEnabled(value.get());
+                    _actions["PrevX100"]->setEnabled(value.get());
+                    _actions["Next"]->setEnabled(value.get());
+                    _actions["NextX10"]->setEnabled(value.get());
+                    _actions["NextX100"]->setEnabled(value.get());
+                    _actions["FocusCurrent"]->setEnabled(value.get());
+                });
         }
+
+        FrameActions::FrameActions() :
+            _p(new Private)
+        {}
 
         FrameActions::~FrameActions()
         {}

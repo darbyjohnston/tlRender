@@ -298,7 +298,9 @@ namespace tl
             DTK_P();
             p.playbackObserver.reset();
             p.loopObserver.reset();
+
             p.player = value;
+
             if (p.player)
             {
                 p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
@@ -307,6 +309,7 @@ namespace tl
                     {
                         _playbackUpdate();
                     });
+
                 p.loopObserver = dtk::ValueObserver<timeline::Loop>::create(
                     p.player->observeLoop(),
                     [this](timeline::Loop)
@@ -314,6 +317,22 @@ namespace tl
                         _loopUpdate();
                     });
             }
+
+            _actions["Stop"]->setEnabled(p.player.get());
+            _actions["Forward"]->setEnabled(p.player.get());
+            _actions["Reverse"]->setEnabled(p.player.get());
+            _actions["Toggle"]->setEnabled(p.player.get());
+            _actions["JumpBack1s"]->setEnabled(p.player.get());
+            _actions["JumpBack10s"]->setEnabled(p.player.get());
+            _actions["JumpForward1s"]->setEnabled(p.player.get());
+            _actions["JumpForward10s"]->setEnabled(p.player.get());
+            _actions["Loop"]->setEnabled(p.player.get());
+            _actions["Once"]->setEnabled(p.player.get());
+            _actions["PingPong"]->setEnabled(p.player.get());
+            _actions["SetInPoint"]->setEnabled(p.player.get());
+            _actions["ResetInPoint"]->setEnabled(p.player.get());
+            _actions["SetOutPoint"]->setEnabled(p.player.get());
+            _actions["ResetOutPoint"]->setEnabled(p.player.get());
         }
 
         void PlaybackActions::_playbackUpdate()
