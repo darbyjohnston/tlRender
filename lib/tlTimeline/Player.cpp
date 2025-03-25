@@ -826,10 +826,10 @@ namespace tl
                 {
                     p.thread.state = state;
                     p.thread.cacheDirection = cacheDirection;
-                    p.thread.videoCache.currentFrame = 0;
-                    p.thread.videoCache.filledByteCount = 0;
-                    p.thread.audioCache.currentSeconds = 0;
-                    p.thread.audioCache.filledByteCount = 0;
+                    p.thread.videoCache.fillFrame = 0;
+                    p.thread.videoCache.fillByteCount = 0;
+                    p.thread.audioCache.fillSeconds = 0;
+                    p.thread.audioCache.fillByteCount = 0;
                 }
 
                 // Clear requests.
