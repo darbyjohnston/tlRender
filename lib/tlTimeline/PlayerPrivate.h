@@ -130,14 +130,9 @@ namespace tl
                     std::vector<VideoRequest> list;
                 };
                 std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
-
-                struct VideoCacheData
-                {
-                    dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > cache;
-                    int64_t fillFrame = 0;
-                    size_t fillByteCount = 0;
-                };
-                VideoCacheData videoCache;
+                dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
+                int64_t videoFillFrame = 0;
+                size_t videoFillByteCount = 0;
 
                 struct AudioRequestData
                 {
@@ -145,13 +140,8 @@ namespace tl
                     AudioRequest request;
                 };
                 std::map<int64_t, AudioRequestData> audioDataRequests;
-
-                struct AudioCacheData
-                {
-                    int64_t fillSeconds = 0;
-                    size_t fillByteCount = 0;
-                };
-                AudioCacheData audioCache;
+                int64_t audioFillSeconds = 0;
+                size_t audioFillByteCount = 0;
 
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
@@ -176,7 +166,7 @@ namespace tl
             struct AudioMutex
             {
                 AudioState state;
-                dtk::LRUCache<int64_t, AudioData> audioDataCache;
+                dtk::LRUCache<int64_t, AudioData> cache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;

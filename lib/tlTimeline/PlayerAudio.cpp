@@ -392,7 +392,7 @@ namespace tl
                         for (int64_t i = seconds - 1; i < seconds + 1; ++i)
                         {
                             AudioData audioData;
-                            if (audioMutex.audioDataCache.get(i, audioData))
+                            if (audioMutex.cache.get(i, audioData))
                             {
                                 audioDataList.push_back(audioData);
                             }
