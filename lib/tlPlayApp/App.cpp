@@ -180,8 +180,7 @@ namespace tl
                 {
                     open(file::Path(value.u8string()));
                 },
-                dtk::FileBrowserMode::File,
-                p.recentFilesModel);
+                dtk::FileBrowserMode::File);
         }
 
         void App::openSeparateAudioDialog()
@@ -424,6 +423,9 @@ namespace tl
             p.filesModel = FilesModel::create(p.settings);
 
             p.recentFilesModel = RecentFilesModel::create(_context, p.settings);
+            auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
+            fileBrowserSystem->setExtensions(timeline::getExtensions(_context));
+            fileBrowserSystem->setRecentFilesModel(p.recentFilesModel);
 
             p.colorModel = ColorModel::create(_context);
             p.colorModel->setOCIOOptions(p.options.ocioOptions);

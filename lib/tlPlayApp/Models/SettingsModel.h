@@ -86,6 +86,7 @@ namespace tl
             bool nativeFileDialog = true;
             std::string path;
             dtk::FileBrowserOptions options;
+            std::string extension;
 
             bool operator == (const FileBrowserSettings&) const;
             bool operator != (const FileBrowserSettings&) const;

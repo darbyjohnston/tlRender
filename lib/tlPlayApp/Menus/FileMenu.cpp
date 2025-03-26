@@ -10,8 +10,6 @@
 
 #include <tlTimeline/Util.h>
 
-#include <dtk/ui/FileBrowser.h>
-
 #include <tlIO/System.h>
 
 namespace tl

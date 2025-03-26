@@ -65,7 +65,8 @@ namespace tl
             return
                 nativeFileDialog == other.nativeFileDialog &&
                 path == other.path &&
-                options == other.options;
+                options == other.options &&
+                extension == other.extension;
         }
 
         bool FileBrowserSettings::operator != (const FileBrowserSettings& other) const
@@ -361,9 +362,10 @@ namespace tl
             settings->getT("/FileBrowser", fileBrowser);
             p.fileBrowser = dtk::ObservableValue<FileBrowserSettings>::create(fileBrowser);
             auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
+            fileBrowserSystem->setNativeFileDialog(fileBrowser.nativeFileDialog);
             fileBrowserSystem->setPath(fileBrowser.path);
             fileBrowserSystem->setOptions(fileBrowser.options);
-            fileBrowserSystem->setNativeFileDialog(fileBrowser.nativeFileDialog);
+            fileBrowserSystem->setExtension(fileBrowser.extension);
 
             FileSequenceSettings fileSequence;
             settings->getT("/FileSequence", fileSequence);
@@ -427,6 +429,7 @@ namespace tl
                 auto fileBrowserSystem = context->getSystem<dtk::FileBrowserSystem>();
                 fileBrowser.path = fileBrowserSystem->getPath().u8string();
                 fileBrowser.options = fileBrowserSystem->getOptions();
+                fileBrowser.extension = fileBrowserSystem->getExtension();
             }
             p.settings->setT("/FileBrowser", fileBrowser);
 
@@ -711,6 +714,7 @@ namespace tl
             json["NativeFileDialog"] = value.nativeFileDialog;
             json["Path"] = value.path;
             json["Options"] = value.options;
+            json["Extension"] = value.extension;
         }
 
         void to_json(nlohmann::json& json, const FileSequenceSettings& value)
@@ -809,6 +813,7 @@ namespace tl
             json.at("NativeFileDialog").get_to(value.nativeFileDialog);
             json.at("Path").get_to(value.path);
             json.at("Options").get_to(value.options);
+            json.at("Extension").get_to(value.extension);
         }
 
         void from_json(const nlohmann::json& json, FileSequenceSettings& value)
