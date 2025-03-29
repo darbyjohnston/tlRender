@@ -43,10 +43,10 @@ namespace tl
             std::shared_ptr<ShuttleWidget> frameShuttle;
             std::shared_ptr<timelineui::TimeEdit> currentTimeEdit;
             std::shared_ptr<timelineui::TimeLabel> durationLabel;
-            std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
             std::shared_ptr<dtk::DoubleEdit> speedEdit;
             std::shared_ptr<dtk::ToolButton> speedButton;
             std::shared_ptr<SpeedPopup> speedPopup;
+            std::shared_ptr<dtk::ComboBox> timeUnitsComboBox;
             std::shared_ptr<dtk::ToolButton> audioButton;
             std::shared_ptr<AudioPopup> audioPopup;
             std::shared_ptr<dtk::ToolButton> muteButton;
@@ -107,17 +107,17 @@ namespace tl
             p.durationLabel->setMarginRole(dtk::SizeRole::MarginInside);
             p.durationLabel->setTooltip("Duration");
 
-            p.timeUnitsComboBox = dtk::ComboBox::create(context);
-            p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
-            p.timeUnitsComboBox->setCurrentIndex(
-                static_cast<int>(timeUnitsModel->getTimeUnits()));
-            p.timeUnitsComboBox->setTooltip("Time units");
-
             p.speedEdit = dtk::DoubleEdit::create(context, p.speedModel);
             p.speedEdit->setTooltip("Current speed");
             p.speedButton = dtk::ToolButton::create(context, "FPS");
             p.speedButton->setIcon("MenuArrow");
             p.speedButton->setTooltip("Speed menu");
+
+            p.timeUnitsComboBox = dtk::ComboBox::create(context);
+            p.timeUnitsComboBox->setItems(timeline::getTimeUnitsLabels());
+            p.timeUnitsComboBox->setCurrentIndex(
+                static_cast<int>(timeUnitsModel->getTimeUnits()));
+            p.timeUnitsComboBox->setTooltip("Time units");
 
             p.audioButton = dtk::ToolButton::create(context);
             p.audioButton->setIcon("Volume");
@@ -141,11 +141,11 @@ namespace tl
             p.frameShuttle->setParent(hLayout);
             p.currentTimeEdit->setParent(p.layout);
             p.durationLabel->setParent(p.layout);
-            p.timeUnitsComboBox->setParent(p.layout);
             hLayout = dtk::HorizontalLayout::create(context, p.layout);
             hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
             p.speedEdit->setParent(hLayout);
             p.speedButton->setParent(hLayout);
+            p.timeUnitsComboBox->setParent(p.layout);
             auto spacer = dtk::Spacer::create(context, dtk::Orientation::Horizontal, p.layout);
             spacer->setHStretch(dtk::Stretch::Expanding);
             hLayout = dtk::HorizontalLayout::create(context, p.layout);
@@ -219,6 +219,12 @@ namespace tl
                     }
                 });
 
+            p.speedButton->setPressedCallback(
+                [this]
+                {
+                    _showSpeedPopup();
+                });
+
             auto appWeak = std::weak_ptr<App>(app);
             p.timeUnitsComboBox->setIndexCallback(
                 [appWeak](int value)
@@ -228,12 +234,6 @@ namespace tl
                         app->getTimeUnitsModel()->setTimeUnits(
                             static_cast<timeline::TimeUnits>(value));
                     }
-                });
-
-            p.speedButton->setPressedCallback(
-                [this]
-                {
-                    _showSpeedPopup();
                 });
 
             p.audioButton->setPressedCallback(

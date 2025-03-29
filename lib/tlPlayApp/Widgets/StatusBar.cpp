@@ -254,7 +254,6 @@ namespace tl
         {
             DTK_P();
 #if defined(TLRENDER_BMD)
-            p.deviceActiveIcon->setEnabled(value);
             p.deviceActiveIcon->setBackgroundRole(value ? dtk::ColorRole::Checked : dtk::ColorRole::None);
 #endif // TLRENDER_BMD  
         }
