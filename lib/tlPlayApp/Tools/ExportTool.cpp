@@ -149,8 +149,8 @@ namespace tl
             p.renderHeightEdit->setParent(p.customSizeLayout);
             p.formLayout->addRow("Custom size:", p.customSizeLayout);
             p.formLayout->addRow("File type:", p.fileTypeComboBox);
-            p.formLayout->addRow("Zero padding:", p.imageZeroPadEdit);
             p.formLayout->addRow("Base name:", p.imageBaseNameEdit);
+            p.formLayout->addRow("Zero padding:", p.imageZeroPadEdit);
             p.formLayout->addRow("Extension:", p.imageExtensionComboBox);
             p.formLayout->addRow("Base name:", p.movieBaseNameEdit);
             p.formLayout->addRow("Extension:", p.movieExtensionComboBox);
@@ -321,9 +321,11 @@ namespace tl
             p.renderWidthEdit->setValue(settings.customSize.w);
             p.renderHeightEdit->setValue(settings.customSize.h);
             p.fileTypeComboBox->setCurrentIndex(static_cast<int>(settings.fileType));
+            
             p.imageBaseNameEdit->setText(settings.imageBaseName);
             auto i = std::find(p.imageExtensions.begin(), p.imageExtensions.end(), settings.imageExtension);
             p.imageExtensionComboBox->setCurrentIndex(i != p.imageExtensions.end() ? (i - p.imageExtensions.begin()) : -1);
+
             p.movieBaseNameEdit->setText(settings.movieBaseName);
             i = std::find(p.movieExtensions.begin(), p.movieExtensions.end(), settings.movieExtension);
             p.movieExtensionComboBox->setCurrentIndex(i != p.movieExtensions.end() ? (i - p.movieExtensions.begin()) : -1);
@@ -331,9 +333,18 @@ namespace tl
             p.movieCodecComboBox->setCurrentIndex(i != p.movieCodecs.end() ? (i - p.movieCodecs.begin()) : -1);
 
             p.formLayout->setRowVisible(p.customSizeLayout, ExportRenderSize::Custom == settings.renderSize);
-            p.formLayout->setRowVisible(p.imageBaseNameEdit, ExportFileType::Images == settings.fileType);
-            p.formLayout->setRowVisible(p.imageZeroPadEdit, ExportFileType::Images == settings.fileType);
-            p.formLayout->setRowVisible(p.imageExtensionComboBox, ExportFileType::Images == settings.fileType);
+            p.formLayout->setRowVisible(
+                p.imageBaseNameEdit,
+                ExportFileType::Image == settings.fileType ||
+                ExportFileType::Sequence == settings.fileType);
+            p.formLayout->setRowVisible(
+                p.imageZeroPadEdit,
+                ExportFileType::Image == settings.fileType ||
+                ExportFileType::Sequence == settings.fileType);
+            p.formLayout->setRowVisible(
+                p.imageExtensionComboBox,
+                ExportFileType::Image == settings.fileType ||
+                ExportFileType::Sequence == settings.fileType);
             p.formLayout->setRowVisible(p.movieBaseNameEdit, ExportFileType::Movie == settings.fileType);
             p.formLayout->setRowVisible(p.movieExtensionComboBox, ExportFileType::Movie == settings.fileType);
             p.formLayout->setRowVisible(p.movieCodecComboBox, ExportFileType::Movie == settings.fileType);
@@ -354,11 +365,23 @@ namespace tl
                         throw std::runtime_error("No video to render");
                     }
                     p.exportData.reset(new Private::ExportData);
-                    p.exportData->range = p.player->getInOutRange();
+
+                    // Get the time range.
+                    const auto options = p.model->getExport();
+                    switch (options.fileType)
+                    {
+                    case ExportFileType::Image:
+                        p.exportData->range = OTIO_NS::TimeRange(
+                            p.player->getCurrentTime(),
+                            OTIO_NS::RationalTime(1.0, p.player->getTimeRange().duration().rate()));
+                        break;
+                    default:
+                        p.exportData->range = p.player->getInOutRange();
+                        break;
+                    }
                     p.exportData->frame = p.exportData->range.start_time().value();
 
                     // Get the render size.
-                    const auto options = p.model->getExport();
                     switch (options.renderSize)
                     {
                     case ExportRenderSize::Default:
@@ -376,7 +399,8 @@ namespace tl
                     std::string fileName;
                     switch (options.fileType)
                     {
-                    case ExportFileType::Images:
+                    case ExportFileType::Image:
+                    case ExportFileType::Sequence:
                     {
                         std::stringstream ss;
                         ss << options.imageBaseName;

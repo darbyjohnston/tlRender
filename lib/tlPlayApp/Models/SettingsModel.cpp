@@ -37,7 +37,8 @@ namespace tl
 
         DTK_ENUM_IMPL(
             ExportFileType,
-            "Images",
+            "Image",
+            "Sequence",
             "Movie");
 
         bool ExportSettings::operator == (const ExportSettings& other) const

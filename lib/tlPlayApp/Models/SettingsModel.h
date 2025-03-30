@@ -54,11 +54,12 @@ namespace tl
         //! Export file type.
         enum class ExportFileType
         {
-            Images,
+            Image,
+            Sequence,
             Movie,
 
             Count,
-            First = Images
+            First = Image
         };
         DTK_ENUM(ExportFileType);
 
@@ -68,10 +69,12 @@ namespace tl
             std::string directory;
             ExportRenderSize renderSize = ExportRenderSize::Default;
             dtk::Size2I customSize = dtk::Size2I(1920, 1080);
-            ExportFileType fileType = ExportFileType::Images;
+            ExportFileType fileType = ExportFileType::Image;
+
             std::string imageBaseName = "render.";
             size_t imageZeroPad = 0;
             std::string imageExtension = ".tif";
+
             std::string movieBaseName = "render";
             std::string movieExtension = ".mov";
             std::string movieCodec = "mjpeg";
