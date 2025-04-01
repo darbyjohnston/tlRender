@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(nlohmann_json_GIT_REPOSITORY "https://github.com/nlohmann/json.git")
-set(nlohmann_json_GIT_TAG "v3.11.2")
+set(nlohmann_json_GIT_TAG "v3.11.3")
 
 set(nlohmann_json_ARGS ${TLRENDER_EXTERNAL_ARGS})
 list(APPEND nlohmann_json_ARGS -DJSON_BuildTests=OFF)
