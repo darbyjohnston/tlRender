@@ -52,7 +52,7 @@ namespace tl
     {
         struct Options
         {
-            std::string fileName;
+            std::vector<std::string> fileNames;
             std::string audioFileName;
             std::string compareFileName;
             timeline::CompareOptions compareOptions;
@@ -640,7 +640,7 @@ namespace tl
         void App::_inputFilesInit()
         {
             DTK_P();
-            if (!p.options.fileName.empty())
+            if (!p.options.fileNames.empty())
             {
                 if (!p.options.compareFileName.empty())
                 {
@@ -649,27 +649,30 @@ namespace tl
                     p.filesModel->setB(0, true);
                 }
 
-                open(
-                    file::Path(p.options.fileName),
-                    file::Path(p.options.audioFileName));
-
-                if (auto player = p.player->get())
+                for (const auto& fileName : p.options.fileNames)
                 {
-                    if (p.options.speed > 0.0)
+                    open(
+                        file::Path(fileName),
+                        file::Path(p.options.audioFileName));
+
+                    if (auto player = p.player->get())
                     {
-                        player->setSpeed(p.options.speed);
+                        if (p.options.speed > 0.0)
+                        {
+                            player->setSpeed(p.options.speed);
+                        }
+                        if (time::isValid(p.options.inOutRange))
+                        {
+                            player->setInOutRange(p.options.inOutRange);
+                            player->seek(p.options.inOutRange.start_time());
+                        }
+                        if (time::isValid(p.options.seek))
+                        {
+                            player->seek(p.options.seek);
+                        }
+                        player->setLoop(p.options.loop);
+                        player->setPlayback(p.options.playback);
                     }
-                    if (time::isValid(p.options.inOutRange))
-                    {
-                        player->setInOutRange(p.options.inOutRange);
-                        player->seek(p.options.inOutRange.start_time());
-                    }
-                    if (time::isValid(p.options.seek))
-                    {
-                        player->seek(p.options.seek);
-                    }
-                    player->setLoop(p.options.loop);
-                    player->setPlayback(p.options.playback);
                 }
             }
         }
@@ -755,10 +758,10 @@ namespace tl
             DTK_P();
             return
             {
-                dtk::CmdLineValueArg<std::string>::create(
-                    p.options.fileName,
-                    "input",
-                    "Timeline, movie, image sequence, or folder.",
+                dtk::CmdLineListArg<std::string>::create(
+                    p.options.fileNames,
+                    "inputs",
+                    "Timelines, movies, image sequences, or folders.",
                     true)
             };
         }
