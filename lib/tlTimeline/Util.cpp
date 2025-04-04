@@ -604,6 +604,7 @@ namespace tl
                 static std::string _normzalizePathSeparators(const std::string&);
                 static bool _isFileNameAbsolute(const std::string&);
 
+                std::string _fileName;
                 void* _writer = nullptr;
             };
 
@@ -612,6 +613,8 @@ namespace tl
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& timeline,
                 const std::string& directory)
             {
+                _fileName = fileName;
+
                 // Copy the timeline.
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> timelineCopy(
                     dynamic_cast<OTIO_NS::Timeline*>(
@@ -661,12 +664,12 @@ namespace tl
                 mz_zip_writer_create(&_writer);
                 if (!_writer)
                 {
-                    throw std::runtime_error("Cannot create writer");
+                    throw std::runtime_error(dtk::Format("Cannot create writer: \"{0}\"").arg(fileName));
                 }
                 int32_t err = mz_zip_writer_open_file(_writer, fileName.c_str(), 0, 0);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error("Cannot open output file");
+                    throw std::runtime_error(dtk::Format("Cannot open output file: \"{0}\"").arg(fileName));
                 }
 
                 // Add the content and version files.
@@ -683,7 +686,7 @@ namespace tl
                 err = mz_zip_writer_close(_writer);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error("Cannot close output file");
+                    throw std::runtime_error(dtk::Format("Cannot close output file: \"{0}\"").arg(fileName));
                 }
             }
 
@@ -714,7 +717,7 @@ namespace tl
                     &fileInfo);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error("Cannot add file");
+                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(_fileName));
                 }
             }
 
@@ -738,7 +741,7 @@ namespace tl
                     &fileInfo);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error("Cannot add file");
+                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(_fileName));
                 }*/
                 mz_zip_writer_set_compress_method(
                     _writer,
@@ -749,7 +752,7 @@ namespace tl
                     fileNameInZip.c_str());
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error("Cannot add file: " + fileName);
+                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(fileName));
                 }
             }
 

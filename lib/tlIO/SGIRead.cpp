@@ -120,9 +120,8 @@ namespace tl
                     _io->readU16(&_header.magic);
                     if (_header.magic != 474)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Bad magic number"));
+                        throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                            arg(fileName));
                     }
                     _io->readU8(&_header.storage);
                     _io->readU8(&_header.bytes);
@@ -160,9 +159,8 @@ namespace tl
                     }
                     if (dataByteCount > fileDataByteCount)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Incomplete file"));
+                        throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                            arg(fileName));
                     }
 
                     _info.size.w = _header.width;
@@ -170,9 +168,8 @@ namespace tl
                     _info.type = io::getIntType(_header.channels, 1 == _header.bytes ? 8 : 16);
                     if (dtk::ImageType::None == _info.type)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image type"));
+                        throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").
+                            arg(fileName));
                     }
                     _info.layout.endian = dtk::Endian::MSB;
                 }

@@ -105,7 +105,7 @@ namespace tl
                         warningFunc);
                     if (!_png.p)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
 #if defined(_WINDOWS)
@@ -119,13 +119,13 @@ namespace tl
 #endif // _WINDOWS
                     if (!_f.p)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     const auto& info = image->getInfo();
                     if (!pngOpen(_f.p, _png.p, &_png.info, info))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     size_t scanlineByteCount = 0;
@@ -147,12 +147,12 @@ namespace tl
                     {
                         if (!pngScanline(_png.p, p))
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(dtk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
                         }
                     }
                     if (!pngEnd(_png.p, _png.info))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot close").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot close: \"{0}\"").arg(fileName));
                     }
                 }
 

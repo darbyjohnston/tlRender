@@ -175,7 +175,7 @@ namespace tl
 #endif // _WINDOWS
                         if (!_f.p)
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                     }
 
@@ -194,14 +194,14 @@ namespace tl
                         channels,
                         bitDepth))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
                     _scanlineSize = width * channels * bitDepth / 8;
 
                     dtk::ImageType pixelType = io::getIntType(channels, bitDepth);
                     if (dtk::ImageType::None == pixelType)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     _info = dtk::ImageInfo(width, height, pixelType);

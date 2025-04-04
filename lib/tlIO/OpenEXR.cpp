@@ -915,9 +915,8 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(path.get()).
-                    arg("Unsupported video"));
+                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                    arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }
     }

@@ -107,7 +107,7 @@ namespace tl
                     _error.pub.emit_message = warningFunc;
                     if (!jpegInit(&_jpeg.compress, &_error))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 #if defined(_WINDOWS)
                     if (_wfopen_s(&_f.p, dtk::toWide(fileName).c_str(), L"wb") != 0)
@@ -119,12 +119,12 @@ namespace tl
 #endif // _WINDOWS
                     if (!_f.p)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
                     const auto& info = image->getInfo();
                     if (!jpegOpen(_f.p, &_jpeg.compress, info, image->getTags(), quality, &_error))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     size_t scanlineByteCount = 0;
@@ -140,12 +140,12 @@ namespace tl
                     {
                         if (!jpegScanline(&_jpeg.compress, imageP, &_error))
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(dtk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
                         }
                     }
                     if (!jpegEnd(&_jpeg.compress, &_error))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot close").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot close: \"{0}\"").arg(fileName));
                     }
                 }
 

@@ -228,9 +228,8 @@ namespace tl
             }
             else
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Bad magic number"));
+                throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             // Read the rest of the header.
@@ -253,9 +252,8 @@ namespace tl
 
             if (!out.image.channels)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("No image channels"));
+                throw std::runtime_error(dtk::Format("No image channels: \"{0}\"").
+                    arg(io->getPath()));
             }
             uint8_t i = 1;
             for (; i < out.image.channels; ++i)
@@ -272,9 +270,8 @@ namespace tl
             }
             if (i < out.image.channels)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported image channels"));
+                throw std::runtime_error(dtk::Format("Unsupported image channels: \"{0}\"").
+                    arg(io->getPath()));
             }
             switch (out.image.channels)
             {
@@ -292,28 +289,24 @@ namespace tl
             }
             if (dtk::ImageType::None == imageInfo.type)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported bit depth"));
+                throw std::runtime_error(dtk::Format("Unsupported bit depth: \"{0}\"").
+                    arg(io->getPath()));
             }
             if (isValid(&out.image.linePadding) && out.image.linePadding)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported line padding"));
+                throw std::runtime_error(dtk::Format("Unsupported line padding: \"{0}\"").
+                    arg(io->getPath()));
             }
             if (isValid(&out.image.channelPadding) && out.image.channelPadding)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported channel padding"));
+                throw std::runtime_error(dtk::Format("Unsupported channel padding: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             if (io->getSize() - out.file.imageOffset != imageInfo.getByteCount())
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Incomplete file"));
+                throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                    arg(io->getPath()));
             }
             switch (static_cast<Orient>(out.image.orient))
             {
@@ -666,9 +659,8 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(path.get()).
-                    arg("Unsupported video"));
+                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                    arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }
     }

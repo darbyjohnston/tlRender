@@ -115,13 +115,13 @@ namespace tl
                     _error.pub.emit_message = warningFunc;
                     if (!jpegCreate(&_jpeg.decompress, &_error))
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
                     if (memory)
                     {
                         if (!jpegOpen(memory->p, memory->size, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                     }
                     else
@@ -136,18 +136,18 @@ namespace tl
 #endif // _WINDOWS
                         if (!_f.p)
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                         if (!jpegOpen(_f.p, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                            throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                     }
 
                     dtk::ImageType pixelType = io::getIntType(_jpeg.decompress.out_color_components, 8);
                     if (dtk::ImageType::None == pixelType)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: File not supported").arg(fileName));
+                        throw std::runtime_error(dtk::Format("File not supported: \"{0}\"").arg(fileName));
                     }
 
                     dtk::ImageInfo imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);

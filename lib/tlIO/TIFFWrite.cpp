@@ -31,7 +31,7 @@ namespace tl
 #endif // _WINDOWS
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     uint16_t tiffPhotometric = 0;
@@ -91,7 +91,7 @@ namespace tl
                     }
                     if (!tiffSamples || !tiffSampleDepth)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     tiffCompression = COMPRESSION_NONE;
@@ -149,7 +149,7 @@ namespace tl
                     {
                         if (TIFFWriteScanline(_tiff.p, (tdata_t*)p, y) == -1)
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Cannot write scanline: {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(dtk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
                         }
                     }
                 }

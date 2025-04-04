@@ -200,9 +200,8 @@ namespace tl
             }
             else
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Bad magic number"));
+                throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             // Read the rest of the header.
@@ -223,9 +222,8 @@ namespace tl
             // Image information.
             if (out.image.elemSize != 1)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported file"));
+                throw std::runtime_error(dtk::Format("Unsupported file: \"{0}\"").
+                    arg(io->getPath()));
             }
             imageInfo.size.w = out.image.size[0];
             imageInfo.size.h = out.image.size[1];
@@ -290,31 +288,27 @@ namespace tl
             }
             if (dtk::ImageType::None == imageInfo.type)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported file"));
+                throw std::runtime_error(dtk::Format("Unsupported file: \"{0}\"").
+                    arg(io->getPath()));
             }
             const size_t dataByteCount = imageInfo.getByteCount();
             const size_t ioSize = io->getSize();
             if (dataByteCount > ioSize - out.file.imageOffset)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Incomplete file"));
+                throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             if (out.image.elem[0].encoding)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported file"));
+                throw std::runtime_error(dtk::Format("Unsupported file: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             if (isValid(&out.image.elem[0].linePadding) && out.image.elem[0].linePadding)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(io->getPath()).
-                    arg("Unsupported file"));
+                throw std::runtime_error(dtk::Format("Unsupported file: \"{0}\"").
+                    arg(io->getPath()));
             }
 
             if (Transfer::FilmPrint == static_cast<Transfer>(out.image.elem[0].transfer))
@@ -965,9 +959,8 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("{0}: {1}").
-                    arg(path.get()).
-                    arg("Unsupported video"));
+                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                    arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }
     }

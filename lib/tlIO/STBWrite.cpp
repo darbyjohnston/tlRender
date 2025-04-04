@@ -28,9 +28,8 @@ namespace tl
                     const int comp = dtk::getChannelCount(info.type);
                     const size_t bytes = dtk::getBitDepth(info.type) / 8;
                     if (bytes > 1)
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image depth"));
+                        throw std::runtime_error(dtk::Format("Unsupported image depth: \"{0}\"").
+                            arg(fileName));
                     
                     stbi_flip_vertically_on_write(1);
     
@@ -57,15 +56,13 @@ namespace tl
                     }
                     else
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image format"));
+                        throw std::runtime_error(dtk::Format("Unsupported image format: \"{0}\"").
+                            arg(fileName));
                     }
                     
                     if (res == 0)
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Save image failed"));
+                        throw std::runtime_error(dtk::Format("Save image failed: \"{0}\"").
+                            arg(fileName));
                 }
             };
         }

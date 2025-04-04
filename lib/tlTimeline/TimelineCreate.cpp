@@ -85,13 +85,13 @@ namespace tl
                 if (!reader)
                 {
                     throw std::runtime_error(dtk::Format(
-                        "{0}: Cannot create zip reader").arg(fileName));
+                        "Cannot create zip reader: \"{0}\"").arg(fileName));
                 }
                 int32_t err = mz_zip_reader_open_file(reader, fileName.c_str());
                 if (err != MZ_OK)
                 {
                     throw std::runtime_error(dtk::Format(
-                        "{0}: Cannot open zip reader").arg(fileName));
+                        "Cannot open zip reader: \"{0}\"").arg(fileName));
                 }
             }
 
@@ -113,7 +113,7 @@ namespace tl
                 if (err != MZ_OK)
                 {
                     throw std::runtime_error(dtk::Format(
-                        "{0}: Cannot open zip entry").arg(fileName));
+                        "Cannot open zip entry: \"{0}\"").arg(fileName));
                 }
             }
 
@@ -150,14 +150,14 @@ namespace tl
                     if (err != MZ_OK)
                     {
                         throw std::runtime_error(dtk::Format(
-                            "{0}: Cannot find zip entry").arg(contentFileName));
+                            "Cannot find zip entry: \"{0}\"").arg(contentFileName));
                     }
                     mz_zip_file* fileInfo = nullptr;
                     err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                     if (err != MZ_OK)
                     {
                         throw std::runtime_error(dtk::Format(
-                            "{0}: Cannot get zip entry information").arg(contentFileName));
+                            "Cannot get zip entry information: \"{0}\"").arg(contentFileName));
                     }
                     ZipReaderFile zipReaderFile(zipReader.reader, contentFileName);
                     std::vector<char> buf;
@@ -169,7 +169,7 @@ namespace tl
                     if (err != fileInfo->uncompressed_size)
                     {
                         throw std::runtime_error(dtk::Format(
-                            "{0}: Cannot read zip entry").arg(contentFileName));
+                            "Cannot read zip entry: \"{0}\"").arg(contentFileName));
                     }
                     buf[fileInfo->uncompressed_size] = 0;
 
@@ -189,13 +189,13 @@ namespace tl
                             if (err != MZ_OK)
                             {
                                 throw std::runtime_error(dtk::Format(
-                                    "{0}: Cannot find zip entry").arg(mediaFileName));
+                                    "Cannot find zip entry: \"{0}\"").arg(mediaFileName));
                             }
                             err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                             if (err != MZ_OK)
                             {
                                 throw std::runtime_error(dtk::Format(
-                                    "{0}: Cannot get zip entry information").arg(mediaFileName));
+                                    "Cannot get zip entry information: \"{0}\"").arg(mediaFileName));
                             }
 
                             const size_t headerSize =
@@ -229,13 +229,13 @@ namespace tl
                                 if (err != MZ_OK)
                                 {
                                     throw std::runtime_error(dtk::Format(
-                                        "{0}: Cannot find zip entry").arg(mediaFileName));
+                                        "Cannot find zip entry: \"{0}\"").arg(mediaFileName));
                                 }
                                 err = mz_zip_reader_entry_get_info(zipReader.reader, &fileInfo);
                                 if (err != MZ_OK)
                                 {
                                     throw std::runtime_error(dtk::Format(
-                                        "{0}: Cannot get zip entry information").arg(mediaFileName));
+                                        "Cannot get zip entry information: \"{0}\"").arg(mediaFileName));
                                 }
 
                                 const size_t headerSize =
@@ -464,7 +464,7 @@ namespace tl
                 }
                 else if (!out)
                 {
-                    error = dtk::Format("{0}: Cannot read timeline").arg(path.get());
+                    error = dtk::Format("Cannot read timeline: \"{0}\"").arg(path.get());
                 }
             }
             if (!out)

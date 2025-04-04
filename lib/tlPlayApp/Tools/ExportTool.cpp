@@ -426,7 +426,8 @@ namespace tl
                     auto plugin = ioSystem->getPlugin(p.exportData->path);
                     if (!plugin)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(p.exportData->path.get()));
+                        throw std::runtime_error(
+                            dtk::Format("Cannot open: \"{0}\"").arg(p.exportData->path.get()));
                     }
                     p.exportData->info.type = ioInfo.video.front().type;
                     p.exportData->info = plugin->getInfo(p.exportData->info);
@@ -438,7 +439,8 @@ namespace tl
                     p.exportData->glType = dtk::gl::getReadPixelsType(p.exportData->info.type);
                     if (GL_NONE == p.exportData->glFormat || GL_NONE == p.exportData->glType)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(p.exportData->path.get()));
+                        throw std::runtime_error(
+                            dtk::Format("Cannot open: \"{0}\"").arg(p.exportData->path.get()));
                     }
                     io::Info outputInfo;
                     outputInfo.video.push_back(p.exportData->info);

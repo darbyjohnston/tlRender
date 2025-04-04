@@ -26,9 +26,8 @@ namespace tl
                     _io->read(magic, 2);
                     if (magic[0] != 'P')
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Bad magic number"));
+                        throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                            arg(fileName));
                     }
                     switch (magic[1])
                     {
@@ -38,9 +37,8 @@ namespace tl
                     case '6': break;
                     default:
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Bad magic number"));
+                        throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                            arg(fileName));
                     }
                     }
                     const int ppmType = magic[1] - '0';
@@ -69,9 +67,8 @@ namespace tl
                     _info.type = io::getIntType(channelCount, bitDepth);
                     if (dtk::ImageType::None == _info.type)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Unsupported image type"));
+                        throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").
+                            arg(fileName));
                     }
 
                     const size_t ioSize = _io->getSize();
@@ -80,9 +77,8 @@ namespace tl
                     const size_t dataByteCount = _info.getByteCount();
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: {1}").
-                            arg(fileName).
-                            arg("Incomplete file"));
+                        throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                            arg(fileName));
                     }
 
                     _info.layout.endian = _data != Data::ASCII ? dtk::Endian::MSB : dtk::getEndian();

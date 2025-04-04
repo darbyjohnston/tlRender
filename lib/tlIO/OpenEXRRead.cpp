@@ -57,7 +57,7 @@ namespace tl
             DTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
+                throw std::runtime_error(dtk::Format("Error reading file: \"{0}\"").arg(fileName()));
             }
             char* out = nullptr;
             if (p.p)
@@ -73,7 +73,7 @@ namespace tl
             DTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(dtk::Format("{0}: Error reading file").arg(fileName()));
+                throw std::runtime_error(dtk::Format("Error reading file: \"{0}\"").arg(fileName()));
             }
             if (p.p)
             {
@@ -216,7 +216,7 @@ namespace tl
                         }
                         if (dtk::ImageType::None == info.type)
                         {
-                            throw std::runtime_error(dtk::Format("{0}: Unsupported image type").arg(fileName));
+                            throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").arg(fileName));
                         }
                         info.layout.mirror.y = true;
                     }

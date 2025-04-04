@@ -107,7 +107,7 @@ namespace tl
                     }
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     uint32_t  tiffWidth = 0;
@@ -156,7 +156,7 @@ namespace tl
                     }
                     if (dtk::ImageType::None == pixelType)
                     {
-                        throw std::runtime_error(dtk::Format("{0}: Cannot open").arg(fileName));
+                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     dtk::ImageInfo imageInfo(tiffWidth, tiffHeight, pixelType);

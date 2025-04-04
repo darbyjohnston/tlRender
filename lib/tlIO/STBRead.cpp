@@ -36,9 +36,8 @@ namespace tl
                                                     &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                dtk::Format("{0}: {1}")
-                                    .arg(fileName)
-                                    .arg("Corrupted image type"));
+                                dtk::Format("Corrupted image type: \"{0}\"")
+                                    .arg(fileName));
                             
                         _info.size.w = w;
                         _info.size.h = h;
@@ -51,9 +50,8 @@ namespace tl
                         if (dtk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
-                                dtk::Format("{0}: {1}")
-                                    .arg(fileName)
-                                    .arg("Unsupported image type"));
+                                dtk::Format("Unsupported image type: \"{0}\"")
+                                    .arg(fileName));
                         }
                         _info.layout.endian = dtk::Endian::MSB;
                     }
@@ -63,9 +61,8 @@ namespace tl
                         res = stbi_info(fileName.c_str(), &w, &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                dtk::Format("{0}: {1}")
-                                    .arg(fileName)
-                                    .arg("Corrupted image type"));
+                                dtk::Format("Corrupted image type: \"{0}\"")
+                                    .arg(fileName));
 
                         _info.size.w = w;
                         _info.size.h = h;
@@ -77,9 +74,8 @@ namespace tl
                         if (dtk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
-                                dtk::Format("{0}: {1}")
-                                    .arg(fileName)
-                                    .arg("Unsupported image type"));
+                                dtk::Format("Unsupported image type: \"{0}\"")
+                                    .arg(fileName));
                         }
                         _info.layout.endian = dtk::Endian::MSB;
                     }

@@ -238,7 +238,7 @@ namespace tl
             _writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(_output));
             if (!_writerPlugin)
             {
-                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(_output));
             }
             _outputInfo.size.w = _renderSize.w;
             _outputInfo.size.h = _renderSize.h;
@@ -260,7 +260,7 @@ namespace tl
             _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
             if (!_writer)
             {
-                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(_output));
             }
 
             // Start the main loop.
@@ -381,7 +381,7 @@ namespace tl
             const GLenum type = dtk::gl::getReadPixelsType(_outputInfo.type);
             if (GL_NONE == format || GL_NONE == type)
             {
-                throw std::runtime_error(dtk::Format("Cannot open: {0}").arg(_output));
+                throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(_output));
             }
             glReadPixels(
                 0,

@@ -23,7 +23,7 @@ namespace tl
                 _avFormatContext = avformat_alloc_context();
                 if (!_avFormatContext)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate format context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("Cannot allocate format context: \"{0}\"").arg(fileName));
                 }
 
                 _avIOBufferData = AVIOBufferData(memory[0].p, memory[0].size);
@@ -38,7 +38,7 @@ namespace tl
                     &avIOBufferSeek);
                 if (!_avIOContext)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate I/O context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("Cannot allocate I/O context: \"{0}\"").arg(fileName));
                 }
 
                 _avFormatContext->pb = _avIOContext;
@@ -51,13 +51,13 @@ namespace tl
                 nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
 
             r = avformat_find_stream_info(_avFormatContext, 0);
             if (r < 0)
             {
-                throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                throw std::runtime_error(dtk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
             for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
             {
@@ -89,34 +89,34 @@ namespace tl
                 auto avAudioCodec = avcodec_find_decoder(avAudioCodecParameters->codec_id);
                 if (!avAudioCodec)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: No audio codec found").arg(fileName));
+                    throw std::runtime_error(dtk::Format("No audio codec found: \"{0}\"").arg(fileName));
                 }
                 _avCodecParameters[_avStream] = avcodec_parameters_alloc();
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate parameters").arg(fileName));
+                    throw std::runtime_error(dtk::Format("Cannot allocate parameters: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_copy(_avCodecParameters[_avStream], avAudioCodecParameters);
                 if (r < 0)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream] = avcodec_alloc_context3(avAudioCodec);
                 if (!_avCodecContext[_avStream])
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate context").arg(fileName));
+                    throw std::runtime_error(dtk::Format("Cannot allocate context: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_to_context(_avCodecContext[_avStream], _avCodecParameters[_avStream]);
                 if (r < 0)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream]->thread_count = options.threadCount;
                 _avCodecContext[_avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avStream], avAudioCodec, 0);
                 if (r < 0)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: {1}").arg(fileName).arg(getErrorLabel(r)));
+                    throw std::runtime_error(dtk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
 
                 const size_t fileChannelCount = _avCodecParameters[_avStream]->ch_layout.nb_channels;
@@ -124,7 +124,7 @@ namespace tl
                     _avCodecParameters[_avStream]->format));
                 if (audio::DataType::None == fileDataType)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Unsupported audio format").arg(fileName));
+                    throw std::runtime_error(dtk::Format("Unsupported audio format: \"{0}\"").arg(fileName));
                 }
                 const size_t fileSampleRate = _avCodecParameters[_avStream]->sample_rate;
 
@@ -311,7 +311,7 @@ namespace tl
                 _avFrame = av_frame_alloc();
                 if (!_avFrame)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot allocate frame").arg(_fileName));
+                    throw std::runtime_error(dtk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
                 }
 
                 AVChannelLayout channelLayout;
@@ -330,7 +330,7 @@ namespace tl
                 av_channel_layout_uninit(&channelLayout);
                 if (!_swrContext)
                 {
-                    throw std::runtime_error(dtk::Format("{0}: Cannot get context").arg(_fileName));
+                    throw std::runtime_error(dtk::Format("Cannot get context: \"{0}\"").arg(_fileName));
                 }
                 swr_init(_swrContext);
             }
