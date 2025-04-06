@@ -211,9 +211,10 @@ namespace tl
             if (!info.video.empty())
             {
                 s.push_back(std::string(
-                    dtk::Format("video: {0}x{1} {2}").
+                    dtk::Format("video: {0}x{1}:{2} {3}").
                     arg(info.video[0].size.w).
                     arg(info.video[0].size.h).
+                    arg(info.video[0].getAspect(), 2).
                     arg(info.video[0].type)));
             }
             if (info.audio.isValid())
@@ -232,9 +233,10 @@ namespace tl
             if (!info.video.empty())
             {
                 t.push_back(std::string(
-                    dtk::Format("Video: {0}x{1} {2}").
+                    dtk::Format("Video: {0}x{1}:{2} {3}").
                     arg(info.video[0].size.w).
                     arg(info.video[0].size.h).
+                    arg(info.video[0].getAspect()).
                     arg(info.video[0].type)));
             }
             if (info.audio.isValid())
