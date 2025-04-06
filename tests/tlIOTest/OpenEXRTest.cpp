@@ -52,23 +52,27 @@ namespace tl
                     "diffuse.R",
                     "diffuse.left.R"
                 };
-                const auto r = exr::getDefaultChannels(data);
-                DTK_ASSERT(r = { ".G", "A", "B.", "R" });
+                const auto defaultChannels = exr::getDefaultChannels(data);
+                const std::set<std::string> result = { ".G", "A", "B.", "R" };
+                DTK_ASSERT(defaultChannels == result);
             }
             {
                 std::vector<std::string> data = { "A", "b", "g", "r" };
                 exr::reorderChannels(data);
-                DTK_ASSERT({ "r", "g", "b", "A" } == data);
+                const std::vector<std::string> result = { "r", "g", "b", "A" };
+                DTK_ASSERT(data = result);
             }
             {
                 std::vector<std::string> data = { "z", "b", "G", "r" };
                 exr::reorderChannels(data);
-                DTK_ASSERT({ "r", "G", "b", "z" } == data);
+                const std::vector<std::string> result = { "r", "G", "b", "z" };
+                DTK_ASSERT(data == result);
             }
             {
                 std::vector<std::string> data = { "diffuse.B", "diffuse.G", "diffuse.R" };
                 exr::reorderChannels(data);
-                DTK_ASSERT({ "diffuse.R", "diffuse.G", "diffuse.B" } == data);
+                const std::vector<std::string> result = { "diffuse.R", "diffuse.G", "diffuse.B" };
+                DTK_ASSERT(data == result);
             }
         }
 
