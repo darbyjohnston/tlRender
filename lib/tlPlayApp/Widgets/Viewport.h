@@ -42,6 +42,7 @@ namespace tl
             void mouseReleaseEvent(dtk::MouseClickEvent&) override;
 
         private:
+            void _videoDataUpdate();
             void _hudUpdate();
 
             DTK_PRIVATE();

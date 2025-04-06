@@ -33,6 +33,9 @@ namespace tl
             OTIO_NS::RationalTime currentTime = time::invalidTime;
             double fps = 0.0;
             size_t droppedFrames = 0;
+            size_t videoDataSize = 0;
+            dtk::ImageOptions imageOptions;
+            timeline::DisplayOptions displayOptions;
             dtk::Color4F colorPicker;
             timeline::PlayerCacheInfo cacheInfo;
             dtk::KeyModifier colorPickerModifier = dtk::KeyModifier::None;
@@ -46,6 +49,7 @@ namespace tl
             std::shared_ptr<dtk::GridLayout> hudLayout;
 
             std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<dtk::ListObserver<timeline::VideoData> > videoDataObserver;
             std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheObserver;
             std::shared_ptr<dtk::ValueObserver<double> > fpsObserver;
             std::shared_ptr<dtk::ValueObserver<size_t> > droppedFramesObserver;
@@ -182,14 +186,16 @@ namespace tl
                 app->getViewportModel()->observeImageOptions(),
                 [this](const dtk::ImageOptions& value)
                 {
-                   setImageOptions({ value });
+                    _p->imageOptions = value;
+                    _videoDataUpdate();
                 });
 
             p.displayOptionsObserver = dtk::ValueObserver<timeline::DisplayOptions>::create(
                 app->getViewportModel()->observeDisplayOptions(),
                 [this](const timeline::DisplayOptions& value)
                 {
-                   setDisplayOptions({ value });
+                    _p->displayOptions = value;
+                    _videoDataUpdate();
                 });
 
             p.bgOptionsObserver = dtk::ValueObserver<timeline::BackgroundOptions>::create(
@@ -277,6 +283,14 @@ namespace tl
                         _hudUpdate();
                     });
 
+                p.videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
+                    player->observeCurrentVideo(),
+                    [this](const std::vector<timeline::VideoData>& value)
+                    {
+                        _p->videoDataSize = value.size();
+                        _videoDataUpdate();
+                    });
+
                 p.cacheObserver = dtk::ValueObserver<timeline::PlayerCacheInfo>::create(
                     player->observeCacheInfo(),
                     [this](const timeline::PlayerCacheInfo& value)
@@ -290,8 +304,10 @@ namespace tl
                 p.path = file::Path();
                 p.currentTime = time::invalidTime;
                 p.currentTimeObserver.reset();
+                p.videoDataObserver.reset();
                 p.cacheInfo = timeline::PlayerCacheInfo();
                 p.cacheObserver.reset();
+                p.videoDataObserver.reset();
                 _hudUpdate();
             }
         }
@@ -378,6 +394,20 @@ namespace tl
             timelineui::Viewport::mouseReleaseEvent(event);
             DTK_P();
             p.mouse = Private::MouseData();
+        }
+
+        void Viewport::_videoDataUpdate()
+        {
+            DTK_P();
+            std::vector<dtk::ImageOptions> imageOptions;
+            std::vector<timeline::DisplayOptions> displayOptions;
+            for (size_t i = 0; i < p.videoDataSize; ++i)
+            {
+                imageOptions.push_back(p.imageOptions);
+                displayOptions.push_back(p.displayOptions);
+            }
+            setImageOptions(imageOptions);
+            setDisplayOptions(displayOptions);
         }
 
         void Viewport::_hudUpdate()
