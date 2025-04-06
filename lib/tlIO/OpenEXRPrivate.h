@@ -10,54 +10,12 @@
 
 #include <ImathBox.h>
 #include <ImfHeader.h>
-#include <ImfInputFile.h>
 #include <ImfPixelType.h>
 
 namespace tl
 {
     namespace exr
     {
-        //! Image channel.
-        struct Channel
-        {
-            Channel();
-            Channel(
-                const std::string& name,
-                Imf::PixelType     pixelType,
-                const dtk::V2I&    sampling  = dtk::V2I(1, 1));
-
-            std::string    name;
-            Imf::PixelType pixelType = Imf::PixelType::HALF;
-            dtk::V2I       sampling  = dtk::V2I(1, 1);
-        };
-
-        //! Image layer.
-        struct Layer
-        {
-            Layer(
-                const std::vector<Channel>& channels        = std::vector<Channel>(),
-                bool                        luminanceChroma = false);
-
-            std::string          name;
-            std::vector<Channel> channels;
-            bool                 luminanceChroma = false;
-        };
-
-        //! Convert to Imf.
-        Imf::Compression toImf(Compression);
-
-        //! Get a layer name from a list of channel names.
-        std::string getLayerName(const std::vector<std::string>&);
-
-        //! Get the channels that aren't in any layer.
-        Imf::ChannelList getDefaultLayer(const Imf::ChannelList&);
-
-        //! Find a channel by name.
-        const Imf::Channel* find(const Imf::ChannelList&, std::string&);
-
-        //! Get a list of layers from Imf channels.
-        std::vector<Layer> getLayers(const Imf::ChannelList&, ChannelGrouping);
-
         //! Read the tags from an Imf header.
         void readTags(const Imf::Header&, dtk::ImageTags&);
 
@@ -66,11 +24,11 @@ namespace tl
         //! \todo Write all the tags that are handled by readTags().
         void writeTags(const dtk::ImageTags&, double speed, Imf::Header&);
 
-        //! Convert an Imath box type.
-        dtk::Box2I fromImath(const Imath::Box2i&);
+        //! Convert to Imf.
+        Imf::Compression toImf(Compression);
 
-        //! Convert from an Imf channel.
-        Channel fromImf(const std::string& name, const Imf::Channel&);
+        //! Convert from Imath.
+        dtk::Box2I fromImath(const Imath::Box2i&);
 
         //! Input stream.
         class IStream : public Imf::IStream

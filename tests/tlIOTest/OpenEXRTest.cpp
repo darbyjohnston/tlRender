@@ -31,13 +31,45 @@ namespace tl
         void OpenEXRTest::run()
         {
             _enums();
+            _util();
             _io();
         }
 
         void OpenEXRTest::_enums()
         {
-            _enum<exr::ChannelGrouping>("ChannelGrouping", exr::getChannelGroupingEnums);
             _enum<exr::Compression>("Compression", exr::getCompressionEnums);
+        }
+
+        void OpenEXRTest::_util()
+        {
+            {
+                const std::set<std::string> data =
+                {
+                    "R",
+                    ".G",
+                    "B.",
+                    "A",
+                    "diffuse.R",
+                    "diffuse.left.R"
+                };
+                const auto r = exr::getDefaultChannels(data);
+                DTK_ASSERT(r = { ".G", "A", "B.", "R" });
+            }
+            {
+                std::vector<std::string> data = { "A", "b", "g", "r" };
+                exr::reorderChannels(data);
+                DTK_ASSERT({ "r", "g", "b", "A" } == data);
+            }
+            {
+                std::vector<std::string> data = { "z", "b", "G", "r" };
+                exr::reorderChannels(data);
+                DTK_ASSERT({ "r", "G", "b", "z" } == data);
+            }
+            {
+                std::vector<std::string> data = { "diffuse.B", "diffuse.G", "diffuse.R" };
+                exr::reorderChannels(data);
+                DTK_ASSERT({ "diffuse.R", "diffuse.G", "diffuse.B" } == data);
+            }
         }
 
         namespace

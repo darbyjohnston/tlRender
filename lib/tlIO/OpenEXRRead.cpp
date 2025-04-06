@@ -8,7 +8,9 @@
 #include <dtk/core/LogSystem.h>
 
 #include <ImfChannelList.h>
-#include <ImfRgbaFile.h>
+#include <ImfFrameBuffer.h>
+#include <ImfInputPart.h>
+#include <ImfMultiPartInputFile.h>
 
 #include <array>
 #include <cstring>
@@ -139,7 +141,6 @@ namespace tl
                 File(
                     const std::string& fileName,
                     const dtk::InMemoryFile* memory,
-                    ChannelGrouping channelGrouping,
                     const std::shared_ptr<dtk::LogSystem>& logSystem)
                 {
                     // Open the file.
@@ -151,74 +152,251 @@ namespace tl
                     {
                         _s.reset(new IStream(fileName));
                     }
-                    _f.reset(new Imf::InputFile(*_s));
-
-                    // Get the display and data windows.
-                    _displayWindow = fromImath(_f->header().displayWindow());
-                    _dataWindow = fromImath(_f->header().dataWindow());
-                    _intersectedWindow = dtk::intersect(_displayWindow, _dataWindow);
-                    _fast = _displayWindow == _dataWindow;
+                    _f.reset(new Imf::MultiPartInputFile(*_s));
 
                     {
                         const std::string id = dtk::Format("tl::io::exr::Read {0}").arg(this);
-                        std::vector<std::string> s;
-                        s.push_back(dtk::Format(
-                            "\n"
-                            "    file name: {0}\n"
-                            "    display window {1}\n"
-                            "    data window: {2}\n"
-                            "    compression: {3}").
-                            arg(fileName).
-                            arg(_displayWindow).
-                            arg(_dataWindow).
-                            arg(getLabel(_f->header().compression())));
-                        const auto& channels = _f->header().channels();
-                        for (auto i = channels.begin(); i != channels.end(); ++i)
-                        {
-                            std::stringstream ss2;
-                            ss2 << "    channel " << i.name() << ": " << getLabel(i.channel().type) << ", " << i.channel().xSampling << "x" << i.channel().ySampling;
-                            s.push_back(ss2.str());
-                        }
-                        logSystem->print(id, dtk::join(s, '\n'));
+                        logSystem->print(id, dtk::Format("file name: {0}").arg(fileName));
                     }
 
                     // Get the tags.
-                    readTags(_f->header(), _info.tags);
+                    const int partsCount = _f->parts();
+                    if (partsCount > 0)
+                    {
+                        readTags(_f->header(0), _info.tags);
+                    }
 
                     // Get the layers.
-                    _layers = getLayers(_f->header().channels(), channelGrouping);
-                    _info.video.resize(_layers.size());
-                    for (size_t i = 0; i < _layers.size(); ++i)
+                    for (int part = 0; part < partsCount; ++part)
                     {
-                        const auto& layer = _layers[i];
-                        const dtk::V2I sampling(layer.channels[0].sampling.x, layer.channels[0].sampling.y);
-                        if (sampling.x != 1 || sampling.y != 1)
+                        std::string view;
+                        const Imf::Header& imfHeader = _f->header(part);
+                        if (_f->header(part).hasView())
                         {
-                            _fast = false;
+                            view = imfHeader.view();
+                            if (!view.empty() && view[0] != '.')
+                            {
+                                view.insert(view.begin(), '.');
+                            }
                         }
-                        auto& info = _info.video[i];
-                        info.name = layer.name;
-                        info.size.w = _displayWindow.w();
-                        info.size.h = _displayWindow.h();
-                        info.pixelAspectRatio = _f->header().pixelAspectRatio();
-                        switch (layer.channels[0].pixelType)
+
+                        const dtk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
+                        const auto& imfChannels = imfHeader.channels();
+                        std::set<std::string> imfChannelNames;
+                        for (auto i = imfChannels.begin(); i != imfChannels.end(); ++i)
                         {
-                        case Imf::PixelType::HALF:
-                            info.type = io::getFloatType(layer.channels.size(), 16);
-                            break;
-                        case Imf::PixelType::FLOAT:
-                            info.type = io::getFloatType(layer.channels.size(), 32);
-                            break;
-                        case Imf::PixelType::UINT:
-                            info.type = io::getIntType(layer.channels.size(), 32);
-                            break;
-                        default: break;
+                            imfChannelNames.insert(i.name());
                         }
-                        if (dtk::ImageType::None == info.type)
+                        std::set<std::string> imfDefaultChannelNames = getDefaultChannels(imfChannelNames);
+
+                        // Add RGB and RGBA layers.
+                        auto r = imfDefaultChannelNames.find("r");
+                        if (r == imfDefaultChannelNames.end())
                         {
-                            throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").arg(fileName));
+                            r = imfDefaultChannelNames.find("R");
                         }
-                        info.layout.mirror.y = true;
+                        auto g = imfDefaultChannelNames.find("g");
+                        if (g == imfDefaultChannelNames.end())
+                        {
+                            g = imfDefaultChannelNames.find("G");
+                        }
+                        auto b = imfDefaultChannelNames.find("b");
+                        if (b == imfDefaultChannelNames.end())
+                        {
+                            b = imfDefaultChannelNames.find("B");
+                        }
+                        auto a = imfDefaultChannelNames.find("a");
+                        if (a == imfDefaultChannelNames.end())
+                        {
+                            a = imfDefaultChannelNames.find("A");
+                        }
+                        if (r != imfDefaultChannelNames.end() &&
+                            g != imfDefaultChannelNames.end() &&
+                            b != imfDefaultChannelNames.end() &&
+                            a != imfDefaultChannelNames.end())
+                        {
+                            const Imf::PixelType imfPixelType = imfChannels[*r].type;
+                            if (imfPixelType == imfChannels[*g].type &&
+                                imfPixelType == imfChannels[*b].type &&
+                                imfPixelType == imfChannels[*a].type &&
+                                1 == imfChannels[*r].xSampling &&
+                                1 == imfChannels[*r].ySampling &&
+                                1 == imfChannels[*g].xSampling &&
+                                1 == imfChannels[*g].ySampling &&
+                                1 == imfChannels[*b].xSampling &&
+                                1 == imfChannels[*b].ySampling &&
+                                1 == imfChannels[*a].xSampling &&
+                                1 == imfChannels[*a].ySampling)
+                            {
+                                dtk::ImageInfo info;
+                                info.name = "RGBA" + view;
+                                info.size.w = displayWindow.w();
+                                info.size.h = displayWindow.h();
+                                info.pixelAspectRatio = imfHeader.pixelAspectRatio();
+                                info.layout.mirror.y = true;
+                                switch (imfPixelType)
+                                {
+                                case Imf::PixelType::HALF:  info.type = dtk::ImageType::RGBA_F16; break;
+                                case Imf::PixelType::FLOAT: info.type = dtk::ImageType::RGBA_F32; break;
+                                case Imf::PixelType::UINT:  info.type = dtk::ImageType::RGBA_U32; break;
+                                default: break;
+                                }
+                                if (info.type != dtk::ImageType::None)
+                                {
+                                    _info.video.push_back(info);
+                                    Layer layer;
+                                    layer.part = part;
+                                    layer.channels.push_back(*r);
+                                    layer.channels.push_back(*g);
+                                    layer.channels.push_back(*b);
+                                    layer.channels.push_back(*a);
+                                    layer.pixelType = imfPixelType;
+                                    _layers.push_back(layer);
+                                    imfDefaultChannelNames.erase(r);
+                                    imfDefaultChannelNames.erase(g);
+                                    imfDefaultChannelNames.erase(b);
+                                    imfDefaultChannelNames.erase(a);
+                                }
+                            }
+                        }
+                        else if (r != imfDefaultChannelNames.end() &&
+                            g != imfDefaultChannelNames.end() &&
+                            b != imfDefaultChannelNames.end())
+                        {
+                            const Imf::PixelType imfPixelType = imfChannels[*r].type;
+                            if (imfPixelType == imfChannels[*g].type &&
+                                imfPixelType == imfChannels[*b].type &&
+                                1 == imfChannels[*r].xSampling &&
+                                1 == imfChannels[*r].ySampling &&
+                                1 == imfChannels[*g].xSampling &&
+                                1 == imfChannels[*g].ySampling &&
+                                1 == imfChannels[*b].xSampling &&
+                                1 == imfChannels[*b].ySampling)
+                            {
+                                dtk::ImageInfo info;
+                                switch (imfPixelType)
+                                {
+                                case Imf::PixelType::HALF:  info.type = dtk::ImageType::RGB_F16; break;
+                                case Imf::PixelType::FLOAT: info.type = dtk::ImageType::RGB_F32; break;
+                                case Imf::PixelType::UINT:  info.type = dtk::ImageType::RGB_U32; break;
+                                default: break;
+                                }
+                                if (info.type != dtk::ImageType::None)
+                                {
+                                    info.name = "RGB" + view;
+                                    info.size.w = displayWindow.w();
+                                    info.size.h = displayWindow.h();
+                                    info.pixelAspectRatio = imfHeader.pixelAspectRatio();
+                                    info.layout.mirror.y = true;
+                                    _info.video.push_back(info);
+                                    Layer layer;
+                                    layer.part = part;
+                                    layer.channels.push_back(*r);
+                                    layer.channels.push_back(*g);
+                                    layer.channels.push_back(*b);
+                                    layer.pixelType = imfPixelType;
+                                    _layers.push_back(layer);
+                                    imfDefaultChannelNames.erase(r);
+                                    imfDefaultChannelNames.erase(g);
+                                    imfDefaultChannelNames.erase(b);
+                                }
+                            }
+                        }
+
+                        // Add remaining default layers.
+                        for (const auto& imfChannelName : imfDefaultChannelNames)
+                        {
+                            dtk::ImageInfo info;
+                            const Imf::PixelType imfPixelType = imfChannels[imfChannelName].type;
+                            switch (imfPixelType)
+                            {
+                            case Imf::PixelType::HALF:  info.type = dtk::ImageType::L_F16; break;
+                            case Imf::PixelType::FLOAT: info.type = dtk::ImageType::L_F32; break;
+                            case Imf::PixelType::UINT:  info.type = dtk::ImageType::L_U32; break;
+                            default: break;
+                            }
+                            if (info.type != dtk::ImageType::None &&
+                                1 == imfChannels[imfChannelName].xSampling &&
+                                1 == imfChannels[imfChannelName].ySampling)
+                            {
+                                info.name = imfChannelName + view;
+                                info.size.w = displayWindow.w();
+                                info.size.h = displayWindow.h();
+                                info.pixelAspectRatio = imfHeader.pixelAspectRatio();
+                                info.layout.mirror.y = true;
+                                _info.video.push_back(info);
+                                Layer layer;
+                                layer.part = part;
+                                layer.channels.push_back(imfChannelName);
+                                layer.pixelType = imfPixelType;
+                                _layers.push_back(layer);
+                            }
+                        }
+
+                        // Add OpenEXR layers.
+                        std::set<std::string> imfLayerNames;
+                        imfChannels.layers(imfLayerNames);
+                        for (const auto& i : imfLayerNames)
+                        {
+                            std::vector<std::string> imfHalfNames;
+                            std::vector<std::string> imfFloatNames;
+                            std::vector<std::string> imfUIntNames;
+                            Imf::ChannelList::ConstIterator j0;
+                            Imf::ChannelList::ConstIterator j1;
+                            imfChannels.channelsInLayer(i, j0, j1);
+                            for (auto j = j0; j != j1; ++j)
+                            {
+                                if (1 == j.channel().xSampling &&
+                                    1 == j.channel().ySampling)
+                                {
+                                    switch (j.channel().type)
+                                    {
+                                    case Imf::PixelType::HALF:  imfHalfNames.push_back(j.name());  break;
+                                    case Imf::PixelType::FLOAT: imfFloatNames.push_back(j.name()); break;
+                                    case Imf::PixelType::UINT:  imfUIntNames.push_back(j.name());  break;
+                                    default: break;
+                                    }
+                                }
+                            }
+                            dtk::ImageInfo info;
+                            Layer layer;
+                            if (imfHalfNames.size() > 0 && imfHalfNames.size() <= 4)
+                            {
+                                info.type = io::getFloatType(imfHalfNames.size(), 16);
+                                reorderChannels(imfHalfNames);
+                                layer.channels.insert(layer.channels.end(), imfHalfNames.begin(), imfHalfNames.end());
+                                layer.pixelType = Imf::PixelType::HALF;
+                            }
+                            else if (imfFloatNames.size() > 0 && imfFloatNames.size() <= 4)
+                            {
+                                info.type = io::getFloatType(imfFloatNames.size(), 32);
+                                reorderChannels(imfFloatNames);
+                                layer.channels.insert(layer.channels.end(), imfFloatNames.begin(), imfFloatNames.end());
+                                layer.pixelType = Imf::PixelType::FLOAT;
+                            }
+                            else if (imfUIntNames.size() > 0 && imfUIntNames.size() <= 4)
+                            {
+                                info.type = io::getIntType(imfUIntNames.size(), 16);
+                                reorderChannels(imfUIntNames);
+                                layer.channels.insert(layer.channels.end(), imfUIntNames.begin(), imfUIntNames.end());
+                                layer.pixelType = Imf::PixelType::UINT;
+                            }
+                            if (info.type != dtk::ImageType::None)
+                            {
+                                info.name = i + view;
+                                info.size.w = displayWindow.w();
+                                info.size.h = displayWindow.h();
+                                info.pixelAspectRatio = imfHeader.pixelAspectRatio();
+                                info.layout.mirror.y = true;
+                                _info.video.push_back(info);
+                                layer.part = part;
+                                _layers.push_back(layer);
+                            }
+                        }
+                    }
+                    if (_info.video.empty())
+                    {
+                        throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").arg(fileName));
                     }
                 }
 
@@ -241,87 +419,97 @@ namespace tl
                             std::atoi(i->second.c_str()),
                             static_cast<int>(_info.video.size()) - 1);
                     }
-                    dtk::ImageInfo imageInfo = _info.video[layer];
-                    out.image = dtk::Image::create(imageInfo);
-                    out.image->setTags(_info.tags);
-                    const size_t channels = dtk::getChannelCount(imageInfo.type);
-                    const size_t channelByteCount = dtk::getBitDepth(imageInfo.type) / 8;
-                    const size_t cb = channels * channelByteCount;
-                    const size_t scb = imageInfo.size.w * channels * channelByteCount;
-                    if (_fast)
+                    if (layer >= 0 && layer < _info.video.size() && layer < _layers.size())
                     {
-                        Imf::FrameBuffer frameBuffer;
-                        for (size_t c = 0; c < channels; ++c)
+                        Imf::InputPart imfPart(*_f, _layers[layer].part);
+                        const Imf::Header& imfHeader = _f->header(_layers[layer].part);
+                        const dtk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
+                        const dtk::Box2I dataWindow = fromImath(imfHeader.dataWindow());
+                        const dtk::Box2I intersectedWindow = dtk::intersect(displayWindow, dataWindow);
+                        const bool fast = displayWindow == dataWindow;
+
+                        const dtk::ImageInfo& imageInfo = _info.video[layer];
+                        out.image = dtk::Image::create(imageInfo);
+                        out.image->setTags(_info.tags);
+                        const size_t channels = dtk::getChannelCount(imageInfo.type);
+                        const size_t channelByteCount = dtk::getBitDepth(imageInfo.type) / 8;
+                        const size_t cb = channels * channelByteCount;
+                        const size_t scb = imageInfo.size.w * channels * channelByteCount;
+                        if (fast)
                         {
-                            const std::string& name = _layers[layer].channels[c].name;
-                            const dtk::V2I& sampling = _layers[layer].channels[c].sampling;
-                            frameBuffer.insert(
-                                name.c_str(),
-                                Imf::Slice(
-                                    _layers[layer].channels[c].pixelType,
-                                    reinterpret_cast<char*>(out.image->getData()) + (c * channelByteCount),
-                                    cb,
-                                    scb,
-                                    sampling.x,
-                                    sampling.y,
-                                    0.F));
-                        }
-                        _f->setFrameBuffer(frameBuffer);
-                        _f->readPixels(_displayWindow.min.y, _displayWindow.max.y);
-                    }
-                    else
-                    {
-                        Imf::FrameBuffer frameBuffer;
-                        std::vector<char> buf(_dataWindow.w() * cb);
-                        for (int c = 0; c < channels; ++c)
-                        {
-                            const std::string& name = _layers[layer].channels[c].name;
-                            const dtk::V2I& sampling = _layers[layer].channels[c].sampling;
-                            frameBuffer.insert(
-                                name.c_str(),
-                                Imf::Slice(
-                                    _layers[layer].channels[c].pixelType,
-                                    buf.data() - (_dataWindow.min.x * cb) + (c * channelByteCount),
-                                    cb,
-                                    0,
-                                    sampling.x,
-                                    sampling.y,
-                                    0.F));
-                        }
-                        _f->setFrameBuffer(frameBuffer);
-                        for (int y = _displayWindow.min.y; y <= _displayWindow.max.y; ++y)
-                        {
-                            uint8_t* p = out.image->getData() + ((y - _displayWindow.min.y) * scb);
-                            uint8_t* end = p + scb;
-                            if (y >= _intersectedWindow.min.y && y <= _intersectedWindow.max.y)
+                            Imf::FrameBuffer frameBuffer;
+                            for (size_t c = 0; c < channels; ++c)
                             {
-                                size_t size = (_intersectedWindow.min.x - _displayWindow.min.x) * cb;
-                                std::memset(p, 0, size);
-                                p += size;
-                                size = _intersectedWindow.w() * cb;
-                                _f->readPixels(y, y);
-                                std::memcpy(
-                                    p,
-                                    buf.data() + std::max(_displayWindow.min.x - _dataWindow.min.x, 0) * cb,
-                                    size);
-                                p += size;
+                                const dtk::V2I sampling(1, 1);
+                                frameBuffer.insert(
+                                    _layers[layer].channels[c],
+                                    Imf::Slice(
+                                        _layers[layer].pixelType,
+                                        reinterpret_cast<char*>(out.image->getData()) + (c * channelByteCount),
+                                        cb,
+                                        scb,
+                                        sampling.x,
+                                        sampling.y,
+                                        0.F));
                             }
-                            std::memset(p, 0, end - p);
+                            imfPart.setFrameBuffer(frameBuffer);
+                            imfPart.readPixels(displayWindow.min.y, displayWindow.max.y);
+                        }
+                        else
+                        {
+                            Imf::FrameBuffer frameBuffer;
+                            std::vector<char> buf(dataWindow.w() * cb);
+                            for (int c = 0; c < channels; ++c)
+                            {
+                                const dtk::V2I sampling(1, 1);
+                                frameBuffer.insert(
+                                    _layers[layer].channels[c],
+                                    Imf::Slice(
+                                        _layers[layer].pixelType,
+                                        buf.data() - (dataWindow.min.x * cb) + (c * channelByteCount),
+                                        cb,
+                                        0,
+                                        sampling.x,
+                                        sampling.y,
+                                        0.F));
+                            }
+                            imfPart.setFrameBuffer(frameBuffer);
+                            for (int y = displayWindow.min.y; y <= displayWindow.max.y; ++y)
+                            {
+                                uint8_t* p = out.image->getData() + ((y - displayWindow.min.y) * scb);
+                                uint8_t* end = p + scb;
+                                if (y >= intersectedWindow.min.y && y <= intersectedWindow.max.y)
+                                {
+                                    size_t size = (intersectedWindow.min.x - displayWindow.min.x) * cb;
+                                    std::memset(p, 0, size);
+                                    p += size;
+                                    size = intersectedWindow.w() * cb;
+                                    imfPart.readPixels(y, y);
+                                    std::memcpy(
+                                        p,
+                                        buf.data() + std::max(displayWindow.min.x - dataWindow.min.x, 0) * cb,
+                                        size);
+                                    p += size;
+                                }
+                                std::memset(p, 0, end - p);
+                            }
                         }
                     }
                     return out;
                 }
 
             private:
-                ChannelGrouping                 _channelGrouping = ChannelGrouping::Known;
-                std::unique_ptr<Imf::IStream>   _s;
-                std::unique_ptr<Imf::InputFile> _f;
-                dtk::Box2I                    _displayWindow;
-                dtk::Box2I                    _dataWindow;
-                dtk::Box2I                    _intersectedWindow;
-                std::vector<Layer>              _layers;
-                bool                            _fast = false;
-                io::Info                        _info;
+                std::unique_ptr<Imf::IStream> _s;
+                std::unique_ptr<Imf::MultiPartInputFile> _f;
+                io::Info _info;
+
+                struct Layer
+                {
+                    int part = 0;
+                    std::vector<std::string> channels;
+                    Imf::PixelType pixelType = Imf::PixelType::HALF;
+                };
+                std::vector<Layer> _layers;
             };
         }
 
@@ -332,13 +520,6 @@ namespace tl
             const std::shared_ptr<dtk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
-
-            auto option = options.find("OpenEXR/ChannelGrouping");
-            if (option != options.end())
-            {
-                std::stringstream ss(option->second);
-                ss >> _channelGrouping;
-            }
         }
 
         Read::Read()
@@ -374,7 +555,7 @@ namespace tl
             const std::string& fileName,
             const dtk::InMemoryFile* memory)
         {
-            io::Info out = File(fileName, memory, _channelGrouping, _logSystem.lock()).getInfo();
+            io::Info out = File(fileName, memory, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
             const auto i = out.tags.find("Frame Per Second");
             if (i != out.tags.end())
@@ -393,7 +574,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            return File(fileName, memory, _channelGrouping, _logSystem.lock()).read(fileName, time, options);
+            return File(fileName, memory, _logSystem.lock()).read(fileName, time, options);
         }
     }
 }

@@ -6,23 +6,13 @@
 
 #include <tlIO/SequenceIO.h>
 
+#include <OpenEXR/ImfChannelList.h>
+
 namespace tl
 {
     //! OpenEXR image I/O.
     namespace exr
     {
-        //! Channel grouping.
-        enum class ChannelGrouping
-        {
-            None,
-            Known,
-            All,
-
-            Count,
-            First = None
-        };
-        DTK_ENUM(ChannelGrouping);
-
         //! Compression types.
         enum class Compression
         {
@@ -41,6 +31,12 @@ namespace tl
             First = None
         };
         DTK_ENUM(Compression);
+
+        //! Get default channels.
+        std::set<std::string> getDefaultChannels(const std::set<std::string>&);
+
+        //! Reorder channels.
+        void reorderChannels(std::vector<std::string>&);
 
         //! OpenEXR reader.
         class Read : public io::ISequenceRead
@@ -79,9 +75,6 @@ namespace tl
                 const dtk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const io::Options&) override;
-
-        private:
-            ChannelGrouping _channelGrouping = ChannelGrouping::Known;
         };
 
         //! OpenEXR writer.
