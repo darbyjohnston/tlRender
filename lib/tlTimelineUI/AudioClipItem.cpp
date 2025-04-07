@@ -281,10 +281,20 @@ namespace tl
                             _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
                             _timeRange.start_time().rate()).
                             round();
+                        OTIO_NS::TimeRange trimmedRange = _trimmedRange;
+                        if (trimmedRange.start_time() < p.ioInfo->audioTime.start_time())
+                        {
+                            //! \bug If the trimmed range is less than the media time,
+                            //! assume the media time is wrong (e.g., ALab trailer) and
+                            //! compensate for it.
+                            trimmedRange = OTIO_NS::TimeRange(
+                                p.ioInfo->audioTime.start_time() + trimmedRange.start_time(),
+                                trimmedRange.duration());
+                        }
                         const OTIO_NS::TimeRange mediaRange = timeline::toAudioMediaTime(
                             OTIO_NS::TimeRange::range_from_start_end_time(time, time2),
                             _timeRange,
-                            _trimmedRange,
+                            trimmedRange,
                             p.ioInfo->audio.sampleRate);
 
                         const std::string cacheKey = io::getAudioCacheKey(

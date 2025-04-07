@@ -521,10 +521,20 @@ namespace tl
             if (read && timeRangeOpt.has_value())
             {
                 const io::Info& ioInfo = read->getInfo().get();
+                OTIO_NS::TimeRange trimmedRange = clip->trimmed_range();
+                if (trimmedRange.start_time() < ioInfo.audioTime.start_time())
+                {
+                    //! \bug If the trimmed range is less than the media time,
+                    //! assume the media time is wrong (e.g., ALab trailer) and
+                    //! compensate for it.
+                    trimmedRange = OTIO_NS::TimeRange(
+                        ioInfo.audioTime.start_time() + trimmedRange.start_time(),
+                        trimmedRange.duration());
+                }
                 const auto mediaRange = timeline::toAudioMediaTime(
                     timeRange,
                     timeRangeOpt.value(),
-                    clip->trimmed_range(),
+                    trimmedRange,
                     ioInfo.audio.sampleRate);
                 out = read->readAudio(mediaRange, optionsMerged);
             }
