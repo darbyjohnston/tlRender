@@ -175,7 +175,7 @@ namespace tl
             for (auto i : p.customColorSwatches)
             {
                 const dtk::ColorRole colorRole = i.first;
-                i.second->setCallback(
+                i.second->setColorCallback(
                     [this, colorRole](const dtk::Color4F& value)
                     {
                         DTK_P();

@@ -281,7 +281,7 @@ namespace tl
                     }
                 });
 
-            p.solidSwatch->setCallback(
+            p.solidSwatch->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -292,7 +292,7 @@ namespace tl
                     }
                 });
 
-            p.checkersSwatch.first->setCallback(
+            p.checkersSwatch.first->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -303,7 +303,7 @@ namespace tl
                     }
                 });
 
-            p.checkersSwatch.second->setCallback(
+            p.checkersSwatch.second->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -326,7 +326,7 @@ namespace tl
                     }
                 });
 
-            p.gradientSwatch.first->setCallback(
+            p.gradientSwatch.first->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -337,7 +337,7 @@ namespace tl
                     }
                 });
 
-            p.gradientSwatch.second->setCallback(
+            p.gradientSwatch.second->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -462,7 +462,7 @@ namespace tl
                     }
                 });
 
-            p.colorSwatch->setCallback(
+            p.colorSwatch->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
@@ -596,7 +596,7 @@ namespace tl
                     }
                 });
 
-            p.colorSwatch->setCallback(
+            p.colorSwatch->setColorCallback(
                 [appWeak](const dtk::Color4F& value)
                 {
                     if (auto app = appWeak.lock())
