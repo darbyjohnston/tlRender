@@ -138,6 +138,7 @@ namespace tl
             const std::shared_ptr<dtk::Context>& context,
             const std::string& objectName,
             const OTIO_NS::TimeRange& timeRange,
+            const OTIO_NS::TimeRange& availableRange,
             const OTIO_NS::TimeRange& trimmedRange,
             double scale,
             const ItemOptions& options,
@@ -149,6 +150,7 @@ namespace tl
             DTK_P();
 
             _timeRange = timeRange;
+            _availableRange = availableRange;
             _trimmedRange = trimmedRange;
             _scale = scale;
             _options = options;

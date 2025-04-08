@@ -10,10 +10,8 @@
 
 #include <dtk/core/Assert.h>
 #include <dtk/core/Context.h>
-#include <dtk/core/Error.h>
 #include <dtk/core/Format.h>
 #include <dtk/core/LogSystem.h>
-#include <dtk/core/String.h>
 
 namespace tl
 {
@@ -22,30 +20,6 @@ namespace tl
         namespace
         {
             const size_t readCacheMax = 10;
-        }
-
-        DTK_ENUM_IMPL(
-            FileSequenceAudio,
-            "None",
-            "Extension",
-            "FileName");
-
-        bool Options::operator == (const Options& other) const
-        {
-            return
-                fileSequenceAudio == other.fileSequenceAudio &&
-                fileSequenceAudioExtensions == other.fileSequenceAudioExtensions &&
-                fileSequenceAudioFileName == other.fileSequenceAudioFileName &&
-                videoRequestMax == other.videoRequestMax &&
-                audioRequestMax == other.audioRequestMax &&
-                requestTimeout == other.requestTimeout &&
-                ioOptions == other.ioOptions &&
-                pathOptions == other.pathOptions;
-        }
-
-        bool Options::operator != (const Options& other) const
-        {
-            return !(*this == other);
         }
 
         void Timeline::_init(
@@ -65,6 +39,8 @@ namespace tl
                     arg(dtk::join(options.fileSequenceAudioExtensions, ", ")));
                 lines.push_back(dtk::Format("    File sequence audio file name: {0}").
                     arg(options.fileSequenceAudioFileName));
+                lines.push_back(dtk::Format("    Compatability: {0}").
+                    arg(options.compat));
                 lines.push_back(dtk::Format("    Video request max: {0}").
                     arg(options.videoRequestMax));
                 lines.push_back(dtk::Format("    Audio request max: {0}").

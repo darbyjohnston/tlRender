@@ -14,6 +14,20 @@ namespace tl
 {
     namespace play
     {
+        bool AdvancedSettings::operator == (const AdvancedSettings& other) const
+        {
+            return
+                compat == other.compat &&
+                audioBufferFrameCount == other.audioBufferFrameCount &&
+                videoRequestMax == other.videoRequestMax &&
+                audioRequestMax == other.audioRequestMax;
+        }
+
+        bool AdvancedSettings::operator != (const AdvancedSettings& other) const
+        {
+            return !(*this == other);
+        }
+
         DTK_ENUM_IMPL(
             ExportRenderSize,
             "Default",
@@ -253,19 +267,6 @@ namespace tl
             return !(*this == other);
         }
 
-        bool PerformanceSettings::operator == (const PerformanceSettings& other) const
-        {
-            return
-                audioBufferFrameCount == other.audioBufferFrameCount &&
-                videoRequestMax == other.videoRequestMax &&
-                audioRequestMax == other.audioRequestMax;
-        }
-
-        bool PerformanceSettings::operator != (const PerformanceSettings& other) const
-        {
-            return !(*this == other);
-        }
-
         bool StyleSettings::operator == (const StyleSettings& other) const
         {
             return
@@ -323,6 +324,7 @@ namespace tl
             std::weak_ptr<dtk::Context> context;
             std::shared_ptr<dtk::Settings> settings;
 
+            std::shared_ptr<dtk::ObservableValue<AdvancedSettings> > advanced;
             std::shared_ptr<dtk::ObservableValue<timeline::PlayerCacheOptions> > cache;
             std::shared_ptr<dtk::ObservableValue<ExportSettings> > exportSettings;
             std::shared_ptr<dtk::ObservableValue<FileBrowserSettings> > fileBrowser;
@@ -330,7 +332,6 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<ShortcutsSettings> > Shortcuts;
             std::shared_ptr<dtk::ObservableValue<MiscSettings> > misc;
             std::shared_ptr<dtk::ObservableValue<MouseSettings> > mouse;
-            std::shared_ptr<dtk::ObservableValue<PerformanceSettings> > performance;
             std::shared_ptr<dtk::ObservableValue<StyleSettings> > style;
             std::shared_ptr<dtk::ObservableValue<TimelineSettings> > timeline;
             std::shared_ptr<dtk::ObservableValue<WindowSettings> > window;
@@ -350,6 +351,10 @@ namespace tl
 
             p.context = context;
             p.settings = settings;
+
+            AdvancedSettings advanced;
+            settings->getT("/Advanced", advanced);
+            p.advanced = dtk::ObservableValue<AdvancedSettings>::create(advanced);
 
             timeline::PlayerCacheOptions cache;
             settings->getT("/Cache", cache);
@@ -384,10 +389,6 @@ namespace tl
             settings->getT("/Mouse", mouse);
             p.mouse = dtk::ObservableValue<MouseSettings>::create(mouse);
 
-            PerformanceSettings performance;
-            settings->getT("/Performance", performance);
-            p.performance = dtk::ObservableValue<PerformanceSettings>::create(performance);
-
             StyleSettings style;
             settings->getT("/Style", style);
             p.style = dtk::ObservableValue<StyleSettings>::create(style);
@@ -420,6 +421,8 @@ namespace tl
         SettingsModel::~SettingsModel()
         {
             DTK_P();
+            p.settings->setT("/Advanced", p.advanced->get());
+
             p.settings->setT("/Cache", p.cache->get());
 
             p.settings->setT("/Export", p.exportSettings->get());
@@ -441,8 +444,6 @@ namespace tl
             p.settings->setT("/Misc", p.misc->get());
 
             p.settings->setT("/Mouse", p.mouse->get());
-
-            p.settings->setT("/Performance", p.performance->get());
 
             p.settings->setT("/Style", p.style->get());
 
@@ -470,6 +471,7 @@ namespace tl
 
         void SettingsModel::reset()
         {
+            setAdvanced(AdvancedSettings());
             setCache(timeline::PlayerCacheOptions());
             setExport(ExportSettings());
             setFileBrowser(FileBrowserSettings());
@@ -477,7 +479,6 @@ namespace tl
             setShortcuts(ShortcutsSettings());
             setMisc(MiscSettings());
             setMouse(MouseSettings());
-            setPerformance(PerformanceSettings());
             setStyle(StyleSettings());
             setTimeline(TimelineSettings());
             setWindow(WindowSettings());
@@ -487,6 +488,21 @@ namespace tl
 #if defined(TLRENDER_USD)
             setUSD(usd::Options());
 #endif // TLRENDER_USD
+        }
+
+        const AdvancedSettings& SettingsModel::getAdvanced() const
+        {
+            return _p->advanced->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<AdvancedSettings> > SettingsModel::observeAdvanced() const
+        {
+            return _p->advanced;
+        }
+
+        void SettingsModel::setAdvanced(const AdvancedSettings& value)
+        {
+            _p->advanced->setIfChanged(value);
         }
 
         const timeline::PlayerCacheOptions& SettingsModel::getCache() const
@@ -602,21 +618,6 @@ namespace tl
             _p->mouse->setIfChanged(value);
         }
 
-        const PerformanceSettings& SettingsModel::getPerformance() const
-        {
-            return _p->performance->get();
-        }
-
-        std::shared_ptr<dtk::IObservableValue<PerformanceSettings> > SettingsModel::observePerformance() const
-        {
-            return _p->performance;
-        }
-
-        void SettingsModel::setPerformance(const PerformanceSettings& value)
-        {
-            _p->performance->setIfChanged(value);
-        }
-
         const StyleSettings& SettingsModel::getStyle() const
         {
             return _p->style->get();
@@ -696,6 +697,14 @@ namespace tl
         }
 #endif // TLRENDER_USD
 
+        void to_json(nlohmann::json& json, const AdvancedSettings& value)
+        {
+            json["Compat"] = value.compat;
+            json["AudioBufferFrameCount"] = value.audioBufferFrameCount;
+            json["VideoRequestMax"] = value.videoRequestMax;
+            json["AudioRequestMax"] = value.audioRequestMax;
+        }
+
         void to_json(nlohmann::json& json, const ExportSettings& value)
         {
             json["Directory"] = value.directory;
@@ -748,13 +757,6 @@ namespace tl
             }
         }
 
-        void to_json(nlohmann::json& json, const PerformanceSettings& value)
-        {
-            json["AudioBufferFrameCount"] = value.audioBufferFrameCount;
-            json["VideoRequestMax"] = value.videoRequestMax;
-            json["AudioRequestMax"] = value.audioRequestMax;
-        }
-
         void to_json(nlohmann::json& json, const StyleSettings& value)
         {
             json["DisplayScale"] = value.displayScale;
@@ -793,6 +795,14 @@ namespace tl
                 { "Splitter", in.splitter },
                 { "Splitter2", in.splitter2 }
             };
+        }
+
+        void from_json(const nlohmann::json& json, AdvancedSettings& value)
+        {
+            json.at("Compat").get_to(value.compat);
+            json.at("AudioBufferFrameCount").get_to(value.audioBufferFrameCount);
+            json.at("VideoRequestMax").get_to(value.videoRequestMax);
+            json.at("AudioRequestMax").get_to(value.audioRequestMax);
         }
 
         void from_json(const nlohmann::json& json, ExportSettings& value)
@@ -862,13 +872,6 @@ namespace tl
                     value.shortcuts.push_back(shortcut);
                 }
             }
-        }
-
-        void from_json(const nlohmann::json& json, PerformanceSettings& value)
-        {
-            json.at("AudioBufferFrameCount").get_to(value.audioBufferFrameCount);
-            json.at("VideoRequestMax").get_to(value.videoRequestMax);
-            json.at("AudioRequestMax").get_to(value.audioRequestMax);
         }
 
         void from_json(const nlohmann::json& json, StyleSettings& value)

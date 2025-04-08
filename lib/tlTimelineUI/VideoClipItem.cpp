@@ -286,10 +286,21 @@ namespace tl
                             _timeRange.duration().rescaled_to(_timeRange.start_time()).value(),
                             _timeRange.start_time().rate()).
                             floor();
+                        OTIO_NS::TimeRange trimmedRange = _trimmedRange;
+                        if (_data->options.compat &&
+                            _availableRange.start_time() > p.ioInfo->videoTime.start_time())
+                        {
+                            //! \bug If the available range is greater than the media time,
+                            //! assume the media time is wrong (e.g., Picchu) and
+                            //! compensate for it.
+                            trimmedRange = OTIO_NS::TimeRange(
+                                trimmedRange.start_time() - _availableRange.start_time(),
+                                trimmedRange.duration());
+                        }
                         const OTIO_NS::RationalTime mediaTime = timeline::toVideoMediaTime(
                             time,
                             _timeRange,
-                            _trimmedRange,
+                            trimmedRange,
                             p.ioInfo->videoTime.duration().rate());
 
                         const std::string cacheKey = io::getVideoCacheKey(

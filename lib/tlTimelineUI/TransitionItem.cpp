@@ -18,12 +18,12 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
-            OTIO_NS::TimeRange trimmedRange = time::invalidTimeRange;
+            OTIO_NS::TimeRange availableRange = time::invalidTimeRange;
             const auto timeRangeOpt = transition->trimmed_range_in_parent();
             if (timeRangeOpt.has_value())
             {
                 timeRange = timeRangeOpt.value();
-                trimmedRange = OTIO_NS::TimeRange(
+                availableRange = OTIO_NS::TimeRange(
                     OTIO_NS::RationalTime(0.0, timeRange.duration().rate()),
                     timeRange.duration());
             }
@@ -31,7 +31,8 @@ namespace tl
                 context,
                 "tl::timelineui::TransitionItem",
                 timeRange,
-                trimmedRange,
+                availableRange,
+                availableRange,
                 scale,
                 options,
                 displayOptions,

@@ -14,6 +14,33 @@ namespace tl
     {
         class App;
 
+        //! Advanced settings widget.
+        class AdvancedSettingsWidget : public dtk::IWidget
+        {
+            DTK_NON_COPYABLE(AdvancedSettingsWidget);
+
+        protected:
+            void _init(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent);
+
+            AdvancedSettingsWidget();
+
+        public:
+            virtual ~AdvancedSettingsWidget();
+
+            static std::shared_ptr<AdvancedSettingsWidget> create(
+                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<App>&,
+                const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+            DTK_PRIVATE();
+        };
+
         //! Cache settings widget.
         class CacheSettingsWidget : public dtk::IWidget
         {
@@ -150,33 +177,6 @@ namespace tl
             void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
         private:
-            DTK_PRIVATE();
-        };
-
-        //! Performance settings widget.
-        class PerformanceSettingsWidget : public dtk::IWidget
-        {
-            DTK_NON_COPYABLE(PerformanceSettingsWidget);
-
-        protected:
-            void _init(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent);
-
-            PerformanceSettingsWidget();
-
-        public:
-            virtual ~PerformanceSettingsWidget();
-
-            static std::shared_ptr<PerformanceSettingsWidget> create(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
-                const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
             DTK_PRIVATE();
         };
 

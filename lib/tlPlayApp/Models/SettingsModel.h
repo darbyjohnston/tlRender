@@ -34,6 +34,18 @@ namespace tl
 {
     namespace play
     {
+        //! Advanced settings.
+        struct AdvancedSettings
+        {
+            bool compat = true;
+            size_t audioBufferFrameCount = timeline::PlayerOptions().audioBufferFrameCount;
+            size_t videoRequestMax = 16;
+            size_t audioRequestMax = 16;
+
+            bool operator == (const AdvancedSettings&) const;
+            bool operator != (const AdvancedSettings&) const;
+        };
+
         //! Export render size.
         enum class ExportRenderSize
         {
@@ -145,17 +157,6 @@ namespace tl
             bool operator != (const MouseSettings&) const;
         };
 
-        //! Performance settings.
-        struct PerformanceSettings
-        {
-            size_t audioBufferFrameCount = timeline::PlayerOptions().audioBufferFrameCount;
-            size_t videoRequestMax = 16;
-            size_t audioRequestMax = 16;
-
-            bool operator == (const PerformanceSettings&) const;
-            bool operator != (const PerformanceSettings&) const;
-        };
-
         //! Keyboard shortcuts settings.
         struct ShortcutsSettings
         {
@@ -236,6 +237,15 @@ namespace tl
             //! Reset to default values.
             void reset();
 
+            //! \name Advanced
+            ///@{
+
+            const AdvancedSettings& getAdvanced() const;
+            std::shared_ptr<dtk::IObservableValue<AdvancedSettings> > observeAdvanced() const;
+            void setAdvanced(const AdvancedSettings&);
+
+            ///@}
+
             //! \name Cache
             ///@{
 
@@ -287,15 +297,6 @@ namespace tl
             const MouseSettings& getMouse() const;
             std::shared_ptr<dtk::IObservableValue<MouseSettings> > observeMouse() const;
             void setMouse(const MouseSettings&);
-
-            ///@}
-
-            //! \name Performance
-            ///@{
-
-            const PerformanceSettings& getPerformance() const;
-            std::shared_ptr<dtk::IObservableValue<PerformanceSettings> > observePerformance() const;
-            void setPerformance(const PerformanceSettings&);
 
             ///@}
 
@@ -368,23 +369,23 @@ namespace tl
         //! \name Serialize
         ///@{
 
+        void to_json(nlohmann::json&, const AdvancedSettings&);
         void to_json(nlohmann::json&, const ExportSettings&);
         void to_json(nlohmann::json&, const FileBrowserSettings&);
         void to_json(nlohmann::json&, const FileSequenceSettings&);
         void to_json(nlohmann::json&, const MiscSettings&);
         void to_json(nlohmann::json&, const MouseSettings&);
-        void to_json(nlohmann::json&, const PerformanceSettings&);
         void to_json(nlohmann::json&, const ShortcutsSettings&);
         void to_json(nlohmann::json&, const StyleSettings&);
         void to_json(nlohmann::json&, const TimelineSettings&);
         void to_json(nlohmann::json&, const WindowSettings&);
 
+        void from_json(const nlohmann::json&, AdvancedSettings&);
         void from_json(const nlohmann::json&, ExportSettings&);
         void from_json(const nlohmann::json&, FileBrowserSettings&);
         void from_json(const nlohmann::json&, FileSequenceSettings&);
         void from_json(const nlohmann::json&, MiscSettings&);
         void from_json(const nlohmann::json&, MouseSettings&);
-        void from_json(const nlohmann::json&, PerformanceSettings&);
         void from_json(const nlohmann::json&, ShortcutsSettings&);
         void from_json(const nlohmann::json&, StyleSettings&);
         void from_json(const nlohmann::json&, TimelineSettings&);

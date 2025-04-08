@@ -14,6 +14,7 @@ set(HEADERS
     RenderUtil.h
     TimeUnits.h
     Timeline.h
+    TimelineOptions.h
     Transition.h
     Util.h
     Video.h)
@@ -40,6 +41,7 @@ set(SOURCE
     TimeUnits.cpp
     Timeline.cpp
     TimelineCreate.cpp
+    TimelineOptions.cpp
     TimelinePrivate.cpp
     Transition.cpp
     Util.cpp

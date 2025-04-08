@@ -31,6 +31,132 @@ namespace tl
 {
     namespace play
     {
+        struct AdvancedSettingsWidget::Private
+        {
+            std::shared_ptr<SettingsModel> model;
+
+            std::shared_ptr<dtk::CheckBox> compatCheckBox;
+            std::shared_ptr<dtk::IntEdit> audioBufferFramesEdit;
+            std::shared_ptr<dtk::IntEdit> videoRequestsEdit;
+            std::shared_ptr<dtk::IntEdit> audioRequestsEdit;
+            std::shared_ptr<dtk::VerticalLayout> layout;
+
+            std::shared_ptr<dtk::ValueObserver<AdvancedSettings> > settingsObserver;
+        };
+
+        void AdvancedSettingsWidget::_init(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            IWidget::_init(context, "tl::play_app::AdvancedSettingsWidget", parent);
+            DTK_P();
+
+            p.model = app->getSettingsModel();
+
+            p.compatCheckBox = dtk::CheckBox::create(context);
+            p.compatCheckBox->setHStretch(dtk::Stretch::Expanding);
+            p.compatCheckBox->setTooltip("Enable workarounds for timelines that may not conform exactly to specification.");
+
+            p.audioBufferFramesEdit = dtk::IntEdit::create(context);
+            p.audioBufferFramesEdit->setRange(dtk::RangeI(1, 1000000));
+            p.audioBufferFramesEdit->setStep(256);
+            p.audioBufferFramesEdit->setLargeStep(1024);
+
+            p.videoRequestsEdit = dtk::IntEdit::create(context);
+            p.videoRequestsEdit->setRange(dtk::RangeI(1, 64));
+
+            p.audioRequestsEdit = dtk::IntEdit::create(context);
+            p.audioRequestsEdit->setRange(dtk::RangeI(1, 64));
+
+            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
+            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
+            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
+            auto formLayout = dtk::FormLayout::create(context, p.layout);
+            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            formLayout->addRow("Compatibility:", p.compatCheckBox);
+            formLayout->addRow("Audio buffer frames:", p.audioBufferFramesEdit);
+            formLayout->addRow("Video requests:", p.videoRequestsEdit);
+            formLayout->addRow("Audio requests:", p.audioRequestsEdit);
+
+            p.settingsObserver = dtk::ValueObserver<AdvancedSettings>::create(
+                p.model->observeAdvanced(),
+                [this](const AdvancedSettings& value)
+                {
+                    DTK_P();
+                    p.compatCheckBox->setChecked(value.compat);
+                    p.audioBufferFramesEdit->setValue(value.audioBufferFrameCount);
+                    p.videoRequestsEdit->setValue(value.videoRequestMax);
+                    p.audioRequestsEdit->setValue(value.audioRequestMax);
+                });
+
+            p.compatCheckBox->setCheckedCallback(
+                [this](bool value)
+                {
+                    DTK_P();
+                    auto settings = p.model->getAdvanced();
+                    settings.compat = value;
+                    p.model->setAdvanced(settings);
+                });
+
+            p.audioBufferFramesEdit->setCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    auto settings = p.model->getAdvanced();
+                    settings.audioBufferFrameCount = value;
+                    p.model->setAdvanced(settings);
+                });
+
+            p.videoRequestsEdit->setCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    auto settings = p.model->getAdvanced();
+                    settings.videoRequestMax = value;
+                    p.model->setAdvanced(settings);
+                });
+
+            p.audioRequestsEdit->setCallback(
+                [this](int value)
+                {
+                    DTK_P();
+                    auto settings = p.model->getAdvanced();
+                    settings.audioRequestMax = value;
+                    p.model->setAdvanced(settings);
+                });
+        }
+
+        AdvancedSettingsWidget::AdvancedSettingsWidget() :
+            _p(new Private)
+        {}
+
+        AdvancedSettingsWidget::~AdvancedSettingsWidget()
+        {}
+
+        std::shared_ptr<AdvancedSettingsWidget> AdvancedSettingsWidget::create(
+            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<App>& app,
+            const std::shared_ptr<IWidget>& parent)
+        {
+            auto out = std::shared_ptr<AdvancedSettingsWidget>(new AdvancedSettingsWidget);
+            out->_init(context, app, parent);
+            return out;
+        }
+
+        void AdvancedSettingsWidget::setGeometry(const dtk::Box2I& value)
+        {
+            IWidget::setGeometry(value);
+            _p->layout->setGeometry(value);
+        }
+
+        void AdvancedSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        {
+            IWidget::sizeHintEvent(event);
+            _setSizeHint(_p->layout->getSizeHint());
+        }
+
         struct CacheSettingsWidget::Private
         {
             std::shared_ptr<SettingsModel> model;
@@ -564,116 +690,6 @@ namespace tl
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        struct PerformanceSettingsWidget::Private
-        {
-            std::shared_ptr<SettingsModel> model;
-
-            std::shared_ptr<dtk::IntEdit> audioBufferFramesEdit;
-            std::shared_ptr<dtk::IntEdit> videoRequestsEdit;
-            std::shared_ptr<dtk::IntEdit> audioRequestsEdit;
-            std::shared_ptr<dtk::VerticalLayout> layout;
-
-            std::shared_ptr<dtk::ValueObserver<PerformanceSettings> > settingsObserver;
-        };
-
-        void PerformanceSettingsWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<IWidget>& parent)
-        {
-            IWidget::_init(context, "tl::play_app::PerformanceSettingsWidget", parent);
-            DTK_P();
-
-            p.model = app->getSettingsModel();
-
-            p.audioBufferFramesEdit = dtk::IntEdit::create(context);
-            p.audioBufferFramesEdit->setRange(dtk::RangeI(1, 1000000));
-            p.audioBufferFramesEdit->setStep(256);
-            p.audioBufferFramesEdit->setLargeStep(1024);
-
-            p.videoRequestsEdit = dtk::IntEdit::create(context);
-            p.videoRequestsEdit->setRange(dtk::RangeI(1, 64));
-
-            p.audioRequestsEdit = dtk::IntEdit::create(context);
-            p.audioRequestsEdit->setRange(dtk::RangeI(1, 64));
-
-            p.layout = dtk::VerticalLayout::create(context, shared_from_this());
-            p.layout->setMarginRole(dtk::SizeRole::MarginSmall);
-            p.layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto label = dtk::Label::create(context, "Changes are applied to new files.", p.layout);
-            auto formLayout = dtk::FormLayout::create(context, p.layout);
-            formLayout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            formLayout->addRow("Audio buffer frames:", p.audioBufferFramesEdit);
-            formLayout->addRow("Video requests:", p.videoRequestsEdit);
-            formLayout->addRow("Audio requests:", p.audioRequestsEdit);
-
-            p.settingsObserver = dtk::ValueObserver<PerformanceSettings>::create(
-                p.model->observePerformance(),
-                [this](const PerformanceSettings& value)
-                {
-                    DTK_P();
-                    p.audioBufferFramesEdit->setValue(value.audioBufferFrameCount);
-                    p.videoRequestsEdit->setValue(value.videoRequestMax);
-                    p.audioRequestsEdit->setValue(value.audioRequestMax);
-                });
-
-            p.audioBufferFramesEdit->setCallback(
-                [this](int value)
-                {
-                    DTK_P();
-                    auto settings = p.model->getPerformance();
-                    settings.audioBufferFrameCount = value;
-                    p.model->setPerformance(settings);
-                });
-
-            p.videoRequestsEdit->setCallback(
-                [this](int value)
-                {
-                    DTK_P();
-                    auto settings = p.model->getPerformance();
-                    settings.videoRequestMax = value;
-                    p.model->setPerformance(settings);
-                });
-
-            p.audioRequestsEdit->setCallback(
-                [this](int value)
-                {
-                    DTK_P();
-                    auto settings = p.model->getPerformance();
-                    settings.audioRequestMax = value;
-                    p.model->setPerformance(settings);
-                });
-        }
-
-        PerformanceSettingsWidget::PerformanceSettingsWidget() :
-            _p(new Private)
-        {}
-
-        PerformanceSettingsWidget::~PerformanceSettingsWidget()
-        {}
-
-        std::shared_ptr<PerformanceSettingsWidget> PerformanceSettingsWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<App>& app,
-            const std::shared_ptr<IWidget>& parent)
-        {
-            auto out = std::shared_ptr<PerformanceSettingsWidget>(new PerformanceSettingsWidget);
-            out->_init(context, app, parent);
-            return out;
-        }
-
-        void PerformanceSettingsWidget::setGeometry(const dtk::Box2I& value)
-        {
-            IWidget::setGeometry(value);
-            _p->layout->setGeometry(value);
-        }
-
-        void PerformanceSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
-        {
-            IWidget::sizeHintEvent(event);
-            _setSizeHint(_p->layout->getSizeHint());
-        }
-
 #if defined(TLRENDER_FFMPEG)
         struct FFmpegSettingsWidget::Private
         {
@@ -960,12 +976,12 @@ namespace tl
                 parent);
             DTK_P();
 
+            auto advancedWidget = AdvancedSettingsWidget::create(context, app);
             auto cacheWidget = CacheSettingsWidget::create(context, app);
             auto fileBrowserWidget = FileBrowserSettingsWidget::create(context, app);
             auto fileSequenceWidget = FileSequenceSettingsWidget::create(context, app);
             auto miscWidget = MiscSettingsWidget::create(context, app);
             auto mouseWidget = MouseSettingsWidget::create(context, app);
-            auto performanceWidget = PerformanceSettingsWidget::create(context, app);
             auto shortcutsWidget = ShortcutsSettingsWidget::create(context, app);
             auto styleWidget = StyleSettingsWidget::create(context, app);
 #if defined(TLRENDER_FFMPEG)
@@ -987,8 +1003,6 @@ namespace tl
             p.bellows["Misc"]->setWidget(miscWidget);
             p.bellows["Mouse"] = dtk::Bellows::create(context, "Mouse", vLayout);
             p.bellows["Mouse"]->setWidget(mouseWidget);
-            p.bellows["Performance"] = dtk::Bellows::create(context, "Performance", vLayout);
-            p.bellows["Performance"]->setWidget(performanceWidget);
             p.bellows["Shortcuts"] = dtk::Bellows::create(context, "Keyboard Shortcuts", vLayout);
             p.bellows["Shortcuts"]->setWidget(shortcutsWidget);
             p.bellows["Style"] = dtk::Bellows::create(context, "Style", vLayout);
@@ -1001,6 +1015,8 @@ namespace tl
             p.bellows["USD"] = dtk::Bellows::create(context, "USD", vLayout);
             p.bellows["USD"]->setWidget(usdWidget);
 #endif // TLRENDER_USD
+            p.bellows["Advanced"] = dtk::Bellows::create(context, "Advanced", vLayout);
+            p.bellows["Advanced"]->setWidget(advancedWidget);
 
             p.scrollWidget = dtk::ScrollWidget::create(context);
             p.scrollWidget->setWidget(vLayout);

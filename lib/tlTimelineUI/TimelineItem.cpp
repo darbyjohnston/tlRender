@@ -32,14 +32,15 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             const OTIO_NS::TimeRange timeRange = player->getTimeRange();
-            const OTIO_NS::TimeRange trimmedRange(
+            const OTIO_NS::TimeRange availableRange(
                 OTIO_NS::RationalTime(0.0, timeRange.duration().rate()),
                 timeRange.duration());
             IItem::_init(
                 context,
                 "tl::timelineui::TimelineItem",
                 timeRange,
-                trimmedRange,
+                availableRange,
+                availableRange,
                 scale,
                 options,
                 displayOptions,

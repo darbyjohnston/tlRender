@@ -943,9 +943,10 @@ namespace tl
                         options.fileSequenceAudio = fileSequence.audio;
                         options.fileSequenceAudioExtensions = fileSequence.audioExtensions;
                         options.fileSequenceAudioFileName = fileSequence.audioFileName;
-                        const PerformanceSettings performance = p.settingsModel->getPerformance();
-                        options.videoRequestMax = performance.videoRequestMax;
-                        options.audioRequestMax = performance.audioRequestMax;
+                        const AdvancedSettings advanced = p.settingsModel->getAdvanced();
+                        options.compat = advanced.compat;
+                        options.videoRequestMax = advanced.videoRequestMax;
+                        options.audioRequestMax = advanced.audioRequestMax;
                         options.ioOptions = _getIOOptions();
                         options.pathOptions.maxNumberDigits = fileSequence.maxDigits;
                         auto otioTimeline = files[i]->audioPath.isEmpty() ?
@@ -1004,10 +1005,10 @@ namespace tl
                                 timeline::PlayerOptions playerOptions;
                                 playerOptions.audioDevice = p.audioModel->getDevice();
                                 playerOptions.cache = p.settingsModel->getCache();
-                                const PerformanceSettings performance = p.settingsModel->getPerformance();
-                                playerOptions.videoRequestMax = performance.videoRequestMax;
-                                playerOptions.audioRequestMax = performance.audioRequestMax;
-                                playerOptions.audioBufferFrameCount = p.settingsModel->getPerformance().audioBufferFrameCount;
+                                const AdvancedSettings advanced = p.settingsModel->getAdvanced();
+                                playerOptions.videoRequestMax = advanced.videoRequestMax;
+                                playerOptions.audioRequestMax = advanced.audioRequestMax;
+                                playerOptions.audioBufferFrameCount = advanced.audioBufferFrameCount;
                                 player = timeline::Player::create(_context, timeline, playerOptions);
                             }
                             catch (const std::exception& e)

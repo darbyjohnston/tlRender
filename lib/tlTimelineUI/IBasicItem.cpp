@@ -61,11 +61,13 @@ namespace tl
             {
                 timeRange = timeRangeOpt.value();
             }
+            const OTIO_NS::TimeRange availableRange = item->available_range();
             const OTIO_NS::TimeRange trimmedRange = item->trimmed_range();
             IItem::_init(
                 context,
                 objectName,
                 timeRange,
+                availableRange,
                 trimmedRange,
                 scale,
                 options,

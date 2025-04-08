@@ -499,10 +499,22 @@ namespace tl
             if (read && timeRangeOpt.has_value())
             {
                 const io::Info& ioInfo = read->getInfo().get();
+                OTIO_NS::TimeRange availableRange = clip->available_range();
+                OTIO_NS::TimeRange trimmedRange = clip->trimmed_range();
+                if (this->options.compat &&
+                    availableRange.start_time() > ioInfo.videoTime.start_time())
+                {
+                    //! \bug If the available range is greater than the media time,
+                    //! assume the media time is wrong (e.g., Picchu) and
+                    //! compensate for it.
+                    trimmedRange = OTIO_NS::TimeRange(
+                        trimmedRange.start_time() - availableRange.start_time(),
+                        trimmedRange.duration());
+                }
                 const auto mediaTime = timeline::toVideoMediaTime(
                     time,
                     timeRangeOpt.value(),
-                    clip->trimmed_range(),
+                    trimmedRange,
                     ioInfo.videoTime.duration().rate());
                 out = read->readVideo(mediaTime, optionsMerged);
             }
@@ -522,7 +534,8 @@ namespace tl
             {
                 const io::Info& ioInfo = read->getInfo().get();
                 OTIO_NS::TimeRange trimmedRange = clip->trimmed_range();
-                if (trimmedRange.start_time() < ioInfo.audioTime.start_time())
+                if (this->options.compat &&
+                    trimmedRange.start_time() < ioInfo.audioTime.start_time())
                 {
                     //! \bug If the trimmed range is less than the media time,
                     //! assume the media time is wrong (e.g., ALab trailer) and

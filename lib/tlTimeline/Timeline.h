@@ -5,6 +5,7 @@
 #pragma once
 
 #include <tlTimeline/Audio.h>
+#include <tlTimeline/TimelineOptions.h>
 #include <tlTimeline/Video.h>
 
 #include <tlCore/Path.h>
@@ -25,49 +26,6 @@ namespace tl
     //! Timelines.
     namespace timeline
     {
-        //! File sequence.
-        enum class FileSequenceAudio
-        {
-            None,      //!< No audio
-            Extension, //!< Search for an audio file by extension
-            FileName,  //!< Use the given audio file name
-
-            Count,
-            First = None
-        };
-        DTK_ENUM(FileSequenceAudio);
-
-        //! Timeline options.
-        struct Options
-        {
-            //! File sequence audio.
-            FileSequenceAudio fileSequenceAudio = FileSequenceAudio::Extension;
-
-            //! File sequence audio extensions.
-            std::vector<std::string> fileSequenceAudioExtensions = { ".wav", ".mp3" };
-
-            //! File sequence audio file name.
-            std::string fileSequenceAudioFileName;
-
-            //! Maximum number of video requests.
-            size_t videoRequestMax = 16;
-
-            //! Maximum number of audio requests.
-            size_t audioRequestMax = 16;
-
-            //! Request timeout.
-            std::chrono::milliseconds requestTimeout = std::chrono::milliseconds(5);
-
-            //! I/O options.
-            io::Options ioOptions;
-
-            //! Path options.
-            file::PathOptions pathOptions;
-
-            bool operator == (const Options&) const;
-            bool operator != (const Options&) const;
-        };
-
         //! Create a new timeline from a path. The path can point to an .otio
         //! file, .otioz file, movie file, or image sequence.
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
