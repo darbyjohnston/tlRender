@@ -4,8 +4,9 @@
 
 #include "App.h"
 
-#include <tlTimelineUI/Viewport.h>
+#include "MainWindow.h"
 
+#include <dtk/ui/FileBrowser.h>
 #include <dtk/core/CmdLine.h>
 
 namespace tl
@@ -27,24 +28,19 @@ namespace tl
                         dtk::CmdLineValueArg<std::string>::create(
                             _fileName,
                             "input",
-                            "Timeline, movie, or image sequence.")
+                            "Timeline, movie, or image sequence.",
+                            true)
                     });
-
-                auto timeline = timeline::Timeline::create(_context, file::Path(_fileName));
-                _player = timeline::Player::create(_context, timeline);
-                _player->forward();
 
                 _window = MainWindow::create(
                     _context,
                     std::dynamic_pointer_cast<App>(shared_from_this()));
                 addWindow(_window);
 
-                auto viewport = timelineui::Viewport::create(_context);
-                timeline::BackgroundOptions backgroundOptions;
-                backgroundOptions.type = timeline::Background::Checkers;
-                viewport->setBackgroundOptions(backgroundOptions);
-                viewport->setPlayer(_player);
-                _window->setWidget(viewport);
+                if (!_fileName.empty())
+                {
+                    _open(_fileName);
+                }
 
                 _window->show();
             }
@@ -64,9 +60,43 @@ namespace tl
                 return out;
             }
 
+            void App::open()
+            {
+                auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
+                fileBrowserSystem->open(
+                    _window,
+                    [this](const std::filesystem::path& value)
+                    {
+                        _open(value.u8string());
+                    },
+                    dtk::FileBrowserMode::File);
+            }
+
+            void App::close()
+            {
+                _player.reset();
+                _window->setPlayer(nullptr);
+            }
+
+            void App::reload()
+            {
+                _open(_fileName);
+            }
+
             void App::_tick()
             {
-                _player->tick();
+                if (_player)
+                {
+                    _player->tick();
+                }
+            }
+
+            void App::_open(const std::string& fileName)
+            {
+                _fileName = fileName;
+                auto timeline = timeline::Timeline::create(_context, file::Path(fileName));
+                _player = timeline::Player::create(_context, timeline);
+                _window->setPlayer(_player);
             }
         }
     }

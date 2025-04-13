@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include <tlTimeline/Player.h>
-
-#include <dtk/ui/Action.h>
-#include <dtk/ui/IWidget.h>
+#include <dtk/ui/ToolBar.h>
 
 namespace tl
 {
@@ -16,7 +13,7 @@ namespace tl
         class ViewActions;
 
         //! View tool bar.
-        class ViewToolBar : public dtk::IWidget
+        class ViewToolBar : public dtk::ToolBar
         {
             DTK_NON_COPYABLE(ViewToolBar);
 
@@ -35,12 +32,6 @@ namespace tl
                 const std::shared_ptr<dtk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            DTK_PRIVATE();
         };
     }
 }

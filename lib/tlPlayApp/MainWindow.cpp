@@ -173,36 +173,24 @@ namespace tl
 
             p.fileToolBar = FileToolBar::create(
                 context,
-                app,
                 p.fileActions->getActions());
-
             p.compareToolBar = CompareToolBar::create(
                 context,
-                app,
                 p.compareActions->getActions());
-
             p.windowToolBar = WindowToolBar::create(
                 context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
                 p.windowActions->getActions());
-
             p.viewToolBar = ViewToolBar::create(context, p.viewActions);
-
             p.toolsToolBar = ToolsToolBar::create(
                 context,
-                app,
                 p.toolsActions->getActions());
-
             p.bottomToolBar = BottomToolBar::create(
                 context,
                 app,
                 p.playbackActions,
                 p.frameActions,
                 p.audioActions);
-
             p.statusBar = StatusBar::create(context, app);
-            p.statusBar->setHStretch(dtk::Stretch::Expanding);
 
             p.toolsWidget = ToolsWidget::create(
                 context,

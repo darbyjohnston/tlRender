@@ -4,26 +4,20 @@
 
 #pragma once
 
-#include <tlTimeline/Player.h>
-
-#include <dtk/ui/Action.h>
-#include <dtk/ui/IWidget.h>
+#include <dtk/ui/ToolBar.h>
 
 namespace tl
 {
     namespace play
     {
-        class App;
-
         //! Tools tool bar.
-        class ToolsToolBar : public dtk::IWidget
+        class ToolsToolBar : public dtk::ToolBar
         {
             DTK_NON_COPYABLE(ToolsToolBar);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,15 +28,8 @@ namespace tl
 
             static std::shared_ptr<ToolsToolBar> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            DTK_PRIVATE();
         };
     }
 }

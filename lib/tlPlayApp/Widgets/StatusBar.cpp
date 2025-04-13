@@ -54,6 +54,7 @@ namespace tl
                 parent);
             DTK_P();
 
+            setHStretch(dtk::Stretch::Expanding);
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
 

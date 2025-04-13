@@ -6,24 +6,20 @@
 
 #include <tlPlayApp/Models/FilesModel.h>
 
-#include <dtk/ui/Action.h>
-#include <dtk/ui/IWidget.h>
+#include <dtk/ui/ToolBar.h>
 
 namespace tl
 {
     namespace play
     {
-        class App;
-
         //! File tool bar.
-        class FileToolBar : public dtk::IWidget
+        class FileToolBar : public dtk::ToolBar
         {
             DTK_NON_COPYABLE(FileToolBar);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,17 +30,8 @@ namespace tl
 
             static std::shared_ptr<FileToolBar> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<App>&,
                 const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
-
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-
-        private:
-            void _filesUpdate(const std::vector<std::shared_ptr<FilesModelItem> >&);
-
-            DTK_PRIVATE();
         };
     }
 }
