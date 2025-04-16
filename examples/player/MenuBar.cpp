@@ -14,66 +14,29 @@ namespace tl
         {
             void MenuBar::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<App>& app)
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                const std::shared_ptr<IWidget>& parent)
             {
-                dtk::MenuBar::_init(context, nullptr);
-
-                auto appWeak = std::weak_ptr<App>(app);
-                _actions["File/Open"] = dtk::Action::create(
-                    "Open",
-                    "FileOpen",
-                    dtk::Key::O,
-                    static_cast<int>(dtk::commandKeyModifier),
-                    [appWeak]
-                    {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->open();
-                        }
-                    });
-                _actions["File/Close"] = dtk::Action::create(
-                    "Close",
-                    "FileClose",
-                    dtk::Key::E,
-                    static_cast<int>(dtk::commandKeyModifier),
-                    [appWeak]
-                    {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->close();
-                        }
-                    });
-                _actions["File/Reload"] = dtk::Action::create(
-                    "Reload",
-                    "FileReload",
-                    dtk::Key::R,
-                    static_cast<int>(dtk::commandKeyModifier),
-                    [appWeak]
-                    {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->reload();
-                        }
-                    });
-                _actions["File/Exit"] = dtk::Action::create(
-                    "Exit",
-                    dtk::Key::Q,
-                    static_cast<int>(dtk::commandKeyModifier),
-                    [appWeak]
-                    {
-                        if (auto app = appWeak.lock())
-                        {
-                            app->exit();
-                        }
-                    });
+                dtk::MenuBar::_init(context, parent);
 
                 auto fileMenu = dtk::Menu::create(context);
-                fileMenu->addItem(_actions["File/Open"]);
-                fileMenu->addItem(_actions["File/Close"]);
-                fileMenu->addItem(_actions["File/Reload"]);
+                auto tmp = fileActions;
+                fileMenu->addItem(tmp["Open"]);
+                fileMenu->addItem(tmp["Close"]);
+                fileMenu->addItem(tmp["Reload"]);
                 fileMenu->addDivider();
-                fileMenu->addItem(_actions["File/Exit"]);
+                fileMenu->addItem(tmp["Exit"]);
                 addMenu("File", fileMenu);
+
+                auto playbackMenu = dtk::Menu::create(context);
+                tmp = playbackActions;
+                playbackMenu->addItem(tmp["Stop"]);
+                playbackMenu->addItem(tmp["Forward"]);
+                playbackMenu->addItem(tmp["Reverse"]);
+                addMenu("Playback", playbackMenu);
             }
 
             MenuBar::~MenuBar()
@@ -81,16 +44,15 @@ namespace tl
 
             std::shared_ptr<MenuBar> MenuBar::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<App>& app)
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
+                const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MenuBar>(new MenuBar);
-                out->_init(context, app);
+                out->_init(context, fileActions, playbackActions, viewActions, windowActions, parent);
                 return out;
-            }
-
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& MenuBar::getActions() const
-            {
-                return _actions;
             }
         }
     }

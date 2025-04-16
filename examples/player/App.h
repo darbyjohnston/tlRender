@@ -37,6 +37,8 @@ namespace tl
                 void close();
                 void reload();
 
+                std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
+
             protected:
                 void _tick() override;
 
@@ -44,7 +46,7 @@ namespace tl
                 void _open(const std::string&);
 
                 std::string _fileName;
-                std::shared_ptr<timeline::Player> _player;
+                std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
                 std::shared_ptr<MainWindow> _window;
             };
         }

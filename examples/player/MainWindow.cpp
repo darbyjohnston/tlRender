@@ -5,9 +5,13 @@
 #include "MainWindow.h"
 
 #include "App.h"
+#include "FileActions.h"
 #include "MenuBar.h"
+#include "PlaybackActions.h"
 #include "PlaybackBar.h"
 #include "ToolBar.h"
+#include "ViewActions.h"
+#include "WindowActions.h"
 
 #include <dtk/ui/Divider.h>
 #include <dtk/ui/Menu.h>
@@ -27,28 +31,49 @@ namespace tl
 
                 _timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
-                _menuBar = MenuBar::create(context, app);
-
-                _toolBar = ToolBar::create(context, _menuBar->getActions());
-
-                _viewport = timelineui::Viewport::create(context);
-
-                _playbackBar = PlaybackBar::create(context, app);
-
-                _timelineWidget = timelineui::TimelineWidget::create(context, _timeUnitsModel);
-                _timelineWidget->setVStretch(dtk::Stretch::Expanding);
+                _fileActions = FileActions::create(context, app);
+                _playbackActions = PlaybackActions::create(context, app);
+                _viewActions = ViewActions::create(context, app);
+                _windowActions = WindowActions::create(context, app);
 
                 _layout = dtk::VerticalLayout::create(context, shared_from_this());
                 _layout->setSpacingRole(dtk::SizeRole::None);
-                _menuBar->setParent(_layout);
+
+                _menuBar = MenuBar::create(
+                    context,
+                    _fileActions->getActions(),
+                    _playbackActions->getActions(),
+                    _viewActions->getActions(),
+                    _windowActions->getActions(),
+                    _layout);
+
                 dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
-                _toolBar->setParent(_layout);
+
+                _toolBar = ToolBar::create(
+                    context,
+                    _fileActions->getActions(),
+                    _layout);
+
                 _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
-                _viewport->setParent(_splitter);
+
+                _viewport = timelineui::Viewport::create(context, _splitter);
+
                 auto vLayout = dtk::VerticalLayout::create(context, _splitter);
                 vLayout->setSpacingRole(dtk::SizeRole::None);
-                _playbackBar->setParent(vLayout);
-                _timelineWidget->setParent(vLayout);
+
+                _playbackBar = PlaybackBar::create(
+                    context,
+                    app,
+                    _playbackActions->getActions(),
+                    vLayout);
+
+                dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+
+                _timelineWidget = timelineui::TimelineWidget::create(
+                    context,
+                    _timeUnitsModel,
+                    vLayout);
+                _timelineWidget->setVStretch(dtk::Stretch::Expanding);
             }
 
             MainWindow::~MainWindow()

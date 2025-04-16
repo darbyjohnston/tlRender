@@ -32,6 +32,8 @@ namespace tl
                             true)
                     });
 
+                _player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
+
                 _window = MainWindow::create(
                     _context,
                     std::dynamic_pointer_cast<App>(shared_from_this()));
@@ -74,7 +76,7 @@ namespace tl
 
             void App::close()
             {
-                _player.reset();
+                _player->setIfChanged(nullptr);
                 _window->setPlayer(nullptr);
             }
 
@@ -83,11 +85,16 @@ namespace tl
                 _open(_fileName);
             }
 
+            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > App::observePlayer() const
+            {
+                return _player;
+            }
+
             void App::_tick()
             {
-                if (_player)
+                if (auto player = _player->get())
                 {
-                    _player->tick();
+                    player->tick();
                 }
             }
 
@@ -95,8 +102,9 @@ namespace tl
             {
                 _fileName = fileName;
                 auto timeline = timeline::Timeline::create(_context, file::Path(fileName));
-                _player = timeline::Player::create(_context, timeline);
-                _window->setPlayer(_player);
+                auto player = timeline::Player::create(_context, timeline);
+                _window->setPlayer(player);
+                _player->setIfChanged(player);
             }
         }
     }

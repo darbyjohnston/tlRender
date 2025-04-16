@@ -2,6 +2,7 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#include <dtk/ui/Action.h>
 #include <dtk/ui/RowLayout.h>
 
 namespace tl
@@ -20,7 +21,9 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<App>&);
+                    const std::shared_ptr<App>&,
+                    const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                    const std::shared_ptr<IWidget>& parent);
 
                 PlaybackBar() = default;
 
@@ -29,7 +32,9 @@ namespace tl
 
                 static std::shared_ptr<PlaybackBar> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<App>&);
+                    const std::shared_ptr<App>&,
+                    const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const dtk::Box2I&) override;
                 void sizeHintEvent(const dtk::SizeHintEvent&) override;
