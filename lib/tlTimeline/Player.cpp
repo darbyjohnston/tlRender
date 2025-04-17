@@ -506,12 +506,12 @@ namespace tl
             }
         }
 
-        void Player::start()
+        void Player::gotoStart()
         {
             timeAction(TimeAction::Start);
         }
 
-        void Player::end()
+        void Player::gotoEnd()
         {
             timeAction(TimeAction::End);
         }

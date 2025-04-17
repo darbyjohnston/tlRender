@@ -26,7 +26,7 @@ namespace tl
 
             auto appWeak = std::weak_ptr<App>(app);
             _actions["Start"] = dtk::Action::create(
-                "Go To Start",
+                "Goto Start",
                 "TimeStart",
                 [appWeak]
                 {
@@ -34,13 +34,13 @@ namespace tl
                     {
                         if (auto player = app->observePlayer()->get())
                         {
-                            player->start();
+                            player->gotoStart();
                         }
                     }
                 });
 
             _actions["End"] = dtk::Action::create(
-                "Go To End",
+                "Goto End",
                 "TimeEnd",
                 [appWeak]
                 {
@@ -48,7 +48,7 @@ namespace tl
                     {
                         if (auto player = app->observePlayer()->get())
                         {
-                            player->end();
+                            player->gotoEnd();
                         }
                     }
                 });

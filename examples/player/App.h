@@ -3,6 +3,7 @@
 // All rights reserved.
 
 #include <tlTimeline/Player.h>
+#include <tlTimeline/TimeUnits.h>
 
 #include <dtk/ui/App.h>
 
@@ -33,6 +34,8 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     std::vector<std::string>&);
 
+                const std::shared_ptr<timeline::TimeUnitsModel>& getTimeUnitsModel() const;
+
                 void open();
                 void close();
                 void reload();
@@ -46,6 +49,7 @@ namespace tl
                 void _open(const std::string&);
 
                 std::string _fileName;
+                std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
                 std::shared_ptr<MainWindow> _window;
             };

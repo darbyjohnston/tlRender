@@ -29,29 +29,31 @@ namespace tl
             {
                 timelineui::Window::_init(context, "player", dtk::Size2I(1280, 720));
 
-                _timeUnitsModel = timeline::TimeUnitsModel::create(context);
-
                 _fileActions = FileActions::create(context, app);
-                _playbackActions = PlaybackActions::create(context, app);
+                _windowActions = WindowActions::create(
+                    context,
+                    app,
+                    std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                 _viewActions = ViewActions::create(context, app);
-                _windowActions = WindowActions::create(context, app);
+                _playbackActions = PlaybackActions::create(context, app);
 
                 _layout = dtk::VerticalLayout::create(context, shared_from_this());
                 _layout->setSpacingRole(dtk::SizeRole::None);
 
                 _menuBar = MenuBar::create(
                     context,
-                    _fileActions->getActions(),
-                    _playbackActions->getActions(),
-                    _viewActions->getActions(),
-                    _windowActions->getActions(),
+                    _fileActions,
+                    _windowActions,
+                    _viewActions,
+                    _playbackActions,
                     _layout);
 
                 dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
 
                 _toolBar = ToolBar::create(
                     context,
-                    _fileActions->getActions(),
+                    _fileActions,
+                    _windowActions,
                     _layout);
 
                 _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
@@ -71,9 +73,17 @@ namespace tl
 
                 _timelineWidget = timelineui::TimelineWidget::create(
                     context,
-                    _timeUnitsModel,
+                    app->getTimeUnitsModel(),
                     vLayout);
                 _timelineWidget->setVStretch(dtk::Stretch::Expanding);
+
+                _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                    app->observePlayer(),
+                    [this](const std::shared_ptr<timeline::Player>& value)
+                    {
+                        _viewport->setPlayer(value);
+                        _timelineWidget->setPlayer(value);
+                    });
             }
 
             MainWindow::~MainWindow()
@@ -86,12 +96,6 @@ namespace tl
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
                 out->_init(context, app);
                 return out;
-            }
-
-            void MainWindow::setPlayer(const std::shared_ptr<timeline::Player>& player)
-            {
-                _viewport->setPlayer(player);
-                _timelineWidget->setPlayer(player);
             }
 
             void MainWindow::keyPressEvent(dtk::KeyEvent& event)

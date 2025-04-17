@@ -11,6 +11,8 @@ namespace tl
         namespace player
         {
             class App;
+            class FileActions;
+            class WindowActions;
 
             //! Tool bar.
             class ToolBar : public dtk::ToolBar
@@ -20,7 +22,8 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                    const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 ToolBar() = default;
@@ -30,7 +33,8 @@ namespace tl
 
                 static std::shared_ptr<ToolBar> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                    const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
         }

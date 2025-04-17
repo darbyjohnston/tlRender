@@ -4,6 +4,8 @@
 
 #include "PlaybackBar.h"
 
+#include "App.h"
+
 #include <dtk/ui/ToolButton.h>
 
 namespace tl
@@ -28,6 +30,60 @@ namespace tl
                 auto reverseButton = dtk::ToolButton::create(context, tmp["Reverse"], hLayout);
                 auto stopButton = dtk::ToolButton::create(context, tmp["Stop"], hLayout);
                 auto forwardButton = dtk::ToolButton::create(context, tmp["Forward"], hLayout);
+
+                hLayout = dtk::HorizontalLayout::create(context, _layout);
+                hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
+                auto startButton = dtk::ToolButton::create(context, tmp["Start"], hLayout);
+                auto prevButton = dtk::ToolButton::create(context, tmp["Prev"], hLayout);
+                prevButton->setRepeatClick(true);
+                auto nextButton = dtk::ToolButton::create(context, tmp["Next"], hLayout);
+                nextButton->setRepeatClick(true);
+                auto endButton = dtk::ToolButton::create(context, tmp["End"], hLayout);
+
+                _currentTimeEdit = timelineui::TimeEdit::create(context, app->getTimeUnitsModel(), _layout);
+                _currentTimeEdit->setTooltip("The current time.");
+
+                _durationLabel = timelineui::TimeLabel::create(context, app->getTimeUnitsModel(), _layout);
+                _durationLabel->setTooltip("The timeline duration.");
+
+                _currentTimeEdit->setCallback(
+                    [this](const OTIO_NS::RationalTime& value)
+                    {
+                        if (_player)
+                        {
+                            _player->stop();
+                            _player->seek(value);
+                        }
+                    });
+
+                _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                    app->observePlayer(),
+                    [this](const std::shared_ptr<timeline::Player>& value)
+                    {
+                        _player = value;
+
+                        if (value)
+                        {
+                            _durationLabel->setValue(value->getTimeRange().duration());
+
+                            _currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+                                value->observeCurrentTime(),
+                                [this](const OTIO_NS::RationalTime& value)
+                                {
+                                    _currentTimeEdit->setValue(value);
+                                });
+                        }
+                        else
+                        {
+                            _currentTimeEdit->setValue(time::invalidTime);
+                            _durationLabel->setValue(time::invalidTime);
+
+                            _currentTimeObserver.reset();
+                        }
+
+                        _currentTimeEdit->setEnabled(value.get());
+                        _durationLabel->setEnabled(value.get());
+                    });
             }
 
             PlaybackBar::~PlaybackBar()

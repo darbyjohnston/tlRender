@@ -58,6 +58,62 @@ namespace tl
                     });
                 _actions["Reverse"]->setTooltip("Start reverse playback.");
 
+                _actions["Start"] = dtk::Action::create(
+                    "Goto Start",
+                    "FrameStart",
+                    dtk::Key::Home,
+                    0,
+                    [this]
+                    {
+                        if (_player)
+                        {
+                            _player->gotoStart();
+                        }
+                    });
+                _actions["Start"]->setTooltip("Go to the start frame.");
+
+                _actions["Prev"] = dtk::Action::create(
+                    "Goto Previous",
+                    "FramePrev",
+                    dtk::Key::Left,
+                    0,
+                    [this]
+                    {
+                        if (_player)
+                        {
+                            _player->framePrev();
+                        }
+                    });
+                _actions["Prev"]->setTooltip("Go to the previous frame.");
+
+                _actions["Next"] = dtk::Action::create(
+                    "Goto Next",
+                    "FrameNext",
+                    dtk::Key::Right,
+                    0,
+                    [this]
+                    {
+                        if (_player)
+                        {
+                            _player->frameNext();
+                        }
+                    });
+                _actions["Next"]->setTooltip("Go to the next frame.");
+
+                _actions["End"] = dtk::Action::create(
+                    "Goto End",
+                    "FrameEnd",
+                    dtk::Key::End,
+                    0,
+                    [this]
+                    {
+                        if (_player)
+                        {
+                            _player->gotoEnd();
+                        }
+                    });
+                _actions["End"]->setTooltip("Go to the end frame.");
+
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                     app->observePlayer(),
                     [this](const std::shared_ptr<timeline::Player>& value)
@@ -87,6 +143,10 @@ namespace tl
                         _actions["Stop"]->setEnabled(value.get());
                         _actions["Forward"]->setEnabled(value.get());
                         _actions["Reverse"]->setEnabled(value.get());
+                        _actions["Start"]->setEnabled(value.get());
+                        _actions["Prev"]->setEnabled(value.get());
+                        _actions["Next"]->setEnabled(value.get());
+                        _actions["End"]->setEnabled(value.get());
                     });
             }
 

@@ -10,6 +10,11 @@ namespace tl
     {
         namespace player
         {
+            class FileActions;
+            class WindowActions;
+            class ViewActions;
+            class PlaybackActions;
+
             //! Menu bar.
             class MenuBar : public dtk::MenuBar
             {
@@ -18,10 +23,10 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                    const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<PlaybackActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 MenuBar() = default;
@@ -31,10 +36,10 @@ namespace tl
 
                 static std::shared_ptr<MenuBar> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
-                    const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                    const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<PlaybackActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
         }

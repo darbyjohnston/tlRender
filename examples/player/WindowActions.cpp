@@ -5,6 +5,7 @@
 #include "WindowActions.h"
 
 #include "App.h"
+#include "MainWindow.h"
 
 namespace tl
 {
@@ -14,9 +15,23 @@ namespace tl
         {
             void WindowActions::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<App>& app)
+                const std::shared_ptr<App>& app,
+                const std::shared_ptr<MainWindow>& mainWindow)
             {
-                auto appWeak = std::weak_ptr<App>(app);
+                auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+                _actions["FullScreen"] = dtk::Action::create(
+                    "FullScreen",
+                    "WindowFullScreen",
+                    dtk::Key::F,
+                    static_cast<int>(dtk::commandKeyModifier),
+                    [mainWindowWeak](bool value)
+                    {
+                        if (auto mainWindow = mainWindowWeak.lock())
+                        {
+                            mainWindow->setFullScreen(value);
+                        }
+                    });
+                _actions["FullScreen"]->setTooltip("Toggle the window full screen mode.");
             }
 
             WindowActions::~WindowActions()
@@ -24,10 +39,11 @@ namespace tl
 
             std::shared_ptr<WindowActions> WindowActions::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<App>& app)
+                const std::shared_ptr<App>& app,
+                const std::shared_ptr<MainWindow>& mainWindow)
             {
                 auto out = std::shared_ptr<WindowActions>(new WindowActions);
-                out->_init(context, app);
+                out->_init(context, app, mainWindow);
                 return out;
             }
 

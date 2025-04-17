@@ -4,6 +4,11 @@
 
 #include "MenuBar.h"
 
+#include "FileActions.h"
+#include "PlaybackActions.h"
+#include "ViewActions.h"
+#include "WindowActions.h"
+
 #include "App.h"
 
 namespace tl
@@ -14,28 +19,38 @@ namespace tl
         {
             void MenuBar::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<PlaybackActions>& playbackActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 dtk::MenuBar::_init(context, parent);
 
                 auto fileMenu = dtk::Menu::create(context);
-                auto tmp = fileActions;
-                fileMenu->addItem(tmp["Open"]);
-                fileMenu->addItem(tmp["Close"]);
-                fileMenu->addItem(tmp["Reload"]);
+                auto actions = fileActions->getActions();
+                fileMenu->addItem(actions["Open"]);
+                fileMenu->addItem(actions["Close"]);
+                fileMenu->addItem(actions["Reload"]);
                 fileMenu->addDivider();
-                fileMenu->addItem(tmp["Exit"]);
+                fileMenu->addItem(actions["Exit"]);
                 addMenu("File", fileMenu);
 
+                auto windowMenu = dtk::Menu::create(context);
+                actions = windowActions->getActions();
+                windowMenu->addItem(actions["FullScreen"]);
+                addMenu("Window", windowMenu);
+
                 auto playbackMenu = dtk::Menu::create(context);
-                tmp = playbackActions;
-                playbackMenu->addItem(tmp["Stop"]);
-                playbackMenu->addItem(tmp["Forward"]);
-                playbackMenu->addItem(tmp["Reverse"]);
+                actions = playbackActions->getActions();
+                playbackMenu->addItem(actions["Stop"]);
+                playbackMenu->addItem(actions["Forward"]);
+                playbackMenu->addItem(actions["Reverse"]);
+                playbackMenu->addDivider();
+                playbackMenu->addItem(actions["Start"]);
+                playbackMenu->addItem(actions["Prev"]);
+                playbackMenu->addItem(actions["Next"]);
+                playbackMenu->addItem(actions["End"]);
                 addMenu("Playback", playbackMenu);
             }
 
@@ -44,14 +59,14 @@ namespace tl
 
             std::shared_ptr<MenuBar> MenuBar::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& fileActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& playbackActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& viewActions,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& windowActions,
+                const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<PlaybackActions>& playbackActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MenuBar>(new MenuBar);
-                out->_init(context, fileActions, playbackActions, viewActions, windowActions, parent);
+                out->_init(context, fileActions, windowActions, viewActions, playbackActions, parent);
                 return out;
             }
         }

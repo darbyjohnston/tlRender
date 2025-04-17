@@ -32,6 +32,8 @@ namespace tl
                             true)
                     });
 
+                _timeUnitsModel = timeline::TimeUnitsModel::create(context);
+
                 _player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
 
                 _window = MainWindow::create(
@@ -62,6 +64,11 @@ namespace tl
                 return out;
             }
 
+            const std::shared_ptr<timeline::TimeUnitsModel>& App::getTimeUnitsModel() const
+            {
+                return _timeUnitsModel;
+            }
+
             void App::open()
             {
                 auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
@@ -77,7 +84,6 @@ namespace tl
             void App::close()
             {
                 _player->setIfChanged(nullptr);
-                _window->setPlayer(nullptr);
             }
 
             void App::reload()
@@ -103,7 +109,6 @@ namespace tl
                 _fileName = fileName;
                 auto timeline = timeline::Timeline::create(_context, file::Path(fileName));
                 auto player = timeline::Player::create(_context, timeline);
-                _window->setPlayer(player);
                 _player->setIfChanged(player);
             }
         }

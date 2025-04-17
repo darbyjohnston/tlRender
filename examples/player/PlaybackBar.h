@@ -2,6 +2,11 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#include <tlTimelineUI/TimeEdit.h>
+#include <tlTimelineUI/TimeLabel.h>
+
+#include <tlTimeline/Player.h>
+
 #include <dtk/ui/Action.h>
 #include <dtk/ui/RowLayout.h>
 
@@ -40,7 +45,12 @@ namespace tl
                 void sizeHintEvent(const dtk::SizeHintEvent&) override;
 
             private:
+                std::shared_ptr<timeline::Player> _player;
                 std::shared_ptr<dtk::HorizontalLayout> _layout;
+                std::shared_ptr<timelineui::TimeEdit> _currentTimeEdit;
+                std::shared_ptr<timelineui::TimeLabel> _durationLabel;
+                std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+                std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > _currentTimeObserver;
             };
         }
     }

@@ -4,6 +4,9 @@
 
 #include "ToolBar.h"
 
+#include "FileActions.h"
+#include "WindowActions.h"
+
 namespace tl
 {
     namespace examples
@@ -12,15 +15,19 @@ namespace tl
         {
             void ToolBar::_init(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+                const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 dtk::ToolBar::_init(context, dtk::Orientation::Horizontal, parent);
 
-                auto tmp = actions;
-                addAction(tmp["Open"]);
-                addAction(tmp["Close"]);
-                addAction(tmp["Reload"]);
+                auto actions = fileActions->getActions();
+                addAction(actions["Open"]);
+                addAction(actions["Close"]);
+                addAction(actions["Reload"]);
+
+                actions = windowActions->getActions();
+                addAction(actions["FullScreen"]);
             }
 
             ToolBar::~ToolBar()
@@ -28,11 +35,12 @@ namespace tl
 
             std::shared_ptr<ToolBar> ToolBar::create(
                 const std::shared_ptr<dtk::Context>& context,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+                const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ToolBar>(new ToolBar);
-                out->_init(context, actions, parent);
+                out->_init(context, fileActions, windowActions, parent);
                 return out;
             }
         }
