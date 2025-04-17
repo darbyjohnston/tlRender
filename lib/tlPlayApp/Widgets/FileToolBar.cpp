@@ -22,9 +22,6 @@ namespace tl
             addAction(tmp["Reload"]);
         }
 
-        FileToolBar::FileToolBar()
-        {}
-
         FileToolBar::~FileToolBar()
         {}
 

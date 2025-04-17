@@ -60,6 +60,7 @@ set(HEADERS_WIDGETS
     Widgets/ShuttleWidget.h
     Widgets/SpeedPopup.h
     Widgets/StatusBar.h
+    Widgets/TabBar.h
     Widgets/ToolsToolBar.h
     Widgets/ViewToolBar.h
     Widgets/Viewport.h
@@ -141,6 +142,7 @@ set(SOURCE_WIDGETS
     Widgets/ShuttleWidget.cpp
     Widgets/SpeedPopup.cpp
     Widgets/StatusBar.cpp
+    Widgets/TabBar.cpp
     Widgets/ToolsToolBar.cpp
     Widgets/ViewToolBar.cpp
     Widgets/Viewport.cpp

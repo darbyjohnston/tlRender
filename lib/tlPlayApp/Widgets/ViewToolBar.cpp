@@ -22,9 +22,6 @@ namespace tl
             addAction(actions["ZoomReset"]);
         }
 
-        ViewToolBar::ViewToolBar()
-        {}
-
         ViewToolBar::~ViewToolBar()
         {}
 

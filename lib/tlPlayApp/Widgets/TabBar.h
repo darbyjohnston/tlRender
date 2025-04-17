@@ -12,26 +12,34 @@ namespace tl
 {
     namespace play
     {
-        //! File tool bar.
-        class FileToolBar : public dtk::ToolBar
+        class App;
+
+        //! Tab bar.
+        class TabBar : public dtk::IWidget
         {
-            DTK_NON_COPYABLE(FileToolBar);
+            DTK_NON_COPYABLE(TabBar);
 
         protected:
             void _init(
                 const std::shared_ptr<dtk::Context>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            FileToolBar() = default;
+            TabBar();
 
         public:
-            ~FileToolBar();
+            ~TabBar();
 
-            static std::shared_ptr<FileToolBar> create(
+            static std::shared_ptr<TabBar> create(
                 const std::shared_ptr<dtk::Context>&,
-                const std::map<std::string, std::shared_ptr<dtk::Action> >&,
+                const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
+
+            void setGeometry(const dtk::Box2I&) override;
+            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+
+        private:
+            DTK_PRIVATE();
         };
     }
 }

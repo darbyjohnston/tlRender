@@ -31,6 +31,7 @@
 #include <tlPlayApp/Widgets/CompareToolBar.h>
 #include <tlPlayApp/Widgets/FileToolBar.h>
 #include <tlPlayApp/Widgets/StatusBar.h>
+#include <tlPlayApp/Widgets/TabBar.h>
 #include <tlPlayApp/Widgets/ToolsToolBar.h>
 #include <tlPlayApp/Widgets/ViewToolBar.h>
 #include <tlPlayApp/Widgets/Viewport.h>
@@ -91,6 +92,7 @@ namespace tl
             std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ViewToolBar> viewToolBar;
             std::shared_ptr<ToolsToolBar> toolsToolBar;
+            std::shared_ptr<TabBar> tabBar;
             std::shared_ptr<BottomToolBar> bottomToolBar;
             std::shared_ptr<StatusBar> statusBar;
             std::shared_ptr<ToolsWidget> toolsWidget;
@@ -184,6 +186,7 @@ namespace tl
             p.toolsToolBar = ToolsToolBar::create(
                 context,
                 p.toolsActions->getActions());
+            p.tabBar = TabBar::create(context, app);
             p.bottomToolBar = BottomToolBar::create(
                 context,
                 app,
@@ -212,11 +215,15 @@ namespace tl
             p.viewToolBar->setParent(hLayout);
             p.dividers["View"] = dtk::Divider::create(context, dtk::Orientation::Horizontal, hLayout);
             p.toolsToolBar->setParent(hLayout);
+            p.dividers["ToolBars"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
             p.splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, p.layout);
             p.splitter->setSplit(settings.splitter);
             p.splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, p.splitter);
             p.splitter2->setSplit(settings.splitter2);
-            p.viewport->setParent(p.splitter2);
+            auto vLayout = dtk::VerticalLayout::create(context, p.splitter2);
+            vLayout->setSpacingRole(dtk::SizeRole::None);
+            p.tabBar->setParent(vLayout);
+            p.viewport->setParent(vLayout);
             p.toolsWidget->setParent(p.splitter2);
             p.timelineWidget->setParent(p.splitter);
             p.dividers["Bottom"] = dtk::Divider::create(context, dtk::Orientation::Vertical, p.layout);
@@ -383,6 +390,15 @@ namespace tl
             p.dividers["View"]->setVisible(settings.viewToolBar);
 
             p.toolsToolBar->setVisible(settings.toolsToolBar);
+
+            p.dividers["ToolBars"]->setVisible(
+                settings.fileToolBar ||
+                settings.compareToolBar ||
+                settings.windowToolBar ||
+                settings.viewToolBar ||
+                settings.toolsToolBar);
+
+            p.tabBar->setVisible(settings.tabBar);
 
             p.timelineWidget->setVisible(settings.timeline);
 

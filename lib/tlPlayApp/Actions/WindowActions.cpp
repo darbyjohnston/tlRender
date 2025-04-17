@@ -120,6 +120,18 @@ namespace tl
                     }
                 });
 
+            _actions["TabBar"] = dtk::Action::create(
+                "Tab Bar",
+                [appWeak](bool value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        auto options = app->getSettingsModel()->getWindow();
+                        options.tabBar = value;
+                        app->getSettingsModel()->setWindow(options);
+                    }
+                });
+
             _actions["Timeline"] = dtk::Action::create(
                 "Timeline",
                 [appWeak](bool value)
@@ -194,6 +206,7 @@ namespace tl
                     _actions["WindowToolBar"]->setChecked(value.windowToolBar);
                     _actions["ViewToolBar"]->setChecked(value.viewToolBar);
                     _actions["ToolsToolBar"]->setChecked(value.toolsToolBar);
+                    _actions["TabBar"]->setChecked(value.tabBar);
                     _actions["Timeline"]->setChecked(value.timeline);
                     _actions["BottomToolBar"]->setChecked(value.bottomToolBar);
                     _actions["StatusToolBar"]->setChecked(value.statusToolBar);

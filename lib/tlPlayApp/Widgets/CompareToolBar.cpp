@@ -28,9 +28,6 @@ namespace tl
             }
         }
 
-        CompareToolBar::CompareToolBar()
-        {}
-
         CompareToolBar::~CompareToolBar()
         {}
 

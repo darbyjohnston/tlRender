@@ -94,6 +94,9 @@ namespace tl
             //! Close the current "A" file.
             void close();
 
+            //! Close the given file.
+            void close(int);
+
             //! Close all the files.
             void closeAll();
 

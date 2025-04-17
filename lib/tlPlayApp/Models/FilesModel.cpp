@@ -145,39 +145,47 @@ namespace tl
             DTK_P();
             if (p.a->get())
             {
-                auto files = p.files->get();
-                const auto i = std::find(files.begin(), files.end(), p.a->get());
-                if (i != files.end())
+                close(_getIndex(p.a->get()));
+            }
+        }
+
+        void FilesModel::close(int index)
+        {
+            DTK_P();
+            auto files = p.files->get();
+            if (index >= 0 && index < files.size())
+            {
+                const int aPrevIndex = _getIndex(p.a->get());
+
+                files.erase(files.begin() + index);
+                p.files->setIfChanged(files);
+
+                if (aPrevIndex == index)
                 {
-                    const int aPrevIndex = _getIndex(p.a->get());
-
-                    files.erase(i);
-                    p.files->setIfChanged(files);
-
                     const int aNewIndex = dtk::clamp(aPrevIndex, 0, static_cast<int>(files.size()) - 1);
                     p.a->setIfChanged(aNewIndex != -1 ? files[aNewIndex] : nullptr);
-                    p.aIndex->setIfChanged(_getIndex(p.a->get()));
-
-                    auto b = p.b->get();
-                    auto j = b.begin();
-                    while (j != b.end())
-                    {
-                        const auto k = std::find(files.begin(), files.end(), *j);
-                        if (k == files.end())
-                        {
-                            j = b.erase(j);
-                        }
-                        else
-                        {
-                            ++j;
-                        }
-                    }
-                    p.b->setIfChanged(b);
-                    p.bIndexes->setIfChanged(_getBIndexes());
-
-                    p.active->setIfChanged(_getActive());
-                    p.layers->setIfChanged(_getLayers());
                 }
+                p.aIndex->setIfChanged(_getIndex(p.a->get()));
+
+                auto b = p.b->get();
+                auto j = b.begin();
+                while (j != b.end())
+                {
+                    const auto k = std::find(files.begin(), files.end(), *j);
+                    if (k == files.end())
+                    {
+                        j = b.erase(j);
+                    }
+                    else
+                    {
+                        ++j;
+                    }
+                }
+                p.b->setIfChanged(b);
+                p.bIndexes->setIfChanged(_getBIndexes());
+
+                p.active->setIfChanged(_getActive());
+                p.layers->setIfChanged(_getLayers());
             }
         }
 

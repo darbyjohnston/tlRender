@@ -21,7 +21,7 @@ namespace tl
                 const std::map<std::string, std::shared_ptr<dtk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
-            WindowToolBar();
+            WindowToolBar() = default;
 
         public:
             ~WindowToolBar();

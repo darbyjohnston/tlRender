@@ -23,7 +23,7 @@ namespace tl
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
-            ViewToolBar();
+            ViewToolBar() = default;
 
         public:
             ~ViewToolBar();

@@ -20,9 +20,6 @@ namespace tl
             addAction(tmp["Secondary"]);
         }
 
-        WindowToolBar::WindowToolBar()
-        {}
-
         WindowToolBar::~WindowToolBar()
         {}
 

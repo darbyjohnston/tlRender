@@ -204,6 +204,7 @@ namespace tl
             bool windowToolBar = true;
             bool viewToolBar = true;
             bool toolsToolBar = true;
+            bool tabBar = true;
             bool timeline = true;
             bool bottomToolBar = true;
             bool statusToolBar = true;

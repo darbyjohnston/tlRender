@@ -24,9 +24,6 @@ namespace tl
             }
         }
 
-        ToolsToolBar::ToolsToolBar()
-        {}
-
         ToolsToolBar::~ToolsToolBar()
         {}
 

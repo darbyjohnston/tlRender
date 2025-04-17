@@ -224,6 +224,7 @@ namespace tl
                 Shortcut("Window/WindowToolBar", "Window tool bar"),
                 Shortcut("Window/ViewToolBar", "View tool bar"),
                 Shortcut("Window/ToolsToolBar", "Tools tool bar"),
+                Shortcut("Window/TabBar", "Tab bar"),
                 Shortcut("Window/Timeline", "Timeline"),
                 Shortcut("Window/BottomToolBar", "Bottom tool bar"),
                 Shortcut("Window/StatusToolBar", "Status tool bar")
@@ -307,6 +308,7 @@ namespace tl
                 windowToolBar == other.windowToolBar &&
                 viewToolBar == other.viewToolBar &&
                 toolsToolBar == other.toolsToolBar &&
+                tabBar == other.tabBar &&
                 timeline == other.timeline &&
                 bottomToolBar == other.bottomToolBar &&
                 statusToolBar == other.statusToolBar &&
@@ -789,6 +791,7 @@ namespace tl
                 { "WindowToolBar", in.windowToolBar },
                 { "ViewToolBar", in.viewToolBar },
                 { "ToolsToolBar", in.toolsToolBar },
+                { "TabBar", in.tabBar },
                 { "Timeline", in.timeline },
                 { "BottomToolBar", in.bottomToolBar },
                 { "StatusToolBar", in.statusToolBar },
@@ -906,6 +909,7 @@ namespace tl
             json.at("WindowToolBar").get_to(out.windowToolBar);
             json.at("ViewToolBar").get_to(out.viewToolBar);
             json.at("ToolsToolBar").get_to(out.toolsToolBar);
+            json.at("TabBar").get_to(out.tabBar);
             json.at("Timeline").get_to(out.timeline);
             json.at("BottomToolBar").get_to(out.bottomToolBar);
             json.at("StatusToolBar").get_to(out.statusToolBar);

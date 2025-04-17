@@ -61,6 +61,7 @@ namespace tl
             addItem(actions["WindowToolBar"]);
             addItem(actions["ViewToolBar"]);
             addItem(actions["ToolsToolBar"]);
+            addItem(actions["TabBar"]);
             addItem(actions["Timeline"]);
             addItem(actions["BottomToolBar"]);
             addItem(actions["StatusToolBar"]);
