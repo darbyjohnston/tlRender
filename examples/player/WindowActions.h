@@ -38,6 +38,7 @@ namespace tl
 
             private:
                 std::map<std::string, std::shared_ptr<dtk::Action> > _actions;
+                std::shared_ptr<dtk::ValueObserver<bool> > _fullScreenObserver;
             };
         }
     }

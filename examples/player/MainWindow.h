@@ -24,7 +24,6 @@ namespace tl
             class MenuBar;
             class PlaybackActions;
             class PlaybackBar;
-            class ToolBar;
             class ViewActions;
             class WindowActions;
 
@@ -47,21 +46,22 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<App>&);
 
+                const std::shared_ptr<timelineui::Viewport>& getViewport() const;
+
                 void keyPressEvent(dtk::KeyEvent&) override;
                 void keyReleaseEvent(dtk::KeyEvent&) override;
 
             private:
+                std::shared_ptr<timelineui::Viewport> _viewport;
                 std::shared_ptr<FileActions> _fileActions;
                 std::shared_ptr<WindowActions> _windowActions;
                 std::shared_ptr<ViewActions> _viewActions;
                 std::shared_ptr<PlaybackActions> _playbackActions;
-                std::shared_ptr<dtk::VerticalLayout> _layout;
                 std::shared_ptr<MenuBar> _menuBar;
-                std::shared_ptr<ToolBar> _toolBar;
-                std::shared_ptr<timelineui::Viewport> _viewport;
                 std::shared_ptr<PlaybackBar> _playbackBar;
                 std::shared_ptr<timelineui::TimelineWidget> _timelineWidget;
                 std::shared_ptr<dtk::Splitter> _splitter;
+                std::shared_ptr<dtk::VerticalLayout> _layout;
                 std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
             };
         }

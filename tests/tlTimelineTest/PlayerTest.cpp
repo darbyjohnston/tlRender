@@ -173,9 +173,9 @@ namespace tl
             DTK_ASSERT(
                 timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate) ==
                 currentTime);
-            player->end();
+            player->gotoEnd();
             DTK_ASSERT(timeRange.end_time_inclusive() == currentTime);
-            player->start();
+            player->gotoStart();
             DTK_ASSERT(timeRange.start_time() == currentTime);
             player->frameNext();
             DTK_ASSERT(

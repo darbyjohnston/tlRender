@@ -39,7 +39,15 @@ namespace tl
                 auto windowMenu = dtk::Menu::create(context);
                 actions = windowActions->getActions();
                 windowMenu->addItem(actions["FullScreen"]);
+                windowMenu->addDivider();
+                windowMenu->addItem(actions["1920x1080"]);
+                windowMenu->addItem(actions["3840x2160"]);
                 addMenu("Window", windowMenu);
+
+                auto viewMenu = dtk::Menu::create(context);
+                actions = viewActions->getActions();
+                viewMenu->addItem(actions["Frame"]);
+                addMenu("View", viewMenu);
 
                 auto playbackMenu = dtk::Menu::create(context);
                 actions = playbackActions->getActions();

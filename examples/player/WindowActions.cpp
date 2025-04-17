@@ -22,7 +22,7 @@ namespace tl
                 _actions["FullScreen"] = dtk::Action::create(
                     "FullScreen",
                     "WindowFullScreen",
-                    dtk::Key::F,
+                    dtk::Key::U,
                     static_cast<int>(dtk::commandKeyModifier),
                     [mainWindowWeak](bool value)
                     {
@@ -32,6 +32,33 @@ namespace tl
                         }
                     });
                 _actions["FullScreen"]->setTooltip("Toggle the window full screen mode.");
+
+                _actions["1920x1080"] = dtk::Action::create(
+                    "Resize 1920x1080",
+                    [mainWindowWeak]
+                    {
+                        if (auto mainWindow = mainWindowWeak.lock())
+                        {
+                            mainWindow->setSize(dtk::Size2I(1920, 1080));
+                        }
+                    });
+
+                _actions["3840x2160"] = dtk::Action::create(
+                    "Resize 3840x2160",
+                    [mainWindowWeak]
+                    {
+                        if (auto mainWindow = mainWindowWeak.lock())
+                        {
+                            mainWindow->setSize(dtk::Size2I(3840, 2160));
+                        }
+                    });
+
+                _fullScreenObserver = dtk::ValueObserver<bool>::create(
+                    mainWindow->observeFullScreen(),
+                    [this](bool value)
+                    {
+                        _actions["FullScreen"]->setChecked(value);
+                    });
             }
 
             WindowActions::~WindowActions()

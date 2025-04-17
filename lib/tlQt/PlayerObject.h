@@ -302,10 +302,10 @@ namespace tl
             void timeAction(tl::timeline::TimeAction);
 
             //! Go to the start time.
-            void start();
+            void gotoStart();
 
             //! Go to the end time.
-            void end();
+            void gotoEnd();
 
             //! Go to the previous frame.
             void framePrev();

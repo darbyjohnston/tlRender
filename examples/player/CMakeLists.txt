@@ -5,7 +5,7 @@ set(HEADERS
     MenuBar.h
     PlaybackActions.h
     PlaybackBar.h
-    ToolBar.h
+    ToolBars.h
     ViewActions.h
     WindowActions.h)
 set(SOURCE
@@ -15,7 +15,7 @@ set(SOURCE
     MenuBar.cpp
     PlaybackActions.cpp
     PlaybackBar.cpp
-    ToolBar.cpp
+    ToolBars.cpp
     ViewActions.cpp
     WindowActions.cpp
     main.cpp)

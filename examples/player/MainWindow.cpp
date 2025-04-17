@@ -9,7 +9,7 @@
 #include "MenuBar.h"
 #include "PlaybackActions.h"
 #include "PlaybackBar.h"
-#include "ToolBar.h"
+#include "ToolBars.h"
 #include "ViewActions.h"
 #include "WindowActions.h"
 
@@ -29,53 +29,54 @@ namespace tl
             {
                 timelineui::Window::_init(context, "player", dtk::Size2I(1280, 720));
 
+                _viewport = timelineui::Viewport::create(context);
+
                 _fileActions = FileActions::create(context, app);
                 _windowActions = WindowActions::create(
                     context,
                     app,
                     std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-                _viewActions = ViewActions::create(context, app);
+                _viewActions = ViewActions::create(
+                    context,
+                    app,
+                    std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
                 _playbackActions = PlaybackActions::create(context, app);
-
-                _layout = dtk::VerticalLayout::create(context, shared_from_this());
-                _layout->setSpacingRole(dtk::SizeRole::None);
 
                 _menuBar = MenuBar::create(
                     context,
                     _fileActions,
                     _windowActions,
                     _viewActions,
-                    _playbackActions,
-                    _layout);
+                    _playbackActions);
 
-                dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
-
-                _toolBar = ToolBar::create(
+                auto toolBars = ToolBars::create(
                     context,
                     _fileActions,
                     _windowActions,
-                    _layout);
-
-                _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
-
-                _viewport = timelineui::Viewport::create(context, _splitter);
-
-                auto vLayout = dtk::VerticalLayout::create(context, _splitter);
-                vLayout->setSpacingRole(dtk::SizeRole::None);
+                    _viewActions);
 
                 _playbackBar = PlaybackBar::create(
                     context,
                     app,
-                    _playbackActions->getActions(),
-                    vLayout);
-
-                dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+                    _playbackActions->getActions());
 
                 _timelineWidget = timelineui::TimelineWidget::create(
                     context,
-                    app->getTimeUnitsModel(),
-                    vLayout);
+                    app->getTimeUnitsModel());
                 _timelineWidget->setVStretch(dtk::Stretch::Expanding);
+
+                _layout = dtk::VerticalLayout::create(context, shared_from_this());
+                _layout->setSpacingRole(dtk::SizeRole::None);
+                _menuBar->setParent(_layout);
+                dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
+                toolBars->setParent(_layout);
+                _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
+                _viewport->setParent(_splitter);
+                auto vLayout = dtk::VerticalLayout::create(context, _splitter);
+                vLayout->setSpacingRole(dtk::SizeRole::None);
+                _playbackBar->setParent(vLayout);
+                dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+                _timelineWidget->setParent(vLayout);
 
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                     app->observePlayer(),
@@ -96,6 +97,11 @@ namespace tl
                 auto out = std::shared_ptr<MainWindow>(new MainWindow);
                 out->_init(context, app);
                 return out;
+            }
+
+            const std::shared_ptr<timelineui::Viewport>& MainWindow::getViewport() const
+            {
+                return _viewport;
             }
 
             void MainWindow::keyPressEvent(dtk::KeyEvent& event)

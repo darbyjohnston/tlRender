@@ -11,6 +11,7 @@ namespace tl
         namespace player
         {
             class App;
+            class MainWindow;
 
             //! View actions.
             class ViewActions : public std::enable_shared_from_this<ViewActions>
@@ -20,7 +21,8 @@ namespace tl
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<App>&);
+                    const std::shared_ptr<App>&,
+                    const std::shared_ptr<MainWindow>&);
 
                 ViewActions() = default;
 
@@ -29,12 +31,14 @@ namespace tl
 
                 static std::shared_ptr<ViewActions> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<App>&);
+                    const std::shared_ptr<App>&,
+                    const std::shared_ptr<MainWindow>&);
 
                 const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
 
             private:
                 std::map<std::string, std::shared_ptr<dtk::Action> > _actions;
+                std::shared_ptr<dtk::ValueObserver<bool> > _frameObserver;
             };
         }
     }

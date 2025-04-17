@@ -407,14 +407,14 @@ namespace tl
             _p->player->timeAction(value);
         }
 
-        void PlayerObject::start()
+        void PlayerObject::gotoStart()
         {
-            _p->player->start();
+            _p->player->gotoStart();
         }
 
-        void PlayerObject::end()
+        void PlayerObject::gotoEnd()
         {
-            _p->player->end();
+            _p->player->gotoEnd();
         }
 
         void PlayerObject::framePrev()

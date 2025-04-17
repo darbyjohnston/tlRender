@@ -222,10 +222,10 @@ namespace tl
                             timeline::Playback::Stop);
                         break;
                     case GLFW_KEY_HOME:
-                        _player->start();
+                        _player->gotoStart();
                         break;
                     case GLFW_KEY_END:
-                        _player->end();
+                        _player->gotoEnd();
                         break;
                     case GLFW_KEY_LEFT:
                         _player->framePrev();
