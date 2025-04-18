@@ -51,7 +51,7 @@ namespace tl
                 int handle = 0;
                 dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
                 dtk::FontMetrics fontMetrics;
-                dtk::V2I scrollPos;
+                dtk::Box2I scrollArea;
             };
             SizeData size;
 

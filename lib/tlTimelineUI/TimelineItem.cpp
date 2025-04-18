@@ -377,7 +377,9 @@ namespace tl
 
             if (auto scrollArea = getParentT<dtk::ScrollArea>())
             {
-                p.size.scrollPos = scrollArea->getScrollPos();
+                p.size.scrollArea = dtk::Box2I(
+                    scrollArea->getScrollPos(),
+                    scrollArea->getGeometry().size());
             }
         }
 
@@ -464,7 +466,7 @@ namespace tl
             const dtk::Box2I& g = getGeometry();
 
             int y =
-                p.size.scrollPos.y +
+                p.size.scrollArea.min.y +
                 g.min.y;
             int h =
                 p.size.margin +
@@ -724,7 +726,7 @@ namespace tl
                     const int x1 = timeToPos(_p->inOutRange.end_time_exclusive());
                     const dtk::Box2I box(
                         x0,
-                        p.size.scrollPos.y +
+                        p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
                         p.size.margin +
@@ -739,7 +741,7 @@ namespace tl
                     int x1 = timeToPos(_p->inOutRange.start_time());
                     dtk::Box2I box(
                         x0,
-                        p.size.scrollPos.y +
+                        p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
                         p.size.margin +
@@ -750,7 +752,7 @@ namespace tl
                     x1 = timeToPos(_timeRange.end_time_exclusive());
                     box = dtk::Box2I(
                         x0,
-                        p.size.scrollPos.y +
+                        p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
                         p.size.margin +
@@ -830,7 +832,7 @@ namespace tl
                         const dtk::Box2I box(
                             g.min.x +
                             t / duration * w,
-                            p.size.scrollPos.y +
+                            p.size.scrollArea.min.y +
                             g.min.y +
                             p.size.margin +
                             p.size.fontMetrics.lineHeight,
@@ -873,7 +875,7 @@ namespace tl
                         const dtk::Box2I box(
                             g.min.x +
                             t / duration * w,
-                            p.size.scrollPos.y +
+                            p.size.scrollArea.min.y +
                             g.min.y,
                             p.size.border,
                             p.size.margin +
@@ -913,7 +915,7 @@ namespace tl
             {
                 const dtk::Box2I g2(
                     timeToPos(OTIO_NS::RationalTime(frameMarker, rate)),
-                    p.size.scrollPos.y +
+                    p.size.scrollArea.min.y +
                     g.min.y,
                     p.size.border * 2,
                     p.size.margin +
@@ -957,7 +959,7 @@ namespace tl
                             t / duration * w +
                             p.size.border +
                             p.size.margin,
-                            p.size.scrollPos.y +
+                            p.size.scrollArea.min.y +
                             g.min.y +
                             p.size.margin,
                             labelMaxSize.w,
@@ -999,7 +1001,7 @@ namespace tl
                         p.size.border * 4;
                     const dtk::Box2I box(
                         x0,
-                        p.size.scrollPos.y +
+                        p.size.scrollArea.min.y +
                         g.min.y +
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
@@ -1036,7 +1038,7 @@ namespace tl
                     const int x1 = timeToPos(t.end_time_exclusive());
                     const dtk::Box2I box(
                         x0,
-                        p.size.scrollPos.y +
+                        p.size.scrollArea.min.y +
                         g.min.y +
                         p.size.margin +
                         p.size.fontMetrics.lineHeight +
@@ -1076,7 +1078,7 @@ namespace tl
             {
                 const dtk::V2I pos(
                     timeToPos(p.currentTime),
-                    p.size.scrollPos.y +
+                    p.size.scrollArea.min.y +
                     g.min.y);
 
                 event.render->drawRect(
@@ -1088,12 +1090,25 @@ namespace tl
                     event.style->getColorRole(dtk::ColorRole::Red));
 
                 const std::string label = _data->timeUnitsModel->getLabel(p.currentTime);
+                dtk::V2I labelPos(
+                    pos.x + p.size.border * 2 + p.size.margin,
+                    pos.y + p.size.margin);
+                const dtk::Size2I labelSize = event.fontSystem->getSize(label, p.size.fontInfo);
+                const dtk::Box2I g2(p.size.scrollArea.min + g.min, p.size.scrollArea.size());
+                if (labelPos.x + labelSize.w > g2.max.x)
+                {
+                    const dtk::V2I labelPos2(
+                        pos.x - p.size.border * 2 - p.size.margin - labelSize.w,
+                        pos.y + p.size.margin);
+                    if (labelPos2.x > g2.min.x)
+                    {
+                        labelPos = labelPos2;
+                    }
+                }
                 event.render->drawText(
                     event.fontSystem->getGlyphs(label, p.size.fontInfo),
                     p.size.fontMetrics,
-                    dtk::V2I(
-                        pos.x + p.size.border * 2 + p.size.margin,
-                        pos.y + p.size.margin),
+                    labelPos,
                     event.style->getColorRole(dtk::ColorRole::Text));
             }
         }
@@ -1256,7 +1271,7 @@ namespace tl
                             g.h());
                         dt.draw = dtk::Box2I(
                             g.min.x - size.border * 2,
-                            size.scrollPos.y + geometry.min.y,
+                            size.scrollArea.min.y + geometry.min.y,
                             size.border * 4,
                             geometry.h());
                         out.push_back(dt);
@@ -1273,7 +1288,7 @@ namespace tl
                             g.h());
                         dt.draw = dtk::Box2I(
                             g.max.x - size.border * 2,
-                            size.scrollPos.y + geometry.min.y,
+                            size.scrollArea.min.y + geometry.min.y,
                             size.border * 4,
                             geometry.h());
                         out.push_back(dt);
