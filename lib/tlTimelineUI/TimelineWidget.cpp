@@ -431,6 +431,7 @@ namespace tl
                 p.scrollWidget->getViewport().w())
             {
                 setFrameView(true);
+                frameView();
             }
         }
 
