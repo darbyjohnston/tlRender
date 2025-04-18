@@ -96,6 +96,7 @@ namespace tl
             {
                 IWidget::_init(context, "ToolBars", parent);
                 _layout = dtk::HorizontalLayout::create(context, shared_from_this());
+                _layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
                 FileToolBar::create(context, fileActions, _layout);
                 dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
                 WindowToolBar::create(context, windowActions, _layout);
