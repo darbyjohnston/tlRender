@@ -27,7 +27,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<App>& app)
             {
-                timelineui::Window::_init(context, "player", dtk::Size2I(1280, 720));
+                timelineui::Window::_init(context, "player", dtk::Size2I(1920, 1080));
 
                 _viewport = timelineui::Viewport::create(context);
 

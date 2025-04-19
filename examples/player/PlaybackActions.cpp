@@ -21,7 +21,7 @@ namespace tl
                     "PlaybackStop",
                     dtk::Key::K,
                     0,
-                    [this](bool)
+                    [this]
                     {
                         if (_player)
                         {
@@ -35,11 +35,12 @@ namespace tl
                     "PlaybackForward",
                     dtk::Key::L,
                     0,
-                    [this](bool)
+                    [this]
                     {
                         if (_player)
                         {
                             _player->forward();
+                            _playback = timeline::Playback::Forward;
                         }
                     });
                 _actions["Forward"]->setTooltip("Start forward playback.");
@@ -49,14 +50,34 @@ namespace tl
                     "PlaybackReverse",
                     dtk::Key::J,
                     0,
-                    [this](bool)
+                    [this]
                     {
                         if (_player)
                         {
                             _player->reverse();
+                            _playback = timeline::Playback::Reverse;
                         }
                     });
                 _actions["Reverse"]->setTooltip("Start reverse playback.");
+
+                _actions["TogglePlayback"] = dtk::Action::create(
+                    "Toggle Playback",
+                    dtk::Key::Space,
+                    0,
+                    [this]
+                    {
+                        if (_player)
+                        {
+                            if (_player->isStopped())
+                            {
+                                _player->setPlayback(_playback);
+                            }
+                            else
+                            {
+                                _player->stop();
+                            }
+                        }
+                    });
 
                 _actions["Start"] = dtk::Action::create(
                     "Goto Start",

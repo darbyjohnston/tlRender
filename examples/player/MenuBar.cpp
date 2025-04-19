@@ -54,6 +54,7 @@ namespace tl
                 playbackMenu->addItem(actions["Stop"]);
                 playbackMenu->addItem(actions["Forward"]);
                 playbackMenu->addItem(actions["Reverse"]);
+                playbackMenu->addItem(actions["TogglePlayback"]);
                 playbackMenu->addDivider();
                 playbackMenu->addItem(actions["Start"]);
                 playbackMenu->addItem(actions["Prev"]);

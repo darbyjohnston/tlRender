@@ -38,6 +38,7 @@ namespace tl
             private:
                 std::map<std::string, std::shared_ptr<dtk::Action> > _actions;
                 std::shared_ptr<timeline::Player> _player;
+                timeline::Playback _playback = timeline::Playback::Forward;
                 std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
                 std::shared_ptr<dtk::ValueObserver<timeline::Playback> > _playbackObserver;
             };
