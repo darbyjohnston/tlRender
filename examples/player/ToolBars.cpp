@@ -25,6 +25,7 @@ namespace tl
                 auto actions = fileActions->getActions();
                 addAction(actions["Open"]);
                 addAction(actions["Close"]);
+                addAction(actions["CloseAll"]);
                 addAction(actions["Reload"]);
             }
 

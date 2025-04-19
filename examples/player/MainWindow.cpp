@@ -9,6 +9,7 @@
 #include "MenuBar.h"
 #include "PlaybackActions.h"
 #include "PlaybackBar.h"
+#include "TabBar.h"
 #include "ToolBars.h"
 #include "ViewActions.h"
 #include "WindowActions.h"
@@ -44,6 +45,7 @@ namespace tl
 
                 _menuBar = MenuBar::create(
                     context,
+                    app,
                     _fileActions,
                     _windowActions,
                     _viewActions,
@@ -54,6 +56,8 @@ namespace tl
                     _fileActions,
                     _windowActions,
                     _viewActions);
+
+                _tabBar = TabBar::create(context, app);
 
                 _playbackBar = PlaybackBar::create(
                     context,
@@ -70,9 +74,13 @@ namespace tl
                 _menuBar->setParent(_layout);
                 dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
                 toolBars->setParent(_layout);
+                dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
                 _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
-                _viewport->setParent(_splitter);
                 auto vLayout = dtk::VerticalLayout::create(context, _splitter);
+                vLayout->setSpacingRole(dtk::SizeRole::None);
+                _tabBar->setParent(vLayout);
+                _viewport->setParent(vLayout);
+                vLayout = dtk::VerticalLayout::create(context, _splitter);
                 vLayout->setSpacingRole(dtk::SizeRole::None);
                 _playbackBar->setParent(vLayout);
                 dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);

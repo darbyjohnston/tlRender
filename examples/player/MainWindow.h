@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlTimelineUI/TimelineWidget.h>
 #include <tlTimelineUI/Viewport.h>
 #include <tlTimelineUI/Window.h>
@@ -24,6 +26,7 @@ namespace tl
             class MenuBar;
             class PlaybackActions;
             class PlaybackBar;
+            class TabBar;
             class ViewActions;
             class WindowActions;
 
@@ -58,6 +61,7 @@ namespace tl
                 std::shared_ptr<ViewActions> _viewActions;
                 std::shared_ptr<PlaybackActions> _playbackActions;
                 std::shared_ptr<MenuBar> _menuBar;
+                std::shared_ptr<TabBar> _tabBar;
                 std::shared_ptr<PlaybackBar> _playbackBar;
                 std::shared_ptr<timelineui::TimelineWidget> _timelineWidget;
                 std::shared_ptr<dtk::Splitter> _splitter;

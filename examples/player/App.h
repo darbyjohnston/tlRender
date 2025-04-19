@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlTimeline/Player.h>
 #include <tlTimeline/TimeUnits.h>
 
@@ -38,9 +40,16 @@ namespace tl
 
                 void open();
                 void close();
+                void close(int);
+                void closeAll();
                 void reload();
+                void setCurrent(int);
+                void next();
+                void prev();
 
+                std::shared_ptr<dtk::IObservableList<std::shared_ptr<timeline::Player> > > observePlayers() const;
                 std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
+                std::shared_ptr<dtk::IObservableValue<int> > observePlayerIndex() const;
 
             protected:
                 void _tick() override;
@@ -50,7 +59,9 @@ namespace tl
 
                 std::string _fileName;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
+                std::shared_ptr<dtk::ObservableList<std::shared_ptr<timeline::Player> > > _players;
                 std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
+                std::shared_ptr<dtk::ObservableValue<int> > _playerIndex;
                 std::shared_ptr<MainWindow> _window;
             };
         }

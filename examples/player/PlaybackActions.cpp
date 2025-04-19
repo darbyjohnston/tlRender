@@ -164,6 +164,7 @@ namespace tl
                         _actions["Stop"]->setEnabled(value.get());
                         _actions["Forward"]->setEnabled(value.get());
                         _actions["Reverse"]->setEnabled(value.get());
+                        _actions["TogglePlayback"]->setEnabled(value.get());
                         _actions["Start"]->setEnabled(value.get());
                         _actions["Prev"]->setEnabled(value.get());
                         _actions["Next"]->setEnabled(value.get());

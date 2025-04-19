@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <tlTimeline/Player.h>
 
 #include <dtk/ui/Action.h>
@@ -37,6 +39,7 @@ namespace tl
 
             private:
                 std::map<std::string, std::shared_ptr<dtk::Action> > _actions;
+                std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
                 std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
             };
         }

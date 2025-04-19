@@ -2,6 +2,8 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
+#pragma once
+
 #include <dtk/ui/RowLayout.h>
 #include <dtk/ui/ToolBar.h>
 
