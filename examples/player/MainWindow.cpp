@@ -5,6 +5,7 @@
 #include "MainWindow.h"
 
 #include "App.h"
+#include "CompareActions.h"
 #include "FileActions.h"
 #include "MenuBar.h"
 #include "PlaybackActions.h"
@@ -33,6 +34,7 @@ namespace tl
                 _viewport = timelineui::Viewport::create(context);
 
                 _fileActions = FileActions::create(context, app);
+                _compareActions = CompareActions::create(context, app);
                 _windowActions = WindowActions::create(
                     context,
                     app,
@@ -47,6 +49,7 @@ namespace tl
                     context,
                     app,
                     _fileActions,
+                    _compareActions,
                     _windowActions,
                     _viewActions,
                     _playbackActions);
@@ -54,6 +57,7 @@ namespace tl
                 auto toolBars = ToolBars::create(
                     context,
                     _fileActions,
+                    _compareActions,
                     _windowActions,
                     _viewActions);
 
@@ -92,6 +96,15 @@ namespace tl
                     {
                         _viewport->setPlayer(value);
                         _timelineWidget->setPlayer(value);
+                    });
+
+                _compareObserver = dtk::ValueObserver<timeline::Compare>::create(
+                    app->observeCompare(),
+                    [this](timeline::Compare value)
+                    {
+                        timeline::CompareOptions options;
+                        options.compare = value;
+                        _viewport->setCompareOptions(options);
                     });
             }
 

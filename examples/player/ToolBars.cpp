@@ -4,6 +4,7 @@
 
 #include "ToolBars.h"
 
+#include "CompareActions.h"
 #include "FileActions.h"
 #include "ViewActions.h"
 #include "WindowActions.h"
@@ -39,6 +40,32 @@ namespace tl
             {
                 auto out = std::shared_ptr<FileToolBar>(new FileToolBar);
                 out->_init(context, fileActions, parent);
+                return out;
+            }
+
+            void CompareToolBar::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<CompareActions>& compareActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                ToolBar::_init(context, dtk::Orientation::Horizontal, parent);
+                auto actions = compareActions->getActions();
+                for (const auto& label : timeline::getCompareLabels())
+                {
+                    addAction(actions[label]);
+                }
+            }
+
+            CompareToolBar::~CompareToolBar()
+            {}
+
+            std::shared_ptr<CompareToolBar> CompareToolBar::create(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<CompareActions>& compareActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<CompareToolBar>(new CompareToolBar);
+                out->_init(context, compareActions, parent);
                 return out;
             }
 
@@ -91,6 +118,7 @@ namespace tl
             void ToolBars::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<CompareActions>& compareActions,
                 const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<IWidget>& parent)
@@ -99,6 +127,8 @@ namespace tl
                 _layout = dtk::HorizontalLayout::create(context, shared_from_this());
                 _layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
                 FileToolBar::create(context, fileActions, _layout);
+                dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
+                CompareToolBar::create(context, compareActions, _layout);
                 dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
                 WindowToolBar::create(context, windowActions, _layout);
                 dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
@@ -111,12 +141,19 @@ namespace tl
             std::shared_ptr<ToolBars> ToolBars::create(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<CompareActions>& compareActions,
                 const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ToolBars>(new ToolBars);
-                out->_init(context, fileActions, windowActions, viewActions, parent);
+                out->_init(
+                    context,
+                    fileActions,
+                    compareActions,
+                    windowActions,
+                    viewActions,
+                    parent);
                 return out;
             }
 

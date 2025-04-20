@@ -51,17 +51,27 @@ namespace tl
                 std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
                 std::shared_ptr<dtk::IObservableValue<int> > observePlayerIndex() const;
 
+                void setB(int);
+                void setCompare(timeline::Compare);
+
+                std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observeBPlayer() const;
+                std::shared_ptr<dtk::IObservableValue<int> > observeBPlayerIndex() const;
+                std::shared_ptr<dtk::IObservableValue<timeline::Compare> > observeCompare() const;
+
             protected:
                 void _tick() override;
 
             private:
                 void _open(const std::string&);
 
-                std::string _fileName;
+                std::vector<std::string> _fileNames;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 std::shared_ptr<dtk::ObservableList<std::shared_ptr<timeline::Player> > > _players;
                 std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
                 std::shared_ptr<dtk::ObservableValue<int> > _playerIndex;
+                std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _bPlayer;
+                std::shared_ptr<dtk::ObservableValue<int> > _bPlayerIndex;
+                std::shared_ptr<dtk::ObservableValue<timeline::Compare> > _compare;
                 std::shared_ptr<MainWindow> _window;
             };
         }

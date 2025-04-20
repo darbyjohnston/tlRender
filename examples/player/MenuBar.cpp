@@ -5,6 +5,7 @@
 #include "MenuBar.h"
 
 #include "App.h"
+#include "CompareActions.h"
 #include "FileActions.h"
 #include "PlaybackActions.h"
 #include "ViewActions.h"
@@ -57,6 +58,7 @@ namespace tl
                                         app->setCurrent(i);
                                     }
                                 });
+                            action->setChecked(i == _playerIndex);
                             _filesActions.push_back(action);
                             _filesMenu->addItem(action);
                         }
@@ -66,6 +68,7 @@ namespace tl
                     app->observePlayerIndex(),
                     [this](int value)
                     {
+                        _playerIndex = value;
                         for (size_t i = 0; i < _filesActions.size(); ++i)
                         {
                             _filesActions[i]->setChecked(i == value);
@@ -84,6 +87,72 @@ namespace tl
             {
                 auto out = std::shared_ptr<FileMenu>(new FileMenu);
                 out->_init(context, app, fileActions, parent);
+                return out;
+            }
+
+            void CompareMenu::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<App>& app,
+                const std::shared_ptr<CompareActions>& compareActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                dtk::Menu::_init(context, parent);
+
+                _bFileMenu = addSubMenu("B File");
+                auto actions = compareActions->getActions();
+                for (const auto& label : timeline::getCompareLabels())
+                {
+                    addItem(actions[label]);
+                }
+
+                std::weak_ptr<App> appWeak(app);
+                _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+                    app->observePlayers(),
+                    [this, appWeak](const std::vector<std::shared_ptr<timeline::Player> >& players)
+                    {
+                        _bFileActions.clear();
+                        _bFileMenu->clear();
+                        for (size_t i = 0; i < players.size(); ++i)
+                        {
+                            auto action = dtk::Action::create(
+                                players[i]->getPath().get(-1, file::PathType::FileName),
+                                [this, appWeak, i](bool value)
+                                {
+                                    close();
+                                    if (auto app = appWeak.lock())
+                                    {
+                                        app->setB(value ? i : -1);
+                                    }
+                                });
+                            action->setChecked(i == _bPlayerIndex);
+                            _bFileActions.push_back(action);
+                            _bFileMenu->addItem(action);
+                        }
+                    });
+
+                _bPlayerIndexObserver = dtk::ValueObserver<int>::create(
+                    app->observeBPlayerIndex(),
+                    [this](int value)
+                    {
+                        _bPlayerIndex = value;
+                        for (size_t i = 0; i < _bFileActions.size(); ++i)
+                        {
+                            _bFileActions[i]->setChecked(i == value);
+                        }
+                    });
+            }
+
+            CompareMenu::~CompareMenu()
+            {}
+
+            std::shared_ptr<CompareMenu> CompareMenu::create(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<App>& app,
+                const std::shared_ptr<CompareActions>& compareActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<CompareMenu>(new CompareMenu);
+                out->_init(context, app, compareActions, parent);
                 return out;
             }
 
@@ -171,6 +240,7 @@ namespace tl
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<CompareActions>& compareActions,
                 const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<PlaybackActions>& playbackActions,
@@ -178,6 +248,7 @@ namespace tl
             {
                 dtk::MenuBar::_init(context, parent);
                 addMenu("File", FileMenu::create(context, app, fileActions));
+                addMenu("Compare", CompareMenu::create(context, app, compareActions));
                 addMenu("Window", WindowMenu::create(context, windowActions));
                 addMenu("View", ViewMenu::create(context, viewActions));
                 addMenu("Playback", PlaybackMenu::create(context, playbackActions));
@@ -190,13 +261,22 @@ namespace tl
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<FileActions>& fileActions,
+                const std::shared_ptr<CompareActions>& compareActions,
                 const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<PlaybackActions>& playbackActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MenuBar>(new MenuBar);
-                out->_init(context, app, fileActions, windowActions, viewActions, playbackActions, parent);
+                out->_init(
+                    context,
+                    app,
+                    fileActions,
+                    compareActions,
+                    windowActions,
+                    viewActions,
+                    playbackActions,
+                    parent);
                 return out;
             }
         }

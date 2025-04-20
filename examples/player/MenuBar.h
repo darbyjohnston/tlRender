@@ -16,6 +16,7 @@ namespace tl
         namespace player
         {
             class App;
+            class CompareActions;
             class FileActions;
             class WindowActions;
             class ViewActions;
@@ -47,8 +48,40 @@ namespace tl
             private:
                 std::vector<std::shared_ptr<dtk::Action> > _filesActions;
                 std::shared_ptr<dtk::Menu> _filesMenu;
+                int _playerIndex = -1;
                 std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
                 std::shared_ptr<dtk::ValueObserver<int> > _playerIndexObserver;
+            };
+
+            //! Compare menu.
+            class CompareMenu : public dtk::Menu
+            {
+                DTK_NON_COPYABLE(CompareMenu);
+
+            protected:
+                void _init(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<App>&,
+                    const std::shared_ptr<CompareActions>&,
+                    const std::shared_ptr<IWidget>& parent);
+
+                CompareMenu() = default;
+
+            public:
+                ~CompareMenu();
+
+                static std::shared_ptr<CompareMenu> create(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<App>&,
+                    const std::shared_ptr<CompareActions>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
+
+            private:
+                std::vector<std::shared_ptr<dtk::Action> > _bFileActions;
+                std::shared_ptr<dtk::Menu> _bFileMenu;
+                int _bPlayerIndex = -1;
+                std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
+                std::shared_ptr<dtk::ValueObserver<int> > _bPlayerIndexObserver;
             };
 
             //! Window menu.
@@ -133,6 +166,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<CompareActions>&,
                     const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<PlaybackActions>&,
@@ -147,6 +181,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<CompareActions>&,
                     const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<PlaybackActions>&,

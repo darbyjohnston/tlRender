@@ -22,6 +22,7 @@ namespace tl
         namespace player
         {
             class App;
+            class CompareActions;
             class FileActions;
             class MenuBar;
             class PlaybackActions;
@@ -57,6 +58,7 @@ namespace tl
             private:
                 std::shared_ptr<timelineui::Viewport> _viewport;
                 std::shared_ptr<FileActions> _fileActions;
+                std::shared_ptr<CompareActions> _compareActions;
                 std::shared_ptr<WindowActions> _windowActions;
                 std::shared_ptr<ViewActions> _viewActions;
                 std::shared_ptr<PlaybackActions> _playbackActions;
@@ -67,6 +69,7 @@ namespace tl
                 std::shared_ptr<dtk::Splitter> _splitter;
                 std::shared_ptr<dtk::VerticalLayout> _layout;
                 std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+                std::shared_ptr<dtk::ValueObserver<timeline::Compare> > _compareObserver;
             };
         }
     }

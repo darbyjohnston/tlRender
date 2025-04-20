@@ -1,5 +1,6 @@
 set(HEADERS
     App.h
+    CompareActions.h
     FileActions.h
     MainWindow.h
     MenuBar.h
@@ -11,6 +12,7 @@ set(HEADERS
     WindowActions.h)
 set(SOURCE
     App.cpp
+    CompareActions.cpp
     FileActions.cpp
     MainWindow.cpp
     MenuBar.cpp

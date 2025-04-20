@@ -25,10 +25,10 @@ namespace tl
                     "player",
                     "Example player application.",
                     {
-                        dtk::CmdLineValueArg<std::string>::create(
-                            _fileName,
+                        dtk::CmdLineListArg<std::string>::create(
+                            _fileNames,
                             "input",
-                            "Timeline, movie, or image sequence.",
+                            "Timelines, movies, or image sequences.",
                             true)
                     });
 
@@ -39,15 +39,18 @@ namespace tl
                 _players = dtk::ObservableList<std::shared_ptr<timeline::Player> >::create();
                 _player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
                 _playerIndex = dtk::ObservableValue<int>::create(-1);
+                _bPlayer = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
+                _bPlayerIndex = dtk::ObservableValue<int>::create(-1);
+                _compare = dtk::ObservableValue<timeline::Compare>::create(timeline::Compare::A);
 
                 _window = MainWindow::create(
                     _context,
                     std::dynamic_pointer_cast<App>(shared_from_this()));
                 addWindow(_window);
 
-                if (!_fileName.empty())
+                for (const auto& fileName : _fileNames)
                 {
-                    _open(_fileName);
+                    _open(fileName);
                 }
 
                 _window->show();
@@ -97,13 +100,37 @@ namespace tl
                     if (auto player = _player->get())
                     {
                         std::size_t j = _players->indexOf(player);
-                        _players->removeItem(index);
                         if (j > 0 && index <= j)
                         {
                             --j;
                         }
-                        _player->setIfChanged(!_players->isEmpty() ? _players->getItem(j) : nullptr);
-                        _playerIndex->setIfChanged(!_players->isEmpty() ? j : -1);
+                        std::size_t k = _players->indexOf(_bPlayer->get());
+                        if (k != dtk::ObservableListInvalidIndex && k > 0 && index <= k)
+                        {
+                            --k;
+                        }
+
+                        _players->removeItem(index);
+                        _player->setIfChanged(
+                            !_players->isEmpty() && j != dtk::ObservableListInvalidIndex ? _players->getItem(j) : nullptr);
+                        _playerIndex->setIfChanged(
+                            !_players->isEmpty() && j != dtk::ObservableListInvalidIndex ? j : -1);
+                        _bPlayer->setIfChanged(
+                            !_players->isEmpty() && k != dtk::ObservableListInvalidIndex ? _players->getItem(k) : nullptr);
+                        _bPlayerIndex->setIfChanged(
+                            !_players->isEmpty() && k != dtk::ObservableListInvalidIndex ? k : -1);
+
+                        if (player = _player->get())
+                        {
+                            if (auto bPlayer = _bPlayer->get())
+                            {
+                                player->setCompare({ bPlayer->getTimeline() });
+                            }
+                            else
+                            {
+                                player->setCompare({});
+                            }
+                        }
                     }
                 }
             }
@@ -113,6 +140,8 @@ namespace tl
                 _players->clear();
                 _player->setIfChanged(nullptr);
                 _playerIndex->setIfChanged(-1);
+                _bPlayer->setIfChanged(nullptr);
+                _bPlayerIndex->setIfChanged(-1);
             }
 
             void App::reload()
@@ -125,6 +154,10 @@ namespace tl
                     player = timeline::Player::create(_context, timeline);
                     _players->setItem(index, player);
                     _player->setIfChanged(player);
+                    if (auto bPlayer = _bPlayer->get())
+                    {
+                        player->setCompare({ bPlayer->getTimeline() });
+                    }
                 }
             }
 
@@ -132,8 +165,19 @@ namespace tl
             {
                 if (value >= 0 && value < _players->getSize())
                 {
+                    auto player = _player->get();
                     _player->setIfChanged(_players->getItem(value));
                     _playerIndex->setIfChanged(value);
+                    if (player)
+                    {
+                        player->setCompare({});
+                    }
+                    player = _player->get();
+                    auto bPlayer = _bPlayer->get();
+                    if (player && bPlayer)
+                    {
+                        player->setCompare({ bPlayer->getTimeline() });
+                    }
                 }
             }
 
@@ -182,6 +226,46 @@ namespace tl
                 return _playerIndex;
             }
 
+            void App::setB(int index)
+            {
+                if (auto player = _player->get())
+                {
+                    if (index >= 0 && index < _players->getSize())
+                    {
+                        auto bPlayer = _players->getItem(index);
+                        player->setCompare({ bPlayer->getTimeline() });
+                        _bPlayer->setIfChanged(bPlayer);
+                        _bPlayerIndex->setIfChanged(index);
+                    }
+                    else
+                    {
+                        player->setCompare({});
+                        _bPlayer->setIfChanged(nullptr);
+                        _bPlayerIndex->setIfChanged(-1);
+                    }
+                }
+            }
+
+            void App::setCompare(timeline::Compare value)
+            {
+                _compare->setIfChanged(value);
+            }
+
+            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > App::observeBPlayer() const
+            {
+                return _bPlayer;
+            }
+
+            std::shared_ptr<dtk::IObservableValue<int> > App::observeBPlayerIndex() const
+            {
+                return _bPlayerIndex;
+            }
+
+            std::shared_ptr<dtk::IObservableValue<timeline::Compare> > App::observeCompare() const
+            {
+                return _compare;
+            }
+
             void App::_tick()
             {
                 if (auto player = _player->get())
@@ -192,7 +276,6 @@ namespace tl
 
             void App::_open(const std::string& fileName)
             {
-                _fileName = fileName;
                 auto timeline = timeline::Timeline::create(_context, file::Path(fileName));
                 auto player = timeline::Player::create(_context, timeline);
                 const int index = _players->getSize();

@@ -14,6 +14,7 @@ namespace tl
         namespace player
         {
             class App;
+            class CompareActions;
             class FileActions;
             class ViewActions;
             class WindowActions;
@@ -37,6 +38,28 @@ namespace tl
                 static std::shared_ptr<FileToolBar> create(
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
+            };
+
+            //! Compare tool bar.
+            class CompareToolBar : public dtk::ToolBar
+            {
+                DTK_NON_COPYABLE(CompareToolBar);
+
+            protected:
+                void _init(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<CompareActions>&,
+                    const std::shared_ptr<IWidget>& parent);
+
+                CompareToolBar() = default;
+
+            public:
+                ~CompareToolBar();
+
+                static std::shared_ptr<CompareToolBar> create(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<CompareActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
 
@@ -93,6 +116,7 @@ namespace tl
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<CompareActions>&,
                     const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<IWidget>& parent);
@@ -105,6 +129,7 @@ namespace tl
                 static std::shared_ptr<ToolBars> create(
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<FileActions>&,
+                    const std::shared_ptr<CompareActions>&,
                     const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
