@@ -5,6 +5,7 @@
 #include "TabBar.h"
 
 #include "App.h"
+#include "FilesModel.h"
 
 namespace tl
 {
@@ -28,7 +29,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->setCurrent(value);
+                            app->getFilesModel()->setCurrent(value);
                         }
                     });
                 _tabBar->setTabCloseCallback(
@@ -36,12 +37,12 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->close(index);
+                            app->getFilesModel()->close(index);
                         }
                     });
 
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayers(),
+                    app->getFilesModel()->observePlayers(),
                     [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                     {
                         const int index = _tabBar->getCurrentTab();
@@ -56,7 +57,7 @@ namespace tl
                     });
 
                 _playerIndexObserver = dtk::ValueObserver<int>::create(
-                    app->observePlayerIndex(),
+                    app->getFilesModel()->observePlayerIndex(),
                     [this](int value)
                     {
                         _tabBar->setCurrentTab(value);

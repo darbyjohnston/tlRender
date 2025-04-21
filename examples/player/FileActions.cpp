@@ -5,6 +5,7 @@
 #include "FileActions.h"
 
 #include "App.h"
+#include "FilesModel.h"
 
 namespace tl
 {
@@ -40,7 +41,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->close();
+                            app->getFilesModel()->close();
                         }
                     });
                 _actions["Close"]->setTooltip("Close the current file.");
@@ -54,7 +55,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->closeAll();
+                            app->getFilesModel()->closeAll();
                         }
                     });
                 _actions["CloseAll"]->setTooltip("Close all files.");
@@ -82,7 +83,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->next();
+                            app->getFilesModel()->next();
                         }
                     });
 
@@ -95,7 +96,7 @@ namespace tl
                     {
                         if (auto app = appWeak.lock())
                         {
-                            app->prev();
+                            app->getFilesModel()->prev();
                         }
                     });
 
@@ -112,7 +113,7 @@ namespace tl
                     });
 
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayers(),
+                    app->getFilesModel()->observePlayers(),
                     [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                     {
                         _actions["Next"]->setEnabled(value.size() > 1);
@@ -120,7 +121,7 @@ namespace tl
                     });
 
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayer(),
+                    app->getFilesModel()->observePlayer(),
                     [this](const std::shared_ptr<timeline::Player>& value)
                     {
                         _actions["Close"]->setEnabled(value.get());

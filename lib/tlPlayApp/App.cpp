@@ -382,18 +382,22 @@ namespace tl
         void App::run()
         {
             DTK_P();
+
             p.fileLogSystem = file::FileLogSystem::create(
                 _context,
                 std::filesystem::u8path(p.options.logFile));
+
             p.settings = dtk::Settings::create(
                 _context,
                 std::filesystem::u8path(p.options.settingsFile),
                 p.options.resetSettings);
+
             _modelsInit();
             _devicesInit();
             _observersInit();
             _inputFilesInit();
             _windowsInit();
+
             dtk::App::run();
         }
 

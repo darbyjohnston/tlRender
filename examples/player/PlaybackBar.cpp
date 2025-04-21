@@ -5,6 +5,7 @@
 #include "PlaybackBar.h"
 
 #include "App.h"
+#include "FilesModel.h"
 
 #include <dtk/ui/ToolButton.h>
 
@@ -57,7 +58,7 @@ namespace tl
                     });
 
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayer(),
+                    app->getFilesModel()->observePlayer(),
                     [this](const std::shared_ptr<timeline::Player>& value)
                     {
                         _player = value;

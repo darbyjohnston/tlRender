@@ -7,6 +7,7 @@
 #include "App.h"
 #include "CompareActions.h"
 #include "FileActions.h"
+#include "FilesModel.h"
 #include "MenuBar.h"
 #include "PlaybackActions.h"
 #include "PlaybackBar.h"
@@ -30,6 +31,8 @@ namespace tl
                 const std::shared_ptr<App>& app)
             {
                 timelineui::Window::_init(context, "player", dtk::Size2I(1920, 1080));
+
+                _app = app;
 
                 _viewport = timelineui::Viewport::create(context);
 
@@ -91,7 +94,7 @@ namespace tl
                 _timelineWidget->setParent(vLayout);
 
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayer(),
+                    app->getFilesModel()->observePlayer(),
                     [this](const std::shared_ptr<timeline::Player>& value)
                     {
                         _viewport->setPlayer(value);
@@ -99,7 +102,7 @@ namespace tl
                     });
 
                 _compareObserver = dtk::ValueObserver<timeline::Compare>::create(
-                    app->observeCompare(),
+                    app->getFilesModel()->observeCompare(),
                     [this](timeline::Compare value)
                     {
                         timeline::CompareOptions options;
@@ -133,6 +136,17 @@ namespace tl
             void MainWindow::keyReleaseEvent(dtk::KeyEvent& event)
             {
                 event.accept = true;
+            }
+
+            void MainWindow::_drop(const std::vector<std::string>& value)
+            {
+                if (auto app = _app.lock())
+                {
+                    for (const auto& fileName : value)
+                    {
+                        app->open(fileName);
+                    }
+                }
             }
         }
     }

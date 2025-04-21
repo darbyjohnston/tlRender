@@ -7,7 +7,9 @@
 #include "App.h"
 #include "CompareActions.h"
 #include "FileActions.h"
+#include "FilesModel.h"
 #include "PlaybackActions.h"
+#include "RecentFilesModel.h"
 #include "ViewActions.h"
 #include "WindowActions.h"
 
@@ -32,6 +34,7 @@ namespace tl
                 addItem(actions["Close"]);
                 addItem(actions["CloseAll"]);
                 addItem(actions["Reload"]);
+                _recentFilesMenu = addSubMenu("Recent Files");
                 addDivider();
                 _filesMenu = addSubMenu("Files");
                 addItem(actions["Next"]);
@@ -41,7 +44,7 @@ namespace tl
 
                 std::weak_ptr<App> appWeak(app);
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayers(),
+                    app->getFilesModel()->observePlayers(),
                     [this, appWeak](const std::vector<std::shared_ptr<timeline::Player> >& players)
                     {
                         _filesActions.clear();
@@ -52,11 +55,11 @@ namespace tl
                                 players[i]->getPath().get(-1, file::PathType::FileName),
                                 [this, appWeak, i]
                                 {
-                                    close();
                                     if (auto app = appWeak.lock())
                                     {
-                                        app->setCurrent(i);
+                                        app->getFilesModel()->setCurrent(i);
                                     }
+                                    close();
                                 });
                             action->setChecked(i == _playerIndex);
                             _filesActions.push_back(action);
@@ -65,13 +68,37 @@ namespace tl
                     });
 
                 _playerIndexObserver = dtk::ValueObserver<int>::create(
-                    app->observePlayerIndex(),
+                    app->getFilesModel()->observePlayerIndex(),
                     [this](int value)
                     {
                         _playerIndex = value;
                         for (size_t i = 0; i < _filesActions.size(); ++i)
                         {
                             _filesActions[i]->setChecked(i == value);
+                        }
+                    });
+
+                _recentFilesObserver = dtk::ListObserver<std::filesystem::path>::create(
+                    app->getRecentFilesModel()->observeRecent(),
+                    [this, appWeak](const std::vector<std::filesystem::path>& value)
+                    {
+                        _recentFilesActions.clear();
+                        _recentFilesMenu->clear();
+                        for (auto i = value.rbegin(); i != value.rend(); ++i)
+                        {
+                            const std::filesystem::path path = *i;
+                            auto action = dtk::Action::create(
+                                path.filename().u8string(),
+                                [this, appWeak, path]
+                                {
+                                    if (auto app = appWeak.lock())
+                                    {
+                                        app->open(path);
+                                    }
+                                    close();
+                                });
+                            _recentFilesActions.push_back(action);
+                            _recentFilesMenu->addItem(action);
                         }
                     });
             }
@@ -107,7 +134,7 @@ namespace tl
 
                 std::weak_ptr<App> appWeak(app);
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayers(),
+                    app->getFilesModel()->observePlayers(),
                     [this, appWeak](const std::vector<std::shared_ptr<timeline::Player> >& players)
                     {
                         _bFileActions.clear();
@@ -121,7 +148,7 @@ namespace tl
                                     close();
                                     if (auto app = appWeak.lock())
                                     {
-                                        app->setB(value ? i : -1);
+                                        app->getFilesModel()->setB(value ? i : -1);
                                     }
                                 });
                             action->setChecked(i == _bPlayerIndex);
@@ -131,7 +158,7 @@ namespace tl
                     });
 
                 _bPlayerIndexObserver = dtk::ValueObserver<int>::create(
-                    app->observeBPlayerIndex(),
+                    app->getFilesModel()->observeBPlayerIndex(),
                     [this](int value)
                     {
                         _bPlayerIndex = value;
@@ -190,6 +217,9 @@ namespace tl
                 dtk::Menu::_init(context, parent);
                 auto actions = viewActions->getActions();
                 addItem(actions["Frame"]);
+                addItem(actions["ZoomReset"]);
+                addItem(actions["ZoomIn"]);
+                addItem(actions["ZoomOut"]);
             }
 
             ViewMenu::~ViewMenu()

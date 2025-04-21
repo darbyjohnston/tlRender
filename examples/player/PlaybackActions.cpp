@@ -5,6 +5,7 @@
 #include "PlaybackActions.h"
 
 #include "App.h"
+#include "FilesModel.h"
 
 namespace tl
 {
@@ -136,7 +137,7 @@ namespace tl
                 _actions["End"]->setTooltip("Go to the end frame.");
 
                 _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayer(),
+                    app->getFilesModel()->observePlayer(),
                     [this](const std::shared_ptr<timeline::Player>& value)
                     {
                         _player = value;

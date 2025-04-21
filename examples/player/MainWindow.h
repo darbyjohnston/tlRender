@@ -55,7 +55,11 @@ namespace tl
                 void keyPressEvent(dtk::KeyEvent&) override;
                 void keyReleaseEvent(dtk::KeyEvent&) override;
 
+            protected:
+                void _drop(const std::vector<std::string>&) override;
+
             private:
+                std::weak_ptr<App> _app;
                 std::shared_ptr<timelineui::Viewport> _viewport;
                 std::shared_ptr<FileActions> _fileActions;
                 std::shared_ptr<CompareActions> _compareActions;

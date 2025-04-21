@@ -46,11 +46,14 @@ namespace tl
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             private:
+                int _playerIndex = -1;
                 std::vector<std::shared_ptr<dtk::Action> > _filesActions;
                 std::shared_ptr<dtk::Menu> _filesMenu;
-                int _playerIndex = -1;
+                std::vector<std::shared_ptr<dtk::Action> > _recentFilesActions;
+                std::shared_ptr<dtk::Menu> _recentFilesMenu;
                 std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
                 std::shared_ptr<dtk::ValueObserver<int> > _playerIndexObserver;
+                std::shared_ptr<dtk::ListObserver<std::filesystem::path> > _recentFilesObserver;
             };
 
             //! Compare menu.

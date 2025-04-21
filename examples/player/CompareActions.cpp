@@ -5,6 +5,7 @@
 #include "CompareActions.h"
 
 #include "App.h"
+#include "FilesModel.h"
 
 namespace tl
 {
@@ -60,14 +61,14 @@ namespace tl
                         {
                             if (auto app = appWeak.lock())
                             {
-                                app->setCompare(static_cast<timeline::Compare>(i));
+                                app->getFilesModel()->setCompare(static_cast<timeline::Compare>(i));
                             }
                         });
                     _actions[labels[i]]->setTooltip(tooltips[i]);
                 }
 
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
-                    app->observePlayers(),
+                    app->getFilesModel()->observePlayers(),
                     [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                     {
                         for (const auto& label : timeline::getCompareLabels())
@@ -77,7 +78,7 @@ namespace tl
                     });
 
                 _compareObserver = dtk::ValueObserver<timeline::Compare>::create(
-                    app->observeCompare(),
+                    app->getFilesModel()->observeCompare(),
                     [this](timeline::Compare value)
                     {
                         for (auto compare : timeline::getCompareEnums())
