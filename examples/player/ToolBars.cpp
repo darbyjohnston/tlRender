@@ -69,29 +69,6 @@ namespace tl
                 return out;
             }
 
-            void WindowToolBar::_init(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                ToolBar::_init(context, dtk::Orientation::Horizontal, parent);
-                auto actions = windowActions->getActions();
-                addAction(actions["FullScreen"]);
-            }
-
-            WindowToolBar::~WindowToolBar()
-            {}
-
-            std::shared_ptr<WindowToolBar> WindowToolBar::create(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                auto out = std::shared_ptr<WindowToolBar>(new WindowToolBar);
-                out->_init(context, windowActions, parent);
-                return out;
-            }
-
             void ViewToolBar::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<ViewActions>& viewActions,
@@ -118,12 +95,36 @@ namespace tl
                 return out;
             }
 
+            void WindowToolBar::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                ToolBar::_init(context, dtk::Orientation::Horizontal, parent);
+                auto actions = windowActions->getActions();
+                addAction(actions["FullScreen"]);
+                addAction(actions["Settings"]);
+            }
+
+            WindowToolBar::~WindowToolBar()
+            {}
+
+            std::shared_ptr<WindowToolBar> WindowToolBar::create(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<WindowToolBar>(new WindowToolBar);
+                out->_init(context, windowActions, parent);
+                return out;
+            }
+
             void ToolBars::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<FileActions>& fileActions,
                 const std::shared_ptr<CompareActions>& compareActions,
-                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 IWidget::_init(context, "ToolBars", parent);
@@ -133,9 +134,9 @@ namespace tl
                 dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
                 CompareToolBar::create(context, compareActions, _layout);
                 dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
-                WindowToolBar::create(context, windowActions, _layout);
-                dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
                 ViewToolBar::create(context, viewActions, _layout);
+                dtk::Divider::create(context, dtk::Orientation::Horizontal, _layout);
+                WindowToolBar::create(context, windowActions, _layout);
             }
 
             ToolBars::~ToolBars()
@@ -145,8 +146,8 @@ namespace tl
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<FileActions>& fileActions,
                 const std::shared_ptr<CompareActions>& compareActions,
-                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<ToolBars>(new ToolBars);
@@ -154,8 +155,8 @@ namespace tl
                     context,
                     fileActions,
                     compareActions,
-                    windowActions,
                     viewActions,
+                    windowActions,
                     parent);
                 return out;
             }

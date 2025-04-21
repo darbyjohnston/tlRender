@@ -63,28 +63,6 @@ namespace tl
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
 
-            //! Window tool bar.
-            class WindowToolBar : public dtk::ToolBar
-            {
-                DTK_NON_COPYABLE(WindowToolBar);
-
-            protected:
-                void _init(
-                    const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<WindowActions>&,
-                    const std::shared_ptr<IWidget>& parent);
-
-                WindowToolBar() = default;
-
-            public:
-                ~WindowToolBar();
-
-                static std::shared_ptr<WindowToolBar> create(
-                    const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<WindowActions>&,
-                    const std::shared_ptr<IWidget>& parent = nullptr);
-            };
-
             //! View tool bar.
             class ViewToolBar : public dtk::ToolBar
             {
@@ -107,6 +85,28 @@ namespace tl
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
 
+            //! Window tool bar.
+            class WindowToolBar : public dtk::ToolBar
+            {
+                DTK_NON_COPYABLE(WindowToolBar);
+
+            protected:
+                void _init(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<IWidget>& parent);
+
+                WindowToolBar() = default;
+
+            public:
+                ~WindowToolBar();
+
+                static std::shared_ptr<WindowToolBar> create(
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<IWidget>& parent = nullptr);
+            };
+
             //! Tool bars.
             class ToolBars : public dtk::IWidget
             {
@@ -117,8 +117,8 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<FileActions>&,
                     const std::shared_ptr<CompareActions>&,
-                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 ToolBars() = default;
@@ -130,8 +130,8 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     const std::shared_ptr<FileActions>&,
                     const std::shared_ptr<CompareActions>&,
-                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
                 void setGeometry(const dtk::Box2I&) override;

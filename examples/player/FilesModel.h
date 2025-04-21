@@ -12,6 +12,8 @@ namespace tl
     {
         namespace player
         {
+            class SettingsModel;
+
             //! Files model.
             class FilesModel : public std::enable_shared_from_this<FilesModel>
             {
@@ -19,7 +21,8 @@ namespace tl
 
             protected:
                 void _init(
-                    const std::shared_ptr<dtk::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<SettingsModel>&);
 
                 FilesModel() = default;
 
@@ -28,7 +31,8 @@ namespace tl
 
                 //! Create a new model.
                 static std::shared_ptr<FilesModel> create(
-                    const std::shared_ptr<dtk::Context>&);
+                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<SettingsModel>&);
 
                 void open(const std::filesystem::path&);
                 void open();
@@ -61,6 +65,7 @@ namespace tl
                 std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _bPlayer;
                 std::shared_ptr<dtk::ObservableValue<int> > _bPlayerIndex;
                 std::shared_ptr<dtk::ObservableValue<timeline::Compare> > _compare;
+                std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheOptions> > _cacheObserver;
             };
         }
     }

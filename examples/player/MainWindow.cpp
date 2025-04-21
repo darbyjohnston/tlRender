@@ -11,6 +11,7 @@
 #include "MenuBar.h"
 #include "PlaybackActions.h"
 #include "PlaybackBar.h"
+#include "SettingsWidget.h"
 #include "TabBar.h"
 #include "ToolBars.h"
 #include "ViewActions.h"
@@ -38,31 +39,31 @@ namespace tl
 
                 _fileActions = FileActions::create(context, app);
                 _compareActions = CompareActions::create(context, app);
-                _windowActions = WindowActions::create(
-                    context,
-                    app,
-                    std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+                _playbackActions = PlaybackActions::create(context, app);
                 _viewActions = ViewActions::create(
                     context,
                     app,
                     std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-                _playbackActions = PlaybackActions::create(context, app);
+                _windowActions = WindowActions::create(
+                    context,
+                    app,
+                    std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
 
                 _menuBar = MenuBar::create(
                     context,
                     app,
                     _fileActions,
                     _compareActions,
-                    _windowActions,
+                    _playbackActions,
                     _viewActions,
-                    _playbackActions);
+                    _windowActions);
 
                 auto toolBars = ToolBars::create(
                     context,
                     _fileActions,
                     _compareActions,
-                    _windowActions,
-                    _viewActions);
+                    _viewActions,
+                    _windowActions);
 
                 _tabBar = TabBar::create(context, app);
 
@@ -76,6 +77,9 @@ namespace tl
                     app->getTimeUnitsModel());
                 _timelineWidget->setVStretch(dtk::Stretch::Expanding);
 
+                _settingsWidget = SettingsWidget::create(context, app);
+                _settingsWidget->hide();
+
                 _layout = dtk::VerticalLayout::create(context, shared_from_this());
                 _layout->setSpacingRole(dtk::SizeRole::None);
                 _menuBar->setParent(_layout);
@@ -83,10 +87,12 @@ namespace tl
                 toolBars->setParent(_layout);
                 dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
                 _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
-                auto vLayout = dtk::VerticalLayout::create(context, _splitter);
+                _splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, _splitter);
+                auto vLayout = dtk::VerticalLayout::create(context, _splitter2);
                 vLayout->setSpacingRole(dtk::SizeRole::None);
                 _tabBar->setParent(vLayout);
                 _viewport->setParent(vLayout);
+                _settingsWidget->setParent(_splitter2);
                 vLayout = dtk::VerticalLayout::create(context, _splitter);
                 vLayout->setSpacingRole(dtk::SizeRole::None);
                 _playbackBar->setParent(vLayout);
@@ -126,6 +132,11 @@ namespace tl
             const std::shared_ptr<timelineui::Viewport>& MainWindow::getViewport() const
             {
                 return _viewport;
+            }
+
+            void MainWindow::showSettings(bool value)
+            {
+                _settingsWidget->setVisible(value);
             }
 
             void MainWindow::keyPressEvent(dtk::KeyEvent& event)

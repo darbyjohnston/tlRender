@@ -16,13 +16,13 @@ namespace tl
         //! Timeline player cache options.
         struct PlayerCacheOptions
         {
-            // Video cache size in gigabytes.
+            //! Video cache size in gigabytes.
             float videoGB = 4.F;
 
-            // Audio cache size in gigabytes.
+            //! Audio cache size in gigabytes.
             float audioGB = .5F;
 
-            // Number of seconds to read behind the current frame.
+            //! Number of seconds to read behind the current frame.
             float readBehind = .5F;
 
             bool operator == (const PlayerCacheOptions&) const;

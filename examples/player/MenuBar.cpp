@@ -183,58 +183,6 @@ namespace tl
                 return out;
             }
 
-            void WindowMenu::_init(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                dtk::Menu::_init(context, parent);
-                auto actions = windowActions->getActions();
-                addItem(actions["FullScreen"]);
-                addDivider();
-                addItem(actions["1920x1080"]);
-                addItem(actions["3840x2160"]);
-            }
-
-            WindowMenu::~WindowMenu()
-            {}
-
-            std::shared_ptr<WindowMenu> WindowMenu::create(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
-                out->_init(context, windowActions, parent);
-                return out;
-            }
-
-            void ViewMenu::_init(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<ViewActions>& viewActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                dtk::Menu::_init(context, parent);
-                auto actions = viewActions->getActions();
-                addItem(actions["Frame"]);
-                addItem(actions["ZoomReset"]);
-                addItem(actions["ZoomIn"]);
-                addItem(actions["ZoomOut"]);
-            }
-
-            ViewMenu::~ViewMenu()
-            {}
-
-            std::shared_ptr<ViewMenu> ViewMenu::create(
-                const std::shared_ptr<dtk::Context>& context,
-                const std::shared_ptr<ViewActions>& viewActions,
-                const std::shared_ptr<IWidget>& parent)
-            {
-                auto out = std::shared_ptr<ViewMenu>(new ViewMenu);
-                out->_init(context, viewActions, parent);
-                return out;
-            }
-
             void PlaybackMenu::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<PlaybackActions>& playbackActions,
@@ -266,22 +214,76 @@ namespace tl
                 return out;
             }
 
+            void ViewMenu::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                dtk::Menu::_init(context, parent);
+                auto actions = viewActions->getActions();
+                addItem(actions["Frame"]);
+                addItem(actions["ZoomReset"]);
+                addItem(actions["ZoomIn"]);
+                addItem(actions["ZoomOut"]);
+            }
+
+            ViewMenu::~ViewMenu()
+            {}
+
+            std::shared_ptr<ViewMenu> ViewMenu::create(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<ViewMenu>(new ViewMenu);
+                out->_init(context, viewActions, parent);
+                return out;
+            }
+
+            void WindowMenu::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                dtk::Menu::_init(context, parent);
+                auto actions = windowActions->getActions();
+                addItem(actions["FullScreen"]);
+                addDivider();
+                addItem(actions["1920x1080"]);
+                addItem(actions["3840x2160"]);
+                addDivider();
+                addItem(actions["Settings"]);
+            }
+
+            WindowMenu::~WindowMenu()
+            {}
+
+            std::shared_ptr<WindowMenu> WindowMenu::create(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<WindowActions>& windowActions,
+                const std::shared_ptr<IWidget>& parent)
+            {
+                auto out = std::shared_ptr<WindowMenu>(new WindowMenu);
+                out->_init(context, windowActions, parent);
+                return out;
+            }
+
             void MenuBar::_init(
                 const std::shared_ptr<dtk::Context>& context,
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<FileActions>& fileActions,
                 const std::shared_ptr<CompareActions>& compareActions,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<PlaybackActions>& playbackActions,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 dtk::MenuBar::_init(context, parent);
                 addMenu("File", FileMenu::create(context, app, fileActions));
                 addMenu("Compare", CompareMenu::create(context, app, compareActions));
-                addMenu("Window", WindowMenu::create(context, windowActions));
-                addMenu("View", ViewMenu::create(context, viewActions));
                 addMenu("Playback", PlaybackMenu::create(context, playbackActions));
+                addMenu("View", ViewMenu::create(context, viewActions));
+                addMenu("Window", WindowMenu::create(context, windowActions));
             }
 
             MenuBar::~MenuBar()
@@ -292,9 +294,9 @@ namespace tl
                 const std::shared_ptr<App>& app,
                 const std::shared_ptr<FileActions>& fileActions,
                 const std::shared_ptr<CompareActions>& compareActions,
-                const std::shared_ptr<WindowActions>& windowActions,
-                const std::shared_ptr<ViewActions>& viewActions,
                 const std::shared_ptr<PlaybackActions>& playbackActions,
+                const std::shared_ptr<ViewActions>& viewActions,
+                const std::shared_ptr<WindowActions>& windowActions,
                 const std::shared_ptr<IWidget>& parent)
             {
                 auto out = std::shared_ptr<MenuBar>(new MenuBar);
@@ -303,9 +305,9 @@ namespace tl
                     app,
                     fileActions,
                     compareActions,
-                    windowActions,
-                    viewActions,
                     playbackActions,
+                    viewActions,
+                    windowActions,
                     parent);
                 return out;
             }

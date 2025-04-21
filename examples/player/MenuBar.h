@@ -87,25 +87,25 @@ namespace tl
                 std::shared_ptr<dtk::ValueObserver<int> > _bPlayerIndexObserver;
             };
 
-            //! Window menu.
-            class WindowMenu : public dtk::Menu
+            //! Playback menu.
+            class PlaybackMenu : public dtk::Menu
             {
-                DTK_NON_COPYABLE(WindowMenu);
+                DTK_NON_COPYABLE(PlaybackMenu);
 
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<PlaybackActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
-                WindowMenu() = default;
+                PlaybackMenu() = default;
 
             public:
-                ~WindowMenu();
+                ~PlaybackMenu();
 
-                static std::shared_ptr<WindowMenu> create(
+                static std::shared_ptr<PlaybackMenu> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<WindowActions>&,
+                    const std::shared_ptr<PlaybackActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             private:
@@ -135,25 +135,25 @@ namespace tl
             private:
             };
 
-            //! Playback menu.
-            class PlaybackMenu : public dtk::Menu
+            //! Window menu.
+            class WindowMenu : public dtk::Menu
             {
-                DTK_NON_COPYABLE(PlaybackMenu);
+                DTK_NON_COPYABLE(WindowMenu);
 
             protected:
                 void _init(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<PlaybackActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
-                PlaybackMenu() = default;
+                WindowMenu() = default;
 
             public:
-                ~PlaybackMenu();
+                ~WindowMenu();
 
-                static std::shared_ptr<PlaybackMenu> create(
+                static std::shared_ptr<WindowMenu> create(
                     const std::shared_ptr<dtk::Context>&,
-                    const std::shared_ptr<PlaybackActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
 
             private:
@@ -170,9 +170,9 @@ namespace tl
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<FileActions>&,
                     const std::shared_ptr<CompareActions>&,
-                    const std::shared_ptr<WindowActions>&,
-                    const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<PlaybackActions>&,
+                    const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent);
 
                 MenuBar() = default;
@@ -185,9 +185,9 @@ namespace tl
                     const std::shared_ptr<App>&,
                     const std::shared_ptr<FileActions>&,
                     const std::shared_ptr<CompareActions>&,
-                    const std::shared_ptr<WindowActions>&,
-                    const std::shared_ptr<ViewActions>&,
                     const std::shared_ptr<PlaybackActions>&,
+                    const std::shared_ptr<ViewActions>&,
+                    const std::shared_ptr<WindowActions>&,
                     const std::shared_ptr<IWidget>& parent = nullptr);
             };
         }

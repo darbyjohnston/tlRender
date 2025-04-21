@@ -27,6 +27,7 @@ namespace tl
             class MenuBar;
             class PlaybackActions;
             class PlaybackBar;
+            class SettingsWidget;
             class TabBar;
             class ViewActions;
             class WindowActions;
@@ -52,6 +53,8 @@ namespace tl
 
                 const std::shared_ptr<timelineui::Viewport>& getViewport() const;
 
+                void showSettings(bool);
+
                 void keyPressEvent(dtk::KeyEvent&) override;
                 void keyReleaseEvent(dtk::KeyEvent&) override;
 
@@ -63,14 +66,16 @@ namespace tl
                 std::shared_ptr<timelineui::Viewport> _viewport;
                 std::shared_ptr<FileActions> _fileActions;
                 std::shared_ptr<CompareActions> _compareActions;
-                std::shared_ptr<WindowActions> _windowActions;
-                std::shared_ptr<ViewActions> _viewActions;
                 std::shared_ptr<PlaybackActions> _playbackActions;
+                std::shared_ptr<ViewActions> _viewActions;
+                std::shared_ptr<WindowActions> _windowActions;
                 std::shared_ptr<MenuBar> _menuBar;
                 std::shared_ptr<TabBar> _tabBar;
                 std::shared_ptr<PlaybackBar> _playbackBar;
                 std::shared_ptr<timelineui::TimelineWidget> _timelineWidget;
+                std::shared_ptr<SettingsWidget> _settingsWidget;
                 std::shared_ptr<dtk::Splitter> _splitter;
+                std::shared_ptr<dtk::Splitter> _splitter2;
                 std::shared_ptr<dtk::VerticalLayout> _layout;
                 std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
                 std::shared_ptr<dtk::ValueObserver<timeline::Compare> > _compareObserver;

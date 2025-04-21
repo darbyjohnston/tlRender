@@ -8,6 +8,8 @@ set(HEADERS
     PlaybackActions.h
     PlaybackBar.h
     RecentFilesModel.h
+    SettingsModel.h
+    SettingsWidget.h
     TabBar.h
     ToolBars.h
     ViewActions.h
@@ -22,6 +24,8 @@ set(SOURCE
     PlaybackActions.cpp
     PlaybackBar.cpp
     RecentFilesModel.cpp
+    SettingsModel.cpp
+    SettingsWidget.cpp
     TabBar.cpp
     ToolBars.cpp
     ViewActions.cpp

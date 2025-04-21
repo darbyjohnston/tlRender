@@ -53,6 +53,18 @@ namespace tl
                         }
                     });
 
+                _actions["Settings"] = dtk::Action::create(
+                    "Settings",
+                    "Settings",
+                    [mainWindowWeak](bool value)
+                    {
+                        if (auto mainWindow = mainWindowWeak.lock())
+                        {
+                            mainWindow->showSettings(value);
+                        }
+                    });
+                _actions["Settings"]->setTooltip("Toggle the settings.");
+
                 _fullScreenObserver = dtk::ValueObserver<bool>::create(
                     mainWindow->observeFullScreen(),
                     [this](bool value)

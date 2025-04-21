@@ -7,7 +7,6 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <dtk/ui/App.h>
-#include <dtk/ui/Settings.h>
 
 namespace tl
 {
@@ -18,6 +17,7 @@ namespace tl
             class FilesModel;
             class MainWindow;
             class RecentFilesModel;
+            class SettingsModel;
 
             //! Application.
             class App : public dtk::App
@@ -38,6 +38,7 @@ namespace tl
                     const std::shared_ptr<dtk::Context>&,
                     std::vector<std::string>&);
 
+                const std::shared_ptr<SettingsModel>& getSettingsModel() const;
                 const std::shared_ptr<timeline::TimeUnitsModel>& getTimeUnitsModel() const;
                 const std::shared_ptr<RecentFilesModel>& getRecentFilesModel() const;
                 const std::shared_ptr<FilesModel>& getFilesModel() const;
@@ -55,7 +56,7 @@ namespace tl
                     std::vector<std::string> fileNames;
                 };
                 CmdLineOptions _cmdLineOptions;
-                std::shared_ptr<dtk::Settings> _settings;
+                std::shared_ptr<SettingsModel> _settingsModel;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 std::shared_ptr<RecentFilesModel> _recentFilesModel;
                 std::shared_ptr<FilesModel> _filesModel;

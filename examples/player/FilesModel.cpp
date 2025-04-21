@@ -4,13 +4,17 @@
 
 #include "FilesModel.h"
 
+#include "SettingsModel.h"
+
 namespace tl
 {
     namespace examples
     {
         namespace player
         {
-            void FilesModel::_init(const std::shared_ptr<dtk::Context>& context)
+            void FilesModel::_init(
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<SettingsModel>& settingsModel)
             {
                 _context = context;
                 _players = dtk::ObservableList<std::shared_ptr<timeline::Player> >::create();
@@ -19,16 +23,27 @@ namespace tl
                 _bPlayer = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
                 _bPlayerIndex = dtk::ObservableValue<int>::create(-1);
                 _compare = dtk::ObservableValue<timeline::Compare>::create(timeline::Compare::A);
+
+                _cacheObserver = dtk::ValueObserver<timeline::PlayerCacheOptions>::create(
+                    settingsModel->observeCache(),
+                    [this](const timeline::PlayerCacheOptions& value)
+                    {
+                        for (const auto& player : _players->get())
+                        {
+                            player->setCacheOptions(value);
+                        }
+                    });
             }
 
             FilesModel::~FilesModel()
             {}
 
             std::shared_ptr<FilesModel> FilesModel::create(
-                const std::shared_ptr<dtk::Context>& context)
+                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<SettingsModel>& settingsModel)
             {
                 auto out = std::shared_ptr<FilesModel>(new FilesModel);
-                out->_init(context);
+                out->_init(context, settingsModel);
                 return out;
             }
 

@@ -70,27 +70,27 @@ namespace tl
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             std::shared_ptr<FileActions> fileActions;
             std::shared_ptr<CompareActions> compareActions;
-            std::shared_ptr<WindowActions> windowActions;
-            std::shared_ptr<ViewActions> viewActions;
             std::shared_ptr<PlaybackActions> playbackActions;
             std::shared_ptr<FrameActions> frameActions;
             std::shared_ptr<TimelineActions> timelineActions;
             std::shared_ptr<AudioActions> audioActions;
+            std::shared_ptr<ViewActions> viewActions;
+            std::shared_ptr<WindowActions> windowActions;
             std::shared_ptr<ToolsActions> toolsActions;
             std::shared_ptr<FileMenu> fileMenu;
             std::shared_ptr<CompareMenu> compareMenu;
-            std::shared_ptr<WindowMenu> windowMenu;
-            std::shared_ptr<ViewMenu> viewMenu;
             std::shared_ptr<PlaybackMenu> playbackMenu;
             std::shared_ptr<FrameMenu> frameMenu;
             std::shared_ptr<TimelineMenu> timelineMenu;
             std::shared_ptr<AudioMenu> audioMenu;
+            std::shared_ptr<ViewMenu> viewMenu;
+            std::shared_ptr<WindowMenu> windowMenu;
             std::shared_ptr<ToolsMenu> toolsMenu;
             std::shared_ptr<dtk::MenuBar> menuBar;
             std::shared_ptr<FileToolBar> fileToolBar;
             std::shared_ptr<CompareToolBar> compareToolBar;
-            std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ViewToolBar> viewToolBar;
+            std::shared_ptr<WindowToolBar> windowToolBar;
             std::shared_ptr<ToolsToolBar> toolsToolBar;
             std::shared_ptr<TabBar> tabBar;
             std::shared_ptr<BottomToolBar> bottomToolBar;
@@ -130,14 +130,6 @@ namespace tl
 
             p.fileActions = FileActions::create(context, app);
             p.compareActions = CompareActions::create(context, app);
-            p.windowActions = WindowActions::create(
-                context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
-            p.viewActions = ViewActions::create(
-                context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.playbackActions = PlaybackActions::create(context, app);
             p.frameActions = FrameActions::create(
                 context,
@@ -148,29 +140,37 @@ namespace tl
                 app,
                 std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.audioActions = AudioActions::create(context, app);
+            p.viewActions = ViewActions::create(
+                context,
+                app,
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+            p.windowActions = WindowActions::create(
+                context,
+                app,
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
             p.toolsActions = ToolsActions::create(context, app);
 
             p.fileMenu = FileMenu::create(context, app, p.fileActions);
             p.compareMenu = CompareMenu::create(context, app, p.compareActions);
-            p.windowMenu = WindowMenu::create(
-                context,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
-                p.windowActions);
-            p.viewMenu = ViewMenu::create(context, p.viewActions);
             p.playbackMenu = PlaybackMenu::create(context, p.playbackActions);
             p.frameMenu = FrameMenu::create(context, p.frameActions);
             p.timelineMenu = TimelineMenu::create(context, p.timelineActions);
             p.audioMenu = AudioMenu::create(context, p.audioActions);
+            p.viewMenu = ViewMenu::create(context, p.viewActions);
+            p.windowMenu = WindowMenu::create(
+                context,
+                std::dynamic_pointer_cast<MainWindow>(shared_from_this()),
+                p.windowActions);
             p.toolsMenu = ToolsMenu::create(context, p.toolsActions);
             p.menuBar = dtk::MenuBar::create(context);
             p.menuBar->addMenu("File", p.fileMenu);
             p.menuBar->addMenu("Compare", p.compareMenu);
-            p.menuBar->addMenu("Window", p.windowMenu);
-            p.menuBar->addMenu("View", p.viewMenu);
             p.menuBar->addMenu("Playback", p.playbackMenu);
             p.menuBar->addMenu("Frame", p.frameMenu);
             p.menuBar->addMenu("Timeline", p.timelineMenu);
             p.menuBar->addMenu("Audio", p.audioMenu);
+            p.menuBar->addMenu("View", p.viewMenu);
+            p.menuBar->addMenu("Window", p.windowMenu);
             p.menuBar->addMenu("Tools", p.toolsMenu);
 
             p.fileToolBar = FileToolBar::create(
@@ -179,10 +179,10 @@ namespace tl
             p.compareToolBar = CompareToolBar::create(
                 context,
                 p.compareActions->getActions());
+            p.viewToolBar = ViewToolBar::create(context, p.viewActions);
             p.windowToolBar = WindowToolBar::create(
                 context,
                 p.windowActions->getActions());
-            p.viewToolBar = ViewToolBar::create(context, p.viewActions);
             p.toolsToolBar = ToolsToolBar::create(
                 context,
                 p.toolsActions->getActions());

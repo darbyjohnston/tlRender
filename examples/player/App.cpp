@@ -7,6 +7,7 @@
 #include "FilesModel.h"
 #include "MainWindow.h"
 #include "RecentFilesModel.h"
+#include "SettingsModel.h"
 
 #include <tlTimeline/Util.h>
 
@@ -40,18 +41,18 @@ namespace tl
 
                 context->getSystem<dtk::FileBrowserSystem>()->setNativeFileDialog(false);
 
-                _settings = dtk::Settings::create(
+                _settingsModel = SettingsModel::create(
                     context,
                     dtk::getSettingsPath("tlRender", "player.json"));
 
                 _timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
-                _recentFilesModel = RecentFilesModel::create(context, _settings);
+                _recentFilesModel = RecentFilesModel::create(context, _settingsModel->getSettings());
                 auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
                 fileBrowserSystem->setExtensions(timeline::getExtensions(_context));
                 fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
 
-                _filesModel = FilesModel::create(context);
+                _filesModel = FilesModel::create(context, _settingsModel);
 
                 _window = MainWindow::create(
                     _context,
@@ -76,6 +77,11 @@ namespace tl
                 auto out = std::shared_ptr<App>(new App);
                 out->_init(context, argv);
                 return out;
+            }
+
+            const std::shared_ptr<SettingsModel>& App::getSettingsModel() const
+            {
+                return _settingsModel;
             }
 
             const std::shared_ptr<timeline::TimeUnitsModel>& App::getTimeUnitsModel() const
