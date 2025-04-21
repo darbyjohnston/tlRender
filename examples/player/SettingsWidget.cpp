@@ -7,7 +7,7 @@
 #include "App.h"
 #include "SettingsModel.h"
 
-#include <dtk/ui/Bellows.h>
+#include <dtk/ui/GroupBox.h>
 
 namespace tl
 {
@@ -117,9 +117,10 @@ namespace tl
             {
                 IWidget::_init(context, "SettingsWidget", parent);
                 _layout = dtk::VerticalLayout::create(context, shared_from_this());
-                _layout->setSpacingRole(dtk::SizeRole::None);
-                auto bellows = dtk::Bellows::create(context, "Cache", _layout);
-                bellows->setWidget(CacheSettingsWidget::create(context, app));
+                _layout->setMarginRole(dtk::SizeRole::MarginSmall);
+                _layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+                auto groupBox = dtk::GroupBox::create(context, "Cache", _layout);
+                CacheSettingsWidget::create(context, app, groupBox);
             }
 
             SettingsWidget::~SettingsWidget()
