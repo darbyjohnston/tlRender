@@ -255,61 +255,6 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
-  macos-13-package:
-    runs-on: macos-13
-
-    env:
-      dtk_API: GL_4_1
-      TLRENDER_NET: ON
-      TLRENDER_OCIO: ON
-      TLRENDER_AUDIO: ON
-      TLRENDER_JPEG: ON
-      TLRENDER_TIFF: ON
-      TLRENDER_STB: ON
-      TLRENDER_PNG: ON
-      TLRENDER_EXR: ON
-      TLRENDER_FFMPEG: ON
-      TLRENDER_USD: ON
-      TLRENDER_QT6: OFF
-      TLRENDER_QT5: OFF
-      TLRENDER_PROGRAMS: ON
-      TLRENDER_EXAMPLES: OFF
-      TLRENDER_TESTS: OFF
-      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    # \bug DYLD_LIBRARY_PATH is not being set here?
-    - name: Setup environment
-      run: |
-        echo "$PWD/build/install/bin" >> $GITHUB_PATH
-        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
-        cmake --version
-        python --version
-
-    - name: Build tlRender
-      run: |
-        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
-        bash etc/macOS/macos-build-gha.sh Release
-
-    - name: Package
-      run: |
-        cd build
-        cd tlRender/src/tlRender-build
-        cmake --build . -j 4 --target package
-
-    - uses: actions/upload-artifact@v4
-      with:
-        name: tlRender-macOS-Packages
-        path: build/tlRender/src/tlRender-build/tlRender-*.dmg
-
   macos-latest:
     runs-on: macos-latest
 
@@ -362,6 +307,61 @@ jobs:
         cd build
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
+
+  macos-package:
+    runs-on: macos-latest
+
+    env:
+      dtk_API: GL_4_1
+      TLRENDER_NET: ON
+      TLRENDER_OCIO: ON
+      TLRENDER_AUDIO: ON
+      TLRENDER_JPEG: ON
+      TLRENDER_TIFF: ON
+      TLRENDER_STB: ON
+      TLRENDER_PNG: ON
+      TLRENDER_EXR: ON
+      TLRENDER_FFMPEG: ON
+      TLRENDER_USD: ON
+      TLRENDER_QT6: OFF
+      TLRENDER_QT5: OFF
+      TLRENDER_PROGRAMS: ON
+      TLRENDER_EXAMPLES: OFF
+      TLRENDER_TESTS: OFF
+      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    # \bug DYLD_LIBRARY_PATH is not being set here?
+    - name: Setup environment
+      run: |
+        echo "$PWD/build/install/bin" >> $GITHUB_PATH
+        echo "DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+        echo "PYTHONPATH=$PWD/build/install/lib:$PYTHONPATH" >> $GITHUB_ENV
+        cmake --version
+        python --version
+
+    - name: Build tlRender
+      run: |
+        export DYLD_LIBRARY_PATH=$PWD/build/install/lib:$DYLD_LIBRARY_PATH
+        bash etc/macOS/macos-build-gha.sh Release
+
+    - name: Package
+      run: |
+        cd build
+        cd tlRender/src/tlRender-build
+        cmake --build . -j 4 --target package
+
+    - uses: actions/upload-artifact@v4
+      with:
+        name: tlRender-macOS-Packages
+        path: build/tlRender/src/tlRender-build/tlRender-*.dmg
 
   windows-build:
     runs-on: windows-latest
