@@ -30,17 +30,17 @@ namespace tl
                 dtk::Menu::_init(context, parent);
 
                 auto actions = fileActions->getActions();
-                addItem(actions["Open"]);
-                addItem(actions["Close"]);
-                addItem(actions["CloseAll"]);
-                addItem(actions["Reload"]);
+                addAction(actions["Open"]);
+                addAction(actions["Close"]);
+                addAction(actions["CloseAll"]);
+                addAction(actions["Reload"]);
                 _recentFilesMenu = addSubMenu("Recent Files");
                 addDivider();
                 _filesMenu = addSubMenu("Files");
-                addItem(actions["Next"]);
-                addItem(actions["Prev"]);
+                addAction(actions["Next"]);
+                addAction(actions["Prev"]);
                 addDivider();
-                addItem(actions["Exit"]);
+                addAction(actions["Exit"]);
 
                 std::weak_ptr<App> appWeak(app);
                 _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
@@ -63,7 +63,7 @@ namespace tl
                                 });
                             action->setChecked(i == _playerIndex);
                             _filesActions.push_back(action);
-                            _filesMenu->addItem(action);
+                            _filesMenu->addAction(action);
                         }
                     });
 
@@ -98,7 +98,7 @@ namespace tl
                                     close();
                                 });
                             _recentFilesActions.push_back(action);
-                            _recentFilesMenu->addItem(action);
+                            _recentFilesMenu->addAction(action);
                         }
                     });
             }
@@ -129,7 +129,7 @@ namespace tl
                 auto actions = compareActions->getActions();
                 for (const auto& label : timeline::getCompareLabels())
                 {
-                    addItem(actions[label]);
+                    addAction(actions[label]);
                 }
 
                 std::weak_ptr<App> appWeak(app);
@@ -153,7 +153,7 @@ namespace tl
                                 });
                             action->setChecked(i == _bPlayerIndex);
                             _bFileActions.push_back(action);
-                            _bFileMenu->addItem(action);
+                            _bFileMenu->addAction(action);
                         }
                     });
 
@@ -190,15 +190,15 @@ namespace tl
             {
                 dtk::Menu::_init(context, parent);
                 auto actions = playbackActions->getActions();
-                addItem(actions["Stop"]);
-                addItem(actions["Forward"]);
-                addItem(actions["Reverse"]);
-                addItem(actions["TogglePlayback"]);
+                addAction(actions["Stop"]);
+                addAction(actions["Forward"]);
+                addAction(actions["Reverse"]);
+                addAction(actions["TogglePlayback"]);
                 addDivider();
-                addItem(actions["Start"]);
-                addItem(actions["Prev"]);
-                addItem(actions["Next"]);
-                addItem(actions["End"]);
+                addAction(actions["Start"]);
+                addAction(actions["Prev"]);
+                addAction(actions["Next"]);
+                addAction(actions["End"]);
             }
 
             PlaybackMenu::~PlaybackMenu()
@@ -221,10 +221,10 @@ namespace tl
             {
                 dtk::Menu::_init(context, parent);
                 auto actions = viewActions->getActions();
-                addItem(actions["Frame"]);
-                addItem(actions["ZoomReset"]);
-                addItem(actions["ZoomIn"]);
-                addItem(actions["ZoomOut"]);
+                addAction(actions["Frame"]);
+                addAction(actions["ZoomReset"]);
+                addAction(actions["ZoomIn"]);
+                addAction(actions["ZoomOut"]);
             }
 
             ViewMenu::~ViewMenu()
@@ -247,12 +247,12 @@ namespace tl
             {
                 dtk::Menu::_init(context, parent);
                 auto actions = windowActions->getActions();
-                addItem(actions["FullScreen"]);
+                addAction(actions["FullScreen"]);
                 addDivider();
-                addItem(actions["1920x1080"]);
-                addItem(actions["3840x2160"]);
+                addAction(actions["1920x1080"]);
+                addAction(actions["3840x2160"]);
                 addDivider();
-                addItem(actions["Settings"]);
+                addAction(actions["Settings"]);
             }
 
             WindowMenu::~WindowMenu()

@@ -18,9 +18,9 @@ namespace tl
             Menu::_init(context, parent);
 
             auto actions = audioActions->getActions();
-            addItem(actions["VolumeUp"]);
-            addItem(actions["VolumeDown"]);
-            addItem(actions["Mute"]);
+            addAction(actions["VolumeUp"]);
+            addAction(actions["VolumeDown"]);
+            addAction(actions["Mute"]);
         }
 
         AudioMenu::~AudioMenu()

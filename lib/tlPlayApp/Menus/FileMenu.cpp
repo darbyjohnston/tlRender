@@ -22,8 +22,8 @@ namespace tl
             std::vector<std::string> extensions;
             std::shared_ptr<dtk::RecentFilesModel> recentFilesModel;
 
-            std::vector<std::shared_ptr<dtk::Action> > currentItems;
-            std::vector<std::shared_ptr<dtk::Action> > layersItems;
+            std::vector<std::shared_ptr<dtk::Action> > currentActions;
+            std::vector<std::shared_ptr<dtk::Action> > layersActions;
             std::map<std::string, std::shared_ptr<dtk::Menu> > menus;
 
             std::shared_ptr<dtk::ListObserver<std::shared_ptr<FilesModelItem> > > filesObserver;
@@ -49,22 +49,22 @@ namespace tl
             p.recentFilesModel = app->getRecentFilesModel();
 
             auto actions = fileActions->getActions();
-            addItem(actions["Open"]);
-            addItem(actions["OpenSeparateAudio"]);
-            addItem(actions["Close"]);
-            addItem(actions["CloseAll"]);
-            addItem(actions["Reload"]);
+            addAction(actions["Open"]);
+            addAction(actions["OpenSeparateAudio"]);
+            addAction(actions["Close"]);
+            addAction(actions["CloseAll"]);
+            addAction(actions["Reload"]);
             p.menus["Recent"] = addSubMenu("Recent");
             addDivider();
             p.menus["Current"] = addSubMenu("Current");
-            addItem(actions["Next"]);
-            addItem(actions["Prev"]);
+            addAction(actions["Next"]);
+            addAction(actions["Prev"]);
             addDivider();
             p.menus["Layers"] = addSubMenu("Layers");
-            addItem(actions["NextLayer"]);
-            addItem(actions["PrevLayer"]);
+            addAction(actions["NextLayer"]);
+            addAction(actions["PrevLayer"]);
             addDivider();
-            addItem(actions["Exit"]);
+            addAction(actions["Exit"]);
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
                 app->getFilesModel()->observeFiles(),
@@ -138,10 +138,10 @@ namespace tl
         {
             DTK_P();
             p.menus["Current"]->clear();
-            p.currentItems.clear();
+            p.currentActions.clear();
             for (size_t i = 0; i < value.size(); ++i)
             {
-                auto item = dtk::Action::create(
+                auto action = dtk::Action::create(
                     value[i]->path.get(-1, file::PathType::FileName),
                     [this, i]
                     {
@@ -151,8 +151,8 @@ namespace tl
                             app->getFilesModel()->setA(i);
                         }
                     });
-                p.menus["Current"]->addItem(item);
-                p.currentItems.push_back(item);
+                p.menus["Current"]->addAction(action);
+                p.currentActions.push_back(action);
             }
         }
 
@@ -161,12 +161,12 @@ namespace tl
             DTK_P();
 
             p.menus["Layers"]->clear();
-            p.layersItems.clear();
+            p.layersActions.clear();
             if (value)
             {
                 for (size_t i = 0; i < value->videoLayers.size(); ++i)
                 {
-                    auto item = dtk::Action::create(
+                    auto action = dtk::Action::create(
                         value->videoLayers[i],
                         [this, value, i]
                         {
@@ -176,9 +176,9 @@ namespace tl
                                 app->getFilesModel()->setLayer(value, i);
                             }
                         });
-                    item->setChecked(i == value->videoLayer);
-                    p.menus["Layers"]->addItem(item);
-                    p.layersItems.push_back(item);
+                    action->setChecked(i == value->videoLayer);
+                    p.menus["Layers"]->addAction(action);
+                    p.layersActions.push_back(action);
                 }
             }
         }
@@ -186,9 +186,9 @@ namespace tl
         void FileMenu::_aIndexUpdate(int value)
         {
             DTK_P();
-            for (int i = 0; i < p.currentItems.size(); ++i)
+            for (int i = 0; i < p.currentActions.size(); ++i)
             {
-                p.menus["Current"]->setItemChecked(p.currentItems[i], i == value);
+                p.menus["Current"]->setChecked(p.currentActions[i], i == value);
             }
         }
 
@@ -198,9 +198,9 @@ namespace tl
             if (auto app = p.app.lock())
             {
                 auto a = app->getFilesModel()->getA();
-                for (size_t i = 0; i < p.layersItems.size(); ++i)
+                for (size_t i = 0; i < p.layersActions.size(); ++i)
                 {
-                    p.menus["Layers"]->setItemChecked(p.layersItems[i], i == a->videoLayer);
+                    p.menus["Layers"]->setChecked(p.layersActions[i], i == a->videoLayer);
                 }
             }
         }
@@ -215,7 +215,7 @@ namespace tl
                 {
                     const auto path = *i;
                     auto weak = std::weak_ptr<FileMenu>(std::dynamic_pointer_cast<FileMenu>(shared_from_this()));
-                    auto item = dtk::Action::create(
+                    auto action = dtk::Action::create(
                         path.u8string(),
                         [weak, path]
                         {
@@ -228,7 +228,7 @@ namespace tl
                                 widget->close();
                             }
                         });
-                    p.menus["Recent"]->addItem(item);
+                    p.menus["Recent"]->addAction(action);
                 }
             }
         }

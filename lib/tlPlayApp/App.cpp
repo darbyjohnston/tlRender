@@ -180,6 +180,7 @@ namespace tl
                 {
                     open(file::Path(value.u8string()));
                 },
+                std::filesystem::path(),
                 dtk::FileBrowserMode::File);
         }
 

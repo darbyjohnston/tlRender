@@ -35,20 +35,20 @@ namespace tl
 
             p.menus["B"] = addSubMenu("B");
             auto actions = compareActions->getActions();
-            addItem(actions["Next"]);
-            addItem(actions["Prev"]);
+            addAction(actions["Next"]);
+            addAction(actions["Prev"]);
             addDivider();
             const auto compareLabels = timeline::getCompareLabels();
             for (const auto& label : compareLabels)
             {
-                addItem(actions[label]);
+                addAction(actions[label]);
             }
             addDivider();
             p.menus["Time"] = addSubMenu("Time");
             const auto timeLabels = timeline::getCompareTimeLabels();
             for (const auto& label : timeLabels)
             {
-                p.menus["Time"]->addItem(actions[label]);
+                p.menus["Time"]->addAction(actions[label]);
             }
 
             p.filesObserver = dtk::ListObserver<std::shared_ptr<FilesModelItem> >::create(
@@ -117,7 +117,7 @@ namespace tl
                         });
                     const auto j = std::find(bIndexes.begin(), bIndexes.end(), i);
                     action->setChecked(j != bIndexes.end());
-                    p.menus["B"]->addItem(action);
+                    p.menus["B"]->addAction(action);
                     p.bActions.push_back(action);
                 }
             }
@@ -129,7 +129,7 @@ namespace tl
             for (int i = 0; i < p.bActions.size(); ++i)
             {
                 const auto j = std::find(value.begin(), value.end(), i);
-                p.menus["B"]->setItemChecked(
+                p.menus["B"]->setChecked(
                     p.bActions[i],
                     j != value.end());
             }

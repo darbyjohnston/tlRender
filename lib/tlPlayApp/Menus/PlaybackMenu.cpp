@@ -18,24 +18,24 @@ namespace tl
             Menu::_init(context, parent);
 
             auto actions = playbackActions->getActions();
-            addItem(actions["Stop"]);
-            addItem(actions["Forward"]);
-            addItem(actions["Reverse"]);
-            addItem(actions["Toggle"]);
+            addAction(actions["Stop"]);
+            addAction(actions["Forward"]);
+            addAction(actions["Reverse"]);
+            addAction(actions["Toggle"]);
             addDivider();
-            addItem(actions["JumpBack1s"]);
-            addItem(actions["JumpBack10s"]);
-            addItem(actions["JumpForward1s"]);
-            addItem(actions["JumpForward10s"]);
+            addAction(actions["JumpBack1s"]);
+            addAction(actions["JumpBack10s"]);
+            addAction(actions["JumpForward1s"]);
+            addAction(actions["JumpForward10s"]);
             addDivider();
-            addItem(actions["Loop"]);
-            addItem(actions["Once"]);
-            addItem(actions["PingPong"]);
+            addAction(actions["Loop"]);
+            addAction(actions["Once"]);
+            addAction(actions["PingPong"]);
             addDivider();
-            addItem(actions["SetInPoint"]);
-            addItem(actions["ResetInPoint"]);
-            addItem(actions["SetOutPoint"]);
-            addItem(actions["ResetOutPoint"]);
+            addAction(actions["SetInPoint"]);
+            addAction(actions["ResetInPoint"]);
+            addAction(actions["SetOutPoint"]);
+            addAction(actions["ResetOutPoint"]);
         }
 
         PlaybackMenu::~PlaybackMenu()

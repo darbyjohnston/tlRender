@@ -28,14 +28,14 @@ namespace tl
             DTK_P();
 
             auto actions = timelineActions->getActions();
-            addItem(actions["FrameView"]);
-            addItem(actions["Scroll"]);
-            addItem(actions["StopOnScrub"]);
-            addItem(actions["Thumbnails"]);
+            addAction(actions["FrameView"]);
+            addAction(actions["Scroll"]);
+            addAction(actions["StopOnScrub"]);
+            addAction(actions["Thumbnails"]);
             p.menus["ThumbnailSize"] = addSubMenu("Thumbnails Size");
-            p.menus["ThumbnailSize"]->addItem(actions["ThumbnailsSmall"]);
-            p.menus["ThumbnailSize"]->addItem(actions["ThumbnailsMedium"]);
-            p.menus["ThumbnailSize"]->addItem(actions["ThumbnailsLarge"]);
+            p.menus["ThumbnailSize"]->addAction(actions["ThumbnailsSmall"]);
+            p.menus["ThumbnailSize"]->addAction(actions["ThumbnailsMedium"]);
+            p.menus["ThumbnailSize"]->addAction(actions["ThumbnailsLarge"]);
         }
 
         TimelineMenu::TimelineMenu() :

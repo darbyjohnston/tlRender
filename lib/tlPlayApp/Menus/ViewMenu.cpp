@@ -18,20 +18,20 @@ namespace tl
             Menu::_init(context, parent);
 
             auto actions = viewActions->getActions();
-            addItem(actions["Frame"]);
-            addItem(actions["ZoomReset"]);
-            addItem(actions["ZoomIn"]);
-            addItem(actions["ZoomOut"]);
+            addAction(actions["Frame"]);
+            addAction(actions["ZoomReset"]);
+            addAction(actions["ZoomIn"]);
+            addAction(actions["ZoomOut"]);
             addDivider();
-            addItem(actions["Red"]);
-            addItem(actions["Green"]);
-            addItem(actions["Blue"]);
-            addItem(actions["Alpha"]);
+            addAction(actions["Red"]);
+            addAction(actions["Green"]);
+            addAction(actions["Blue"]);
+            addAction(actions["Alpha"]);
             addDivider();
-            addItem(actions["MirrorHorizontal"]);
-            addItem(actions["MirrorVertical"]);
+            addAction(actions["MirrorHorizontal"]);
+            addAction(actions["MirrorVertical"]);
             addDivider();
-            addItem(actions["HUD"]);
+            addAction(actions["HUD"]);
         }
 
         ViewMenu::~ViewMenu()

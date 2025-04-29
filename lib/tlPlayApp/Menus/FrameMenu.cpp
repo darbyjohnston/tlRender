@@ -18,18 +18,18 @@ namespace tl
             Menu::_init(context, parent);
 
             auto actions = frameActions->getActions();
-            addItem(actions["Start"]);
-            addItem(actions["End"]);
+            addAction(actions["Start"]);
+            addAction(actions["End"]);
             addDivider();
-            addItem(actions["Prev"]);
-            addItem(actions["PrevX10"]);
-            addItem(actions["PrevX100"]);
+            addAction(actions["Prev"]);
+            addAction(actions["PrevX10"]);
+            addAction(actions["PrevX100"]);
             addDivider();
-            addItem(actions["Next"]);
-            addItem(actions["NextX10"]);
-            addItem(actions["NextX100"]);
+            addAction(actions["Next"]);
+            addAction(actions["NextX10"]);
+            addAction(actions["NextX100"]);
             addDivider();
-            addItem(actions["FocusCurrent"]);
+            addAction(actions["FocusCurrent"]);
         }
 
         FrameMenu::~FrameMenu()

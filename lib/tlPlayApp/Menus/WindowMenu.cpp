@@ -46,25 +46,25 @@ namespace tl
                             mainWindow->setSize(size);
                         }
                     });
-                p.menus["Resize"]->addItem(action);
+                p.menus["Resize"]->addAction(action);
             }
 
             addDivider();
             auto actions = windowActions->getActions();
-            addItem(actions["FullScreen"]);
-            addItem(actions["FloatOnTop"]);
+            addAction(actions["FullScreen"]);
+            addAction(actions["FloatOnTop"]);
             addDivider();
-            addItem(actions["Secondary"]);
+            addAction(actions["Secondary"]);
             addDivider();
-            addItem(actions["FileToolBar"]);
-            addItem(actions["CompareToolBar"]);
-            addItem(actions["WindowToolBar"]);
-            addItem(actions["ViewToolBar"]);
-            addItem(actions["ToolsToolBar"]);
-            addItem(actions["TabBar"]);
-            addItem(actions["Timeline"]);
-            addItem(actions["BottomToolBar"]);
-            addItem(actions["StatusToolBar"]);
+            addAction(actions["FileToolBar"]);
+            addAction(actions["CompareToolBar"]);
+            addAction(actions["WindowToolBar"]);
+            addAction(actions["ViewToolBar"]);
+            addAction(actions["ToolsToolBar"]);
+            addAction(actions["TabBar"]);
+            addAction(actions["Timeline"]);
+            addAction(actions["BottomToolBar"]);
+            addAction(actions["StatusToolBar"]);
         }
 
         WindowMenu::WindowMenu() :

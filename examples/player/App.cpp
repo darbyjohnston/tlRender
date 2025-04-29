@@ -122,6 +122,7 @@ namespace tl
                     {
                         open(value);
                     },
+                    std::filesystem::path(),
                     dtk::FileBrowserMode::File);
             }
 

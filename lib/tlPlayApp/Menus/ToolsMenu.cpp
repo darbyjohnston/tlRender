@@ -23,7 +23,7 @@ namespace tl
             auto actions = toolsActions->getActions();
             for (size_t i = 1; i < labels.size(); ++i)
             {
-                addItem(actions[labels[i]]);
+                addAction(actions[labels[i]]);
             }
         }
 
