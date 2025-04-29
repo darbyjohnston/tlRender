@@ -255,7 +255,7 @@ jobs:
         cd tlRender/src/tlRender-build
         tests/tltest/tltest
 
-  macos-latest:
+  macos-build:
     runs-on: macos-latest
 
     env:
