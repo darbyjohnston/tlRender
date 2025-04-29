@@ -136,40 +136,40 @@ elseif(APPLE)
     
     if(TLRENDER_USD)
         set(MATERIALX_DYLIBS
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderMsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderMsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderMsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderMsl.dylib
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.1.38.10.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.1.39.3.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.1.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.dylib)
         set(TBB_DYLIBS
@@ -294,37 +294,37 @@ else()
         set(MATERIALX_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXCore.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXFormat.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenGlsl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMdl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenMsl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenOsl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXGenShader.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderGlsl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderHw.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so.1.38.10
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRenderOsl.so.1.39.3
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so
             ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so.1
-            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so.1.38.10)
+            ${CMAKE_INSTALL_PREFIX}/lib/libMaterialXRender.so.1.39.3)
         set(TBB_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.so
             ${CMAKE_INSTALL_PREFIX}/lib/libtbb_debug.so.2
