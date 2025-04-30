@@ -32,16 +32,16 @@ Work in progress:
 
 # Dependencies
 
+A CMake super build script is provided to build all of the dependencies from
+source except for Qt. Qt needs to be installed separately.
+
 Required dependencies:
+* [dtk](https://github.com/darbyjohnston/dtk)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
-* [nlohmann_json](https://github.com/nlohmann/json)
-* [ZLIB](https://zlib.net)
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
-* [FreeType](https://www.freetype.org)
 
 Optional dependencies:
-* [GLFW](https://www.glfw.org/)
 * [OpenSSL](https://www.openssl.org)
 * [libssh2](https://libssh2.org)
 * [curl](https://curl.se/libcurl)
@@ -53,15 +53,7 @@ Optional dependencies:
 * [OpenEXR](https://www.openexr.com/)
 * [FFmpeg](https://ffmpeg.org)
 * [OpenUSD](https://github.com/PixarAnimationStudios/OpenUSD)
-* [nativefiledialog-extended](https://github.com/btzy/nativefiledialog-extended)
 * [Qt version 5 or 6](https://www.qt.io)
-
-
-# Building Dependencies
-
-A CMake super build script is provided to build all of the dependencies from
-source except for Qt. Qt needs to be installed separately:
-https://www.qt.io/
 
 
 # Building on Linux
