@@ -175,18 +175,33 @@ if(TLRENDER_EXR)
     endif()
 endif()
 if(TLRENDER_FFMPEG)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(
-        swresample REQUIRED IMPORTED_TARGET
-        libswresample)
-    pkg_check_modules(
-        FFmpeg REQUIRED IMPORTED_TARGET
-        libavdevice
-        libavformat
-        libavcodec
-        libswresample
-        libswscale
-        libavutil)
+    set(FFmpeg_LIBS)
+    set(swresample_LIBS)
+    if(WIN32)
+        set(FFmpeg_FOUND TRUE)
+        set(FFmpeg_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/avdevice.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avformat.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avcodec.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/swscale.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avutil.lib)
+        set(swresample_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib)
+    else()
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(
+            swresample REQUIRED IMPORTED_TARGET
+            libswresample)
+        pkg_check_modules(
+            FFmpeg REQUIRED IMPORTED_TARGET
+            libavdevice
+            libavformat
+            libavcodec
+            libswresample
+            libswscale
+            libavutil)
+    endif()
     if(FFmpeg_FOUND)
         add_definitions(-DTLRENDER_FFMPEG)
     endif()

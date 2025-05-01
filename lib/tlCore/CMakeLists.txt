@@ -49,7 +49,7 @@ if(TLRENDER_SDL3)
     list(APPEND LIBRARIES_PRIVATE SDL3::SDL3-static)
 endif()
 if(TLRENDER_FFMPEG)
-    list(APPEND LIBRARIES_PRIVATE PkgConfig::swresample)
+    list(APPEND LIBRARIES_PRIVATE ${swresample_LIBS})
 endif()
 list(APPEND LIBRARIES_PRIVATE Threads::Threads)
 
