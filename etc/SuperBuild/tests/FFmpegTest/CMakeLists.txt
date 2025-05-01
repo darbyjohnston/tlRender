@@ -11,6 +11,6 @@ pkg_check_modules(
 set(source main.cpp)
 
 add_executable(FFmpegTest ${header} ${source})
-target_link_libraries(FFmpegTest FFmpeg)
+target_link_libraries(FFmpegTest PkgConfig::FFmpeg)
 
 add_test(FFmpegTest FFmpegTest)
