@@ -1,0 +1,29 @@
+@PACKAGE_INIT@
+
+# \todo Is this the correct way to locate the custom Find*.cmake files?
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+include(CMakeFindDependencyMacro)
+#find_dependency(Threads)
+#find_dependency(nlohmann_json)
+#find_dependency(OTIO)
+#if(@TLRENDER_OCIO@)
+#    find_dependency(OpenColorIO)
+#endif()
+#find_dependency(dtk)
+
+include("${CMAKE_CURRENT_LIST_DIR}/tlResourceTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlCoreTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlIOTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlDeviceTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlTimelineTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlTimelineGLTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlTimelineUITargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlQtTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlQtWidgetTargets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/tlQtQuickTargets.cmake")
+
+# \todo Is this the correct way to add the include directory?
+include_directories("@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+check_required_components(tlRender)

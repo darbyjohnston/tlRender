@@ -37,8 +37,15 @@ target_link_libraries(tlTimelineUI PUBLIC tlTimelineGL dtk::dtkUI)
 set_target_properties(tlTimelineUI PROPERTIES FOLDER lib)
 set_target_properties(tlTimelineUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS tlTimelineUI
+install(
+    TARGETS tlTimelineUI
+    EXPORT tlTimelineUITargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlTimelineUI)
+install(
+    EXPORT tlTimelineUITargets
+    FILE tlTimelineUITargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

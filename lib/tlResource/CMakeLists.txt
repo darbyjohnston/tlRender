@@ -55,7 +55,13 @@ set_target_properties(tlResource PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
 install(
     TARGETS tlResource
+    EXPORT tlResourceTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlResource)
+install(
+    EXPORT tlResourceTargets
+    FILE tlResourceTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

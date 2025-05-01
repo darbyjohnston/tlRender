@@ -50,7 +50,7 @@ endif()
 if(TLRENDER_TIFF)
     list(APPEND HEADERS_PRIVATE TIFF.h)
     list(APPEND SOURCE TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
-    list(APPEND LIBRARIES_PRIVATE TIFF)
+    list(APPEND LIBRARIES_PRIVATE TIFF::TIFF)
 endif()
 if(TLRENDER_STB)
     list(APPEND HEADERS_PRIVATE STB.h)
@@ -70,7 +70,7 @@ if(TLRENDER_FFMPEG)
     list(APPEND HEADERS_PRIVATE FFmpeg.h FFmpegReadPrivate.h)
     list(APPEND SOURCE FFmpeg.cpp FFmpegRead.cpp FFmpegReadAudio.cpp
         FFmpegReadVideo.cpp FFmpegWrite.cpp)
-    list(APPEND LIBRARIES_PRIVATE FFmpeg)
+    list(APPEND LIBRARIES_PRIVATE PkgConfig::FFmpeg)
 endif()
 if(TLRENDER_USD)
     list(APPEND HEADERS_PRIVATE USD.h USDPrivate.h)
@@ -79,13 +79,21 @@ if(TLRENDER_USD)
 endif()
 list(APPEND LIBRARIES tlCore dtk::dtkGL)
 
-add_library(tlIO ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
+add_library(tlIO ${HEADERS})
+target_sources(tlIO PRIVATE ${HEADERS_PRIVATE} ${SOURCE})
 target_link_libraries(tlIO PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlIO PROPERTIES FOLDER lib)
 set_target_properties(tlIO PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS tlIO
+install(
+    TARGETS tlIO
+    EXPORT tlIOTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlIO)
+install(
+    EXPORT tlIOTargets
+    FILE tlIOTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

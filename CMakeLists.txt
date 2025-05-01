@@ -128,7 +128,7 @@ find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(minizip REQUIRED)
-find_package(OTIO REQUIRED)
+find_package(OpenTimelineIO REQUIRED)
 
 # OpenColorIO dependencies
 if(TLRENDER_OCIO)
@@ -175,7 +175,18 @@ if(TLRENDER_EXR)
     endif()
 endif()
 if(TLRENDER_FFMPEG)
-    find_package(FFmpeg)
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(
+        swresample REQUIRED IMPORTED_TARGET
+        libswresample)
+    pkg_check_modules(
+        FFmpeg REQUIRED IMPORTED_TARGET
+        libavdevice
+        libavformat
+        libavcodec
+        libswresample
+        libswscale
+        libavutil)
     if(FFmpeg_FOUND)
         add_definitions(-DTLRENDER_FFMPEG)
     endif()

@@ -31,8 +31,15 @@ target_link_libraries(tlQtWidget ${LIBRARIES})
 set_target_properties(tlQtWidget PROPERTIES FOLDER lib)
 set_target_properties(tlQtWidget PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS tlQtWidget
+install(
+    TARGETS tlQtWidget
+    EXPORT tlQtWidgetTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlQtWidget)
+install(
+    EXPORT tlQtWidgetTargets
+    FILE tlQtWidgetTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

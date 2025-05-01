@@ -37,8 +37,8 @@ else()
         PathUnix.cpp)
 endif()
 
-set(LIBRARIES tlResource dtk::dtkCore OTIO Imath::Imath nlohmann_json::nlohmann_json)
-set(LIBRARIES_PRIVATE Freetype::Freetype MINIZIP::minizip ZLIB)
+set(LIBRARIES tlResource dtk::dtkCore OTIO::opentimelineio Imath::Imath nlohmann_json::nlohmann_json)
+set(LIBRARIES_PRIVATE Freetype::Freetype MINIZIP::minizip ZLIB::ZLIB)
 if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()
@@ -49,7 +49,7 @@ if(TLRENDER_SDL3)
     list(APPEND LIBRARIES_PRIVATE SDL3::SDL3-static)
 endif()
 if(TLRENDER_FFMPEG)
-    list(APPEND LIBRARIES_PRIVATE FFmpeg::swresample)
+    list(APPEND LIBRARIES_PRIVATE PkgConfig::swresample)
 endif()
 list(APPEND LIBRARIES_PRIVATE Threads::Threads)
 
@@ -58,8 +58,15 @@ target_link_libraries(tlCore PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlCore PROPERTIES FOLDER lib)
 set_target_properties(tlCore PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS tlCore
+install(
+    TARGETS tlCore
+    EXPORT tlCoreTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlCore)
+install(
+    EXPORT tlCoreTargets
+    FILE tlCoreTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

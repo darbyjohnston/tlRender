@@ -52,8 +52,15 @@ target_link_libraries(tlTimeline tlIO)
 set_target_properties(tlTimeline PROPERTIES FOLDER lib)
 set_target_properties(tlTimeline PROPERTIES PUBLIC_HEADER "${HEADERS}")
 
-install(TARGETS tlTimeline
+install(
+    TARGETS tlTimeline
+    EXPORT tlTimelineTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlTimeline)
+install(
+    EXPORT tlTimelineTargets
+    FILE tlTimelineTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)

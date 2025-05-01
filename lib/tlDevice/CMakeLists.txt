@@ -79,8 +79,9 @@ if(TLRENDER_BMD)
     endif()
 endif()
 
-add_library(tlDevice ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_include_directories(tlDevice PUBLIC ${INCLUDE_DIRS})
+add_library(tlDevice ${HEADERS})
+target_sources(tlDevice PRIVATE ${HEADERS_PRIVATE} ${SOURCE})
+target_include_directories(tlDevice PRIVATE ${INCLUDE_DIRS})
 target_link_libraries(tlDevice PUBLIC ${LIBRARIES} PRIVATE ${LIBRARIES_PRIVATE})
 set_target_properties(tlDevice PROPERTIES FOLDER lib)
 set_target_properties(tlDevice PROPERTIES PUBLIC_HEADER "${HEADERS}")
@@ -90,8 +91,15 @@ if(TLRENDER_BMD)
     endif()
 endif()
 
-install(TARGETS tlDevice
+install(
+    TARGETS tlDevice
+    EXPORT tlDeviceTargets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
     PUBLIC_HEADER DESTINATION include/tlRender/tlDevice)
+install(
+    EXPORT tlDeviceTargets
+    FILE tlDeviceTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)
