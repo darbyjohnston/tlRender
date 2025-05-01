@@ -201,6 +201,8 @@ if(TLRENDER_FFMPEG)
             libswresample
             libswscale
             libavutil)
+        set(FFmpeg_LIBS PkgConfig::FFmpeg)
+        set(swresample_LIBS PkgConfig::swresample)
     endif()
     if(FFmpeg_FOUND)
         add_definitions(-DTLRENDER_FFMPEG)
