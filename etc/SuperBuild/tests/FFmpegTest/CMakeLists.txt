@@ -7,6 +7,7 @@ if(WIN32)
         ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib
         ${CMAKE_INSTALL_PREFIX}/lib/swscale.lib
         ${CMAKE_INSTALL_PREFIX}/lib/avutil.lib)
+    include_directories(${CMAKE_INSTALL_PREFIX}/include)
 else()
     find_package(PkgConfig REQUIRED)
     pkg_check_modules(
