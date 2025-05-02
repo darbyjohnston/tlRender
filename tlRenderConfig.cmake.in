@@ -4,13 +4,114 @@
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
 include(CMakeFindDependencyMacro)
-#find_dependency(Threads)
-#find_dependency(nlohmann_json)
-#find_dependency(OTIO)
-#if(@TLRENDER_OCIO@)
-#    find_dependency(OpenColorIO)
-#endif()
-#find_dependency(dtk)
+
+# Base dependencies
+find_package(Imath REQUIRED)
+find_package(nlohmann_json REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(minizip REQUIRED)
+find_package(OpenTimelineIO REQUIRED)
+
+# OpenColorIO dependencies
+if(@TLRENDER_OCIO@)
+    find_package(OpenColorIO REQUIRED)
+    add_definitions(-DTLRENDER_OCIO)
+endif()
+
+# SDL dependencies
+if(@TLRENDER_SDL2@)
+    find_package(SDL2 REQUIRED)
+    add_definitions(-DTLRENDER_SDL2)
+endif()
+if(@TLRENDER_SDL3@)
+    find_package(SDL3 REQUIRED)
+    add_definitions(-DTLRENDER_SDL3)
+endif()
+
+# I/O dependencies
+if(@TLRENDER_JPEG@)
+    find_package(libjpeg-turbo)
+    if(libjpeg-turbo_FOUND)
+        add_definitions(-DTLRENDER_JPEG)
+    endif()
+endif()
+if(@TLRENDER_TIFF@)
+    find_package(TIFF)
+    if(TIFF_FOUND)
+        add_definitions(-DTLRENDER_TIFF)
+    endif()
+endif()
+if(@TLRENDER_STB@)
+    add_definitions(-DTLRENDER_STB)
+endif()
+if(@TLRENDER_PNG@)
+    find_package(PNG)
+    if(PNG_FOUND)
+        add_definitions(-DTLRENDER_PNG)
+    endif()
+endif()
+if(@TLRENDER_EXR@)
+    find_package(OpenEXR)
+    if(OpenEXR_FOUND)
+        add_definitions(-DTLRENDER_EXR)
+    endif()
+endif()
+if(@TLRENDER_FFMPEG@)
+    set(FFmpeg_LIBS)
+    set(swresample_LIBS)
+    if(WIN32)
+        set(FFmpeg_FOUND TRUE)
+        set(FFmpeg_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/avdevice.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avformat.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avcodec.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/swscale.lib
+            ${CMAKE_INSTALL_PREFIX}/lib/avutil.lib)
+        set(swresample_LIBS
+            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib)
+    else()
+        find_package(PkgConfig REQUIRED)
+        pkg_check_modules(
+            swresample REQUIRED IMPORTED_TARGET
+            libswresample)
+        pkg_check_modules(
+            FFmpeg REQUIRED IMPORTED_TARGET
+            libavdevice
+            libavformat
+            libavcodec
+            libswresample
+            libswscale
+            libavutil)
+        set(FFmpeg_LIBS PkgConfig::FFmpeg)
+        set(swresample_LIBS PkgConfig::swresample)
+    endif()
+    if(FFmpeg_FOUND)
+        add_definitions(-DTLRENDER_FFMPEG)
+    endif()
+endif()
+if(@TLRENDER_USD@)
+    find_package(pxr)
+    if(pxr_FOUND)
+        add_definitions(-DTLRENDER_USD)
+    endif()
+endif()
+
+# dtk dependencies
+find_package(dtk REQUIRED)
+
+# Qt dependencies
+if(@TLRENDER_QT6@)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
+    find_package(Qt6 REQUIRED COMPONENTS Quick Widgets OpenGLWidgets Svg HINTS "$ENV{QTDIR}")
+elseif(@TLRENDER_QT5@)
+    set(CMAKE_AUTOMOC ON)
+    set(CMAKE_AUTORCC ON)
+    set(CMAKE_AUTOUIC ON)
+    find_package(Qt5 REQUIRED COMPONENTS Quick Widgets Svg HINTS "$ENV{QTDIR}")
+endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/tlResourceTargets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/tlCoreTargets.cmake")

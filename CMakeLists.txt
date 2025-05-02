@@ -215,14 +215,6 @@ if(TLRENDER_USD)
     endif()
 endif()
 
-# Native file dialog dependencies
-if(TLRENDER_NFD)
-    find_package(NFD)
-    if(NFD_FOUND)
-        add_definitions(-DTLRENDER_NFD)
-    endif()
-endif()
-
 # dtk dependencies
 find_package(dtk REQUIRED)
 
