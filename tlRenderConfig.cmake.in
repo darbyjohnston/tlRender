@@ -57,19 +57,35 @@ if(@TLRENDER_EXR@)
     endif()
 endif()
 if(@TLRENDER_FFMPEG@)
-    set(FFmpeg_LIBS)
-    set(swresample_LIBS)
     if(WIN32)
         set(FFmpeg_FOUND TRUE)
-        set(FFmpeg_LIBS
-            ${CMAKE_INSTALL_PREFIX}/lib/avdevice.lib
-            ${CMAKE_INSTALL_PREFIX}/lib/avformat.lib
-            ${CMAKE_INSTALL_PREFIX}/lib/avcodec.lib
-            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib
-            ${CMAKE_INSTALL_PREFIX}/lib/swscale.lib
-            ${CMAKE_INSTALL_PREFIX}/lib/avutil.lib)
-        set(swresample_LIBS
-            ${CMAKE_INSTALL_PREFIX}/lib/swresample.lib)
+        add_library(FFmpeg::avdevice STATIC IMPORTED)
+        set_property(TARGET FFmpeg::avdevice PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/avdevice.lib")
+        add_library(FFmpeg::avformat STATIC IMPORTED)
+        set_property(TARGET FFmpeg::avformat PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/avformat.lib")
+        add_library(FFmpeg::avcodec STATIC IMPORTED)
+        set_property(TARGET FFmpeg::avcodec PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/avcodec.lib")
+        add_library(FFmpeg::swresample STATIC IMPORTED)
+        set_property(TARGET FFmpeg::swresample PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/swresample.lib")
+        add_library(FFmpeg::swscale STATIC IMPORTED)
+        set_property(TARGET FFmpeg::swscale PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/swscale.lib")
+        add_library(FFmpeg::avutil STATIC IMPORTED)
+        set_property(TARGET FFmpeg::avutil PROPERTY
+             IMPORTED_LOCATION "${CMAKE_INSTALL_PREFIX}/lib/avutil.lib")
+        add_library(FFmpeg::FFmpeg INTERFACE IMPORTED)
+        set_property(TARGET FFmpeg::FFmpeg PROPERTY
+            INTERFACE_LINK_LIBRARIES
+            FFmpeg::avdevice
+            FFmpeg::avformat
+            FFmpeg::avcodec
+            FFmpeg::swresample
+            FFmpeg::swscale
+            FFmpeg::avutil)
     else()
         find_package(PkgConfig REQUIRED)
         pkg_check_modules(
@@ -83,8 +99,8 @@ if(@TLRENDER_FFMPEG@)
             libswresample
             libswscale
             libavutil)
-        set(FFmpeg_LIBS PkgConfig::FFmpeg)
-        set(swresample_LIBS PkgConfig::swresample)
+        add_library(FFmpeg::FFmpeg ALIAS PkgConfig::FFmpeg)
+        add_library(FFmpeg::swresample ALIAS PkgConfig::swresample)
     endif()
     if(FFmpeg_FOUND)
         add_definitions(-DTLRENDER_FFMPEG)
