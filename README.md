@@ -24,7 +24,8 @@ Features:
 * Support for movie files, image sequences, and OpenTimelineIO .otio and .otioz files
 * A/B comparison with multiple modes including wipe, overlay, difference, and tile
 * Color management with OpenColorIO
-* Audio playback: multi-channel, multi-track, variable speed, and reverse
+* Multi-track, variable speed, and reverse audio playback
+* Support for Linux, macOS, and Windows
 
 Experimental:
 * USD support
