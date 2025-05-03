@@ -26,11 +26,11 @@ Features:
 * Color management with OpenColorIO
 * Audio playback: multi-channel, multi-track, variable speed, and reverse
 
-Work in progress:
+Experimental:
 * USD support
 
 
-# Dependencies
+# Building Dependencies
 
 A CMake super build script is provided to build all of the dependencies from
 source except for Qt. If building with Qt is enabled, it needs to be installed
