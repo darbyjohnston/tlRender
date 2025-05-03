@@ -6,8 +6,6 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <OpenEXR/ImfChannelList.h>
-
 namespace tl
 {
     //! OpenEXR image I/O.

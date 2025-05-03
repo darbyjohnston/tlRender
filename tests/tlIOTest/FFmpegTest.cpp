@@ -31,18 +31,7 @@ namespace tl
 
         void FFmpegTest::run()
         {
-            _util();
             _io();
-        }
-
-        void FFmpegTest::_util()
-        {
-            {
-                const AVRational r = { 1, 2 };
-                const AVRational rs = ffmpeg::swap(r);
-                DTK_ASSERT(r.num == rs.den);
-                DTK_ASSERT(r.den == rs.num);
-            }
         }
 
         namespace

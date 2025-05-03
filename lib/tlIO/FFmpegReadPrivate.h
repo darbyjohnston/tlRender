@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <tlIO/FFmpeg.h>
+#include <tlIO/FFmpegPrivate.h>
 
 extern "C"
 {

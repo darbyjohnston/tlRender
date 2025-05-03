@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <tlIO/JPEG.h>
+#include <tlIO/JPEGPrivate.h>
 
 #include <dtk/core/Format.h>
 

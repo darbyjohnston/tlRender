@@ -21,7 +21,6 @@ namespace tl
             void run() override;
 
         private:
-            void _util();
             void _io();
         };
     }
