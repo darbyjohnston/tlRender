@@ -269,6 +269,30 @@ namespace tl
                 arg(videoLevels);
         }
 
+        std::string dissolveFragmentSource()
+        {
+            return
+                "precision mediump float;\n"
+                "\n"
+                "varying vec2 fTexture;\n"
+                "\n"
+                "uniform float     dissolve;\n"
+                "uniform sampler2D textureSampler;\n"
+                "uniform sampler2D textureSampler2;\n"
+                "\n"
+                "void main()\n"
+                "{\n"
+                "\n"
+                "    vec4 c = texture2D(textureSampler, fTexture);\n"
+                "    vec4 c2 = texture2D(textureSampler2, fTexture);\n"
+                "    float idissolve = 1.0 - dissolve;\n"
+                "    gl_FragColor.r = c.r * idissolve + c2.r * dissolve;\n"
+                "    gl_FragColor.g = c.g * idissolve + c2.g * dissolve;\n"
+                "    gl_FragColor.b = c.b * idissolve + c2.b * dissolve;\n"
+                "    gl_FragColor.a = c.a * idissolve + c2.a * dissolve;\n"
+                "}\n";
+        }
+
         std::string differenceFragmentSource()
         {
             return
