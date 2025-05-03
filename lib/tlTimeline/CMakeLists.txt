@@ -17,6 +17,7 @@ set(HEADERS
     TimelineOptions.h
     Transition.h
     Util.h
+    UtilInline.h
     Video.h)
 set(PRIVATE_HEADERS
     PlayerPrivate.h
