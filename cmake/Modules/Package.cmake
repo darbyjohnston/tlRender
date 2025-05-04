@@ -103,7 +103,7 @@ if(WIN32)
 
 elseif(APPLE)
 
-    set(CPACK_GENERATOR Bundle)
+    set(CPACK_GENERATOR ZIP)
 
     list(APPEND CMAKE_INSTALL_RPATH
         "@executable_path/../lib")
@@ -253,13 +253,6 @@ elseif(APPLE)
     install(
         FILES ${INSTALL_DYLIBS}
         DESTINATION lib)
-
-    set(CPACK_BUNDLE_NAME ${PROJECT_NAME})
-    configure_file(
-        ${PROJECT_SOURCE_DIR}/etc/macOS/Info.plist.in
-        ${PROJECT_BINARY_DIR}/Info.plist)
-    set(CPACK_BUNDLE_PLIST ${PROJECT_BINARY_DIR}/Info.plist)
-    set(CPACK_BUNDLE_ICON ${PROJECT_SOURCE_DIR}/etc/macOS/tlRender.icns)
 
 else()
 

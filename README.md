@@ -31,7 +31,10 @@ Experimental:
 * USD support
 
 
-# Building Dependencies
+Building
+========
+
+## Building Dependencies
 
 A CMake super build script is provided to build all of the dependencies from
 source except for Qt. If building with Qt is enabled, it needs to be installed
@@ -58,7 +61,7 @@ Optional dependencies:
 * [Qt version 5 or 6](https://www.qt.io)
 
 
-# Building on Linux
+## Building on Linux
 
 Clone the repository:
 ```
@@ -80,7 +83,7 @@ export LD_LIBRARY_PATH=$PWD/Release/install/lib:$LD_LIBRARY_PATH
 ./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
-## Building on Linux with Qt 6
+### Building on Linux with Qt 6
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
@@ -88,7 +91,7 @@ and enable `TLRENDER_QT6`:
 cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Building on Linux with Qt 5
+### Building on Linux with Qt 5
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
@@ -96,14 +99,14 @@ and enable `TLRENDER_QT5`:
 cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Minimal build on Linux
+### Minimal build on Linux
 
 Build with only the minimal required dependencies:
 ```
 cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_STB=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
 ```
 
-## Notes for building on Linux
+### Notes for building on Linux
 
 Example for running gcovr for code coverage:
 ```
@@ -111,7 +114,7 @@ gcovr -r ../../../../lib --html --object-directory lib --html-details --output g
 ```
 
 
-# Building on macOS
+## Building on macOS
 
 Clone the repository:
 ```
@@ -130,7 +133,7 @@ Try running the `tlplay` application:
 ./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
-## Building on macOS with Qt 6
+### Building on macOS with Qt 6
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
@@ -138,7 +141,7 @@ and enable `TLRENDER_QT6`:
 cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Building on macOS with Qt 5
+### Building on macOS with Qt 5
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
@@ -146,7 +149,7 @@ and enable `TLRENDER_QT5`:
 cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Notes for building on macOS
+### Notes for building on macOS
 
 The CMake variable `CMAKE_OSX_ARCHITECTURES` can be used to specify the build
 architecture:
@@ -164,7 +167,7 @@ alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 ```
 
 
-# Building on Windows
+## Building on Windows
 
 Dependencies:
 * Install MSYS2 (https://www.msys2.org) for compiling FFmpeg.
@@ -191,7 +194,7 @@ set PATH=%CD%\Release\install\bin;%PATH%
 .\Release\tlRender\src\tlRender-build\bin\tlplay\Release\tlplay tlRender\etc\SampleData\MultipleClips.otio
 ```
 
-## Building on Windows with Qt 6
+### Building on Windows with Qt 6
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT6`:
@@ -199,7 +202,7 @@ and enable `TLRENDER_QT6`:
 cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH="%CD%\Release\install;C:\Qt\6.5.3\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
 ```
 
-## Building on Windows with Qt 5
+### Building on Windows with Qt 5
 
 Add the Qt location to `CMAKE_PREFIX_PATH` (place double quotes around the list of paths)
 and enable `TLRENDER_QT5`:
