@@ -1,4 +1,3 @@
-add_subdirectory(player)
 add_subdirectory(render)
 add_subdirectory(test-patterns)
 if(TLRENDER_QT6 OR TLRENDER_QT5)
