@@ -210,6 +210,7 @@ elseif(APPLE)
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_kind.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_ndr.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_pcp.dylib
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_pegtl.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_plug.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_pxOsd.dylib
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_sdf.dylib

@@ -1,16 +1,16 @@
 include(ExternalProject)
 
 set(ZLIB_GIT_REPOSITORY "https://github.com/madler/zlib.git")
-set(ZLIB_GIT_TAG "v1.2.13")
+set(ZLIB_GIT_TAG "v1.3.1")
 
 set(ZLIB_PATCH ${CMAKE_COMMAND} -E copy_if_different
     ${CMAKE_CURRENT_SOURCE_DIR}/ZLIB-patch/CMakeLists.txt
     ${CMAKE_CURRENT_BINARY_DIR}/ZLIB/src/ZLIB/CMakeLists.txt)
-if(WIN32)
-    list(APPEND ZLIB_PATCH COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        ${CMAKE_CURRENT_SOURCE_DIR}/ZLIB-patch/zconf.h.cmakein
-        ${CMAKE_CURRENT_BINARY_DIR}/ZLIB/src/ZLIB/zconf.h.cmakein)
-endif()
+#if(WIN32)
+#    list(APPEND ZLIB_PATCH COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#        ${CMAKE_CURRENT_SOURCE_DIR}/ZLIB-patch/zconf.h.cmakein
+#        ${CMAKE_CURRENT_BINARY_DIR}/ZLIB/src/ZLIB/zconf.h.cmakein)
+#endif()
 
 set(ZLIB_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
