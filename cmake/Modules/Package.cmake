@@ -56,6 +56,7 @@ if(WIN32)
             ${CMAKE_INSTALL_PREFIX}/bin/usd_kind.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_ndr.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_pcp.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/usd_pegtl.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_plug.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_pxOsd.dll
             ${CMAKE_INSTALL_PREFIX}/bin/usd_sdf.dll
@@ -363,6 +364,7 @@ else()
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_kind.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_ndr.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_pcp.so
+            ${CMAKE_INSTALL_PREFIX}/lib/libusd_pegtl.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_plug.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_pxOsd.so
             ${CMAKE_INSTALL_PREFIX}/lib/libusd_sdf.so
