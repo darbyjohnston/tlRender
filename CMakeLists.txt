@@ -287,7 +287,7 @@ endif()
 if(TLRENDER_EXAMPLES)
     add_subdirectory(examples)
 endif()
-add_subdirectory(etc)
+add_subdirectory(etc/Legal)
 
 include(CMakePackageConfigHelpers)
 set(INCLUDE_INSTALL_DIR include/tlRender)
