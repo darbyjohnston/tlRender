@@ -76,13 +76,10 @@ namespace tl
                         //! \todo How should this be handled?
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = dtk::Format("tl::io::ISequenceRead ({0}: {1})").
-                                arg(__FILE__).
-                                arg(__LINE__);
-                            const std::string s = dtk::Format("{0}: {1}").
-                                arg(_path.get()).
-                                arg(e.what());
-                            logSystem->print(id, s, dtk::LogType::Error);
+                            logSystem->print(
+                                "tl::io::ISequenceRead",
+                                e.what(),
+                                dtk::LogType::Error);
                         }
                     }
                     _finishRequests();

@@ -12,6 +12,7 @@
 #include "PlaybackActions.h"
 #include "PlaybackBar.h"
 #include "SettingsWidget.h"
+#include "StatusBar.h"
 #include "TabBar.h"
 #include "ToolBars.h"
 #include "ViewActions.h"
@@ -75,6 +76,8 @@ namespace tl
                 app->getTimeUnitsModel());
             _timelineWidget->setVStretch(dtk::Stretch::Expanding);
 
+            _statusBar = StatusBar::create(context, app);
+
             _settingsWidget = SettingsWidget::create(context, app);
             _settingsWidget->hide();
 
@@ -96,6 +99,8 @@ namespace tl
             _playbackBar->setParent(vLayout);
             dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
             _timelineWidget->setParent(vLayout);
+            dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+            _statusBar->setParent(vLayout);
 
             _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),

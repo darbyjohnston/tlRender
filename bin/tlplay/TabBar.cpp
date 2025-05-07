@@ -63,8 +63,7 @@ namespace tl
         }
 
         TabBar::~TabBar()
-        {
-        }
+        {}
 
         std::shared_ptr<TabBar> TabBar::create(
             const std::shared_ptr<dtk::Context>& context,

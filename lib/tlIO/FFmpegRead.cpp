@@ -167,12 +167,9 @@ namespace tl
                                     if (auto logSystem = _logSystem.lock())
                                     {
                                         //! \todo How should this be handled?
-                                        const std::string id = dtk::Format("tl::io::ffmpeg::Read ({0}: {1})").
-                                            arg(__FILE__).
-                                            arg(__LINE__);
-                                        logSystem->print(id, dtk::Format("{0}: {1}").
-                                            arg(_path.get()).
-                                            arg(e.what()),
+                                        logSystem->print(
+                                            "tl::io::ffmpeg::Read",
+                                            e.what(),
                                             dtk::LogType::Error);
                                     }
                                 }
@@ -184,12 +181,9 @@ namespace tl
                     {
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = dtk::Format("tl::io::ffmpeg::Read ({0}: {1})").
-                                arg(__FILE__).
-                                arg(__LINE__);
-                            logSystem->print(id, dtk::Format("{0}: {1}").
-                                arg(_path.get()).
-                                arg(e.what()),
+                            logSystem->print(
+                                "tl::io::ffmpeg::Read",
+                                e.what(),
                                 dtk::LogType::Error);
                         }
                     }

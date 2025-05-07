@@ -10,6 +10,7 @@ set(HEADERS
     RecentFilesModel.h
     SettingsModel.h
     SettingsWidget.h
+    StatusBar.h
     TabBar.h
     ToolBars.h
     ViewActions.h
@@ -26,6 +27,7 @@ set(SOURCE
     RecentFilesModel.cpp
     SettingsModel.cpp
     SettingsWidget.cpp
+    StatusBar.cpp
     TabBar.cpp
     ToolBars.cpp
     ViewActions.cpp

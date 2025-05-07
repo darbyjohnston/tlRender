@@ -26,6 +26,7 @@ namespace tl
         class PlaybackActions;
         class PlaybackBar;
         class SettingsWidget;
+        class StatusBar;
         class TabBar;
         class ViewActions;
         class WindowActions;
@@ -71,6 +72,7 @@ namespace tl
             std::shared_ptr<TabBar> _tabBar;
             std::shared_ptr<PlaybackBar> _playbackBar;
             std::shared_ptr<timelineui::TimelineWidget> _timelineWidget;
+            std::shared_ptr<StatusBar> _statusBar;
             std::shared_ptr<SettingsWidget> _settingsWidget;
             std::shared_ptr<dtk::Splitter> _splitter;
             std::shared_ptr<dtk::Splitter> _splitter2;
