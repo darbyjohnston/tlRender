@@ -14,7 +14,8 @@ set(HEADERS
     Path.h
     PathInline.h
     Time.h
-    TimeInline.h)
+    TimeInline.h
+    URL.h)
 
 set(SOURCE
     Audio.cpp
@@ -26,7 +27,8 @@ set(SOURCE
     ISystem.cpp
     Init.cpp
     Path.cpp
-    Time.cpp)
+    Time.cpp
+    URL.cpp)
 if (WIN32)
     list(APPEND SOURCE
         FileInfoWin32.cpp

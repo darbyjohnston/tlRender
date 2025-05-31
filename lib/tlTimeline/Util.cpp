@@ -9,6 +9,7 @@
 #include <tlIO/System.h>
 
 #include <tlCore/FileInfo.h>
+#include <tlCore/URL.h>
 
 #include <dtk/core/Assert.h>
 #include <dtk/core/Context.h>
@@ -232,7 +233,7 @@ namespace tl
             const std::string& directory,
             const file::PathOptions& pathOptions)
         {
-            file::Path out(url, pathOptions);
+            file::Path out(url::decode(url), pathOptions);
             if (out.isFileProtocol() && !out.isAbsolute())
             {
                 out.setDirectory(file::appendSeparator(directory) + out.getDirectory());
