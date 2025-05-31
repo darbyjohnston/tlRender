@@ -46,6 +46,7 @@
 #include <tlCoreTest/HDRTest.h>
 #include <tlCoreTest/PathTest.h>
 #include <tlCoreTest/TimeTest.h>
+#include <tlCoreTest/URLTest.h>
 
 #include <tlTimeline/Init.h>
 
@@ -66,6 +67,7 @@ void coreTests(
     tests.push_back(core_tests::HDRTest::create(context));
     tests.push_back(core_tests::PathTest::create(context));
     tests.push_back(core_tests::TimeTest::create(context));
+    tests.push_back(core_tests::URLTest::create(context));
 }
 
 void ioTests(
@@ -146,7 +148,7 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    //tests.push_back(timeline_tests::TimelineTest::create(context));
+    //tests.push_back(core_tests::URLTest::create(context));
     coreTests(tests, context);
     ioTests(tests, context);
     timelineTests(tests, context);

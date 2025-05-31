@@ -3,14 +3,16 @@ set(HEADERS
     FileInfoTest.h
     HDRTest.h
     PathTest.h
-    TimeTest.h)
+    TimeTest.h
+    URLTest.h)
 
 set(SOURCE
     AudioTest.cpp
     FileInfoTest.cpp
     HDRTest.cpp
     PathTest.cpp
-    TimeTest.cpp)
+    TimeTest.cpp
+    URLTest.cpp)
 
 add_library(tlCoreTest ${SOURCE} ${HEADERS})
 target_link_libraries(tlCoreTest tlTestLib)

@@ -53,31 +53,33 @@ namespace tl
             std::string out;
 
             // Find all percent encodings.
-            size_t url_pos = 0;
+            size_t pos = 0;
             const std::regex rx("(%[0-9A-Fa-f][0-9A-Fa-f])");
             for (auto i = std::sregex_iterator(url.begin(), url.end(), rx);
                 i != std::sregex_iterator();
                 ++i)
             {
                 // Copy parts without any encodings.
-                if (url_pos != static_cast<size_t>(i->position()))
+                if (pos != static_cast<size_t>(i->position()))
                 {
-                    out.append(url.substr(url_pos, i->position() - url_pos));
-                    url_pos = i->position() + i->str().size();
+                    out.append(url.substr(pos, i->position() - pos));
+                    pos = i->position();
                 }
 
                 // Convert the encoding and append it.
                 std::stringstream ss;
-                ss << std::hex << i->str().substr(1);
+                const std::string s = i->str().substr(1);
+                ss << std::hex << s;
                 unsigned int j = 0;
                 ss >> j;
                 out.push_back(char(j));
+                pos += 1 + s.size();
             }
 
             // Copy the remainder without any encodings.
-            if (!url.empty() && url_pos != url.size() - 1)
+            if (!url.empty() && pos != url.size() - 1)
             {
-                out.append(url.substr(url_pos, url.size() - url_pos));
+                out.append(url.substr(pos, url.size() - pos));
             }
 
             return out;
