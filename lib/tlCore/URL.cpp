@@ -68,12 +68,11 @@ namespace tl
 
                 // Convert the encoding and append it.
                 std::stringstream ss;
-                const std::string s = i->str().substr(1);
-                ss << std::hex << s;
+                ss << std::hex << i->str().substr(1);
                 unsigned int j = 0;
                 ss >> j;
                 out.push_back(char(j));
-                pos += 1 + s.size();
+                pos += i->str().size();
             }
 
             // Copy the remainder without any encodings.

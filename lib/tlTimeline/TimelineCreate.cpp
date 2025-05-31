@@ -10,6 +10,7 @@
 #include <tlIO/System.h>
 
 #include <tlCore/FileInfo.h>
+#include <tlCore/URL.h>
 
 #include <dtk/core/Context.h>
 #include <dtk/core/Format.h>
@@ -183,7 +184,7 @@ namespace tl
                             dynamic_cast<OTIO_NS::ExternalReference*>(clip->media_reference()))
                         {
                             const std::string mediaFileName = file::Path(
-                                externalReference->target_url()).get();
+                                url::decode(externalReference->target_url())).get();
 
                             int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                             if (err != MZ_OK)
@@ -223,7 +224,7 @@ namespace tl
                                 ++number)
                             {
                                 const std::string mediaFileName = file::Path(
-                                    imageSequenceReference->target_url_for_image_number(number)).get();
+                                    url::decode(imageSequenceReference->target_url_for_image_number(number))).get();
 
                                 int32_t err = mz_zip_reader_locate_entry(zipReader.reader, mediaFileName.c_str(), 0);
                                 if (err != MZ_OK)
