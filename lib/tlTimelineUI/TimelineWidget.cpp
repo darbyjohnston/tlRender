@@ -24,7 +24,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<bool> > editable;
             std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
-            std::shared_ptr<dtk::ObservableValue<bool> > scrollToCurrentFrame;
+            std::shared_ptr<dtk::ObservableValue<bool> > autoScroll;
             dtk::KeyModifier scrollKeyModifier = dtk::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
             std::shared_ptr<dtk::ObservableValue<bool> > stopOnScrub;
@@ -83,7 +83,7 @@ namespace tl
 
             p.editable = dtk::ObservableValue<bool>::create(false);
             p.frameView = dtk::ObservableValue<bool>::create(true);
-            p.scrollToCurrentFrame = dtk::ObservableValue<bool>::create(true);
+            p.autoScroll = dtk::ObservableValue<bool>::create(true);
             p.stopOnScrub = dtk::ObservableValue<bool>::create(true);
             p.scrub = dtk::ObservableValue<bool>::create(false);
             p.timeScrub = dtk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
@@ -264,20 +264,20 @@ namespace tl
             _p->scrollWidget->setScrollBarsVisible(value);
         }
 
-        bool TimelineWidget::hasScrollToCurrentFrame() const
+        bool TimelineWidget::hasAutoScroll() const
         {
-            return _p->scrollToCurrentFrame->get();
+            return _p->autoScroll->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrollToCurrentFrame() const
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeAutoScroll() const
         {
-            return _p->scrollToCurrentFrame;
+            return _p->autoScroll;
         }
 
-        void TimelineWidget::setScrollToCurrentFrame(bool value)
+        void TimelineWidget::setAutoScroll(bool value)
         {
             DTK_P();
-            if (p.scrollToCurrentFrame->setIfChanged(value))
+            if (p.autoScroll->setIfChanged(value))
             {
                 _scrollUpdate();
             }
@@ -527,10 +527,6 @@ namespace tl
             {
                 switch (event.key)
                 {
-                case dtk::Key::_0:
-                    event.accept = true;
-                    setViewZoom(1.F, event.pos);
-                    break;
                 case dtk::Key::Equal:
                     event.accept = true;
                     setViewZoom(p.scale * 2.F, event.pos);
@@ -682,7 +678,7 @@ namespace tl
         {
             DTK_P();
             if (p.timelineItem &&
-                p.scrollToCurrentFrame->get() &&
+                p.autoScroll->get() &&
                 !p.scrub->get() &&
                 Private::MouseMode::None == p.mouse.mode)
             {

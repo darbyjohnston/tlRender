@@ -84,14 +84,14 @@ namespace tl
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 
-            //! Get whether to automatically scroll to the current frame.
-            bool hasScrollToCurrentFrame() const;
+            //! Get whether auto-scroll is enabled.
+            bool hasAutoScroll() const;
 
-            //! Observe whether to automatically scroll to the current frame.
-            std::shared_ptr<dtk::IObservableValue<bool> > observeScrollToCurrentFrame() const;
+            //! Observe whether auto-scroll is enabled.
+            std::shared_ptr<dtk::IObservableValue<bool> > observeAutoScroll() const;
 
-            //! Set whether to automatically scroll to the current frame.
-            void setScrollToCurrentFrame(bool);
+            //! Set whether auto-scroll is enabled.
+            void setAutoScroll(bool);
 
             //! Get the mouse scroll key modifier.
             dtk::KeyModifier getScrollKeyModifier() const;
