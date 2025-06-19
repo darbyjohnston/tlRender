@@ -81,6 +81,9 @@ namespace tl
             //! Get whether the scroll bars are visible.
             bool areScrollBarsVisible() const;
 
+            //! Observe whether the scroll bars are visible.
+            std::shared_ptr<dtk::IObservableValue<bool> > observeScrollBarsVisible() const;
+
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 

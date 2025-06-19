@@ -24,6 +24,7 @@ namespace tl
             std::shared_ptr<dtk::ObservableValue<bool> > editable;
             std::shared_ptr<dtk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
+            std::shared_ptr<dtk::ObservableValue<bool> > scrollBarsVisible;
             std::shared_ptr<dtk::ObservableValue<bool> > autoScroll;
             dtk::KeyModifier scrollKeyModifier = dtk::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
@@ -83,6 +84,7 @@ namespace tl
 
             p.editable = dtk::ObservableValue<bool>::create(false);
             p.frameView = dtk::ObservableValue<bool>::create(true);
+            p.scrollBarsVisible = dtk::ObservableValue<bool>::create(true);
             p.autoScroll = dtk::ObservableValue<bool>::create(true);
             p.stopOnScrub = dtk::ObservableValue<bool>::create(true);
             p.scrub = dtk::ObservableValue<bool>::create(false);
@@ -100,6 +102,7 @@ namespace tl
                 context,
                 dtk::ScrollType::Both,
                 shared_from_this());
+            p.scrollWidget->setScrollBarsVisible(p.scrollBarsVisible->get());
             p.scrollWidget->setScrollEventsEnabled(false);
             p.scrollWidget->setBorder(false);
         }
@@ -256,12 +259,21 @@ namespace tl
 
         bool TimelineWidget::areScrollBarsVisible() const
         {
-            return _p->scrollWidget->areScrollBarsVisible();
+            return _p->scrollBarsVisible->get();
+        }
+
+        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrollBarsVisible() const
+        {
+            return _p->scrollBarsVisible;
         }
 
         void TimelineWidget::setScrollBarsVisible(bool value)
         {
-            _p->scrollWidget->setScrollBarsVisible(value);
+            DTK_P();
+            if (p.scrollBarsVisible->setIfChanged(value))
+            {
+                _p->scrollWidget->setScrollBarsVisible(value);
+            }
         }
 
         bool TimelineWidget::hasAutoScroll() const
