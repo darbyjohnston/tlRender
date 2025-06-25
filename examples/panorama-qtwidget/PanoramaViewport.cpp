@@ -89,102 +89,78 @@ namespace tl
                 initializeOpenGLFunctions();
                 feather_tk::gl::initGLAD();
 
-                try
-                {
-                    // Create the sphere mesh.
-                    _sphereMesh = feather_tk::sphere(10.F, 100, 100);
-                    auto vboData = feather_tk::gl::convert(
-                        _sphereMesh,
-                        feather_tk::gl::VBOType::Pos3_F32_UV_U16,
-                        feather_tk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
-                    _sphereVBO = feather_tk::gl::VBO::create(_sphereMesh.triangles.size() * 3, feather_tk::gl::VBOType::Pos3_F32_UV_U16);
-                    _sphereVBO->copy(vboData);
-                    _sphereVAO = feather_tk::gl::VAO::create(feather_tk::gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
+                // Create the sphere mesh.
+                _sphereMesh = feather_tk::sphere(10.F, 100, 100);
+                auto vboData = feather_tk::gl::convert(
+                    _sphereMesh,
+                    feather_tk::gl::VBOType::Pos3_F32_UV_U16,
+                    feather_tk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
+                _sphereVBO = feather_tk::gl::VBO::create(_sphereMesh.triangles.size() * 3, feather_tk::gl::VBOType::Pos3_F32_UV_U16);
+                _sphereVBO->copy(vboData);
+                _sphereVAO = feather_tk::gl::VAO::create(feather_tk::gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
 
-                    // Create the renderer.
-                    if (auto context = _context.lock())
-                    {
-                        _render = timeline_gl::Render::create(context);
-                    }
-
-                    // Create the shader.
-                    const std::string vertexSource =
-                        "#version 410\n"
-                        "\n"
-                        "// Inputs\n"
-                        "in vec3 vPos;\n"
-                        "in vec2 vTexture;\n"
-                        "\n"
-                        "// Outputs\n"
-                        "out vec2 fTexture;\n"
-                        "\n"
-                        "// Uniforms\n"
-                        "uniform struct Transform\n"
-                        "{\n"
-                        "    mat4 mvp;\n"
-                        "} transform;\n"
-                        "\n"
-                        "void main()\n"
-                        "{\n"
-                        "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
-                        "    fTexture = vTexture;\n"
-                        "}\n";
-                    const std::string fragmentSource =
-                        "#version 410\n"
-                        "\n"
-                        "// Inputs\n"
-                        "in vec2 fTexture;\n"
-                        "\n"
-                        "// Outputs\n"
-                        "out vec4 fColor;\n"
-                        "\n"
-                        "// Uniforms\n"
-                        "uniform sampler2D textureSampler;\n"
-                        "\n"
-                        "void main()\n"
-                        "{\n"
-                        "    fColor = texture(textureSampler, fTexture);\n"
-                        "}\n";
-                    _shader = feather_tk::gl::Shader::create(vertexSource, fragmentSource);
-                }
-                catch (const std::exception& e)
+                // Create the renderer.
+                if (auto context = _context.lock())
                 {
-                    // Re-throw the exception to be caught in main().
-                    throw e;
+                    _render = timeline_gl::Render::create(context);
                 }
+
+                // Create the shader.
+                const std::string vertexSource =
+                    "#version 410\n"
+                    "\n"
+                    "in vec3 vPos;\n"
+                    "in vec2 vTexture;\n"
+                    "out vec2 fTexture;\n"
+                    "\n"
+                    "uniform struct Transform\n"
+                    "{\n"
+                    "    mat4 mvp;\n"
+                    "} transform;\n"
+                    "\n"
+                    "void main()\n"
+                    "{\n"
+                    "    gl_Position = vec4(vPos, 1.0) * transform.mvp;\n"
+                    "    fTexture = vTexture;\n"
+                    "}\n";
+                const std::string fragmentSource =
+                    "#version 410\n"
+                    "\n"
+                    "in vec2 fTexture;\n"
+                    "out vec4 fColor;\n"
+                    "\n"
+                    "uniform sampler2D textureSampler;\n"
+                    "\n"
+                    "void main()\n"
+                    "{\n"
+                    "    fColor = texture(textureSampler, fTexture);\n"
+                    "}\n";
+                _shader = feather_tk::gl::Shader::create(vertexSource, fragmentSource);
             }
 
             void PanoramaViewport::paintGL()
             {
-                try
+                // Create the offscreen buffer.
+                feather_tk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
+                feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                offscreenBufferOptions.color = feather_tk::ImageType::RGBA_F32;
+                if (feather_tk::gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
                 {
-                    // Create the offscreen buffer.
-                    feather_tk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
-                    feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = feather_tk::ImageType::RGBA_F32;
-                    if (feather_tk::gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
-                    {
-                        _buffer = feather_tk::gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
-                    }
-
-                    // Render the video data into the offscreen buffer.
-                    if (_buffer)
-                    {
-                        feather_tk::gl::OffscreenBufferBinding binding(_buffer);
-                        _render->begin(offscreenBufferSize);
-                        _render->setOCIOOptions(_ocioOptions);
-                        _render->setLUTOptions(_lutOptions);
-                        _render->drawVideo(
-                            { _videoData },
-                            { feather_tk::Box2I(0, 0, _videoSize.w, _videoSize.h) },
-                            { _imageOptions });
-                        _render->end();
-                    }
+                    _buffer = feather_tk::gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
                 }
-                catch (const std::exception& e)
+
+                // Render the video data into the offscreen buffer.
+                if (_buffer)
                 {
-                    // Re-throw the exception to be caught in main().
-                    throw e;
+                    feather_tk::gl::OffscreenBufferBinding binding(_buffer);
+                    _render->begin(offscreenBufferSize);
+                    _render->setOCIOOptions(_ocioOptions);
+                    _render->setLUTOptions(_lutOptions);
+                    _render->drawVideo(
+                        { _videoData },
+                        { feather_tk::Box2I(0, 0, _videoSize.w, _videoSize.h) },
+                        { _imageOptions });
+                    _render->end();
                 }
 
                 // Render a sphere using the offscreen buffer as a texture.
