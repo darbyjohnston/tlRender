@@ -9,13 +9,13 @@
 #include <tlCore/ISystem.h>
 #include <tlCore/Path.h>
 
-#include <dtk/core/FileIO.h>
-#include <dtk/core/Image.h>
-#include <dtk/core/Mesh.h>
+#include <feather-tk/core/FileIO.h>
+#include <feather-tk/core/Image.h>
+#include <feather-tk/core/Mesh.h>
 
 #include <future>
 
-namespace dtk
+namespace feather_tk
 {
     namespace gl
     {
@@ -40,23 +40,23 @@ namespace tl
             uint64_t id = 0;
             int height = 0;
             OTIO_NS::RationalTime time = time::invalidTime;
-            std::future<std::shared_ptr<dtk::Image> > future;
+            std::future<std::shared_ptr<feather_tk::Image> > future;
         };
 
         //! Audio waveform request.
         struct WaveformRequest
         {
             uint64_t id = 0;
-            dtk::Size2I size;
+            feather_tk::Size2I size;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
-            std::future<std::shared_ptr<dtk::TriMesh2F> > future;
+            std::future<std::shared_ptr<feather_tk::TriMesh2F> > future;
         };
 
         //! Thumbnail cache.
         class ThumbnailCache : public std::enable_shared_from_this<ThumbnailCache>
         {
         protected:
-            void _init(const std::shared_ptr<dtk::Context>&);
+            void _init(const std::shared_ptr<feather_tk::Context>&);
 
             ThumbnailCache();
 
@@ -65,7 +65,7 @@ namespace tl
 
             //! Create a new thumbnail cache.
             static std::shared_ptr<ThumbnailCache> create(
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<feather_tk::Context>&);
 
             //! Get the maximum cache size.
             size_t getMax() const;
@@ -103,7 +103,7 @@ namespace tl
             //! Add a thumbnail to the cache.
             void addThumbnail(
                 const std::string& key,
-                const std::shared_ptr<dtk::Image>&);
+                const std::shared_ptr<feather_tk::Image>&);
 
             //! Get whether the cache contains a thumbnail.
             bool containsThumbnail(const std::string& key);
@@ -111,11 +111,11 @@ namespace tl
             //! Get a thumbnail from the cache.
             bool getThumbnail(
                 const std::string& key,
-                std::shared_ptr<dtk::Image>&) const;
+                std::shared_ptr<feather_tk::Image>&) const;
 
             //! Get a waveform cache key.
             static std::string getWaveformKey(
-                const dtk::Size2I&,
+                const feather_tk::Size2I&,
                 const file::Path&,
                 const OTIO_NS::TimeRange&,
                 const io::Options&);
@@ -123,7 +123,7 @@ namespace tl
             //! Add a waveform to the cache.
             void addWaveform(
                 const std::string& key,
-                const std::shared_ptr<dtk::TriMesh2F>&);
+                const std::shared_ptr<feather_tk::TriMesh2F>&);
 
             //! Get whether the cache contains a waveform.
             bool containsWaveform(const std::string& key);
@@ -131,7 +131,7 @@ namespace tl
             //! Get a waveform from the cache.
             bool getWaveform(
                 const std::string& key,
-                std::shared_ptr<dtk::TriMesh2F>&) const;
+                std::shared_ptr<feather_tk::TriMesh2F>&) const;
 
             //! Clear the cache.
             void clear();
@@ -139,7 +139,7 @@ namespace tl
         private:
             void _maxUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! Thumbnail generator.
@@ -148,8 +148,8 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<ThumbnailCache>&,
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<dtk::gl::Window>&);
+                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::gl::Window>&);
 
             ThumbnailGenerator();
 
@@ -159,8 +159,8 @@ namespace tl
             //! Create a new thumbnail generator.
             static std::shared_ptr<ThumbnailGenerator> create(
                 const std::shared_ptr<ThumbnailCache>&,
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<dtk::gl::Window>& = nullptr);
+                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::gl::Window>& = nullptr);
 
             //! Get information.
             InfoRequest getInfo(
@@ -170,7 +170,7 @@ namespace tl
             //! Get information.
             InfoRequest getInfo(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options& = io::Options());
 
             //! Get a video thumbnail.
@@ -183,7 +183,7 @@ namespace tl
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 int height,
                 const OTIO_NS::RationalTime& = time::invalidTime,
                 const io::Options& = io::Options());
@@ -191,15 +191,15 @@ namespace tl
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const dtk::Size2I&,
+                const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
-                const dtk::Size2I&,
+                const std::vector<feather_tk::InMemoryFile>&,
+                const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 
@@ -214,21 +214,21 @@ namespace tl
             void _thumbnailCancel();
             void _waveformCancel();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! Thumbnail system.
         class ThumbnailSystem : public system::ISystem
         {
         protected:
-            ThumbnailSystem(const std::shared_ptr<dtk::Context>&);
+            ThumbnailSystem(const std::shared_ptr<feather_tk::Context>&);
 
         public:
             ~ThumbnailSystem();
 
             //! Create a new system.
             static std::shared_ptr<ThumbnailSystem> create(
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<feather_tk::Context>&);
 
             //! Get information.
             InfoRequest getInfo(
@@ -245,7 +245,7 @@ namespace tl
             //! Get an audio waveform.
             WaveformRequest getWaveform(
                 const file::Path&,
-                const dtk::Size2I&,
+                const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
                 const io::Options& = io::Options());
 
@@ -256,7 +256,7 @@ namespace tl
             const std::shared_ptr<ThumbnailCache>& getCache() const;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

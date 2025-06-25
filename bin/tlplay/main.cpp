@@ -11,9 +11,9 @@ int main(int argc, char* argv[])
     int r = 1;
     try
     {
-        auto context = dtk::Context::create();
+        auto context = feather_tk::Context::create();
         tl::timelineui::init(context);
-        auto args = dtk::convert(argc, argv);
+        auto args = feather_tk::convert(argc, argv);
         auto app = tl::play::App::create(context, args);
         r = app->getExit();
         if (0 == r)

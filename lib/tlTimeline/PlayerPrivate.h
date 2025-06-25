@@ -10,7 +10,7 @@
 
 #include <tlCore/AudioResample.h>
 
-#include <dtk/core/LRUCache.h>
+#include <feather-tk/core/LRUCache.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
@@ -37,7 +37,7 @@ namespace tl
 
             bool hasAudio() const;
             void playbackReset(const OTIO_NS::RationalTime&);
-            void audioInit(const std::shared_ptr<dtk::Context>&);
+            void audioInit(const std::shared_ptr<feather_tk::Context>&);
             void audioReset(const OTIO_NS::RationalTime&);
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
             void sdlCallback(uint8_t* stream, int len);
@@ -48,36 +48,36 @@ namespace tl
 #endif // TLRENDER_SDL2
 #endif // TLRENDER_SDL2
 
-            void log(const std::shared_ptr<dtk::Context>&);
+            void log(const std::shared_ptr<feather_tk::Context>&);
 
             PlayerOptions playerOptions;
             std::shared_ptr<Timeline> timeline;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
 
-            std::shared_ptr<dtk::ObservableValue<double> > speed;
-            std::shared_ptr<dtk::ObservableValue<Playback> > playback;
-            std::shared_ptr<dtk::ObservableValue<Loop> > loop;
-            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > currentTime;
-            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > seek;
-            std::shared_ptr<dtk::ObservableValue<OTIO_NS::TimeRange> > inOutRange;
-            std::shared_ptr<dtk::ObservableList<std::shared_ptr<Timeline> > > compare;
-            std::shared_ptr<dtk::ObservableValue<CompareTime> > compareTime;
-            std::shared_ptr<dtk::ObservableValue<io::Options> > ioOptions;
-            std::shared_ptr<dtk::ObservableValue<int> > videoLayer;
-            std::shared_ptr<dtk::ObservableList<int> > compareVideoLayers;
-            std::shared_ptr<dtk::ObservableList<VideoData> > currentVideoData;
-            std::shared_ptr<dtk::ObservableValue<audio::DeviceID> > audioDevice;
-            std::shared_ptr<dtk::ObservableValue<float> > volume;
-            std::shared_ptr<dtk::ObservableValue<bool> > mute;
-            std::shared_ptr<dtk::ObservableList<bool> > channelMute;
-            std::shared_ptr<dtk::ObservableValue<double> > audioOffset;
-            std::shared_ptr<dtk::ObservableList<AudioData> > currentAudioData;
-            std::shared_ptr<dtk::ObservableValue<PlayerCacheOptions> > cacheOptions;
-            std::shared_ptr<dtk::ObservableValue<PlayerCacheInfo> > cacheInfo;
-            std::shared_ptr<dtk::ValueObserver<bool> > timelineObserver;
-            std::shared_ptr<dtk::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
-            std::shared_ptr<dtk::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
+            std::shared_ptr<feather_tk::ObservableValue<double> > speed;
+            std::shared_ptr<feather_tk::ObservableValue<Playback> > playback;
+            std::shared_ptr<feather_tk::ObservableValue<Loop> > loop;
+            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > currentTime;
+            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > seek;
+            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::TimeRange> > inOutRange;
+            std::shared_ptr<feather_tk::ObservableList<std::shared_ptr<Timeline> > > compare;
+            std::shared_ptr<feather_tk::ObservableValue<CompareTime> > compareTime;
+            std::shared_ptr<feather_tk::ObservableValue<io::Options> > ioOptions;
+            std::shared_ptr<feather_tk::ObservableValue<int> > videoLayer;
+            std::shared_ptr<feather_tk::ObservableList<int> > compareVideoLayers;
+            std::shared_ptr<feather_tk::ObservableList<VideoData> > currentVideoData;
+            std::shared_ptr<feather_tk::ObservableValue<audio::DeviceID> > audioDevice;
+            std::shared_ptr<feather_tk::ObservableValue<float> > volume;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > mute;
+            std::shared_ptr<feather_tk::ObservableList<bool> > channelMute;
+            std::shared_ptr<feather_tk::ObservableValue<double> > audioOffset;
+            std::shared_ptr<feather_tk::ObservableList<AudioData> > currentAudioData;
+            std::shared_ptr<feather_tk::ObservableValue<PlayerCacheOptions> > cacheOptions;
+            std::shared_ptr<feather_tk::ObservableValue<PlayerCacheInfo> > cacheInfo;
+            std::shared_ptr<feather_tk::ValueObserver<bool> > timelineObserver;
+            std::shared_ptr<feather_tk::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
+            std::shared_ptr<feather_tk::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 
             bool audioDevices = false;
             audio::Info audioInfo;
@@ -133,7 +133,7 @@ namespace tl
                     std::vector<VideoRequest> list;
                 };
                 std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
-                dtk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
+                feather_tk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
                 int64_t videoFillFrame = 0;
                 size_t videoFillByteCount = 0;
 
@@ -169,7 +169,7 @@ namespace tl
             struct AudioMutex
             {
                 AudioState state;
-                dtk::LRUCache<int64_t, AudioData> cache;
+                feather_tk::LRUCache<int64_t, AudioData> cache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;

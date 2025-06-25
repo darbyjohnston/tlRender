@@ -4,7 +4,7 @@
 
 #include <tlIO/OpenEXRPrivate.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>
@@ -17,7 +17,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
 
@@ -45,7 +45,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -55,7 +55,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<dtk::Image>& image,
+            const std::shared_ptr<feather_tk::Image>& image,
             const io::Options&)
         {
             const auto& info = image->getInfo();

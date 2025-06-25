@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Util.h>
 
 #include <string>
 

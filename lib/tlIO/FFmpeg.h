@@ -33,9 +33,9 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             Read();
 
@@ -46,14 +46,14 @@ namespace tl
             static std::shared_ptr<Read> create(
                 const file::Path&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             std::future<io::Info> getInfo() override;
             std::future<io::VideoData> readVideo(
@@ -70,7 +70,7 @@ namespace tl
             void _cancelVideoRequests();
             void _cancelAudioRequests();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! FFmpeg writer.
@@ -81,7 +81,7 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             Write();
 
@@ -93,38 +93,38 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             void writeVideo(
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<dtk::Image>&,
+                const std::shared_ptr<feather_tk::Image>&,
                 const io::Options& = io::Options()) override;
 
         private:
             void _encodeVideo(AVFrame*);
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! FFmpeg read plugin.
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            void _init(const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
 
             ReadPlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<ReadPlugin> create(
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
 
         private:
@@ -132,29 +132,29 @@ namespace tl
 
             //! \todo What is a better way to access the log system from the
             //! FFmpeg callback?
-            static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
+            static std::weak_ptr<feather_tk::LogSystem> _logSystemWeak;
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! FFmpeg write plugin.
         class WritePlugin : public io::IWritePlugin
         {
         protected:
-            void _init(const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
 
             WritePlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<WritePlugin> create(
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             //! Get the list of codecs.
             const std::vector<std::string>& getCodecs() const;
 
-            dtk::ImageInfo getInfo(
-                const dtk::ImageInfo&,
+            feather_tk::ImageInfo getInfo(
+                const feather_tk::ImageInfo&,
                 const io::Options & = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,
@@ -166,9 +166,9 @@ namespace tl
 
             //! \todo What is a better way to access the log system from the
             //! FFmpeg callback?
-            static std::weak_ptr<dtk::LogSystem> _logSystemWeak;
+            static std::weak_ptr<feather_tk::LogSystem> _logSystemWeak;
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! \name Serialize

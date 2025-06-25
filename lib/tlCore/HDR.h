@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <dtk/core/Range.h>
-#include <dtk/core/Vector.h>
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Range.h>
+#include <feather-tk/core/Vector.h>
+#include <feather-tk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -26,7 +26,7 @@ namespace tl
             Count,
             First = SDR
         };
-        DTK_ENUM(HDR_EOTF);
+        FEATHER_TK_ENUM(HDR_EOTF);
 
         //! HDR color primaries.
         enum class HDRPrimaries
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = Red
         };
-        DTK_ENUM(HDRPrimaries);
+        FEATHER_TK_ENUM(HDRPrimaries);
 
         //! HDR data.
         struct HDRData
@@ -47,14 +47,14 @@ namespace tl
             HDR_EOTF eotf = HDR_EOTF::SDR;
 
             //! Default Rec. 2020 color primaries (red, green, blue, white).
-            std::array<dtk::V2F, static_cast<size_t>(HDRPrimaries::Count)> primaries =
+            std::array<feather_tk::V2F, static_cast<size_t>(HDRPrimaries::Count)> primaries =
             {
-                dtk::V2F(.708F,  .292F),
-                dtk::V2F(.170F,  .797F),
-                dtk::V2F(.131F,  .046F),
-                dtk::V2F(.3127F, .3290F)
+                feather_tk::V2F(.708F,  .292F),
+                feather_tk::V2F(.170F,  .797F),
+                feather_tk::V2F(.131F,  .046F),
+                feather_tk::V2F(.3127F, .3290F)
             };
-            dtk::RangeF displayMasteringLuminance = dtk::RangeF(0.F, 1000.F);
+            feather_tk::RangeF displayMasteringLuminance = feather_tk::RangeF(0.F, 1000.F);
             float maxCLL  = 1000.F;
             float maxFALL = 400.F;
 

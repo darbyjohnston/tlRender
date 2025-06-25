@@ -10,16 +10,16 @@
 
 #include <tlCore/AudioSystem.h>
 
-#include <dtk/core/RenderOptions.h>
+#include <feather-tk/core/RenderOptions.h>
 
 #include <QMetaType>
 
-Q_DECLARE_METATYPE(dtk::AlphaBlend);
-Q_DECLARE_METATYPE(dtk::ChannelDisplay);
-Q_DECLARE_METATYPE(dtk::ImageType);
-Q_DECLARE_METATYPE(dtk::ImageFilter);
-Q_DECLARE_METATYPE(dtk::InputVideoLevels);
-Q_DECLARE_METATYPE(dtk::Size2I);
+Q_DECLARE_METATYPE(feather_tk::AlphaBlend);
+Q_DECLARE_METATYPE(feather_tk::ChannelDisplay);
+Q_DECLARE_METATYPE(feather_tk::ImageType);
+Q_DECLARE_METATYPE(feather_tk::ImageFilter);
+Q_DECLARE_METATYPE(feather_tk::InputVideoLevels);
+Q_DECLARE_METATYPE(feather_tk::Size2I);
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
 

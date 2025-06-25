@@ -4,7 +4,7 @@
 
 #include <tlIO/Write.h>
 
-#include <dtk/core/LogSystem.h>
+#include <feather-tk/core/LogSystem.h>
 
 namespace tl
 {
@@ -14,7 +14,7 @@ namespace tl
             const file::Path& path,
             const Options& options,
             const Info& info,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _info = info;
@@ -33,7 +33,7 @@ namespace tl
         void IWritePlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IPlugin::_init(name, extensions, logSystem);
         }
@@ -45,9 +45,9 @@ namespace tl
         IWritePlugin::~IWritePlugin()
         {}
 
-        bool IWritePlugin::_isCompatible(const dtk::ImageInfo& info, const Options& options) const
+        bool IWritePlugin::_isCompatible(const feather_tk::ImageInfo& info, const Options& options) const
         {
-            return info.type != dtk::ImageType::None && info == getInfo(info, options);
+            return info.type != feather_tk::ImageType::None && info == getInfo(info, options);
         }
     }
 }

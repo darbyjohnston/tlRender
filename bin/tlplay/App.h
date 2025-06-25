@@ -6,7 +6,7 @@
 
 #include <tlTimeline/TimeUnits.h>
 
-#include <dtk/ui/App.h>
+#include <feather-tk/ui/App.h>
 
 namespace tl
 {
@@ -18,13 +18,13 @@ namespace tl
         class SettingsModel;
 
         //! Application.
-        class App : public dtk::App
+        class App : public feather_tk::App
         {
-            DTK_NON_COPYABLE(App);
+            FEATHER_TK_NON_COPYABLE(App);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 std::vector<std::string>&);
 
             App() = default;
@@ -33,7 +33,7 @@ namespace tl
             ~App();
 
             static std::shared_ptr<App> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 std::vector<std::string>&);
 
             const std::shared_ptr<SettingsModel>& getSettingsModel() const;

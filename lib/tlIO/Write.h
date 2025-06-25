@@ -18,7 +18,7 @@ namespace tl
                 const file::Path&,
                 const Options&,
                 const Info&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             IWrite();
 
@@ -28,7 +28,7 @@ namespace tl
             //! Write video data.
             virtual void writeVideo(
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<dtk::Image>&,
+                const std::shared_ptr<feather_tk::Image>&,
                 const Options& = Options()) = 0;
 
         protected:
@@ -38,13 +38,13 @@ namespace tl
         //! Base class for write plugins.
         class IWritePlugin : public IPlugin
         {
-            DTK_NON_COPYABLE(IWritePlugin);
+            FEATHER_TK_NON_COPYABLE(IWritePlugin);
 
         protected:
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             IWritePlugin();
 
@@ -52,8 +52,8 @@ namespace tl
             virtual ~IWritePlugin() = 0;
 
             //! Get information for writing.
-            virtual dtk::ImageInfo getInfo(
-                const dtk::ImageInfo&,
+            virtual feather_tk::ImageInfo getInfo(
+                const feather_tk::ImageInfo&,
                 const Options& = Options()) const = 0;
 
             //! Create a writer for the given path.
@@ -63,10 +63,10 @@ namespace tl
                 const Options& = Options()) = 0;
 
         protected:
-            bool _isCompatible(const dtk::ImageInfo&, const Options&) const;
+            bool _isCompatible(const feather_tk::ImageInfo&, const Options&) const;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

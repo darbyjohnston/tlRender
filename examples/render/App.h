@@ -5,9 +5,9 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
-#include <dtk/core/IApp.h>
+#include <feather-tk/core/IApp.h>
 
-namespace dtk
+namespace feather_tk
 {
     namespace gl
     {
@@ -26,7 +26,7 @@ namespace tl
             struct Options
             {
                 std::string compareFileName;
-                dtk::Size2I windowSize = dtk::Size2I(1920, 1080);
+                feather_tk::Size2I windowSize = feather_tk::Size2I(1920, 1080);
                 bool fullscreen = false;
                 bool hud = true;
                 timeline::Playback playback = timeline::Playback::Forward;
@@ -37,13 +37,13 @@ namespace tl
             };
 
             //! Application.
-            class App : public dtk::IApp
+            class App : public feather_tk::IApp
             {
-                DTK_NON_COPYABLE(App);
+                FEATHER_TK_NON_COPYABLE(App);
 
             protected:
                 void _init(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     std::vector<std::string>&);
 
                 App();
@@ -53,7 +53,7 @@ namespace tl
 
                 //! Create a new application.
                 static std::shared_ptr<App> create(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     std::vector<std::string>&);
 
                 void run() override;
@@ -67,7 +67,7 @@ namespace tl
 
                 void _draw();
                 void _drawViewport(
-                    const dtk::Box2I&,
+                    const feather_tk::Box2I&,
                     uint16_t fontSize,
                     const timeline::CompareOptions&,
                     float rotation);
@@ -81,16 +81,16 @@ namespace tl
 
                 std::shared_ptr<timeline::Player> _player;
 
-                std::shared_ptr<dtk::gl::Window> _window;
-                dtk::Size2I _frameBufferSize;
-                dtk::V2F _contentScale = dtk::V2F(1.F, 1.F);
+                std::shared_ptr<feather_tk::gl::Window> _window;
+                feather_tk::Size2I _frameBufferSize;
+                feather_tk::V2F _contentScale = feather_tk::V2F(1.F, 1.F);
                 timeline::CompareOptions _compareOptions;
                 float _rotation = 0.F;
                 bool _hud = false;
                 std::shared_ptr<timeline::IRender> _render;
                 bool _renderDirty = true;
                 std::vector<timeline::VideoData> _videoData;
-                std::shared_ptr<dtk::ListObserver<timeline::VideoData> > _videoDataObserver;
+                std::shared_ptr<feather_tk::ListObserver<timeline::VideoData> > _videoDataObserver;
                 std::chrono::steady_clock::time_point _startTime;
 
                 bool _running = true;

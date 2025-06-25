@@ -8,8 +8,8 @@
 
 #include <tlTimeline/Init.h>
 
-#include <dtk/ui/Init.h>
-#include <dtk/ui/IconSystem.h>
+#include <feather-tk/ui/Init.h>
+#include <feather-tk/ui/IconSystem.h>
 
 namespace tl_resource
 {
@@ -57,13 +57,13 @@ namespace tl
 {
     namespace timelineui
     {
-        void init(const std::shared_ptr<dtk::Context>& context)
+        void init(const std::shared_ptr<feather_tk::Context>& context)
         {
             tl::timeline::init(context);
-            dtk::uiInit(context);
+            feather_tk::uiInit(context);
             ThumbnailSystem::create(context);
 
-            auto iconSystem = context->getSystem<dtk::IconSystem>();
+            auto iconSystem = context->getSystem<feather_tk::IconSystem>();
             iconSystem->add("ColorControls", tl_resource::ColorControls);
             iconSystem->add("ColorPicker", tl_resource::ColorPicker);
             iconSystem->add("CompareA", tl_resource::CompareA);

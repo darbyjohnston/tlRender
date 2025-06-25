@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/core/Box.h>
+#include <feather-tk/core/Box.h>
 
 namespace tl
 {
@@ -12,6 +12,6 @@ namespace tl
     {
         //! Get a box with the given aspect ratio that fits within
         //! the given box.
-        dtk::Box2I getBox(float aspect, const dtk::Box2I&);
+        feather_tk::Box2I getBox(float aspect, const feather_tk::Box2I&);
     }
 }

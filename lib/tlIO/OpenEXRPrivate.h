@@ -6,7 +6,7 @@
 
 #include <tlIO/OpenEXR.h>
 
-#include <dtk/core/Box.h>
+#include <feather-tk/core/Box.h>
 
 #include <ImathBox.h>
 #include <ImfHeader.h>
@@ -17,23 +17,23 @@ namespace tl
     namespace exr
     {
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, dtk::ImageTags&);
+        void readTags(const Imf::Header&, feather_tk::ImageTags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const dtk::ImageTags&, double speed, Imf::Header&);
+        void writeTags(const feather_tk::ImageTags&, double speed, Imf::Header&);
 
         //! Convert to Imf.
         Imf::Compression toImf(Compression);
 
         //! Convert from Imath.
-        dtk::Box2I fromImath(const Imath::Box2i&);
+        feather_tk::Box2I fromImath(const Imath::Box2i&);
 
         //! Input stream.
         class IStream : public Imf::IStream
         {
-            DTK_NON_COPYABLE(IStream);
+            FEATHER_TK_NON_COPYABLE(IStream);
 
         public:
             IStream(const std::string& fileName);
@@ -48,7 +48,7 @@ namespace tl
             void seekg(uint64_t pos) override;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
    }
 }

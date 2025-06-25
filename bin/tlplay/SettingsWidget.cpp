@@ -7,34 +7,34 @@
 #include "App.h"
 #include "SettingsModel.h"
 
-#include <dtk/ui/GroupBox.h>
+#include <feather-tk/ui/GroupBox.h>
 
 namespace tl
 {
     namespace play
     {
         void CacheSettingsWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "CacheSettingsWidget", parent);
 
-            _videoEdit = dtk::DoubleEdit::create(context);
-            _videoEdit->setRange(dtk::RangeD(0.0, 128.0));
+            _videoEdit = feather_tk::DoubleEdit::create(context);
+            _videoEdit->setRange(feather_tk::RangeD(0.0, 128.0));
             _videoEdit->setStep(1.0);
             _videoEdit->setLargeStep(10.0);
 
-            _audioEdit = dtk::DoubleEdit::create(context);
-            _audioEdit->setRange(dtk::RangeD(0.0, 128.0));
+            _audioEdit = feather_tk::DoubleEdit::create(context);
+            _audioEdit->setRange(feather_tk::RangeD(0.0, 128.0));
             _audioEdit->setStep(1.0);
             _audioEdit->setLargeStep(10.0);
 
-            _readBehindEdit = dtk::DoubleEdit::create(context);
-            _readBehindEdit->setRange(dtk::RangeD(0.0, 2.0));
+            _readBehindEdit = feather_tk::DoubleEdit::create(context);
+            _readBehindEdit->setRange(feather_tk::RangeD(0.0, 2.0));
 
-            _layout = dtk::FormLayout::create(context, shared_from_this());
-            _layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
+            _layout = feather_tk::FormLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
             _layout->addRow("Video cache (GB):", _videoEdit);
             _layout->addRow("Audio cache (GB):", _audioEdit);
             _layout->addRow("Read behind (seconds):", _readBehindEdit);
@@ -73,7 +73,7 @@ namespace tl
                     }
                 });
 
-            _cacheObserver = dtk::ValueObserver<timeline::PlayerCacheOptions>::create(
+            _cacheObserver = feather_tk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 app->getSettingsModel()->observeCache(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
@@ -88,7 +88,7 @@ namespace tl
         }
 
         std::shared_ptr<CacheSettingsWidget> CacheSettingsWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -97,28 +97,28 @@ namespace tl
             return out;
         }
 
-        void CacheSettingsWidget::setGeometry(const dtk::Box2I& value)
+        void CacheSettingsWidget::setGeometry(const feather_tk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void CacheSettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void CacheSettingsWidget::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());
         }
 
         void SettingsWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "SettingsWidget", parent);
-            _layout = dtk::VerticalLayout::create(context, shared_from_this());
-            _layout->setMarginRole(dtk::SizeRole::MarginSmall);
-            _layout->setSpacingRole(dtk::SizeRole::SpacingSmall);
-            auto groupBox = dtk::GroupBox::create(context, "Cache", _layout);
+            _layout = feather_tk::VerticalLayout::create(context, shared_from_this());
+            _layout->setMarginRole(feather_tk::SizeRole::MarginSmall);
+            _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
+            auto groupBox = feather_tk::GroupBox::create(context, "Cache", _layout);
             CacheSettingsWidget::create(context, app, groupBox);
         }
 
@@ -127,7 +127,7 @@ namespace tl
         }
 
         std::shared_ptr<SettingsWidget> SettingsWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -136,13 +136,13 @@ namespace tl
             return out;
         }
 
-        void SettingsWidget::setGeometry(const dtk::Box2I& value)
+        void SettingsWidget::setGeometry(const feather_tk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void SettingsWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void SettingsWidget::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());

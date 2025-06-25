@@ -10,13 +10,13 @@
 
 #include <tlCore/Path.h>
 
-#include <dtk/core/ObservableValue.h>
+#include <feather-tk/core/ObservableValue.h>
 
 #include <opentimelineio/timeline.h>
 
 #include <future>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -29,7 +29,7 @@ namespace tl
         //! Create a new timeline from a path. The path can point to an .otio
         //! file, .otioz file, movie file, or image sequence.
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
-            const std::shared_ptr<dtk::Context>&,
+            const std::shared_ptr<feather_tk::Context>&,
             const file::Path&,
             const Options& = Options());
 
@@ -37,7 +37,7 @@ namespace tl
         //! can point to an .otio file, .otioz file, movie file, or image
         //! sequence.
         OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> create(
-            const std::shared_ptr<dtk::Context>&,
+            const std::shared_ptr<feather_tk::Context>&,
             const file::Path& path,
             const file::Path& audioPath,
             const Options& = Options());
@@ -73,11 +73,11 @@ namespace tl
         //! Timeline.
         class Timeline : public std::enable_shared_from_this<Timeline>
         {
-            DTK_NON_COPYABLE(Timeline);
+            FEATHER_TK_NON_COPYABLE(Timeline);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
                 const Options&);
 
@@ -88,21 +88,21 @@ namespace tl
 
             //! Create a new timeline.
             static std::shared_ptr<Timeline> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&,
                 const Options& = Options());
 
             //! Create a new timeline from a file name. The file name can point
             //! to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string&,
                 const Options& = Options());
 
             //! Create a new timeline from a path. The path can point to an
             //! .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const file::Path&,
                 const Options& = Options());
 
@@ -110,7 +110,7 @@ namespace tl
             //! The file name can point to an .otio file, movie file, or
             //! image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string& fileName,
                 const std::string& audioFilename,
                 const Options& = Options());
@@ -118,19 +118,19 @@ namespace tl
             //! Create a new timeline from a path and audio path. The path can
             //! point to an .otio file, movie file, or image sequence.
             static std::shared_ptr<Timeline> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const file::Path& path,
                 const file::Path& audioPath,
                 const Options& = Options());
 
             //! Get the context.
-            std::shared_ptr<dtk::Context> getContext() const;
+            std::shared_ptr<feather_tk::Context> getContext() const;
 
             //! Get the timeline.
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& getTimeline() const;
 
             //! Observe timeline changes.
-            std::shared_ptr<dtk::IObservableValue<bool> > observeTimelineChanges() const;
+            std::shared_ptr<feather_tk::IObservableValue<bool> > observeTimelineChanges() const;
 
             //! Set the timeline.
             void setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&);
@@ -194,7 +194,7 @@ namespace tl
             void tick();
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

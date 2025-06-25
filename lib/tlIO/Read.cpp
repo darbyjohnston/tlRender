@@ -4,7 +4,7 @@
 
 #include <tlIO/Read.h>
 
-#include <dtk/core/LogSystem.h>
+#include <feather-tk/core/LogSystem.h>
 
 namespace tl
 {
@@ -12,9 +12,9 @@ namespace tl
     {
         void IRead::_init(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _memory = memory;
@@ -47,7 +47,7 @@ namespace tl
         void IReadPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IPlugin::_init(name, extensions, logSystem);
         }

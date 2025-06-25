@@ -6,7 +6,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <dtk/ui/Action.h>
+#include <feather-tk/ui/Action.h>
 
 namespace tl
 {
@@ -17,11 +17,11 @@ namespace tl
         //! Playback actions.
         class PlaybackActions : public std::enable_shared_from_this<PlaybackActions>
         {
-            DTK_NON_COPYABLE(PlaybackActions);
+            FEATHER_TK_NON_COPYABLE(PlaybackActions);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&);
 
             PlaybackActions() = default;
@@ -30,17 +30,17 @@ namespace tl
             ~PlaybackActions();
 
             static std::shared_ptr<PlaybackActions> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&);
 
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& getActions() const;
+            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& getActions() const;
 
         private:
-            std::map<std::string, std::shared_ptr<dtk::Action> > _actions;
+            std::map<std::string, std::shared_ptr<feather_tk::Action> > _actions;
             std::shared_ptr<timeline::Player> _player;
             timeline::Playback _playback = timeline::Playback::Forward;
-            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > _playbackObserver;
+            std::shared_ptr<feather_tk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::Playback> > _playbackObserver;
         };
     }
 }

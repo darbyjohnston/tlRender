@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <dtk/core/Color.h>
-#include <dtk/core/Size.h>
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Color.h>
+#include <feather-tk/core/Size.h>
+#include <feather-tk/core/Util.h>
 
 namespace tl
 {
@@ -18,7 +18,7 @@ namespace tl
             bool         enabled   = false;
             int          size      = 100;
             int          lineWidth = 2;
-            dtk::Color4F color     = dtk::Color4F(0.F, 0.F, 0.F);
+            feather_tk::Color4F color     = feather_tk::Color4F(0.F, 0.F, 0.F);
 
             bool operator == (const Grid&) const;
             bool operator != (const Grid&) const;

@@ -6,7 +6,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Util.h>
 
 namespace tl
 {
@@ -27,7 +27,7 @@ namespace tl
             Count,
             First = _1_0
         };
-        DTK_ENUM(Version);
+        FEATHER_TK_ENUM(Version);
 
         //! DPX endian options.
         enum class Endian
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = Auto
         };
-        DTK_ENUM(Endian);
+        FEATHER_TK_ENUM(Endian);
 
         //! DPX header magic numbers.
         static const char magic[][5] =
@@ -63,7 +63,7 @@ namespace tl
             Count,
             First = LeftRightTopBottom
         };
-        DTK_ENUM(Orient);
+        FEATHER_TK_ENUM(Orient);
 
         //! DPX channel descriptors.
         enum class Descriptor
@@ -113,7 +113,7 @@ namespace tl
             Count,
             First = User
         };
-        DTK_ENUM(Transfer);
+        FEATHER_TK_ENUM(Transfer);
 
         //! DPX colorimetric information for version 1.0.
         enum class Colorimetric_1_0
@@ -153,7 +153,7 @@ namespace tl
             Count,
             First = Pack
         };
-        DTK_ENUM(Components);
+        FEATHER_TK_ENUM(Components);
 
         //! DPX header.
         struct Header
@@ -275,20 +275,20 @@ namespace tl
 
         //! Read a header.
         Header read(
-            const std::shared_ptr<dtk::FileIO>&,
+            const std::shared_ptr<feather_tk::FileIO>&,
             io::Info&,
             Transfer&);
 
         //! Write a header.
         void write(
-            const std::shared_ptr<dtk::FileIO>&,
+            const std::shared_ptr<feather_tk::FileIO>&,
             const io::Info&,
             Version,
             Endian,
             Transfer);
 
         //! Finish writing the header.
-        void finishWrite(const std::shared_ptr<dtk::FileIO>&);
+        void finishWrite(const std::shared_ptr<feather_tk::FileIO>&);
 
         //! DPX reader.
         class Read : public io::ISequenceRead
@@ -296,9 +296,9 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             Read();
 
@@ -309,22 +309,22 @@ namespace tl
             static std::shared_ptr<Read> create(
                 const file::Path&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const dtk::InMemoryFile*) override;
+                const feather_tk::InMemoryFile*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const dtk::InMemoryFile*,
+                const feather_tk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const io::Options&) override;
         };
@@ -337,7 +337,7 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             Write();
 
@@ -349,13 +349,13 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
         protected:
             void _writeVideo(
                 const std::string& fileName,
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<dtk::Image>&,
+                const std::shared_ptr<feather_tk::Image>&,
                 const io::Options&) override;
         };
 
@@ -363,21 +363,21 @@ namespace tl
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            void _init(const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
 
             ReadPlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<ReadPlugin> create(
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
         };
 
@@ -385,17 +385,17 @@ namespace tl
         class WritePlugin : public io::IWritePlugin
         {
         protected:
-            void _init(const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
 
             WritePlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<WritePlugin> create(
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
-            dtk::ImageInfo getInfo(
-                const dtk::ImageInfo&,
+            feather_tk::ImageInfo getInfo(
+                const feather_tk::ImageInfo&,
                 const io::Options & = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

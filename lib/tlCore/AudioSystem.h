@@ -7,8 +7,8 @@
 #include <tlCore/Audio.h>
 #include <tlCore/ISystem.h>
 
-#include <dtk/core/ObservableList.h>
-#include <dtk/core/ObservableValue.h>
+#include <feather-tk/core/ObservableList.h>
+#include <feather-tk/core/ObservableValue.h>
 
 namespace tl
 {
@@ -37,16 +37,16 @@ namespace tl
         //! Audio system.
         class System : public system::ISystem
         {
-            DTK_NON_COPYABLE(System);
+            FEATHER_TK_NON_COPYABLE(System);
 
         protected:
-            System(const std::shared_ptr<dtk::Context>&);
+            System(const std::shared_ptr<feather_tk::Context>&);
 
         public:
             virtual ~System();
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<feather_tk::Context>&);
 
             //! Get the list of audio drivers.
             const std::vector<std::string>& getDrivers() const;
@@ -55,13 +55,13 @@ namespace tl
             const std::vector<DeviceInfo>& getDevices() const;
 
             //! Observe the list of audio devices.
-            std::shared_ptr<dtk::IObservableList<DeviceInfo> > observeDevices() const;
+            std::shared_ptr<feather_tk::IObservableList<DeviceInfo> > observeDevices() const;
 
             //! Get the default audio device.
             DeviceInfo getDefaultDevice() const;
 
             //! Observe the default audio device.
-            std::shared_ptr<dtk::IObservableValue<DeviceInfo> > observeDefaultDevice() const;
+            std::shared_ptr<feather_tk::IObservableValue<DeviceInfo> > observeDefaultDevice() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
@@ -72,7 +72,7 @@ namespace tl
 
             void _run();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

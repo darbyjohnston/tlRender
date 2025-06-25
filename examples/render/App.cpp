@@ -6,14 +6,14 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <dtk/gl/GL.h>
-#include <dtk/gl/Window.h>
-#include <dtk/core/CmdLine.h>
-#include <dtk/core/Context.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/Math.h>
-#include <dtk/core/String.h>
-#include <dtk/core/Time.h>
+#include <feather-tk/gl/GL.h>
+#include <feather-tk/gl/Window.h>
+#include <feather-tk/core/CmdLine.h>
+#include <feather-tk/core/Context.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/Math.h>
+#include <feather-tk/core/String.h>
+#include <feather-tk/core/Time.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -28,7 +28,7 @@ namespace tl
         namespace render
         {
             void App::_init(
-                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<feather_tk::Context>& context,
                 std::vector<std::string>& argv)
             {
                 IApp::_init(
@@ -37,75 +37,75 @@ namespace tl
                     "render",
                     "Example rendering application.",
                     {
-                        dtk::CmdLineValueArg<std::string>::create(
+                        feather_tk::CmdLineValueArg<std::string>::create(
                             _input,
                             "input",
                             "The input timeline.")
                     },
                 {
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.compareFileName,
                         { "-compare", "-b" },
                         "A/B comparison \"B\" file name."),
-                    dtk::CmdLineValueOption<dtk::Size2I>::create(
+                    feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
                         _options.windowSize,
                         { "-windowSize", "-ws" },
                         "Window size.",
-                        dtk::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
-                    dtk::CmdLineFlagOption::create(
+                        feather_tk::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
+                    feather_tk::CmdLineFlagOption::create(
                         _options.fullscreen,
                         { "-fullscreen", "-fs" },
                         "Enable full screen mode."),
-                    dtk::CmdLineValueOption<bool>::create(
+                    feather_tk::CmdLineValueOption<bool>::create(
                         _options.hud,
                         { "-hud" },
                         "Enable the HUD (heads up display).",
-                        dtk::Format("{0}").arg(_options.hud),
+                        feather_tk::Format("{0}").arg(_options.hud),
                         "0, 1"),
-                    dtk::CmdLineValueOption<timeline::Playback>::create(
+                    feather_tk::CmdLineValueOption<timeline::Playback>::create(
                         _options.playback,
                         { "-playback", "-p" },
                         "Playback mode.",
-                        dtk::Format("{0}").arg(_options.playback),
-                        dtk::join(timeline::getPlaybackLabels(), ", ")),
-                    dtk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
+                        feather_tk::Format("{0}").arg(_options.playback),
+                        feather_tk::join(timeline::getPlaybackLabels(), ", ")),
+                    feather_tk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                         _options.seek,
                         { "-seek" },
                         "Seek to the given time."),
-                    dtk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                    feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                         _options.inOutRange,
                         { "-inOutRange" },
                         "Set the in/out points range."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.fileName,
                         { "-ocio" },
                         "OpenColorIO configuration file name (e.g., config.ocio)."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.input,
                         { "-ocioInput" },
                         "OpenColorIO input name."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.display,
                         { "-ocioDisplay" },
                         "OpenColorIO display name."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.view,
                         { "-ocioView" },
                         "OpenColorIO view name."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.ocioOptions.look,
                         { "-ocioLook" },
                         "OpenColorIO look name."),
-                    dtk::CmdLineValueOption<std::string>::create(
+                    feather_tk::CmdLineValueOption<std::string>::create(
                         _options.lutOptions.fileName,
                         { "-lut" },
                         "LUT file name."),
-                    dtk::CmdLineValueOption<timeline::LUTOrder>::create(
+                    feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
                         _options.lutOptions.order,
                         { "-lutOrder" },
                         "LUT operation order.",
-                        dtk::Format("{0}").arg(_options.lutOptions.order),
-                        dtk::join(timeline::getLUTOrderLabels(), ", "))
+                        feather_tk::Format("{0}").arg(_options.lutOptions.order),
+                        feather_tk::join(timeline::getLUTOrderLabels(), ", "))
                 });
             }
 
@@ -116,7 +116,7 @@ namespace tl
             {}
 
             std::shared_ptr<App> App::create(
-                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<feather_tk::Context>& context,
                 std::vector<std::string>& argv)
             {
                 auto out = std::shared_ptr<App>(new App);
@@ -135,7 +135,7 @@ namespace tl
                     compare.push_back(timeline::Timeline::create(_context, _options.compareFileName));
                 }
                 _player->setCompare(compare);
-                _videoDataObserver = dtk::ListObserver<timeline::VideoData>::create(
+                _videoDataObserver = feather_tk::ListObserver<timeline::VideoData>::create(
                     _player->observeCurrentVideo(),
                     [this](const std::vector<timeline::VideoData>& value)
                     {
@@ -144,7 +144,7 @@ namespace tl
                     });
 
                 // Create the window.
-                _window = dtk::gl::Window::create(
+                _window = feather_tk::gl::Window::create(
                     _context,
                     "render",
                     _options.windowSize);
@@ -152,13 +152,13 @@ namespace tl
                 _contentScale = _window->getContentScale();
                 _window->setFullScreen(_options.fullscreen);
                 _window->setFrameBufferSizeCallback(
-                    [this](const dtk::Size2I& value)
+                    [this](const feather_tk::Size2I& value)
                     {
                         _frameBufferSize = value;
                         _renderDirty = true;
                     });
                 _window->setContentScaleCallback(
-                    [this](const dtk::V2F& value)
+                    [this](const feather_tk::V2F& value)
                     {
                         _contentScale = value;
                         _renderDirty = true;
@@ -282,24 +282,24 @@ namespace tl
                 _rotation = diff.count() * 2.F;
 
                 // Sleep.
-                dtk::sleep(std::chrono::milliseconds(5), t0, t1);
+                feather_tk::sleep(std::chrono::milliseconds(5), t0, t1);
             }
 
             void App::_draw()
             {
                 const int fontSize =
-                    dtk::clamp(
+                    feather_tk::clamp(
                         ceilf(14 * _contentScale.y),
                         0.F,
                         static_cast<float>(std::numeric_limits<uint16_t>::max()));
                 const int viewportSpacing = fontSize / 2;
-                const dtk::V2I viewportSize(
+                const feather_tk::V2I viewportSize(
                     (_frameBufferSize.w - viewportSpacing * 2) / 3,
                     (_frameBufferSize.h - viewportSpacing * 2) / 3);
 
                 _compareOptions.compare = timeline::Compare::A;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         0,
                         0,
                         viewportSize.x,
@@ -309,7 +309,7 @@ namespace tl
                     0.F);
                 _compareOptions.compare = timeline::Compare::A;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x + viewportSpacing,
                         0,
                         viewportSize.x,
@@ -319,7 +319,7 @@ namespace tl
                     _rotation);
                 _compareOptions.compare = timeline::Compare::B;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         0,
                         viewportSize.x,
@@ -330,7 +330,7 @@ namespace tl
 
                 _compareOptions.compare = timeline::Compare::Wipe;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         0,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -340,7 +340,7 @@ namespace tl
                     _rotation);
                 _compareOptions.compare = timeline::Compare::Overlay;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -350,7 +350,7 @@ namespace tl
                     _rotation);
                 _compareOptions.compare = timeline::Compare::Difference;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y + viewportSpacing,
                         viewportSize.x,
@@ -361,7 +361,7 @@ namespace tl
 
                 _compareOptions.compare = timeline::Compare::Horizontal;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         0,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -371,7 +371,7 @@ namespace tl
                     _rotation);
                 _compareOptions.compare = timeline::Compare::Vertical;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x + viewportSpacing,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -381,7 +381,7 @@ namespace tl
                     _rotation);
                 _compareOptions.compare = timeline::Compare::Tile;
                 _drawViewport(
-                    dtk::Box2I(
+                    feather_tk::Box2I(
                         viewportSize.x * 2 + viewportSpacing * 2,
                         viewportSize.y * 2 + viewportSpacing * 2,
                         viewportSize.x,
@@ -392,19 +392,19 @@ namespace tl
             }
 
             void App::_drawViewport(
-                const dtk::Box2I& box,
+                const feather_tk::Box2I& box,
                 uint16_t fontSize,
                 const timeline::CompareOptions& compareOptions,
                 float rotation)
             {
-                const dtk::Size2I viewportSize = box.size();
-                const float viewportAspect = dtk::aspectRatio(viewportSize);
-                const dtk::Size2I renderSize = timeline::getRenderSize(
+                const feather_tk::Size2I viewportSize = box.size();
+                const float viewportAspect = feather_tk::aspectRatio(viewportSize);
+                const feather_tk::Size2I renderSize = timeline::getRenderSize(
                     compareOptions.compare,
                     _videoData);
-                const float renderSizeAspect = dtk::aspectRatio(renderSize);
-                dtk::Size2I transformSize;
-                dtk::V2F transformOffset;
+                const float renderSizeAspect = feather_tk::aspectRatio(renderSize);
+                feather_tk::Size2I transformSize;
+                feather_tk::V2F transformOffset;
                 if (renderSizeAspect > 1.F)
                 {
                     transformSize.w = renderSize.w;
@@ -423,18 +423,18 @@ namespace tl
                 _render->setClipRectEnabled(true);
                 _render->setViewport(box);
                 _render->setClipRect(box);
-                _render->clearViewport(dtk::Color4F(0.F, 0.F, 0.F));
+                _render->clearViewport(feather_tk::Color4F(0.F, 0.F, 0.F));
 
-                _render->setTransform(dtk::ortho(
+                _render->setTransform(feather_tk::ortho(
                     0.F,
                     static_cast<float>(transformSize.w),
                     static_cast<float>(transformSize.h),
                     0.F,
                     -1.F,
                     1.F) *
-                    dtk::translate(dtk::V3F(transformOffset.x, transformOffset.y, 0.F)) *
-                    dtk::rotateZ(rotation) *
-                    dtk::translate(dtk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
+                    feather_tk::translate(feather_tk::V3F(transformOffset.x, transformOffset.y, 0.F)) *
+                    feather_tk::rotateZ(rotation) *
+                    feather_tk::translate(feather_tk::V3F(-renderSize.w / 2, -renderSize.h / 2, 0.F)));
                 _render->drawVideo(
                     _videoData,
                     timeline::getBoxes(compareOptions.compare, _videoData),
@@ -444,7 +444,7 @@ namespace tl
 
                 if (_hud)
                 {
-                    _render->setTransform(dtk::ortho(
+                    _render->setTransform(feather_tk::ortho(
                         0.F,
                         static_cast<float>(viewportSize.w),
                         static_cast<float>(viewportSize.h),
@@ -452,20 +452,20 @@ namespace tl
                         -1.F,
                         1.F));
 
-                    dtk::FontInfo fontInfo;
+                    feather_tk::FontInfo fontInfo;
                     fontInfo.size = fontSize;
-                    auto fontSystem = _context->getSystem<dtk::FontSystem>();
+                    auto fontSystem = _context->getSystem<feather_tk::FontSystem>();
                     auto fontMetrics = fontSystem->getMetrics(fontInfo);
                     std::string text = timeline::getLabel(compareOptions.compare);
-                    dtk::Size2I textSize = fontSystem->getSize(text, fontInfo);
+                    feather_tk::Size2I textSize = fontSystem->getSize(text, fontInfo);
                     _render->drawRect(
-                        dtk::Box2I(0, 0, viewportSize.w, fontMetrics.lineHeight),
-                        dtk::Color4F(0.F, 0.F, 0.F, .7F));
+                        feather_tk::Box2I(0, 0, viewportSize.w, fontMetrics.lineHeight),
+                        feather_tk::Color4F(0.F, 0.F, 0.F, .7F));
                     _render->drawText(
                         fontSystem->getGlyphs(text, fontInfo),
                         fontMetrics,
-                        dtk::V2I(fontSize / 5, 0),
-                        dtk::Color4F(1.F, 1.F, 1.F));
+                        feather_tk::V2I(fontSize / 5, 0),
+                        feather_tk::Color4F(1.F, 1.F, 1.F));
                 }
 
                 _render->setClipRectEnabled(false);
@@ -475,13 +475,13 @@ namespace tl
             {
                 _hud = value;
                 _renderDirty = true;
-                _context->getLogSystem()->print("render", dtk::Format("HUD: {0}").arg(_hud));
+                _context->getLogSystem()->print("render", feather_tk::Format("HUD: {0}").arg(_hud));
             }
 
             void App::_playbackCallback(timeline::Playback value)
             {
                 _player->setPlayback(value);
-                _context->getLogSystem()->print("render", dtk::Format("Playback: {0}").arg(_player->observePlayback()->get()));
+                _context->getLogSystem()->print("render", feather_tk::Format("Playback: {0}").arg(_player->observePlayback()->get()));
             }
         }
     }

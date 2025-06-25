@@ -11,8 +11,8 @@
 
 #include <tlIO/Cache.h>
 
-#include <dtk/ui/DrawUtil.h>
-#include <dtk/core/RenderUtil.h>
+#include <feather-tk/ui/DrawUtil.h>
+#include <feather-tk/core/RenderUtil.h>
 
 namespace tl
 {
@@ -22,13 +22,13 @@ namespace tl
         {
             std::string clipName;
             file::Path path;
-            std::vector<dtk::InMemoryFile> memoryRead;
+            std::vector<feather_tk::InMemoryFile> memoryRead;
             std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData
             {
                 int dragLength = 0;
-                dtk::Box2I clipRect;
+                feather_tk::Box2I clipRect;
             };
             SizeData size;
 
@@ -39,7 +39,7 @@ namespace tl
         };
 
         void VideoClipItem::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
@@ -55,7 +55,7 @@ namespace tl
             IBasicItem::_init(
                 context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                dtk::ColorRole::VideoClip,
+                feather_tk::ColorRole::VideoClip,
                 "tl::timelineui::VideoClipItem",
                 clip.value,
                 scale,
@@ -63,7 +63,7 @@ namespace tl
                 displayOptions,
                 itemData,
                 parent);
-            DTK_P();
+            FEATHER_TK_P();
 
             p.clipName = clip->name();
             p.path = path;
@@ -86,12 +86,12 @@ namespace tl
 
         VideoClipItem::~VideoClipItem()
         {
-            DTK_P();
+            FEATHER_TK_P();
             _cancelRequests();
         }
 
         std::shared_ptr<VideoClipItem> VideoClipItem::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
@@ -117,7 +117,7 @@ namespace tl
         {
             const bool changed = value != _scale;
             IBasicItem::setScale(value);
-            DTK_P();
+            FEATHER_TK_P();
             if (changed)
             {
                 _cancelRequests();
@@ -131,7 +131,7 @@ namespace tl
                 value.thumbnails != _displayOptions.thumbnails ||
                 value.thumbnailHeight != _displayOptions.thumbnailHeight;
             IBasicItem::setDisplayOptions(value);
-            DTK_P();
+            FEATHER_TK_P();
             if (thumbnailsChanged)
             {
                 _cancelRequests();
@@ -142,10 +142,10 @@ namespace tl
         void VideoClipItem::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const dtk::TickEvent& event)
+            const feather_tk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            DTK_P();
+            FEATHER_TK_P();
 
             // Check if the I/O information is finished.
             if (p.infoRequest.future.valid() &&
@@ -182,12 +182,12 @@ namespace tl
             }
         }
 
-        void VideoClipItem::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void VideoClipItem::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IBasicItem::sizeHintEvent(event);
-            DTK_P();
-            p.size.dragLength = event.style->getSizeRole(dtk::SizeRole::DragLength, event.displayScale);
-            dtk::Size2I sizeHint = getSizeHint();
+            FEATHER_TK_P();
+            p.size.dragLength = event.style->getSizeRole(feather_tk::SizeRole::DragLength, event.displayScale);
+            feather_tk::Size2I sizeHint = getSizeHint();
             if (_displayOptions.thumbnails)
             {
                 sizeHint.h += _displayOptions.thumbnailHeight;
@@ -195,10 +195,10 @@ namespace tl
             _setSizeHint(sizeHint);
         }
 
-        void VideoClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
+        void VideoClipItem::clipEvent(const feather_tk::Box2I& clipRect, bool clipped)
         {
             IBasicItem::clipEvent(clipRect, clipped);
-            DTK_P();
+            FEATHER_TK_P();
             if (clipRect == p.size.clipRect)
                 return;
             p.size.clipRect = clipRect;
@@ -210,8 +210,8 @@ namespace tl
         }
 
         void VideoClipItem::drawEvent(
-            const dtk::Box2I& drawRect,
-            const dtk::DrawEvent& event)
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
             if (_displayOptions.thumbnails)
@@ -221,17 +221,17 @@ namespace tl
         }
 
         void VideoClipItem::_drawThumbnails(
-            const dtk::Box2I& drawRect,
-            const dtk::DrawEvent& event)
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
         {
-            DTK_P();
+            FEATHER_TK_P();
 
             auto render = std::dynamic_pointer_cast<timeline::IRender>(event.render);
-            const dtk::Box2I g = _getInsideGeometry();
+            const feather_tk::Box2I g = _getInsideGeometry();
             const int m = _getMargin();
             const int lineHeight = _getLineHeight();
 
-            const dtk::Box2I box(
+            const feather_tk::Box2I box(
                 g.min.x,
                 g.min.y +
                 (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
@@ -239,18 +239,18 @@ namespace tl
                 _displayOptions.thumbnailHeight);
             render->drawRect(
                 box,
-                dtk::Color4F(0.F, 0.F, 0.F));
-            const dtk::ClipRectEnabledState clipRectEnabledState(render);
-            const dtk::ClipRectState clipRectState(render);
+                feather_tk::Color4F(0.F, 0.F, 0.F));
+            const feather_tk::ClipRectEnabledState clipRectEnabledState(render);
+            const feather_tk::ClipRectState clipRectState(render);
             render->setClipRectEnabled(true);
-            render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
+            render->setClipRect(feather_tk::intersect(box, clipRectState.getClipRect()));
             render->setOCIOOptions(_displayOptions.ocio);
             render->setLUTOptions(_displayOptions.lut);
 
-            const dtk::Box2I clipRect = _getClipRect(
+            const feather_tk::Box2I clipRect = _getClipRect(
                 drawRect,
                 _displayOptions.clipRectScale);
-            if (dtk::intersects(g, clipRect))
+            if (feather_tk::intersects(g, clipRect))
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
@@ -263,7 +263,7 @@ namespace tl
 
             const int thumbnailWidth =
                 (_displayOptions.thumbnails && p.ioInfo && !p.ioInfo->video.empty()) ?
-                static_cast<int>(_displayOptions.thumbnailHeight * dtk::aspectRatio(p.ioInfo->video[0].size)) :
+                static_cast<int>(_displayOptions.thumbnailHeight * feather_tk::aspectRatio(p.ioInfo->video[0].size)) :
                 0;
             if (thumbnailWidth > 0)
             {
@@ -271,14 +271,14 @@ namespace tl
                 const bool enabled = isEnabled();
                 for (int x = 0; x < w; x += thumbnailWidth)
                 {
-                    const dtk::Box2I box(
+                    const feather_tk::Box2I box(
                         g.min.x +
                         x,
                         g.min.y +
                         (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                         thumbnailWidth,
                         _displayOptions.thumbnailHeight);
-                    if (dtk::intersects(box, clipRect))
+                    if (feather_tk::intersects(box, clipRect))
                     {
                         const OTIO_NS::RationalTime time = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
@@ -351,7 +351,7 @@ namespace tl
 
         void VideoClipItem::_cancelRequests()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::vector<uint64_t> ids;
             if (p.infoRequest.future.valid())
             {

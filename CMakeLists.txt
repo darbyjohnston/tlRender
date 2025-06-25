@@ -256,8 +256,8 @@ if(TLRENDER_USD)
     endif()
 endif()
 
-# dtk dependencies
-find_package(dtk REQUIRED)
+# feather-tk dependencies
+find_package(feather-tk REQUIRED)
 
 # Qt dependencies
 if(TLRENDER_QT6)

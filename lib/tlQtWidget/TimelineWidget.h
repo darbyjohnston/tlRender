@@ -26,9 +26,9 @@ namespace tl
 
         public:
             TimelineWidget(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
-                const std::shared_ptr<dtk::Style>&,
+                const std::shared_ptr<feather_tk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~TimelineWidget();
@@ -52,7 +52,7 @@ namespace tl
             bool hasScrollToCurrentFrame() const;
 
             //! Get the mouse scroll key modifier.
-            dtk::KeyModifier scrollKeyModifier() const;
+            feather_tk::KeyModifier scrollKeyModifier() const;
 
             //! Get the mouse wheel scale.
             float mouseWheelScale() const;
@@ -83,7 +83,7 @@ namespace tl
             void setScrollToCurrentFrame(bool);
 
             //! Set the mouse scroll key modifier.
-            void setScrollKeyModifier(dtk::KeyModifier);
+            void setScrollKeyModifier(feather_tk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
@@ -120,7 +120,7 @@ namespace tl
             void _trackEnabledCallback(bool);
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

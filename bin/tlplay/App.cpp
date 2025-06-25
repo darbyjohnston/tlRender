@@ -11,42 +11,42 @@
 
 #include <tlTimeline/Util.h>
 
-#include <dtk/ui/DialogSystem.h>
-#include <dtk/ui/FileBrowser.h>
-#include <dtk/core/CmdLine.h>
-#include <dtk/core/File.h>
+#include <feather-tk/ui/DialogSystem.h>
+#include <feather-tk/ui/FileBrowser.h>
+#include <feather-tk/core/CmdLine.h>
+#include <feather-tk/core/File.h>
 
 namespace tl
 {
     namespace play
     {
         void App::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             std::vector<std::string>& argv)
         {
-            dtk::App::_init(
+            feather_tk::App::_init(
                 context,
                 argv,
                 "tlplay",
                 "Example player application.",
                 {
-                    dtk::CmdLineListArg<std::string>::create(
+                    feather_tk::CmdLineListArg<std::string>::create(
                         _cmdLineOptions.fileNames,
                         "input",
                         "Timelines, movies, or image sequences.",
                         true)
                 });
 
-            context->getSystem<dtk::FileBrowserSystem>()->setNativeFileDialog(false);
+            context->getSystem<feather_tk::FileBrowserSystem>()->setNativeFileDialog(false);
 
             _settingsModel = SettingsModel::create(
                 context,
-                dtk::getSettingsPath("tlRender", "tlplay.json"));
+                feather_tk::getSettingsPath("tlRender", "tlplay.json"));
 
             _timeUnitsModel = timeline::TimeUnitsModel::create(context);
 
             _recentFilesModel = RecentFilesModel::create(context, _settingsModel->getSettings());
-            auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
+            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
             fileBrowserSystem->setExtensions(timeline::getExtensions(_context));
             fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
 
@@ -70,7 +70,7 @@ namespace tl
         }
 
         std::shared_ptr<App> App::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
@@ -106,7 +106,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                auto dialogSystem = _context->getSystem<dtk::DialogSystem>();
+                auto dialogSystem = _context->getSystem<feather_tk::DialogSystem>();
                 dialogSystem->message("ERROR", e.what(), _window);
             }
             _recentFilesModel->addRecent(path);
@@ -114,7 +114,7 @@ namespace tl
 
         void App::open()
         {
-            auto fileBrowserSystem = _context->getSystem<dtk::FileBrowserSystem>();
+            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
             fileBrowserSystem->open(
                 _window,
                 [this](const std::filesystem::path& value)
@@ -122,7 +122,7 @@ namespace tl
                     open(value);
                 },
                 std::filesystem::path(),
-                dtk::FileBrowserMode::File);
+                feather_tk::FileBrowserMode::File);
         }
 
         void App::reload()
@@ -133,7 +133,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                auto dialogSystem = _context->getSystem<dtk::DialogSystem>();
+                auto dialogSystem = _context->getSystem<feather_tk::DialogSystem>();
                 dialogSystem->message("ERROR", e.what(), _window);
             }
         }

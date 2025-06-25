@@ -4,8 +4,8 @@
 
 #include <tlCore/Audio.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <array>
 #include <sstream>
@@ -14,7 +14,7 @@ namespace tl
 {
     namespace audio
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             DataType,
             "None",
             "S8",
@@ -151,9 +151,9 @@ namespace tl
                         TI v = 0;
                         for (size_t k = 0; k < inCount; ++k)
                         {
-                            v += dtk::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
+                            v += feather_tk::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
                         }
-                        outP[j] = dtk::clamp(v, min, max);
+                        outP[j] = feather_tk::clamp(v, min, max);
                     }
                 }
             }

@@ -38,7 +38,7 @@ namespace tl
         private:
             void _textUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

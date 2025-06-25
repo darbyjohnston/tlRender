@@ -12,15 +12,15 @@ namespace tl
     namespace play
     {
         void FileActions::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto appWeak = std::weak_ptr<App>(app);
-            _actions["Open"] = dtk::Action::create(
+            _actions["Open"] = feather_tk::Action::create(
                 "Open",
                 "FileOpen",
-                dtk::Key::O,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::O,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -30,11 +30,11 @@ namespace tl
                 });
             _actions["Open"]->setTooltip("Open a file.");
 
-            _actions["Close"] = dtk::Action::create(
+            _actions["Close"] = feather_tk::Action::create(
                 "Close",
                 "FileClose",
-                dtk::Key::E,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::E,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -44,11 +44,11 @@ namespace tl
                 });
             _actions["Close"]->setTooltip("Close the current file.");
 
-            _actions["CloseAll"] = dtk::Action::create(
+            _actions["CloseAll"] = feather_tk::Action::create(
                 "Close All",
                 "FileCloseAll",
-                dtk::Key::E,
-                static_cast<int>(dtk::commandKeyModifier) | static_cast<int>(dtk::KeyModifier::Shift),
+                feather_tk::Key::E,
+                static_cast<int>(feather_tk::commandKeyModifier) | static_cast<int>(feather_tk::KeyModifier::Shift),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -58,11 +58,11 @@ namespace tl
                 });
             _actions["CloseAll"]->setTooltip("Close all files.");
 
-            _actions["Reload"] = dtk::Action::create(
+            _actions["Reload"] = feather_tk::Action::create(
                 "Reload",
                 "FileReload",
-                dtk::Key::R,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::R,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -72,11 +72,11 @@ namespace tl
                 });
             _actions["Reload"]->setTooltip("Reload the current file.");
 
-            _actions["Next"] = dtk::Action::create(
+            _actions["Next"] = feather_tk::Action::create(
                 "Next",
                 "Next",
-                dtk::Key::PageDown,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::PageDown,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -85,11 +85,11 @@ namespace tl
                     }
                 });
 
-            _actions["Prev"] = dtk::Action::create(
+            _actions["Prev"] = feather_tk::Action::create(
                 "Previous",
                 "Prev",
-                dtk::Key::PageUp,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::PageUp,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -98,10 +98,10 @@ namespace tl
                     }
                 });
 
-            _actions["Exit"] = dtk::Action::create(
+            _actions["Exit"] = feather_tk::Action::create(
                 "Exit",
-                dtk::Key::Q,
-                static_cast<int>(dtk::commandKeyModifier),
+                feather_tk::Key::Q,
+                static_cast<int>(feather_tk::commandKeyModifier),
                 [appWeak]
                 {
                     if (auto app = appWeak.lock())
@@ -110,7 +110,7 @@ namespace tl
                     }
                 });
 
-            _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            _playersObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
@@ -118,7 +118,7 @@ namespace tl
                     _actions["Prev"]->setEnabled(value.size() > 1);
                 });
 
-            _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -133,7 +133,7 @@ namespace tl
         }
 
         std::shared_ptr<FileActions> FileActions::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<FileActions>(new FileActions);
@@ -141,7 +141,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& FileActions::getActions() const
+        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& FileActions::getActions() const
         {
             return _actions;
         }

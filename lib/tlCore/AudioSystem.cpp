@@ -4,10 +4,10 @@
 
 #include <tlCore/AudioSystem.h>
 
-#include <dtk/core/Context.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
-#include <dtk/core/Time.h>
+#include <feather-tk/core/Context.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
+#include <feather-tk/core/Time.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
@@ -59,8 +59,8 @@ namespace tl
         {
             bool init = false;
             std::vector<std::string> drivers;
-            std::shared_ptr<dtk::ObservableList<DeviceInfo> > devices;
-            std::shared_ptr<dtk::ObservableValue<DeviceInfo> > defaultDevice;
+            std::shared_ptr<feather_tk::ObservableList<DeviceInfo> > devices;
+            std::shared_ptr<feather_tk::ObservableValue<DeviceInfo> > defaultDevice;
 
             struct Mutex
             {
@@ -79,11 +79,11 @@ namespace tl
             Thread thread;
         };
 
-        System::System(const std::shared_ptr<dtk::Context>& context) :
+        System::System(const std::shared_ptr<feather_tk::Context>& context) :
             ISystem(context, "tl::audio::System"),
             _p(new Private)
         {
-            DTK_P();
+            FEATHER_TK_P();
 
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 #if defined(TLRENDER_SDL2)
@@ -95,7 +95,7 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << "Cannot initialize SDL2";
-                _log(ss.str(), dtk::LogType::Error);
+                _log(ss.str(), feather_tk::LogType::Error);
             }
             if (p.init)
             {
@@ -106,7 +106,7 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "Audio drivers: " << dtk::join(p.drivers, ", ");
+                    ss << "Audio drivers: " << feather_tk::join(p.drivers, ", ");
                     _log(ss.str());
                 }
                 {
@@ -120,8 +120,8 @@ namespace tl
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceInfo defaultDevice = _getDefaultDevice();
 
-            p.devices = dtk::ObservableList<DeviceInfo>::create(devices);
-            p.defaultDevice = dtk::ObservableValue<DeviceInfo>::create(defaultDevice);
+            p.devices = feather_tk::ObservableList<DeviceInfo>::create(devices);
+            p.defaultDevice = feather_tk::ObservableValue<DeviceInfo>::create(defaultDevice);
 
             p.mutex.devices = devices;
             p.mutex.defaultDevice = defaultDevice;
@@ -138,7 +138,7 @@ namespace tl
                             const auto t0 = std::chrono::steady_clock::now();
                             _run();
                             const auto t1 = std::chrono::steady_clock::now();
-                            dtk::sleep(timeout, t0, t1);
+                            feather_tk::sleep(timeout, t0, t1);
                         }
                     });
             }
@@ -147,7 +147,7 @@ namespace tl
 
         System::~System()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -158,7 +158,7 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
@@ -179,7 +179,7 @@ namespace tl
             return _p->devices->get();
         }
 
-        std::shared_ptr<dtk::IObservableList<DeviceInfo> > System::observeDevices() const
+        std::shared_ptr<feather_tk::IObservableList<DeviceInfo> > System::observeDevices() const
         {
             return _p->devices;
         }
@@ -189,14 +189,14 @@ namespace tl
             return _p->defaultDevice->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<DeviceInfo> > System::observeDefaultDevice() const
+        std::shared_ptr<feather_tk::IObservableValue<DeviceInfo> > System::observeDefaultDevice() const
         {
             return _p->defaultDevice;
         }
 
         void System::tick()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::vector<DeviceInfo> devices;
             DeviceInfo defaultDevice;
             {
@@ -251,7 +251,7 @@ namespace tl
 
         std::vector<DeviceInfo> System::_getDevices()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::vector<DeviceInfo> out;
 #if defined(TLRENDER_SDL2)
             const int count = SDL_GetNumAudioDevices(0);
@@ -307,7 +307,7 @@ namespace tl
 
         void System::_run()
         {
-            DTK_P();
+            FEATHER_TK_P();
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
             const std::vector<DeviceInfo> devices = _getDevices();
@@ -331,7 +331,7 @@ namespace tl
                         log.push_back(ss.str());
                     }
                 }
-                _log(dtk::join(log, "\n"));
+                _log(feather_tk::join(log, "\n"));
             }
             if (defaultDevice != p.thread.defaultDevice)
             {

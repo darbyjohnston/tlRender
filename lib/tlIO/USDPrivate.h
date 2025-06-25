@@ -21,7 +21,7 @@ namespace tl
         class Render : public std::enable_shared_from_this<Render>
         {
         protected:
-            void _init(const std::shared_ptr<dtk::LogSystem>&);
+            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
 
             Render();
 
@@ -30,7 +30,7 @@ namespace tl
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
             
             //! Get information.
             std::future<io::Info> getInfo(
@@ -56,7 +56,7 @@ namespace tl
             void _run();
             void _finish();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

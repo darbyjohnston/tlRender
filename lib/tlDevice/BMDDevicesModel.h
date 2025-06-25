@@ -6,13 +6,13 @@
 
 #include <tlDevice/BMDData.h>
 
-#include <dtk/core/Image.h>
-#include <dtk/core/ObservableValue.h>
+#include <feather-tk/core/Image.h>
+#include <feather-tk/core/ObservableValue.h>
 
 #include <memory>
 #include <string>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -32,7 +32,7 @@ namespace tl
             int                      pixelTypeIndex = 0;
             bool                     deviceEnabled = true;
             BoolOptions              boolOptions;
-            dtk::VideoLevels         videoLevels = dtk::VideoLevels::LegalRange;
+            feather_tk::VideoLevels         videoLevels = feather_tk::VideoLevels::LegalRange;
             HDRMode                  hdrMode = HDRMode::FromFile;
             image::HDRData           hdrData;
 
@@ -42,10 +42,10 @@ namespace tl
         //! BMD devices model.
         class DevicesModel : public std::enable_shared_from_this<DevicesModel>
         {
-            DTK_NON_COPYABLE(DevicesModel);
+            FEATHER_TK_NON_COPYABLE(DevicesModel);
 
         protected:
-            void _init(const std::shared_ptr<dtk::Context>&);
+            void _init(const std::shared_ptr<feather_tk::Context>&);
 
             DevicesModel();
 
@@ -54,10 +54,10 @@ namespace tl
 
             //! Create a new device model.
             static std::shared_ptr<DevicesModel> create(
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<feather_tk::Context>&);
 
             //! Observe the model data.
-            std::shared_ptr<dtk::IObservableValue<DevicesModelData> > observeData() const;
+            std::shared_ptr<feather_tk::IObservableValue<DevicesModelData> > observeData() const;
 
             //! Set the device index.
             void setDeviceIndex(int);
@@ -75,7 +75,7 @@ namespace tl
             void setBoolOptions(const BoolOptions&);
 
             //! Set the video levels.
-            void setVideoLevels(dtk::VideoLevels);
+            void setVideoLevels(feather_tk::VideoLevels);
 
             //! Set the HDR mode.
             void setHDRMode(HDRMode);
@@ -86,7 +86,7 @@ namespace tl
         private:
             void _update();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         void to_json(nlohmann::json&, const DevicesModelData&);

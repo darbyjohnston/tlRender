@@ -4,11 +4,11 @@
 
 #include <tlCore/Path.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/Math.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Math.h>
+#include <feather-tk/core/String.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 #include <algorithm>
 #include <array>
@@ -263,7 +263,7 @@ namespace tl
             _padding = value;
         }
         
-        void Path::setSequence(const dtk::RangeI& value)
+        void Path::setSequence(const feather_tk::RangeI& value)
         {
             _sequence = value;
         }
@@ -273,7 +273,7 @@ namespace tl
             std::string out;
             if (isSequence())
             {
-                out = dtk::Format("{0}-{1}").
+                out = feather_tk::Format("{0}-{1}").
                     arg(_sequence.min(), _padding, '0').
                     arg(_sequence.max(), _padding, '0');
             }
@@ -312,7 +312,7 @@ namespace tl
                 const auto i = _protocol.find_first_of(':');
                 if (i != std::string::npos)
                 {
-                    _protocolName = dtk::toLower(_protocol.substr(0, i + 1));
+                    _protocolName = feather_tk::toLower(_protocol.substr(0, i + 1));
                 }
             }
             else
@@ -324,8 +324,8 @@ namespace tl
         void Path::_numberUpdate()
         {
             _numberValue = std::atoi(_number.c_str());
-            _numberDigits = dtk::digits(_numberValue);
-            _sequence = dtk::RangeI(_numberValue, _numberValue);
+            _numberDigits = feather_tk::digits(_numberValue);
+            _sequence = feather_tk::RangeI(_numberValue, _numberValue);
             if (_number.size() > 1 && '0' == _number[0])
             {
                 _padding = _number.size();
@@ -364,7 +364,7 @@ namespace tl
             {
                 startSeparator = value[0];
             }
-            auto v = dtk::split(value, pathSeparators);
+            auto v = feather_tk::split(value, pathSeparators);
             if (startSeparator || v.size() > 1)
             {
                 v.pop_back();
@@ -374,11 +374,11 @@ namespace tl
             {
                 out += startSeparator;
             }
-            out += dtk::join(v, pathSeparator);
+            out += feather_tk::join(v, pathSeparator);
             return out;
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             UserPath,
             "Home",
             "Desktop",

@@ -8,7 +8,7 @@
 
 #include <tlCore/ISystem.h>
 
-#include <dtk/core/ObservableList.h>
+#include <feather-tk/core/ObservableList.h>
 
 namespace tl
 {
@@ -17,25 +17,25 @@ namespace tl
         //! BMD system.
         class System : public system::ISystem
         {
-            DTK_NON_COPYABLE(System);
+            FEATHER_TK_NON_COPYABLE(System);
 
         protected:
-            System(const std::shared_ptr<dtk::Context>&);
+            System(const std::shared_ptr<feather_tk::Context>&);
 
         public:
             ~System() override;
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<feather_tk::Context>&);
 
             //! Observe the device information.
-            std::shared_ptr<dtk::IObservableList<DeviceInfo> > observeDeviceInfo() const;
+            std::shared_ptr<feather_tk::IObservableList<DeviceInfo> > observeDeviceInfo() const;
 
             void tick() override;
             std::chrono::milliseconds getTickTime() const override;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

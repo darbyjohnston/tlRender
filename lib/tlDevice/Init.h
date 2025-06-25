@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -17,6 +17,6 @@ namespace tl
     namespace device
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<dtk::Context>&);
+        void init(const std::shared_ptr<feather_tk::Context>&);
     }
 }

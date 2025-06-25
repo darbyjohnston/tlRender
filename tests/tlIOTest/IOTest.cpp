@@ -6,8 +6,8 @@
 
 #include <tlIO/System.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <sstream>
 
@@ -17,11 +17,11 @@ namespace tl
 {
     namespace io_tests
     {
-        IOTest::IOTest(const std::shared_ptr<dtk::Context>& context) :
+        IOTest::IOTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "IOTest::IOTest")
         {}
 
-        std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<IOTest>(new IOTest(context));
         }
@@ -36,28 +36,28 @@ namespace tl
         {
             {
                 const VideoData v;
-                DTK_ASSERT(!time::isValid(v.time));
-                DTK_ASSERT(!v.image);
+                FEATHER_TK_ASSERT(!time::isValid(v.time));
+                FEATHER_TK_ASSERT(!v.image);
             }
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = dtk::Image::create(160, 80, dtk::ImageType::L_U8);
+                const auto image = feather_tk::Image::create(160, 80, feather_tk::ImageType::L_U8);
                 const VideoData v(time, layer, image);
-                DTK_ASSERT(time.strictly_equal(v.time));
-                DTK_ASSERT(layer == v.layer);
-                DTK_ASSERT(image == v.image);
+                FEATHER_TK_ASSERT(time.strictly_equal(v.time));
+                FEATHER_TK_ASSERT(layer == v.layer);
+                FEATHER_TK_ASSERT(image == v.image);
             }
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = dtk::Image::create(16, 16, dtk::ImageType::L_U8);
+                const auto image = feather_tk::Image::create(16, 16, feather_tk::ImageType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
-                DTK_ASSERT(a == b);
+                FEATHER_TK_ASSERT(a == b);
                 b.time = OTIO_NS::RationalTime(2.0, 24.0);
-                DTK_ASSERT(a != b);
-                DTK_ASSERT(a < b);
+                FEATHER_TK_ASSERT(a != b);
+                FEATHER_TK_ASSERT(a < b);
             }
         }
 
@@ -77,11 +77,11 @@ namespace tl
             class DummyWritePlugin : public IWritePlugin
             {
             public:
-                dtk::ImageInfo getInfo(
-                    const dtk::ImageInfo&,
+                feather_tk::ImageInfo getInfo(
+                    const feather_tk::ImageInfo&,
                     const io::Options & = io::Options()) const override
                 {
-                    return dtk::ImageInfo();
+                    return feather_tk::ImageInfo();
                 }
 
                 std::shared_ptr<IWrite> write(
@@ -104,7 +104,7 @@ namespace tl
                     plugins.push_back(plugin->getName());
                 }
                 std::stringstream ss;
-                ss << "Plugins: " << dtk::join(plugins, ", ");
+                ss << "Plugins: " << feather_tk::join(plugins, ", ");
                 _print(ss.str());
             }
             {
@@ -119,10 +119,10 @@ namespace tl
                 }
                 for (const auto& plugin : plugins)
                 {
-                    DTK_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
+                    FEATHER_TK_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
-                DTK_ASSERT(!system->getPlugin(file::Path()));
-                DTK_ASSERT(!system->getPlugin<DummyReadPlugin>());
+                FEATHER_TK_ASSERT(!system->getPlugin(file::Path()));
+                FEATHER_TK_ASSERT(!system->getPlugin<DummyReadPlugin>());
             }
             {
                 std::vector<std::string> extensions;
@@ -131,11 +131,11 @@ namespace tl
                     extensions.push_back(extension);
                 }
                 std::stringstream ss;
-                ss << "Extensions: " << dtk::join(extensions, ", ");
+                ss << "Extensions: " << feather_tk::join(extensions, ", ");
                 _print(ss.str());
             }
-            DTK_ASSERT(!system->read(file::Path()));
-            DTK_ASSERT(!system->write(file::Path(), Info()));
+            FEATHER_TK_ASSERT(!system->read(file::Path()));
+            FEATHER_TK_ASSERT(!system->write(file::Path(), Info()));
         }
     }
 }

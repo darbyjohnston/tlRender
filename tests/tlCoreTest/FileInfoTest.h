@@ -13,10 +13,10 @@ namespace tl
         class FileInfoTest : public tests::ITest
         {
         protected:
-            FileInfoTest(const std::shared_ptr<dtk::Context>&);
+            FileInfoTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<FileInfoTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<FileInfoTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
 

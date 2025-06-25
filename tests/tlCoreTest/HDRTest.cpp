@@ -12,11 +12,11 @@ namespace tl
 {
     namespace core_tests
     {
-        HDRTest::HDRTest(const std::shared_ptr<dtk::Context>& context) :
+        HDRTest::HDRTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "core_tests::HDRTest")
         {}
 
-        std::shared_ptr<HDRTest> HDRTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<HDRTest> HDRTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<HDRTest>(new HDRTest(context));
         }
@@ -39,9 +39,9 @@ namespace tl
             {
                 HDRData a;
                 HDRData b;
-                DTK_ASSERT(a == b);
+                FEATHER_TK_ASSERT(a == b);
                 a.eotf = image::HDR_EOTF::ST2084;
-                DTK_ASSERT(a != b);
+                FEATHER_TK_ASSERT(a != b);
             }
         }
 
@@ -58,14 +58,14 @@ namespace tl
                 value.primaries[2].y = .6F;
                 value.primaries[3].x = .7F;
                 value.primaries[3].y = .8F;
-                value.displayMasteringLuminance = dtk::RangeF(.1F, .2F);
+                value.displayMasteringLuminance = feather_tk::RangeF(.1F, .2F);
                 value.maxCLL = .1F;
                 value.maxFALL = .2F;
                 nlohmann::json json;
                 to_json(json, value);
                 HDRData value2;
                 from_json(json, value2);
-                DTK_ASSERT(value == value2);
+                FEATHER_TK_ASSERT(value == value2);
             }
         }
     }

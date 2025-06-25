@@ -10,13 +10,13 @@
 
 #include <tlTimeline/Init.h>
 
-#include <dtk/core/Context.h>
+#include <feather-tk/core/Context.h>
 
 namespace tl
 {
     namespace device
     {
-        void init(const std::shared_ptr<dtk::Context>& context)
+        void init(const std::shared_ptr<feather_tk::Context>& context)
         {
             timeline::init(context);
 #if defined(TLRENDER_BMD)

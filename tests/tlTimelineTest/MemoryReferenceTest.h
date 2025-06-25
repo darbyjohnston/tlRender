@@ -13,10 +13,10 @@ namespace tl
         class MemoryReferenceTest : public tests::ITest
         {
         protected:
-            MemoryReferenceTest(const std::shared_ptr<dtk::Context>&);
+            MemoryReferenceTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<MemoryReferenceTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<MemoryReferenceTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
         };

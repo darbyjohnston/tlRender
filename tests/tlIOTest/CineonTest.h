@@ -13,10 +13,10 @@ namespace tl
         class CineonTest : public tests::ITest
         {
         protected:
-            CineonTest(const std::shared_ptr<dtk::Context>&);
+            CineonTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<CineonTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<CineonTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
 

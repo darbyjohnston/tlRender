@@ -18,19 +18,19 @@
 #include "ViewActions.h"
 #include "WindowActions.h"
 
-#include <dtk/ui/Divider.h>
-#include <dtk/ui/Menu.h>
-#include <dtk/ui/ToolBar.h>
+#include <feather-tk/ui/Divider.h>
+#include <feather-tk/ui/Menu.h>
+#include <feather-tk/ui/ToolBar.h>
 
 namespace tl
 {
     namespace play
     {
         void MainWindow::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            timelineui::Window::_init(context, "tlplay", dtk::Size2I(1920, 1080));
+            timelineui::Window::_init(context, "tlplay", feather_tk::Size2I(1920, 1080));
 
             _app = app;
 
@@ -74,35 +74,35 @@ namespace tl
             _timelineWidget = timelineui::TimelineWidget::create(
                 context,
                 app->getTimeUnitsModel());
-            _timelineWidget->setVStretch(dtk::Stretch::Expanding);
+            _timelineWidget->setVStretch(feather_tk::Stretch::Expanding);
 
             _statusBar = StatusBar::create(context, app);
 
             _settingsWidget = SettingsWidget::create(context, app);
             _settingsWidget->hide();
 
-            _layout = dtk::VerticalLayout::create(context, shared_from_this());
-            _layout->setSpacingRole(dtk::SizeRole::None);
+            _layout = feather_tk::VerticalLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(feather_tk::SizeRole::None);
             _menuBar->setParent(_layout);
-            dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
+            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, _layout);
             toolBars->setParent(_layout);
-            dtk::Divider::create(context, dtk::Orientation::Vertical, _layout);
-            _splitter = dtk::Splitter::create(context, dtk::Orientation::Vertical, _layout);
-            _splitter2 = dtk::Splitter::create(context, dtk::Orientation::Horizontal, _splitter);
-            auto vLayout = dtk::VerticalLayout::create(context, _splitter2);
-            vLayout->setSpacingRole(dtk::SizeRole::None);
+            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, _layout);
+            _splitter = feather_tk::Splitter::create(context, feather_tk::Orientation::Vertical, _layout);
+            _splitter2 = feather_tk::Splitter::create(context, feather_tk::Orientation::Horizontal, _splitter);
+            auto vLayout = feather_tk::VerticalLayout::create(context, _splitter2);
+            vLayout->setSpacingRole(feather_tk::SizeRole::None);
             _tabBar->setParent(vLayout);
             _viewport->setParent(vLayout);
             _settingsWidget->setParent(_splitter2);
-            vLayout = dtk::VerticalLayout::create(context, _splitter);
-            vLayout->setSpacingRole(dtk::SizeRole::None);
+            vLayout = feather_tk::VerticalLayout::create(context, _splitter);
+            vLayout->setSpacingRole(feather_tk::SizeRole::None);
             _playbackBar->setParent(vLayout);
-            dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, vLayout);
             _timelineWidget->setParent(vLayout);
-            dtk::Divider::create(context, dtk::Orientation::Vertical, vLayout);
+            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, vLayout);
             _statusBar->setParent(vLayout);
 
-            _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -110,7 +110,7 @@ namespace tl
                     _timelineWidget->setPlayer(value);
                 });
 
-            _compareObserver = dtk::ValueObserver<timeline::Compare>::create(
+            _compareObserver = feather_tk::ValueObserver<timeline::Compare>::create(
                 app->getFilesModel()->observeCompare(),
                 [this](timeline::Compare value)
                 {
@@ -125,7 +125,7 @@ namespace tl
         }
 
         std::shared_ptr<MainWindow> MainWindow::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
@@ -143,12 +143,12 @@ namespace tl
             _settingsWidget->setVisible(value);
         }
 
-        void MainWindow::keyPressEvent(dtk::KeyEvent& event)
+        void MainWindow::keyPressEvent(feather_tk::KeyEvent& event)
         {
             event.accept = _menuBar->shortcut(event.key, event.modifiers);
         }
 
-        void MainWindow::keyReleaseEvent(dtk::KeyEvent& event)
+        void MainWindow::keyReleaseEvent(feather_tk::KeyEvent& event)
         {
             event.accept = true;
         }

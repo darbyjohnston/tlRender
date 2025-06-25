@@ -4,8 +4,8 @@
 
 #include <tlIO/TIFF.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <tiffio.h>
 
@@ -78,7 +78,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const dtk::InMemoryFile* memory)
+                    const feather_tk::InMemoryFile* memory)
                 {
                     if (memory)
                     {
@@ -100,14 +100,14 @@ namespace tl
                     else
                     {
 #if defined(_WINDOWS)
-                        _tiff.p = TIFFOpenW(dtk::toWide(fileName).c_str(), "r");
+                        _tiff.p = TIFFOpenW(feather_tk::toWide(fileName).c_str(), "r");
 #else // _WINDOWS
                         _tiff.p = TIFFOpen(fileName.c_str(), "r");
 #endif // _WINDOWS
                     }
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     uint32_t  tiffWidth = 0;
@@ -136,7 +136,7 @@ namespace tl
                     _sampleDepth = tiffSampleDepth;
                     _scanlineSize = tiffWidth * tiffSamples * tiffSampleDepth / 8;
 
-                    dtk::ImageType pixelType = dtk::ImageType::None;
+                    feather_tk::ImageType pixelType = feather_tk::ImageType::None;
                     switch (tiffPhotometric)
                     {
                     case PHOTOMETRIC_MINISWHITE:
@@ -154,12 +154,12 @@ namespace tl
                         }
                         break;
                     }
-                    if (dtk::ImageType::None == pixelType)
+                    if (feather_tk::ImageType::None == pixelType)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
-                    dtk::ImageInfo imageInfo(tiffWidth, tiffHeight, pixelType);
+                    feather_tk::ImageInfo imageInfo(tiffWidth, tiffHeight, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
@@ -206,7 +206,7 @@ namespace tl
                     io::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = dtk::Image::create(info);
+                    out.image = feather_tk::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     if (_planar)
@@ -300,9 +300,9 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -318,7 +318,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -327,9 +327,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -338,7 +338,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory)
+            const feather_tk::InMemoryFile* memory)
         {
             io::Info out = File(fileName, memory).getInfo();
             out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
@@ -349,7 +349,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory,
+            const feather_tk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

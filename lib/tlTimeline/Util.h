@@ -6,7 +6,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <dtk/core/FileIO.h>
+#include <feather-tk/core/FileIO.h>
 
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>
@@ -17,7 +17,7 @@ namespace tl
     {
         //! Get the timeline file extensions.
         std::vector<std::string> getExtensions(
-            const std::shared_ptr<dtk::Context>&,
+            const std::shared_ptr<feather_tk::Context>&,
             int types =
             static_cast<int>(io::FileType::Media) |
             static_cast<int>(io::FileType::Sequence));
@@ -46,7 +46,7 @@ namespace tl
             Count,
             First = Forward
         };
-        DTK_ENUM(CacheDirection);
+        FEATHER_TK_ENUM(CacheDirection);
 
         //! Get the root (highest parent).
         const OTIO_NS::Composable* getRoot(const OTIO_NS::Composable*);
@@ -65,7 +65,7 @@ namespace tl
 
         //! Get a list of paths to open from the given path.
         std::vector<file::Path> getPaths(
-            const std::shared_ptr<dtk::Context>&,
+            const std::shared_ptr<feather_tk::Context>&,
             const file::Path&,
             const file::PathOptions&);
 
@@ -82,7 +82,7 @@ namespace tl
             file::PathOptions);
 
         //! Get a memory read for a media reference.
-        std::vector<dtk::InMemoryFile> getMemoryRead(
+        std::vector<feather_tk::InMemoryFile> getMemoryRead(
             const OTIO_NS::MediaReference*);
 
         //! Convert to memory references.
@@ -94,7 +94,7 @@ namespace tl
             Count,
             First = Shared
         };
-        DTK_ENUM(ToMemoryReference);
+        FEATHER_TK_ENUM(ToMemoryReference);
 
         //! Convert media references to memory references for testing.
         void toMemoryReferences(

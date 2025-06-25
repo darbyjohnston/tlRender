@@ -8,7 +8,7 @@
 
 #include <tlTimeline/Player.h>
 
-namespace dtk
+namespace feather_tk
 {
     namespace gl
     {
@@ -39,14 +39,14 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::gl::Window>&,
+                const std::shared_ptr<feather_tk::gl::Window>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineItem();
@@ -56,14 +56,14 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::gl::Window>&,
+                const std::shared_ptr<feather_tk::gl::Window>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set whether the timeline is editable.
@@ -73,10 +73,10 @@ namespace tl
             void setStopOnScrub(bool);
 
             //! Observe whether scrubbing is in progress.
-            std::shared_ptr<dtk::IObservableValue<bool> > observeScrub() const;
+            std::shared_ptr<feather_tk::IObservableValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
@@ -85,18 +85,18 @@ namespace tl
             int getMinimumHeight() const;
 
             //! Get the track geometry.
-            std::vector<dtk::Box2I> getTrackGeom() const;
+            std::vector<feather_tk::Box2I> getTrackGeom() const;
 
             void setDisplayOptions(const DisplayOptions&) override;
 
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-            void drawOverlayEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
-            void mouseMoveEvent(dtk::MouseMoveEvent&) override;
-            void mousePressEvent(dtk::MouseClickEvent&) override;
-            void mouseReleaseEvent(dtk::MouseClickEvent&) override;
-            //void keyPressEvent(dtk::KeyEvent&) override;
-            //void keyReleaseEvent(dtk::KeyEvent&) override;
+            void setGeometry(const feather_tk::Box2I&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void drawOverlayEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
+            void mouseMoveEvent(feather_tk::MouseMoveEvent&) override;
+            void mousePressEvent(feather_tk::MouseClickEvent&) override;
+            void mouseReleaseEvent(feather_tk::MouseClickEvent&) override;
+            //void keyPressEvent(feather_tk::KeyEvent&) override;
+            //void keyReleaseEvent(feather_tk::KeyEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;
@@ -108,34 +108,34 @@ namespace tl
             void _setTrackEnabled(int, bool);
 
             void _drawInOutPoints(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
-            dtk::Size2I _getLabelMaxSize(
-                const std::shared_ptr<dtk::FontSystem>&) const;
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
+            feather_tk::Size2I _getLabelMaxSize(
+                const std::shared_ptr<feather_tk::FontSystem>&) const;
             void _getTimeTicks(
-                const std::shared_ptr<dtk::FontSystem>&,
+                const std::shared_ptr<feather_tk::FontSystem>&,
                 double& seconds,
                 int& tick);
             void _drawTimeTicks(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
             void _drawFrameMarkers(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
             void _drawTimeLabels(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
             void _drawCacheInfo(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
             void _drawCurrentTime(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
 
             void _tracksUpdate();
             void _textUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

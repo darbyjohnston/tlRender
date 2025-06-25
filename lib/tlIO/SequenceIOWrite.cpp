@@ -26,11 +26,11 @@ namespace tl
             const file::Path& path,
             const Info& info,
             const Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IWrite::_init(path, options, info, logSystem);
 
-            DTK_P();
+            FEATHER_TK_P();
 
             const auto i = options.find("SequenceIO/DefaultSpeed");
             if (i != options.end())
@@ -49,7 +49,7 @@ namespace tl
 
         void ISequenceWrite::writeVideo(
             const OTIO_NS::RationalTime& time,
-            const std::shared_ptr<dtk::Image>& image,
+            const std::shared_ptr<feather_tk::Image>& image,
             const Options& options)
         {
             _writeVideo(

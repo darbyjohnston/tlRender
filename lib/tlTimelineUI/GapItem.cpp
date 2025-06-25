@@ -9,8 +9,8 @@ namespace tl
     namespace timelineui
     {
         void GapItem::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            dtk::ColorRole colorRole,
+            const std::shared_ptr<feather_tk::Context>& context,
+            feather_tk::ColorRole colorRole,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>& gap,
             double scale,
             const ItemOptions& options,
@@ -38,8 +38,8 @@ namespace tl
         {}
 
         std::shared_ptr<GapItem> GapItem::create(
-            const std::shared_ptr<dtk::Context>& context,
-            dtk::ColorRole colorRole,
+            const std::shared_ptr<feather_tk::Context>& context,
+            feather_tk::ColorRole colorRole,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>& gap,
             double scale,
             const ItemOptions& options,

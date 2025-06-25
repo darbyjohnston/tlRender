@@ -36,7 +36,7 @@ namespace tl
             void setVideo(const std::vector<tl::timeline::VideoData>&);
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

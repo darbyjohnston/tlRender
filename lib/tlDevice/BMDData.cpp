@@ -4,8 +4,8 @@
 
 #include <tlDevice/BMDData.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <array>
 #include <cstring>
@@ -23,7 +23,7 @@ namespace tl
                 frameRate == other.frameRate;
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             PixelType,
             "None",
             "8BitBGRA",
@@ -63,7 +63,7 @@ namespace tl
             return out;
         }
 
-        size_t getDataByteCount(const dtk::Size2I& size, PixelType pixelType)
+        size_t getDataByteCount(const feather_tk::Size2I& size, PixelType pixelType)
         {
             return getRowByteCount(size.w, pixelType) * size.h;
         }
@@ -82,7 +82,7 @@ namespace tl
             return !(*this == other);
         }
         
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             Option,
             "None",
             "444SDIVideoOutput");
@@ -101,7 +101,7 @@ namespace tl
             return !(*this == other);
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             HDRMode,
             "None",
             "FromFile",

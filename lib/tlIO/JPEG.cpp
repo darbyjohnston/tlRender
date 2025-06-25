@@ -4,7 +4,7 @@
 
 #include <tlIO/JPEGPrivate.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
@@ -35,7 +35,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(
@@ -57,7 +57,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
@@ -67,7 +67,7 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(
@@ -80,16 +80,16 @@ namespace tl
             return out;
         }
 
-        dtk::ImageInfo WritePlugin::getInfo(
-            const dtk::ImageInfo& info,
+        feather_tk::ImageInfo WritePlugin::getInfo(
+            const feather_tk::ImageInfo& info,
             const io::Options& options) const
         {
-            dtk::ImageInfo out;
+            feather_tk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case dtk::ImageType::L_U8:
-            case dtk::ImageType::RGB_U8:
+            case feather_tk::ImageType::L_U8:
+            case feather_tk::ImageType::RGB_U8:
                 out.type = info.type;
                 break;
             default: break;
@@ -104,7 +104,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

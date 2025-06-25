@@ -16,10 +16,10 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-#include <dtk/gl/OffscreenBuffer.h>
-#include <dtk/core/IApp.h>
+#include <feather-tk/gl/OffscreenBuffer.h>
+#include <feather-tk/core/IApp.h>
 
-namespace dtk
+namespace feather_tk
 {
     namespace gl
     {
@@ -36,8 +36,8 @@ namespace tl
         struct Options
         {
             OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-            dtk::Size2I renderSize;
-            dtk::ImageType outputPixelType = dtk::ImageType::None;
+            feather_tk::Size2I renderSize;
+            feather_tk::ImageType outputPixelType = feather_tk::ImageType::None;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             float sequenceDefaultSpeed = io::SequenceOptions().defaultSpeed;
@@ -65,13 +65,13 @@ namespace tl
         };
 
         //! Application.
-        class App : public dtk::IApp
+        class App : public feather_tk::IApp
         {
-            DTK_NON_COPYABLE(App);
+            FEATHER_TK_NON_COPYABLE(App);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 std::vector<std::string>&);
             App();
 
@@ -80,7 +80,7 @@ namespace tl
 
             //! Create a new application.
             static std::shared_ptr<App> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 std::vector<std::string>&);
 
             //! Run the application.
@@ -97,20 +97,20 @@ namespace tl
             Options _options;
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            dtk::Size2I _renderSize;
-            dtk::ImageInfo _outputInfo;
+            feather_tk::Size2I _renderSize;
+            feather_tk::ImageInfo _outputInfo;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             OTIO_NS::RationalTime _inputTime = time::invalidTime;
             OTIO_NS::RationalTime _outputTime = time::invalidTime;
 
-            std::shared_ptr<dtk::gl::Window> _window;
+            std::shared_ptr<feather_tk::gl::Window> _window;
             std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
-            std::shared_ptr<dtk::gl::OffscreenBuffer> _buffer;
+            std::shared_ptr<feather_tk::gl::OffscreenBuffer> _buffer;
 
             std::shared_ptr<io::IWritePlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;
-            std::shared_ptr<dtk::Image> _outputImage;
+            std::shared_ptr<feather_tk::Image> _outputImage;
 
             bool _running = true;
             std::chrono::steady_clock::time_point _startTime;

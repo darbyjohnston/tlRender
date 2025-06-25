@@ -4,8 +4,8 @@
 
 #include <tlCore/FileInfoPrivate.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <algorithm>
 #include <array>
@@ -16,7 +16,7 @@ namespace tl
 {
     namespace file
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             Type,
             "File",
             "Directory");
@@ -40,10 +40,10 @@ namespace tl
                  _path.getNumber().size() == value._path.getPadding()))
             {
                 _path.setPadding(std::max(_path.getPadding(), value._path.getPadding()));
-                dtk::RangeI sequence = _path.getSequence();
-                const dtk::RangeI& otherSequence = value._path.getSequence();
-                sequence = dtk::expand(sequence, otherSequence.min());
-                sequence = dtk::expand(sequence, otherSequence.max());
+                feather_tk::RangeI sequence = _path.getSequence();
+                const feather_tk::RangeI& otherSequence = value._path.getSequence();
+                sequence = feather_tk::expand(sequence, otherSequence.min());
+                sequence = feather_tk::expand(sequence, otherSequence.max());
                 _path.setSequence(sequence);
                 _size += value._size;
                 _permissions = std::min(_permissions, value._permissions);
@@ -51,7 +51,7 @@ namespace tl
             }
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             ListSort,
             "Name",
             "Extension",
@@ -126,7 +126,7 @@ namespace tl
                     sequenceExtension = std::find(
                         options.sequenceExtensions.begin(),
                         options.sequenceExtensions.end(),
-                        dtk::toLower(p.getExtension())) !=
+                        feather_tk::toLower(p.getExtension())) !=
                         options.sequenceExtensions.end();
                 }
                 if (sequenceExtension)

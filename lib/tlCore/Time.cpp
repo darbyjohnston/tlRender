@@ -4,9 +4,9 @@
 
 #include <tlCore/Time.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/Math.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Math.h>
+#include <feather-tk/core/String.h>
 
 #include <array>
 #include <sstream>
@@ -93,7 +93,7 @@ namespace tl
             list.push_back(std::to_string(prefix));
             list.push_back(std::to_string(count));
             list.push_back(std::to_string(offset));
-            return dtk::join(list, ":");
+            return feather_tk::join(list, ":");
         }
 
         void stringToKeycode(
@@ -104,10 +104,10 @@ namespace tl
             int& count,
             int& offset)
         {
-            const auto pieces = dtk::split(string, ':');
+            const auto pieces = feather_tk::split(string, ':');
             if (pieces.size() != 5)
             {
-                throw dtk::ParseError();
+                throw feather_tk::ParseError();
             }
             id = std::stoi(pieces[0]);
             type = std::stoi(pieces[1]);
@@ -178,11 +178,11 @@ namespace tl
             int minute = 0;
             int second = 0;
             int frame = 0;
-            const auto pieces = dtk::split(in, ':');
+            const auto pieces = feather_tk::split(in, ':');
             size_t i = 0;
             if (pieces.size() != 4)
             {
-                throw dtk::ParseError();
+                throw feather_tk::ParseError();
             }
             hour = std::stoi(pieces[i]); ++i;
             minute = std::stoi(pieces[i]); ++i;
@@ -243,10 +243,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = dtk::split(s, '/');
+            auto split = feather_tk::split(s, '/');
             if (split.size() != 2)
             {
-                throw dtk::ParseError();
+                throw feather_tk::ParseError();
             }
             out = RationalTime(std::stof(split[0]), std::stof(split[1]));
             return is;
@@ -256,10 +256,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = dtk::split(s, '/');
+            auto split = feather_tk::split(s, '/');
             if (split.size() != 3)
             {
-                throw dtk::ParseError();
+                throw feather_tk::ParseError();
             }
             double startTime = 0.0;
             {

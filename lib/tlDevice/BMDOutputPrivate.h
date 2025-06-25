@@ -139,7 +139,7 @@ namespace tl
         public:
             DLOutputCallback(
                 IDeckLinkOutput*,
-                const dtk::Size2I& size,
+                const feather_tk::Size2I& size,
                 PixelType pixelType,
                 const FrameRate& frameRate,
                 int videoFrameDelay,
@@ -160,7 +160,7 @@ namespace tl
 
         private:
             IDeckLinkOutput* _dlOutput = nullptr;
-            dtk::Size2I _size;
+            feather_tk::Size2I _size;
             PixelType _pixelType = PixelType::None;
             FrameRate _frameRate;
             audio::Info _audioInfo;

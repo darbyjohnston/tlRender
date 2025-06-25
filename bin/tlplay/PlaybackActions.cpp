@@ -12,13 +12,13 @@ namespace tl
     namespace play
     {
         void PlaybackActions::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            _actions["Stop"] = dtk::Action::create(
+            _actions["Stop"] = feather_tk::Action::create(
                 "Stop",
                 "PlaybackStop",
-                dtk::Key::K,
+                feather_tk::Key::K,
                 0,
                 [this]
                 {
@@ -29,10 +29,10 @@ namespace tl
                 });
             _actions["Stop"]->setTooltip("Stop playback.");
 
-            _actions["Forward"] = dtk::Action::create(
+            _actions["Forward"] = feather_tk::Action::create(
                 "Forward",
                 "PlaybackForward",
-                dtk::Key::L,
+                feather_tk::Key::L,
                 0,
                 [this]
                 {
@@ -44,10 +44,10 @@ namespace tl
                 });
             _actions["Forward"]->setTooltip("Start forward playback.");
 
-            _actions["Reverse"] = dtk::Action::create(
+            _actions["Reverse"] = feather_tk::Action::create(
                 "Reverse",
                 "PlaybackReverse",
-                dtk::Key::J,
+                feather_tk::Key::J,
                 0,
                 [this]
                 {
@@ -59,9 +59,9 @@ namespace tl
                 });
             _actions["Reverse"]->setTooltip("Start reverse playback.");
 
-            _actions["TogglePlayback"] = dtk::Action::create(
+            _actions["TogglePlayback"] = feather_tk::Action::create(
                 "Toggle Playback",
-                dtk::Key::Space,
+                feather_tk::Key::Space,
                 0,
                 [this]
                 {
@@ -78,10 +78,10 @@ namespace tl
                     }
                 });
 
-            _actions["Start"] = dtk::Action::create(
+            _actions["Start"] = feather_tk::Action::create(
                 "Goto Start",
                 "FrameStart",
-                dtk::Key::Home,
+                feather_tk::Key::Home,
                 0,
                 [this]
                 {
@@ -92,10 +92,10 @@ namespace tl
                 });
             _actions["Start"]->setTooltip("Go to the start frame.");
 
-            _actions["Prev"] = dtk::Action::create(
+            _actions["Prev"] = feather_tk::Action::create(
                 "Goto Previous",
                 "FramePrev",
-                dtk::Key::Left,
+                feather_tk::Key::Left,
                 0,
                 [this]
                 {
@@ -106,10 +106,10 @@ namespace tl
                 });
             _actions["Prev"]->setTooltip("Go to the previous frame.");
 
-            _actions["Next"] = dtk::Action::create(
+            _actions["Next"] = feather_tk::Action::create(
                 "Goto Next",
                 "FrameNext",
-                dtk::Key::Right,
+                feather_tk::Key::Right,
                 0,
                 [this]
                 {
@@ -120,10 +120,10 @@ namespace tl
                 });
             _actions["Next"]->setTooltip("Go to the next frame.");
 
-            _actions["End"] = dtk::Action::create(
+            _actions["End"] = feather_tk::Action::create(
                 "Goto End",
                 "FrameEnd",
-                dtk::Key::End,
+                feather_tk::Key::End,
                 0,
                 [this]
                 {
@@ -134,7 +134,7 @@ namespace tl
                 });
             _actions["End"]->setTooltip("Go to the end frame.");
 
-            _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -142,7 +142,7 @@ namespace tl
 
                     if (value)
                     {
-                        _playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
+                        _playbackObserver = feather_tk::ValueObserver<timeline::Playback>::create(
                             value->observePlayback(),
                             [this](timeline::Playback value)
                             {
@@ -176,7 +176,7 @@ namespace tl
         }
 
         std::shared_ptr<PlaybackActions> PlaybackActions::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<PlaybackActions>(new PlaybackActions);
@@ -184,7 +184,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& PlaybackActions::getActions() const
+        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& PlaybackActions::getActions() const
         {
             return _actions;
         }

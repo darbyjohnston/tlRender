@@ -7,37 +7,37 @@
 #include "App.h"
 #include "FilesModel.h"
 
-#include <dtk/ui/ToolButton.h>
+#include <feather-tk/ui/ToolButton.h>
 
 namespace tl
 {
     namespace play
     {
         void PlaybackBar::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "PlaybackBar", parent);
 
-            _layout = dtk::HorizontalLayout::create(context, shared_from_this());
+            _layout = feather_tk::HorizontalLayout::create(context, shared_from_this());
 
-            auto hLayout = dtk::HorizontalLayout::create(context, _layout);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
+            auto hLayout = feather_tk::HorizontalLayout::create(context, _layout);
+            hLayout->setSpacingRole(feather_tk::SizeRole::SpacingTool);
             auto tmp = actions;
-            auto reverseButton = dtk::ToolButton::create(context, tmp["Reverse"], hLayout);
-            auto stopButton = dtk::ToolButton::create(context, tmp["Stop"], hLayout);
-            auto forwardButton = dtk::ToolButton::create(context, tmp["Forward"], hLayout);
+            auto reverseButton = feather_tk::ToolButton::create(context, tmp["Reverse"], hLayout);
+            auto stopButton = feather_tk::ToolButton::create(context, tmp["Stop"], hLayout);
+            auto forwardButton = feather_tk::ToolButton::create(context, tmp["Forward"], hLayout);
 
-            hLayout = dtk::HorizontalLayout::create(context, _layout);
-            hLayout->setSpacingRole(dtk::SizeRole::SpacingTool);
-            auto startButton = dtk::ToolButton::create(context, tmp["Start"], hLayout);
-            auto prevButton = dtk::ToolButton::create(context, tmp["Prev"], hLayout);
+            hLayout = feather_tk::HorizontalLayout::create(context, _layout);
+            hLayout->setSpacingRole(feather_tk::SizeRole::SpacingTool);
+            auto startButton = feather_tk::ToolButton::create(context, tmp["Start"], hLayout);
+            auto prevButton = feather_tk::ToolButton::create(context, tmp["Prev"], hLayout);
             prevButton->setRepeatClick(true);
-            auto nextButton = dtk::ToolButton::create(context, tmp["Next"], hLayout);
+            auto nextButton = feather_tk::ToolButton::create(context, tmp["Next"], hLayout);
             nextButton->setRepeatClick(true);
-            auto endButton = dtk::ToolButton::create(context, tmp["End"], hLayout);
+            auto endButton = feather_tk::ToolButton::create(context, tmp["End"], hLayout);
 
             _currentTimeEdit = timelineui::TimeEdit::create(context, app->getTimeUnitsModel(), _layout);
             _currentTimeEdit->setTooltip("The current time.");
@@ -55,7 +55,7 @@ namespace tl
                     }
                 });
 
-            _playerObserver = dtk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -65,7 +65,7 @@ namespace tl
                     {
                         _durationLabel->setValue(value->getTimeRange().duration());
 
-                        _currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+                        _currentTimeObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
                             value->observeCurrentTime(),
                             [this](const OTIO_NS::RationalTime& value)
                             {
@@ -90,9 +90,9 @@ namespace tl
         }
 
         std::shared_ptr<PlaybackBar> PlaybackBar::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::map<std::string, std::shared_ptr<dtk::Action> >& actions,
+            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& actions,
             const std::shared_ptr<IWidget>& parent)
         {
             auto out = std::shared_ptr<PlaybackBar>(new PlaybackBar);
@@ -100,13 +100,13 @@ namespace tl
             return out;
         }
 
-        void PlaybackBar::setGeometry(const dtk::Box2I& value)
+        void PlaybackBar::setGeometry(const feather_tk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void PlaybackBar::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void PlaybackBar::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());

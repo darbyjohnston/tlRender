@@ -4,8 +4,8 @@
 
 #include <tlIO/PPM.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 namespace tl
 {
@@ -16,17 +16,17 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName, const dtk::InMemoryFile* memory)
+                File(const std::string& fileName, const feather_tk::InMemoryFile* memory)
                 {
                     _io = memory ?
-                        dtk::FileIO::create(fileName, *memory) :
-                        dtk::FileIO::create(fileName, dtk::FileMode::Read);
+                        feather_tk::FileIO::create(fileName, *memory) :
+                        feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
 
                     char magic[] = { 0, 0, 0 };
                     _io->read(magic, 2);
                     if (magic[0] != 'P')
                     {
-                        throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                        throw std::runtime_error(feather_tk::Format("Bad magic number: \"{0}\"").
                             arg(fileName));
                     }
                     switch (magic[1])
@@ -37,22 +37,22 @@ namespace tl
                     case '6': break;
                     default:
                     {
-                        throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                        throw std::runtime_error(feather_tk::Format("Bad magic number: \"{0}\"").
                             arg(fileName));
                     }
                     }
                     const int ppmType = magic[1] - '0';
                     _data = (2 == ppmType || 3 == ppmType) ? Data::ASCII : Data::Binary;
 
-                    char tmp[dtk::cStringSize] = "";
-                    dtk::readWord(_io, tmp, dtk::cStringSize);
+                    char tmp[feather_tk::cStringSize] = "";
+                    feather_tk::readWord(_io, tmp, feather_tk::cStringSize);
                     const int w = std::stoi(tmp);
-                    dtk::readWord(_io, tmp, dtk::cStringSize);
+                    feather_tk::readWord(_io, tmp, feather_tk::cStringSize);
                     const int h = std::stoi(tmp);
                     _info.size.w = w;
                     _info.size.h = h;
 
-                    dtk::readWord(_io, tmp, dtk::cStringSize);
+                    feather_tk::readWord(_io, tmp, feather_tk::cStringSize);
                     const int maxValue = std::stoi(tmp);
                     size_t channelCount = 0;
                     switch (ppmType)
@@ -65,9 +65,9 @@ namespace tl
                     }
                     const size_t bitDepth = maxValue < 256 ? 8 : 16;
                     _info.type = io::getIntType(channelCount, bitDepth);
-                    if (dtk::ImageType::None == _info.type)
+                    if (feather_tk::ImageType::None == _info.type)
                     {
-                        throw std::runtime_error(dtk::Format("Unsupported image type: \"{0}\"").
+                        throw std::runtime_error(feather_tk::Format("Unsupported image type: \"{0}\"").
                             arg(fileName));
                     }
 
@@ -77,11 +77,11 @@ namespace tl
                     const size_t dataByteCount = _info.getByteCount();
                     if (Data::Binary == _data && dataByteCount > fileDataByteCount)
                     {
-                        throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                        throw std::runtime_error(feather_tk::Format("Incomplete file: \"{0}\"").
                             arg(fileName));
                     }
 
-                    _info.layout.endian = _data != Data::ASCII ? dtk::Endian::MSB : dtk::getEndian();
+                    _info.layout.endian = _data != Data::ASCII ? feather_tk::Endian::MSB : feather_tk::getEndian();
                 }
 
                 Data getData() const
@@ -89,7 +89,7 @@ namespace tl
                     return _data;
                 }
 
-                const dtk::ImageInfo& getInfo() const
+                const feather_tk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
@@ -100,15 +100,15 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = dtk::Image::create(_info);
+                    out.image = feather_tk::Image::create(_info);
 
                     uint8_t* p = out.image->getData();
                     switch (_data)
                     {
                     case Data::ASCII:
                     {
-                        const size_t channelCount = dtk::getChannelCount(_info.type);
-                        const size_t bitDepth = dtk::getBitDepth(_info.type);
+                        const size_t channelCount = feather_tk::getChannelCount(_info.type);
+                        const size_t bitDepth = feather_tk::getBitDepth(_info.type);
                         const std::size_t scanlineByteCount = _info.size.w * channelCount * (bitDepth / 8);
                         for (uint16_t y = 0; y < _info.size.h; ++y, p += scanlineByteCount)
                         {
@@ -128,17 +128,17 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<dtk::FileIO> _io;
+                std::shared_ptr<feather_tk::FileIO> _io;
                 Data _data = Data::First;
-                dtk::ImageInfo _info;
+                feather_tk::ImageInfo _info;
             };
         }
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -154,7 +154,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -163,9 +163,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -174,7 +174,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory)
+            const feather_tk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -186,7 +186,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory,
+            const feather_tk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

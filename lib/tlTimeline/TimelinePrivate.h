@@ -8,7 +8,7 @@
 
 #include <tlIO/Read.h>
 
-#include <dtk/core/LRUCache.h>
+#include <feather-tk/core/LRUCache.h>
 
 #include <opentimelineio/clip.h>
 
@@ -49,13 +49,13 @@ namespace tl
                 double seconds,
                 const OTIO_NS::TimeRange&);
 
-            std::weak_ptr<dtk::Context> context;
+            std::weak_ptr<feather_tk::Context> context;
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
-            std::shared_ptr<dtk::ObservableValue<bool> > timelineChanges;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > timelineChanges;
             file::Path path;
             file::Path audioPath;
             Options options;
-            dtk::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
+            feather_tk::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
             uint64_t requestId = 0;

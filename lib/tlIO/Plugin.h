@@ -8,12 +8,12 @@
 
 #include <tlCore/Path.h>
 
-#include <dtk/core/FileIO.h>
+#include <feather-tk/core/FileIO.h>
 
 #include <future>
 #include <set>
 
-namespace dtk
+namespace feather_tk
 {
     class LogSystem;
 }
@@ -31,13 +31,13 @@ namespace tl
         //! Base class for readers and writers.
         class IIO : public std::enable_shared_from_this<IIO>
         {
-            DTK_NON_COPYABLE(IIO);
+            FEATHER_TK_NON_COPYABLE(IIO);
 
         protected:
             void _init(
                 const file::Path&,
                 const Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             IIO();
 
@@ -50,19 +50,19 @@ namespace tl
         protected:
             file::Path _path;
             Options _options;
-            std::weak_ptr<dtk::LogSystem> _logSystem;
+            std::weak_ptr<feather_tk::LogSystem> _logSystem;
         };
 
         //! Base class for I/O plugins.
         class IPlugin : public std::enable_shared_from_this<IPlugin>
         {
-            DTK_NON_COPYABLE(IPlugin);
+            FEATHER_TK_NON_COPYABLE(IPlugin);
 
         protected:
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             IPlugin();
 
@@ -78,10 +78,10 @@ namespace tl
                 static_cast<int>(FileType::Sequence)) const;
 
         protected:
-            std::weak_ptr<dtk::LogSystem> _logSystem;
+            std::weak_ptr<feather_tk::LogSystem> _logSystem;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

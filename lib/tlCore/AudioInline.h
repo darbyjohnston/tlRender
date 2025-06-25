@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2025 Darby Johnston
 // All rights reserved.
 
-#include <dtk/core/Math.h>
+#include <feather-tk/core/Math.h>
 
 #include <cstring>
 
@@ -85,7 +85,7 @@ namespace tl
 
         inline void F32ToS8(F32_T value, S8_T& out)
         {
-            out = static_cast<S8_T>(dtk::clamp(
+            out = static_cast<S8_T>(feather_tk::clamp(
                 static_cast<int16_t>(value * S8Range.max()),
                 static_cast<int16_t>(S8Range.min()),
                 static_cast<int16_t>(S8Range.max())));
@@ -93,7 +93,7 @@ namespace tl
 
         inline void F32ToS16(F32_T value, S16_T& out)
         {
-            out = static_cast<S16_T>(dtk::clamp(
+            out = static_cast<S16_T>(feather_tk::clamp(
                 static_cast<int32_t>(value * S16Range.max()),
                 static_cast<int32_t>(S16Range.min()),
                 static_cast<int32_t>(S16Range.max())));
@@ -101,7 +101,7 @@ namespace tl
 
         inline void F32ToS32(F32_T value, S32_T& out)
         {
-            out = static_cast<S32_T>(dtk::clamp(
+            out = static_cast<S32_T>(feather_tk::clamp(
                 static_cast<int64_t>(static_cast<int64_t>(value) * S32Range.max()),
                 static_cast<int64_t>(S32Range.min()),
                 static_cast<int64_t>(S32Range.max())));
@@ -114,7 +114,7 @@ namespace tl
 
         inline void F64ToS8(F64_T value, S8_T& out)
         {
-            out = static_cast<S8_T>(dtk::clamp(
+            out = static_cast<S8_T>(feather_tk::clamp(
                 static_cast<int16_t>(value * S8Range.max()),
                 static_cast<int16_t>(S8Range.min()),
                 static_cast<int16_t>(S8Range.max())));
@@ -122,7 +122,7 @@ namespace tl
 
         inline void F64ToS16(F64_T value, S16_T& out)
         {
-            out = static_cast<S16_T>(dtk::clamp(
+            out = static_cast<S16_T>(feather_tk::clamp(
                 static_cast<int32_t>(value * S16Range.max()),
                 static_cast<int32_t>(S16Range.min()),
                 static_cast<int32_t>(S16Range.max())));
@@ -130,7 +130,7 @@ namespace tl
 
         inline void F64ToS32(F64_T value, S32_T& out)
         {
-            out = static_cast<S32_T>(dtk::clamp(
+            out = static_cast<S32_T>(feather_tk::clamp(
                 static_cast<int64_t>(static_cast<int64_t>(value) * S32Range.max()),
                 static_cast<int64_t>(S32Range.min()),
                 static_cast<int64_t>(S32Range.max())));

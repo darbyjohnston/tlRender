@@ -9,7 +9,7 @@
 
 #include <tlIO/System.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -22,11 +22,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        TimelineTest::TimelineTest(const std::shared_ptr<dtk::Context>& context) :
+        TimelineTest::TimelineTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::TimelineTest")
         {}
 
-        std::shared_ptr<TimelineTest> TimelineTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<TimelineTest> TimelineTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<TimelineTest>(new TimelineTest(context));
         }
@@ -53,8 +53,8 @@ namespace tl
         {
             Options a;
             a.fileSequenceAudio = FileSequenceAudio::FileName;
-            DTK_ASSERT(a == a);
-            DTK_ASSERT(a != Options());
+            FEATHER_TK_ASSERT(a == a);
+            FEATHER_TK_ASSERT(a != Options());
         }
 
         void TimelineTest::_util()
@@ -64,8 +64,8 @@ namespace tl
         void TimelineTest::_transitions()
         {
             {
-                DTK_ASSERT(toTransition(std::string()) == Transition::None);
-                DTK_ASSERT(toTransition("SMPTE_Dissolve") == Transition::Dissolve);
+                FEATHER_TK_ASSERT(toTransition(std::string()) == Transition::None);
+                FEATHER_TK_ASSERT(toTransition("SMPTE_Dissolve") == Transition::Dissolve);
             }
         }
 
@@ -73,15 +73,15 @@ namespace tl
         {
             {
                 VideoLayer a, b;
-                DTK_ASSERT(a == b);
+                FEATHER_TK_ASSERT(a == b);
                 a.transition = Transition::Dissolve;
-                DTK_ASSERT(a != b);
+                FEATHER_TK_ASSERT(a != b);
             }
             {
                 VideoData a, b;
-                DTK_ASSERT(a == b);
+                FEATHER_TK_ASSERT(a == b);
                 a.time = OTIO_NS::RationalTime(1.0, 24.0);
-                DTK_ASSERT(a != b);
+                FEATHER_TK_ASSERT(a != b);
             }
         }
 
@@ -101,7 +101,7 @@ namespace tl
             {
                 try
                 {
-                    _print(dtk::Format("Timeline: {0}").arg(path.get()));
+                    _print(feather_tk::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(_context, path);
                     _timeline(timeline);
                 }
@@ -114,7 +114,7 @@ namespace tl
             {
                 try
                 {
-                    _print(dtk::Format("Memory timeline: {0}").arg(path.get()));
+                    _print(feather_tk::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(_context, path);
                     toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
                     auto timeline = timeline::Timeline::create(_context, otioTimeline);
@@ -160,7 +160,7 @@ namespace tl
                     }
                 }
             }
-            DTK_ASSERT(videoRequests.empty());
+            FEATHER_TK_ASSERT(videoRequests.empty());
 
             // Get audio from the timeline.
             std::vector<timeline::AudioData> audioData;
@@ -186,7 +186,7 @@ namespace tl
                     }
                 }
             }
-            DTK_ASSERT(audioRequests.empty());
+            FEATHER_TK_ASSERT(audioRequests.empty());
 
             // Cancel requests.
             videoData.clear();
@@ -243,13 +243,13 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(dtk::Format("Path: {0}").arg(path.get()));
+                _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::None;
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                DTK_ASSERT(audioPath.isEmpty());
-                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
+                FEATHER_TK_ASSERT(audioPath.isEmpty());
+                _print(feather_tk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -258,13 +258,13 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(dtk::Format("Path: {0}").arg(path.get()));
+                _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::Extension;
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                DTK_ASSERT(!audioPath.isEmpty());
-                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
+                FEATHER_TK_ASSERT(!audioPath.isEmpty());
+                _print(feather_tk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -273,15 +273,15 @@ namespace tl
             try
             {
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
-                _print(dtk::Format("Path: {0}").arg(path.get()));
+                _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
                 options.fileSequenceAudio = FileSequenceAudio::FileName;
                 options.fileSequenceAudioFileName = file::Path(
                     TLRENDER_SAMPLE_DATA, "AudioToneStereo.wav").get();
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
-                DTK_ASSERT(!audioPath.isEmpty());
-                _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
+                FEATHER_TK_ASSERT(!audioPath.isEmpty());
+                _print(feather_tk::Format("Audio path: {0}").arg(audioPath.get()));
             }
             catch (const std::exception& e)
             {
@@ -299,7 +299,7 @@ namespace tl
                 _context,
                 file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otio"));
             timeline->setTimeline(otioTimeline);
-            DTK_ASSERT(otioTimeline.value == timeline->getTimeline().value);
+            FEATHER_TK_ASSERT(otioTimeline.value == timeline->getTimeline().value);
         }
     }
 }

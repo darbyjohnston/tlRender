@@ -4,8 +4,8 @@
 
 #include <tlCore/HDR.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <sstream>
 
@@ -13,13 +13,13 @@ namespace tl
 {
     namespace image
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             HDR_EOTF,
             "SDR",
             "HDR",
             "ST2084");
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             HDRPrimaries,
             "Red",
             "Green",

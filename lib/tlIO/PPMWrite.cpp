@@ -17,26 +17,26 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<dtk::Image>& image,
+                    const std::shared_ptr<feather_tk::Image>& image,
                     Data data)
                 {
                     const auto& info = image->getInfo();
                     uint8_t ppmType = Data::ASCII == data ? 2 : 5;
-                    const uint8_t channelCount = dtk::getChannelCount(info.type);
+                    const uint8_t channelCount = feather_tk::getChannelCount(info.type);
                     if (3 == channelCount)
                     {
                         ++ppmType;
                     }
                     char magic[] = "P \n";
                     magic[1] = '0' + ppmType;
-                    auto io = dtk::FileIO::create(fileName, dtk::FileMode::Write);
+                    auto io = feather_tk::FileIO::create(fileName, feather_tk::FileMode::Write);
                     io->write(magic, 3);
 
                     std::stringstream ss;
                     ss << info.size.w << ' ' << info.size.h;
                     io->write(ss.str());
                     io->writeU8('\n');
-                    const uint8_t bitDepth = dtk::getBitDepth(info.type);
+                    const uint8_t bitDepth = feather_tk::getBitDepth(info.type);
                     const uint16_t maxValue = 8 == bitDepth ? 255 : 65535;
                     ss = std::stringstream();
                     ss << maxValue;
@@ -74,7 +74,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
 
@@ -96,7 +96,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -106,7 +106,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<dtk::Image>& image,
+            const std::shared_ptr<feather_tk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image, _data);

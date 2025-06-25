@@ -14,13 +14,13 @@ namespace tl
         {
             class ITestPattern : public std::enable_shared_from_this<ITestPattern>
             {
-                DTK_NON_COPYABLE(ITestPattern);
+                FEATHER_TK_NON_COPYABLE(ITestPattern);
 
             protected:
                 void _init(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     const std::string&,
-                    const dtk::Size2I&);
+                    const feather_tk::Size2I&);
 
                 ITestPattern();
 
@@ -34,17 +34,17 @@ namespace tl
                     const OTIO_NS::RationalTime&) = 0;
 
             protected:
-                std::weak_ptr<dtk::Context> _context;
+                std::weak_ptr<feather_tk::Context> _context;
                 std::string _name;
-                dtk::Size2I _size;
+                feather_tk::Size2I _size;
             };
 
             class CountTestPattern : public ITestPattern
             {
             protected:
                 void _init(
-                    const std::shared_ptr<dtk::Context>&,
-                    const dtk::Size2I&);
+                    const std::shared_ptr<feather_tk::Context>&,
+                    const feather_tk::Size2I&);
 
             public:
                 virtual ~CountTestPattern();
@@ -52,26 +52,26 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<CountTestPattern> create(
-                    const std::shared_ptr<dtk::Context>&,
-                    const dtk::Size2I&);
+                    const std::shared_ptr<feather_tk::Context>&,
+                    const feather_tk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
                     const OTIO_NS::RationalTime&) override;
 
             private:
-                dtk::FontInfo _secondsFontInfo;
-                dtk::FontMetrics _secondsFontMetrics;
-                dtk::FontInfo _framesFontInfo;
-                dtk::FontMetrics _framesFontMetrics;
+                feather_tk::FontInfo _secondsFontInfo;
+                feather_tk::FontMetrics _secondsFontMetrics;
+                feather_tk::FontInfo _framesFontInfo;
+                feather_tk::FontMetrics _framesFontMetrics;
             };
 
             class SwatchesTestPattern : public ITestPattern
             {
             protected:
                 void _init(
-                    const std::shared_ptr<dtk::Context>&,
-                    const dtk::Size2I&);
+                    const std::shared_ptr<feather_tk::Context>&,
+                    const feather_tk::Size2I&);
 
             public:
                 virtual ~SwatchesTestPattern();
@@ -79,15 +79,15 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<SwatchesTestPattern> create(
-                    const std::shared_ptr<dtk::Context>&,
-                    const dtk::Size2I&);
+                    const std::shared_ptr<feather_tk::Context>&,
+                    const feather_tk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
                     const OTIO_NS::RationalTime&) override;
 
             private:
-                std::shared_ptr<dtk::Image> _gradient;
+                std::shared_ptr<feather_tk::Image> _gradient;
             };
 
             class GridTestPattern : public ITestPattern
@@ -98,8 +98,8 @@ namespace tl
                 static std::string getClassName();
 
                 static std::shared_ptr<GridTestPattern> create(
-                    const std::shared_ptr<dtk::Context>&,
-                    const dtk::Size2I&);
+                    const std::shared_ptr<feather_tk::Context>&,
+                    const feather_tk::Size2I&);
 
                 void render(
                     const std::shared_ptr<timeline::IRender>&,
@@ -110,9 +110,9 @@ namespace tl
             {
             public:
                 static std::shared_ptr<ITestPattern> create(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     const std::string& name,
-                    const dtk::Size2I&);
+                    const feather_tk::Size2I&);
             };
         }
     }

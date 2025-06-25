@@ -4,7 +4,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
@@ -25,8 +25,8 @@ namespace tl
         Options getOptions(const SequenceOptions& value)
         {
             Options out;
-            out["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").arg(value.defaultSpeed);
-            out["SequenceIO/ThreadCount"] = dtk::Format("{0}").arg(value.threadCount);
+            out["SequenceIO/DefaultSpeed"] = feather_tk::Format("{0}").arg(value.defaultSpeed);
+            out["SequenceIO/ThreadCount"] = feather_tk::Format("{0}").arg(value.threadCount);
             return out;
         }
 

@@ -4,24 +4,24 @@
 
 #include <tlCore/ISystem.h>
 
-#include <dtk/core/Context.h>
+#include <feather-tk/core/Context.h>
 
 namespace tl
 {
     namespace system
     {
         ISystem::ISystem(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::string& name) :
-            dtk::ISystem(context, name)
+            feather_tk::ISystem(context, name)
         {
-            _logSystem = context->getSystem<dtk::LogSystem>();
+            _logSystem = context->getSystem<feather_tk::LogSystem>();
         }
 
         ISystem::~ISystem()
         {}
 
-        void ISystem::_log(const std::string& value, dtk::LogType type)
+        void ISystem::_log(const std::string& value, feather_tk::LogType type)
         {
             if (auto logSystem = _logSystem.lock())
             {

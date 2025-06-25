@@ -8,10 +8,10 @@
 
 #include <tlTimeline/Util.h>
 
-#include <dtk/ui/DrawUtil.h>
+#include <feather-tk/ui/DrawUtil.h>
 #include <tlIO/Cache.h>
 
-#include <dtk/core/RenderUtil.h>
+#include <feather-tk/core/RenderUtil.h>
 
 namespace tl
 {
@@ -20,13 +20,13 @@ namespace tl
         struct AudioClipItem::Private
         {
             file::Path path;
-            std::vector<dtk::InMemoryFile> memoryRead;
+            std::vector<feather_tk::InMemoryFile> memoryRead;
             std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct SizeData
             {
                 int dragLength = 0;
-                dtk::Box2I clipRect;
+                feather_tk::Box2I clipRect;
             };
             SizeData size;
 
@@ -36,7 +36,7 @@ namespace tl
         };
 
         void AudioClipItem::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
@@ -52,7 +52,7 @@ namespace tl
             IBasicItem::_init(
                 context,
                 !clip->name().empty() ? clip->name() : path.get(-1, file::PathType::FileName),
-                dtk::ColorRole::AudioClip,
+                feather_tk::ColorRole::AudioClip,
                 "tl::timelineui::AudioClipItem",
                 clip.value,
                 scale,
@@ -60,7 +60,7 @@ namespace tl
                 displayOptions,
                 itemData,
                 parent);
-            DTK_P();
+            FEATHER_TK_P();
 
             p.path = path;
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
@@ -80,12 +80,12 @@ namespace tl
 
         AudioClipItem::~AudioClipItem()
         {
-            DTK_P();
+            FEATHER_TK_P();
             _cancelRequests();
         }
 
         std::shared_ptr<AudioClipItem> AudioClipItem::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>& clip,
             double scale,
             const ItemOptions& options,
@@ -111,7 +111,7 @@ namespace tl
         {
             const bool changed = value != _scale;
             IBasicItem::setScale(value);
-            DTK_P();
+            FEATHER_TK_P();
             if (changed)
             {
                 _cancelRequests();
@@ -127,7 +127,7 @@ namespace tl
                 value.waveformHeight != _displayOptions.waveformHeight ||
                 value.waveformPrim != _displayOptions.waveformPrim;
             IBasicItem::setDisplayOptions(value);
-            DTK_P();
+            FEATHER_TK_P();
             if (thumbnailsChanged)
             {
                 _cancelRequests();
@@ -138,10 +138,10 @@ namespace tl
         void AudioClipItem::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const dtk::TickEvent& event)
+            const feather_tk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
-            DTK_P();
+            FEATHER_TK_P();
 
             // Check if the I/O information is finished.
             if (p.infoRequest.future.valid() &&
@@ -178,12 +178,12 @@ namespace tl
             }
         }
 
-        void AudioClipItem::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void AudioClipItem::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IBasicItem::sizeHintEvent(event);
-            DTK_P();
-            p.size.dragLength = event.style->getSizeRole(dtk::SizeRole::DragLength, event.displayScale);
-            dtk::Size2I sizeHint = getSizeHint();
+            FEATHER_TK_P();
+            p.size.dragLength = event.style->getSizeRole(feather_tk::SizeRole::DragLength, event.displayScale);
+            feather_tk::Size2I sizeHint = getSizeHint();
             if (_displayOptions.thumbnails)
             {
                 sizeHint.h += _displayOptions.waveformHeight;
@@ -191,10 +191,10 @@ namespace tl
             _setSizeHint(sizeHint);
         }
 
-        void AudioClipItem::clipEvent(const dtk::Box2I& clipRect, bool clipped)
+        void AudioClipItem::clipEvent(const feather_tk::Box2I& clipRect, bool clipped)
         {
             IBasicItem::clipEvent(clipRect, clipped);
-            DTK_P();
+            FEATHER_TK_P();
             if (clipRect == p.size.clipRect)
                 return;
             p.size.clipRect = clipRect;
@@ -206,8 +206,8 @@ namespace tl
         }
 
         void AudioClipItem::drawEvent(
-            const dtk::Box2I& drawRect,
-            const dtk::DrawEvent& event)
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
         {
             IBasicItem::drawEvent(drawRect, event);
             if (_displayOptions.thumbnails)
@@ -217,16 +217,16 @@ namespace tl
         }
 
         void AudioClipItem::_drawWaveforms(
-            const dtk::Box2I& drawRect,
-            const dtk::DrawEvent& event)
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
         {
-            DTK_P();
+            FEATHER_TK_P();
 
-            const dtk::Box2I g = _getInsideGeometry();
+            const feather_tk::Box2I g = _getInsideGeometry();
             const int m = _getMargin();
             const int lineHeight = _getLineHeight();
 
-            const dtk::Box2I box(
+            const feather_tk::Box2I box(
                 g.min.x,
                 g.min.y +
                 (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
@@ -234,16 +234,16 @@ namespace tl
                 _displayOptions.waveformHeight);
             event.render->drawRect(
                 box,
-                dtk::Color4F(0.F, 0.F, 0.F));
-            const dtk::ClipRectEnabledState clipRectEnabledState(event.render);
-            const dtk::ClipRectState clipRectState(event.render);
+                feather_tk::Color4F(0.F, 0.F, 0.F));
+            const feather_tk::ClipRectEnabledState clipRectEnabledState(event.render);
+            const feather_tk::ClipRectState clipRectState(event.render);
             event.render->setClipRectEnabled(true);
-            event.render->setClipRect(dtk::intersect(box, clipRectState.getClipRect()));
+            event.render->setClipRect(feather_tk::intersect(box, clipRectState.getClipRect()));
 
-            const dtk::Box2I clipRect = _getClipRect(
+            const feather_tk::Box2I clipRect = _getClipRect(
                 drawRect,
                 _displayOptions.clipRectScale);
-            if (dtk::intersects(g, clipRect))
+            if (feather_tk::intersects(g, clipRect))
             {
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
@@ -260,14 +260,14 @@ namespace tl
                 const bool enabled = isEnabled();
                 for (int x = 0; x < w; x += _displayOptions.waveformWidth)
                 {
-                    const dtk::Box2I box(
+                    const feather_tk::Box2I box(
                         g.min.x +
                         x,
                         g.min.y +
                         (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
                         _displayOptions.waveformWidth,
                         _displayOptions.waveformHeight);
-                    if (dtk::intersects(box, clipRect))
+                    if (feather_tk::intersects(box, clipRect))
                     {
                         const OTIO_NS::RationalTime time = OTIO_NS::RationalTime(
                             _timeRange.start_time().value() +
@@ -311,9 +311,9 @@ namespace tl
                                 event.render->drawMesh(
                                     *i->second,
                                     enabled ?
-                                        dtk::Color4F(1.F, 1.F, 1.F) :
-                                        dtk::Color4F(.5F, .5F, .5F),
-                                    dtk::V2F(box.min.x, box.min.y));
+                                        feather_tk::Color4F(1.F, 1.F, 1.F) :
+                                        feather_tk::Color4F(.5F, .5F, .5F),
+                                    feather_tk::V2F(box.min.x, box.min.y));
                             }
                         }
                         else if (p.ioInfo && p.ioInfo->audio.isValid())
@@ -336,7 +336,7 @@ namespace tl
 
         void AudioClipItem::_cancelRequests()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::vector<uint64_t> ids;
             if (p.infoRequest.future.valid())
             {

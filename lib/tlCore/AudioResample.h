@@ -13,7 +13,7 @@ namespace tl
         //! Resample audio data.
         class AudioResample
         {
-            DTK_NON_COPYABLE(AudioResample);
+            FEATHER_TK_NON_COPYABLE(AudioResample);
 
         protected:
             void _init(
@@ -43,7 +43,7 @@ namespace tl
             void flush();
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

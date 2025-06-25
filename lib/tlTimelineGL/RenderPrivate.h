@@ -6,11 +6,11 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <dtk/gl/Mesh.h>
-#include <dtk/gl/OffscreenBuffer.h>
-#include <dtk/gl/Render.h>
-#include <dtk/gl/Shader.h>
-#include <dtk/gl/TextureAtlas.h>
+#include <feather-tk/gl/Mesh.h>
+#include <feather-tk/gl/OffscreenBuffer.h>
+#include <feather-tk/gl/Render.h>
+#include <feather-tk/gl/Shader.h>
+#include <feather-tk/gl/TextureAtlas.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -81,7 +81,7 @@ namespace tl
 
         struct Render::Private
         {
-            std::shared_ptr<dtk::gl::Render> baseRender;
+            std::shared_ptr<feather_tk::gl::Render> baseRender;
 
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
@@ -92,10 +92,10 @@ namespace tl
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 
-            std::map<std::string, std::shared_ptr<dtk::gl::Shader> > shaders;
-            std::map<std::string, std::shared_ptr<dtk::gl::OffscreenBuffer> > buffers;
-            std::map<std::string, std::shared_ptr<dtk::gl::VBO> > vbos;
-            std::map<std::string, std::shared_ptr<dtk::gl::VAO> > vaos;
+            std::map<std::string, std::shared_ptr<feather_tk::gl::Shader> > shaders;
+            std::map<std::string, std::shared_ptr<feather_tk::gl::OffscreenBuffer> > buffers;
+            std::map<std::string, std::shared_ptr<feather_tk::gl::VBO> > vbos;
+            std::map<std::string, std::shared_ptr<feather_tk::gl::VAO> > vaos;
         };
     }
 }

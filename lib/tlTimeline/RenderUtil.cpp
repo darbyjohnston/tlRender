@@ -8,14 +8,14 @@ namespace tl
 {
     namespace timeline
     {
-        dtk::Box2I getBox(float aspect, const dtk::Box2I& box)
+        feather_tk::Box2I getBox(float aspect, const feather_tk::Box2I& box)
         {
-            dtk::Box2I out;
-            const dtk::Size2I boxSize = box.size();
-            const float boxAspect = dtk::aspectRatio(boxSize);
+            feather_tk::Box2I out;
+            const feather_tk::Size2I boxSize = box.size();
+            const float boxAspect = feather_tk::aspectRatio(boxSize);
             if (boxAspect > aspect)
             {
-                out = dtk::Box2I(
+                out = feather_tk::Box2I(
                     box.min.x + boxSize.w / 2.F - (boxSize.h * aspect) / 2.F,
                     box.min.y,
                     boxSize.h * aspect,
@@ -23,7 +23,7 @@ namespace tl
             }
             else
             {
-                out = dtk::Box2I(
+                out = feather_tk::Box2I(
                     box.min.x,
                     box.min.y + boxSize.h / 2.F - (boxSize.w / aspect) / 2.F,
                     boxSize.w,

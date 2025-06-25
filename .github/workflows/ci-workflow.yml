@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_AUDIO: OFF
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      dtk_API: GLES_2
+      FEATHER_TK_API: GLES_2
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_AUDIO: OFF
@@ -158,7 +158,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -210,7 +210,7 @@ jobs:
     runs-on: macos-13
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -264,7 +264,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -318,7 +318,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -374,7 +374,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON
@@ -428,7 +428,7 @@ jobs:
     #runs-on: windows-2019
 
     env:
-      dtk_API: GL_4_1
+      FEATHER_TK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_AUDIO: ON

@@ -9,7 +9,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <dtk/ui/TabBar.h>
+#include <feather-tk/ui/TabBar.h>
 
 namespace tl
 {
@@ -18,13 +18,13 @@ namespace tl
         class App;
 
         //! Tab bar.
-        class TabBar : public dtk::IWidget
+        class TabBar : public feather_tk::IWidget
         {
-            DTK_NON_COPYABLE(TabBar);
+            FEATHER_TK_NON_COPYABLE(TabBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,17 +34,17 @@ namespace tl
             ~TabBar();
 
             static std::shared_ptr<TabBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void setGeometry(const feather_tk::Box2I&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
 
         private:
-            std::shared_ptr<dtk::TabBar> _tabBar;
-            std::shared_ptr<dtk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
-            std::shared_ptr<dtk::ValueObserver<int> > _playerIndexObserver;
+            std::shared_ptr<feather_tk::TabBar> _tabBar;
+            std::shared_ptr<feather_tk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
+            std::shared_ptr<feather_tk::ValueObserver<int> > _playerIndexObserver;
         };
     }
 }

@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Util.h>
 
 #include <QObject>
 
 #include <memory>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -26,18 +26,18 @@ namespace tl
 
         public:
             ContextObject(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 QObject* parent = nullptr);
 
             virtual ~ContextObject();
 
             //! Get the context.
-            const std::shared_ptr<dtk::Context>& context() const;
+            const std::shared_ptr<feather_tk::Context>& context() const;
 
         private:
             void _timerCallback();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

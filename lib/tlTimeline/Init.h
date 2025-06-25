@@ -12,21 +12,21 @@ namespace tl
     namespace timeline
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<dtk::Context>&);
+        void init(const std::shared_ptr<feather_tk::Context>&);
 
         //! Timeline system.
         class System : public system::ISystem
         {
-            DTK_NON_COPYABLE(System);
+            FEATHER_TK_NON_COPYABLE(System);
 
         protected:
-            System(const std::shared_ptr<dtk::Context>&);
+            System(const std::shared_ptr<feather_tk::Context>&);
 
         public:
             virtual ~System();
 
             //! Create a new system.
-            static std::shared_ptr<System> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<System> create(const std::shared_ptr<feather_tk::Context>&);
         };
     }
 }

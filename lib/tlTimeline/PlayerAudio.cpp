@@ -6,8 +6,8 @@
 
 #include <tlTimeline/Util.h>
 
-#include <dtk/core/Context.h>
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Context.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
@@ -18,14 +18,14 @@ namespace tl
             return _p->audioDevice->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<audio::DeviceID> > Player::observeAudioDevice() const
+        std::shared_ptr<feather_tk::IObservableValue<audio::DeviceID> > Player::observeAudioDevice() const
         {
             return _p->audioDevice;
         }
 
         void Player::setAudioDevice(const audio::DeviceID& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.audioDevice->setIfChanged(value))
             {
                 if (auto context = getContext())
@@ -40,15 +40,15 @@ namespace tl
             return _p->volume->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<float> > Player::observeVolume() const
+        std::shared_ptr<feather_tk::IObservableValue<float> > Player::observeVolume() const
         {
             return _p->volume;
         }
 
         void Player::setVolume(float value)
         {
-            DTK_P();
-            if (p.volume->setIfChanged(dtk::clamp(value, 0.F, 1.F)))
+            FEATHER_TK_P();
+            if (p.volume->setIfChanged(feather_tk::clamp(value, 0.F, 1.F)))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                 p.audioMutex.state.volume = value;
@@ -60,14 +60,14 @@ namespace tl
             return _p->mute->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > Player::observeMute() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > Player::observeMute() const
         {
             return _p->mute;
         }
 
         void Player::setMute(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.mute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
@@ -80,14 +80,14 @@ namespace tl
             return _p->channelMute->get();
         }
 
-        std::shared_ptr<dtk::IObservableList<bool> > Player::observeChannelMute() const
+        std::shared_ptr<feather_tk::IObservableList<bool> > Player::observeChannelMute() const
         {
             return _p->channelMute;
         }
 
         void Player::setChannelMute(const std::vector<bool>& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.channelMute->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
@@ -100,14 +100,14 @@ namespace tl
             return _p->audioOffset->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<double> > Player::observeAudioOffset() const
+        std::shared_ptr<feather_tk::IObservableValue<double> > Player::observeAudioOffset() const
         {
             return _p->audioOffset;
         }
 
         void Player::setAudioOffset(double value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.audioOffset->setIfChanged(value))
             {
                 {
@@ -126,7 +126,7 @@ namespace tl
             return _p->currentAudioData->get();
         }
 
-        std::shared_ptr<dtk::IObservableList<AudioData> > Player::observeCurrentAudio() const
+        std::shared_ptr<feather_tk::IObservableList<AudioData> > Player::observeCurrentAudio() const
         {
             return _p->currentAudioData;
         }
@@ -206,7 +206,7 @@ namespace tl
 #endif // TLRENDER_SDL2
         }
 
-        void Player::Private::audioInit(const std::shared_ptr<dtk::Context>& context)
+        void Player::Private::audioInit(const std::shared_ptr<feather_tk::Context>& context)
         {
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
@@ -304,7 +304,7 @@ namespace tl
                 {
                     std::stringstream ss;
                     ss << "Cannot open audio device: " << SDL_GetError();
-                    context->log("tl::timeline::Player", ss.str(), dtk::LogType::Error);
+                    context->log("tl::timeline::Player", ss.str(), feather_tk::LogType::Error);
                 }
             }
 #endif // TLRENDER_SDL2

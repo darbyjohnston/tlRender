@@ -4,7 +4,7 @@
 
 #include <sstream>
 
-#include <dtk/core/Assert.h>
+#include <feather-tk/core/Assert.h>
 
 namespace tl
 {
@@ -27,7 +27,7 @@ namespace tl
                     ss << i;
                     T j;
                     ss >> j;
-                    DTK_ASSERT(i == j);
+                    FEATHER_TK_ASSERT(i == j);
                 }
             }
         }

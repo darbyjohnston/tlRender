@@ -4,9 +4,9 @@
 
 #include <tlIO/PPM.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <array>
 #include <sstream>
@@ -15,7 +15,7 @@ namespace tl
 {
     namespace ppm
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             Data,
             "ASCII",
             "Binary");
@@ -39,15 +39,15 @@ namespace tl
         {
             template<typename T>
             void _readASCII(
-                const std::shared_ptr<dtk::FileIO>& io,
+                const std::shared_ptr<feather_tk::FileIO>& io,
                 uint8_t* out,
                 size_t                               size)
             {
-                char tmp[dtk::cStringSize] = "";
+                char tmp[feather_tk::cStringSize] = "";
                 T* outP = reinterpret_cast<T*>(out);
                 for (int i = 0; i < size; ++i)
                 {
-                    dtk::readWord(io, tmp, dtk::cStringSize);
+                    feather_tk::readWord(io, tmp, feather_tk::cStringSize);
                     const int value = std::atoi(tmp);
                     outP[i] = value;
                 }
@@ -56,7 +56,7 @@ namespace tl
         } // namespace
 
         void readASCII(
-            const std::shared_ptr<dtk::FileIO>& io,
+            const std::shared_ptr<feather_tk::FileIO>& io,
             uint8_t* out,
             size_t                               size,
             size_t                               bitDepth)
@@ -114,7 +114,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(
@@ -133,7 +133,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
@@ -143,7 +143,7 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(
@@ -153,18 +153,18 @@ namespace tl
             return out;
         }
 
-        dtk::ImageInfo WritePlugin::getInfo(
-            const dtk::ImageInfo& info,
+        feather_tk::ImageInfo WritePlugin::getInfo(
+            const feather_tk::ImageInfo& info,
             const io::Options& options) const
         {
-            dtk::ImageInfo out;
+            feather_tk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case dtk::ImageType::L_U8:
-            case dtk::ImageType::L_U16:
-            case dtk::ImageType::RGB_U8:
-            case dtk::ImageType::RGB_U16:
+            case feather_tk::ImageType::L_U8:
+            case feather_tk::ImageType::L_U16:
+            case feather_tk::ImageType::RGB_U8:
+            case feather_tk::ImageType::RGB_U16:
                 out.type = info.type;
                 break;
             default: break;
@@ -176,7 +176,7 @@ namespace tl
                 std::stringstream ss(option->second);
                 ss >> data;
             }
-            out.layout.endian = Data::Binary == data ? dtk::Endian::MSB : dtk::getEndian();
+            out.layout.endian = Data::Binary == data ? feather_tk::Endian::MSB : feather_tk::getEndian();
             return out;
         }
 
@@ -186,7 +186,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

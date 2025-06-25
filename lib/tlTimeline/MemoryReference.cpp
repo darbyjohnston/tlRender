@@ -160,7 +160,7 @@ namespace tl
         }
 
         ZipMemoryReference::ZipMemoryReference(
-            const std::shared_ptr<dtk::FileIO>& file_io,
+            const std::shared_ptr<feather_tk::FileIO>& file_io,
             const std::string& target_url,
             const uint8_t* memory,
             size_t memory_size,
@@ -173,18 +173,18 @@ namespace tl
         ZipMemoryReference::~ZipMemoryReference()
         {}
 
-        const std::shared_ptr<dtk::FileIO>& ZipMemoryReference::file_io() const noexcept
+        const std::shared_ptr<feather_tk::FileIO>& ZipMemoryReference::file_io() const noexcept
         {
             return _file_io;
         }
 
-        void ZipMemoryReference::set_file_io(const std::shared_ptr<dtk::FileIO>& file_io)
+        void ZipMemoryReference::set_file_io(const std::shared_ptr<feather_tk::FileIO>& file_io)
         {
             _file_io = file_io;
         }
 
         ZipMemorySequenceReference::ZipMemorySequenceReference(
-            const std::shared_ptr<dtk::FileIO>& file_io,
+            const std::shared_ptr<feather_tk::FileIO>& file_io,
             const std::string& target_url,
             const std::vector<const uint8_t*>& memory,
             const std::vector<size_t> memory_sizes,
@@ -197,12 +197,12 @@ namespace tl
         ZipMemorySequenceReference::~ZipMemorySequenceReference()
         {}
 
-        const std::shared_ptr<dtk::FileIO>& ZipMemorySequenceReference::file_io() const noexcept
+        const std::shared_ptr<feather_tk::FileIO>& ZipMemorySequenceReference::file_io() const noexcept
         {
             return _file_io;
         }
 
-        void ZipMemorySequenceReference::set_file_io(const std::shared_ptr<dtk::FileIO>&file_io)
+        void ZipMemorySequenceReference::set_file_io(const std::shared_ptr<feather_tk::FileIO>&file_io)
         {
             _file_io = file_io;
         }

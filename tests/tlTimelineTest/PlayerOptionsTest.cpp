@@ -6,8 +6,8 @@
 
 #include <tlTimeline/PlayerOptions.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/String.h>
 
 using namespace tl::timeline;
 
@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        PlayerOptionsTest::PlayerOptionsTest(const std::shared_ptr<dtk::Context>& context) :
+        PlayerOptionsTest::PlayerOptionsTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::PlayerOptionsTest")
         {}
 
-        std::shared_ptr<PlayerOptionsTest> PlayerOptionsTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<PlayerOptionsTest> PlayerOptionsTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<PlayerOptionsTest>(new PlayerOptionsTest(context));
         }
@@ -29,8 +29,8 @@ namespace tl
             {
                 PlayerCacheOptions v;
                 v.readBehind = 0.F;
-                DTK_ASSERT(v == v);
-                DTK_ASSERT(v != PlayerCacheOptions());
+                FEATHER_TK_ASSERT(v == v);
+                FEATHER_TK_ASSERT(v != PlayerCacheOptions());
             }
         }
     }

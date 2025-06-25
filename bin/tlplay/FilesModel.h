@@ -15,11 +15,11 @@ namespace tl
         //! Files model.
         class FilesModel : public std::enable_shared_from_this<FilesModel>
         {
-            DTK_NON_COPYABLE(FilesModel);
+            FEATHER_TK_NON_COPYABLE(FilesModel);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<SettingsModel>&);
 
             FilesModel() = default;
@@ -29,7 +29,7 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<FilesModel> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<SettingsModel>&);
 
             void open(const std::filesystem::path&);
@@ -42,28 +42,28 @@ namespace tl
             void next();
             void prev();
 
-            std::shared_ptr<dtk::IObservableList<std::shared_ptr<timeline::Player> > > observePlayers() const;
-            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
-            std::shared_ptr<dtk::IObservableValue<int> > observePlayerIndex() const;
+            std::shared_ptr<feather_tk::IObservableList<std::shared_ptr<timeline::Player> > > observePlayers() const;
+            std::shared_ptr<feather_tk::IObservableValue<std::shared_ptr<timeline::Player> > > observePlayer() const;
+            std::shared_ptr<feather_tk::IObservableValue<int> > observePlayerIndex() const;
 
             void setB(int);
             void setCompare(timeline::Compare);
 
-            std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > observeBPlayer() const;
-            std::shared_ptr<dtk::IObservableValue<int> > observeBPlayerIndex() const;
-            std::shared_ptr<dtk::IObservableValue<timeline::Compare> > observeCompare() const;
+            std::shared_ptr<feather_tk::IObservableValue<std::shared_ptr<timeline::Player> > > observeBPlayer() const;
+            std::shared_ptr<feather_tk::IObservableValue<int> > observeBPlayerIndex() const;
+            std::shared_ptr<feather_tk::IObservableValue<timeline::Compare> > observeCompare() const;
 
             void tick();
 
         private:
-            std::weak_ptr<dtk::Context> _context;
-            std::shared_ptr<dtk::ObservableList<std::shared_ptr<timeline::Player> > > _players;
-            std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
-            std::shared_ptr<dtk::ObservableValue<int> > _playerIndex;
-            std::shared_ptr<dtk::ObservableValue<std::shared_ptr<timeline::Player> > > _bPlayer;
-            std::shared_ptr<dtk::ObservableValue<int> > _bPlayerIndex;
-            std::shared_ptr<dtk::ObservableValue<timeline::Compare> > _compare;
-            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheOptions> > _cacheObserver;
+            std::weak_ptr<feather_tk::Context> _context;
+            std::shared_ptr<feather_tk::ObservableList<std::shared_ptr<timeline::Player> > > _players;
+            std::shared_ptr<feather_tk::ObservableValue<std::shared_ptr<timeline::Player> > > _player;
+            std::shared_ptr<feather_tk::ObservableValue<int> > _playerIndex;
+            std::shared_ptr<feather_tk::ObservableValue<std::shared_ptr<timeline::Player> > > _bPlayer;
+            std::shared_ptr<feather_tk::ObservableValue<int> > _bPlayerIndex;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::Compare> > _compare;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::PlayerCacheOptions> > _cacheObserver;
         };
     }
 }

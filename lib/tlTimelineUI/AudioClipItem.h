@@ -19,7 +19,7 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>&,
                 double scale,
                 const ItemOptions&,
@@ -35,7 +35,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<AudioClipItem> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Clip>&,
                 double scale,
                 const ItemOptions&,
@@ -50,19 +50,19 @@ namespace tl
             void tickEvent(
                 bool,
                 bool,
-                const dtk::TickEvent&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-            void clipEvent(const dtk::Box2I&, bool) override;
-            void drawEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
+                const feather_tk::TickEvent&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void clipEvent(const feather_tk::Box2I&, bool) override;
+            void drawEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
 
         private:
             void _drawWaveforms(
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
 
             void _cancelRequests();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

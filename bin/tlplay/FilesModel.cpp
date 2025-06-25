@@ -11,18 +11,18 @@ namespace tl
     namespace play
     {
         void FilesModel::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<SettingsModel>& settingsModel)
         {
             _context = context;
-            _players = dtk::ObservableList<std::shared_ptr<timeline::Player> >::create();
-            _player = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
-            _playerIndex = dtk::ObservableValue<int>::create(-1);
-            _bPlayer = dtk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
-            _bPlayerIndex = dtk::ObservableValue<int>::create(-1);
-            _compare = dtk::ObservableValue<timeline::Compare>::create(timeline::Compare::A);
+            _players = feather_tk::ObservableList<std::shared_ptr<timeline::Player> >::create();
+            _player = feather_tk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
+            _playerIndex = feather_tk::ObservableValue<int>::create(-1);
+            _bPlayer = feather_tk::ObservableValue<std::shared_ptr<timeline::Player> >::create();
+            _bPlayerIndex = feather_tk::ObservableValue<int>::create(-1);
+            _compare = feather_tk::ObservableValue<timeline::Compare>::create(timeline::Compare::A);
 
-            _cacheObserver = dtk::ValueObserver<timeline::PlayerCacheOptions>::create(
+            _cacheObserver = feather_tk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 settingsModel->observeCache(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
@@ -38,7 +38,7 @@ namespace tl
         }
 
         std::shared_ptr<FilesModel> FilesModel::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<SettingsModel>& settingsModel)
         {
             auto out = std::shared_ptr<FilesModel>(new FilesModel);
@@ -76,20 +76,20 @@ namespace tl
                         --j;
                     }
                     std::size_t k = _players->indexOf(_bPlayer->get());
-                    if (k != dtk::ObservableListInvalidIndex && k > 0 && index <= k)
+                    if (k != feather_tk::ObservableListInvalidIndex && k > 0 && index <= k)
                     {
                         --k;
                     }
 
                     _players->removeItem(index);
                     _player->setIfChanged(
-                        !_players->isEmpty() && j != dtk::ObservableListInvalidIndex ? _players->getItem(j) : nullptr);
+                        !_players->isEmpty() && j != feather_tk::ObservableListInvalidIndex ? _players->getItem(j) : nullptr);
                     _playerIndex->setIfChanged(
-                        !_players->isEmpty() && j != dtk::ObservableListInvalidIndex ? j : -1);
+                        !_players->isEmpty() && j != feather_tk::ObservableListInvalidIndex ? j : -1);
                     _bPlayer->setIfChanged(
-                        !_players->isEmpty() && k != dtk::ObservableListInvalidIndex ? _players->getItem(k) : nullptr);
+                        !_players->isEmpty() && k != feather_tk::ObservableListInvalidIndex ? _players->getItem(k) : nullptr);
                     _bPlayerIndex->setIfChanged(
-                        !_players->isEmpty() && k != dtk::ObservableListInvalidIndex ? k : -1);
+                        !_players->isEmpty() && k != feather_tk::ObservableListInvalidIndex ? k : -1);
 
                     if (player = _player->get())
                     {
@@ -184,17 +184,17 @@ namespace tl
             }
         }
 
-        std::shared_ptr<dtk::IObservableList<std::shared_ptr<timeline::Player> > > FilesModel::observePlayers() const
+        std::shared_ptr<feather_tk::IObservableList<std::shared_ptr<timeline::Player> > > FilesModel::observePlayers() const
         {
             return _players;
         }
 
-        std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > FilesModel::observePlayer() const
+        std::shared_ptr<feather_tk::IObservableValue<std::shared_ptr<timeline::Player> > > FilesModel::observePlayer() const
         {
             return _player;
         }
 
-        std::shared_ptr<dtk::IObservableValue<int> > FilesModel::observePlayerIndex() const
+        std::shared_ptr<feather_tk::IObservableValue<int> > FilesModel::observePlayerIndex() const
         {
             return _playerIndex;
         }
@@ -224,17 +224,17 @@ namespace tl
             _compare->setIfChanged(value);
         }
 
-        std::shared_ptr<dtk::IObservableValue<std::shared_ptr<timeline::Player> > > FilesModel::observeBPlayer() const
+        std::shared_ptr<feather_tk::IObservableValue<std::shared_ptr<timeline::Player> > > FilesModel::observeBPlayer() const
         {
             return _bPlayer;
         }
 
-        std::shared_ptr<dtk::IObservableValue<int> > FilesModel::observeBPlayerIndex() const
+        std::shared_ptr<feather_tk::IObservableValue<int> > FilesModel::observeBPlayerIndex() const
         {
             return _bPlayerIndex;
         }
 
-        std::shared_ptr<dtk::IObservableValue<timeline::Compare> > FilesModel::observeCompare() const
+        std::shared_ptr<feather_tk::IObservableValue<timeline::Compare> > FilesModel::observeCompare() const
         {
             return _compare;
         }

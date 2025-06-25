@@ -9,10 +9,10 @@ namespace tl
     namespace play
     {
         void RecentFilesModel::_init(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<dtk::Settings>& settings)
+            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<feather_tk::Settings>& settings)
         {
-            dtk::RecentFilesModel::_init(context);
+            feather_tk::RecentFilesModel::_init(context);
 
             _settings = settings;
 
@@ -46,8 +46,8 @@ namespace tl
         }
 
         std::shared_ptr<RecentFilesModel> RecentFilesModel::create(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<dtk::Settings>& settings)
+            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<feather_tk::Settings>& settings)
         {
             auto out = std::shared_ptr<RecentFilesModel>(new RecentFilesModel);
             out->_init(context, settings);

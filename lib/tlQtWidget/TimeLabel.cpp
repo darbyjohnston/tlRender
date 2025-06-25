@@ -25,7 +25,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            DTK_P();
+            FEATHER_TK_P();
 
             const QFont fixedFont("Noto Mono");
             setFont(fixedFont);
@@ -46,7 +46,7 @@ namespace tl
 
         void TimeLabel::setTimeObject(qt::TimeObject* timeObject)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (timeObject == p.timeObject)
                 return;
             if (p.timeObject)
@@ -82,7 +82,7 @@ namespace tl
 
         void TimeLabel::setValue(const OTIO_NS::RationalTime& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (value.value() == p.value.value() &&
                 value.rate() == p.value.rate())
                 return;
@@ -92,7 +92,7 @@ namespace tl
 
         void TimeLabel::setTimeUnits(timeline::TimeUnits value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (value == p.timeUnits)
                 return;
             p.timeUnits = value;
@@ -102,7 +102,7 @@ namespace tl
 
         void TimeLabel::_textUpdate()
         {
-            DTK_P();
+            FEATHER_TK_P();
             const std::string label = timeline::timeToText(p.value, p.timeUnits);
             p.label->setText(QString::fromUtf8(label.c_str()));
         }

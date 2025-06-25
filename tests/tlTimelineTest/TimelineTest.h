@@ -15,10 +15,10 @@ namespace tl
         class TimelineTest : public tests::ITest
         {
         protected:
-            TimelineTest(const std::shared_ptr<dtk::Context>&);
+            TimelineTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<TimelineTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<TimelineTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
 

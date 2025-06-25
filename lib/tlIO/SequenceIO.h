@@ -30,9 +30,9 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 const Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             ISequenceRead();
 
@@ -48,10 +48,10 @@ namespace tl
         protected:
             virtual Info _getInfo(
                 const std::string& fileName,
-                const dtk::InMemoryFile*) = 0;
+                const feather_tk::InMemoryFile*) = 0;
             virtual VideoData _readVideo(
                 const std::string& fileName,
-                const dtk::InMemoryFile*,
+                const feather_tk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const Options&) = 0;
 
@@ -67,7 +67,7 @@ namespace tl
             void _finishRequests();
             void _cancelRequests();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! Base class for image sequence writers.
@@ -78,7 +78,7 @@ namespace tl
                 const file::Path&,
                 const Info&,
                 const Options&,
-                const std::shared_ptr<dtk::LogSystem>&);
+                const std::shared_ptr<feather_tk::LogSystem>&);
 
             ISequenceWrite();
 
@@ -87,18 +87,18 @@ namespace tl
 
             void writeVideo(
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<dtk::Image>&,
+                const std::shared_ptr<feather_tk::Image>&,
                 const Options& = Options()) override;
 
         protected:
             virtual void _writeVideo(
                 const std::string& fileName,
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<dtk::Image>&,
+                const std::shared_ptr<feather_tk::Image>&,
                 const Options&) = 0;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! \name Serialize

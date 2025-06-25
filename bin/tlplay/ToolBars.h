@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <dtk/ui/RowLayout.h>
-#include <dtk/ui/ToolBar.h>
+#include <feather-tk/ui/RowLayout.h>
+#include <feather-tk/ui/ToolBar.h>
 
 namespace tl
 {
@@ -18,13 +18,13 @@ namespace tl
         class WindowActions;
 
         //! File tool bar.
-        class FileToolBar : public dtk::ToolBar
+        class FileToolBar : public feather_tk::ToolBar
         {
-            DTK_NON_COPYABLE(FileToolBar);
+            FEATHER_TK_NON_COPYABLE(FileToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,19 +34,19 @@ namespace tl
             ~FileToolBar();
 
             static std::shared_ptr<FileToolBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Compare tool bar.
-        class CompareToolBar : public dtk::ToolBar
+        class CompareToolBar : public feather_tk::ToolBar
         {
-            DTK_NON_COPYABLE(CompareToolBar);
+            FEATHER_TK_NON_COPYABLE(CompareToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -56,19 +56,19 @@ namespace tl
             ~CompareToolBar();
 
             static std::shared_ptr<CompareToolBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! View tool bar.
-        class ViewToolBar : public dtk::ToolBar
+        class ViewToolBar : public feather_tk::ToolBar
         {
-            DTK_NON_COPYABLE(ViewToolBar);
+            FEATHER_TK_NON_COPYABLE(ViewToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -78,19 +78,19 @@ namespace tl
             ~ViewToolBar();
 
             static std::shared_ptr<ViewToolBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Window tool bar.
-        class WindowToolBar : public dtk::ToolBar
+        class WindowToolBar : public feather_tk::ToolBar
         {
-            DTK_NON_COPYABLE(WindowToolBar);
+            FEATHER_TK_NON_COPYABLE(WindowToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -100,19 +100,19 @@ namespace tl
             ~WindowToolBar();
 
             static std::shared_ptr<WindowToolBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Tool bars.
-        class ToolBars : public dtk::IWidget
+        class ToolBars : public feather_tk::IWidget
         {
-            DTK_NON_COPYABLE(ToolBars);
+            FEATHER_TK_NON_COPYABLE(ToolBars);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<ViewActions>&,
@@ -125,18 +125,18 @@ namespace tl
             ~ToolBars();
 
             static std::shared_ptr<ToolBars> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void setGeometry(const feather_tk::Box2I&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
 
         private:
-            std::shared_ptr<dtk::HorizontalLayout> _layout;
+            std::shared_ptr<feather_tk::HorizontalLayout> _layout;
         };
     }
 }

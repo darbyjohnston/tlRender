@@ -4,22 +4,22 @@
 
 #pragma once
 
-#include <dtk/ui/RecentFilesModel.h>
-#include <dtk/ui/Settings.h>
+#include <feather-tk/ui/RecentFilesModel.h>
+#include <feather-tk/ui/Settings.h>
 
 namespace tl
 {
     namespace play
     {
         //! Recent files model.
-        class RecentFilesModel : public dtk::RecentFilesModel
+        class RecentFilesModel : public feather_tk::RecentFilesModel
         {
-            DTK_NON_COPYABLE(RecentFilesModel);
+            FEATHER_TK_NON_COPYABLE(RecentFilesModel);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<dtk::Settings>&);
+                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::Settings>&);
 
             RecentFilesModel() = default;
 
@@ -28,11 +28,11 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<RecentFilesModel> create(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<dtk::Settings>&);
+                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::Settings>&);
 
         private:
-            std::shared_ptr<dtk::Settings> _settings;
+            std::shared_ptr<feather_tk::Settings> _settings;
         };
     }
 }

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/ui/IWidget.h>
+#include <feather-tk/ui/IWidget.h>
 
 #include <opentimelineio/version.h>
 
@@ -18,13 +18,13 @@ namespace tl
     namespace timelineui
     {
         //! Time label.
-        class TimeLabel : public dtk::IWidget
+        class TimeLabel : public feather_tk::IWidget
         {
-            DTK_NON_COPYABLE(TimeLabel);
+            FEATHER_TK_NON_COPYABLE(TimeLabel);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -35,7 +35,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeLabel> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -49,19 +49,19 @@ namespace tl
             void setValue(const OTIO_NS::RationalTime&);
 
             //! Set the margin role.
-            void setMarginRole(dtk::SizeRole);
+            void setMarginRole(feather_tk::SizeRole);
 
             //! Set the font role.
-            void setFontRole(dtk::FontRole);
+            void setFontRole(feather_tk::FontRole);
 
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-            void clipEvent(const dtk::Box2I&, bool) override;
-            void drawEvent(const dtk::Box2I&, const dtk::DrawEvent&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void clipEvent(const feather_tk::Box2I&, bool) override;
+            void drawEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
 
         private:
             void _textUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

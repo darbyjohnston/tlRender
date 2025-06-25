@@ -4,7 +4,7 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
@@ -69,7 +69,7 @@ namespace tl
         namespace
         {
             const std::string videoLevels =
-                "// enum dtk::VideoLevels\n"
+                "// enum feather_tk::VideoLevels\n"
                 "const uint VideoLevels_FullRange  = 0;\n"
                 "const uint VideoLevels_LegalRange = 1;\n";
         }
@@ -97,13 +97,13 @@ namespace tl
                 break;
             default: break;
             }
-            return dtk::Format(
+            return feather_tk::Format(
                 "#version 410\n"
                 "\n"
                 "in vec2 fTexture;\n"
                 "out vec4 outColor;\n"
                 "\n"
-                "// enum tl::dtk::ChannelDisplay\n"
+                "// enum tl::feather_tk::ChannelDisplay\n"
                 "const uint Channels_Color = 0;\n"
                 "const uint Channels_Red   = 1;\n"
                 "const uint Channels_Green = 2;\n"

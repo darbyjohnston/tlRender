@@ -4,8 +4,8 @@
 
 #include <tlTimeline/TimelineOptions.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <sstream>
 
@@ -13,7 +13,7 @@ namespace tl
 {
     namespace timeline
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             FileSequenceAudio,
             "None",
             "Extension",

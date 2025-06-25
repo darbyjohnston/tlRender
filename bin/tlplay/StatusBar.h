@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <dtk/ui/Label.h>
-#include <dtk/core/Timer.h>
+#include <feather-tk/ui/Label.h>
+#include <feather-tk/core/Timer.h>
 
 namespace tl
 {
@@ -14,13 +14,13 @@ namespace tl
         class App;
 
         //! Status bar.
-        class StatusBar : public dtk::IWidget
+        class StatusBar : public feather_tk::IWidget
         {
-            DTK_NON_COPYABLE(StatusBar);
+            FEATHER_TK_NON_COPYABLE(StatusBar);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -30,19 +30,19 @@ namespace tl
             ~StatusBar();
 
             static std::shared_ptr<StatusBar> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const dtk::Box2I&) override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
+            void setGeometry(const feather_tk::Box2I&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
 
         private:
-            void _logUpdate(const std::vector<dtk::LogItem>&);
+            void _logUpdate(const std::vector<feather_tk::LogItem>&);
 
-            std::shared_ptr<dtk::Label> _logLabel;
-            std::shared_ptr<dtk::Timer> _logTimer;
-            std::shared_ptr<dtk::ListObserver<dtk::LogItem> > _logObserver;
+            std::shared_ptr<feather_tk::Label> _logLabel;
+            std::shared_ptr<feather_tk::Timer> _logTimer;
+            std::shared_ptr<feather_tk::ListObserver<feather_tk::LogItem> > _logObserver;
         };
     }
 }

@@ -4,8 +4,8 @@
 
 #include <tlIO/TIFF.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <tiffio.h>
 
@@ -22,16 +22,16 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<dtk::Image>& image)
+                    const std::shared_ptr<feather_tk::Image>& image)
                 {
 #if defined(_WINDOWS)
-                    _tiff.p = TIFFOpenW(dtk::toWide(fileName).c_str(), "w");
+                    _tiff.p = TIFFOpenW(feather_tk::toWide(fileName).c_str(), "w");
 #else // _WINDOWS
                     _tiff.p = TIFFOpen(fileName.c_str(), "w");
 #endif // _WINDOWS
                     if (!_tiff.p)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     uint16_t tiffPhotometric = 0;
@@ -42,7 +42,7 @@ namespace tl
                     uint16_t tiffExtraSamplesSize = 0;
                     uint16_t tiffCompression = 0;
                     const auto& info = image->getInfo();
-                    switch (dtk::getChannelCount(info.type))
+                    switch (feather_tk::getChannelCount(info.type))
                     {
                     case 1:
                         tiffPhotometric = PHOTOMETRIC_MINISBLACK;
@@ -66,24 +66,24 @@ namespace tl
                     }
                     switch (info.type)
                     {
-                    case dtk::ImageType::L_U8:
-                    case dtk::ImageType::LA_U8:
-                    case dtk::ImageType::RGB_U8:
-                    case dtk::ImageType::RGBA_U8:
+                    case feather_tk::ImageType::L_U8:
+                    case feather_tk::ImageType::LA_U8:
+                    case feather_tk::ImageType::RGB_U8:
+                    case feather_tk::ImageType::RGBA_U8:
                         tiffSampleDepth = 8;
                         tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
-                    case dtk::ImageType::L_U16:
-                    case dtk::ImageType::LA_U16:
-                    case dtk::ImageType::RGB_U16:
-                    case dtk::ImageType::RGBA_U16:
+                    case feather_tk::ImageType::L_U16:
+                    case feather_tk::ImageType::LA_U16:
+                    case feather_tk::ImageType::RGB_U16:
+                    case feather_tk::ImageType::RGBA_U16:
                         tiffSampleDepth = 16;
                         tiffSampleFormat = SAMPLEFORMAT_UINT;
                         break;
-                    case dtk::ImageType::L_F32:
-                    case dtk::ImageType::LA_F32:
-                    case dtk::ImageType::RGB_F32:
-                    case dtk::ImageType::RGBA_F32:
+                    case feather_tk::ImageType::L_F32:
+                    case feather_tk::ImageType::LA_F32:
+                    case feather_tk::ImageType::RGB_F32:
+                    case feather_tk::ImageType::RGBA_F32:
                         tiffSampleDepth = 32;
                         tiffSampleFormat = SAMPLEFORMAT_IEEEFP;
                         break;
@@ -91,7 +91,7 @@ namespace tl
                     }
                     if (!tiffSamples || !tiffSampleDepth)
                     {
-                        throw std::runtime_error(dtk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     tiffCompression = COMPRESSION_NONE;
@@ -141,7 +141,7 @@ namespace tl
                         TIFFSetField(_tiff.p, TIFFTAG_IMAGEDESCRIPTION, i->second.c_str());
                     }
 
-                    const size_t scanlineByteCount = dtk::getAlignedByteCount(
+                    const size_t scanlineByteCount = feather_tk::getAlignedByteCount(
                         info.size.w * tiffSamples * tiffSampleDepth / 8,
                         info.layout.alignment);
                     const uint8_t* p = image->getData() + (info.size.h - 1) * scanlineByteCount;
@@ -149,7 +149,7 @@ namespace tl
                     {
                         if (TIFFWriteScanline(_tiff.p, (tdata_t*)p, y) == -1)
                         {
-                            throw std::runtime_error(dtk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(feather_tk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
                         }
                     }
                 }
@@ -175,7 +175,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
         }
@@ -190,7 +190,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -200,7 +200,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<dtk::Image>& image,
+            const std::shared_ptr<feather_tk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

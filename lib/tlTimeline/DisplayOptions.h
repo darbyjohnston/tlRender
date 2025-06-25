@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <dtk/core/Image.h>
-#include <dtk/core/Matrix.h>
-#include <dtk/core/RenderOptions.h>
+#include <feather-tk/core/Image.h>
+#include <feather-tk/core/Matrix.h>
+#include <feather-tk/core/RenderOptions.h>
 
 namespace tl
 {
@@ -17,10 +17,10 @@ namespace tl
         {
         public:
             bool     enabled    = false;
-            dtk::V3F add        = dtk::V3F(0.F, 0.F, 0.F);
-            dtk::V3F brightness = dtk::V3F(1.F, 1.F, 1.F);
-            dtk::V3F contrast   = dtk::V3F(1.F, 1.F, 1.F);
-            dtk::V3F saturation = dtk::V3F(1.F, 1.F, 1.F);
+            feather_tk::V3F add        = feather_tk::V3F(0.F, 0.F, 0.F);
+            feather_tk::V3F brightness = feather_tk::V3F(1.F, 1.F, 1.F);
+            feather_tk::V3F contrast   = feather_tk::V3F(1.F, 1.F, 1.F);
+            feather_tk::V3F saturation = feather_tk::V3F(1.F, 1.F, 1.F);
             float    tint       = 0.F;
             bool     invert     = false;
 
@@ -29,19 +29,19 @@ namespace tl
         };
 
         //! Get a brightness color matrix.
-        dtk::M44F brightness(const dtk::V3F&);
+        feather_tk::M44F brightness(const feather_tk::V3F&);
 
         //! Get a contrast color matrix.
-        dtk::M44F contrast(const dtk::V3F&);
+        feather_tk::M44F contrast(const feather_tk::V3F&);
 
         //! Get a saturation color matrix.
-        dtk::M44F saturation(const dtk::V3F&);
+        feather_tk::M44F saturation(const feather_tk::V3F&);
 
         //! Get a tint color matrix.
-        dtk::M44F tint(float);
+        feather_tk::M44F tint(float);
 
         //! Get a color matrix.
-        dtk::M44F color(const Color&);
+        feather_tk::M44F color(const Color&);
 
         //! Levels values.
         struct Levels
@@ -84,14 +84,14 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            dtk::ChannelDisplay channels     = dtk::ChannelDisplay::Color;
-            dtk::ImageMirror    mirror;
+            feather_tk::ChannelDisplay channels     = feather_tk::ChannelDisplay::Color;
+            feather_tk::ImageMirror    mirror;
             Color               color;
             Levels              levels;
             EXRDisplay          exrDisplay;
             SoftClip            softClip;
-            dtk::ImageFilters   imageFilters;
-            dtk::VideoLevels    videoLevels  = dtk::VideoLevels::FullRange;
+            feather_tk::ImageFilters   imageFilters;
+            feather_tk::VideoLevels    videoLevels  = feather_tk::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

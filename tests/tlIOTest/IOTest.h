@@ -13,10 +13,10 @@ namespace tl
         class IOTest : public tests::ITest
         {
         protected:
-            IOTest(const std::shared_ptr<dtk::Context>&);
+            IOTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<IOTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<IOTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
 

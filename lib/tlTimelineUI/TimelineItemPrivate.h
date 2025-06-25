@@ -6,8 +6,8 @@
 
 #include <tlTimelineUI/ThumbnailSystem.h>
 
-#include <dtk/ui/ToolButton.h>
-#include <dtk/ui/Label.h>
+#include <feather-tk/ui/ToolButton.h>
+#include <feather-tk/ui/Label.h>
 
 namespace tl
 {
@@ -21,8 +21,8 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
-            std::shared_ptr<dtk::ObservableValue<bool> > scrub;
-            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;
+            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             int minimumHeight = 0;
             std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
@@ -32,12 +32,12 @@ namespace tl
                 int index = 0;
                 TrackType type = TrackType::None;
                 OTIO_NS::TimeRange timeRange;
-                std::shared_ptr<dtk::ToolButton> enabledButton;
-                std::shared_ptr<dtk::Label> label;
-                std::shared_ptr<dtk::Label> durationLabel;
+                std::shared_ptr<feather_tk::ToolButton> enabledButton;
+                std::shared_ptr<feather_tk::Label> label;
+                std::shared_ptr<feather_tk::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
-                dtk::Size2I size;
-                dtk::Box2I geom;
+                feather_tk::Size2I size;
+                feather_tk::Box2I geom;
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;
@@ -49,15 +49,15 @@ namespace tl
                 int spacing = 0;
                 int border = 0;
                 int handle = 0;
-                dtk::FontInfo fontInfo = dtk::FontInfo("", 0);
-                dtk::FontMetrics fontMetrics;
-                dtk::Box2I scrollArea;
+                feather_tk::FontInfo fontInfo = feather_tk::FontInfo("", 0);
+                feather_tk::FontMetrics fontMetrics;
+                feather_tk::Box2I scrollArea;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<dtk::Box2I> dropTargets;
+                std::vector<feather_tk::Box2I> dropTargets;
             };
             std::optional<DrawData> draw;
 
@@ -80,14 +80,14 @@ namespace tl
                 std::shared_ptr<IItem> p;
                 int index = -1;
                 int track = -1;
-                dtk::Box2I geometry;
+                feather_tk::Box2I geometry;
             };
             struct MouseItemDropTarget
             {
                 int index = -1;
                 int track = -1;
-                dtk::Box2I mouse;
-                dtk::Box2I draw;
+                feather_tk::Box2I mouse;
+                feather_tk::Box2I draw;
             };
             struct MouseData
             {
@@ -98,9 +98,9 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<dtk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
 
             std::shared_ptr<IItem> getAssociated(
                 const std::shared_ptr<IItem>&,
@@ -108,7 +108,7 @@ namespace tl
                 int& trackIndex) const;
 
             std::vector<MouseItemDropTarget> getDropTargets(
-                const dtk::Box2I& geometry,
+                const feather_tk::Box2I& geometry,
                 int index,
                 int track);
         };

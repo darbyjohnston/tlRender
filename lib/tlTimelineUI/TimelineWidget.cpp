@@ -4,9 +4,9 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <dtk/ui/ScrollWidget.h>
-#include <dtk/gl/GL.h>
-#include <dtk/gl/Window.h>
+#include <feather-tk/ui/ScrollWidget.h>
+#include <feather-tk/gl/GL.h>
+#include <feather-tk/gl/Window.h>
 
 namespace tl
 {
@@ -21,19 +21,19 @@ namespace tl
         {
             std::shared_ptr<ItemData> itemData;
             std::shared_ptr<timeline::Player> player;
-            std::shared_ptr<dtk::ObservableValue<bool> > editable;
-            std::shared_ptr<dtk::ObservableValue<bool> > frameView;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > editable;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > frameView;
             std::function<void(bool)> frameViewCallback;
-            std::shared_ptr<dtk::ObservableValue<bool> > scrollBarsVisible;
-            std::shared_ptr<dtk::ObservableValue<bool> > autoScroll;
-            dtk::KeyModifier scrollKeyModifier = dtk::KeyModifier::Control;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > scrollBarsVisible;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > autoScroll;
+            feather_tk::KeyModifier scrollKeyModifier = feather_tk::KeyModifier::Control;
             float mouseWheelScale = 1.1F;
-            std::shared_ptr<dtk::ObservableValue<bool> > stopOnScrub;
-            std::shared_ptr<dtk::ObservableValue<bool> > scrub;
-            std::shared_ptr<dtk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > stopOnScrub;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;
+            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
-            std::shared_ptr<dtk::ObservableValue<ItemOptions> > itemOptions;
-            std::shared_ptr<dtk::ObservableValue<DisplayOptions> > displayOptions;
+            std::shared_ptr<feather_tk::ObservableValue<ItemOptions> > itemOptions;
+            std::shared_ptr<feather_tk::ObservableValue<DisplayOptions> > displayOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
@@ -43,9 +43,9 @@ namespace tl
             bool sizeInit = true;
             float displayScale = 0.F;
 
-            std::shared_ptr<dtk::gl::Window> window;
+            std::shared_ptr<feather_tk::gl::Window> window;
 
-            std::shared_ptr<dtk::ScrollWidget> scrollWidget;
+            std::shared_ptr<feather_tk::ScrollWidget> scrollWidget;
             std::shared_ptr<TimelineItem> timelineItem;
 
             enum class MouseMode
@@ -56,25 +56,25 @@ namespace tl
             struct MouseData
             {
                 MouseMode mode = MouseMode::None;
-                dtk::V2I scrollPos;
+                feather_tk::V2I scrollPos;
                 std::chrono::steady_clock::time_point wheelTimer;
             };
             MouseData mouse;
 
-            std::shared_ptr<dtk::ValueObserver<bool> > timelineObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<dtk::ValueObserver<bool> > scrubObserver;
-            std::shared_ptr<dtk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
+            std::shared_ptr<feather_tk::ValueObserver<bool> > timelineObserver;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<feather_tk::ValueObserver<bool> > scrubObserver;
+            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
         };
 
         void TimelineWidget::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "tl::timelineui::TimelineWidget", parent);
-            DTK_P();
+            FEATHER_TK_P();
 
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
@@ -82,25 +82,25 @@ namespace tl
             p.itemData = std::make_shared<ItemData>();
             p.itemData->timeUnitsModel = timeUnitsModel;
 
-            p.editable = dtk::ObservableValue<bool>::create(false);
-            p.frameView = dtk::ObservableValue<bool>::create(true);
-            p.scrollBarsVisible = dtk::ObservableValue<bool>::create(true);
-            p.autoScroll = dtk::ObservableValue<bool>::create(true);
-            p.stopOnScrub = dtk::ObservableValue<bool>::create(true);
-            p.scrub = dtk::ObservableValue<bool>::create(false);
-            p.timeScrub = dtk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
-            p.itemOptions = dtk::ObservableValue<ItemOptions>::create();
-            p.displayOptions = dtk::ObservableValue<DisplayOptions>::create();
+            p.editable = feather_tk::ObservableValue<bool>::create(false);
+            p.frameView = feather_tk::ObservableValue<bool>::create(true);
+            p.scrollBarsVisible = feather_tk::ObservableValue<bool>::create(true);
+            p.autoScroll = feather_tk::ObservableValue<bool>::create(true);
+            p.stopOnScrub = feather_tk::ObservableValue<bool>::create(true);
+            p.scrub = feather_tk::ObservableValue<bool>::create(false);
+            p.timeScrub = feather_tk::ObservableValue<OTIO_NS::RationalTime>::create(time::invalidTime);
+            p.itemOptions = feather_tk::ObservableValue<ItemOptions>::create();
+            p.displayOptions = feather_tk::ObservableValue<DisplayOptions>::create();
 
-            p.window = dtk::gl::Window::create(
+            p.window = feather_tk::gl::Window::create(
                 context,
                 "tl::timelineui::TimelineWidget",
-                dtk::Size2I(1, 1),
-                static_cast<int>(dtk::gl::WindowOptions::None));
+                feather_tk::Size2I(1, 1),
+                static_cast<int>(feather_tk::gl::WindowOptions::None));
 
-            p.scrollWidget = dtk::ScrollWidget::create(
+            p.scrollWidget = feather_tk::ScrollWidget::create(
                 context,
-                dtk::ScrollType::Both,
+                feather_tk::ScrollType::Both,
                 shared_from_this());
             p.scrollWidget->setScrollBarsVisible(p.scrollBarsVisible->get());
             p.scrollWidget->setScrollEventsEnabled(false);
@@ -115,7 +115,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimelineWidget> TimelineWidget::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -131,7 +131,7 @@ namespace tl
 
         void TimelineWidget::setPlayer(const std::shared_ptr<timeline::Player>& player)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (player == p.player)
                 return;
 
@@ -153,21 +153,21 @@ namespace tl
             {
                 p.timeRange = p.player->getTimeRange();
 
-                p.timelineObserver = dtk::ValueObserver<bool>::create(
+                p.timelineObserver = feather_tk::ValueObserver<bool>::create(
                     p.player->getTimeline()->observeTimelineChanges(),
                     [this](bool)
                     {
                         _timelineUpdate();
                     });
 
-                p.playbackObserver = dtk::ValueObserver<timeline::Playback>::create(
+                p.playbackObserver = feather_tk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
                     [this](timeline::Playback value)
                     {
                         _p->playback = value;
                     });
 
-                p.currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+                p.currentTimeObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
                     p.player->observeCurrentTime(),
                     [this](const OTIO_NS::RationalTime& value)
                     {
@@ -186,14 +186,14 @@ namespace tl
             return _p->editable->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeEditable() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeEditable() const
         {
             return _p->editable;
         }
 
         void TimelineWidget::setEditable(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.editable->setIfChanged(value))
             {
                 if (p.timelineItem)
@@ -205,15 +205,15 @@ namespace tl
 
         void TimelineWidget::setViewZoom(double value)
         {
-            const dtk::Box2I& g = getGeometry();
-            setViewZoom(value, dtk::V2I(g.w() / 2, g.h() / 2));
+            const feather_tk::Box2I& g = getGeometry();
+            setViewZoom(value, feather_tk::V2I(g.w() / 2, g.h() / 2));
         }
 
         void TimelineWidget::setViewZoom(
             double zoom,
-            const dtk::V2I& focus)
+            const feather_tk::V2I& focus)
         {
-            DTK_P();
+            FEATHER_TK_P();
             _setViewZoom(
                 zoom,
                 p.scale,
@@ -223,8 +223,8 @@ namespace tl
 
         void TimelineWidget::frameView()
         {
-            DTK_P();
-            p.scrollWidget->setScrollPos(dtk::V2I());
+            FEATHER_TK_P();
+            p.scrollWidget->setScrollPos(feather_tk::V2I());
             const double scale = _getTimelineScale();
             if (scale != p.scale)
             {
@@ -240,14 +240,14 @@ namespace tl
             return _p->frameView->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeFrameView() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeFrameView() const
         {
             return _p->frameView;
         }
 
         void TimelineWidget::setFrameView(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.frameView->setIfChanged(value))
             {
                 if (value)
@@ -262,14 +262,14 @@ namespace tl
             return _p->scrollBarsVisible->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrollBarsVisible() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeScrollBarsVisible() const
         {
             return _p->scrollBarsVisible;
         }
 
         void TimelineWidget::setScrollBarsVisible(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.scrollBarsVisible->setIfChanged(value))
             {
                 _p->scrollWidget->setScrollBarsVisible(value);
@@ -281,28 +281,28 @@ namespace tl
             return _p->autoScroll->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeAutoScroll() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeAutoScroll() const
         {
             return _p->autoScroll;
         }
 
         void TimelineWidget::setAutoScroll(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.autoScroll->setIfChanged(value))
             {
                 _scrollUpdate();
             }
         }
 
-        dtk::KeyModifier TimelineWidget::getScrollKeyModifier() const
+        feather_tk::KeyModifier TimelineWidget::getScrollKeyModifier() const
         {
             return _p->scrollKeyModifier;
         }
 
-        void TimelineWidget::setScrollKeyModifier(dtk::KeyModifier value)
+        void TimelineWidget::setScrollKeyModifier(feather_tk::KeyModifier value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.scrollKeyModifier = value;
             _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
         }
@@ -314,7 +314,7 @@ namespace tl
 
         void TimelineWidget::setMouseWheelScale(float value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.mouseWheelScale = value;
         }
 
@@ -323,14 +323,14 @@ namespace tl
             return _p->stopOnScrub->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeStopOnScrub() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeStopOnScrub() const
         {
             return _p->stopOnScrub;
         }
 
         void TimelineWidget::setStopOnScrub(bool value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.stopOnScrub->setIfChanged(value))
             {
                 if (p.timelineItem)
@@ -340,12 +340,12 @@ namespace tl
             }
         }
 
-        std::shared_ptr<dtk::IObservableValue<bool> > TimelineWidget::observeScrub() const
+        std::shared_ptr<feather_tk::IObservableValue<bool> > TimelineWidget::observeScrub() const
         {
             return _p->scrub;
         }
 
-        std::shared_ptr<dtk::IObservableValue<OTIO_NS::RationalTime> > TimelineWidget::observeTimeScrub() const
+        std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > TimelineWidget::observeTimeScrub() const
         {
             return _p->timeScrub;
         }
@@ -357,7 +357,7 @@ namespace tl
 
         void TimelineWidget::setFrameMarkers(const std::vector<int>& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (value == p.frameMarkers)
                 return;
             p.frameMarkers = value;
@@ -372,14 +372,14 @@ namespace tl
             return _p->itemOptions->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<ItemOptions> > TimelineWidget::observeItemOptions() const
+        std::shared_ptr<feather_tk::IObservableValue<ItemOptions> > TimelineWidget::observeItemOptions() const
         {
             return _p->itemOptions;
         }
 
         void TimelineWidget::setItemOptions(const ItemOptions& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.itemOptions->setIfChanged(value))
             {
                 if (p.timelineItem)
@@ -394,14 +394,14 @@ namespace tl
             return _p->displayOptions->get();
         }
 
-        std::shared_ptr<dtk::IObservableValue<DisplayOptions> > TimelineWidget::observeDisplayOptions() const
+        std::shared_ptr<feather_tk::IObservableValue<DisplayOptions> > TimelineWidget::observeDisplayOptions() const
         {
             return _p->displayOptions;
         }
 
         void TimelineWidget::setDisplayOptions(const DisplayOptions& value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             const DisplayOptions prev = p.displayOptions->get();
             if (p.displayOptions->setIfChanged(value))
             {
@@ -422,16 +422,16 @@ namespace tl
             }
         }
 
-        std::vector<dtk::Box2I> TimelineWidget::getTrackGeom() const
+        std::vector<feather_tk::Box2I> TimelineWidget::getTrackGeom() const
         {
             return _p->timelineItem->getTrackGeom();
         }
 
-        void TimelineWidget::setGeometry(const dtk::Box2I& value)
+        void TimelineWidget::setGeometry(const feather_tk::Box2I& value)
         {
             const bool changed = value != getGeometry();
             IWidget::setGeometry(value);
-            DTK_P();
+            FEATHER_TK_P();
             p.scrollWidget->setGeometry(value);
             if (p.sizeInit || (changed && p.frameView->get()))
             {
@@ -450,18 +450,18 @@ namespace tl
         void TimelineWidget::tickEvent(
             bool parentsVisible,
             bool parentsEnabled,
-            const dtk::TickEvent& event)
+            const feather_tk::TickEvent& event)
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
         }
 
-        void TimelineWidget::sizeHintEvent(const dtk::SizeHintEvent& event)
+        void TimelineWidget::sizeHintEvent(const feather_tk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            DTK_P();
-            const int b = event.style->getSizeRole(dtk::SizeRole::Border, event.displayScale);
-            const int sa = event.style->getSizeRole(dtk::SizeRole::ScrollArea, event.displayScale);
-            dtk::Size2I sizeHint;
+            FEATHER_TK_P();
+            const int b = event.style->getSizeRole(feather_tk::SizeRole::Border, event.displayScale);
+            const int sa = event.style->getSizeRole(feather_tk::SizeRole::ScrollArea, event.displayScale);
+            feather_tk::Size2I sizeHint;
             sizeHint.w = sa;
             //! \bug This assumes the scroll bars are hidden.
             sizeHint.h = p.timelineItem ? (p.timelineItem->getMinimumHeight() + b * 2) : sa;
@@ -470,15 +470,15 @@ namespace tl
             p.displayScale = event.displayScale;
         }
 
-        void TimelineWidget::mouseMoveEvent(dtk::MouseMoveEvent& event)
+        void TimelineWidget::mouseMoveEvent(feather_tk::MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
-            DTK_P();
+            FEATHER_TK_P();
             switch (p.mouse.mode)
             {
             case Private::MouseMode::Scroll:
             {
-                const dtk::V2I d = event.pos - _getMousePressPos();
+                const feather_tk::V2I d = event.pos - _getMousePressPos();
                 p.scrollWidget->setScrollPos(p.mouse.scrollPos - d);
                 setFrameView(false);
                 break;
@@ -487,10 +487,10 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mousePressEvent(dtk::MouseClickEvent& event)
+        void TimelineWidget::mousePressEvent(feather_tk::MouseClickEvent& event)
         {
             IWidget::mousePressEvent(event);
-            DTK_P();
+            FEATHER_TK_P();
             if (p.itemOptions->get().inputEnabled &&
                 0 == event.button &&
                 event.modifiers & static_cast<int>(p.scrollKeyModifier))
@@ -505,16 +505,16 @@ namespace tl
             }
         }
 
-        void TimelineWidget::mouseReleaseEvent(dtk::MouseClickEvent& event)
+        void TimelineWidget::mouseReleaseEvent(feather_tk::MouseClickEvent& event)
         {
             IWidget::mouseReleaseEvent(event);
-            DTK_P();
+            FEATHER_TK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
 
-        void TimelineWidget::scrollEvent(dtk::ScrollEvent& event)
+        void TimelineWidget::scrollEvent(feather_tk::ScrollEvent& event)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.itemOptions->get().inputEnabled)
             {
                 event.accept = true;
@@ -531,23 +531,23 @@ namespace tl
             }
         }
 
-        void TimelineWidget::keyPressEvent(dtk::KeyEvent& event)
+        void TimelineWidget::keyPressEvent(feather_tk::KeyEvent& event)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.itemOptions->get().inputEnabled &&
                 0 == event.modifiers)
             {
                 switch (event.key)
                 {
-                case dtk::Key::Equal:
+                case feather_tk::Key::Equal:
                     event.accept = true;
                     setViewZoom(p.scale * 2.F, event.pos);
                     break;
-                case dtk::Key::Minus:
+                case feather_tk::Key::Minus:
                     event.accept = true;
                     setViewZoom(p.scale / 2.F, event.pos);
                     break;
-                case dtk::Key::Backspace:
+                case feather_tk::Key::Backspace:
                     event.accept = true;
                     setFrameView(true);
                     break;
@@ -556,7 +556,7 @@ namespace tl
             }
         }
 
-        void TimelineWidget::keyReleaseEvent(dtk::KeyEvent& event)
+        void TimelineWidget::keyReleaseEvent(feather_tk::KeyEvent& event)
         {
             event.accept = true;
         }
@@ -564,27 +564,27 @@ namespace tl
         void TimelineWidget::_releaseMouse()
         {
             IWidget::_releaseMouse();
-            DTK_P();
+            FEATHER_TK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
 
         void TimelineWidget::_setViewZoom(
             double zoomNew,
             double zoomPrev,
-            const dtk::V2I& focus,
-            const dtk::V2I& scrollPos)
+            const feather_tk::V2I& focus,
+            const feather_tk::V2I& scrollPos)
         {
-            DTK_P();
+            FEATHER_TK_P();
             const int w = getGeometry().w();
             const double zoomMin = _getTimelineScale();
             const double zoomMax = _getTimelineScaleMax();
-            const double zoomClamped = dtk::clamp(zoomNew, zoomMin, zoomMax);
+            const double zoomClamped = feather_tk::clamp(zoomNew, zoomMin, zoomMax);
             if (zoomClamped != p.scale)
             {
                 p.scale = zoomClamped;
                 _setItemScale();
                 const double s = zoomClamped / zoomPrev;
-                const dtk::V2I scrollPosNew(
+                const feather_tk::V2I scrollPosNew(
                     (scrollPos.x + focus.x) * s - focus.x,
                     scrollPos.y);
                 p.scrollWidget->setScrollPos(scrollPosNew, false);
@@ -595,7 +595,7 @@ namespace tl
 
         double TimelineWidget::_getTimelineScale() const
         {
-            DTK_P();
+            FEATHER_TK_P();
             double out = 1.0;
             if (p.player)
             {
@@ -603,7 +603,7 @@ namespace tl
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration > 0.0)
                 {
-                    const dtk::Box2I scrollViewport = p.scrollWidget->getViewport();
+                    const feather_tk::Box2I scrollViewport = p.scrollWidget->getViewport();
                     out = scrollViewport.w() / duration;
                 }
             }
@@ -612,11 +612,11 @@ namespace tl
 
         double TimelineWidget::_getTimelineScaleMax() const
         {
-            DTK_P();
+            FEATHER_TK_P();
             double out = 1.0;
             if (p.player)
             {
-                const dtk::Box2I scrollViewport = p.scrollWidget->getViewport();
+                const feather_tk::Box2I scrollViewport = p.scrollWidget->getViewport();
                 const OTIO_NS::TimeRange& timeRange = p.player->getTimeRange();
                 const double duration = timeRange.duration().rescaled_to(1.0).value();
                 if (duration < 1.0)
@@ -636,7 +636,7 @@ namespace tl
 
         void TimelineWidget::_setItemScale()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.itemData->waveforms.clear();
             if (p.timelineItem)
             {
@@ -688,20 +688,20 @@ namespace tl
 
         void TimelineWidget::_scrollUpdate()
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (p.timelineItem &&
                 p.autoScroll->get() &&
                 !p.scrub->get() &&
                 Private::MouseMode::None == p.mouse.mode)
             {
                 const int pos = p.timelineItem->timeToPos(p.currentTime);
-                const dtk::Box2I vp = p.scrollWidget->getViewport();
+                const feather_tk::Box2I vp = p.scrollWidget->getViewport();
                 const int margin = vp.w() * marginPercentage;
                 if (pos < (vp.min.x + margin) || pos >(vp.max.x - margin))
                 {
                     const int offset = pos < (vp.min.x + margin) ? (vp.min.x + margin) : (vp.max.x - margin);
                     const OTIO_NS::RationalTime t = p.currentTime - p.timeRange.start_time();
-                    dtk::V2I scrollPos = p.scrollWidget->getScrollPos();
+                    feather_tk::V2I scrollPos = p.scrollWidget->getScrollPos();
                     scrollPos.x = getGeometry().min.x - offset + t.rescaled_to(1.0).value() * p.scale;
                     p.scrollWidget->setScrollPos(scrollPos);
                 }
@@ -710,9 +710,9 @@ namespace tl
 
         void TimelineWidget::_timelineUpdate()
         {
-            DTK_P();
+            FEATHER_TK_P();
 
-            const dtk::V2I scrollPos = p.scrollWidget->getScrollPos();
+            const feather_tk::V2I scrollPos = p.scrollWidget->getScrollPos();
 
             p.scrubObserver.reset();
             p.timeScrubObserver.reset();
@@ -741,7 +741,7 @@ namespace tl
                     p.scrollWidget->setScrollPos(scrollPos);
                     p.scrollWidget->setWidget(p.timelineItem);
 
-                    p.scrubObserver = dtk::ValueObserver<bool>::create(
+                    p.scrubObserver = feather_tk::ValueObserver<bool>::create(
                         p.timelineItem->observeScrub(),
                         [this](bool value)
                         {
@@ -749,7 +749,7 @@ namespace tl
                             _scrollUpdate();
                         });
 
-                    p.timeScrubObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+                    p.timeScrubObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
                         p.timelineItem->observeTimeScrub(),
                         [this](const OTIO_NS::RationalTime& value)
                         {

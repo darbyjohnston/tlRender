@@ -12,9 +12,9 @@ namespace tl
     {
         void Read::_init(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -30,7 +30,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -39,9 +39,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -50,12 +50,12 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory)
+            const feather_tk::InMemoryFile* memory)
         {
             io::Info out;
             auto io = memory ?
-                dtk::FileIO::create(fileName, *memory) :
-                dtk::FileIO::create(fileName, dtk::FileMode::Read);
+                feather_tk::FileIO::create(fileName, *memory) :
+                feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
             Transfer transfer = Transfer::User;
             const auto header = read(io, out, transfer);
             float speed = _defaultSpeed;
@@ -80,7 +80,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const dtk::InMemoryFile* memory,
+            const feather_tk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {
@@ -88,13 +88,13 @@ namespace tl
             out.time = time;
 
             auto io = memory ?
-                dtk::FileIO::create(fileName, *memory) :
-                dtk::FileIO::create(fileName, dtk::FileMode::Read);
+                feather_tk::FileIO::create(fileName, *memory) :
+                feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
             io::Info info;
             Transfer transfer = Transfer::User;
             read(io, info, transfer);
 
-            out.image = dtk::Image::create(info.video[0]);
+            out.image = feather_tk::Image::create(info.video[0]);
             out.image->setTags(info.tags);
             io->read(out.image->getData(), info.video[0].getByteCount());
             return out;

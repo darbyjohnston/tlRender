@@ -21,17 +21,17 @@ namespace tl
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
         void init(
-            const std::shared_ptr<dtk::Context>&,
+            const std::shared_ptr<feather_tk::Context>&,
             DefaultSurfaceFormat);
 
         //! Qt support system.
         class System : public system::ISystem
         {
-            DTK_NON_COPYABLE(System);
+            FEATHER_TK_NON_COPYABLE(System);
 
         protected:
             System(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 DefaultSurfaceFormat);
 
         public:
@@ -39,7 +39,7 @@ namespace tl
 
             //! Create a new system.
             static std::shared_ptr<System> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 DefaultSurfaceFormat);
         };
     }

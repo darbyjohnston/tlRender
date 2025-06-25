@@ -8,7 +8,7 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <dtk/gl/Init.h>
+#include <feather-tk/gl/Init.h>
 
 #include <QOpenGLFramebufferObject>
 
@@ -41,18 +41,18 @@ namespace tl
                     if (!_init)
                     {
                         _init = true;
-                        dtk::gl::initGLAD();
+                        feather_tk::gl::initGLAD();
                         _render = timeline_gl::Render::create(qtquick::getContext());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
-                    const dtk::Size2I size(fbo->width(), fbo->height());
+                    const feather_tk::Size2I size(fbo->width(), fbo->height());
                     _render->begin(size);
                     if (!_videoData.empty())
                     {
                         _render->drawVideo(
                             { _videoData.front() },
-                            { dtk::Box2I(0, 0, size.w, size.h) });
+                            { feather_tk::Box2I(0, 0, size.w, size.h) });
                     }
                     _render->end();
 

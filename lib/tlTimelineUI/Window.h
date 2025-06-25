@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/ui/Window.h>
+#include <feather-tk/ui/Window.h>
 
 namespace tl
 {
@@ -14,15 +14,15 @@ namespace tl
         //! 
         //! This window creates a timeline renderer for use by the other
         //! timeline widgets.
-        class Window : public dtk::Window
+        class Window : public feather_tk::Window
         {
-            DTK_NON_COPYABLE(Window);
+            FEATHER_TK_NON_COPYABLE(Window);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string& name,
-                const dtk::Size2I&);
+                const feather_tk::Size2I&);
 
             Window() = default;
 
@@ -31,12 +31,12 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<Window> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string& name,
-                const dtk::Size2I&);
+                const feather_tk::Size2I&);
 
         protected:
-            std::shared_ptr<dtk::IRender> _createRender(const std::shared_ptr<dtk::Context>&) override;
+            std::shared_ptr<feather_tk::IRender> _createRender(const std::shared_ptr<feather_tk::Context>&) override;
         };
     }
 }

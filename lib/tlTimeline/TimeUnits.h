@@ -6,9 +6,9 @@
 
 #include <tlCore/Time.h>
 
-#include <dtk/core/ObservableValue.h>
+#include <feather-tk/core/ObservableValue.h>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -27,7 +27,7 @@ namespace tl
             Count,
             First = Frames
         };
-        DTK_ENUM(TimeUnits);
+        FEATHER_TK_ENUM(TimeUnits);
 
         //! Convert a time value to text.
         std::string timeToText(const OTIO_NS::RationalTime&, timeline::TimeUnits);
@@ -48,10 +48,10 @@ namespace tl
         //! Base class for time units models.
         class ITimeUnitsModel : public std::enable_shared_from_this<ITimeUnitsModel>
         {
-            DTK_NON_COPYABLE(ITimeUnitsModel);
+            FEATHER_TK_NON_COPYABLE(ITimeUnitsModel);
 
         protected:
-            void _init(const std::shared_ptr<dtk::Context>&);
+            void _init(const std::shared_ptr<feather_tk::Context>&);
 
             ITimeUnitsModel();
 
@@ -59,22 +59,22 @@ namespace tl
             virtual ~ITimeUnitsModel() = 0;
 
             //! Observer when the time units are changed.
-            std::shared_ptr<dtk::IObservableValue<bool> > observeTimeUnitsChanged() const;
+            std::shared_ptr<feather_tk::IObservableValue<bool> > observeTimeUnitsChanged() const;
 
             //! Get a time label in the current time units.
             virtual std::string getLabel(const OTIO_NS::RationalTime&) const = 0;
 
         protected:
-            std::shared_ptr<dtk::ObservableValue<bool> > _timeUnitsChanged;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > _timeUnitsChanged;
         };
 
         //! Time units model.
         class TimeUnitsModel : public ITimeUnitsModel
         {
-            DTK_NON_COPYABLE(TimeUnitsModel);
+            FEATHER_TK_NON_COPYABLE(TimeUnitsModel);
 
         protected:
-            void _init(const std::shared_ptr<dtk::Context>&);
+            void _init(const std::shared_ptr<feather_tk::Context>&);
 
             TimeUnitsModel();
 
@@ -83,20 +83,20 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<TimeUnitsModel> create(
-                const std::shared_ptr<dtk::Context>&);
+                const std::shared_ptr<feather_tk::Context>&);
 
             //! Get the time units.
             TimeUnits getTimeUnits() const;
 
             //! Observer the time units.
-            std::shared_ptr<dtk::IObservableValue<TimeUnits> > observeTimeUnits() const;
+            std::shared_ptr<feather_tk::IObservableValue<TimeUnits> > observeTimeUnits() const;
             
             //! Set the time units.
             void setTimeUnits(TimeUnits);
 
             std::string getLabel(const OTIO_NS::RationalTime&) const override;
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

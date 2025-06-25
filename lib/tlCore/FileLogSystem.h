@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/core/ISystem.h>
+#include <feather-tk/core/ISystem.h>
 
 #include <filesystem>
 
@@ -13,13 +13,13 @@ namespace tl
     namespace file
     {
         //! File logging system.
-        class FileLogSystem : public dtk::ISystem
+        class FileLogSystem : public feather_tk::ISystem
         {
-            DTK_NON_COPYABLE(FileLogSystem);
+            FEATHER_TK_NON_COPYABLE(FileLogSystem);
 
         protected:
             FileLogSystem(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::filesystem::path&);
 
         public:
@@ -27,11 +27,11 @@ namespace tl
 
             //! Create a new system.
             static std::shared_ptr<FileLogSystem> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::filesystem::path&);
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

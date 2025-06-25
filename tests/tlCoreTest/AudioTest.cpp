@@ -15,11 +15,11 @@ namespace tl
 {
     namespace core_tests
     {
-        AudioTest::AudioTest(const std::shared_ptr<dtk::Context>& context) :
+        AudioTest::AudioTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "core_tests::AudioTest")
         {}
 
-        std::shared_ptr<AudioTest> AudioTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<AudioTest> AudioTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<AudioTest>(new AudioTest(context));
         }
@@ -69,18 +69,18 @@ namespace tl
         {
             {
                 const Info info(2, DataType::S16, 44100);
-                DTK_ASSERT(info == info);
-                DTK_ASSERT(info != Info());
+                FEATHER_TK_ASSERT(info == info);
+                FEATHER_TK_ASSERT(info != Info());
                 auto audio = Audio::create(info, 1000);
                 audio->zero();
-                DTK_ASSERT(audio->getInfo() == info);
-                DTK_ASSERT(audio->getChannelCount() == info.channelCount);
-                DTK_ASSERT(audio->getDataType() == info.dataType);
-                DTK_ASSERT(audio->getSampleRate() == info.sampleRate);
-                DTK_ASSERT(audio->getSampleCount() == 1000);
-                DTK_ASSERT(audio->isValid());
-                DTK_ASSERT(audio->getData());
-                DTK_ASSERT(static_cast<const Audio*>(audio.get())->getData());
+                FEATHER_TK_ASSERT(audio->getInfo() == info);
+                FEATHER_TK_ASSERT(audio->getChannelCount() == info.channelCount);
+                FEATHER_TK_ASSERT(audio->getDataType() == info.dataType);
+                FEATHER_TK_ASSERT(audio->getSampleRate() == info.sampleRate);
+                FEATHER_TK_ASSERT(audio->getSampleCount() == 1000);
+                FEATHER_TK_ASSERT(audio->isValid());
+                FEATHER_TK_ASSERT(audio->getData());
+                FEATHER_TK_ASSERT(static_cast<const Audio*>(audio.get())->getData());
             }
         }
 
@@ -120,10 +120,10 @@ namespace tl
             audio->getData()[0] = 3;
             list.push_back(audio);
             auto combined = combine(list);
-            DTK_ASSERT(3 == combined->getSampleCount());
-            DTK_ASSERT(1 == combined->getData()[0]);
-            DTK_ASSERT(2 == combined->getData()[1]);
-            DTK_ASSERT(3 == combined->getData()[2]);
+            FEATHER_TK_ASSERT(3 == combined->getSampleCount());
+            FEATHER_TK_ASSERT(1 == combined->getData()[0]);
+            FEATHER_TK_ASSERT(2 == combined->getData()[1]);
+            FEATHER_TK_ASSERT(3 == combined->getData()[2]);
         }
 
         namespace
@@ -151,11 +151,11 @@ namespace tl
 
                 auto out = mix({ audio0, audio1 }, 1.0);
                 const T* outP = reinterpret_cast<T*>(out->getData());
-                DTK_ASSERT(0 == outP[0]);
-                DTK_ASSERT(std::numeric_limits<T>::max() == outP[1]);
-                DTK_ASSERT(std::numeric_limits<T>::min() == outP[2]);
-                DTK_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[3]);
-                DTK_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[4]);
+                FEATHER_TK_ASSERT(0 == outP[0]);
+                FEATHER_TK_ASSERT(std::numeric_limits<T>::max() == outP[1]);
+                FEATHER_TK_ASSERT(std::numeric_limits<T>::min() == outP[2]);
+                FEATHER_TK_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[3]);
+                FEATHER_TK_ASSERT(std::numeric_limits<T>::max() + std::numeric_limits<T>::min() == outP[4]);
             }
 
             template<DataType DT, typename T>
@@ -181,11 +181,11 @@ namespace tl
 
                 auto out = mix({ audio0, audio1 }, 1.0);
                 const T* outP = reinterpret_cast<T*>(out->getData());
-                DTK_ASSERT(0 == outP[0]);
-                DTK_ASSERT(2 == outP[1]);
-                DTK_ASSERT(-2 == outP[2]);
-                DTK_ASSERT(0 == outP[3]);
-                DTK_ASSERT(0 == outP[4]);
+                FEATHER_TK_ASSERT(0 == outP[0]);
+                FEATHER_TK_ASSERT(2 == outP[1]);
+                FEATHER_TK_ASSERT(-2 == outP[2]);
+                FEATHER_TK_ASSERT(0 == outP[3]);
+                FEATHER_TK_ASSERT(0 == outP[4]);
             }
         }
 
@@ -217,35 +217,35 @@ namespace tl
 
                 auto out = mix({ audio0, audio1 }, 1.0, { false, false });
                 const F32_T* outP = reinterpret_cast<F32_T*>(out->getData());
-                DTK_ASSERT(2 == outP[0]); DTK_ASSERT(2 == outP[1]);
-                DTK_ASSERT(2 == outP[2]); DTK_ASSERT(2 == outP[3]);
-                DTK_ASSERT(2 == outP[4]); DTK_ASSERT(2 == outP[5]);
-                DTK_ASSERT(2 == outP[6]); DTK_ASSERT(2 == outP[7]);
-                DTK_ASSERT(2 == outP[8]); DTK_ASSERT(2 == outP[9]);
+                FEATHER_TK_ASSERT(2 == outP[0]); FEATHER_TK_ASSERT(2 == outP[1]);
+                FEATHER_TK_ASSERT(2 == outP[2]); FEATHER_TK_ASSERT(2 == outP[3]);
+                FEATHER_TK_ASSERT(2 == outP[4]); FEATHER_TK_ASSERT(2 == outP[5]);
+                FEATHER_TK_ASSERT(2 == outP[6]); FEATHER_TK_ASSERT(2 == outP[7]);
+                FEATHER_TK_ASSERT(2 == outP[8]); FEATHER_TK_ASSERT(2 == outP[9]);
 
                 out = mix({ audio0, audio1 }, 1.0, { true, false });
                 outP = reinterpret_cast<F32_T*>(out->getData());
-                DTK_ASSERT(0 == outP[0]); DTK_ASSERT(2 == outP[1]);
-                DTK_ASSERT(0 == outP[2]); DTK_ASSERT(2 == outP[3]);
-                DTK_ASSERT(0 == outP[4]); DTK_ASSERT(2 == outP[5]);
-                DTK_ASSERT(0 == outP[6]); DTK_ASSERT(2 == outP[7]);
-                DTK_ASSERT(0 == outP[8]); DTK_ASSERT(2 == outP[9]);
+                FEATHER_TK_ASSERT(0 == outP[0]); FEATHER_TK_ASSERT(2 == outP[1]);
+                FEATHER_TK_ASSERT(0 == outP[2]); FEATHER_TK_ASSERT(2 == outP[3]);
+                FEATHER_TK_ASSERT(0 == outP[4]); FEATHER_TK_ASSERT(2 == outP[5]);
+                FEATHER_TK_ASSERT(0 == outP[6]); FEATHER_TK_ASSERT(2 == outP[7]);
+                FEATHER_TK_ASSERT(0 == outP[8]); FEATHER_TK_ASSERT(2 == outP[9]);
 
                 out = mix({ audio0, audio1 }, 1.0, { false, true });
                 outP = reinterpret_cast<F32_T*>(out->getData());
-                DTK_ASSERT(2 == outP[0]); DTK_ASSERT(0 == outP[1]);
-                DTK_ASSERT(2 == outP[2]); DTK_ASSERT(0 == outP[3]);
-                DTK_ASSERT(2 == outP[4]); DTK_ASSERT(0 == outP[5]);
-                DTK_ASSERT(2 == outP[6]); DTK_ASSERT(0 == outP[7]);
-                DTK_ASSERT(2 == outP[8]); DTK_ASSERT(0 == outP[9]);
+                FEATHER_TK_ASSERT(2 == outP[0]); FEATHER_TK_ASSERT(0 == outP[1]);
+                FEATHER_TK_ASSERT(2 == outP[2]); FEATHER_TK_ASSERT(0 == outP[3]);
+                FEATHER_TK_ASSERT(2 == outP[4]); FEATHER_TK_ASSERT(0 == outP[5]);
+                FEATHER_TK_ASSERT(2 == outP[6]); FEATHER_TK_ASSERT(0 == outP[7]);
+                FEATHER_TK_ASSERT(2 == outP[8]); FEATHER_TK_ASSERT(0 == outP[9]);
 
                 out = mix({ audio0, audio1 }, 1.0, { true, true });
                 outP = reinterpret_cast<F32_T*>(out->getData());
-                DTK_ASSERT(0 == outP[0]); DTK_ASSERT(0 == outP[1]);
-                DTK_ASSERT(0 == outP[2]); DTK_ASSERT(0 == outP[3]);
-                DTK_ASSERT(0 == outP[4]); DTK_ASSERT(0 == outP[5]);
-                DTK_ASSERT(0 == outP[6]); DTK_ASSERT(0 == outP[7]);
-                DTK_ASSERT(0 == outP[8]); DTK_ASSERT(0 == outP[9]);
+                FEATHER_TK_ASSERT(0 == outP[0]); FEATHER_TK_ASSERT(0 == outP[1]);
+                FEATHER_TK_ASSERT(0 == outP[2]); FEATHER_TK_ASSERT(0 == outP[3]);
+                FEATHER_TK_ASSERT(0 == outP[4]); FEATHER_TK_ASSERT(0 == outP[5]);
+                FEATHER_TK_ASSERT(0 == outP[6]); FEATHER_TK_ASSERT(0 == outP[7]);
+                FEATHER_TK_ASSERT(0 == outP[8]); FEATHER_TK_ASSERT(0 == outP[9]);
             }
         }
 
@@ -256,9 +256,9 @@ namespace tl
             audio->getData()[1] = 2;
             audio->getData()[2] = 3;
             auto reversed = reverse(audio);
-            DTK_ASSERT(3 == reversed->getData()[0]);
-            DTK_ASSERT(2 == reversed->getData()[1]);
-            DTK_ASSERT(1 == reversed->getData()[2]);
+            FEATHER_TK_ASSERT(3 == reversed->getData()[0]);
+            FEATHER_TK_ASSERT(2 == reversed->getData()[1]);
+            FEATHER_TK_ASSERT(1 == reversed->getData()[2]);
         }
 
         void AudioTest::_convert()
@@ -270,10 +270,10 @@ namespace tl
                 for (auto j : getDataTypeEnums())
                 {
                     const auto out = convert(in, j);
-                    DTK_ASSERT(out->getChannelCount() == in->getChannelCount());
-                    DTK_ASSERT(out->getDataType() == j);
-                    DTK_ASSERT(out->getSampleRate() == in->getSampleRate());
-                    DTK_ASSERT(out->getSampleCount() == in->getSampleCount());
+                    FEATHER_TK_ASSERT(out->getChannelCount() == in->getChannelCount());
+                    FEATHER_TK_ASSERT(out->getDataType() == j);
+                    FEATHER_TK_ASSERT(out->getSampleRate() == in->getSampleRate());
+                    FEATHER_TK_ASSERT(out->getSampleCount() == in->getSampleCount());
                 }
             }
         }
@@ -296,13 +296,13 @@ namespace tl
 
                 move(list, data.data(), 10);
 
-                DTK_ASSERT(list.empty());
-                DTK_ASSERT(0 == getSampleCount(list));
+                FEATHER_TK_ASSERT(list.empty());
+                FEATHER_TK_ASSERT(0 == getSampleCount(list));
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    DTK_ASSERT(i == p[i * 2]);
-                    DTK_ASSERT(i == p[i * 2 + 1]);
+                    FEATHER_TK_ASSERT(i == p[i * 2]);
+                    FEATHER_TK_ASSERT(i == p[i * 2 + 1]);
                 }
             }
             {
@@ -321,18 +321,18 @@ namespace tl
 
                 move(list, data.data(), 10);
 
-                DTK_ASSERT(list.empty());
+                FEATHER_TK_ASSERT(list.empty());
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 size_t i = 0;
                 for (; i < 5; ++i)
                 {
-                    DTK_ASSERT(i == p[i * 2]);
-                    DTK_ASSERT(i == p[i * 2 + 1]);
+                    FEATHER_TK_ASSERT(i == p[i * 2]);
+                    FEATHER_TK_ASSERT(i == p[i * 2 + 1]);
                 }
                 for (; i < 10; ++i)
                 {
-                    DTK_ASSERT(0 == p[i * 2]);
-                    DTK_ASSERT(0 == p[i * 2 + 1]);
+                    FEATHER_TK_ASSERT(0 == p[i * 2]);
+                    FEATHER_TK_ASSERT(0 == p[i * 2 + 1]);
                 }
             }
             {
@@ -351,13 +351,13 @@ namespace tl
 
                 move(list, data.data(), 10);
 
-                DTK_ASSERT(5 == list.size());
-                DTK_ASSERT(5 == getSampleCount(list));
+                FEATHER_TK_ASSERT(5 == list.size());
+                FEATHER_TK_ASSERT(5 == getSampleCount(list));
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    DTK_ASSERT(i == p[i * 2]);
-                    DTK_ASSERT(i == p[i * 2 + 1]);
+                    FEATHER_TK_ASSERT(i == p[i * 2]);
+                    FEATHER_TK_ASSERT(i == p[i * 2 + 1]);
                 }
             }
             {
@@ -379,16 +379,16 @@ namespace tl
 
                 move(list, data.data(), 10);
 
-                DTK_ASSERT(2 == list.size());
-                DTK_ASSERT(6 == getSampleCount(list));
-                DTK_ASSERT(2 == list.front()->getSampleCount());
-                DTK_ASSERT(10 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[0]);
-                DTK_ASSERT(11 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[2]);
+                FEATHER_TK_ASSERT(2 == list.size());
+                FEATHER_TK_ASSERT(6 == getSampleCount(list));
+                FEATHER_TK_ASSERT(2 == list.front()->getSampleCount());
+                FEATHER_TK_ASSERT(10 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[0]);
+                FEATHER_TK_ASSERT(11 == reinterpret_cast<audio::S16_T*>(list.front()->getData())[2]);
                 audio::S16_T* p = reinterpret_cast<audio::S16_T*>(data.data());
                 for (size_t i = 0; i < 10; ++i)
                 {
-                    DTK_ASSERT(i == p[i * 2]);
-                    DTK_ASSERT(i == p[i * 2 + 1]);
+                    FEATHER_TK_ASSERT(i == p[i * 2]);
+                    FEATHER_TK_ASSERT(i == p[i * 2 + 1]);
                 }
             }
         }
@@ -407,15 +407,15 @@ namespace tl
                 const Info a(2, dataType, 44100);
                 const Info b(1, dataType, 44100);
                 auto r = AudioResample::create(a, b);
-                DTK_ASSERT(a == r->getInputInfo());
-                DTK_ASSERT(b == r->getOutputInfo());
+                FEATHER_TK_ASSERT(a == r->getInputInfo());
+                FEATHER_TK_ASSERT(b == r->getOutputInfo());
                 auto in = Audio::create(a, 44100);
                 auto out = r->process(in);
 #if defined(TLRENDER_FFMPEG)
                 if (dataType != DataType::None)
                 {
-                    DTK_ASSERT(b == out->getInfo());
-                    DTK_ASSERT(44100 == out->getSampleCount());
+                    FEATHER_TK_ASSERT(b == out->getInfo());
+                    FEATHER_TK_ASSERT(44100 == out->getSampleCount());
                 }
 #endif // TLRENDER_FFMPEG
                 r->flush();

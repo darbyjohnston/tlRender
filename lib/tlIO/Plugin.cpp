@@ -4,7 +4,7 @@
 
 #include <tlIO/Plugin.h>
 
-#include <dtk/core/LogSystem.h>
+#include <feather-tk/core/LogSystem.h>
 
 namespace tl
 {
@@ -13,7 +13,7 @@ namespace tl
         void IIO::_init(
             const file::Path& path,
             const Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             _path = path;
             _options = options;
@@ -40,9 +40,9 @@ namespace tl
         void IPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
-            DTK_P();
+            FEATHER_TK_P();
             _logSystem = logSystem;
             p.name = name;
             p.extensions = extensions;

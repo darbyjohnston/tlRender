@@ -6,8 +6,8 @@
 
 #include <tlTimeline/ColorOptions.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/String.h>
 
 using namespace tl::timeline;
 
@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        ColorOptionsTest::ColorOptionsTest(const std::shared_ptr<dtk::Context>& context) :
+        ColorOptionsTest::ColorOptionsTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::ColorOptionsTest")
         {}
 
-        std::shared_ptr<ColorOptionsTest> ColorOptionsTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<ColorOptionsTest> ColorOptionsTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<ColorOptionsTest>(new ColorOptionsTest(context));
         }
@@ -30,17 +30,17 @@ namespace tl
                 _enum<LUTOrder>("LUTOrder", getLUTOrderEnums);
             }
             {
-                _print("LUT format names: " + dtk::join(getLUTFormatNames(), ", "));
+                _print("LUT format names: " + feather_tk::join(getLUTFormatNames(), ", "));
             }
             {
-                _print("LUT format extensions: " + dtk::join(getLUTFormatExtensions(), ", "));
+                _print("LUT format extensions: " + feather_tk::join(getLUTFormatExtensions(), ", "));
             }
             {
                 OCIOOptions a;
                 OCIOOptions b;
-                DTK_ASSERT(a == b);
+                FEATHER_TK_ASSERT(a == b);
                 a.fileName = "fileName";
-                DTK_ASSERT(a != b);
+                FEATHER_TK_ASSERT(a != b);
             }
         }
     }

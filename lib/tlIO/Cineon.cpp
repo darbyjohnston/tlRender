@@ -4,11 +4,11 @@
 
 #include <tlIO/Cineon.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/Error.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/Memory.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/Memory.h>
+#include <feather-tk/core/String.h>
 
 #include <array>
 #include <cstring>
@@ -18,7 +18,7 @@ namespace tl
 {
     namespace cineon
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             Orient,
             "LeftRightTopBottom",
             "LeftRightBottomTop",
@@ -29,7 +29,7 @@ namespace tl
             "BottomTopLeftRight",
             "BottomTopRightLeft");
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             Descriptor,
             "Luminance",
             "RedFilmPrint",
@@ -125,7 +125,7 @@ namespace tl
             size_t             maxLen,
             bool               terminate)
         {
-            DTK_ASSERT(maxLen >= 0);
+            FEATHER_TK_ASSERT(maxLen >= 0);
             const char* c = string.c_str();
             const size_t length = std::min(string.length(), maxLen - static_cast<int>(terminate));
             size_t i = 0;
@@ -144,36 +144,36 @@ namespace tl
         {
             void convertEndian(Header& header)
             {
-                dtk::endian(&header.file.imageOffset, 1, 4);
-                dtk::endian(&header.file.headerSize, 1, 4);
-                dtk::endian(&header.file.industryHeaderSize, 1, 4);
-                dtk::endian(&header.file.userHeaderSize, 1, 4);
-                dtk::endian(&header.file.size, 1, 4);
+                feather_tk::endian(&header.file.imageOffset, 1, 4);
+                feather_tk::endian(&header.file.headerSize, 1, 4);
+                feather_tk::endian(&header.file.industryHeaderSize, 1, 4);
+                feather_tk::endian(&header.file.userHeaderSize, 1, 4);
+                feather_tk::endian(&header.file.size, 1, 4);
 
                 for (uint8_t i = 0; i < 8; ++i)
                 {
-                    dtk::endian(&header.image.channel[i].size, 2, 4);
-                    dtk::endian(&header.image.channel[i].lowData, 1, 4);
-                    dtk::endian(&header.image.channel[i].lowQuantity, 1, 4);
-                    dtk::endian(&header.image.channel[i].highData, 1, 4);
-                    dtk::endian(&header.image.channel[i].highQuantity, 1, 4);
+                    feather_tk::endian(&header.image.channel[i].size, 2, 4);
+                    feather_tk::endian(&header.image.channel[i].lowData, 1, 4);
+                    feather_tk::endian(&header.image.channel[i].lowQuantity, 1, 4);
+                    feather_tk::endian(&header.image.channel[i].highData, 1, 4);
+                    feather_tk::endian(&header.image.channel[i].highQuantity, 1, 4);
                 }
 
-                dtk::endian(&header.image.white, 2, 4);
-                dtk::endian(&header.image.red, 2, 4);
-                dtk::endian(&header.image.green, 2, 4);
-                dtk::endian(&header.image.blue, 2, 4);
-                dtk::endian(&header.image.linePadding, 1, 4);
-                dtk::endian(&header.image.channelPadding, 1, 4);
+                feather_tk::endian(&header.image.white, 2, 4);
+                feather_tk::endian(&header.image.red, 2, 4);
+                feather_tk::endian(&header.image.green, 2, 4);
+                feather_tk::endian(&header.image.blue, 2, 4);
+                feather_tk::endian(&header.image.linePadding, 1, 4);
+                feather_tk::endian(&header.image.channelPadding, 1, 4);
 
-                dtk::endian(&header.source.offset, 2, 4);
-                dtk::endian(&header.source.inputPitch, 2, 4);
-                dtk::endian(&header.source.gamma, 1, 4);
+                feather_tk::endian(&header.source.offset, 2, 4);
+                feather_tk::endian(&header.source.inputPitch, 2, 4);
+                feather_tk::endian(&header.source.gamma, 1, 4);
 
-                dtk::endian(&header.film.prefix, 1, 4);
-                dtk::endian(&header.film.count, 1, 4);
-                dtk::endian(&header.film.frame, 1, 4);
-                dtk::endian(&header.film.frameRate, 1, 4);
+                feather_tk::endian(&header.film.prefix, 1, 4);
+                feather_tk::endian(&header.film.count, 1, 4);
+                feather_tk::endian(&header.film.frame, 1, 4);
+                feather_tk::endian(&header.film.frameRate, 1, 4);
             }
 
             bool isValid(const uint8_t* in)
@@ -211,7 +211,7 @@ namespace tl
 
         } // namespace
 
-        Header read(const std::shared_ptr<dtk::FileIO>& io, io::Info& info)
+        Header read(const std::shared_ptr<feather_tk::FileIO>& io, io::Info& info)
         {
             Header out;
 
@@ -228,7 +228,7 @@ namespace tl
             }
             else
             {
-                throw std::runtime_error(dtk::Format("Bad magic number: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Bad magic number: \"{0}\"").
                     arg(io->getPath()));
             }
 
@@ -238,12 +238,12 @@ namespace tl
             io->read(&out.film, sizeof(Header::Film));
 
             // Convert the endian if necessary.
-            dtk::ImageInfo imageInfo;
+            feather_tk::ImageInfo imageInfo;
             if (convertEndian)
             {
                 io->setEndianConversion(true);
                 cineon::convertEndian(out);
-                imageInfo.layout.endian = dtk::opposite(dtk::getEndian());
+                imageInfo.layout.endian = feather_tk::opposite(feather_tk::getEndian());
             }
 
             // Image information.
@@ -252,7 +252,7 @@ namespace tl
 
             if (!out.image.channels)
             {
-                throw std::runtime_error(dtk::Format("No image channels: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("No image channels: \"{0}\"").
                     arg(io->getPath()));
             }
             uint8_t i = 1;
@@ -270,7 +270,7 @@ namespace tl
             }
             if (i < out.image.channels)
             {
-                throw std::runtime_error(dtk::Format("Unsupported image channels: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported image channels: \"{0}\"").
                     arg(io->getPath()));
             }
             switch (out.image.channels)
@@ -279,7 +279,7 @@ namespace tl
                 switch (out.image.channel[0].bitDepth)
                 {
                 case 10:
-                    imageInfo.type = dtk::ImageType::RGB_U10;
+                    imageInfo.type = feather_tk::ImageType::RGB_U10;
                     imageInfo.layout.alignment = 4;
                     break;
                 default: break;
@@ -287,25 +287,25 @@ namespace tl
                 break;
             default: break;
             }
-            if (dtk::ImageType::None == imageInfo.type)
+            if (feather_tk::ImageType::None == imageInfo.type)
             {
-                throw std::runtime_error(dtk::Format("Unsupported bit depth: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported bit depth: \"{0}\"").
                     arg(io->getPath()));
             }
             if (isValid(&out.image.linePadding) && out.image.linePadding)
             {
-                throw std::runtime_error(dtk::Format("Unsupported line padding: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported line padding: \"{0}\"").
                     arg(io->getPath()));
             }
             if (isValid(&out.image.channelPadding) && out.image.channelPadding)
             {
-                throw std::runtime_error(dtk::Format("Unsupported channel padding: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported channel padding: \"{0}\"").
                     arg(io->getPath()));
             }
 
             if (io->getSize() - out.file.imageOffset != imageInfo.getByteCount())
             {
-                throw std::runtime_error(dtk::Format("Incomplete file: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Incomplete file: \"{0}\"").
                     arg(io->getPath()));
             }
             switch (static_cast<Orient>(out.image.orient))
@@ -420,7 +420,7 @@ namespace tl
             return out;
         }
 
-        void write(const std::shared_ptr<dtk::FileIO>& io, const io::Info& info)
+        void write(const std::shared_ptr<feather_tk::FileIO>& io, const io::Info& info)
         {
             Header header;
 
@@ -557,7 +557,7 @@ namespace tl
             }
 
             // Write the header.
-            const bool convertEndian = dtk::getEndian() != dtk::Endian::MSB;
+            const bool convertEndian = feather_tk::getEndian() != feather_tk::Endian::MSB;
             io->setEndianConversion(convertEndian);
             if (convertEndian)
             {
@@ -574,14 +574,14 @@ namespace tl
             io->write(&header.film, sizeof(Header::Film));
         }
 
-        void finishWrite(const std::shared_ptr<dtk::FileIO>& io)
+        void finishWrite(const std::shared_ptr<feather_tk::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
             io->setPos(20);
             io->writeU32(size);
         }
 
-        void ReadPlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "Cineon",
@@ -593,7 +593,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -609,13 +609,13 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
         }
 
-        void WritePlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void WritePlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IWritePlugin::_init(
                 "Cineon",
@@ -627,29 +627,29 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(logSystem);
             return out;
         }
 
-        dtk::ImageInfo WritePlugin::getInfo(
-            const dtk::ImageInfo& info,
+        feather_tk::ImageInfo WritePlugin::getInfo(
+            const feather_tk::ImageInfo& info,
             const io::Options& options) const
         {
-            dtk::ImageInfo out;
+            feather_tk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case dtk::ImageType::RGB_U10:
+            case feather_tk::ImageType::RGB_U10:
                 out.type = info.type;
                 break;
             default: break;
             }
             out.layout.mirror.y = true;
             out.layout.alignment = 4;
-            out.layout.endian = dtk::Endian::MSB;
+            out.layout.endian = feather_tk::Endian::MSB;
             return out;
         }
 
@@ -659,7 +659,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(dtk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

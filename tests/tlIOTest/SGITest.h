@@ -13,10 +13,10 @@ namespace tl
         class SGITest : public tests::ITest
         {
         protected:
-            SGITest(const std::shared_ptr<dtk::Context>&);
+            SGITest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<SGITest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<SGITest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
 

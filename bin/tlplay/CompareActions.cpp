@@ -12,7 +12,7 @@ namespace tl
     namespace play
     {
         void CompareActions::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto appWeak = std::weak_ptr<App>(app);
@@ -28,15 +28,15 @@ namespace tl
                 "CompareVertical",
                 "CompareTile",
             };
-            const std::array<dtk::Key, static_cast<size_t>(timeline::Compare::Count)> shortcuts =
+            const std::array<feather_tk::Key, static_cast<size_t>(timeline::Compare::Count)> shortcuts =
             {
-                dtk::Key::A,
-                dtk::Key::B,
-                dtk::Key::W,
-                dtk::Key::Unknown,
-                dtk::Key::Unknown,
-                dtk::Key::Unknown,
-                dtk::Key::Unknown
+                feather_tk::Key::A,
+                feather_tk::Key::B,
+                feather_tk::Key::W,
+                feather_tk::Key::Unknown,
+                feather_tk::Key::Unknown,
+                feather_tk::Key::Unknown,
+                feather_tk::Key::Unknown
             };
             const std::array<std::string, static_cast<size_t>(timeline::Compare::Count)> tooltips =
             {
@@ -50,11 +50,11 @@ namespace tl
             };
             for (size_t i = 0; i < labels.size(); ++i)
             {
-                _actions[labels[i]] = dtk::Action::create(
+                _actions[labels[i]] = feather_tk::Action::create(
                     labels[i],
                     icons[i],
                     shortcuts[i],
-                    static_cast<int>(dtk::commandKeyModifier),
+                    static_cast<int>(feather_tk::commandKeyModifier),
                     [appWeak, i]
                     {
                         if (auto app = appWeak.lock())
@@ -65,7 +65,7 @@ namespace tl
                 _actions[labels[i]]->setTooltip(tooltips[i]);
             }
 
-            _playersObserver = dtk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            _playersObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
@@ -75,7 +75,7 @@ namespace tl
                     }
                 });
 
-            _compareObserver = dtk::ValueObserver<timeline::Compare>::create(
+            _compareObserver = feather_tk::ValueObserver<timeline::Compare>::create(
                 app->getFilesModel()->observeCompare(),
                 [this](timeline::Compare value)
                 {
@@ -91,7 +91,7 @@ namespace tl
         }
 
         std::shared_ptr<CompareActions> CompareActions::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<CompareActions>(new CompareActions);
@@ -99,7 +99,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& CompareActions::getActions() const
+        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& CompareActions::getActions() const
         {
             return _actions;
         }

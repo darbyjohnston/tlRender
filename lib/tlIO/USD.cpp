@@ -4,14 +4,14 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
     namespace usd
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             DrawMode,
             "Points",
             "Wireframe",
@@ -42,13 +42,13 @@ namespace tl
         io::Options getOptions(const Options& value)
         {
             io::Options out;
-            out["USD/RenderWidth"] = dtk::Format("{0}").arg(value.renderWidth);
-            out["USD/Complexity"] = dtk::Format("{0}").arg(value.complexity);
-            out["USD/DrawMode"] = dtk::Format("{0}").arg(value.drawMode);
-            out["USD/EnableLighting"] = dtk::Format("{0}").arg(value.enableLighting);
-            out["USD/sRGB"] = dtk::Format("{0}").arg(value.sRGB);
-            out["USD/StageCache"] = dtk::Format("{0}").arg(value.stageCache);
-            out["USD/DiskCache"] = dtk::Format("{0}").arg(value.diskCache);
+            out["USD/RenderWidth"] = feather_tk::Format("{0}").arg(value.renderWidth);
+            out["USD/Complexity"] = feather_tk::Format("{0}").arg(value.complexity);
+            out["USD/DrawMode"] = feather_tk::Format("{0}").arg(value.drawMode);
+            out["USD/EnableLighting"] = feather_tk::Format("{0}").arg(value.enableLighting);
+            out["USD/sRGB"] = feather_tk::Format("{0}").arg(value.sRGB);
+            out["USD/StageCache"] = feather_tk::Format("{0}").arg(value.stageCache);
+            out["USD/DiskCache"] = feather_tk::Format("{0}").arg(value.diskCache);
             return out;
         }
 
@@ -59,7 +59,7 @@ namespace tl
             std::shared_ptr<Render> render;
         };
         
-        void ReadPlugin::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "USD",
@@ -70,7 +70,7 @@ namespace tl
                     { ".usdz", io::FileType::Sequence }
                 },
                 logSystem);
-            DTK_P();
+            FEATHER_TK_P();
             p.render = Render::create(logSystem);
         }
         
@@ -82,7 +82,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -93,7 +93,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
@@ -105,10 +105,10 @@ namespace tl
         
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);

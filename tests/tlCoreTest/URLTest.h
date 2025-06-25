@@ -13,10 +13,10 @@ namespace tl
         class URLTest : public tests::ITest
         {
         protected:
-            URLTest(const std::shared_ptr<dtk::Context>&);
+            URLTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<URLTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<URLTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
             

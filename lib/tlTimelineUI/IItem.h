@@ -8,7 +8,7 @@
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>
 
-#include <dtk/ui/IWidget.h>
+#include <feather-tk/ui/IWidget.h>
 
 #include <opentimelineio/item.h>
 
@@ -26,8 +26,8 @@ namespace tl
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::map<std::string, std::shared_ptr<io::Info> > info;
-            std::map<std::string, std::shared_ptr<dtk::Image> > thumbnails;
-            std::map<std::string, std::shared_ptr<dtk::TriMesh2F> > waveforms;
+            std::map<std::string, std::shared_ptr<feather_tk::Image> > thumbnails;
+            std::map<std::string, std::shared_ptr<feather_tk::TriMesh2F> > waveforms;
         };
 
         //! In/out points display options.
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = InsideRange
         };
-        DTK_ENUM(InOutDisplay);
+        FEATHER_TK_ENUM(InOutDisplay);
         
         //! Cache display options.
         enum class CacheDisplay
@@ -50,7 +50,7 @@ namespace tl
             Count,
             First = VideoAndAudio
         };
-        DTK_ENUM(CacheDisplay);
+        FEATHER_TK_ENUM(CacheDisplay);
 
         //! Waveform primitive type.
         enum class WaveformPrim
@@ -61,7 +61,7 @@ namespace tl
             Count,
             First = Mesh
         };
-        DTK_ENUM(WaveformPrim);
+        FEATHER_TK_ENUM(WaveformPrim);
 
         //! Item options.
         struct ItemOptions
@@ -105,7 +105,7 @@ namespace tl
         struct Marker
         {
             std::string name;
-            dtk::Color4F color;
+            feather_tk::Color4F color;
             OTIO_NS::TimeRange range;
         };
 
@@ -113,10 +113,10 @@ namespace tl
         std::vector<Marker> getMarkers(const OTIO_NS::Item*);
 
         //! Convert a named marker color.
-        dtk::Color4F getMarkerColor(const std::string&);
+        feather_tk::Color4F getMarkerColor(const std::string&);
 
         //! Drag and drop data.
-        class DragAndDropData : public dtk::DragAndDropData
+        class DragAndDropData : public feather_tk::DragAndDropData
         {
         public:
             DragAndDropData(const std::shared_ptr<IItem>&);
@@ -130,11 +130,11 @@ namespace tl
         };
 
         //! Base class for items.
-        class IItem : public dtk::IWidget
+        class IItem : public feather_tk::IWidget
         {
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string& objectName,
                 const OTIO_NS::TimeRange& timeRange,
                 const OTIO_NS::TimeRange& availableRange,
@@ -143,7 +143,7 @@ namespace tl
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<dtk::IWidget>& parent = nullptr);
+                const std::shared_ptr<feather_tk::IWidget>& parent = nullptr);
 
             IItem();
 
@@ -163,10 +163,10 @@ namespace tl
             virtual void setDisplayOptions(const DisplayOptions&);
 
             //! Get the selection color role.
-            dtk::ColorRole getSelectRole() const;
+            feather_tk::ColorRole getSelectRole() const;
 
             //! Set the selection color role.
-            void setSelectRole(dtk::ColorRole);
+            void setSelectRole(feather_tk::ColorRole);
 
             //! Convert a position to a time.
             OTIO_NS::RationalTime posToTime(float) const;
@@ -175,8 +175,8 @@ namespace tl
             int timeToPos(const OTIO_NS::RationalTime&) const;
 
         protected:
-            static dtk::Box2I _getClipRect(
-                const dtk::Box2I&,
+            static feather_tk::Box2I _getClipRect(
+                const feather_tk::Box2I&,
                 double scale);
 
             std::string _getDurationLabel(const OTIO_NS::RationalTime&);
@@ -192,7 +192,7 @@ namespace tl
             std::shared_ptr<ItemData> _data;
 
         private:
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
 
         //! \name Serialize

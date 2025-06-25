@@ -6,7 +6,7 @@
 
 #include <tlCore/URL.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 #include <sstream>
 
@@ -16,11 +16,11 @@ namespace tl
 {
     namespace core_tests
     {
-        URLTest::URLTest(const std::shared_ptr<dtk::Context>& context) :
+        URLTest::URLTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "core_tests::URLTest")
         {}
 
-        std::shared_ptr<URLTest> URLTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<URLTest> URLTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<URLTest>(new URLTest(context));
         }
@@ -35,11 +35,11 @@ namespace tl
         {
             {
                 const std::string scheme = "file://path";
-                DTK_ASSERT("file://" == scheme);
+                FEATHER_TK_ASSERT("file://" == scheme);
             }
             {
                 const std::string scheme = "path";
-                DTK_ASSERT(scheme.empty());
+                FEATHER_TK_ASSERT(scheme.empty());
             }
         }
         
@@ -61,9 +61,9 @@ namespace tl
             for (const auto& i : data)
             {
                 const std::string decoded = decode(i.encoded);
-                DTK_ASSERT(decoded == i.decoded);
+                FEATHER_TK_ASSERT(decoded == i.decoded);
                 const std::string encoded = encode(decoded);
-                DTK_ASSERT(encoded == i.encoded);
+                FEATHER_TK_ASSERT(encoded == i.encoded);
             }
         }
     }

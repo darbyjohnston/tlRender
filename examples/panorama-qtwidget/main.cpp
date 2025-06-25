@@ -9,7 +9,7 @@
 #include <tlQt/ContextObject.h>
 #include <tlQt/PlayerObject.h>
 
-#include <dtk/core/Context.h>
+#include <feather-tk/core/Context.h>
 
 #include <QApplication>
 
@@ -18,7 +18,7 @@
 int main(int argc, char* argv[])
 {
     // Initialize.
-    auto context = dtk::Context::create();
+    auto context = feather_tk::Context::create();
     tl::qtwidget::init(
         context,
         tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);

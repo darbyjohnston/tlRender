@@ -4,8 +4,8 @@
 
 #include <tlTimeline/ColorOptions.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorTransforms.h>
@@ -39,7 +39,7 @@ namespace tl
             return !(*this == other);
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             LUTOrder,
             "PostColorConfig",
             "PreColorConfig");

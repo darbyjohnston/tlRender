@@ -8,7 +8,7 @@
 
 #include <tlCore/FileInfo.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 #include <opentimelineio/clip.h>
 
@@ -18,11 +18,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        UtilTest::UtilTest(const std::shared_ptr<dtk::Context>& context) :
+        UtilTest::UtilTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::UtilTest")
         {}
 
-        std::shared_ptr<UtilTest> UtilTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<UtilTest> UtilTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<UtilTest>(new UtilTest(context));
         }
@@ -60,7 +60,7 @@ namespace tl
                 file::Path(TLRENDER_SAMPLE_DATA),
                 file::PathOptions()))
             {
-                _print(dtk::Format("Path: {0}").arg(path.get()));
+                _print(feather_tk::Format("Path: {0}").arg(path.get()));
             }
         }
 
@@ -69,7 +69,7 @@ namespace tl
             {
                 std::vector<OTIO_NS::RationalTime> f;
                 auto r = toRanges(f);
-                DTK_ASSERT(r.empty());
+                FEATHER_TK_ASSERT(r.empty());
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -77,8 +77,8 @@ namespace tl
                     OTIO_NS::RationalTime(0, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
+                FEATHER_TK_ASSERT(1 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -87,8 +87,8 @@ namespace tl
                     OTIO_NS::RationalTime(1, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
+                FEATHER_TK_ASSERT(1 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -98,8 +98,8 @@ namespace tl
                     OTIO_NS::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(1 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(3, 24)) == r[0]);
+                FEATHER_TK_ASSERT(1 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(3, 24)) == r[0]);
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -108,9 +108,9 @@ namespace tl
                     OTIO_NS::RationalTime(2, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(2, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
+                FEATHER_TK_ASSERT(2 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(1, 24)) == r[0]);
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(2, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -120,9 +120,9 @@ namespace tl
                     OTIO_NS::RationalTime(3, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
+                FEATHER_TK_ASSERT(2 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(1, 24)) == r[1]);
             }
             {
                 std::vector<OTIO_NS::RationalTime> f =
@@ -133,9 +133,9 @@ namespace tl
                     OTIO_NS::RationalTime(4, 24)
                 };
                 auto r = toRanges(f);
-                DTK_ASSERT(2 == r.size());
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
-                DTK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(2, 24)) == r[1]);
+                FEATHER_TK_ASSERT(2 == r.size());
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(0, 24), OTIO_NS::RationalTime(2, 24)) == r[0]);
+                FEATHER_TK_ASSERT(OTIO_NS::TimeRange(OTIO_NS::RationalTime(3, 24), OTIO_NS::RationalTime(2, 24)) == r[1]);
             }
         }
 
@@ -150,20 +150,20 @@ namespace tl
                     OTIO_NS::RationalTime(0.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
-                DTK_ASSERT(!looped);
+                FEATHER_TK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
+                FEATHER_TK_ASSERT(!looped);
                 t = loop(
                     OTIO_NS::RationalTime(24.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
-                DTK_ASSERT(looped);
+                FEATHER_TK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
+                FEATHER_TK_ASSERT(looped);
                 t = loop(
                     OTIO_NS::RationalTime(-1.0, 24.0),
                     timeRange,
                     &looped);
-                DTK_ASSERT(OTIO_NS::RationalTime(23.0, 24.0) == t);
-                DTK_ASSERT(looped);
+                FEATHER_TK_ASSERT(OTIO_NS::RationalTime(23.0, 24.0) == t);
+                FEATHER_TK_ASSERT(looped);
             }
         }
 
@@ -186,16 +186,16 @@ namespace tl
                 }
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
                 otioTimeline->set_tracks(otioStack);
-                DTK_ASSERT(otioStack == getRoot(otioClip));
-                DTK_ASSERT(otioStack == getParent<OTIO_NS::Stack>(otioClip));
-                DTK_ASSERT(otioTrack == getParent<OTIO_NS::Track>(otioClip));
+                FEATHER_TK_ASSERT(otioStack == getRoot(otioClip));
+                FEATHER_TK_ASSERT(otioStack == getParent<OTIO_NS::Stack>(otioClip));
+                FEATHER_TK_ASSERT(otioTrack == getParent<OTIO_NS::Track>(otioClip));
             }
             {
                 VideoData a;
                 a.time = OTIO_NS::RationalTime(1.0, 24.0);
                 VideoData b;
                 b.time = OTIO_NS::RationalTime(1.0, 24.0);
-                DTK_ASSERT(isTimeEqual(a, b));
+                FEATHER_TK_ASSERT(isTimeEqual(a, b));
             }
         }
 
@@ -205,7 +205,7 @@ namespace tl
                 audio::Info info(2, audio::DataType::S32, 48000);
                 std::vector<AudioData> data;
                 auto out = audioCopy(info, data, Playback::Forward, 0, 2000);
-                DTK_ASSERT(out.empty());
+                FEATHER_TK_ASSERT(out.empty());
 
                 auto audio = audio::Audio::create(info, info.sampleRate);
                 audio::S32_T* audioP = reinterpret_cast<audio::S32_T*>(audio->getData());
@@ -216,74 +216,74 @@ namespace tl
                 }
                 data.push_back(AudioData({ 0.0, { { audio } } }));
                 out = audioCopy(info, data, Playback::Forward, 0, 2000);
-                DTK_ASSERT(1 == out.size());
-                DTK_ASSERT(2000 == out[0]->getSampleCount());
+                FEATHER_TK_ASSERT(1 == out.size());
+                FEATHER_TK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 for (size_t i = 0; i < out[0]->getSampleCount(); ++i, audioP += 2)
                 {
-                    DTK_ASSERT(i == audioP[0]);
-                    DTK_ASSERT((i + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(i == audioP[0]);
+                    FEATHER_TK_ASSERT((i + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
-                DTK_ASSERT(1 == out.size());
-                DTK_ASSERT(1000 == out[0]->getSampleCount());
+                FEATHER_TK_ASSERT(1 == out.size());
+                FEATHER_TK_ASSERT(1000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 for (size_t i = 0, j = info.sampleRate - 1000; i < out[0]->getSampleCount(); ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 data.push_back(AudioData({ 1.0, { { audio } } }));
                 out = audioCopy(info, data, Playback::Forward, info.sampleRate - 1000, 2000);
-                DTK_ASSERT(1 == out.size());
-                DTK_ASSERT(2000 == out[0]->getSampleCount());
+                FEATHER_TK_ASSERT(1 == out.size());
+                FEATHER_TK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 size_t i = 0;
                 size_t j = info.sampleRate - 1000;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
                 i = 0;
                 j = 0;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Reverse, info.sampleRate, 2000);
-                DTK_ASSERT(1 == out.size());
-                DTK_ASSERT(2000 == out[0]->getSampleCount());
+                FEATHER_TK_ASSERT(1 == out.size());
+                FEATHER_TK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 i = 0;
                 j = info.sampleRate - 2000;
                 for (; i < 2000; ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
 
                 out = audioCopy(info, data, Playback::Reverse, info.sampleRate + 1000, 2000);
-                DTK_ASSERT(1 == out.size());
-                DTK_ASSERT(2000 == out[0]->getSampleCount());
+                FEATHER_TK_ASSERT(1 == out.size());
+                FEATHER_TK_ASSERT(2000 == out[0]->getSampleCount());
                 audioP = reinterpret_cast<audio::S32_T*>(out[0]->getData());
                 i = 0;
                 j = info.sampleRate - 1000;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
                 i = 0;
                 j = 0;
                 for (; i < 1000; ++i, ++j, audioP += 2)
                 {
-                    DTK_ASSERT(j == audioP[0]);
-                    DTK_ASSERT((j + 1) == audioP[1]);
+                    FEATHER_TK_ASSERT(j == audioP[0]);
+                    FEATHER_TK_ASSERT((j + 1) == audioP[1]);
                 }
             }
         }

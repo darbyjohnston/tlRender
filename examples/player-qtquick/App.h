@@ -8,7 +8,7 @@
 #include <tlQt/PlayerObject.h>
 #include <tlQt/TimeObject.h>
 
-#include <dtk/core/IApp.h>
+#include <feather-tk/core/IApp.h>
 
 #include <QGuiApplication>
 
@@ -22,13 +22,13 @@ namespace tl
         namespace player_qtquick
         {
             //! Application.
-            class App : public QGuiApplication, public dtk::IApp
+            class App : public QGuiApplication, public feather_tk::IApp
             {
                 Q_OBJECT
 
             public:
                 App(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     int& argc,
                     char** argv);
                 

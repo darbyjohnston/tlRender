@@ -8,8 +8,8 @@
 
 #include <tlCore/Time.h>
 
-#include <dtk/core/Image.h>
-#include <dtk/core/RenderOptions.h>
+#include <feather-tk/core/Image.h>
+#include <feather-tk/core/RenderOptions.h>
 
 namespace tl
 {
@@ -18,11 +18,11 @@ namespace tl
         //! Video layer.
         struct VideoLayer
         {
-            std::shared_ptr<dtk::Image> image;
-            dtk::ImageOptions imageOptions;
+            std::shared_ptr<feather_tk::Image> image;
+            feather_tk::ImageOptions imageOptions;
 
-            std::shared_ptr<dtk::Image> imageB;
-            dtk::ImageOptions imageOptionsB;
+            std::shared_ptr<feather_tk::Image> imageB;
+            feather_tk::ImageOptions imageOptionsB;
 
             Transition transition = Transition::None;
             float transitionValue = 0.F;
@@ -34,7 +34,7 @@ namespace tl
         //! Video data.
         struct VideoData
         {
-            dtk::Size2I size;
+            feather_tk::Size2I size;
             OTIO_NS::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 

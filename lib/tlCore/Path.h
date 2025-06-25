@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <dtk/core/Range.h>
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Range.h>
+#include <feather-tk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -106,10 +106,10 @@ namespace tl
             void setPadding(size_t);
 
             //! Get the number sequence.
-            const dtk::RangeI& getSequence() const;
+            const feather_tk::RangeI& getSequence() const;
 
             //! Set the number sequence.
-            void setSequence(const dtk::RangeI&);
+            void setSequence(const feather_tk::RangeI&);
 
             //! Get whether this path is a sequence.
             bool isSequence() const;
@@ -152,7 +152,7 @@ namespace tl
             std::string _number;
             int _numberValue = 0;
             size_t _numberDigits = 0;
-            dtk::RangeI _sequence;
+            feather_tk::RangeI _sequence;
             size_t _padding = 0;
             std::string _extension;
             std::string _request;
@@ -181,7 +181,7 @@ namespace tl
             Count,
             First = Home
         };
-        DTK_ENUM(UserPath);
+        FEATHER_TK_ENUM(UserPath);
 
         //! Get a user path.
         std::string getUserPath(UserPath);

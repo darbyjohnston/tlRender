@@ -15,12 +15,12 @@ namespace tl
     {
         namespace player_qtwidget
         {
-            MainWindow::MainWindow(const std::shared_ptr<dtk::Context>& context)
+            MainWindow::MainWindow(const std::shared_ptr<feather_tk::Context>& context)
             {
                 // Create the models.
                 auto timeUnitsModel = timeline::TimeUnitsModel::create(context);
                 auto timeObject = new qt::TimeObject(timeUnitsModel, this);
-                auto style = dtk::Style::create(context);
+                auto style = feather_tk::Style::create(context);
 
                 // Create the viewport.
                 _viewport = new qtwidget::Viewport(context, style);

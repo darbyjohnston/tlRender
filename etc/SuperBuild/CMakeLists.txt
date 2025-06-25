@@ -39,7 +39,7 @@ endif()
 set(TLRENDER_IGNORE_PREFIX_PATH ${TLRENDER_IGNORE_PREFIX_PATH_DEFAULT} CACHE STRING "Ignore the given prefix path")
 set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
-set(dtk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
+set(FEATHER_TK_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 # Configure.
 #
@@ -96,7 +96,7 @@ message("TLRENDER_EXTERNAL_ARGS: " ${TLRENDER_EXTERNAL_ARGS_TMP})
 # External dependencies.
 find_package(Threads REQUIRED)
 list(APPEND TLRENDER_EXTERNAL_DEPS ZLIB)
-list(APPEND TLRENDER_EXTERNAL_DEPS dtk)
+list(APPEND TLRENDER_EXTERNAL_DEPS feather-tk)
 list(APPEND TLRENDER_EXTERNAL_DEPS minizip-ng)
 list(APPEND TLRENDER_EXTERNAL_DEPS Imath)
 list(APPEND TLRENDER_EXTERNAL_DEPS OTIO)

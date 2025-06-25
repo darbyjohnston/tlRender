@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/core/Util.h>
+#include <feather-tk/core/Util.h>
 
 #include <nlohmann/json.hpp>
 
@@ -24,7 +24,7 @@ namespace tl
             Count,
             First = None
         };
-        DTK_ENUM(Transition);
+        FEATHER_TK_ENUM(Transition);
 
         //! Convert to a transition.
         Transition toTransition(const std::string&);

@@ -11,11 +11,11 @@
 #include <tlCore/FileInfo.h>
 #include <tlCore/URL.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/Context.h>
-#include <dtk/core/Error.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/Context.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -34,7 +34,7 @@ namespace tl
     namespace timeline
     {
         std::vector<std::string> getExtensions(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             int types)
         {
             std::vector<std::string> out;
@@ -128,7 +128,7 @@ namespace tl
                 looped).value();
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             CacheDirection,
             "Forward",
             "Reverse");
@@ -184,7 +184,7 @@ namespace tl
         }
 
         std::vector<file::Path> getPaths(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const file::Path& path,
             const file::PathOptions& pathOptions)
         {
@@ -202,7 +202,7 @@ namespace tl
                 for (const auto& fileInfo : list)
                 {
                     const file::Path& path = fileInfo.getPath();
-                    const std::string extension = dtk::toLower(path.getExtension());
+                    const std::string extension = feather_tk::toLower(path.getExtension());
                     switch (ioSystem->getFileType(extension))
                     {
                     case io::FileType::Media:
@@ -247,7 +247,7 @@ namespace tl
             file::PathOptions pathOptions)
         {
             std::string url;
-            dtk::RangeI sequence;
+            feather_tk::RangeI sequence;
             if (auto externalRef = dynamic_cast<const OTIO_NS::ExternalReference*>(ref))
             {
                 url = externalRef->target_url();
@@ -262,7 +262,7 @@ namespace tl
                     imageSequenceRef->start_frame() <<
                     imageSequenceRef->name_suffix();
                 url = ss.str();
-                sequence = dtk::RangeI(
+                sequence = feather_tk::RangeI(
                     imageSequenceRef->start_frame(),
                     imageSequenceRef->end_frame());
             }
@@ -292,14 +292,14 @@ namespace tl
             return out;
         }
 
-        std::vector<dtk::InMemoryFile> getMemoryRead(
+        std::vector<feather_tk::InMemoryFile> getMemoryRead(
             const OTIO_NS::MediaReference* ref)
         {
-            std::vector<dtk::InMemoryFile> out;
+            std::vector<feather_tk::InMemoryFile> out;
             if (auto rawMemoryReference =
                 dynamic_cast<const RawMemoryReference*>(ref))
             {
-                out.push_back(dtk::InMemoryFile(
+                out.push_back(feather_tk::InMemoryFile(
                     rawMemoryReference->memory(),
                     rawMemoryReference->memory_size()));
             }
@@ -308,7 +308,7 @@ namespace tl
             {
                 if (const auto& memory = sharedMemoryReference->memory())
                 {
-                    out.push_back(dtk::InMemoryFile(
+                    out.push_back(feather_tk::InMemoryFile(
                         memory->data(),
                         memory->size()));
                 }
@@ -322,7 +322,7 @@ namespace tl
                 const size_t memory_sizes_size = memory_sizes.size();
                 for (size_t i = 0; i < memory_size && i < memory_sizes_size; ++i)
                 {
-                    out.push_back(dtk::InMemoryFile(memory[i], memory_sizes[i]));
+                    out.push_back(feather_tk::InMemoryFile(memory[i], memory_sizes[i]));
                 }
             }
             else if (auto sharedMemorySequenceReference =
@@ -332,14 +332,14 @@ namespace tl
                 {
                     if (memory)
                     {
-                        out.push_back(dtk::InMemoryFile(memory->data(), memory->size()));
+                        out.push_back(feather_tk::InMemoryFile(memory->data(), memory->size()));
                     }
                 }
             }
             return out;
         }
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             ToMemoryReference,
             "Shared",
             "Raw");
@@ -359,7 +359,7 @@ namespace tl
                     const auto path = getPath(ref->target_url(), directory, pathOptions);
 
                     // Read the external reference into memory.
-                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
+                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
                     const size_t size = fileIO->getSize();
 
                     // Replace the external reference with a memory reference.
@@ -415,7 +415,7 @@ namespace tl
                         ++frame)
                     {
                         const auto fileName = path.get(frame);
-                        auto fileIO = dtk::FileIO::create(fileName, dtk::FileMode::Read);
+                        auto fileIO = feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
                         const size_t size = fileIO->getSize();
                         switch (toMemoryReference)
                         {
@@ -665,12 +665,12 @@ namespace tl
                 mz_zip_writer_create(&_writer);
                 if (!_writer)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot create writer: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot create writer: \"{0}\"").arg(fileName));
                 }
                 int32_t err = mz_zip_writer_open_file(_writer, fileName.c_str(), 0, 0);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot open output file: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot open output file: \"{0}\"").arg(fileName));
                 }
 
                 // Add the content and version files.
@@ -687,7 +687,7 @@ namespace tl
                 err = mz_zip_writer_close(_writer);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot close output file: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot close output file: \"{0}\"").arg(fileName));
                 }
             }
 
@@ -718,7 +718,7 @@ namespace tl
                     &fileInfo);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(_fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot add file: \"{0}\"").arg(_fileName));
                 }
             }
 
@@ -726,7 +726,7 @@ namespace tl
                 const std::string& fileName,
                 const std::string& fileNameInZip)
             {
-                /*auto fileIO = dtk::FileIO::create(fileName, dtk::FileMode::Read);
+                /*auto fileIO = feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
                 std::vector<uint8_t> buf(fileIO->getSize());
                 fileIO->read(buf.data(), buf.size());
                 mz_zip_file fileInfo;
@@ -742,7 +742,7 @@ namespace tl
                     &fileInfo);
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(_fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot add file: \"{0}\"").arg(_fileName));
                 }*/
                 mz_zip_writer_set_compress_method(
                     _writer,
@@ -753,7 +753,7 @@ namespace tl
                     fileNameInZip.c_str());
                 if (err != MZ_OK)
                 {
-                    throw std::runtime_error(dtk::Format("Cannot add file: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(feather_tk::Format("Cannot add file: \"{0}\"").arg(fileName));
                 }
             }
 

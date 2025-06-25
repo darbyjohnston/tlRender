@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/ui/IWidget.h>
+#include <feather-tk/ui/IWidget.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -22,17 +22,17 @@ namespace tl
 
         public:
             ContainerWidget(
-                const std::shared_ptr<dtk::Context>&,
-                const std::shared_ptr<dtk::Style>&,
+                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~ContainerWidget();
 
             //! Get the widget.
-            const std::shared_ptr<dtk::IWidget>& getWidget() const;
+            const std::shared_ptr<feather_tk::IWidget>& getWidget() const;
 
             //! Set the widget.
-            void setWidget(const std::shared_ptr<dtk::IWidget>&);
+            void setWidget(const std::shared_ptr<feather_tk::IWidget>&);
 
             //! Get whether input is enabled.
             bool isInputEnabled() const;
@@ -64,43 +64,43 @@ namespace tl
             bool event(QEvent*) override;
 
             int _toUI(int) const;
-            dtk::V2I _toUI(const dtk::V2I&) const;
+            feather_tk::V2I _toUI(const feather_tk::V2I&) const;
             int _fromUI(int) const;
-            dtk::V2I _fromUI(const dtk::V2I&) const;
+            feather_tk::V2I _fromUI(const feather_tk::V2I&) const;
 
         private:
             void _tickEvent();
             void _tickEvent(
-                const std::shared_ptr<dtk::IWidget>&,
+                const std::shared_ptr<feather_tk::IWidget>&,
                 bool visible,
                 bool enabled,
-                const dtk::TickEvent&);
+                const feather_tk::TickEvent&);
 
-            bool _hasSizeUpdate(const std::shared_ptr<dtk::IWidget>&) const;
+            bool _hasSizeUpdate(const std::shared_ptr<feather_tk::IWidget>&) const;
             void _sizeHintEvent();
             void _sizeHintEvent(
-                const std::shared_ptr<dtk::IWidget>&,
-                const dtk::SizeHintEvent&);
+                const std::shared_ptr<feather_tk::IWidget>&,
+                const feather_tk::SizeHintEvent&);
 
             void _setGeometry();
 
             void _clipEvent();
             void _clipEvent(
-                const std::shared_ptr<dtk::IWidget>&,
-                const dtk::Box2I&,
+                const std::shared_ptr<feather_tk::IWidget>&,
+                const feather_tk::Box2I&,
                 bool clipped);
 
-            bool _hasDrawUpdate(const std::shared_ptr<dtk::IWidget>&) const;
+            bool _hasDrawUpdate(const std::shared_ptr<feather_tk::IWidget>&) const;
             void _drawEvent(
-                const std::shared_ptr<dtk::IWidget>&,
-                const dtk::Box2I&,
-                const dtk::DrawEvent&);
+                const std::shared_ptr<feather_tk::IWidget>&,
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
 
             void _inputUpdate();
             void _timerUpdate();
             void _styleUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

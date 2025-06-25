@@ -3,9 +3,9 @@ set(LEGAL
     LICENSE_boost.txt
     LICENSE_CMake.txt
     LICENSE_CURL.txt
-    LICENSE_dtk.txt
     LICENSE_expat.txt
     LICENSE_FFmpeg.txt
+    LICENSE_feather-tk.txt
     LICENSE_libjpeg-turbo.txt
     LICENSE_libjpeg.txt
     LICENSE_libpng.txt

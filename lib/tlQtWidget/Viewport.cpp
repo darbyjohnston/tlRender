@@ -16,13 +16,13 @@ namespace tl
         };
 
         Viewport::Viewport(
-            const std::shared_ptr<dtk::Context>& context,
-            const std::shared_ptr<dtk::Style>& style,
+            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<feather_tk::Style>& style,
             QWidget* parent) :
             ContainerWidget(context, style, parent),
             _p(new Private)
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.viewport = timelineui::Viewport::create(context);
             setWidget(p.viewport);
         }
@@ -30,12 +30,12 @@ namespace tl
         Viewport::~Viewport()
         {}
 
-        dtk::ImageType Viewport::colorBuffer() const
+        feather_tk::ImageType Viewport::colorBuffer() const
         {
             return _p->viewport->getColorBuffer();
         }
 
-        const dtk::V2I& Viewport::viewPos() const
+        const feather_tk::V2I& Viewport::viewPos() const
         {
             return _p->viewport->getViewPos();
         }
@@ -70,7 +70,7 @@ namespace tl
             _p->viewport->setLUTOptions(value);
         }
 
-        void Viewport::setImageOptions(const std::vector<dtk::ImageOptions>& value)
+        void Viewport::setImageOptions(const std::vector<feather_tk::ImageOptions>& value)
         {
             _p->viewport->setImageOptions(value);
         }
@@ -95,7 +95,7 @@ namespace tl
             _p->viewport->setForegroundOptions(value);
         }
 
-        void Viewport::setColorBuffer(dtk::ImageType value)
+        void Viewport::setColorBuffer(feather_tk::ImageType value)
         {
             _p->viewport->setColorBuffer(value);
         }
@@ -105,12 +105,12 @@ namespace tl
             _p->viewport->setPlayer(value ? value->player() : nullptr);
         }
 
-        void Viewport::setViewPosAndZoom(const dtk::V2I& pos, double zoom)
+        void Viewport::setViewPosAndZoom(const feather_tk::V2I& pos, double zoom)
         {
             _p->viewport->setViewPosAndZoom(pos, zoom);
         }
 
-        void Viewport::setViewZoom(double zoom, const dtk::V2I& focus)
+        void Viewport::setViewZoom(double zoom, const feather_tk::V2I& focus)
         {
             _p->viewport->setViewZoom(zoom, focus);
         }

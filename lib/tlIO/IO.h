@@ -7,7 +7,7 @@
 #include <tlCore/Audio.h>
 #include <tlCore/Time.h>
 
-#include <dtk/core/Image.h>
+#include <feather-tk/core/Image.h>
 
 namespace tl
 {
@@ -29,7 +29,7 @@ namespace tl
         struct Info
         {
             //! Video layer information.
-            std::vector<dtk::ImageInfo> video;
+            std::vector<feather_tk::ImageInfo> video;
 
             //! Video time range.
             OTIO_NS::TimeRange videoTime = time::invalidTimeRange;
@@ -41,7 +41,7 @@ namespace tl
             OTIO_NS::TimeRange audioTime = time::invalidTimeRange;
 
             //! Metadata tags.
-            dtk::ImageTags tags;
+            feather_tk::ImageTags tags;
 
             bool operator == (const Info&) const;
             bool operator != (const Info&) const;
@@ -54,11 +54,11 @@ namespace tl
             VideoData(
                 const OTIO_NS::RationalTime&,
                 uint16_t layer,
-                const std::shared_ptr<dtk::Image>&);
+                const std::shared_ptr<feather_tk::Image>&);
 
             OTIO_NS::RationalTime       time = time::invalidTime;
             uint16_t                    layer = 0;
-            std::shared_ptr<dtk::Image> image;
+            std::shared_ptr<feather_tk::Image> image;
 
             bool operator == (const VideoData&) const;
             bool operator != (const VideoData&) const;
@@ -82,11 +82,11 @@ namespace tl
         };
 
         //! Get an integer image type for the given channel count and bit depth.
-        dtk::ImageType getIntType(size_t channelCount, size_t bitDepth);
+        feather_tk::ImageType getIntType(size_t channelCount, size_t bitDepth);
 
         //! Get a floating point image type for the given channel count and bit
         //! depth.
-        dtk::ImageType getFloatType(size_t channelCount, size_t bitDepth);
+        feather_tk::ImageType getFloatType(size_t channelCount, size_t bitDepth);
 
         //! Options.
         typedef std::map<std::string, std::string> Options;

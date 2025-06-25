@@ -4,12 +4,12 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <dtk/core/File.h>
-#include <dtk/core/FileIO.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/LRUCache.h>
-#include <dtk/core/LogSystem.h>
-#include <dtk/core/Memory.h>
+#include <feather-tk/core/File.h>
+#include <feather-tk/core/FileIO.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/LRUCache.h>
+#include <feather-tk/core/LogSystem.h>
+#include <feather-tk/core/Memory.h>
 
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>
@@ -59,7 +59,7 @@ namespace tl
 
         struct Render::Private
         {
-            std::weak_ptr<dtk::LogSystem> logSystem;
+            std::weak_ptr<feather_tk::LogSystem> logSystem;
 
             GLFWwindow* glfwWindow = nullptr;
             
@@ -107,8 +107,8 @@ namespace tl
             
             struct Thread
             {
-                dtk::LRUCache<std::string, StageCacheItem> stageCache;
-                dtk::LRUCache<std::string, std::shared_ptr<DiskCacheItem> > diskCache;
+                feather_tk::LRUCache<std::string, StageCacheItem> stageCache;
+                feather_tk::LRUCache<std::string, std::shared_ptr<DiskCacheItem> > diskCache;
                 std::string tempDir;
                 std::chrono::steady_clock::time_point logTimer;
                 std::condition_variable cv;
@@ -118,9 +118,9 @@ namespace tl
             Thread thread;
         };
         
-        void Render::_init(const std::shared_ptr<dtk::LogSystem>& logSystem)
+        void Render::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
-            DTK_P();
+            FEATHER_TK_P();
 
             p.logSystem = logSystem;
 
@@ -148,7 +148,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    DTK_P();
+                    FEATHER_TK_P();
                     glfwMakeContextCurrent(p.glfwWindow);
                     _run();
                     p.thread.stageCache.clear();
@@ -166,10 +166,10 @@ namespace tl
                 }
                 logSystem->print(
                     "tl::usd::Render",
-                    dtk::Format(
+                    feather_tk::Format(
                         "\n"
                         "    Renderers: {0}").
-                    arg(dtk::join(renderers, ", ")));
+                    arg(feather_tk::join(renderers, ", ")));
             }
         }
 
@@ -179,7 +179,7 @@ namespace tl
 
         Render::~Render()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -192,7 +192,7 @@ namespace tl
         }
 
         std::shared_ptr<Render> Render::create(
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Render>(new Render);
             out->_init(logSystem);
@@ -204,7 +204,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = id;
             request->path = path;
@@ -236,7 +236,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             auto request = std::make_shared<Private::Request>();
             request->id = id;
             request->path = path;
@@ -265,7 +265,7 @@ namespace tl
         
         void Render::cancelRequests(int64_t id)
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::Request> > requests;
             {
@@ -408,7 +408,7 @@ namespace tl
             UsdStageRefPtr& stage,
             std::shared_ptr<UsdImagingGLEngine>& engine)
         {
-            DTK_P();
+            FEATHER_TK_P();
             stage = UsdStage::Open(fileName);
             const bool gpuEnabled = true;
             engine = std::make_shared<UsdImagingGLEngine>(HdDriver(), TfToken(), gpuEnabled);
@@ -426,7 +426,7 @@ namespace tl
                     }
                     logSystem->print(
                         "tl::usd::Render",
-                        dtk::Format(
+                        feather_tk::Format(
                             "\n"
                             "    File name: {0}\n"
                             "    Time code: {1}-{2}:{3}\n"
@@ -439,14 +439,14 @@ namespace tl
                         arg(stage->GetTimeCodesPerSecond()).
                         arg(engine->GetGPUEnabled()).
                         arg(renderer).
-                        arg(dtk::join(aovs, ", ")));
+                        arg(feather_tk::join(aovs, ", ")));
                 }
             }
         }
         
         void Render::_run()
         {
-            DTK_P();
+            FEATHER_TK_P();
                         
             TfDiagnosticMgr::GetInstance().SetQuiet(true);
 
@@ -515,12 +515,12 @@ namespace tl
                     {
                         logSystem->print(
                             "tl::usd::Render",
-                            dtk::Format(
+                            feather_tk::Format(
                                 "\n"
                                 "    Temp directory: {0}\n"
                                 "    Disk cache: {1}GB").
                             arg(p.thread.tempDir).
-                            arg(diskCacheByteCount / dtk::gigabyte));
+                            arg(diskCacheByteCount / feather_tk::gigabyte));
                     }
                 }
                 else if (0 == diskCacheByteCount &&
@@ -573,10 +573,10 @@ namespace tl
                         {
                             aspectRatio = 1.F;
                         }
-                        info.video.push_back(dtk::ImageInfo(
+                        info.video.push_back(feather_tk::ImageInfo(
                             renderWidth,
                             renderWidth / aspectRatio,
-                            dtk::ImageType::RGBA_F16));
+                            feather_tk::ImageType::RGBA_F16));
                         info.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                             OTIO_NS::RationalTime(startTimeCode, timeCodesPerSecond),
                             OTIO_NS::RationalTime(endTimeCode, timeCodesPerSecond));
@@ -596,18 +596,18 @@ namespace tl
                     if (diskCacheByteCount > 0 &&
                         p.thread.diskCache.get(cacheKey, diskCacheItem))
                     {
-                        std::shared_ptr<dtk::Image> image;
+                        std::shared_ptr<feather_tk::Image> image;
                         try
                         {
                             //std::cout << "read temp file: " << diskCacheItem->fileName << std::endl;
-                            auto fileIO = dtk::FileIO::create(diskCacheItem->fileName, dtk::FileMode::Read);
+                            auto fileIO = feather_tk::FileIO::create(diskCacheItem->fileName, feather_tk::FileMode::Read);
                             uint16_t w = 0;
                             uint16_t h = 0;
                             fileIO->readU16(&w);
                             fileIO->readU16(&h);
                             uint32_t pixelType = 0;
                             fileIO->readU32(&pixelType);
-                            image = dtk::Image::create(w, h, static_cast<dtk::ImageType>(pixelType));
+                            image = feather_tk::Image::create(w, h, static_cast<feather_tk::ImageType>(pixelType));
                             fileIO->read(image->getData(), image->getInfo().getByteCount());
                         }
                         catch (const std::exception& e)
@@ -615,10 +615,10 @@ namespace tl
                             //std::cout << e.what() << std::endl;
                             if (auto logSystem = p.logSystem.lock())
                             {
-                                const std::string id = dtk::Format("tl::usd::Render ({0}: {1})").
+                                const std::string id = feather_tk::Format("tl::usd::Render ({0}: {1})").
                                     arg(__FILE__).
                                     arg(__LINE__);
-                                logSystem->print(id, e.what(), dtk::LogType::Error);
+                                logSystem->print(id, e.what(), feather_tk::LogType::Error);
                             }
                         }
 
@@ -633,7 +633,7 @@ namespace tl
                 // Handle requests.
                 if (request)
                 {
-                    std::shared_ptr<dtk::Image> image;
+                    std::shared_ptr<feather_tk::Image> image;
                     const std::string cacheKey = getCacheKey(
                         request->path,
                         request->time,
@@ -781,10 +781,10 @@ namespace tl
                                     switch (HdxGetHioFormat(colorTextureHandle->GetDescriptor().format))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = dtk::Image::create(
+                                        image = feather_tk::Image::create(
                                             renderWidth,
                                             renderHeight,
-                                            dtk::ImageType::RGBA_F16);
+                                            feather_tk::ImageType::RGBA_F16);
                                         memcpy(image->getData(), mappedColorTextureBuffer.get(), image->getInfo().getByteCount());
                                         break;
                                     default: break;
@@ -801,10 +801,10 @@ namespace tl
                                     switch (HdStHioConversions::GetHioFormat(colorRenderBuffer->GetFormat()))
                                     {
                                     case HioFormat::HioFormatFloat16Vec4:
-                                        image = dtk::Image::create(
+                                        image = feather_tk::Image::create(
                                             renderWidth,
                                             renderHeight,
-                                            dtk::ImageType::RGBA_F16);
+                                            feather_tk::ImageType::RGBA_F16);
                                         memcpy(image->getData(), colorRenderBuffer->Map(), image->getInfo().getByteCount());
                                         break;
                                     default: break;
@@ -816,11 +816,11 @@ namespace tl
                             if (diskCacheByteCount > 0 && image)
                             {
                                 auto diskCacheItem = std::make_shared<Private::DiskCacheItem>();
-                                diskCacheItem->fileName = dtk::Format("{0}/{1}.img").
+                                diskCacheItem->fileName = feather_tk::Format("{0}/{1}.img").
                                     arg(p.thread.tempDir).
                                     arg(diskCacheItem);
                                 //std::cout << "write temp file: " << diskCacheItem->fileName << std::endl;
-                                auto tempFile = dtk::FileIO::create(diskCacheItem->fileName, dtk::FileMode::Write);
+                                auto tempFile = feather_tk::FileIO::create(diskCacheItem->fileName, feather_tk::FileMode::Write);
                                 tempFile->writeU16(image->getWidth());
                                 tempFile->writeU16(image->getHeight());
                                 tempFile->writeU32(static_cast<uint32_t>(image->getType()));
@@ -835,10 +835,10 @@ namespace tl
                         //std::cout << e.what() << std::endl;
                         if (auto logSystem = p.logSystem.lock())
                         {
-                            const std::string id = dtk::Format("tl::usd::Render ({0}: {1})").
+                            const std::string id = feather_tk::Format("tl::usd::Render ({0}: {1})").
                                 arg(__FILE__).
                                 arg(__LINE__);
-                            logSystem->print(id, e.what(), dtk::LogType::Error);
+                            logSystem->print(id, e.what(), feather_tk::LogType::Error);
                         }
                     }
 
@@ -864,7 +864,7 @@ namespace tl
                             }
                             logSystem->print(
                                 "tl::usd::Render",
-                                dtk::Format(
+                                feather_tk::Format(
                                     "\n"
                                     "    Requests: {0}\n"
                                     "    Stage cache: {1}/{2}\n"
@@ -872,8 +872,8 @@ namespace tl
                                 arg(requestsSize).
                                 arg(p.thread.stageCache.getSize()).
                                 arg(p.thread.stageCache.getMax()).
-                                arg(p.thread.diskCache.getSize() / dtk::gigabyte).
-                                arg(p.thread.diskCache.getMax() / dtk::gigabyte));
+                                arg(p.thread.diskCache.getSize() / feather_tk::gigabyte).
+                                arg(p.thread.diskCache.getMax() / feather_tk::gigabyte));
                         }
                     }
                 }
@@ -882,7 +882,7 @@ namespace tl
 
         void Render::_finish()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::Request> > requests;
             {

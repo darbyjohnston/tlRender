@@ -8,7 +8,7 @@
 
 #include <tlQt/Init.h>
 
-#include <dtk/core/Context.h>
+#include <feather-tk/core/Context.h>
 
 namespace tl
 {
@@ -16,18 +16,18 @@ namespace tl
     {
         namespace
         {
-            std::shared_ptr<dtk::Context> _context;
+            std::shared_ptr<feather_tk::Context> _context;
         }
 
         void init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             qt::DefaultSurfaceFormat defaultSurfaceFormat)
         {
             qt::init(context, defaultSurfaceFormat);
             System::create(context);
          }
 
-        System::System(const std::shared_ptr<dtk::Context>& context) :
+        System::System(const std::shared_ptr<feather_tk::Context>& context) :
             ISystem(context, "tl::qtquick::System")
         {
             _context = context;
@@ -40,7 +40,7 @@ namespace tl
             _context.reset();
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
@@ -51,7 +51,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<dtk::Context>& getContext()
+        const std::shared_ptr<feather_tk::Context>& getContext()
         {
             return _context;
         }

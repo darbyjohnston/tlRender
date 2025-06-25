@@ -18,11 +18,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        EditTest::EditTest(const std::shared_ptr<dtk::Context>& context) :
+        EditTest::EditTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::EditTest")
         {}
 
-        std::shared_ptr<EditTest> EditTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<EditTest> EditTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<EditTest>(new EditTest(context));
         }
@@ -72,14 +72,14 @@ namespace tl
                 moveData.toTrack = 0;
                 moveData.toIndex = 0;
                 auto otioTimeline2 = move(otioTimeline, { moveData });
-                DTK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 0)->name());
 
                 moveData.fromTrack = 0;
                 moveData.fromIndex = 0;
                 moveData.toTrack = 0;
                 moveData.toIndex = 1;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
-                DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
             }
             {
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
@@ -104,16 +104,16 @@ namespace tl
                 moveData.toTrack = 0;
                 moveData.toIndex = 2;
                 auto otioTimeline2 = move(otioTimeline, { moveData });
-                DTK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 0)->name());
-                DTK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
 
                 moveData.fromTrack = 0;
                 moveData.fromIndex = 1;
                 moveData.toTrack = 0;
                 moveData.toIndex = 0;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
-                DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
-                DTK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
             }
             {
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
@@ -144,18 +144,18 @@ namespace tl
                 moveData.toTrack = 0;
                 moveData.toIndex = 0;
                 auto otioTimeline2 = move(otioTimeline, { moveData });
-                DTK_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
-                DTK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
-                DTK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
+                FEATHER_TK_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
 
                 moveData.fromTrack = 0;
                 moveData.fromIndex = 1;
                 moveData.toTrack = 0;
                 moveData.toIndex = 3;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
-                DTK_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
-                DTK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
-                DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
+                FEATHER_TK_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
             }
             {
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
@@ -204,23 +204,23 @@ namespace tl
                 moveData.push_back({ 0, 2, 0, 0 });
                 moveData.push_back({ 1, 2, 1, 0 });
                 auto otioTimeline2 = move(otioTimeline, moveData);
-                DTK_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
-                DTK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
-                DTK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
-                DTK_ASSERT("Audio 2" == getChild(otioTimeline2, 1, 0)->name());
-                DTK_ASSERT("Audio 0" == getChild(otioTimeline2, 1, 1)->name());
-                DTK_ASSERT("Audio 1" == getChild(otioTimeline2, 1, 2)->name());
+                FEATHER_TK_ASSERT("Video 2" == getChild(otioTimeline2, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline2, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline2, 0, 2)->name());
+                FEATHER_TK_ASSERT("Audio 2" == getChild(otioTimeline2, 1, 0)->name());
+                FEATHER_TK_ASSERT("Audio 0" == getChild(otioTimeline2, 1, 1)->name());
+                FEATHER_TK_ASSERT("Audio 1" == getChild(otioTimeline2, 1, 2)->name());
 
                 moveData.clear();
                 moveData.push_back({ 0, 1, 0, 3 });
                 moveData.push_back({ 1, 1, 1, 3 });
                 auto otioTimeline3 = move(otioTimeline2, moveData);
-                DTK_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
-                DTK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
-                DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
-                DTK_ASSERT("Audio 2" == getChild(otioTimeline3, 1, 0)->name());
-                DTK_ASSERT("Audio 1" == getChild(otioTimeline3, 1, 1)->name());
-                DTK_ASSERT("Audio 0" == getChild(otioTimeline3, 1, 2)->name());
+                FEATHER_TK_ASSERT("Video 2" == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 1" == getChild(otioTimeline3, 0, 1)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 2)->name());
+                FEATHER_TK_ASSERT("Audio 2" == getChild(otioTimeline3, 1, 0)->name());
+                FEATHER_TK_ASSERT("Audio 1" == getChild(otioTimeline3, 1, 1)->name());
+                FEATHER_TK_ASSERT("Audio 0" == getChild(otioTimeline3, 1, 2)->name());
             }
             {
                 OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(new OTIO_NS::Timeline);
@@ -241,14 +241,14 @@ namespace tl
                 moveData.toTrack = 1;
                 moveData.toIndex = 0;
                 auto otioTimeline2 = move(otioTimeline, { moveData });
-                DTK_ASSERT("Video 0" == getChild(otioTimeline2, 1, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline2, 1, 0)->name());
 
                 moveData.fromTrack = 1;
                 moveData.fromIndex = 0;
                 moveData.toTrack = 0;
                 moveData.toIndex = 0;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
-                DTK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT("Video 0" == getChild(otioTimeline3, 0, 0)->name());
             }
             for (const auto otio : { "SingleClip.otio", "SingleClipSeq.otio" })
             {
@@ -275,16 +275,16 @@ namespace tl
                     moveData.toTrack = 0;
                     moveData.toIndex = 2;
                     auto otioTimeline2 = move(otioTimeline, { moveData });
-                    DTK_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
-                    DTK_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
+                    FEATHER_TK_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
+                    FEATHER_TK_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
 
                     moveData.fromTrack = 0;
                     moveData.fromIndex = 1;
                     moveData.toTrack = 0;
                     moveData.toIndex = 0;
                     auto otioTimeline3 = move(otioTimeline2, { moveData });
-                    DTK_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
-                    DTK_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
+                    FEATHER_TK_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
+                    FEATHER_TK_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
                     
                     if (ToMemoryReference::Raw == toMemoryReference)
                     {
@@ -329,16 +329,16 @@ namespace tl
                 moveData.toTrack = 0;
                 moveData.toIndex = 2;
                 auto otioTimeline2 = move(otioTimeline, { moveData });
-                DTK_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
-                DTK_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
+                FEATHER_TK_ASSERT(video1 == getChild(otioTimeline2, 0, 0)->name());
+                FEATHER_TK_ASSERT(video0 == getChild(otioTimeline2, 0, 1)->name());
 
                 moveData.fromTrack = 0;
                 moveData.fromIndex = 1;
                 moveData.toTrack = 0;
                 moveData.toIndex = 0;
                 auto otioTimeline3 = move(otioTimeline2, { moveData });
-                DTK_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
-                DTK_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
+                FEATHER_TK_ASSERT(video0 == getChild(otioTimeline3, 0, 0)->name());
+                FEATHER_TK_ASSERT(video1 == getChild(otioTimeline3, 0, 1)->name());
             }
         }
     }

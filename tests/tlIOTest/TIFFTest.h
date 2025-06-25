@@ -13,10 +13,10 @@ namespace tl
         class TIFFTest : public tests::ITest
         {
         protected:
-            TIFFTest(const std::shared_ptr<dtk::Context>&);
+            TIFFTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<TIFFTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<TIFFTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
         };

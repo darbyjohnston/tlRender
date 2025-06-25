@@ -6,7 +6,7 @@
 
 #include <tlTimeline/MemoryReference.h>
 
-#include <dtk/core/FileIO.h>
+#include <feather-tk/core/FileIO.h>
 
 namespace tl
 {
@@ -205,7 +205,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<dtk::FileIO> _file_io;
+                std::shared_ptr<feather_tk::FileIO> _file_io;
             };
 
             class ZipMemorySequenceData : public RawMemorySequenceData
@@ -240,7 +240,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<dtk::FileIO> _file_io;
+                std::shared_ptr<feather_tk::FileIO> _file_io;
             };
         }
 

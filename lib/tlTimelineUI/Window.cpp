@@ -11,27 +11,27 @@ namespace tl
     namespace timelineui
     {
         void Window::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::string& name,
-            const dtk::Size2I& size)
+            const feather_tk::Size2I& size)
         {
-            dtk::Window::_init(context, name, size);
+            feather_tk::Window::_init(context, name, size);
         }
 
         Window::~Window()
         {}
 
         std::shared_ptr<Window> Window::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::string& name,
-            const dtk::Size2I& size)
+            const feather_tk::Size2I& size)
         {
             auto out = std::shared_ptr<Window>(new Window);
             out->_init(context, name, size);
             return out;
         }
 
-        std::shared_ptr<dtk::IRender> Window::_createRender(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<feather_tk::IRender> Window::_createRender(const std::shared_ptr<feather_tk::Context>& context)
         {
             return timeline_gl::Render::create(context);
         }

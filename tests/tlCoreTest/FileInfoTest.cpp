@@ -6,7 +6,7 @@
 
 #include <tlCore/FileInfo.h>
 
-#include <dtk/core/FileIO.h>
+#include <feather-tk/core/FileIO.h>
 
 #include <cstdio>
 #include <sstream>
@@ -17,11 +17,11 @@ namespace tl
 {
     namespace core_tests
     {
-        FileInfoTest::FileInfoTest(const std::shared_ptr<dtk::Context>& context) :
+        FileInfoTest::FileInfoTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "core_tests::FileInfoTest")
         {}
 
-        std::shared_ptr<FileInfoTest> FileInfoTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<FileInfoTest> FileInfoTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<FileInfoTest>(new FileInfoTest(context));
         }
@@ -44,19 +44,19 @@ namespace tl
         {
             {
                 const FileInfo f;
-                DTK_ASSERT(f.getPath().isEmpty());
+                FEATHER_TK_ASSERT(f.getPath().isEmpty());
             }
             {
                 const Path path("tmp");
                 {
-                    dtk::FileIO::create(path.get(), dtk::FileMode::Write);
+                    feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Write);
                 }
                 const FileInfo f(path);
-                DTK_ASSERT(path == f.getPath());
-                DTK_ASSERT(Type::File == f.getType());
-                DTK_ASSERT(0 == f.getSize());
-                DTK_ASSERT(f.getPermissions() != 0);
-                DTK_ASSERT(f.getTime() != 0);
+                FEATHER_TK_ASSERT(path == f.getPath());
+                FEATHER_TK_ASSERT(Type::File == f.getType());
+                FEATHER_TK_ASSERT(0 == f.getSize());
+                FEATHER_TK_ASSERT(f.getPermissions() != 0);
+                FEATHER_TK_ASSERT(f.getTime() != 0);
                 std::filesystem::remove(std::filesystem::u8path(path.get()));
             }
         }
@@ -67,59 +67,59 @@ namespace tl
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 2));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(0, 2));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.0001.exr")));
                 f.sequence(FileInfo(Path("test.0002.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.0000.exr"));
                 f.sequence(FileInfo(Path("test.1.exr")));
                 f.sequence(FileInfo(Path("test.2.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.0.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test.1.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(1, 1));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(1, 1));
             }
             {
                 FileInfo f(Path("test.exr"));
                 f.sequence(FileInfo(Path("test3.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(0, 0));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(0, 0));
             }
             {
                 FileInfo f(Path("test3.exr"));
                 f.sequence(FileInfo(Path("test.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(3, 3));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(3, 3));
             }
             {
                 FileInfo f(Path("test0999.exr"));
                 f.sequence(FileInfo(Path("test1000.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(999, 1000));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(999, 1000));
             }
             {
                 FileInfo f(Path("0001.exr"));
                 f.sequence(FileInfo(Path("7800.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(1, 7800));
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(1, 7800));
             }
             {
                 FileInfo f(Path("1000.exr"));
                 f.sequence(FileInfo(Path("0999.exr")));
-                DTK_ASSERT(f.getPath().getSequence() == dtk::RangeI(999, 1000));
-                DTK_ASSERT(f.getPath().getPadding() == 4);
+                FEATHER_TK_ASSERT(f.getPath().getSequence() == feather_tk::RangeI(999, 1000));
+                FEATHER_TK_ASSERT(f.getPath().getPadding() == 4);
                 std::string s = f.getPath().get(999);
-                DTK_ASSERT("0999.exr" == s);
+                FEATHER_TK_ASSERT("0999.exr" == s);
                 s = f.getPath().get(1000);
-                DTK_ASSERT("1000.exr" == s);
+                FEATHER_TK_ASSERT("1000.exr" == s);
             }
         }
 
@@ -128,24 +128,24 @@ namespace tl
             {
                 ListOptions options;
                 options.sort = ListSort::Time;
-                DTK_ASSERT(options == options);
-                DTK_ASSERT(options != ListOptions());
+                FEATHER_TK_ASSERT(options == options);
+                FEATHER_TK_ASSERT(options != ListOptions());
             }
             
             std::string tmp = std::tmpnam(nullptr);
             std::filesystem::create_directory(std::filesystem::u8path(tmp));
-            dtk::FileIO::create(file::Path(tmp, "file.txt").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.1.exr").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.2.exr").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.3.exr").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.1.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.2.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.3.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.0001.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.0002.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "render.0003.tif").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "movie.1.mov").get(), dtk::FileMode::Write);
-            dtk::FileIO::create(file::Path(tmp, "movie.2.mov").get(), dtk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "file.txt").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.1.exr").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.2.exr").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.3.exr").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.1.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.2.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.3.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0001.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0002.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0003.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "movie.1.mov").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "movie.2.mov").get(), feather_tk::FileMode::Write);
             
             {
                 std::vector<FileInfo> list;
@@ -153,14 +153,14 @@ namespace tl
                 options.sequence = true;
                 options.sequenceExtensions = { ".exr", ".tif" };
                 file::list(tmp, list, options);
-                DTK_ASSERT(7 == list.size());
+                FEATHER_TK_ASSERT(7 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
                     if ("render." == path.getBaseName())
                     {
-                        DTK_ASSERT(path.isSequence());
-                        DTK_ASSERT(path.getSequence() == dtk::RangeI(1, 3));
+                        FEATHER_TK_ASSERT(path.isSequence());
+                        FEATHER_TK_ASSERT(path.getSequence() == feather_tk::RangeI(1, 3));
                     }
                 }
                 for (const auto i : { "movie.1.mov", "movie.2.mov" })
@@ -172,18 +172,18 @@ namespace tl
                         {
                             return i == value.getPath().get(-1, PathType::FileName);
                         });
-                    DTK_ASSERT(j != list.end());
+                    FEATHER_TK_ASSERT(j != list.end());
                 }
                 
                 options.sequence = false;
                 file::list(tmp, list, options);
-                DTK_ASSERT(13 == list.size());
+                FEATHER_TK_ASSERT(13 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
                     if ("render." == path.getBaseName())
                     {
-                        DTK_ASSERT(!path.isSequence());
+                        FEATHER_TK_ASSERT(!path.isSequence());
                     }
                 }
             }

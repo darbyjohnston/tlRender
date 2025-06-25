@@ -6,7 +6,7 @@
 
 #include <tlCore/Time.h>
 
-#include <dtk/core/FileIO.h>
+#include <feather-tk/core/FileIO.h>
 
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>
@@ -166,21 +166,21 @@ namespace tl
             };
 
             ZipMemoryReference(
-                const std::shared_ptr<dtk::FileIO>& file_io = nullptr,
+                const std::shared_ptr<feather_tk::FileIO>& file_io = nullptr,
                 const std::string& target_url = std::string(),
                 const uint8_t* memory = nullptr,
                 size_t memory_size = 0,
                 const std::optional<OTIO_NS::TimeRange>& available_range = std::nullopt,
                 const OTIO_NS::AnyDictionary& metadata = OTIO_NS::AnyDictionary());
 
-            const std::shared_ptr<dtk::FileIO>& file_io() const noexcept;
+            const std::shared_ptr<feather_tk::FileIO>& file_io() const noexcept;
 
-            void set_file_io(const std::shared_ptr<dtk::FileIO>&);
+            void set_file_io(const std::shared_ptr<feather_tk::FileIO>&);
 
         protected:
             virtual ~ZipMemoryReference();
 
-            std::shared_ptr<dtk::FileIO> _file_io;
+            std::shared_ptr<feather_tk::FileIO> _file_io;
         };
 
         //! Zip file memory sequence reference for .otioz support.
@@ -194,21 +194,21 @@ namespace tl
             };
 
             ZipMemorySequenceReference(
-                const std::shared_ptr<dtk::FileIO>& file_io = nullptr,
+                const std::shared_ptr<feather_tk::FileIO>& file_io = nullptr,
                 const std::string& target_url = std::string(),
                 const std::vector<const uint8_t*>& memory = {},
                 const std::vector<size_t> memory_sizes = {},
                 const std::optional<OTIO_NS::TimeRange>& available_range = std::nullopt,
                 const OTIO_NS::AnyDictionary& metadata = OTIO_NS::AnyDictionary());
 
-            const std::shared_ptr<dtk::FileIO>& file_io() const noexcept;
+            const std::shared_ptr<feather_tk::FileIO>& file_io() const noexcept;
 
-            void set_file_io(const std::shared_ptr<dtk::FileIO>&);
+            void set_file_io(const std::shared_ptr<feather_tk::FileIO>&);
 
         protected:
             virtual ~ZipMemorySequenceReference();
 
-            std::shared_ptr<dtk::FileIO> _file_io;
+            std::shared_ptr<feather_tk::FileIO> _file_io;
         };
     }
 }

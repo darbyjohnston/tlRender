@@ -52,32 +52,32 @@ namespace tl
         public:
             ReadVideo(
                 const std::string& fileName,
-                const std::vector<dtk::InMemoryFile>& memory,
+                const std::vector<feather_tk::InMemoryFile>& memory,
                 const ReadOptions& options);
 
             ~ReadVideo();
 
             bool isValid() const;
-            const dtk::ImageInfo& getInfo() const;
+            const feather_tk::ImageInfo& getInfo() const;
             const OTIO_NS::TimeRange& getTimeRange() const;
-            const dtk::ImageTags& getTags() const;
+            const feather_tk::ImageTags& getTags() const;
 
             void start();
             void seek(const OTIO_NS::RationalTime&);
             bool process(const OTIO_NS::RationalTime& currentTime);
 
             bool isBufferEmpty() const;
-            std::shared_ptr<dtk::Image> popBuffer();
+            std::shared_ptr<feather_tk::Image> popBuffer();
 
         private:
             int _decode(const OTIO_NS::RationalTime& currentTime);
-            void _copy(const std::shared_ptr<dtk::Image>&);
+            void _copy(const std::shared_ptr<feather_tk::Image>&);
 
             std::string _fileName;
             ReadOptions _options;
-            dtk::ImageInfo _info;
+            feather_tk::ImageInfo _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
-            dtk::ImageTags _tags;
+            feather_tk::ImageTags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;
@@ -92,7 +92,7 @@ namespace tl
             AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NONE;
             AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_NONE;
             SwsContext* _swsContext = nullptr;
-            std::list<std::shared_ptr<dtk::Image> > _buffer;
+            std::list<std::shared_ptr<feather_tk::Image> > _buffer;
             bool _eof = false;
         };
 
@@ -101,7 +101,7 @@ namespace tl
         public:
             ReadAudio(
                 const std::string& fileName,
-                const std::vector<dtk::InMemoryFile>&,
+                const std::vector<feather_tk::InMemoryFile>&,
                 double videoRate,
                 const ReadOptions&);
 
@@ -110,7 +110,7 @@ namespace tl
             bool isValid() const;
             const audio::Info& getInfo() const;
             const OTIO_NS::TimeRange& getTimeRange() const;
-            const dtk::ImageTags& getTags() const;
+            const feather_tk::ImageTags& getTags() const;
 
             void start();
             void seek(const OTIO_NS::RationalTime&);
@@ -128,7 +128,7 @@ namespace tl
             ReadOptions _options;
             audio::Info _info;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
-            dtk::ImageTags _tags;
+            feather_tk::ImageTags _tags;
 
             AVFormatContext* _avFormatContext = nullptr;
             AVIOBufferData _avIOBufferData;

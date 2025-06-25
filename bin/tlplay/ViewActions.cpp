@@ -14,15 +14,15 @@ namespace tl
     namespace play
     {
         void ViewActions::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            _actions["Frame"] = dtk::Action::create(
+            _actions["Frame"] = feather_tk::Action::create(
                 "Frame",
                 "ViewFrame",
-                dtk::Key::Backspace,
+                feather_tk::Key::Backspace,
                 0,
                 [mainWindowWeak](bool value)
                 {
@@ -33,10 +33,10 @@ namespace tl
                 });
             _actions["Frame"]->setTooltip("Toggle whether the view is automatically framed.");
 
-            _actions["ZoomReset"] = dtk::Action::create(
+            _actions["ZoomReset"] = feather_tk::Action::create(
                 "Zoom Reset",
                 "ViewZoomReset",
-                dtk::Key::_0,
+                feather_tk::Key::_0,
                 0,
                 [mainWindowWeak]
                 {
@@ -47,10 +47,10 @@ namespace tl
                 });
             _actions["ZoomReset"]->setTooltip("Reset the view zoom to 1:1.");
 
-            _actions["ZoomIn"] = dtk::Action::create(
+            _actions["ZoomIn"] = feather_tk::Action::create(
                 "Zoom In",
                 "ViewZoomIn",
-                dtk::Key::Equal,
+                feather_tk::Key::Equal,
                 0,
                 [mainWindowWeak]
                 {
@@ -61,10 +61,10 @@ namespace tl
                 });
             _actions["ZoomIn"]->setTooltip("Zoom the view in.");
 
-            _actions["ZoomOut"] = dtk::Action::create(
+            _actions["ZoomOut"] = feather_tk::Action::create(
                 "Zoom Out",
                 "ViewZoomOut",
-                dtk::Key::Minus,
+                feather_tk::Key::Minus,
                 0,
                 [mainWindowWeak]
                 {
@@ -75,7 +75,7 @@ namespace tl
                 });
             _actions["ZoomOut"]->setTooltip("Zoom the view out.");
 
-            _frameObserver = dtk::ValueObserver<bool>::create(
+            _frameObserver = feather_tk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {
@@ -88,7 +88,7 @@ namespace tl
         }
 
         std::shared_ptr<ViewActions> ViewActions::create(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
@@ -97,7 +97,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<dtk::Action> >& ViewActions::getActions() const
+        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& ViewActions::getActions() const
         {
             return _actions;
         }

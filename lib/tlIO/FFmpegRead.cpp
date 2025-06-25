@@ -4,9 +4,9 @@
 
 #include <tlIO/FFmpegReadPrivate.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/LogSystem.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/LogSystem.h>
 
 extern "C"
 {
@@ -31,7 +31,7 @@ namespace tl
             AVIOBufferData* bufferData = static_cast<AVIOBufferData*>(opaque);
 
             const int64_t remaining = bufferData->size - bufferData->offset;
-            int bufSizeClamped = dtk::clamp(
+            int bufSizeClamped = feather_tk::clamp(
                 static_cast<int64_t>(bufSize),
                 static_cast<int64_t>(0),
                 remaining);
@@ -55,7 +55,7 @@ namespace tl
                 return bufferData->size;
             }
 
-            bufferData->offset = dtk::clamp(
+            bufferData->offset = feather_tk::clamp(
                 offset,
                 static_cast<int64_t>(0),
                 static_cast<int64_t>(bufferData->size));
@@ -65,13 +65,13 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, logSystem);
 
-            DTK_P();
+            FEATHER_TK_P();
 
             auto i = options.find("FFmpeg/YUVToRGB");
             if (i != options.end())
@@ -127,7 +127,7 @@ namespace tl
             p.videoThread.thread = std::thread(
                 [this, path]
                 {
-                    DTK_P();
+                    FEATHER_TK_P();
                     try
                     {
                         p.readVideo = std::make_shared<ReadVideo>(
@@ -157,7 +157,7 @@ namespace tl
                         p.audioThread.thread = std::thread(
                             [this, path]
                             {
-                                DTK_P();
+                                FEATHER_TK_P();
                                 try
                                 {
                                     _audioThread();
@@ -170,7 +170,7 @@ namespace tl
                                         logSystem->print(
                                             "tl::io::ffmpeg::Read",
                                             e.what(),
-                                            dtk::LogType::Error);
+                                            feather_tk::LogType::Error);
                                     }
                                 }
                             });
@@ -184,7 +184,7 @@ namespace tl
                             logSystem->print(
                                 "tl::io::ffmpeg::Read",
                                 e.what(),
-                                dtk::LogType::Error);
+                                feather_tk::LogType::Error);
                         }
                     }
 
@@ -207,7 +207,7 @@ namespace tl
 
         Read::~Read()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.videoThread.running = false;
             p.audioThread.running = false;
             if (p.videoThread.thread.joinable())
@@ -223,7 +223,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -232,9 +232,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<dtk::InMemoryFile>& memory,
+            const std::vector<feather_tk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<dtk::LogSystem>& logSystem)
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -243,7 +243,7 @@ namespace tl
 
         std::future<io::Info> Read::getInfo()
         {
-            DTK_P();
+            FEATHER_TK_P();
             auto request = std::make_shared<Private::InfoRequest>();
             auto future = request->promise.get_future();
             bool valid = false;
@@ -270,7 +270,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             auto request = std::make_shared<Private::VideoRequest>();
             request->time = time;
             request->options = io::merge(options, _options);
@@ -299,7 +299,7 @@ namespace tl
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
-            DTK_P();
+            FEATHER_TK_P();
             auto request = std::make_shared<Private::AudioRequest>();
             request->timeRange = timeRange;
             request->options = io::merge(options, _options);
@@ -332,7 +332,7 @@ namespace tl
 
         void Read::_videoThread()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.videoThread.currentTime = p.info.videoTime.start_time();
             p.readVideo->start();
             p.videoThread.logTimer = std::chrono::steady_clock::now();
@@ -407,13 +407,13 @@ namespace tl
                         p.videoThread.logTimer = now;
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = dtk::Format("tl::io::ffmpeg::Read {0}").arg(this);
+                            const std::string id = feather_tk::Format("tl::io::ffmpeg::Read {0}").arg(this);
                             size_t requestsSize = 0;
                             {
                                 std::unique_lock<std::mutex> lock(p.videoMutex.mutex);
                                 requestsSize = p.videoMutex.videoRequests.size();
                             }
-                            logSystem->print(id, dtk::Format(
+                            logSystem->print(id, feather_tk::Format(
                                 "\n"
                                 "    Path: {0}\n"
                                 "    Video requests: {1}").
@@ -427,7 +427,7 @@ namespace tl
 
         void Read::_audioThread()
         {
-            DTK_P();
+            FEATHER_TK_P();
             p.audioThread.currentTime = p.info.audioTime.start_time();
             p.readAudio->start();
             p.audioThread.logTimer = std::chrono::steady_clock::now();
@@ -517,13 +517,13 @@ namespace tl
                         p.audioThread.logTimer = now;
                         if (auto logSystem = _logSystem.lock())
                         {
-                            const std::string id = dtk::Format("tl::io::ffmpeg::Read {0}").arg(this);
+                            const std::string id = feather_tk::Format("tl::io::ffmpeg::Read {0}").arg(this);
                             size_t requestsSize = 0;
                             {
                                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                                 requestsSize = p.audioMutex.requests.size();
                             }
-                            logSystem->print(id, dtk::Format(
+                            logSystem->print(id, feather_tk::Format(
                                 "\n"
                                 "    Path: {0}\n"
                                 "    Audio requests: {1}").
@@ -537,7 +537,7 @@ namespace tl
 
         void Read::_cancelVideoRequests()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > infoRequests;
             std::list<std::shared_ptr<Private::VideoRequest> > videoRequests;
             {
@@ -557,7 +557,7 @@ namespace tl
 
         void Read::_cancelAudioRequests()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::list<std::shared_ptr<Private::AudioRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.audioMutex.mutex);

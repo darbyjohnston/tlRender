@@ -4,9 +4,9 @@
 
 #include <tlTimelineUI/IItem.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
 
 #include <opentimelineio/marker.h>
 
@@ -16,17 +16,17 @@ namespace tl
 {
     namespace timelineui
     {
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             InOutDisplay,
             "InsideRange",
             "OutsideRange");
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             CacheDisplay,
             "VideoAndAudio",
             "VideoOnly");
 
-        DTK_ENUM_IMPL(
+        FEATHER_TK_ENUM_IMPL(
             WaveformPrim,
             "Mesh",
             "Image");
@@ -82,37 +82,37 @@ namespace tl
             return out;
         }
 
-        dtk::Color4F getMarkerColor(const std::string& value)
+        feather_tk::Color4F getMarkerColor(const std::string& value)
         {
-            const std::map<std::string, dtk::Color4F> colors =
+            const std::map<std::string, feather_tk::Color4F> colors =
             {
                 //! \bug The OTIO marker variables are causing undefined
                 //! symbol errors on Linux and macOS.
-                /*{OTIO_NS::Marker::Color::pink, dtk::Color4F(1.F, .752F, .796F)},
-                { OTIO_NS::Marker::Color::red, dtk::Color4F(1.F, 0.F, 0.F) },
-                { OTIO_NS::Marker::Color::orange, dtk::Color4F(1.F, .75F, 0.F) },
-                { OTIO_NS::Marker::Color::yellow, dtk::Color4F(1.F, 1.F, 0.F) },
-                { OTIO_NS::Marker::Color::green, dtk::Color4F(0.F, 1.F, 0.F) },
-                { OTIO_NS::Marker::Color::cyan, dtk::Color4F(0.F, 1.F, 1.F) },
-                { OTIO_NS::Marker::Color::blue, dtk::Color4F(0.F, 0.F, 1.F) },
-                { OTIO_NS::Marker::Color::purple, dtk::Color4F(0.5F, 0.F, .5F) },
-                { OTIO_NS::Marker::Color::magenta, dtk::Color4F(1.F, 0.F, 1.F) },
-                { OTIO_NS::Marker::Color::black, dtk::Color4F(0.F, 0.F, 0.F) },
-                { OTIO_NS::Marker::Color::white, dtk::Color4F(1.F, 1.F, 1.F) }*/
-                { "PINK", dtk::Color4F(1.F, .752F, .796F)},
-                { "RED", dtk::Color4F(1.F, 0.F, 0.F)},
-                { "ORANGE", dtk::Color4F(1.F, .75F, 0.F) },
-                { "YELLOW", dtk::Color4F(1.F, 1.F, 0.F)},
-                { "GREEN", dtk::Color4F(0.F, 1.F, 0.F) },
-                { "CYAN", dtk::Color4F(0.F, 1.F, 1.F)},
-                { "BLUE", dtk::Color4F(0.F, 0.F, 1.F)},
-                { "PURPLE", dtk::Color4F(0.5F, 0.F, .5F)},
-                { "MAGENTA", dtk::Color4F(1.F, 0.F, 1.F)},
-                { "BLACK", dtk::Color4F(0.F, 0.F, 0.F)},
-                { "WHITE", dtk::Color4F(1.F, 1.F, 1.F)}
+                /*{OTIO_NS::Marker::Color::pink, feather_tk::Color4F(1.F, .752F, .796F)},
+                { OTIO_NS::Marker::Color::red, feather_tk::Color4F(1.F, 0.F, 0.F) },
+                { OTIO_NS::Marker::Color::orange, feather_tk::Color4F(1.F, .75F, 0.F) },
+                { OTIO_NS::Marker::Color::yellow, feather_tk::Color4F(1.F, 1.F, 0.F) },
+                { OTIO_NS::Marker::Color::green, feather_tk::Color4F(0.F, 1.F, 0.F) },
+                { OTIO_NS::Marker::Color::cyan, feather_tk::Color4F(0.F, 1.F, 1.F) },
+                { OTIO_NS::Marker::Color::blue, feather_tk::Color4F(0.F, 0.F, 1.F) },
+                { OTIO_NS::Marker::Color::purple, feather_tk::Color4F(0.5F, 0.F, .5F) },
+                { OTIO_NS::Marker::Color::magenta, feather_tk::Color4F(1.F, 0.F, 1.F) },
+                { OTIO_NS::Marker::Color::black, feather_tk::Color4F(0.F, 0.F, 0.F) },
+                { OTIO_NS::Marker::Color::white, feather_tk::Color4F(1.F, 1.F, 1.F) }*/
+                { "PINK", feather_tk::Color4F(1.F, .752F, .796F)},
+                { "RED", feather_tk::Color4F(1.F, 0.F, 0.F)},
+                { "ORANGE", feather_tk::Color4F(1.F, .75F, 0.F) },
+                { "YELLOW", feather_tk::Color4F(1.F, 1.F, 0.F)},
+                { "GREEN", feather_tk::Color4F(0.F, 1.F, 0.F) },
+                { "CYAN", feather_tk::Color4F(0.F, 1.F, 1.F)},
+                { "BLUE", feather_tk::Color4F(0.F, 0.F, 1.F)},
+                { "PURPLE", feather_tk::Color4F(0.5F, 0.F, .5F)},
+                { "MAGENTA", feather_tk::Color4F(1.F, 0.F, 1.F)},
+                { "BLACK", feather_tk::Color4F(0.F, 0.F, 0.F)},
+                { "WHITE", feather_tk::Color4F(1.F, 1.F, 1.F)}
             };
             const auto i = colors.find(value);
-            return i != colors.end() ? i->second : dtk::Color4F();
+            return i != colors.end() ? i->second : feather_tk::Color4F();
         }
 
         DragAndDropData::DragAndDropData(
@@ -130,12 +130,12 @@ namespace tl
 
         struct IItem::Private
         {
-            dtk::ColorRole selectRole = dtk::ColorRole::None;
-            std::shared_ptr<dtk::ValueObserver<bool> > timeUnitsObserver;
+            feather_tk::ColorRole selectRole = feather_tk::ColorRole::None;
+            std::shared_ptr<feather_tk::ValueObserver<bool> > timeUnitsObserver;
         };
 
         void IItem::_init(
-            const std::shared_ptr<dtk::Context>& context,
+            const std::shared_ptr<feather_tk::Context>& context,
             const std::string& objectName,
             const OTIO_NS::TimeRange& timeRange,
             const OTIO_NS::TimeRange& availableRange,
@@ -147,7 +147,7 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, objectName, parent);
-            DTK_P();
+            FEATHER_TK_P();
 
             _timeRange = timeRange;
             _availableRange = availableRange;
@@ -157,7 +157,7 @@ namespace tl
             _displayOptions = displayOptions;
             _data = data;
 
-            p.timeUnitsObserver = dtk::ValueObserver<bool>::create(
+            p.timeUnitsObserver = feather_tk::ValueObserver<bool>::create(
                 data->timeUnitsModel->observeTimeUnitsChanged(),
                 [this](bool)
                 {
@@ -200,14 +200,14 @@ namespace tl
             _setDrawUpdate();
         }
 
-        dtk::ColorRole IItem::getSelectRole() const
+        feather_tk::ColorRole IItem::getSelectRole() const
         {
             return _p->selectRole;
         }
 
-        void IItem::setSelectRole(dtk::ColorRole value)
+        void IItem::setSelectRole(feather_tk::ColorRole value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (value == p.selectRole)
                 return;
             p.selectRole = value;
@@ -217,7 +217,7 @@ namespace tl
         OTIO_NS::RationalTime IItem::posToTime(float value) const
         {
             OTIO_NS::RationalTime out = time::invalidTime;
-            const dtk::Box2I& g = getGeometry();
+            const feather_tk::Box2I& g = getGeometry();
             if (g.w() > 0)
             {
                 const double normalized = (value - g.min.x) /
@@ -228,7 +228,7 @@ namespace tl
                         _timeRange.duration().value() * normalized,
                         _timeRange.duration().rate())).
                     round();
-                out = dtk::clamp(
+                out = feather_tk::clamp(
                     out,
                     _timeRange.start_time(),
                     _timeRange.end_time_inclusive());
@@ -238,17 +238,17 @@ namespace tl
 
         int IItem::timeToPos(const OTIO_NS::RationalTime& value) const
         {
-            const dtk::Box2I& g = getGeometry();
+            const feather_tk::Box2I& g = getGeometry();
             const OTIO_NS::RationalTime t = value - _timeRange.start_time();
             return g.min.x + t.rescaled_to(1.0).value() * _scale;
         }
 
-        dtk::Box2I IItem::_getClipRect(
-            const dtk::Box2I& value,
+        feather_tk::Box2I IItem::_getClipRect(
+            const feather_tk::Box2I& value,
             double scale)
         {
-            dtk::Box2I out;
-            const dtk::V2I c = dtk::center(value);
+            feather_tk::Box2I out;
+            const feather_tk::V2I c = feather_tk::center(value);
             out.min.x = (value.min.x - c.x) * scale + c.x;
             out.min.y = (value.min.y - c.y) * scale + c.y;
             out.max.x = (value.max.x - c.x) * scale + c.x;
@@ -259,7 +259,7 @@ namespace tl
         std::string IItem::_getDurationLabel(const OTIO_NS::RationalTime& value)
         {
             const OTIO_NS::RationalTime rescaled = value.rescaled_to(_data->speed);
-            return dtk::Format("{0}").
+            return feather_tk::Format("{0}").
                 arg(_data->timeUnitsModel->getLabel(rescaled));
         }
 

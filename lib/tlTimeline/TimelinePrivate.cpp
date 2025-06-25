@@ -8,11 +8,11 @@
 
 #include <tlIO/System.h>
 
-#include <dtk/core/Assert.h>
-#include <dtk/core/Context.h>
-#include <dtk/core/Format.h>
-#include <dtk/core/String.h>
-#include <dtk/core/Time.h>
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/Context.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/String.h>
+#include <feather-tk/core/Time.h>
 
 #include <opentimelineio/transition.h>
 
@@ -113,8 +113,8 @@ namespace tl
                     }
                     auto logSystem = context->getLogSystem();
                     logSystem->print(
-                        dtk::Format("tl::timeline::Timeline {0}").arg(this),
-                        dtk::Format(
+                        feather_tk::Format("tl::timeline::Timeline {0}").arg(this),
+                        feather_tk::Format(
                         "\n"
                         "    Path: {0}\n"
                         "    Video requests: {1}, {2} in-progress, {3} max\n"
@@ -131,7 +131,7 @@ namespace tl
             }
 
             // Sleep for a bit.
-            dtk::sleep(timeout, t0, t1);
+            feather_tk::sleep(timeout, t0, t1);
         }
 
         void Timeline::Private::requests()
@@ -457,7 +457,7 @@ namespace tl
                 std::vector<std::string> out;
                 out.push_back(path.get());
                 out.push_back(path.getNumber());
-                return dtk::join(out, ';');
+                return feather_tk::join(out, ';');
             }
         }
 
@@ -477,7 +477,7 @@ namespace tl
                 {
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
-                    options["SequenceIO/DefaultSpeed"] = dtk::Format("{0}").arg(timeRange.duration().rate());
+                    options["SequenceIO/DefaultSpeed"] = feather_tk::Format("{0}").arg(timeRange.duration().rate());
                     const auto ioSystem = context->getSystem<io::ReadSystem>();
                     out = ioSystem->read(path, memoryRead, options);
                     readCache.add(key, out);

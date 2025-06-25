@@ -16,11 +16,11 @@ namespace tl
 {
     namespace io_tests
     {
-        PPMTest::PPMTest(const std::shared_ptr<dtk::Context>& context) :
+        PPMTest::PPMTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "io_tests::PPMTest")
         {}
 
-        std::shared_ptr<PPMTest> PPMTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<PPMTest> PPMTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<PPMTest>(new PPMTest(context));
         }
@@ -40,9 +40,9 @@ namespace tl
         {
             void write(
                 const std::shared_ptr<io::IWritePlugin>& plugin,
-                const std::shared_ptr<dtk::Image>& image,
+                const std::shared_ptr<feather_tk::Image>& image,
                 const file::Path& path,
-                const dtk::ImageInfo& imageInfo,
+                const feather_tk::ImageInfo& imageInfo,
                 const Options& options)
             {
                 Info info;
@@ -54,20 +54,20 @@ namespace tl
 
             void read(
                 const std::shared_ptr<io::IReadPlugin>& plugin,
-                const std::shared_ptr<dtk::Image>& image,
+                const std::shared_ptr<feather_tk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
                 const Options& options)
             {
                 std::vector<uint8_t> memoryData;
-                std::vector<dtk::InMemoryFile> memory;
+                std::vector<feather_tk::InMemoryFile> memory;
                 std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
-                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
+                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
+                    memory.push_back(feather_tk::InMemoryFile(memoryData.data(), memoryData.size()));
                     read = plugin->read(path, memory, options);
                 }
                 else
@@ -75,12 +75,12 @@ namespace tl
                     read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
-                DTK_ASSERT(!ioInfo.video.empty());
+                FEATHER_TK_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
-                DTK_ASSERT(videoData.image);
-                DTK_ASSERT(videoData.image->getSize() == image->getSize());
+                FEATHER_TK_ASSERT(videoData.image);
+                FEATHER_TK_ASSERT(videoData.image->getSize() == image->getSize());
                 //! \todo Compare image data.
-                //DTK_ASSERT(0 == memcmp(
+                //FEATHER_TK_ASSERT(0 == memcmp(
                 //    videoData.image->getData(),
                 //    image->getData(),
                 //    image->getDataByteCount()));
@@ -88,25 +88,25 @@ namespace tl
 
             void readError(
                 const std::shared_ptr<io::IReadPlugin>& plugin,
-                const std::shared_ptr<dtk::Image>& image,
+                const std::shared_ptr<feather_tk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
                 const Options& options)
             {
                 {
-                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
+                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
                     const size_t size = fileIO->getSize();
                     fileIO.reset();
-                    dtk::truncateFile(path.get(), size / 2);
+                    feather_tk::truncateFile(path.get(), size / 2);
                 }
                 std::vector<uint8_t> memoryData;
-                std::vector<dtk::InMemoryFile> memory;
+                std::vector<feather_tk::InMemoryFile> memory;
                 if (memoryIO)
                 {
-                    auto fileIO = dtk::FileIO::create(path.get(), dtk::FileMode::Read);
+                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(dtk::InMemoryFile(memoryData.data(), memoryData.size()));
+                    memory.push_back(feather_tk::InMemoryFile(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory, options);
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
@@ -130,11 +130,11 @@ namespace tl
                 false,
                 true
             };
-            const std::vector<dtk::Size2I> sizes =
+            const std::vector<feather_tk::Size2I> sizes =
             {
-                dtk::Size2I(16, 16),
-                dtk::Size2I(1, 1),
-                dtk::Size2I(0, 0)
+                feather_tk::Size2I(16, 16),
+                feather_tk::Size2I(1, 1),
+                feather_tk::Size2I(0, 0)
             };
             const std::vector<std::pair<std::string, std::string> > options =
             {
@@ -148,13 +148,13 @@ namespace tl
                 {
                     for (const auto& size : sizes)
                     {
-                        for (const auto pixelType : dtk::getImageTypeEnums())
+                        for (const auto pixelType : feather_tk::getImageTypeEnums())
                         {
                             for (const auto& option : options)
                             {
                                 Options options;
                                 options[option.first] = option.second;
-                                const auto imageInfo = writePlugin->getInfo(dtk::ImageInfo(size, pixelType), options);
+                                const auto imageInfo = writePlugin->getInfo(feather_tk::ImageInfo(size, pixelType), options);
                                 if (imageInfo.isValid())
                                 {
                                     file::Path path;
@@ -164,7 +164,7 @@ namespace tl
                                         _print(ss.str());
                                         path = file::Path(ss.str());
                                     }
-                                    auto image = dtk::Image::create(imageInfo);
+                                    auto image = feather_tk::Image::create(imageInfo);
                                     image->zero();
                                     try
                                     {

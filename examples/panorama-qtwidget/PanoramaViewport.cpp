@@ -4,7 +4,7 @@
 
 #include "PanoramaViewport.h"
 
-#include <dtk/gl/Init.h>
+#include <feather-tk/gl/Init.h>
 
 #include <QMouseEvent>
 #include <QSurfaceFormat>
@@ -16,7 +16,7 @@ namespace tl
         namespace panorama_qtwidget
         {
             PanoramaViewport::PanoramaViewport(
-                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<feather_tk::Context>& context,
                 QWidget* parent) :
                 QOpenGLWidget(parent)
             {
@@ -45,7 +45,7 @@ namespace tl
                 update();
             }
 
-            void PanoramaViewport::setImageOptions(const dtk::ImageOptions& value)
+            void PanoramaViewport::setImageOptions(const feather_tk::ImageOptions& value)
             {
                 if (value == _imageOptions)
                     return;
@@ -68,7 +68,7 @@ namespace tl
                 if (_player)
                 {
                     const auto& ioInfo = _player->ioInfo();
-                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : dtk::Size2I();
+                    _videoSize = !ioInfo.video.empty() ? ioInfo.video[0].size : feather_tk::Size2I();
                     _videoData = _player->currentVideo();
                     connect(
                         _player.get(),
@@ -87,19 +87,19 @@ namespace tl
             void PanoramaViewport::initializeGL()
             {
                 initializeOpenGLFunctions();
-                dtk::gl::initGLAD();
+                feather_tk::gl::initGLAD();
 
                 try
                 {
                     // Create the sphere mesh.
-                    _sphereMesh = dtk::sphere(10.F, 100, 100);
-                    auto vboData = dtk::gl::convert(
+                    _sphereMesh = feather_tk::sphere(10.F, 100, 100);
+                    auto vboData = feather_tk::gl::convert(
                         _sphereMesh,
-                        dtk::gl::VBOType::Pos3_F32_UV_U16,
-                        dtk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
-                    _sphereVBO = dtk::gl::VBO::create(_sphereMesh.triangles.size() * 3, dtk::gl::VBOType::Pos3_F32_UV_U16);
+                        feather_tk::gl::VBOType::Pos3_F32_UV_U16,
+                        feather_tk::RangeSizeT(0, _sphereMesh.triangles.size() - 1));
+                    _sphereVBO = feather_tk::gl::VBO::create(_sphereMesh.triangles.size() * 3, feather_tk::gl::VBOType::Pos3_F32_UV_U16);
                     _sphereVBO->copy(vboData);
-                    _sphereVAO = dtk::gl::VAO::create(dtk::gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
+                    _sphereVAO = feather_tk::gl::VAO::create(feather_tk::gl::VBOType::Pos3_F32_UV_U16, _sphereVBO->getID());
 
                     // Create the renderer.
                     if (auto context = _context.lock())
@@ -145,7 +145,7 @@ namespace tl
                         "{\n"
                         "    fColor = texture(textureSampler, fTexture);\n"
                         "}\n";
-                    _shader = dtk::gl::Shader::create(vertexSource, fragmentSource);
+                    _shader = feather_tk::gl::Shader::create(vertexSource, fragmentSource);
                 }
                 catch (const std::exception& e)
                 {
@@ -159,24 +159,24 @@ namespace tl
                 try
                 {
                     // Create the offscreen buffer.
-                    dtk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
-                    dtk::gl::OffscreenBufferOptions offscreenBufferOptions;
-                    offscreenBufferOptions.color = dtk::ImageType::RGBA_F32;
-                    if (dtk::gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
+                    feather_tk::Size2I offscreenBufferSize(_videoSize.w, _videoSize.h);
+                    feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                    offscreenBufferOptions.color = feather_tk::ImageType::RGBA_F32;
+                    if (feather_tk::gl::doCreate(_buffer, offscreenBufferSize, offscreenBufferOptions))
                     {
-                        _buffer = dtk::gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
+                        _buffer = feather_tk::gl::OffscreenBuffer::create(offscreenBufferSize, offscreenBufferOptions);
                     }
 
                     // Render the video data into the offscreen buffer.
                     if (_buffer)
                     {
-                        dtk::gl::OffscreenBufferBinding binding(_buffer);
+                        feather_tk::gl::OffscreenBufferBinding binding(_buffer);
                         _render->begin(offscreenBufferSize);
                         _render->setOCIOOptions(_ocioOptions);
                         _render->setLUTOptions(_lutOptions);
                         _render->drawVideo(
                             { _videoData },
-                            { dtk::Box2I(0, 0, _videoSize.w, _videoSize.h) },
+                            { feather_tk::Box2I(0, 0, _videoSize.w, _videoSize.h) },
                             { _imageOptions });
                         _render->end();
                     }
@@ -192,7 +192,7 @@ namespace tl
                 glDisable(GL_SCISSOR_TEST);
                 glDisable(GL_BLEND);
                 const float devicePixelRatio = window()->devicePixelRatio();
-                const dtk::Size2I windowSize(
+                const feather_tk::Size2I windowSize(
                     width() * devicePixelRatio,
                     height() * devicePixelRatio);
                 glViewport(
@@ -202,11 +202,11 @@ namespace tl
                     static_cast<GLsizei>(windowSize.h));
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
-                dtk::M44F vm;
-                vm = vm * dtk::translate(dtk::V3F(0.F, 0.F, 0.F));
-                vm = vm * dtk::rotateX(_cameraRotation.x);
-                vm = vm * dtk::rotateY(_cameraRotation.y);
-                const auto pm = dtk::perspective(
+                feather_tk::M44F vm;
+                vm = vm * feather_tk::translate(feather_tk::V3F(0.F, 0.F, 0.F));
+                vm = vm * feather_tk::rotateX(_cameraRotation.x);
+                vm = vm * feather_tk::rotateY(_cameraRotation.y);
+                const auto pm = feather_tk::perspective(
                     _cameraFOV,
                     windowSize.w / static_cast<float>(windowSize.h > 0 ? windowSize.h : 1),
                     .1F,

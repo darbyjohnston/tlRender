@@ -13,10 +13,10 @@ namespace tl
         class CompareOptionsTest : public tests::ITest
         {
         protected:
-            CompareOptionsTest(const std::shared_ptr<dtk::Context>&);
+            CompareOptionsTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<CompareOptionsTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<CompareOptionsTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
         };

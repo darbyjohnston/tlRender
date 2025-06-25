@@ -10,10 +10,10 @@
 
 #include <tlTimeline/Player.h>
 
-#include <dtk/ui/MainWindow.h>
-#include <dtk/ui/MenuBar.h>
-#include <dtk/ui/RowLayout.h>
-#include <dtk/ui/Splitter.h>
+#include <feather-tk/ui/MainWindow.h>
+#include <feather-tk/ui/MenuBar.h>
+#include <feather-tk/ui/RowLayout.h>
+#include <feather-tk/ui/Splitter.h>
 
 namespace tl
 {
@@ -34,11 +34,11 @@ namespace tl
         //! Main window.
         class MainWindow : public timelineui::Window
         {
-            DTK_NON_COPYABLE(MainWindow);
+            FEATHER_TK_NON_COPYABLE(MainWindow);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&);
 
             MainWindow() = default;
@@ -47,15 +47,15 @@ namespace tl
             ~MainWindow();
 
             static std::shared_ptr<MainWindow> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<App>&);
 
             const std::shared_ptr<timelineui::Viewport>& getViewport() const;
 
             void showSettings(bool);
 
-            void keyPressEvent(dtk::KeyEvent&) override;
-            void keyReleaseEvent(dtk::KeyEvent&) override;
+            void keyPressEvent(feather_tk::KeyEvent&) override;
+            void keyReleaseEvent(feather_tk::KeyEvent&) override;
 
         protected:
             void _drop(const std::vector<std::string>&) override;
@@ -74,11 +74,11 @@ namespace tl
             std::shared_ptr<timelineui::TimelineWidget> _timelineWidget;
             std::shared_ptr<StatusBar> _statusBar;
             std::shared_ptr<SettingsWidget> _settingsWidget;
-            std::shared_ptr<dtk::Splitter> _splitter;
-            std::shared_ptr<dtk::Splitter> _splitter2;
-            std::shared_ptr<dtk::VerticalLayout> _layout;
-            std::shared_ptr<dtk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
-            std::shared_ptr<dtk::ValueObserver<timeline::Compare> > _compareObserver;
+            std::shared_ptr<feather_tk::Splitter> _splitter;
+            std::shared_ptr<feather_tk::Splitter> _splitter2;
+            std::shared_ptr<feather_tk::VerticalLayout> _layout;
+            std::shared_ptr<feather_tk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::Compare> > _compareObserver;
         };
     }
 }

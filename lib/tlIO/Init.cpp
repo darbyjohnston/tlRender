@@ -8,17 +8,17 @@
 
 #include <tlCore/Init.h>
 
-#include <dtk/gl/Init.h>
-#include <dtk/core/Context.h>
+#include <feather-tk/gl/Init.h>
+#include <feather-tk/core/Context.h>
 
 namespace tl
 {
     namespace io
     {
-        void init(const std::shared_ptr<dtk::Context>& context)
+        void init(const std::shared_ptr<feather_tk::Context>& context)
         {
             tl::init(context);
-            dtk::gl::init(context);
+            feather_tk::gl::init(context);
             ReadSystem::create(context);
             WriteSystem::create(context);
         }

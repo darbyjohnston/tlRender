@@ -58,7 +58,7 @@ namespace tl
             return _padding;
         }
 
-        inline const dtk::RangeI& Path::getSequence() const
+        inline const feather_tk::RangeI& Path::getSequence() const
         {
             return _sequence;
         }

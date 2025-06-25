@@ -8,9 +8,9 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <dtk/gl/Mesh.h>
-#include <dtk/gl/OffscreenBuffer.h>
-#include <dtk/gl/Shader.h>
+#include <feather-tk/gl/Mesh.h>
+#include <feather-tk/gl/OffscreenBuffer.h>
+#include <feather-tk/gl/Shader.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>
@@ -31,7 +31,7 @@ namespace tl
 
             public:
                 PanoramaViewport(
-                    const std::shared_ptr<dtk::Context>&,
+                    const std::shared_ptr<feather_tk::Context>&,
                     QWidget* parent = nullptr);
 
                 //! Set the OpenColorIO options.
@@ -41,7 +41,7 @@ namespace tl
                 void setLUTOptions(const timeline::LUTOptions&);
 
                 //! Set the image options.
-                void setImageOptions(const dtk::ImageOptions&);
+                void setImageOptions(const feather_tk::ImageOptions&);
 
                 //! Set the timeline player.
                 void setPlayer(const QSharedPointer<qt::PlayerObject>&);
@@ -57,22 +57,22 @@ namespace tl
                 void mouseMoveEvent(QMouseEvent*) override;
 
             private:
-                std::weak_ptr<dtk::Context> _context;
+                std::weak_ptr<feather_tk::Context> _context;
                 timeline::OCIOOptions _ocioOptions;
                 timeline::LUTOptions _lutOptions;
-                dtk::ImageOptions _imageOptions;
+                feather_tk::ImageOptions _imageOptions;
                 QSharedPointer<qt::PlayerObject> _player;
-                dtk::Size2I _videoSize;
+                feather_tk::Size2I _videoSize;
                 std::vector<timeline::VideoData> _videoData;
-                dtk::V2F _cameraRotation;
+                feather_tk::V2F _cameraRotation;
                 float _cameraFOV = 45.F;
-                dtk::TriMesh3F _sphereMesh;
-                std::shared_ptr<dtk::gl::VBO> _sphereVBO;
-                std::shared_ptr<dtk::gl::VAO> _sphereVAO;
-                std::shared_ptr<dtk::gl::Shader> _shader;
-                std::shared_ptr<dtk::gl::OffscreenBuffer> _buffer;
+                feather_tk::TriMesh3F _sphereMesh;
+                std::shared_ptr<feather_tk::gl::VBO> _sphereVBO;
+                std::shared_ptr<feather_tk::gl::VAO> _sphereVAO;
+                std::shared_ptr<feather_tk::gl::Shader> _shader;
+                std::shared_ptr<feather_tk::gl::OffscreenBuffer> _buffer;
                 std::shared_ptr<timeline_gl::Render> _render;
-                dtk::V2I _mousePosPrev;
+                feather_tk::V2I _mousePosPrev;
             };
         }
     }

@@ -4,9 +4,9 @@
 
 #include <tlIO/Cache.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/LRUCache.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/LRUCache.h>
+#include <feather-tk/core/String.h>
 
 #include <mutex>
 
@@ -23,9 +23,9 @@ namespace tl
             s.push_back(path.getNumber());
             for (const auto& i : options)
             {
-                s.push_back(dtk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                s.push_back(feather_tk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
-            return dtk::join(s, ';');
+            return feather_tk::join(s, ';');
         }
 
         std::string getVideoCacheKey(
@@ -68,9 +68,9 @@ namespace tl
 
         struct Cache::Private
         {
-            size_t max = dtk::gigabyte;
-            dtk::LRUCache<std::string, VideoData> video;
-            dtk::LRUCache<std::string, AudioData> audio;
+            size_t max = feather_tk::gigabyte;
+            feather_tk::LRUCache<std::string, VideoData> video;
+            feather_tk::LRUCache<std::string, AudioData> audio;
             std::mutex mutex;
         };
 
@@ -100,7 +100,7 @@ namespace tl
 
         void Cache::setMax(size_t value)
         {
-            DTK_P();
+            FEATHER_TK_P();
             if (value == p.max)
                 return;
             p.max = value;
@@ -109,14 +109,14 @@ namespace tl
 
         size_t Cache::getSize() const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.getSize() + p.audio.getSize();
         }
 
         float Cache::getPercentage() const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return
                 (p.video.getSize() + p.audio.getSize()) /
@@ -125,7 +125,7 @@ namespace tl
 
         void Cache::addVideo(const std::string& key, const VideoData& videoData)
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.add(
                 key,
@@ -135,21 +135,21 @@ namespace tl
 
         bool Cache::containsVideo(const std::string& key) const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.contains(key);
         }
 
         bool Cache::getVideo(const std::string& key, VideoData& videoData) const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.video.get(key, videoData);
         }
 
         void Cache::addAudio(const std::string& key, const AudioData& audioData)
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.audio.add(
                 key,
@@ -159,21 +159,21 @@ namespace tl
 
         bool Cache::containsAudio(const std::string& key) const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.audio.contains(key);
         }
 
         bool Cache::getAudio(const std::string& key, AudioData& audioData) const
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.audio.get(key, audioData);
         }
 
         void Cache::clear()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.clear();
             p.audio.clear();
@@ -181,7 +181,7 @@ namespace tl
 
         void Cache::_maxUpdate()
         {
-            DTK_P();
+            FEATHER_TK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.video.setMax(p.max * .9F);
             p.audio.setMax(p.max * .1F);

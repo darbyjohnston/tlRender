@@ -9,8 +9,8 @@
 
 #include <tlIO/System.h>
 
-#include <dtk/core/Format.h>
-#include <dtk/core/Time.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/Time.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>
@@ -25,11 +25,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        PlayerTest::PlayerTest(const std::shared_ptr<dtk::Context>& context) :
+        PlayerTest::PlayerTest(const std::shared_ptr<feather_tk::Context>& context) :
             ITest(context, "timeline_tests::PlayerTest")
         {}
 
-        std::shared_ptr<PlayerTest> PlayerTest::create(const std::shared_ptr<dtk::Context>& context)
+        std::shared_ptr<PlayerTest> PlayerTest::create(const std::shared_ptr<feather_tk::Context>& context)
         {
             return std::shared_ptr<PlayerTest>(new PlayerTest(context));
         }
@@ -63,10 +63,10 @@ namespace tl
             {
                 try
                 {
-                    _print(dtk::Format("Timeline: {0}").arg(path.get()));
+                    _print(feather_tk::Format("Timeline: {0}").arg(path.get()));
                     auto timeline = Timeline::create(_context, path.get());
                     auto player = Player::create(_context, timeline);
-                    DTK_ASSERT(player->getTimeline());
+                    FEATHER_TK_ASSERT(player->getTimeline());
                     _player(player);
                 }
                 catch (const std::exception& e)
@@ -78,7 +78,7 @@ namespace tl
             {
                 try
                 {
-                    _print(dtk::Format("Memory timeline: {0}").arg(path.get()));
+                    _print(feather_tk::Format("Memory timeline: {0}").arg(path.get()));
                     auto otioTimeline = timeline::create(_context, path);
                     toMemoryReferences(otioTimeline, path.getDirectory(), ToMemoryReference::Shared);
                     auto timeline = Timeline::create(_context, otioTimeline);
@@ -102,25 +102,25 @@ namespace tl
             const io::Info& ioInfo = player->getIOInfo();
             const double defaultSpeed = player->getDefaultSpeed();
             double speed = player->getSpeed();
-            _print(dtk::Format("Path: {0}").arg(path.get()));
-            _print(dtk::Format("Audio path: {0}").arg(audioPath.get()));
-            _print(dtk::Format("Time range: {0}").arg(timeRange));
+            _print(feather_tk::Format("Path: {0}").arg(path.get()));
+            _print(feather_tk::Format("Audio path: {0}").arg(audioPath.get()));
+            _print(feather_tk::Format("Time range: {0}").arg(timeRange));
             if (!ioInfo.video.empty())
             {
-                _print(dtk::Format("Video: {0}").arg(ioInfo.video.size()));
+                _print(feather_tk::Format("Video: {0}").arg(ioInfo.video.size()));
             }
             if (ioInfo.audio.isValid())
             {
-                _print(dtk::Format("Audio: {0} {1} {2}").
+                _print(feather_tk::Format("Audio: {0} {1} {2}").
                     arg(ioInfo.audio.channelCount).
                     arg(ioInfo.audio.dataType).
                     arg(ioInfo.audio.sampleRate));
             }
-            _print(dtk::Format("Default speed: {0}").arg(defaultSpeed));
-            _print(dtk::Format("Speed: {0}").arg(speed));
+            _print(feather_tk::Format("Default speed: {0}").arg(defaultSpeed));
+            _print(feather_tk::Format("Speed: {0}").arg(speed));
 
             // Test the playback speed.
-            auto speedObserver = dtk::ValueObserver<double>::create(
+            auto speedObserver = feather_tk::ValueObserver<double>::create(
                 player->observeSpeed(),
                 [&speed](double value)
                 {
@@ -128,57 +128,57 @@ namespace tl
                 });
             const double doubleSpeed = defaultSpeed * 2.0;
             player->setSpeed(doubleSpeed);
-            DTK_ASSERT(doubleSpeed == speed);
+            FEATHER_TK_ASSERT(doubleSpeed == speed);
             player->setSpeed(defaultSpeed);
 
             // Test the playback mode.
             Playback playback = Playback::Stop;
-            auto playbackObserver = dtk::ValueObserver<Playback>::create(
+            auto playbackObserver = feather_tk::ValueObserver<Playback>::create(
                 player->observePlayback(),
                 [&playback](Playback value)
                 {
                     playback = value;
                 });
             player->setPlayback(Playback::Forward);
-            DTK_ASSERT(Playback::Forward == player->getPlayback());
-            DTK_ASSERT(Playback::Forward == playback);
+            FEATHER_TK_ASSERT(Playback::Forward == player->getPlayback());
+            FEATHER_TK_ASSERT(Playback::Forward == playback);
 
             // Test the playback loop mode.
             Loop loop = Loop::Loop;
-            auto loopObserver = dtk::ValueObserver<Loop>::create(
+            auto loopObserver = feather_tk::ValueObserver<Loop>::create(
                 player->observeLoop(),
                 [&loop](Loop value)
                 {
                     loop = value;
                 });
             player->setLoop(Loop::Once);
-            DTK_ASSERT(Loop::Once == player->getLoop());
-            DTK_ASSERT(Loop::Once == loop);
+            FEATHER_TK_ASSERT(Loop::Once == player->getLoop());
+            FEATHER_TK_ASSERT(Loop::Once == loop);
 
             // Test the current time.
             player->setPlayback(Playback::Stop);
             OTIO_NS::RationalTime currentTime = time::invalidTime;
-            auto currentTimeObserver = dtk::ValueObserver<OTIO_NS::RationalTime>::create(
+            auto currentTimeObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
                 player->observeCurrentTime(),
                 [&currentTime](const OTIO_NS::RationalTime& value)
                 {
                     currentTime = value;
                 });
             player->seek(timeRange.start_time());
-            DTK_ASSERT(timeRange.start_time() == player->getCurrentTime());
-            DTK_ASSERT(timeRange.start_time() == currentTime);
+            FEATHER_TK_ASSERT(timeRange.start_time() == player->getCurrentTime());
+            FEATHER_TK_ASSERT(timeRange.start_time() == currentTime);
             const double rate = timeRange.duration().rate();
             player->seek(
                 timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate));
-            DTK_ASSERT(
+            FEATHER_TK_ASSERT(
                 timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate) ==
                 currentTime);
             player->gotoEnd();
-            DTK_ASSERT(timeRange.end_time_inclusive() == currentTime);
+            FEATHER_TK_ASSERT(timeRange.end_time_inclusive() == currentTime);
             player->gotoStart();
-            DTK_ASSERT(timeRange.start_time() == currentTime);
+            FEATHER_TK_ASSERT(timeRange.start_time() == currentTime);
             player->frameNext();
-            DTK_ASSERT(
+            FEATHER_TK_ASSERT(
                 timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate) ==
                 currentTime);
             player->timeAction(TimeAction::FrameNextX10);
@@ -193,7 +193,7 @@ namespace tl
 
             // Test the in/out points.
             OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-            auto inOutRangeObserver = dtk::ValueObserver<OTIO_NS::TimeRange>::create(
+            auto inOutRangeObserver = feather_tk::ValueObserver<OTIO_NS::TimeRange>::create(
                 player->observeInOutRange(),
                 [&inOutRange](const OTIO_NS::TimeRange& value)
                 {
@@ -202,26 +202,26 @@ namespace tl
             player->setInOutRange(OTIO_NS::TimeRange(
                 timeRange.start_time(),
                 OTIO_NS::RationalTime(10.0, rate)));
-            DTK_ASSERT(OTIO_NS::TimeRange(
+            FEATHER_TK_ASSERT(OTIO_NS::TimeRange(
                 timeRange.start_time(),
                 OTIO_NS::RationalTime(10.0, rate)) == player->getInOutRange());
-            DTK_ASSERT(OTIO_NS::TimeRange(
+            FEATHER_TK_ASSERT(OTIO_NS::TimeRange(
                 timeRange.start_time(),
                 OTIO_NS::RationalTime(10.0, rate)) == inOutRange);
             player->seek(timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate));
             player->setInPoint();
             player->seek(timeRange.start_time() + OTIO_NS::RationalTime(10.0, rate));
             player->setOutPoint();
-            DTK_ASSERT(OTIO_NS::TimeRange(
+            FEATHER_TK_ASSERT(OTIO_NS::TimeRange(
                 timeRange.start_time() + OTIO_NS::RationalTime(1.0, rate),
                 OTIO_NS::RationalTime(10.0, rate)) == inOutRange);
             player->resetInPoint();
             player->resetOutPoint();
-            DTK_ASSERT(OTIO_NS::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
+            FEATHER_TK_ASSERT(OTIO_NS::TimeRange(timeRange.start_time(), timeRange.duration()) == inOutRange);
 
             // Test the I/O options.
             io::Options ioOptions;
-            auto ioOptionsObserver = dtk::ValueObserver<io::Options>::create(
+            auto ioOptionsObserver = feather_tk::ValueObserver<io::Options>::create(
                 player->observeIOOptions(),
                 [&ioOptions](const io::Options& value)
                 {
@@ -230,20 +230,20 @@ namespace tl
             io::Options ioOptions2;
             ioOptions2["Layer"] = "1";
             player->setIOOptions(ioOptions2);
-            DTK_ASSERT(ioOptions2 == player->getIOOptions());
-            DTK_ASSERT(ioOptions2 == ioOptions);
+            FEATHER_TK_ASSERT(ioOptions2 == player->getIOOptions());
+            FEATHER_TK_ASSERT(ioOptions2 == ioOptions);
             player->setIOOptions({});
 
             // Test the video layers.
             int videoLayer = 0;
             std::vector<int> compareVideoLayers;
-            auto videoLayerObserver = dtk::ValueObserver<int>::create(
+            auto videoLayerObserver = feather_tk::ValueObserver<int>::create(
                 player->observeVideoLayer(),
                 [&videoLayer](int value)
                 {
                     videoLayer = value;
                 });
-            auto compareVideoLayersObserver = dtk::ListObserver<int>::create(
+            auto compareVideoLayersObserver = feather_tk::ListObserver<int>::create(
                 player->observeCompareVideoLayers(),
                 [&compareVideoLayers](const std::vector<int>& value)
                 {
@@ -251,69 +251,69 @@ namespace tl
                 });
             int videoLayer2 = 1;
             player->setVideoLayer(videoLayer2);
-            DTK_ASSERT(videoLayer2 == player->getVideoLayer());
-            DTK_ASSERT(videoLayer2 == videoLayer);
+            FEATHER_TK_ASSERT(videoLayer2 == player->getVideoLayer());
+            FEATHER_TK_ASSERT(videoLayer2 == videoLayer);
             std::vector<int> compareVideoLayers2 = { 2, 3 };
             player->setCompareVideoLayers(compareVideoLayers2);
-            DTK_ASSERT(compareVideoLayers2 == player->getCompareVideoLayers());
-            DTK_ASSERT(compareVideoLayers2 == compareVideoLayers);
+            FEATHER_TK_ASSERT(compareVideoLayers2 == player->getCompareVideoLayers());
+            FEATHER_TK_ASSERT(compareVideoLayers2 == compareVideoLayers);
             player->setVideoLayer(0);
             player->setCompareVideoLayers({});
 
             // Test audio.
             float volume = 1.F;
-            auto volumeObserver = dtk::ValueObserver<float>::create(
+            auto volumeObserver = feather_tk::ValueObserver<float>::create(
                 player->observeVolume(),
                 [&volume](float value)
                 {
                     volume = value;
                 });
             player->setVolume(.5F);
-            DTK_ASSERT(.5F == player->getVolume());
-            DTK_ASSERT(.5F == volume);
+            FEATHER_TK_ASSERT(.5F == player->getVolume());
+            FEATHER_TK_ASSERT(.5F == volume);
             player->setVolume(1.F);
 
             bool mute = false;
-            auto muteObserver = dtk::ValueObserver<bool>::create(
+            auto muteObserver = feather_tk::ValueObserver<bool>::create(
                 player->observeMute(),
                 [&mute](bool value)
                 {
                     mute = value;
                 });
             player->setMute(true);
-            DTK_ASSERT(player->isMuted());
-            DTK_ASSERT(mute);
+            FEATHER_TK_ASSERT(player->isMuted());
+            FEATHER_TK_ASSERT(mute);
             player->setMute(false);
 
             std::vector<bool> channelMute = { false, false };
-            auto channelMuteObserver = dtk::ListObserver<bool>::create(
+            auto channelMuteObserver = feather_tk::ListObserver<bool>::create(
                 player->observeChannelMute(),
                 [&channelMute](const std::vector<bool>& value)
                 {
                     channelMute = value;
                 });
             player->setChannelMute({ true, true });
-            DTK_ASSERT(player->getChannelMute() == std::vector<bool>({ true, true }));
-            DTK_ASSERT(channelMute[0]);
-            DTK_ASSERT(channelMute[1]);
+            FEATHER_TK_ASSERT(player->getChannelMute() == std::vector<bool>({ true, true }));
+            FEATHER_TK_ASSERT(channelMute[0]);
+            FEATHER_TK_ASSERT(channelMute[1]);
             player->setChannelMute({ false, false });
 
             double audioOffset = 0.0;
-            auto audioOffsetObserver = dtk::ValueObserver<double>::create(
+            auto audioOffsetObserver = feather_tk::ValueObserver<double>::create(
                 player->observeAudioOffset(),
                 [&audioOffset](double value)
                 {
                     audioOffset = value;
                 });
             player->setAudioOffset(0.5);
-            DTK_ASSERT(0.5 == player->getAudioOffset());
-            DTK_ASSERT(0.5 == audioOffset);
+            FEATHER_TK_ASSERT(0.5 == player->getAudioOffset());
+            FEATHER_TK_ASSERT(0.5 == audioOffset);
             player->setAudioOffset(0.0);
             
             // Test frames.
             {
                 PlayerCacheOptions cacheOptions;
-                auto cacheOptionsObserver = dtk::ValueObserver<PlayerCacheOptions>::create(
+                auto cacheOptionsObserver = feather_tk::ValueObserver<PlayerCacheOptions>::create(
                     player->observeCacheOptions(),
                     [&cacheOptions](const PlayerCacheOptions& value)
                     {
@@ -321,9 +321,9 @@ namespace tl
                     });
                 cacheOptions.videoGB = 1.F;
                 player->setCacheOptions(cacheOptions);
-                DTK_ASSERT(cacheOptions == player->getCacheOptions());
+                FEATHER_TK_ASSERT(cacheOptions == player->getCacheOptions());
 
-                auto currentVideoObserver = dtk::ListObserver<timeline::VideoData>::create(
+                auto currentVideoObserver = feather_tk::ListObserver<timeline::VideoData>::create(
                     player->observeCurrentVideo(),
                     [this](const std::vector<timeline::VideoData>& value)
                     {
@@ -335,7 +335,7 @@ namespace tl
                         }
                         _print(ss.str());
                     });
-                auto currentAudioObserver = dtk::ListObserver<timeline::AudioData>::create(
+                auto currentAudioObserver = feather_tk::ListObserver<timeline::AudioData>::create(
                     player->observeCurrentAudio(),
                     [this](const std::vector<timeline::AudioData>& value)
                     {
@@ -346,7 +346,7 @@ namespace tl
                             _print(ss.str());
                         }
                     });
-                auto cacheInfoObserver = dtk::ValueObserver<PlayerCacheInfo>::create(
+                auto cacheInfoObserver = feather_tk::ValueObserver<PlayerCacheInfo>::create(
                     player->observeCacheInfo(),
                     [this](const PlayerCacheInfo& value)
                     {
@@ -367,7 +367,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        dtk::sleep(std::chrono::milliseconds(10));
+                        feather_tk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -377,7 +377,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        dtk::sleep(std::chrono::milliseconds(10));
+                        feather_tk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -388,7 +388,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        dtk::sleep(std::chrono::milliseconds(10));
+                        feather_tk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);
@@ -399,7 +399,7 @@ namespace tl
                     do
                     {
                         player->tick();
-                        dtk::sleep(std::chrono::milliseconds(10));
+                        feather_tk::sleep(std::chrono::milliseconds(10));
                         const auto t2 = std::chrono::steady_clock::now();
                         diff = t2 - t;
                     } while (diff.count() < 1.F);

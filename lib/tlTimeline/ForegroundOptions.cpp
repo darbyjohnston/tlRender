@@ -4,8 +4,8 @@
 
 #include <tlTimeline/ForegroundOptions.h>
 
-#include <dtk/core/Error.h>
-#include <dtk/core/String.h>
+#include <feather-tk/core/Error.h>
+#include <feather-tk/core/String.h>
 
 #include <sstream>
 

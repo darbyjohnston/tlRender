@@ -7,7 +7,7 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Time.h>
 
-#include <dtk/core/Memory.h>
+#include <feather-tk/core/Memory.h>
 
 namespace tl
 {

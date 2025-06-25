@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <dtk/ui/IWidget.h>
+#include <feather-tk/ui/IWidget.h>
 
 #include <opentimelineio/version.h>
 
@@ -18,13 +18,13 @@ namespace tl
     namespace timelineui
     {
         //! Time value editor.
-        class TimeEdit : public dtk::IWidget
+        class TimeEdit : public feather_tk::IWidget
         {
-            DTK_NON_COPYABLE(TimeEdit);
+            FEATHER_TK_NON_COPYABLE(TimeEdit);
 
         protected:
             void _init(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -35,7 +35,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeEdit> create(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -52,20 +52,20 @@ namespace tl
             void setCallback(const std::function<void(const OTIO_NS::RationalTime&)>&);
 
             //! Set the font role.
-            void setFontRole(dtk::FontRole);
+            void setFontRole(feather_tk::FontRole);
 
-            void setGeometry(const dtk::Box2I&) override;
+            void setGeometry(const feather_tk::Box2I&) override;
             void takeKeyFocus() override;
-            void sizeHintEvent(const dtk::SizeHintEvent&) override;
-            void keyPressEvent(dtk::KeyEvent&) override;
-            void keyReleaseEvent(dtk::KeyEvent&) override;
+            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void keyPressEvent(feather_tk::KeyEvent&) override;
+            void keyReleaseEvent(feather_tk::KeyEvent&) override;
 
         private:
             void _commitValue(const std::string&);
             void _commitValue(const OTIO_NS::RationalTime&);
             void _textUpdate();
 
-            DTK_PRIVATE();
+            FEATHER_TK_PRIVATE();
         };
     }
 }

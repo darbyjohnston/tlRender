@@ -13,10 +13,10 @@ namespace tl
         class ColorOptionsTest : public tests::ITest
         {
         protected:
-            ColorOptionsTest(const std::shared_ptr<dtk::Context>&);
+            ColorOptionsTest(const std::shared_ptr<feather_tk::Context>&);
 
         public:
-            static std::shared_ptr<ColorOptionsTest> create(const std::shared_ptr<dtk::Context>&);
+            static std::shared_ptr<ColorOptionsTest> create(const std::shared_ptr<feather_tk::Context>&);
 
             void run() override;
         };

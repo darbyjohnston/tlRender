@@ -4,7 +4,7 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <dtk/core/Format.h>
+#include <feather-tk/core/Format.h>
 
 namespace tl
 {
@@ -79,7 +79,7 @@ namespace tl
             const std::string& lut,
             timeline::LUTOrder lutOrder)
         {
-             return dtk::Format(
+             return feather_tk::Format(
                 "precision mediump float;\n"
                 "\n"
                 "varying vec2 fTexture;\n"

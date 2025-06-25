@@ -7,7 +7,7 @@
 #include <memory>
 #include <string>
 
-namespace dtk
+namespace feather_tk
 {
     class Context;
 }
@@ -18,6 +18,6 @@ namespace tl
     namespace timelineui
     {
         //! Initialize the library.
-        void init(const std::shared_ptr<dtk::Context>&);
+        void init(const std::shared_ptr<feather_tk::Context>&);
     }
 }

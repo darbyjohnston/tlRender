@@ -4,29 +4,29 @@
 
 #pragma once
 
-#include <dtk/core/ISystem.h>
-#include <dtk/core/LogSystem.h>
+#include <feather-tk/core/ISystem.h>
+#include <feather-tk/core/LogSystem.h>
 
 namespace tl
 {
     namespace system
     {
         //! Base class for systems.
-        class ISystem : public dtk::ISystem
+        class ISystem : public feather_tk::ISystem
         {
         protected:
             ISystem(
-                const std::shared_ptr<dtk::Context>&,
+                const std::shared_ptr<feather_tk::Context>&,
                 const std::string& name);
 
         public:
             virtual ~ISystem();
 
         protected:
-            void _log(const std::string&, dtk::LogType = dtk::LogType::Message);
+            void _log(const std::string&, feather_tk::LogType = feather_tk::LogType::Message);
 
         private:
-            std::weak_ptr<dtk::LogSystem> _logSystem;
+            std::weak_ptr<feather_tk::LogSystem> _logSystem;
         };
     }
 }

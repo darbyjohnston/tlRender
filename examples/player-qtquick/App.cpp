@@ -9,8 +9,8 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Path.h>
 
-#include <dtk/core/CmdLine.h>
-#include <dtk/core/Format.h>
+#include <feather-tk/core/CmdLine.h>
+#include <feather-tk/core/Format.h>
 
 #include <QQmlComponent>
 #include <QQmlContext>
@@ -22,19 +22,19 @@ namespace tl
         namespace player_qtquick
         {
             App::App(
-                const std::shared_ptr<dtk::Context>& context,
+                const std::shared_ptr<feather_tk::Context>& context,
                 int& argc,
                 char** argv) :
                 QGuiApplication(argc, argv)
             {
-                auto args = dtk::convert(argc, argv);
+                auto args = feather_tk::convert(argc, argv);
                 IApp::_init(
                     context,
                     args,
                     "player-qtquick",
                     "Example Qt Quick player application.",
                     {
-                        dtk::CmdLineValueArg<std::string>::create(
+                        feather_tk::CmdLineValueArg<std::string>::create(
                             _input,
                             "input",
                             "The input timeline.")
