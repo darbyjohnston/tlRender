@@ -48,8 +48,8 @@ namespace tl
             //! Get whether the scroll bars are visible.
             bool areScrollBarsVisible() const;
 
-            //! Get whether to automatically scroll to the current frame.
-            bool hasScrollToCurrentFrame() const;
+            //! Get whether auto-scroll is enabled.
+            bool hasAutoScroll() const;
 
             //! Get the mouse scroll key modifier.
             feather_tk::KeyModifier scrollKeyModifier() const;
@@ -79,8 +79,8 @@ namespace tl
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
 
-            //! Set whether to automatically scroll to the current frame.
-            void setScrollToCurrentFrame(bool);
+            //! Set whether auto-scroll is enabled.
+            void setAutoScroll(bool);
 
             //! Set the mouse scroll key modifier.
             void setScrollKeyModifier(feather_tk::KeyModifier);

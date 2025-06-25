@@ -41,9 +41,9 @@ namespace tl
         {
             const std::vector<std::vector<uint8_t> > fonts =
             {
-                dtk_resource::NotoSansMonoRegular,
-                dtk_resource::NotoSansBold,
-                dtk_resource::NotoSansRegular
+                feather_tk_resource::NotoSansMonoRegular,
+                feather_tk_resource::NotoSansBold,
+                feather_tk_resource::NotoSansRegular
             };
             std::vector<std::string> fontFamilyList;
             for (const auto& font : fonts)

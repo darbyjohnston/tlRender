@@ -112,9 +112,9 @@ namespace tl
             return _p->timelineWidget->areScrollBarsVisible();
         }
 
-        bool TimelineWidget::hasScrollToCurrentFrame() const
+        bool TimelineWidget::hasAutoScroll() const
         {
-            return _p->timelineWidget->hasScrollToCurrentFrame();
+            return _p->timelineWidget->hasAutoScroll();
         }
 
         feather_tk::KeyModifier TimelineWidget::scrollKeyModifier() const
@@ -162,9 +162,9 @@ namespace tl
             _p->timelineWidget->setScrollBarsVisible(value);
         }
 
-        void TimelineWidget::setScrollToCurrentFrame(bool value)
+        void TimelineWidget::setAutoScroll(bool value)
         {
-            _p->timelineWidget->setScrollToCurrentFrame(value);
+            _p->timelineWidget->setAutoScroll(value);
         }
 
         void TimelineWidget::setScrollKeyModifier(feather_tk::KeyModifier value)
