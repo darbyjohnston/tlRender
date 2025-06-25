@@ -5,7 +5,7 @@ set(feather_tk_GIT_TAG "f99db9721e850978c4ae66c5235466cd2ea649f0")
 
 set(feather_tk_DEPS ZLIB)
 set(feather_tk_ARGS
-    -DFEATHER_TK_API=${FEATHER_TK_API}
+    -Dfeather_tk_API=${feather_tk_API}
     -Dfeather_tk_ZLIB=OFF
     -Dfeather_tk_PYTHON=OFF
     -Dfeather_tk_TESTS=OFF
