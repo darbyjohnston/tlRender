@@ -14,7 +14,7 @@ namespace tl
     namespace timeline
     {
         FEATHER_TK_ENUM_IMPL(
-            FileSequenceAudio,
+            ImageSequenceAudio,
             "None",
             "Extension",
             "FileName");
@@ -22,9 +22,9 @@ namespace tl
         bool Options::operator == (const Options& other) const
         {
             return
-                fileSequenceAudio == other.fileSequenceAudio &&
-                fileSequenceAudioExtensions == other.fileSequenceAudioExtensions &&
-                fileSequenceAudioFileName == other.fileSequenceAudioFileName &&
+                imageSequenceAudio == other.imageSequenceAudio &&
+                imageSequenceAudioExtensions == other.imageSequenceAudioExtensions &&
+                imageSequenceAudioFileName == other.imageSequenceAudioFileName &&
                 compat == other.compat &&
                 videoRequestMax == other.videoRequestMax &&
                 audioRequestMax == other.audioRequestMax &&

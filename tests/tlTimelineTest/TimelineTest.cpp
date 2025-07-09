@@ -45,14 +45,14 @@ namespace tl
 
         void TimelineTest::_enums()
         {
-            _enum<FileSequenceAudio>("FileSequenceAudio", getFileSequenceAudioEnums);
+            _enum<ImageSequenceAudio>("ImageSequenceAudio", getImageSequenceAudioEnums);
             _enum<Transition>("Transition", getTransitionEnums);
         }
 
         void TimelineTest::_options()
         {
             Options a;
-            a.fileSequenceAudio = FileSequenceAudio::FileName;
+            a.imageSequenceAudio = ImageSequenceAudio::FileName;
             FEATHER_TK_ASSERT(a == a);
             FEATHER_TK_ASSERT(a != Options());
         }
@@ -245,7 +245,7 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
-                options.fileSequenceAudio = FileSequenceAudio::None;
+                options.imageSequenceAudio = ImageSequenceAudio::None;
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 FEATHER_TK_ASSERT(audioPath.isEmpty());
@@ -260,7 +260,7 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
-                options.fileSequenceAudio = FileSequenceAudio::Extension;
+                options.imageSequenceAudio = ImageSequenceAudio::Extension;
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();
                 FEATHER_TK_ASSERT(!audioPath.isEmpty());
@@ -275,8 +275,8 @@ namespace tl
                 const file::Path path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
                 _print(feather_tk::Format("Path: {0}").arg(path.get()));
                 Options options;
-                options.fileSequenceAudio = FileSequenceAudio::FileName;
-                options.fileSequenceAudioFileName = file::Path(
+                options.imageSequenceAudio = ImageSequenceAudio::FileName;
+                options.imageSequenceAudioFileName = file::Path(
                     TLRENDER_SAMPLE_DATA, "AudioToneStereo.wav").get();
                 auto timeline = Timeline::create(_context, path, options);
                 const file::Path& audioPath = timeline->getAudioPath();

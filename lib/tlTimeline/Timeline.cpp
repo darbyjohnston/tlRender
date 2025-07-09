@@ -33,12 +33,12 @@ namespace tl
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(feather_tk::Format("    File sequence audio: {0}").
-                    arg(options.fileSequenceAudio));
-                lines.push_back(feather_tk::Format("    File sequence audio extensions: {0}").
-                    arg(feather_tk::join(options.fileSequenceAudioExtensions, ", ")));
-                lines.push_back(feather_tk::Format("    File sequence audio file name: {0}").
-                    arg(options.fileSequenceAudioFileName));
+                lines.push_back(feather_tk::Format("    Image sequence audio: {0}").
+                    arg(options.imageSequenceAudio));
+                lines.push_back(feather_tk::Format("    Image sequence audio extensions: {0}").
+                    arg(feather_tk::join(options.imageSequenceAudioExtensions, ", ")));
+                lines.push_back(feather_tk::Format("    Image sequence audio file name: {0}").
+                    arg(options.imageSequenceAudioFileName));
                 lines.push_back(feather_tk::Format("    Compatability: {0}").
                     arg(options.compat));
                 lines.push_back(feather_tk::Format("    Video request max: {0}").

@@ -35,16 +35,16 @@ namespace tl
             file::Path getAudioPath(
                 const std::shared_ptr<feather_tk::Context>& context,
                 const file::Path& path,
-                const FileSequenceAudio& fileSequenceAudio,
-                const std::vector<std::string>& fileSequenceAudioExtensions,
-                const std::string& fileSequenceAudioFileName,
+                const ImageSequenceAudio& imageSequenceAudio,
+                const std::vector<std::string>& imageSequenceAudioExtensions,
+                const std::string& imageSequenceAudioFileName,
                 const file::PathOptions& pathOptions)
             {
                 file::Path out;
                 auto ioSystem = context->getSystem<io::ReadSystem>();
-                switch (fileSequenceAudio)
+                switch (imageSequenceAudio)
                 {
-                case FileSequenceAudio::Extension:
+                case ImageSequenceAudio::Extension:
                 {
                     std::vector<std::string> names;
                     names.push_back(path.getDirectory() + path.getBaseName());
@@ -56,7 +56,7 @@ namespace tl
                     names.push_back(path.getDirectory() + tmp);
                     for (const auto& name : names)
                     {
-                        for (const auto& extension : fileSequenceAudioExtensions)
+                        for (const auto& extension : imageSequenceAudioExtensions)
                         {
                             const file::Path audioPath(name + extension, pathOptions);
                             if (std::filesystem::exists(std::filesystem::u8path(audioPath.get())))
@@ -68,8 +68,8 @@ namespace tl
                     }
                     break;
                 }
-                case FileSequenceAudio::FileName:
-                    out = file::Path(path.getDirectory() + fileSequenceAudioFileName, pathOptions);
+                case ImageSequenceAudio::FileName:
+                    out = file::Path(path.getDirectory() + imageSequenceAudioFileName, pathOptions);
                     break;
                 default: break;
                 }
@@ -318,9 +318,9 @@ namespace tl
                         audioPath = getAudioPath(
                             context,
                             path,
-                            options.fileSequenceAudio,
-                            options.fileSequenceAudioExtensions,
-                            options.fileSequenceAudioFileName,
+                            options.imageSequenceAudio,
+                            options.imageSequenceAudioExtensions,
+                            options.imageSequenceAudioFileName,
                             options.pathOptions);
                     }
                 }

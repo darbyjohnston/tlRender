@@ -13,8 +13,8 @@ namespace tl
     //! Timelines.
     namespace timeline
     {
-        //! File sequence.
-        enum class FileSequenceAudio
+        //! Image sequence audio options.
+        enum class ImageSequenceAudio
         {
             None,      //!< No audio
             Extension, //!< Search for an audio file by extension
@@ -23,19 +23,19 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(FileSequenceAudio);
+        FEATHER_TK_ENUM(ImageSequenceAudio);
 
         //! Timeline options.
         struct Options
         {
-            //! File sequence audio.
-            FileSequenceAudio fileSequenceAudio = FileSequenceAudio::Extension;
+            //! Image sequence audio.
+            ImageSequenceAudio imageSequenceAudio = ImageSequenceAudio::Extension;
 
-            //! File sequence audio extensions.
-            std::vector<std::string> fileSequenceAudioExtensions = { ".wav", ".mp3" };
+            //! Image sequence audio extensions.
+            std::vector<std::string> imageSequenceAudioExtensions = { ".mp3", ".wav" };
 
-            //! File sequence audio file name.
-            std::string fileSequenceAudioFileName;
+            //! Image sequence audio file name.
+            std::string imageSequenceAudioFileName;
 
             //! Enable workarounds for timelines that may not conform exactly
             //! to specification.
