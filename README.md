@@ -13,20 +13,19 @@ integrating the library with Qt and OpenGL applications.
 
 The library is written in C++ and uses the CMake build system.
 
+These screenshots show an example application built with tlRender. The
+application is comparing two images with a wipe and horizontal layout.
+
 ![player 1](etc/Images/player_1.png)
 ![player 2](etc/Images/player_2.png)
 
-These screenshots show an example application built with tlRender. The
-application is comparing two images, a render and a wireframe, with a wipe
-and horizontal layout.
-
 Features:
-* Support for OpenTimelineIO files, image sequences, and movies
-* A/B comparison with multiple modes including wipe, overlay, and difference
-* Color management with OpenColorIO
-* Multi-track audio with variable speed and reverse playback
-* Support for Linux, macOS, and Windows
-* Experimental USD support
+* Support for timeline files, image sequences, movies, and audio files.
+* Compare multiple files with wipe, overlay, and difference modes.
+* Color management with OpenColorIO.
+* Multi-track audio with variable speed and reverse playback.
+* Experimental support for USD files.
+* Available for Linux, macOS, and Windows.
 
 
 ## Building Dependencies
