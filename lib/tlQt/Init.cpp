@@ -72,7 +72,7 @@ namespace tl
             qRegisterMetaType<timeline::CompareTime>("tl::timeline::CompareTime");
             qRegisterMetaType<timeline::CompareOptions>("tl::timeline::CompareOptions");
             qRegisterMetaType<timeline::EXRDisplay>("tl::timeline::EXRDisplay");
-            qRegisterMetaType<timeline::FileSequenceAudio>("tl::timeline::FileSequenceAudio");
+            qRegisterMetaType<timeline::ImageSequenceAudio>("tl::timeline::ImageSequenceAudio");
             qRegisterMetaType<timeline::LUTOptions>("tl::timeline::LUTOptions");
             qRegisterMetaType<timeline::Levels>("tl::timeline::Levels");
             qRegisterMetaType<timeline::Loop>("tl::timeline::Loop");
@@ -90,7 +90,7 @@ namespace tl
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
             QMetaType::registerComparators<timeline::Compare>();
             QMetaType::registerComparators<timeline::CompareTime>();
-            QMetaType::registerComparators<timeline::FileSequenceAudio>();
+            QMetaType::registerComparators<timeline::ImageuenceAudio>();
             QMetaType::registerComparators<timeline::Loop>();
             QMetaType::registerComparators<timeline::Playback>();
             QMetaType::registerComparators<timeline::TimeAction>();

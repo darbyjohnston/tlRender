@@ -27,7 +27,7 @@ Q_DECLARE_METATYPE(tl::io::FileType);
 
 Q_DECLARE_METATYPE(tl::timeline::Compare);
 Q_DECLARE_METATYPE(tl::timeline::CompareTime);
-Q_DECLARE_METATYPE(tl::timeline::FileSequenceAudio);
+Q_DECLARE_METATYPE(tl::timeline::ImageSequenceAudio);
 Q_DECLARE_METATYPE(tl::timeline::Loop);
 Q_DECLARE_METATYPE(tl::timeline::Playback);
 Q_DECLARE_METATYPE(tl::timeline::TimeAction);
