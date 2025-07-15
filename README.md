@@ -20,12 +20,12 @@ application is comparing two images with a wipe and horizontal layout.
 ![player 2](etc/Images/player_2.png)
 
 Features:
-* Support for timelines, image sequences, movies, and audio files.
-* A/B comparison with wipe, overlay, and difference modes.
-* Color management with OpenColorIO.
-* Multi-track audio with variable speed and reverse playback.
-* Experimental support for USD files.
-* Available for Linux, macOS, and Windows.
+* Support for timelines, image sequences, movies, and audio files
+* A/B comparison with wipe, overlay, and difference modes
+* Color management with OpenColorIO
+* Multi-track audio with variable speed and reverse playback
+* Experimental support for USD files
+* Available for Linux, macOS, and Windows
 
 
 ## Building Dependencies
