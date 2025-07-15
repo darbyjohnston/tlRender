@@ -96,10 +96,10 @@ namespace tl
 
         void IOTest::_ioSystem()
         {
-            auto system = _context->getSystem<ReadSystem>();
+            auto readSystem = _context->getSystem<ReadSystem>();
             {
                 std::vector<std::string> plugins;
-                for (const auto& plugin : system->getPlugins())
+                for (const auto& plugin : readSystem->getPlugins())
                 {
                     plugins.push_back(plugin->getName());
                 }
@@ -109,7 +109,7 @@ namespace tl
             }
             {
                 std::map<std::string, std::shared_ptr<IPlugin> > plugins;
-                for (const auto& plugin : system->getPlugins())
+                for (const auto& plugin : readSystem->getPlugins())
                 {
                     const auto& extensions = plugin->getExtensions();
                     if (!extensions.empty())
@@ -119,14 +119,14 @@ namespace tl
                 }
                 for (const auto& plugin : plugins)
                 {
-                    FEATHER_TK_ASSERT(system->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
+                    FEATHER_TK_ASSERT(readSystem->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
-                FEATHER_TK_ASSERT(!system->getPlugin(file::Path()));
-                FEATHER_TK_ASSERT(!system->getPlugin<DummyReadPlugin>());
+                FEATHER_TK_ASSERT(!readSystem->getPlugin(file::Path()));
+                FEATHER_TK_ASSERT(!readSystem->getPlugin<DummyReadPlugin>());
             }
             {
                 std::vector<std::string> extensions;
-                for (const auto& extension : system->getExtensions())
+                for (const auto& extension : readSystem->getExtensions())
                 {
                     extensions.push_back(extension);
                 }
@@ -134,8 +134,9 @@ namespace tl
                 ss << "Extensions: " << feather_tk::join(extensions, ", ");
                 _print(ss.str());
             }
-            FEATHER_TK_ASSERT(!system->read(file::Path()));
-            FEATHER_TK_ASSERT(!system->write(file::Path(), Info()));
+            FEATHER_TK_ASSERT(!readSystem->read(file::Path()));
+            auto writeSystem = _context->getSystem<WriteSystem>();
+            FEATHER_TK_ASSERT(!writeSystem->write(file::Path(), Info()));
         }
     }
 }

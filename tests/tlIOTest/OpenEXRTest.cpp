@@ -60,7 +60,7 @@ namespace tl
                 std::vector<std::string> data = { "A", "b", "g", "r" };
                 exr::reorderChannels(data);
                 const std::vector<std::string> result = { "r", "g", "b", "A" };
-                FEATHER_TK_ASSERT(data = result);
+                FEATHER_TK_ASSERT(data == result);
             }
             {
                 std::vector<std::string> data = { "z", "b", "G", "r" };
