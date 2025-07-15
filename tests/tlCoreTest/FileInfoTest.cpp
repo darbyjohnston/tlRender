@@ -131,7 +131,7 @@ namespace tl
                 FEATHER_TK_ASSERT(options == options);
                 FEATHER_TK_ASSERT(options != ListOptions());
             }
-            
+
             std::string tmp = std::tmpnam(nullptr);
             std::filesystem::create_directory(std::filesystem::u8path(tmp));
             feather_tk::FileIO::create(file::Path(tmp, "file.txt").get(), feather_tk::FileMode::Write);
@@ -146,14 +146,16 @@ namespace tl
             feather_tk::FileIO::create(file::Path(tmp, "render.0003.tif").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "movie.1.mov").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "movie.2.mov").get(), feather_tk::FileMode::Write);
-            
+            feather_tk::FileIO::create(file::Path(tmp, "audio.mp3").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "audio.wav").get(), feather_tk::FileMode::Write);
+
             {
                 std::vector<FileInfo> list;
                 ListOptions options;
                 options.sequence = true;
                 options.sequenceExtensions = { ".exr", ".tif" };
                 file::list(tmp, list, options);
-                FEATHER_TK_ASSERT(7 == list.size());
+                FEATHER_TK_ASSERT(8 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
@@ -174,10 +176,10 @@ namespace tl
                         });
                     FEATHER_TK_ASSERT(j != list.end());
                 }
-                
+
                 options.sequence = false;
                 file::list(tmp, list, options);
-                FEATHER_TK_ASSERT(13 == list.size());
+                FEATHER_TK_ASSERT(14 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
@@ -187,7 +189,7 @@ namespace tl
                     }
                 }
             }
-            
+
             std::vector<ListOptions> optionsList;
             for (auto sort : getListSortEnums())
             {
@@ -214,6 +216,17 @@ namespace tl
             {
                 std::vector<FileInfo> list;
                 file::list(tmp, list, options);
+            }
+
+            {
+                std::vector<FileInfo> list;
+                ListOptions options;
+                options.extensions.insert(".mp3");
+                file::list(tmp, list, options);
+                FEATHER_TK_ASSERT(1 == list.size());
+                options.extensions.insert(".wav");
+                file::list(tmp, list, options);
+                FEATHER_TK_ASSERT(2 == list.size());
             }
         }
     }

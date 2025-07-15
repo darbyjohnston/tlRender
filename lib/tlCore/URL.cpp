@@ -10,16 +10,16 @@
 
 namespace tl
 {
-    std::string scheme(std::string const& url)
-    {
-        const std::regex rx("^([A-Za-z0-9+-\\.]+://)");
-        const auto rxi = std::sregex_iterator(url.begin(), url.end(), rx);
-        return rxi != std::sregex_iterator() ? rxi->str() : std::string();
-    }
-
     namespace url
     {
-        std::string encode(std::string const& url)
+        std::string scheme(const std::string& url)
+        {
+            const std::regex rx("^([A-Za-z0-9+-\\.]+://)");
+            const auto rxi = std::sregex_iterator(url.begin(), url.end(), rx);
+            return rxi != std::sregex_iterator() ? rxi->str() : std::string();
+        }
+
+        std::string encode(const std::string& url)
         {
             // Don't encode these characters.
             const std::vector<char> chars =
@@ -48,7 +48,7 @@ namespace tl
             return ss.str();
         }
 
-        std::string decode(std::string const& url)
+        std::string decode(const std::string& url)
         {
             std::string out;
 

@@ -34,11 +34,11 @@ namespace tl
         void URLTest::_util()
         {
             {
-                const std::string scheme = "file://path";
+                const std::string scheme = url::scheme("file://path");
                 FEATHER_TK_ASSERT("file://" == scheme);
             }
             {
-                const std::string scheme = "path";
+                const std::string scheme = url::scheme("path");
                 FEATHER_TK_ASSERT(scheme.empty());
             }
         }

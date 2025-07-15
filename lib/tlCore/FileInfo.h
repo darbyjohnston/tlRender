@@ -89,6 +89,7 @@ namespace tl
             bool                  sortDirectoriesFirst = true;
             bool                  dotAndDotDotDirs     = false;
             bool                  dotFiles             = false;
+            std::set<std::string> extensions;
             bool                  sequence             = true;
             std::set<std::string> sequenceExtensions;
             bool                  negativeNumbers      = false;

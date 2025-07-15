@@ -70,7 +70,7 @@ if(TLRENDER_IGNORE_PREFIX_PATH)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
-    add_definitions(-DTLRENDER_ASSERT)
+    add_definitions(-DFEATHER_TK_ASSERT)
 endif()
 
 if(TLRENDER_TESTS)

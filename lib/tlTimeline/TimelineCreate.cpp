@@ -46,19 +46,20 @@ namespace tl
                 {
                 case ImageSequenceAudio::Extension:
                 {
-                    std::vector<std::string> names;
-                    names.push_back(path.getDirectory() + path.getBaseName());
+                    // Check for an audio file with the same base name.
+                    std::vector<std::string> baseNames;
+                    baseNames.push_back(path.getDirectory() + path.getBaseName());
                     std::string tmp = path.getBaseName();
                     if (!tmp.empty() && '.' == tmp[tmp.size() - 1])
                     {
                         tmp.pop_back();
                     }
-                    names.push_back(path.getDirectory() + tmp);
-                    for (const auto& name : names)
+                    baseNames.push_back(path.getDirectory() + tmp);
+                    for (const auto& baseName : baseNames)
                     {
                         for (const auto& extension : imageSequenceAudioExtensions)
                         {
-                            const file::Path audioPath(name + extension, pathOptions);
+                            const file::Path audioPath(baseName + extension, pathOptions);
                             if (std::filesystem::exists(std::filesystem::u8path(audioPath.get())))
                             {
                                 out = audioPath;
@@ -66,6 +67,22 @@ namespace tl
                             }
                         }
                     }
+
+                    // Or use the first audio file.
+                    if (out.isEmpty())
+                    {
+                        std::vector<file::FileInfo> list;
+                        file::ListOptions listOptions;
+                        listOptions.extensions.insert(
+                            imageSequenceAudioExtensions.begin(),
+                            imageSequenceAudioExtensions.end());
+                        file::list(path.getDirectory(), list, listOptions);
+                        if (!list.empty())
+                        {
+                            out = list.front().getPath();
+                        }
+                    }
+
                     break;
                 }
                 case ImageSequenceAudio::FileName:

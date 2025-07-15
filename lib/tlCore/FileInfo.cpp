@@ -66,6 +66,7 @@ namespace tl
                 sortDirectoriesFirst == other.sortDirectoriesFirst &&
                 dotAndDotDotDirs == other.dotAndDotDotDirs &&
                 dotFiles == other.dotFiles &&
+                extensions == other.extensions &&
                 sequence == other.sequence &&
                 sequenceExtensions == other.sequenceExtensions &&
                 negativeNumbers == other.negativeNumbers &&
@@ -80,6 +81,7 @@ namespace tl
         bool listFilter(const std::string& fileName, const ListOptions& options)
         {
             bool out = false;
+
             if (!options.dotAndDotDotDirs &&
                 1 == fileName.size() &&
                 '.' == fileName[0])
@@ -99,6 +101,23 @@ namespace tl
             {
                 out = true;
             }
+
+            if (!out && !options.extensions.empty())
+            {
+                const size_t fileNameSize = fileName.size();
+                bool match = false;
+                for (const auto& extension : options.extensions)
+                {
+                    const size_t size = extension.size();
+                    if (size < fileNameSize &&
+                        fileName.substr(fileNameSize - size, size) == extension)
+                    {
+                        match = true;
+                    }
+                }
+                out = !match;
+            }
+
             return out;
         }
         
