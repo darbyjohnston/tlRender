@@ -22,6 +22,7 @@ namespace tl
             IWidget::_init(context, "PlaybackBar", parent);
 
             _layout = feather_tk::HorizontalLayout::create(context, shared_from_this());
+            _layout->setMarginRole(feather_tk::SizeRole::MarginInside);
 
             auto hLayout = feather_tk::HorizontalLayout::create(context, _layout);
             hLayout->setSpacingRole(feather_tk::SizeRole::SpacingTool);
@@ -45,6 +46,11 @@ namespace tl
             _durationLabel = timelineui::TimeLabel::create(context, app->getTimeUnitsModel(), _layout);
             _durationLabel->setTooltip("The timeline duration.");
 
+            _timeUnitsComboBox = feather_tk::ComboBox::create(
+                context,
+                timeline::getTimeUnitsLabels(),
+                _layout);
+
             _currentTimeEdit->setCallback(
                 [this](const OTIO_NS::RationalTime& value)
                 {
@@ -52,6 +58,17 @@ namespace tl
                     {
                         _player->stop();
                         _player->seek(value);
+                    }
+                });
+
+            std::weak_ptr<App> appWeak(app);
+            _timeUnitsComboBox->setIndexCallback(
+                [appWeak](int value)
+                {
+                    if (auto app = appWeak.lock())
+                    {
+                        app->getTimeUnitsModel()->setTimeUnits(
+                            static_cast<timeline::TimeUnits>(value));
                     }
                 });
 
@@ -83,11 +100,17 @@ namespace tl
                     _currentTimeEdit->setEnabled(value.get());
                     _durationLabel->setEnabled(value.get());
                 });
+
+            _timeUnitsObserver = feather_tk::ValueObserver<timeline::TimeUnits>::create(
+                app->getTimeUnitsModel()->observeTimeUnits(),
+                [this](timeline::TimeUnits value)
+                {
+                    _timeUnitsComboBox->setCurrentIndex(static_cast<int>(value));
+                });
         }
 
         PlaybackBar::~PlaybackBar()
-        {
-        }
+        {}
 
         std::shared_ptr<PlaybackBar> PlaybackBar::create(
             const std::shared_ptr<feather_tk::Context>& context,

@@ -8,8 +8,10 @@
 #include <tlTimelineUI/TimeLabel.h>
 
 #include <tlTimeline/Player.h>
+#include <tlTimeline/TimeUnits.h>
 
 #include <feather-tk/ui/Action.h>
+#include <feather-tk/ui/ComboBox.h>
 #include <feather-tk/ui/RowLayout.h>
 
 namespace tl
@@ -49,8 +51,10 @@ namespace tl
             std::shared_ptr<feather_tk::HorizontalLayout> _layout;
             std::shared_ptr<timelineui::TimeEdit> _currentTimeEdit;
             std::shared_ptr<timelineui::TimeLabel> _durationLabel;
+            std::shared_ptr<feather_tk::ComboBox> _timeUnitsComboBox;
             std::shared_ptr<feather_tk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
             std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > _currentTimeObserver;
+            std::shared_ptr<feather_tk::ValueObserver<timeline::TimeUnits> > _timeUnitsObserver;
         };
     }
 }
