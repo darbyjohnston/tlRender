@@ -116,9 +116,6 @@ namespace tl
                 const std::shared_ptr<feather_tk::FontSystem>&,
                 double& seconds,
                 int& tick);
-            void _drawTimeTicks(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
             void _drawFrameMarkers(
                 const feather_tk::Box2I&,
                 const feather_tk::DrawEvent&);
@@ -126,6 +123,9 @@ namespace tl
                 const feather_tk::Box2I&,
                 const feather_tk::DrawEvent&);
             void _drawCacheInfo(
+                const feather_tk::Box2I&,
+                const feather_tk::DrawEvent&);
+            void _drawTimeTicks(
                 const feather_tk::Box2I&,
                 const feather_tk::DrawEvent&);
             void _drawCurrentTime(

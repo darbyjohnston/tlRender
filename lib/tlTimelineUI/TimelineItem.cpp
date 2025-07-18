@@ -484,10 +484,10 @@ namespace tl
                 event.style->getColorRole(feather_tk::ColorRole::Border));
 
             _drawInOutPoints(drawRect, event);
-            _drawTimeTicks(drawRect, event);
             _drawFrameMarkers(drawRect, event);
             _drawTimeLabels(drawRect, event);
             _drawCacheInfo(drawRect, event);
+            _drawTimeTicks(drawRect, event);
             _drawCurrentTime(drawRect, event);
 
             if (p.mouse.currentDropTarget >= 0 &&
@@ -807,102 +807,6 @@ namespace tl
             }
         }
 
-        void TimelineItem::_drawTimeTicks(
-            const feather_tk::Box2I& drawRect,
-            const feather_tk::DrawEvent& event)
-        {
-            FEATHER_TK_P();
-            if (_timeRange != time::invalidTimeRange)
-            {
-                const feather_tk::Box2I& g = getGeometry();
-                const int w = getSizeHint().w;
-                const float duration = _timeRange.duration().rescaled_to(1.0).value();
-                const int frameTick = 1.0 / _timeRange.duration().value() * w;
-                if (duration > 0.0 && frameTick >= p.size.handle)
-                {
-                    feather_tk::TriMesh2F mesh;
-                    size_t i = 1;
-                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
-                    const double inc = 1.0 / _timeRange.duration().rate();
-                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
-                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
-                    for (double t = x0; t <= x1; t += inc)
-                    {
-                        const feather_tk::Box2I box(
-                            g.min.x +
-                            t / duration * w,
-                            p.size.scrollArea.min.y +
-                            g.min.y +
-                            p.size.margin +
-                            p.size.fontMetrics.lineHeight,
-                            p.size.border,
-                            p.size.margin +
-                            p.size.border * 4);
-                        if (feather_tk::intersects(box, drawRect))
-                        {
-                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.min.y));
-                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.min.y));
-                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.max.y + 1));
-                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.max.y + 1));
-                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                            i += 4;
-                        }
-                    }
-                    if (!mesh.v.empty())
-                    {
-                        event.render->drawMesh(
-                            mesh,
-                            event.style->getColorRole(feather_tk::ColorRole::Button));
-                    }
-                }
-
-                double seconds = 0;
-                int tick = 0;
-                _getTimeTicks(event.fontSystem, seconds, tick);
-                if (duration > 0.0 && seconds > 0.0 && tick > 0)
-                {
-                    feather_tk::TriMesh2F mesh;
-                    size_t i = 1;
-                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
-                    const double inc = seconds;
-                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
-                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
-                    for (double t = x0; t <= x1; t += inc)
-                    {
-                        const feather_tk::Box2I box(
-                            g.min.x +
-                            t / duration * w,
-                            p.size.scrollArea.min.y +
-                            g.min.y,
-                            p.size.border,
-                            p.size.margin +
-                            p.size.fontMetrics.lineHeight +
-                            p.size.margin +
-                            p.size.border * 4);
-                        if (feather_tk::intersects(box, drawRect))
-                        {
-                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.min.y));
-                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.min.y));
-                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.max.y + 1));
-                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.max.y + 1));
-                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
-                            i += 4;
-                        }
-                    }
-                    if (!mesh.v.empty())
-                    {
-                        event.render->drawMesh(
-                            mesh,
-                            event.style->getColorRole(feather_tk::ColorRole::Button));
-                    }
-                }
-            }
-        }
-
         void TimelineItem::_drawFrameMarkers(
             const feather_tk::Box2I& drawRect,
             const feather_tk::DrawEvent& event)
@@ -1062,6 +966,102 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         event.style->getColorRole(feather_tk::ColorRole::AudioClip));
+                }
+            }
+        }
+
+        void TimelineItem::_drawTimeTicks(
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
+        {
+            FEATHER_TK_P();
+            if (_timeRange != time::invalidTimeRange)
+            {
+                const feather_tk::Box2I& g = getGeometry();
+                const int w = getSizeHint().w;
+                const float duration = _timeRange.duration().rescaled_to(1.0).value();
+                const int frameTick = 1.0 / _timeRange.duration().value() * w;
+                if (duration > 0.0 && frameTick >= p.size.handle)
+                {
+                    feather_tk::TriMesh2F mesh;
+                    size_t i = 1;
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = 1.0 / _timeRange.duration().rate();
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
+                    {
+                        const feather_tk::Box2I box(
+                            g.min.x +
+                            t / duration * w,
+                            p.size.scrollArea.min.y +
+                            g.min.y +
+                            p.size.margin +
+                            p.size.fontMetrics.lineHeight,
+                            p.size.border,
+                            p.size.margin +
+                            p.size.border * 4);
+                        if (feather_tk::intersects(box, drawRect))
+                        {
+                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.min.y));
+                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.min.y));
+                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.max.y + 1));
+                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.max.y + 1));
+                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            i += 4;
+                        }
+                    }
+                    if (!mesh.v.empty())
+                    {
+                        event.render->drawMesh(
+                            mesh,
+                            event.style->getColorRole(feather_tk::ColorRole::TextDisabled));
+                    }
+                }
+
+                double seconds = 0;
+                int tick = 0;
+                _getTimeTicks(event.fontSystem, seconds, tick);
+                if (duration > 0.0 && seconds > 0.0 && tick > 0)
+                {
+                    feather_tk::TriMesh2F mesh;
+                    size_t i = 1;
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = seconds;
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
+                    {
+                        const feather_tk::Box2I box(
+                            g.min.x +
+                            t / duration * w,
+                            p.size.scrollArea.min.y +
+                            g.min.y,
+                            p.size.border,
+                            p.size.margin +
+                            p.size.fontMetrics.lineHeight +
+                            p.size.margin +
+                            p.size.border * 4);
+                        if (feather_tk::intersects(box, drawRect))
+                        {
+                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.min.y));
+                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.min.y));
+                            mesh.v.push_back(feather_tk::V2F(box.max.x + 1, box.max.y + 1));
+                            mesh.v.push_back(feather_tk::V2F(box.min.x, box.max.y + 1));
+                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
+                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            i += 4;
+                        }
+                    }
+                    if (!mesh.v.empty())
+                    {
+                        event.render->drawMesh(
+                            mesh,
+                            event.style->getColorRole(feather_tk::ColorRole::TextDisabled));
+                    }
                 }
             }
         }
