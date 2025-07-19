@@ -47,7 +47,7 @@ namespace tl
 
             _recentFilesModel = RecentFilesModel::create(context, _settingsModel->getSettings());
             auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
-            fileBrowserSystem->setExtensions(timeline::getExtensions(_context));
+            fileBrowserSystem->getModel()->setExtensions(timeline::getExtensions(_context));
             fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
 
             _filesModel = FilesModel::create(context, _settingsModel);
