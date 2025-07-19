@@ -22,8 +22,7 @@ namespace tl
     {
         struct Viewport::Private
         {
-            timeline::CompareOptions compareOptions;
-            std::function<void(timeline::CompareOptions)> compareCallback;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::CompareOptions> > compareOptions;
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
             std::vector<feather_tk::ImageOptions> imageOptions;
@@ -33,11 +32,11 @@ namespace tl
             std::shared_ptr<feather_tk::ObservableValue<feather_tk::ImageType> > colorBuffer;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
-            feather_tk::V2I viewPos;
-            double viewZoom = 1.0;
+            std::shared_ptr<feather_tk::ObservableValue<feather_tk::V2I> > viewPos;
+            std::shared_ptr<feather_tk::ObservableValue<double> > viewZoom;
+            std::shared_ptr<feather_tk::ObservableValue<std::pair<feather_tk::V2I, double> > > viewPosZoom;
             std::shared_ptr<feather_tk::ObservableValue<bool> > frameView;
-            std::function<void(bool)> frameViewCallback;
-            std::function<void(const feather_tk::V2I&, double)> viewPosAndZoomCallback;
+            std::shared_ptr<feather_tk::ObservableValue<bool> > framed;
             std::shared_ptr<feather_tk::ObservableValue<double> > fps;
             struct FpsData
             {
@@ -90,8 +89,15 @@ namespace tl
             _setMouseHoverEnabled(true);
             _setMousePressEnabled(true);
 
-            p.colorBuffer = feather_tk::ObservableValue<feather_tk::ImageType>::create(feather_tk::ImageType::RGBA_U8);
+            p.compareOptions = feather_tk::ObservableValue<timeline::CompareOptions>::create();
+            p.viewPos = feather_tk::ObservableValue<feather_tk::V2I>::create();
+            p.viewZoom = feather_tk::ObservableValue<double>::create(1.0);
+            p.viewPosZoom = feather_tk::ObservableValue<std::pair<feather_tk::V2I, double> >::create(
+                std::make_pair(feather_tk::V2I(), 1.0));
+            p.colorBuffer = feather_tk::ObservableValue<feather_tk::ImageType>::create(
+                feather_tk::ImageType::RGBA_U8);
             p.frameView = feather_tk::ObservableValue<bool>::create(true);
+            p.framed = feather_tk::ObservableValue<bool>::create(false);
             p.fps = feather_tk::ObservableValue<double>::create(0.0);
             p.droppedFrames = feather_tk::ObservableValue<size_t>::create(0);
         }
@@ -112,19 +118,24 @@ namespace tl
             return out;
         }
 
+        const timeline::CompareOptions& Viewport::getCompareOptions() const
+        {
+            return _p->compareOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<timeline::CompareOptions> > Viewport::observeCompareOptions() const
+        {
+            return _p->compareOptions;
+        }
+
         void Viewport::setCompareOptions(const timeline::CompareOptions& value)
         {
             FEATHER_TK_P();
-            if (value == p.compareOptions)
-                return;
-            p.compareOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
-        }
-
-        void Viewport::setCompareCallback(const std::function<void(timeline::CompareOptions)>& value)
-        {
-            _p->compareCallback = value;
+            if (p.compareOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
         }
 
         void Viewport::setOCIOOptions(const timeline::OCIOOptions& value)
@@ -285,36 +296,55 @@ namespace tl
 
         const feather_tk::V2I& Viewport::getViewPos() const
         {
+            return _p->viewPos->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<feather_tk::V2I> > Viewport::observeViewPos() const
+        {
             return _p->viewPos;
         }
 
         double Viewport::getViewZoom() const
         {
+            return _p->viewZoom->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<double> > Viewport::observeViewZoom() const
+        {
             return _p->viewZoom;
+        }
+
+        std::pair<feather_tk::V2I, double> Viewport::getViewPosAndZoom() const
+        {
+            return _p->viewPosZoom->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<std::pair<feather_tk::V2I, double> > > Viewport::observeViewPosAndZoom() const
+        {
+            return _p->viewPosZoom;
         }
 
         void Viewport::setViewPosAndZoom(const feather_tk::V2I& pos, double zoom)
         {
             FEATHER_TK_P();
-            if (pos == p.viewPos && zoom == p.viewZoom)
-                return;
-            p.viewPos = pos;
-            p.viewZoom = zoom;
-            p.doRender = true;
-            _setDrawUpdate();
-            if (p.viewPosAndZoomCallback)
+            if (p.viewPosZoom->setIfChanged(std::make_pair(pos, zoom)))
             {
-                p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
+                p.viewPos->setIfChanged(pos);
+                p.viewZoom->setIfChanged(zoom);
+                p.doRender = true;
+                _setDrawUpdate();
+                setFrameView(false);
             }
-            setFrameView(false);
         }
 
         void Viewport::setViewZoom(double zoom, const feather_tk::V2I& focus)
         {
             FEATHER_TK_P();
             feather_tk::V2I pos;
-            pos.x = focus.x + (p.viewPos.x - focus.x) * (zoom / p.viewZoom);
-            pos.y = focus.y + (p.viewPos.y - focus.y) * (zoom / p.viewZoom);
+            const feather_tk::V2I& viewPos = p.viewPos->get();
+            const double viewZoom = p.viewZoom->get();
+            pos.x = focus.x + (viewPos.x - focus.x) * (zoom / viewZoom);
+            pos.y = focus.y + (viewPos.y - focus.y) * (zoom / viewZoom);
             setViewPosAndZoom(pos, zoom);
         }
 
@@ -328,23 +358,20 @@ namespace tl
             return _p->frameView;
         }
 
+        std::shared_ptr<feather_tk::IObservableValue<bool> > Viewport::observeFramed() const
+        {
+            return _p->framed;
+        }
+
         void Viewport::setFrameView(bool value)
         {
             FEATHER_TK_P();
             if (p.frameView->setIfChanged(value))
             {
-                if (p.frameViewCallback)
-                {
-                    p.frameViewCallback(value);
-                }
+                p.framed->setAlways(true);
                 p.doRender = true;
                 _setDrawUpdate();
             }
-        }
-
-        void Viewport::setFrameViewCallback(const std::function<void(bool)>& value)
-        {
-            _p->frameViewCallback = value;
         }
 
         void Viewport::viewZoomReset()
@@ -356,19 +383,13 @@ namespace tl
         void Viewport::viewZoomIn()
         {
             FEATHER_TK_P();
-            setViewZoom(p.viewZoom * 2.0, _getViewportCenter());
+            setViewZoom(p.viewZoom->get() * 2.0, _getViewportCenter());
         }
 
         void Viewport::viewZoomOut()
         {
             FEATHER_TK_P();
-            setViewZoom(p.viewZoom / 2.0, _getViewportCenter());
-        }
-
-        void Viewport::setViewPosAndZoomCallback(
-            const std::function<void(const feather_tk::V2I&, double)>& value)
-        {
-            _p->viewPosAndZoomCallback = value;
+            setViewZoom(p.viewZoom->get() / 2.0, _getViewportCenter());
         }
 
         double Viewport::getFPS() const
@@ -510,10 +531,13 @@ namespace tl
                         static_cast<float>(g.h()),
                         -1.F,
                         1.F);
-                    const auto boxes = timeline::getBoxes(p.compareOptions.compare, p.videoData);
+                    const timeline::CompareOptions& compareOptions = p.compareOptions->get();
+                    const auto boxes = timeline::getBoxes(compareOptions.compare, p.videoData);
                     feather_tk::M44F vm;
-                    vm = vm * feather_tk::translate(feather_tk::V3F(p.viewPos.x, p.viewPos.y, 0.F));
-                    vm = vm * feather_tk::scale(feather_tk::V3F(p.viewZoom, p.viewZoom, 1.F));
+                    const feather_tk::V2I& viewPos = p.viewPos->get();
+                    const double viewZoom = p.viewZoom->get();
+                    vm = vm * feather_tk::translate(feather_tk::V3F(viewPos.x, viewPos.y, 0.F));
+                    vm = vm * feather_tk::scale(feather_tk::V3F(viewZoom, viewZoom, 1.F));
 
                     // Setup the state.
                     const feather_tk::ViewportState viewportState(render);
@@ -538,7 +562,7 @@ namespace tl
                             boxes,
                             p.imageOptions,
                             p.displayOptions,
-                            p.compareOptions,
+                            compareOptions,
                             p.colorBuffer->get());
 
                         if (!p.videoData.empty() && p.fpsData.has_value())
@@ -606,15 +630,18 @@ namespace tl
             case Private::MouseMode::View:
             {
                 const feather_tk::V2I& mousePressPos = _getMousePressPos();
-                p.viewPos.x = p.mouse.viewPos.x + (event.pos.x - mousePressPos.x);
-                p.viewPos.y = p.mouse.viewPos.y + (event.pos.y - mousePressPos.y);
-                p.doRender = true;
-                _setDrawUpdate();
-                if (p.viewPosAndZoomCallback)
+                const feather_tk::V2I viewPos(
+                    p.mouse.viewPos.x + (event.pos.x - mousePressPos.x),
+                    p.mouse.viewPos.y + (event.pos.y - mousePressPos.y));
+                const double viewZoom = p.viewZoom->get();
+                if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
                 {
-                    p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
+                    p.viewPos->setIfChanged(viewPos);
+                    p.viewZoom->setIfChanged(viewZoom);
+                    p.doRender = true;
+                    _setDrawUpdate();
+                    setFrameView(false);
                 }
-                setFrameView(false);
                 break;
             }
             case Private::MouseMode::Wipe:
@@ -625,16 +652,18 @@ namespace tl
                     if (!ioInfo.video.empty())
                     {
                         const feather_tk::Box2I& g = getGeometry();
+                        const feather_tk::V2I& viewPos = p.viewPos->get();
+                        const double viewZoom = p.viewZoom->get();
                         const auto& imageInfo = ioInfo.video[0];
-                        p.compareOptions.wipeCenter.x = (event.pos.x - g.min.x - p.viewPos.x) / p.viewZoom /
+                        timeline::CompareOptions compareOptions = p.compareOptions->get();
+                        compareOptions.wipeCenter.x = (event.pos.x - g.min.x - viewPos.x) / viewZoom /
                             static_cast<float>(imageInfo.size.w * imageInfo.pixelAspectRatio);
-                        p.compareOptions.wipeCenter.y = (event.pos.y - g.min.y - p.viewPos.y) / p.viewZoom /
+                        compareOptions.wipeCenter.y = (event.pos.y - g.min.y - viewPos.y) / viewZoom /
                             static_cast<float>(imageInfo.size.h);
-                        p.doRender = true;
-                        _setDrawUpdate();
-                        if (p.compareCallback)
+                        if (p.compareOptions->setIfChanged(compareOptions))
                         {
-                            p.compareCallback(p.compareOptions);
+                            p.doRender = true;
+                            _setDrawUpdate();
                         }
                     }
                 }
@@ -653,7 +682,7 @@ namespace tl
                 feather_tk::checkKeyModifier(p.panModifier, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::View;
-                p.mouse.viewPos = p.viewPos;
+                p.mouse.viewPos = p.viewPos->get();
             }
             else if (0 == event.button &&
                 feather_tk::checkKeyModifier(p.wipeModifier, event.modifiers))
@@ -675,12 +704,13 @@ namespace tl
             if (static_cast<int>(feather_tk::KeyModifier::None) == event.modifiers)
             {
                 event.accept = true;
+                const double viewZoom = p.viewZoom->get();
                 const double mult = 1.1;
-                const double zoom =
+                const double newZoom =
                     event.value.y < 0 ?
-                    p.viewZoom / (-event.value.y * mult) :
-                    p.viewZoom * (event.value.y * mult);
-                setViewZoom(zoom, event.pos - getGeometry().min);
+                    viewZoom / (-event.value.y * mult) :
+                    viewZoom * (event.value.y * mult);
+                setViewZoom(newZoom, event.pos - getGeometry().min);
             }
             else if (event.modifiers & static_cast<int>(feather_tk::KeyModifier::Control))
             {
@@ -707,11 +737,11 @@ namespace tl
                     break;
                 case feather_tk::Key::Equal:
                     event.accept = true;
-                    setViewZoom(p.viewZoom * 2.0, event.pos - g.min);
+                    setViewZoom(p.viewZoom->get() * 2.0, event.pos - g.min);
                     break;
                 case feather_tk::Key::Minus:
                     event.accept = true;
-                    setViewZoom(p.viewZoom / 2.0, event.pos - g.min);
+                    setViewZoom(p.viewZoom->get() / 2.0, event.pos - g.min);
                     break;
                 case feather_tk::Key::Backspace:
                     event.accept = true;
@@ -737,7 +767,7 @@ namespace tl
         feather_tk::Size2I Viewport::_getRenderSize() const
         {
             FEATHER_TK_P();
-            return timeline::getRenderSize(p.compareOptions.compare, p.videoData);
+            return timeline::getRenderSize(p.compareOptions->get().compare, p.videoData);
         }
 
         feather_tk::V2I Viewport::_getViewportCenter() const
@@ -752,23 +782,19 @@ namespace tl
             const feather_tk::Box2I& g = getGeometry();
             const feather_tk::Size2I viewportSize = g.size();
             const feather_tk::Size2I renderSize = _getRenderSize();
-            double zoom = viewportSize.w / static_cast<double>(renderSize.w);
-            if (zoom * renderSize.h > viewportSize.h)
+            double viewZoom = viewportSize.w / static_cast<double>(renderSize.w);
+            if (viewZoom * renderSize.h > viewportSize.h)
             {
-                zoom = viewportSize.h / static_cast<double>(renderSize.h);
+                viewZoom = viewportSize.h / static_cast<double>(renderSize.h);
             }
             const feather_tk::V2I c(renderSize.w / 2, renderSize.h / 2);
             const feather_tk::V2I viewPos(
-                viewportSize.w / 2.F - c.x * zoom,
-                viewportSize.h / 2.F - c.y * zoom);
-            if (viewPos != p.viewPos || zoom != p.viewZoom)
+                viewportSize.w / 2.F - c.x * viewZoom,
+                viewportSize.h / 2.F - c.y * viewZoom);
+            if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
             {
-                p.viewPos = viewPos;
-                p.viewZoom = zoom;
-                if (p.viewPosAndZoomCallback)
-                {
-                    p.viewPosAndZoomCallback(p.viewPos, p.viewZoom);
-                }
+                p.viewPos->setIfChanged(viewPos);
+                p.viewZoom->setIfChanged(viewZoom);
             }
         }
 

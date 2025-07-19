@@ -36,11 +36,14 @@ namespace tl
                 const std::shared_ptr<feather_tk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
+            //! Get the comparison options.
+            const timeline::CompareOptions& getCompareOptions() const;
+
+            //! Observe the comparison options.
+            std::shared_ptr<feather_tk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
+
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
-
-            //! Set the comparison callback.
-            void setCompareCallback(const std::function<void(timeline::CompareOptions)>&);
 
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
@@ -78,8 +81,20 @@ namespace tl
             //! Get the view position.
             const feather_tk::V2I& getViewPos() const;
 
+            //! Observe the view position.
+            std::shared_ptr<feather_tk::IObservableValue<feather_tk::V2I> > observeViewPos() const;
+
             //! Get the view zoom.
             double getViewZoom() const;
+
+            //! Observe the view zoom.
+            std::shared_ptr<feather_tk::IObservableValue<double> > observeViewZoom() const;
+
+            //! Get the view position and zoom.
+            std::pair<feather_tk::V2I, double> getViewPosAndZoom() const;
+
+            //! Observe the view position and zoom.
+            std::shared_ptr<feather_tk::IObservableValue<std::pair<feather_tk::V2I, double> > > observeViewPosAndZoom() const;
 
             //! Set the view position and zoom.
             void setViewPosAndZoom(const feather_tk::V2I&, double);
@@ -93,11 +108,11 @@ namespace tl
             //! Observe whether the view is framed automatically.
             std::shared_ptr<feather_tk::IObservableValue<bool> > observeFrameView() const;
 
+            //! Observe when the view is framed.
+            std::shared_ptr<feather_tk::IObservableValue<bool> > observeFramed() const;
+
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
-
-            //! Set the view framed callback.
-            void setFrameViewCallback(const std::function<void(bool)>&);
 
             //! Reset the view zoom to 1:1.
             void viewZoomReset();
@@ -107,10 +122,6 @@ namespace tl
 
             //! Zoom the view out.
             void viewZoomOut();
-
-            //! Set the view position and zoom callback.
-            void setViewPosAndZoomCallback(
-                const std::function<void(const feather_tk::V2I&, double)>&);
 
             //! Get the frames per second.
             double getFPS() const;
