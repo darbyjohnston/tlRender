@@ -45,20 +45,56 @@ namespace tl
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
 
+            //! Get the OpenColorIO options.
+            const timeline::OCIOOptions& getOCIOOptions() const;
+
+            //! Observe the OpenColorIO options.
+            std::shared_ptr<feather_tk::IObservableValue<timeline::OCIOOptions> > observeOCIOOptions() const;
+
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
+
+            //! Get the LUT options.
+            const timeline::LUTOptions& getLUTOptions() const;
+
+            //! Observe the LUT options.
+            std::shared_ptr<feather_tk::IObservableValue<timeline::LUTOptions> > observeLUTOptions() const;
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);
 
+            //! Get the image options.
+            const std::vector<feather_tk::ImageOptions>& getImageOptions() const;
+
+            //! Observe the image options.
+            std::shared_ptr<feather_tk::IObservableList<feather_tk::ImageOptions> > observeImageOptions() const;
+
             //! Set the image options.
             void setImageOptions(const std::vector<feather_tk::ImageOptions>&);
+
+            //! Get the display options.
+            const std::vector<timeline::DisplayOptions>& getDisplayOptions() const;
+
+            //! Observe the display options.
+            std::shared_ptr<feather_tk::IObservableList<timeline::DisplayOptions> > observeDisplayOptions() const;
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
 
+            //! Get the background options.
+            const timeline::BackgroundOptions& getBackgroundOptions() const;
+
+            //! Observe the background options.
+            std::shared_ptr<feather_tk::IObservableValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
+
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
+
+            //! Get the foreground options.
+            const timeline::ForegroundOptions& getForegroundOptions() const;
+
+            //! Observe the foreground options.
+            std::shared_ptr<feather_tk::IObservableValue<timeline::ForegroundOptions> > observeForegroundOptions() const;
 
             //! Set the foreground options.
             void setForegroundOptions(const timeline::ForegroundOptions&);

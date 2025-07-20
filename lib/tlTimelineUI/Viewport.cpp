@@ -23,12 +23,12 @@ namespace tl
         struct Viewport::Private
         {
             std::shared_ptr<feather_tk::ObservableValue<timeline::CompareOptions> > compareOptions;
-            timeline::OCIOOptions ocioOptions;
-            timeline::LUTOptions lutOptions;
-            std::vector<feather_tk::ImageOptions> imageOptions;
-            std::vector<timeline::DisplayOptions> displayOptions;
-            timeline::BackgroundOptions bgOptions;
-            timeline::ForegroundOptions fgOptions;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::OCIOOptions> > ocioOptions;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::LUTOptions> > lutOptions;
+            std::shared_ptr<feather_tk::ObservableList<feather_tk::ImageOptions> > imageOptions;
+            std::shared_ptr<feather_tk::ObservableList<timeline::DisplayOptions> > displayOptions;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::BackgroundOptions> > bgOptions;
+            std::shared_ptr<feather_tk::ObservableValue<timeline::ForegroundOptions> > fgOptions;
             std::shared_ptr<feather_tk::ObservableValue<feather_tk::ImageType> > colorBuffer;
             std::shared_ptr<timeline::Player> player;
             std::vector<timeline::VideoData> videoData;
@@ -90,12 +90,19 @@ namespace tl
             _setMousePressEnabled(true);
 
             p.compareOptions = feather_tk::ObservableValue<timeline::CompareOptions>::create();
+            p.ocioOptions = feather_tk::ObservableValue<timeline::OCIOOptions>::create();
+            p.lutOptions = feather_tk::ObservableValue<timeline::LUTOptions>::create();
+            p.imageOptions = feather_tk::ObservableList<feather_tk::ImageOptions>::create();
+            p.displayOptions = feather_tk::ObservableList<timeline::DisplayOptions>::create();
+            p.bgOptions = feather_tk::ObservableValue<timeline::BackgroundOptions>::create();
+            p.fgOptions = feather_tk::ObservableValue<timeline::ForegroundOptions>::create();
+            p.compareOptions = feather_tk::ObservableValue<timeline::CompareOptions>::create();
+            p.colorBuffer = feather_tk::ObservableValue<feather_tk::ImageType>::create(
+                feather_tk::ImageType::RGBA_U8);
             p.viewPos = feather_tk::ObservableValue<feather_tk::V2I>::create();
             p.viewZoom = feather_tk::ObservableValue<double>::create(1.0);
             p.viewPosZoom = feather_tk::ObservableValue<std::pair<feather_tk::V2I, double> >::create(
                 std::make_pair(feather_tk::V2I(), 1.0));
-            p.colorBuffer = feather_tk::ObservableValue<feather_tk::ImageType>::create(
-                feather_tk::ImageType::RGBA_U8);
             p.frameView = feather_tk::ObservableValue<bool>::create(true);
             p.framed = feather_tk::ObservableValue<bool>::create(false);
             p.fps = feather_tk::ObservableValue<double>::create(0.0);
@@ -138,64 +145,124 @@ namespace tl
             }
         }
 
+        const timeline::OCIOOptions& Viewport::getOCIOOptions() const
+        {
+            return _p->ocioOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<timeline::OCIOOptions> > Viewport::observeOCIOOptions() const
+        {
+            return _p->ocioOptions;
+        }
+
         void Viewport::setOCIOOptions(const timeline::OCIOOptions& value)
         {
             FEATHER_TK_P();
-            if (value == p.ocioOptions)
-                return;
-            p.ocioOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.ocioOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
+        }
+
+        const timeline::LUTOptions& Viewport::getLUTOptions() const
+        {
+            return _p->lutOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<timeline::LUTOptions> > Viewport::observeLUTOptions() const
+        {
+            return _p->lutOptions;
         }
 
         void Viewport::setLUTOptions(const timeline::LUTOptions& value)
         {
             FEATHER_TK_P();
-            if (value == p.lutOptions)
-                return;
-            p.lutOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.lutOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
+        }
+
+        const std::vector<feather_tk::ImageOptions>& Viewport::getImageOptions() const
+        {
+            return _p->imageOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableList<feather_tk::ImageOptions> > Viewport::observeImageOptions() const
+        {
+            return _p->imageOptions;
         }
 
         void Viewport::setImageOptions(const std::vector<feather_tk::ImageOptions>& value)
         {
             FEATHER_TK_P();
-            if (value == p.imageOptions)
-                return;
-            p.imageOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.imageOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
+        }
+
+        const std::vector<timeline::DisplayOptions>& Viewport::getDisplayOptions() const
+        {
+            return _p->displayOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableList<timeline::DisplayOptions> > Viewport::observeDisplayOptions() const
+        {
+            return _p->displayOptions;
         }
 
         void Viewport::setDisplayOptions(const std::vector<timeline::DisplayOptions>& value)
         {
             FEATHER_TK_P();
-            if (value == p.displayOptions)
-                return;
-            p.displayOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.displayOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
+        }
+
+        const timeline::BackgroundOptions& Viewport::getBackgroundOptions() const
+        {
+            return _p->bgOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<timeline::BackgroundOptions> > Viewport::observeBackgroundOptions() const
+        {
+            return _p->bgOptions;
         }
 
         void Viewport::setBackgroundOptions(const timeline::BackgroundOptions& value)
         {
             FEATHER_TK_P();
-            if (value == p.bgOptions)
-                return;
-            p.bgOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.bgOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
+        }
+
+        const timeline::ForegroundOptions& Viewport::getForegroundOptions() const
+        {
+            return _p->fgOptions->get();
+        }
+
+        std::shared_ptr<feather_tk::IObservableValue<timeline::ForegroundOptions> > Viewport::observeForegroundOptions() const
+        {
+            return _p->fgOptions;
         }
 
         void Viewport::setForegroundOptions(const timeline::ForegroundOptions& value)
         {
             FEATHER_TK_P();
-            if (value == p.fgOptions)
-                return;
-            p.fgOptions = value;
-            p.doRender = true;
-            _setDrawUpdate();
+            if (p.fgOptions->setIfChanged(value))
+            {
+                p.doRender = true;
+                _setDrawUpdate();
+            }
         }
 
         feather_tk::ImageType Viewport::getColorBuffer() const
@@ -508,9 +575,9 @@ namespace tl
                     offscreenBufferOptions.colorFilters.minify = feather_tk::ImageFilter::Linear;
                     offscreenBufferOptions.colorFilters.magnify = feather_tk::ImageFilter::Linear;
                     offscreenBufferOptions.color = p.colorBuffer->get();
-                    if (!p.displayOptions.empty())
+                    if (!p.displayOptions->isEmpty())
                     {
-                        offscreenBufferOptions.colorFilters = p.displayOptions[0].imageFilters;
+                        offscreenBufferOptions.colorFilters = p.displayOptions->getItem(0).imageFilters;
                     }
 #if defined(FEATHER_TK_API_GL_4_1)
                     offscreenBufferOptions.depth = feather_tk::gl::OffscreenDepth::_24;
@@ -554,14 +621,14 @@ namespace tl
                     {
                         feather_tk::gl::OffscreenBufferBinding binding(p.buffer);
                         render->clearViewport(feather_tk::Color4F(0.F, 0.F, 0.F, 0.F));
-                        render->setOCIOOptions(p.ocioOptions);
-                        render->setLUTOptions(p.lutOptions);
+                        render->setOCIOOptions(p.ocioOptions->get());
+                        render->setLUTOptions(p.lutOptions->get());
                         render->setTransform(pm * vm);
                         render->drawVideo(
                             p.videoData,
                             boxes,
-                            p.imageOptions,
-                            p.displayOptions,
+                            p.imageOptions->get(),
+                            p.displayOptions->get(),
                             compareOptions,
                             p.colorBuffer->get());
 
@@ -577,7 +644,7 @@ namespace tl
                         feather_tk::gl::OffscreenBufferBinding binding(p.bgBuffer);
                         render->clearViewport(feather_tk::Color4F(0.F, 0.F, 0.F, 0.F));
                         render->setTransform(pm);
-                        render->drawBackground(boxes, vm, p.bgOptions);
+                        render->drawBackground(boxes, vm, p.bgOptions->get());
                     }
 
                     // Draw the foreground buffer.
@@ -586,7 +653,7 @@ namespace tl
                         feather_tk::gl::OffscreenBufferBinding binding(p.fgBuffer);
                         render->clearViewport(feather_tk::Color4F(0.F, 0.F, 0.F, 0.F));
                         render->setTransform(pm);
-                        render->drawForeground(boxes, vm, p.fgOptions);
+                        render->drawForeground(boxes, vm, p.fgOptions->get());
                     }
                 }
                 catch (const std::exception& e)
@@ -605,9 +672,9 @@ namespace tl
             if (p.buffer)
             {
                 feather_tk::AlphaBlend alphaBlend = feather_tk::AlphaBlend::Straight;
-                if (!p.imageOptions.empty())
+                if (!p.imageOptions->isEmpty())
                 {
-                    alphaBlend = p.imageOptions.front().alphaBlend;
+                    alphaBlend = p.imageOptions->getItem(0).alphaBlend;
                 }
                 render->drawTexture(
                     p.buffer->getColorID(),
