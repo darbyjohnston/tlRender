@@ -846,18 +846,23 @@ namespace tl
         void Viewport::_frameView()
         {
             FEATHER_TK_P();
+            feather_tk::V2I viewPos;
+            double viewZoom = 1.0;
             const feather_tk::Box2I& g = getGeometry();
             const feather_tk::Size2I viewportSize = g.size();
             const feather_tk::Size2I renderSize = _getRenderSize();
-            double viewZoom = viewportSize.w / static_cast<double>(renderSize.w);
-            if (viewZoom * renderSize.h > viewportSize.h)
+            if (renderSize.h > 0 && renderSize.h > 0)
             {
-                viewZoom = viewportSize.h / static_cast<double>(renderSize.h);
+                viewZoom = viewportSize.w / static_cast<double>(renderSize.w);
+                if (viewZoom * renderSize.h > viewportSize.h)
+                {
+                    viewZoom = viewportSize.h / static_cast<double>(renderSize.h);
+                }
+                const feather_tk::V2I c(renderSize.w / 2, renderSize.h / 2);
+                viewPos = feather_tk::V2I(
+                    viewportSize.w / 2.F - c.x * viewZoom,
+                    viewportSize.h / 2.F - c.y * viewZoom);
             }
-            const feather_tk::V2I c(renderSize.w / 2, renderSize.h / 2);
-            const feather_tk::V2I viewPos(
-                viewportSize.w / 2.F - c.x * viewZoom,
-                viewportSize.h / 2.F - c.y * viewZoom);
             if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
             {
                 p.viewPos->setIfChanged(viewPos);
