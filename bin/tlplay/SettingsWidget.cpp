@@ -21,17 +21,17 @@ namespace tl
             IWidget::_init(context, "CacheSettingsWidget", parent);
 
             _videoEdit = feather_tk::DoubleEdit::create(context);
-            _videoEdit->setRange(feather_tk::RangeD(0.0, 128.0));
+            _videoEdit->setRange(0.0, 128.0);
             _videoEdit->setStep(1.0);
             _videoEdit->setLargeStep(10.0);
 
             _audioEdit = feather_tk::DoubleEdit::create(context);
-            _audioEdit->setRange(feather_tk::RangeD(0.0, 128.0));
+            _audioEdit->setRange(0.0, 128.0);
             _audioEdit->setStep(1.0);
             _audioEdit->setLargeStep(10.0);
 
             _readBehindEdit = feather_tk::DoubleEdit::create(context);
-            _readBehindEdit->setRange(feather_tk::RangeD(0.0, 2.0));
+            _readBehindEdit->setRange(0.0, 2.0);
 
             _layout = feather_tk::FormLayout::create(context, shared_from_this());
             _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
