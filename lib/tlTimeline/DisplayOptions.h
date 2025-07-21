@@ -16,13 +16,13 @@ namespace tl
         struct Color
         {
         public:
-            bool     enabled    = false;
+            bool            enabled    = false;
             feather_tk::V3F add        = feather_tk::V3F(0.F, 0.F, 0.F);
             feather_tk::V3F brightness = feather_tk::V3F(1.F, 1.F, 1.F);
             feather_tk::V3F contrast   = feather_tk::V3F(1.F, 1.F, 1.F);
             feather_tk::V3F saturation = feather_tk::V3F(1.F, 1.F, 1.F);
-            float    tint       = 0.F;
-            bool     invert     = false;
+            float           tint       = 0.F;
+            bool            invert     = false;
 
             bool operator == (const Color&) const;
             bool operator != (const Color&) const;
@@ -86,10 +86,10 @@ namespace tl
         {
             feather_tk::ChannelDisplay channels     = feather_tk::ChannelDisplay::Color;
             feather_tk::ImageMirror    mirror;
-            Color               color;
-            Levels              levels;
-            EXRDisplay          exrDisplay;
-            SoftClip            softClip;
+            Color                      color;
+            Levels                     levels;
+            EXRDisplay                 exrDisplay;
+            SoftClip                   softClip;
             feather_tk::ImageFilters   imageFilters;
             feather_tk::VideoLevels    videoLevels  = feather_tk::VideoLevels::FullRange;
 

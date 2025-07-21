@@ -15,9 +15,9 @@ namespace tl
         //! Grid.
         struct Grid
         {
-            bool         enabled   = false;
-            int          size      = 100;
-            int          lineWidth = 2;
+            bool                enabled   = false;
+            int                 size      = 100;
+            int                 lineWidth = 2;
             feather_tk::Color4F color     = feather_tk::Color4F(0.F, 0.F, 0.F);
 
             bool operator == (const Grid&) const;
