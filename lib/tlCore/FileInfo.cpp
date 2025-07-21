@@ -110,7 +110,10 @@ namespace tl
                 {
                     const size_t size = extension.size();
                     if (size < fileNameSize &&
-                        fileName.substr(fileNameSize - size, size) == extension)
+                        feather_tk::compare(
+                            fileName.substr(fileNameSize - size, size),
+                            extension,
+                            feather_tk::CaseCompare::Insensitive))
                     {
                         match = true;
                     }
@@ -142,11 +145,17 @@ namespace tl
                 bool sequenceExtension = true;
                 if (!options.sequenceExtensions.empty())
                 {
-                    sequenceExtension = std::find(
+                    const std::string extension = p.getExtension();
+                    sequenceExtension = std::find_if(
                         options.sequenceExtensions.begin(),
                         options.sequenceExtensions.end(),
-                        feather_tk::toLower(p.getExtension())) !=
-                        options.sequenceExtensions.end();
+                        [extension](const std::string& value)
+                        {
+                            return feather_tk::compare(
+                                value,
+                                extension,
+                                feather_tk::CaseCompare::Insensitive);
+                        }) != options.sequenceExtensions.end();
                 }
                 if (sequenceExtension)
                 {
