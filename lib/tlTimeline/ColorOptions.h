@@ -61,11 +61,11 @@ namespace tl
         //! \name Serialize
         ///@{
 
-        void to_json(nlohmann::json&, const LUTOptions&);
         void to_json(nlohmann::json&, const OCIOOptions&);
+        void to_json(nlohmann::json&, const LUTOptions&);
 
-        void from_json(const nlohmann::json&, LUTOptions&);
         void from_json(const nlohmann::json&, OCIOOptions&);
+        void from_json(const nlohmann::json&, LUTOptions&);
 
         ///@}
     }
