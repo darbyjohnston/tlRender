@@ -141,9 +141,9 @@ namespace tl
             feather_tk::FileIO::create(file::Path(tmp, "render.1.tif").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "render.2.tif").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "render.3.tif").get(), feather_tk::FileMode::Write);
-            feather_tk::FileIO::create(file::Path(tmp, "render.0001.tif").get(), feather_tk::FileMode::Write);
-            feather_tk::FileIO::create(file::Path(tmp, "render.0002.tif").get(), feather_tk::FileMode::Write);
-            feather_tk::FileIO::create(file::Path(tmp, "render.0003.tif").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0001.TIF").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0002.TIF").get(), feather_tk::FileMode::Write);
+            feather_tk::FileIO::create(file::Path(tmp, "render.0003.TIF").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "movie.1.mov").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "movie.2.mov").get(), feather_tk::FileMode::Write);
             feather_tk::FileIO::create(file::Path(tmp, "audio.mp3").get(), feather_tk::FileMode::Write);
@@ -154,11 +154,13 @@ namespace tl
                 ListOptions options;
                 options.sequence = true;
                 options.sequenceExtensions = { ".exr", ".tif" };
+                _print("List: " + tmp);
                 file::list(tmp, list, options);
                 FEATHER_TK_ASSERT(8 == list.size());
                 for (size_t i = 0; i < list.size(); ++i)
                 {
                     const auto& path = list[i].getPath();
+                    _print("    Item: " + path.get());
                     if ("render." == path.getBaseName())
                     {
                         FEATHER_TK_ASSERT(path.isSequence());
