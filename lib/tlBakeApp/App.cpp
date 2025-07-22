@@ -52,7 +52,7 @@ namespace tl
                 "Output pixel type.",
                 "Render",
                 std::optional<feather_tk::ImageType>(),
-                feather_tk::join(feather_tk::getImageTypeLabels(), ", "));
+                feather_tk::quotes(feather_tk::getImageTypeLabels()));
             _cmdLine.ocioFileName = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocio" },
                 "OCIO configuration file name (e.g., config.ocio).",
@@ -82,7 +82,7 @@ namespace tl
                 "LUT operation order.",
                 "Color",
                 std::optional<timeline::LUTOrder>(),
-                feather_tk::join(timeline::getLUTOrderLabels(), ", "));
+                feather_tk::quotes(timeline::getLUTOrderLabels()));
             _cmdLine.sequenceDefaultSpeed = feather_tk::CmdLineValueOption<double>::create(
                 { "-sequenceDefaultSpeed" },
                 "Default speed for image sequences.",
@@ -99,7 +99,7 @@ namespace tl
                 "Output compression.",
                 "OpenEXR",
                 exr::Compression::ZIP,
-                feather_tk::join(exr::getCompressionLabels(), ", "));
+                feather_tk::quotes(exr::getCompressionLabels()));
             _cmdLine.exrDWACompressionLevel = feather_tk::CmdLineValueOption<float>::create(
                 { "-exrDWACompressionLevel" },
                 "DWA compression level.",
@@ -112,7 +112,7 @@ namespace tl
                 "Output codec.",
                 "FFmpeg",
                 std::optional<std::string>(),
-                feather_tk::join(ffmpegCodecs, ", "));
+                feather_tk::quotes(ffmpegCodecs));
             _cmdLine.ffmpegThreadCount = feather_tk::CmdLineValueOption<int>::create(
                 { "-ffmpegThreadCount" },
                 "Number of threads for I/O.",
@@ -135,7 +135,7 @@ namespace tl
                 "Draw mode.",
                 "USD",
                 usd::DrawMode::ShadedSmooth,
-                feather_tk::join(usd::getDrawModeLabels(), ", "));
+                feather_tk::quotes(usd::getDrawModeLabels()));
             _cmdLine.usdEnableLighting = feather_tk::CmdLineValueOption<bool>::create(
                 { "-usdEnableLighting" },
                 "Enable lighting.",

@@ -55,7 +55,7 @@ namespace tl
                     "Playback mode.",
                     "Playback",
                     timeline::Playback::Forward,
-                    feather_tk::join(timeline::getPlaybackLabels(), ", "));
+                    feather_tk::quotes(timeline::getPlaybackLabels()));
                 _cmdLine.seek = feather_tk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                     { "-seek" },
                     "Seek to the given time.",
@@ -93,7 +93,7 @@ namespace tl
                     "LUT operation order.",
                     "Color",
                     std::optional<timeline::LUTOrder>(),
-                    feather_tk::join(timeline::getLUTOrderLabels(), ", "));
+                    feather_tk::quotes(timeline::getLUTOrderLabels()));
 
                 IApp::_init(
                     context,
