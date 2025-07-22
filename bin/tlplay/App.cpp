@@ -34,38 +34,10 @@ namespace tl
                 "tlplay",
                 "Example player application.",
                 { _cmdLine.inputs });
-
-            context->getSystem<feather_tk::FileBrowserSystem>()->setNativeFileDialog(false);
-
-            _settingsModel = SettingsModel::create(
-                context,
-                feather_tk::getSettingsPath("tlRender", "tlplay.json"));
-
-            _timeUnitsModel = timeline::TimeUnitsModel::create(context);
-
-            _recentFilesModel = RecentFilesModel::create(context, _settingsModel->getSettings());
-            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
-            fileBrowserSystem->getModel()->setExtensions(timeline::getExtensions(_context));
-            fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
-
-            _filesModel = FilesModel::create(context, _settingsModel);
-
-            _window = MainWindow::create(
-                _context,
-                std::dynamic_pointer_cast<App>(shared_from_this()));
-            addWindow(_window);
-
-            for (const auto& input : _cmdLine.inputs->getList())
-            {
-                open(std::filesystem::u8path(input));
-            }
-
-            _window->show();
         }
 
         App::~App()
-        {
-        }
+        {}
 
         std::shared_ptr<App> App::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -134,6 +106,38 @@ namespace tl
                 auto dialogSystem = _context->getSystem<feather_tk::DialogSystem>();
                 dialogSystem->message("ERROR", e.what(), _window);
             }
+        }
+
+        void App::run()
+        {
+            _context->getSystem<feather_tk::FileBrowserSystem>()->setNativeFileDialog(false);
+
+            _settingsModel = SettingsModel::create(
+                _context,
+                feather_tk::getSettingsPath("tlRender", "tlplay.json"));
+
+            _timeUnitsModel = timeline::TimeUnitsModel::create(_context);
+
+            _recentFilesModel = RecentFilesModel::create(_context, _settingsModel->getSettings());
+            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
+            fileBrowserSystem->getModel()->setExtensions(timeline::getExtensions(_context));
+            fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
+
+            _filesModel = FilesModel::create(_context, _settingsModel);
+
+            _window = MainWindow::create(
+                _context,
+                std::dynamic_pointer_cast<App>(shared_from_this()));
+            addWindow(_window);
+
+            for (const auto& input : _cmdLine.inputs->getList())
+            {
+                open(std::filesystem::u8path(input));
+            }
+
+            _window->show();
+
+            feather_tk::App::run();
         }
 
         void App::_tick()

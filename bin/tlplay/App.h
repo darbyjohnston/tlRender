@@ -46,6 +46,8 @@ namespace tl
             void open();
             void reload();
 
+            void run() override;
+
         protected:
             void _tick() override;
 

@@ -48,7 +48,7 @@ namespace tl
             std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioLook;
             std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > lutFileName;
             std::shared_ptr<feather_tk::CmdLineValueOption<timeline::LUTOrder> > lutOrder;
-            std::shared_ptr<feather_tk::CmdLineValueOption<float> > sequenceDefaultSpeed;
+            std::shared_ptr<feather_tk::CmdLineValueOption<double> > sequenceDefaultSpeed;
             std::shared_ptr<feather_tk::CmdLineValueOption<int> > sequenceThreadCount;
 #if defined(TLRENDER_EXR)
             std::shared_ptr<feather_tk::CmdLineValueOption<exr::Compression> > exrCompression;

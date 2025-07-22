@@ -33,54 +33,68 @@ namespace tl
                 _cmdLine.input = feather_tk::CmdLineValueArg<std::string>::create(
                     "input",
                     "The input timeline.");
-
                 _cmdLine.compareFileName = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-compare", "-b" },
-                    "A/B comparison \"B\" file name.");
+                    "A/B comparison \"B\" file name.",
+                    "Compare");
                 _cmdLine.windowSize = feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
                     { "-windowSize", "-ws" },
                     "Window size.",
+                    "Window",
                     feather_tk::Size2I(1920, 1080));
                 _cmdLine.fullscreen = feather_tk::CmdLineFlagOption::create(
                     { "-fullscreen", "-fs" },
-                    "Enable full screen mode.");
+                    "Enable full screen mode.",
+                    "Window");
                 _cmdLine.hud = feather_tk::CmdLineFlagOption::create(
                     { "-hud" },
-                    "Enable the HUD (heads up display).");
+                    "Enable the HUD (heads up display).",
+                    "View");
                 _cmdLine.playback = feather_tk::CmdLineValueOption<timeline::Playback>::create(
                     { "-playback", "-p" },
                     "Playback mode.",
+                    "Playback",
                     timeline::Playback::Forward,
                     feather_tk::join(timeline::getPlaybackLabels(), ", "));
                 _cmdLine.seek = feather_tk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
                     { "-seek" },
-                    "Seek to the given time.");
+                    "Seek to the given time.",
+                    "Playback");
                 _cmdLine.inOutRange = feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                     { "-inOutRange" },
-                    "Set the in/out points range.");
+                    "Set the in/out points range.",
+                    "Playback");
                 _cmdLine.ocioFileName = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-ocio" },
-                    "OpenColorIO configuration file name (e.g., config.ocio).");
+                    "OCIO configuration file name (e.g., config.ocio).",
+                    "Color");
                 _cmdLine.ocioInput = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-ocioInput" },
-                    "OpenColorIO input name.");
+                    "OCIO input name.",
+                    "Color");
                 _cmdLine.ocioDisplay = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-ocioDisplay" },
-                    "OpenColorIO display name.");
+                    "OCIO display name.",
+                    "Color");
                 _cmdLine.ocioView = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-ocioView" },
-                    "OpenColorIO view name.");
+                    "OCIO view name.",
+                    "Color");
                 _cmdLine.ocioLook = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-ocioLook" },
-                    "OpenColorIO look name.");
+                    "OCIO look name.",
+                    "Color");
                 _cmdLine.lutFileName = feather_tk::CmdLineValueOption<std::string>::create(
                     { "-lut" },
-                    "LUT file name.");
+                    "LUT file name.",
+                    "Color");
                 _cmdLine.lutOrder = feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
                     { "-lutOrder" },
                     "LUT operation order.",
-                    timeline::LUTOrder::First,
+                    "Color",
+                    std::optional<timeline::LUTOrder>(),
                     feather_tk::join(timeline::getLUTOrderLabels(), ", "));
+
                 IApp::_init(
                     context,
                     argv,

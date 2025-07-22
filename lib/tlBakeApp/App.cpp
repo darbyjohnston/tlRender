@@ -41,97 +41,120 @@ namespace tl
                 "The output file.");
             _cmdLine.inOutRange = feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
                 { "-inOutRange" },
-                "Set the in/out points range.");
+                "Set the in/out points range.",
+                "Render");
             _cmdLine.renderSize = feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
                 { "-renderSize", "-rs" },
-                "Render size.");
+                "Render size.",
+                "Render");
             _cmdLine.outputPixelType = feather_tk::CmdLineValueOption<feather_tk::ImageType>::create(
                 { "-outputPixelType", "-op" },
                 "Output pixel type.",
+                "Render",
                 std::optional<feather_tk::ImageType>(),
                 feather_tk::join(feather_tk::getImageTypeLabels(), ", "));
             _cmdLine.ocioFileName = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocio" },
-                "OpenColorIO configuration file name (e.g., config.ocio).");
+                "OCIO configuration file name (e.g., config.ocio).",
+                "Color");
             _cmdLine.ocioInput = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocioInput" },
-                "OpenColorIO input name.");
+                "OCIO input name.",
+                "Color");
             _cmdLine.ocioDisplay = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocioDisplay" },
-                "OpenColorIO display name.");
+                "OCIO display namee.",
+                "Color");
             _cmdLine.ocioView = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocioView" },
-                "OpenColorIO view name.");
+                "OCIO view namee.",
+                "Color");
             _cmdLine.ocioLook = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ocioLook" },
-                "OpenColorIO look name.");
+                "OCIO look namee.",
+                "Color");
             _cmdLine.lutFileName = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-lut" },
-                "LUT file name.");
+                "LUT file name.",
+                "Color");
             _cmdLine.lutOrder = feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
                 { "-lutOrder" },
                 "LUT operation order.",
-                timeline::LUTOrder::First,
+                "Color",
+                std::optional<timeline::LUTOrder>(),
                 feather_tk::join(timeline::getLUTOrderLabels(), ", "));
-            _cmdLine.sequenceDefaultSpeed = feather_tk::CmdLineValueOption<float>::create(
+            _cmdLine.sequenceDefaultSpeed = feather_tk::CmdLineValueOption<double>::create(
                 { "-sequenceDefaultSpeed" },
                 "Default speed for image sequences.",
+                "Image Sequences",
                 io::SequenceOptions().defaultSpeed);
             _cmdLine.sequenceThreadCount = feather_tk::CmdLineValueOption<int>::create(
                 { "-sequenceThreadCount" },
                 "Number of threads for image sequence I/O.",
-                io::SequenceOptions().threadCount);
+                "Image Sequences",
+                static_cast<int>(io::SequenceOptions().threadCount));
 #if defined(TLRENDER_EXR)
             _cmdLine.exrCompression = feather_tk::CmdLineValueOption<exr::Compression>::create(
                 { "-exrCompression" },
-                "OpenEXR output compression.",
+                "Output compression.",
+                "OpenEXR",
                 exr::Compression::ZIP,
                 feather_tk::join(exr::getCompressionLabels(), ", "));
             _cmdLine.exrDWACompressionLevel = feather_tk::CmdLineValueOption<float>::create(
                 { "-exrDWACompressionLevel" },
-                "OpenEXR DWA compression level.",
+                "DWA compression level.",
+                "OpenEXR",
                 45.F);
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
             _cmdLine.ffmpegCodec = feather_tk::CmdLineValueOption<std::string>::create(
                 { "-ffmpegCodec", "-ffc" },
-                "FFmpeg output codec.",
-                std::string(),
+                "Output codec.",
+                "FFmpeg",
+                std::optional<std::string>(),
                 feather_tk::join(ffmpegCodecs, ", "));
             _cmdLine.ffmpegThreadCount = feather_tk::CmdLineValueOption<int>::create(
                 { "-ffmpegThreadCount" },
-                "Number of threads for FFmpeg I/O.",
-                ffmpeg::Options().threadCount);
+                "Number of threads for I/O.",
+                "FFmpeg",
+                static_cast<int>(ffmpeg::Options().threadCount));
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
             _cmdLine.usdRenderWidth = feather_tk::CmdLineValueOption<int>::create(
                 { "-usdRenderWidth" },
-                "USD render width.",
+                "Render width.",
+                "USD",
                 1920);
             _cmdLine.usdComplexity = feather_tk::CmdLineValueOption<float>::create(
                 { "-usdComplexity" },
-                "USD render complexity setting.",
+                "Render complexity setting.",
+                "USD",
                 1.F);
             _cmdLine.usdDrawMode = feather_tk::CmdLineValueOption<usd::DrawMode>::create(
                 { "-usdDrawMode" },
-                "USD draw mode.",
+                "Draw mode.",
+                "USD",
                 usd::DrawMode::ShadedSmooth,
                 feather_tk::join(usd::getDrawModeLabels(), ", "));
             _cmdLine.usdEnableLighting = feather_tk::CmdLineValueOption<bool>::create(
                 { "-usdEnableLighting" },
-                "USD enable lighting.",
+                "Enable lighting.",
+                "USD",
                 true);
             _cmdLine.usdSRGB = feather_tk::CmdLineValueOption<bool>::create(
                 { "-usdSRGB" },
-                "USD enable sRGB color space.",
+                "Enable sRGB color space.",
+                "USD",
                 true);
             _cmdLine.usdStageCache = feather_tk::CmdLineValueOption<size_t>::create(
                 { "-usdStageCache" },
-                "USD stage cache size.",
+                "Stage cache size.",
+                "USD",
                 10);
             _cmdLine.usdDiskCache = feather_tk::CmdLineValueOption<size_t>::create(
                 { "-usdDiskCache" },
-                "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                "Disk cache size in gigabytes. A size of zero disables the cache.",
+                "USD",
                 0);
 #endif // TLRENDER_USD
 
