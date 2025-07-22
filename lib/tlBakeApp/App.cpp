@@ -33,139 +33,146 @@ namespace tl
             auto ffmpegPlugin = ioSystem->getPlugin<ffmpeg::WritePlugin>();
             ffmpegCodecs = ffmpegPlugin->getCodecs();
 #endif // TLRENDER_FFMPEG
+            _cmdLine.input = feather_tk::CmdLineValueArg<std::string>::create(
+                "input",
+                "The input timeline.");
+            _cmdLine.output = feather_tk::CmdLineValueArg<std::string>::create(
+                "output",
+                "The output file.");
+            _cmdLine.inOutRange = feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                { "-inOutRange" },
+                "Set the in/out points range.");
+            _cmdLine.renderSize = feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
+                { "-renderSize", "-rs" },
+                "Render size.");
+            _cmdLine.outputPixelType = feather_tk::CmdLineValueOption<feather_tk::ImageType>::create(
+                { "-outputPixelType", "-op" },
+                "Output pixel type.",
+                std::optional<feather_tk::ImageType>(),
+                feather_tk::join(feather_tk::getImageTypeLabels(), ", "));
+            _cmdLine.ocioFileName = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ocio" },
+                "OpenColorIO configuration file name (e.g., config.ocio).");
+            _cmdLine.ocioInput = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ocioInput" },
+                "OpenColorIO input name.");
+            _cmdLine.ocioDisplay = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ocioDisplay" },
+                "OpenColorIO display name.");
+            _cmdLine.ocioView = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ocioView" },
+                "OpenColorIO view name.");
+            _cmdLine.ocioLook = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ocioLook" },
+                "OpenColorIO look name.");
+            _cmdLine.lutFileName = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-lut" },
+                "LUT file name.");
+            _cmdLine.lutOrder = feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
+                { "-lutOrder" },
+                "LUT operation order.",
+                timeline::LUTOrder::First,
+                feather_tk::join(timeline::getLUTOrderLabels(), ", "));
+            _cmdLine.sequenceDefaultSpeed = feather_tk::CmdLineValueOption<float>::create(
+                { "-sequenceDefaultSpeed" },
+                "Default speed for image sequences.",
+                io::SequenceOptions().defaultSpeed);
+            _cmdLine.sequenceThreadCount = feather_tk::CmdLineValueOption<int>::create(
+                { "-sequenceThreadCount" },
+                "Number of threads for image sequence I/O.",
+                io::SequenceOptions().threadCount);
+#if defined(TLRENDER_EXR)
+            _cmdLine.exrCompression = feather_tk::CmdLineValueOption<exr::Compression>::create(
+                { "-exrCompression" },
+                "OpenEXR output compression.",
+                exr::Compression::ZIP,
+                feather_tk::join(exr::getCompressionLabels(), ", "));
+            _cmdLine.exrDWACompressionLevel = feather_tk::CmdLineValueOption<float>::create(
+                { "-exrDWACompressionLevel" },
+                "OpenEXR DWA compression level.",
+                45.F);
+#endif // TLRENDER_EXR
+#if defined(TLRENDER_FFMPEG)
+            _cmdLine.ffmpegCodec = feather_tk::CmdLineValueOption<std::string>::create(
+                { "-ffmpegCodec", "-ffc" },
+                "FFmpeg output codec.",
+                std::string(),
+                feather_tk::join(ffmpegCodecs, ", "));
+            _cmdLine.ffmpegThreadCount = feather_tk::CmdLineValueOption<int>::create(
+                { "-ffmpegThreadCount" },
+                "Number of threads for FFmpeg I/O.",
+                ffmpeg::Options().threadCount);
+#endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_USD)
+            _cmdLine.usdRenderWidth = feather_tk::CmdLineValueOption<int>::create(
+                { "-usdRenderWidth" },
+                "USD render width.",
+                1920);
+            _cmdLine.usdComplexity = feather_tk::CmdLineValueOption<float>::create(
+                { "-usdComplexity" },
+                "USD render complexity setting.",
+                1.F);
+            _cmdLine.usdDrawMode = feather_tk::CmdLineValueOption<usd::DrawMode>::create(
+                { "-usdDrawMode" },
+                "USD draw mode.",
+                usd::DrawMode::ShadedSmooth,
+                feather_tk::join(usd::getDrawModeLabels(), ", "));
+            _cmdLine.usdEnableLighting = feather_tk::CmdLineValueOption<bool>::create(
+                { "-usdEnableLighting" },
+                "USD enable lighting.",
+                true);
+            _cmdLine.usdSRGB = feather_tk::CmdLineValueOption<bool>::create(
+                { "-usdSRGB" },
+                "USD enable sRGB color space.",
+                true);
+            _cmdLine.usdStageCache = feather_tk::CmdLineValueOption<size_t>::create(
+                { "-usdStageCache" },
+                "USD stage cache size.",
+                10);
+            _cmdLine.usdDiskCache = feather_tk::CmdLineValueOption<size_t>::create(
+                { "-usdDiskCache" },
+                "USD disk cache size in gigabytes. A size of zero disables the cache.",
+                0);
+#endif // TLRENDER_USD
+
             IApp::_init(
                 context,
                 argv,
                 "tlbake",
                 "Render a timeline to a movie or image sequence.",
                 {
-                    feather_tk::CmdLineValueArg<std::string>::create(
-                        _input,
-                        "input",
-                        "The input timeline."),
-                    feather_tk::CmdLineValueArg<std::string>::create(
-                        _output,
-                        "output",
-                        "The output file.")
+                    _cmdLine.input,
+                    _cmdLine.output
                 },
                 {
-                    feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
-                        _options.inOutRange,
-                        { "-inOutRange" },
-                        "Set the in/out points range."),
-                    feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
-                        _options.renderSize,
-                        { "-renderSize", "-rs" },
-                        "Render size."),
-                    feather_tk::CmdLineValueOption<feather_tk::ImageType>::create(
-                        _options.outputPixelType,
-                        { "-outputPixelType", "-op" },
-                        "Output pixel type.",
-                        std::string(),
-                        feather_tk::join(feather_tk::getImageTypeLabels(), ", ")),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.fileName,
-                        { "-ocio" },
-                        "OpenColorIO configuration file name (e.g., config.ocio)."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.input,
-                        { "-ocioInput" },
-                        "OpenColorIO input name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.display,
-                        { "-ocioDisplay" },
-                        "OpenColorIO display name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.view,
-                        { "-ocioView" },
-                        "OpenColorIO view name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.look,
-                        { "-ocioLook" },
-                        "OpenColorIO look name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.lutOptions.fileName,
-                        { "-lut" },
-                        "LUT file name."),
-                    feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
-                        _options.lutOptions.order,
-                        { "-lutOrder" },
-                        "LUT operation order.",
-                        feather_tk::Format("{0}").arg(_options.lutOptions.order),
-                        feather_tk::join(timeline::getLUTOrderLabels(), ", ")),
-                    feather_tk::CmdLineValueOption<float>::create(
-                        _options.sequenceDefaultSpeed,
-                        { "-sequenceDefaultSpeed" },
-                        "Default speed for image sequences.",
-                        feather_tk::Format("{0}").arg(_options.sequenceDefaultSpeed)),
-                    feather_tk::CmdLineValueOption<int>::create(
-                        _options.sequenceThreadCount,
-                        { "-sequenceThreadCount" },
-                        "Number of threads for image sequence I/O.",
-                        feather_tk::Format("{0}").arg(_options.sequenceThreadCount)),
+                    _cmdLine.inOutRange,
+                    _cmdLine.renderSize,
+                    _cmdLine.outputPixelType,
+                    _cmdLine.ocioFileName,
+                    _cmdLine.ocioInput,
+                    _cmdLine.ocioDisplay,
+                    _cmdLine.ocioView,
+                    _cmdLine.ocioLook,
+                    _cmdLine.lutFileName,
+                    _cmdLine.lutOrder,
+                    _cmdLine.sequenceDefaultSpeed,
+                    _cmdLine.sequenceThreadCount,
 #if defined(TLRENDER_EXR)
-                    feather_tk::CmdLineValueOption<exr::Compression>::create(
-                        _options.exrCompression,
-                        { "-exrCompression" },
-                        "OpenEXR output compression.",
-                        feather_tk::Format("{0}").arg(_options.exrCompression),
-                        feather_tk::join(exr::getCompressionLabels(), ", ")),
-                    feather_tk::CmdLineValueOption<float>::create(
-                        _options.exrDWACompressionLevel,
-                        { "-exrDWACompressionLevel" },
-                        "OpenEXR DWA compression level.",
-                        feather_tk::Format("{0}").arg(_options.exrDWACompressionLevel)),
+                    _cmdLine.exrCompression,
+                    _cmdLine.exrDWACompressionLevel,
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ffmpegCodec,
-                        { "-ffmpegCodec", "-ffc" },
-                        "FFmpeg output codec.",
-                        std::string(),
-                        feather_tk::join(ffmpegCodecs, ", ")),
-                    feather_tk::CmdLineValueOption<int>::create(
-                        _options.ffmpegThreadCount,
-                        { "-ffmpegThreadCount" },
-                        "Number of threads for FFmpeg I/O.",
-                        feather_tk::Format("{0}").arg(_options.ffmpegThreadCount)),
+                    _cmdLine.ffmpegCodec,
+                    _cmdLine.ffmpegThreadCount,
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-                    feather_tk::CmdLineValueOption<int>::create(
-                        _options.usdRenderWidth,
-                        { "-usdRenderWidth" },
-                        "USD render width.",
-                        feather_tk::Format("{0}").arg(_options.usdRenderWidth)),
-                    feather_tk::CmdLineValueOption<float>::create(
-                        _options.usdComplexity,
-                        { "-usdComplexity" },
-                        "USD render complexity setting.",
-                        feather_tk::Format("{0}").arg(_options.usdComplexity)),
-                    feather_tk::CmdLineValueOption<usd::DrawMode>::create(
-                        _options.usdDrawMode,
-                        { "-usdDrawMode" },
-                        "USD draw mode.",
-                        feather_tk::Format("{0}").arg(_options.usdDrawMode),
-                        feather_tk::join(usd::getDrawModeLabels(), ", ")),
-                    feather_tk::CmdLineValueOption<bool>::create(
-                        _options.usdEnableLighting,
-                        { "-usdEnableLighting" },
-                        "USD enable lighting.",
-                        feather_tk::Format("{0}").arg(_options.usdEnableLighting)),
-                    feather_tk::CmdLineValueOption<bool>::create(
-                        _options.usdSRGB,
-                        { "-usdSRGB" },
-                        "USD enable sRGB color space.",
-                        feather_tk::Format("{0}").arg(_options.usdSRGB)),
-                    feather_tk::CmdLineValueOption<size_t>::create(
-                        _options.usdStageCache,
-                        { "-usdStageCache" },
-                        "USD stage cache size.",
-                        feather_tk::Format("{0}").arg(_options.usdStageCache)),
-                    feather_tk::CmdLineValueOption<size_t>::create(
-                        _options.usdDiskCache,
-                        { "-usdDiskCache" },
-                        "USD disk cache size in gigabytes. A size of zero disables the cache.",
-                        feather_tk::Format("{0}").arg(_options.usdDiskCache)),
+                    _cmdLine.usdRenderWidth,
+                    _cmdLine.usdComplexity,
+                    _cmdLine.usdDrawMode,
+                    _cmdLine.usdEnableLighting,
+                    _cmdLine.usdSRGB,
+                    _cmdLine.usdStageCache,
+                    _cmdLine.usdDiskCache,
 #endif // TLRENDER_USD
                 });
         }
@@ -199,7 +206,10 @@ namespace tl
             // Read the timeline.
             timeline::Options options;
             options.ioOptions = _getIOOptions();
-            _timeline = timeline::Timeline::create(_context, _input, options);
+            _timeline = timeline::Timeline::create(
+                _context,
+                _cmdLine.input->getValue(),
+                options);
             _timeRange = _timeline->getTimeRange();
             _print(feather_tk::Format("Timeline range: {0}-{1}").
                 arg(_timeRange.start_time().value()).
@@ -207,9 +217,9 @@ namespace tl
             _print(feather_tk::Format("Timeline speed: {0}").arg(_timeRange.duration().rate()));
 
             // Time range.
-            if (time::isValid(_options.inOutRange))
+            if (_cmdLine.inOutRange->hasValue())
             {
-                _timeRange = _options.inOutRange;
+                _timeRange = _cmdLine.inOutRange->getValue();
             }
             _print(feather_tk::Format("In/out range: {0}-{1}").
                 arg(_timeRange.start_time().value()).
@@ -223,9 +233,11 @@ namespace tl
             {
                 throw std::runtime_error("No video to render");
             }
-            _renderSize = _options.renderSize.isValid() ?
-                _options.renderSize :
-                feather_tk::Size2I(info.video[0].size.w, info.video[0].size.h);
+            _renderSize = feather_tk::Size2I(info.video[0].size.w, info.video[0].size.h);
+            if (_cmdLine.renderSize->hasValue())
+            {
+                _renderSize = _cmdLine.renderSize->getValue();
+            }
             _print(feather_tk::Format("Render size: {0}").arg(_renderSize));
 
             // Create the renderer.
@@ -235,16 +247,19 @@ namespace tl
             _buffer = feather_tk::gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);
 
             // Create the writer.
-            _writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(_output));
+            const std::string output = _cmdLine.output->getValue();
+            _writerPlugin = _context->getSystem<io::WriteSystem>()->getPlugin(file::Path(output));
             if (!_writerPlugin)
             {
-                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(_output));
+                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(output));
             }
             _outputInfo.size.w = _renderSize.w;
             _outputInfo.size.h = _renderSize.h;
-            _outputInfo.type = _options.outputPixelType != feather_tk::ImageType::None ?
-                _options.outputPixelType :
-                info.video[0].type;
+            _outputInfo.type = info.video[0].type;
+            if (_cmdLine.outputPixelType->hasValue())
+            {
+                _outputInfo.type = _cmdLine.outputPixelType->getValue();
+            }
             _outputInfo = _writerPlugin->getInfo(_outputInfo);
             if (feather_tk::ImageType::None == _outputInfo.type)
             {
@@ -257,10 +272,40 @@ namespace tl
             io::Info ioInfo;
             ioInfo.video.push_back(_outputInfo);
             ioInfo.videoTime = _timeRange;
-            _writer = _writerPlugin->write(file::Path(_output), ioInfo, _getIOOptions());
+            _writer = _writerPlugin->write(file::Path(output), ioInfo, _getIOOptions());
             if (!_writer)
             {
-                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(_output));
+                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(output));
+            }
+
+            // Set options.
+            if (_cmdLine.ocioFileName->hasValue())
+            {
+                _ocioOptions.fileName = _cmdLine.ocioFileName->getValue();
+            }
+            if (_cmdLine.ocioInput->hasValue())
+            {
+                _ocioOptions.input = _cmdLine.ocioInput->getValue();
+            }
+            if (_cmdLine.ocioDisplay->hasValue())
+            {
+                _ocioOptions.display = _cmdLine.ocioDisplay->getValue();
+            }
+            if (_cmdLine.ocioView->hasValue())
+            {
+                _ocioOptions.view = _cmdLine.ocioView->getValue();
+            }
+            if (_cmdLine.ocioLook->hasValue())
+            {
+                _ocioOptions.look = _cmdLine.ocioLook->getValue();
+            }
+            if (_cmdLine.lutFileName->hasValue())
+            {
+                _lutOptions.fileName = _cmdLine.lutFileName->getValue();
+            }
+            if (_cmdLine.lutOrder->hasValue())
+            {
+                _lutOptions.order = _cmdLine.lutOrder->getValue();
             }
 
             // Start the main loop.
@@ -279,76 +324,86 @@ namespace tl
         io::Options App::_getIOOptions() const
         {
             io::Options out;
+            if (_cmdLine.sequenceDefaultSpeed->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.sequenceDefaultSpeed;
+                ss << _cmdLine.sequenceDefaultSpeed->getValue();
                 out["SequenceIO/DefaultSpeed"] = ss.str();
             }
+            if (_cmdLine.sequenceThreadCount->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.sequenceThreadCount;
+                ss << _cmdLine.sequenceThreadCount->getValue();
                 out["SequenceIO/ThreadCount"] = ss.str();
             }
-
 #if defined(TLRENDER_EXR)
+            if (_cmdLine.exrCompression->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.exrCompression;
+                ss << _cmdLine.exrCompression->getValue();
                 out["OpenEXR/Compression"] = ss.str();
             }
+            if (_cmdLine.exrDWACompressionLevel->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.exrDWACompressionLevel;
+                ss << _cmdLine.exrDWACompressionLevel->getValue();
                 out["OpenEXR/DWACompressionLevel"] = ss.str();
             }
 #endif // TLRENDER_EXR
-
 #if defined(TLRENDER_FFMPEG)
-            if (!_options.ffmpegCodec.empty())
+            if (_cmdLine.ffmpegCodec->hasValue())
             {
-                out["FFmpeg/Codec"] = _options.ffmpegCodec;
+                out["FFmpeg/Codec"] = _cmdLine.ffmpegCodec->getValue();
             }
+            if (_cmdLine.ffmpegThreadCount->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.ffmpegThreadCount;
+                ss << _cmdLine.ffmpegThreadCount->getValue();
                 out["FFmpeg/ThreadCount"] = ss.str();
             }
 #endif // TLRENDER_FFMPEG
 
 #if defined(TLRENDER_USD)
+            if (_cmdLine.usdRenderWidth->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdRenderWidth;
+                ss << _cmdLine.usdRenderWidth->getValue();
                 out["USD/RenderWidth"] = ss.str();
             }
+            if (_cmdLine.usdComplexity->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdComplexity;
+                ss << _cmdLine.usdComplexity->getValue();
                 out["USD/Complexity"] = ss.str();
             }
+            if (_cmdLine.usdDrawMode->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdDrawMode;
+                ss << _cmdLine.usdDrawMode->getValue();
                 out["USD/DrawMode"] = ss.str();
             }
+            if (_cmdLine.usdEnableLighting->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdEnableLighting;
+                ss << _cmdLine.usdEnableLighting->getValue();
                 out["USD/EnableLighting"] = ss.str();
             }
+            if (_cmdLine.usdSRGB->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdSRGB;
+                ss << _cmdLine.usdSRGB->getValue();
                 out["USD/sRGB"] = ss.str();
             }
+            if (_cmdLine.usdStageCache->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdStageCache;
+                ss << _cmdLine.usdStageCache->getValue();
                 out["USD/StageCacheCount"] = ss.str();
             }
+            if (_cmdLine.usdDiskCache->hasValue())
             {
                 std::stringstream ss;
-                ss << _options.usdDiskCache * feather_tk::gigabyte;
+                ss << _cmdLine.usdDiskCache->getValue() * feather_tk::gigabyte;
                 out["USD/DiskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD
@@ -364,8 +419,8 @@ namespace tl
 
             // Render the video.
             _render->begin(_renderSize);
-            _render->setOCIOOptions(_options.ocioOptions);
-            _render->setLUTOptions(_options.lutOptions);
+            _render->setOCIOOptions(_ocioOptions);
+            _render->setLUTOptions(_lutOptions);
             const auto videoData = _timeline->getVideo(_inputTime).future.get();
             _render->drawVideo(
                 { videoData },
@@ -381,7 +436,7 @@ namespace tl
             const GLenum type = feather_tk::gl::getReadPixelsType(_outputInfo.type);
             if (GL_NONE == format || GL_NONE == type)
             {
-                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(_output));
+                throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(_cmdLine.output->getValue()));
             }
             glReadPixels(
                 0,

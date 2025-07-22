@@ -13,7 +13,6 @@
 
 #include <feather-tk/ui/DialogSystem.h>
 #include <feather-tk/ui/FileBrowser.h>
-#include <feather-tk/core/CmdLine.h>
 #include <feather-tk/core/File.h>
 
 namespace tl
@@ -24,18 +23,17 @@ namespace tl
             const std::shared_ptr<feather_tk::Context>& context,
             std::vector<std::string>& argv)
         {
+            _cmdLine.inputs = feather_tk::CmdLineListArg<std::string>::create(
+                "input",
+                "One or more timelines, movies, or image sequences.",
+                true);
+
             feather_tk::App::_init(
                 context,
                 argv,
                 "tlplay",
                 "Example player application.",
-                {
-                    feather_tk::CmdLineListArg<std::string>::create(
-                        _cmdLineOptions.fileNames,
-                        "input",
-                        "Timelines, movies, or image sequences.",
-                        true)
-                });
+                { _cmdLine.inputs });
 
             context->getSystem<feather_tk::FileBrowserSystem>()->setNativeFileDialog(false);
 
@@ -57,9 +55,9 @@ namespace tl
                 std::dynamic_pointer_cast<App>(shared_from_this()));
             addWindow(_window);
 
-            for (const auto& fileName : _cmdLineOptions.fileNames)
+            for (const auto& input : _cmdLine.inputs->getList())
             {
-                open(std::filesystem::u8path(fileName));
+                open(std::filesystem::u8path(input));
             }
 
             _window->show();

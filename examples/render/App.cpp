@@ -8,7 +8,6 @@
 
 #include <feather-tk/gl/GL.h>
 #include <feather-tk/gl/Window.h>
-#include <feather-tk/core/CmdLine.h>
 #include <feather-tk/core/Context.h>
 #include <feather-tk/core/Format.h>
 #include <feather-tk/core/Math.h>
@@ -31,81 +30,78 @@ namespace tl
                 const std::shared_ptr<feather_tk::Context>& context,
                 std::vector<std::string>& argv)
             {
+                _cmdLine.input = feather_tk::CmdLineValueArg<std::string>::create(
+                    "input",
+                    "The input timeline.");
+
+                _cmdLine.compareFileName = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-compare", "-b" },
+                    "A/B comparison \"B\" file name.");
+                _cmdLine.windowSize = feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
+                    { "-windowSize", "-ws" },
+                    "Window size.",
+                    feather_tk::Size2I(1920, 1080));
+                _cmdLine.fullscreen = feather_tk::CmdLineFlagOption::create(
+                    { "-fullscreen", "-fs" },
+                    "Enable full screen mode.");
+                _cmdLine.hud = feather_tk::CmdLineFlagOption::create(
+                    { "-hud" },
+                    "Enable the HUD (heads up display).");
+                _cmdLine.playback = feather_tk::CmdLineValueOption<timeline::Playback>::create(
+                    { "-playback", "-p" },
+                    "Playback mode.",
+                    timeline::Playback::Forward,
+                    feather_tk::join(timeline::getPlaybackLabels(), ", "));
+                _cmdLine.seek = feather_tk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
+                    { "-seek" },
+                    "Seek to the given time.");
+                _cmdLine.inOutRange = feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
+                    { "-inOutRange" },
+                    "Set the in/out points range.");
+                _cmdLine.ocioFileName = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-ocio" },
+                    "OpenColorIO configuration file name (e.g., config.ocio).");
+                _cmdLine.ocioInput = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-ocioInput" },
+                    "OpenColorIO input name.");
+                _cmdLine.ocioDisplay = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-ocioDisplay" },
+                    "OpenColorIO display name.");
+                _cmdLine.ocioView = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-ocioView" },
+                    "OpenColorIO view name.");
+                _cmdLine.ocioLook = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-ocioLook" },
+                    "OpenColorIO look name.");
+                _cmdLine.lutFileName = feather_tk::CmdLineValueOption<std::string>::create(
+                    { "-lut" },
+                    "LUT file name.");
+                _cmdLine.lutOrder = feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
+                    { "-lutOrder" },
+                    "LUT operation order.",
+                    timeline::LUTOrder::First,
+                    feather_tk::join(timeline::getLUTOrderLabels(), ", "));
                 IApp::_init(
                     context,
                     argv,
                     "render",
                     "Example rendering application.",
-                    {
-                        feather_tk::CmdLineValueArg<std::string>::create(
-                            _input,
-                            "input",
-                            "The input timeline.")
-                    },
+                    { _cmdLine.input },
                 {
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.compareFileName,
-                        { "-compare", "-b" },
-                        "A/B comparison \"B\" file name."),
-                    feather_tk::CmdLineValueOption<feather_tk::Size2I>::create(
-                        _options.windowSize,
-                        { "-windowSize", "-ws" },
-                        "Window size.",
-                        feather_tk::Format("{0}x{1}").arg(_options.windowSize.w).arg(_options.windowSize.h)),
-                    feather_tk::CmdLineFlagOption::create(
-                        _options.fullscreen,
-                        { "-fullscreen", "-fs" },
-                        "Enable full screen mode."),
-                    feather_tk::CmdLineValueOption<bool>::create(
-                        _options.hud,
-                        { "-hud" },
-                        "Enable the HUD (heads up display).",
-                        feather_tk::Format("{0}").arg(_options.hud),
-                        "0, 1"),
-                    feather_tk::CmdLineValueOption<timeline::Playback>::create(
-                        _options.playback,
-                        { "-playback", "-p" },
-                        "Playback mode.",
-                        feather_tk::Format("{0}").arg(_options.playback),
-                        feather_tk::join(timeline::getPlaybackLabels(), ", ")),
-                    feather_tk::CmdLineValueOption<OTIO_NS::RationalTime>::create(
-                        _options.seek,
-                        { "-seek" },
-                        "Seek to the given time."),
-                    feather_tk::CmdLineValueOption<OTIO_NS::TimeRange>::create(
-                        _options.inOutRange,
-                        { "-inOutRange" },
-                        "Set the in/out points range."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.fileName,
-                        { "-ocio" },
-                        "OpenColorIO configuration file name (e.g., config.ocio)."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.input,
-                        { "-ocioInput" },
-                        "OpenColorIO input name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.display,
-                        { "-ocioDisplay" },
-                        "OpenColorIO display name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.view,
-                        { "-ocioView" },
-                        "OpenColorIO view name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.ocioOptions.look,
-                        { "-ocioLook" },
-                        "OpenColorIO look name."),
-                    feather_tk::CmdLineValueOption<std::string>::create(
-                        _options.lutOptions.fileName,
-                        { "-lut" },
-                        "LUT file name."),
-                    feather_tk::CmdLineValueOption<timeline::LUTOrder>::create(
-                        _options.lutOptions.order,
-                        { "-lutOrder" },
-                        "LUT operation order.",
-                        feather_tk::Format("{0}").arg(_options.lutOptions.order),
-                        feather_tk::join(timeline::getLUTOrderLabels(), ", "))
+                    _cmdLine.compareFileName,
+                    _cmdLine.windowSize,
+                    _cmdLine.fullscreen,
+                    _cmdLine.hud,
+                    _cmdLine.playback,
+                    _cmdLine.seek,
+                    _cmdLine.inOutRange,
+                    _cmdLine.ocioFileName,
+                    _cmdLine.ocioInput,
+                    _cmdLine.ocioDisplay,
+                    _cmdLine.ocioView,
+                    _cmdLine.ocioLook,
+                    _cmdLine.lutFileName,
+                    _cmdLine.lutOrder
                 });
             }
 
@@ -127,12 +123,16 @@ namespace tl
             void App::run()
             {
                 // Read the timelines.
-                auto timeline = timeline::Timeline::create(_context, _input);
+                auto timeline = timeline::Timeline::create(
+                    _context,
+                    _cmdLine.input->getValue());
                 _player = timeline::Player::create(_context, timeline);
                 std::vector<std::shared_ptr <timeline::Timeline> > compare;
-                if (!_options.compareFileName.empty())
+                if (_cmdLine.compareFileName->hasValue())
                 {
-                    compare.push_back(timeline::Timeline::create(_context, _options.compareFileName));
+                    compare.push_back(timeline::Timeline::create(
+                        _context,
+                        _cmdLine.compareFileName->getValue()));
                 }
                 _player->setCompare(compare);
                 _videoDataObserver = feather_tk::ListObserver<timeline::VideoData>::create(
@@ -147,10 +147,10 @@ namespace tl
                 _window = feather_tk::gl::Window::create(
                     _context,
                     "render",
-                    _options.windowSize);
+                    _cmdLine.windowSize->getValue());
                 _frameBufferSize = _window->getFrameBufferSize();
                 _contentScale = _window->getContentScale();
-                _window->setFullScreen(_options.fullscreen);
+                _window->setFullScreen(_cmdLine.fullscreen->found());
                 _window->setFrameBufferSizeCallback(
                     [this](const feather_tk::Size2I& value)
                     {
@@ -180,18 +180,49 @@ namespace tl
                 // Print the shortcuts help.
                 _printShortcutsHelp();
 
+                // Set options.
+                _hud = _cmdLine.hud->found();
+                if (_cmdLine.inOutRange->hasValue())
+                {
+                    const OTIO_NS::TimeRange timeRange = _cmdLine.inOutRange->getValue();
+                    _player->setInOutRange(timeRange);
+                    _player->seek(timeRange.start_time());
+                }
+                if (_cmdLine.seek->hasValue())
+                {
+                    _player->seek(_cmdLine.seek->getValue());
+                }
+                _player->setPlayback(_cmdLine.playback->getValue());
+                if (_cmdLine.ocioFileName->hasValue())
+                {
+                    _ocioOptions.fileName = _cmdLine.ocioFileName->getValue();
+                }
+                if (_cmdLine.ocioInput->hasValue())
+                {
+                    _ocioOptions.input = _cmdLine.ocioInput->getValue();
+                }
+                if (_cmdLine.ocioDisplay->hasValue())
+                {
+                    _ocioOptions.display = _cmdLine.ocioDisplay->getValue();
+                }
+                if (_cmdLine.ocioView->hasValue())
+                {
+                    _ocioOptions.view = _cmdLine.ocioView->getValue();
+                }
+                if (_cmdLine.ocioLook->hasValue())
+                {
+                    _ocioOptions.look = _cmdLine.ocioLook->getValue();
+                }
+                if (_cmdLine.lutFileName->hasValue())
+                {
+                    _lutOptions.fileName = _cmdLine.lutFileName->getValue();
+                }
+                if (_cmdLine.lutOrder->hasValue())
+                {
+                    _lutOptions.order = _cmdLine.lutOrder->getValue();
+                }
+
                 // Start the main loop.
-                _hud = _options.hud;
-                if (time::isValid(_options.inOutRange))
-                {
-                    _player->setInOutRange(_options.inOutRange);
-                    _player->seek(_options.inOutRange.start_time());
-                }
-                if (time::isValid(_options.seek))
-                {
-                    _player->seek(_options.seek);
-                }
-                _player->setPlayback(_options.playback);
                 _startTime = std::chrono::steady_clock::now();
                 while (_running)
                 {
@@ -265,8 +296,8 @@ namespace tl
                 if (_renderDirty)
                 {
                     _render->begin(_frameBufferSize);
-                    _render->setOCIOOptions(_options.ocioOptions);
-                    _render->setLUTOptions(_options.lutOptions);
+                    _render->setOCIOOptions(_ocioOptions);
+                    _render->setLUTOptions(_lutOptions);
                     _draw();
                     _render->end();
                     _window->swap();

@@ -16,6 +16,7 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
+#include <feather-tk/core/CmdLine.h>
 #include <feather-tk/gl/OffscreenBuffer.h>
 #include <feather-tk/core/IApp.h>
 
@@ -32,35 +33,39 @@ namespace tl
     //! tlbake application
     namespace bake
     {
-        //! Application options.
-        struct Options
+        //! Application command line.
+        struct CmdLine
         {
-            OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-            feather_tk::Size2I renderSize;
-            feather_tk::ImageType outputPixelType = feather_tk::ImageType::None;
-            timeline::OCIOOptions ocioOptions;
-            timeline::LUTOptions lutOptions;
-            float sequenceDefaultSpeed = io::SequenceOptions().defaultSpeed;
-            int sequenceThreadCount = io::SequenceOptions().threadCount;
-
+            std::shared_ptr<feather_tk::CmdLineValueArg<std::string> > input;
+            std::shared_ptr<feather_tk::CmdLineValueArg<std::string> > output;
+            std::shared_ptr<feather_tk::CmdLineValueOption<OTIO_NS::TimeRange> > inOutRange;
+            std::shared_ptr<feather_tk::CmdLineValueOption<feather_tk::Size2I> > renderSize;
+            std::shared_ptr<feather_tk::CmdLineValueOption<feather_tk::ImageType> > outputPixelType;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioFileName;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioInput;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioDisplay;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioView;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioLook;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > lutFileName;
+            std::shared_ptr<feather_tk::CmdLineValueOption<timeline::LUTOrder> > lutOrder;
+            std::shared_ptr<feather_tk::CmdLineValueOption<float> > sequenceDefaultSpeed;
+            std::shared_ptr<feather_tk::CmdLineValueOption<int> > sequenceThreadCount;
 #if defined(TLRENDER_EXR)
-            exr::Compression exrCompression = exr::Compression::ZIP;
-            float exrDWACompressionLevel = 45.F;
+            std::shared_ptr<feather_tk::CmdLineValueOption<exr::Compression> > exrCompression;
+            std::shared_ptr<feather_tk::CmdLineValueOption<float> > exrDWACompressionLevel;
 #endif // TLRENDER_EXR
-
 #if defined(TLRENDER_FFMPEG)
-            std::string ffmpegCodec;
-            int ffmpegThreadCount = ffmpeg::Options().threadCount;
+            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ffmpegCodec;
+            std::shared_ptr<feather_tk::CmdLineValueOption<int> > ffmpegThreadCount;
 #endif // TLRENDER_FFMPEG
-
 #if defined(TLRENDER_USD)
-            int usdRenderWidth = 1920;
-            float usdComplexity = 1.F;
-            usd::DrawMode usdDrawMode = usd::DrawMode::ShadedSmooth;
-            bool usdEnableLighting = true;
-            bool usdSRGB = true;
-            size_t usdStageCache = 10;
-            size_t usdDiskCache = 0;
+            std::shared_ptr<feather_tk::CmdLineValueOption<int> > usdRenderWidth;
+            std::shared_ptr<feather_tk::CmdLineValueOption<float> > usdComplexity;
+            std::shared_ptr<feather_tk::CmdLineValueOption<usd::DrawMode> > usdDrawMode;
+            std::shared_ptr<feather_tk::CmdLineValueOption<bool> > usdEnableLighting;
+            std::shared_ptr<feather_tk::CmdLineValueOption<bool> > usdSRGB;
+            std::shared_ptr<feather_tk::CmdLineValueOption<size_t> > usdStageCache;
+            std::shared_ptr<feather_tk::CmdLineValueOption<size_t> > usdDiskCache;
 #endif // TLRENDER_USD
         };
 
@@ -92,9 +97,9 @@ namespace tl
             void _tick();
             void _printProgress();
 
-            std::string _input;
-            std::string _output;
-            Options _options;
+            CmdLine _cmdLine;
+            timeline::OCIOOptions _ocioOptions;
+            timeline::LUTOptions _lutOptions;
 
             std::shared_ptr<timeline::Timeline> _timeline;
             feather_tk::Size2I _renderSize;

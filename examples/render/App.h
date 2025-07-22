@@ -5,6 +5,7 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Player.h>
 
+#include <feather-tk/core/CmdLine.h>
 #include <feather-tk/core/IApp.h>
 
 namespace feather_tk
@@ -22,18 +23,24 @@ namespace tl
         //! Example rendering application.
         namespace render
         {
-            //! Application options.
-            struct Options
+            //! Application command line.
+            struct CmdLine
             {
-                std::string compareFileName;
-                feather_tk::Size2I windowSize = feather_tk::Size2I(1920, 1080);
-                bool fullscreen = false;
-                bool hud = true;
-                timeline::Playback playback = timeline::Playback::Forward;
-                OTIO_NS::RationalTime seek = time::invalidTime;
-                OTIO_NS::TimeRange inOutRange = time::invalidTimeRange;
-                timeline::OCIOOptions ocioOptions;
-                timeline::LUTOptions lutOptions;
+                std::shared_ptr<feather_tk::CmdLineValueArg<std::string> > input;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > compareFileName;
+                std::shared_ptr<feather_tk::CmdLineValueOption<feather_tk::Size2I> > windowSize;
+                std::shared_ptr<feather_tk::CmdLineFlagOption> fullscreen;
+                std::shared_ptr<feather_tk::CmdLineFlagOption> hud;
+                std::shared_ptr<feather_tk::CmdLineValueOption<timeline::Playback> > playback;
+                std::shared_ptr<feather_tk::CmdLineValueOption<OTIO_NS::RationalTime> > seek;
+                std::shared_ptr<feather_tk::CmdLineValueOption<OTIO_NS::TimeRange> > inOutRange;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioFileName;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioInput;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioDisplay;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioView;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioLook;
+                std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > lutFileName;
+                std::shared_ptr<feather_tk::CmdLineValueOption<timeline::LUTOrder> > lutOrder;
             };
 
             //! Application.
@@ -76,8 +83,9 @@ namespace tl
 
                 void _playbackCallback(timeline::Playback);
 
-                std::string _input;
-                Options _options;
+                CmdLine _cmdLine;
+                timeline::OCIOOptions _ocioOptions;
+                timeline::LUTOptions _lutOptions;
 
                 std::shared_ptr<timeline::Player> _player;
 

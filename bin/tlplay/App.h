@@ -7,6 +7,7 @@
 #include <tlTimeline/TimeUnits.h>
 
 #include <feather-tk/ui/App.h>
+#include <feather-tk/core/CmdLine.h>
 
 namespace tl
 {
@@ -49,11 +50,11 @@ namespace tl
             void _tick() override;
 
         private:
-            struct CmdLineOptions
+            struct CmdLine
             {
-                std::vector<std::string> fileNames;
+                std::shared_ptr<feather_tk::CmdLineListArg<std::string> > inputs;
             };
-            CmdLineOptions _cmdLineOptions;
+            CmdLine _cmdLine;
             std::shared_ptr<SettingsModel> _settingsModel;
             std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
             std::shared_ptr<RecentFilesModel> _recentFilesModel;
