@@ -89,6 +89,7 @@ namespace tl
         void to_json(nlohmann::json& json, const OCIOOptions& value)
         {
             json["Enabled"] = value.enabled;
+            json["FileName"] = value.fileName;
             json["Input"] = value.input;
             json["Display"] = value.display;
             json["View"] = value.view;
@@ -105,6 +106,7 @@ namespace tl
         void from_json(const nlohmann::json& json, OCIOOptions& value)
         {
             json.at("Enabled").get_to(value.enabled);
+            json.at("FileName").get_to(value.fileName);
             json.at("Input").get_to(value.input);
             json.at("Display").get_to(value.display);
             json.at("View").get_to(value.view);
