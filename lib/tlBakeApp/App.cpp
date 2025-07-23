@@ -302,33 +302,46 @@ namespace tl
             }
 
             // Set options.
-            if (_cmdLine.ocioFileName->hasValue())
+            if (_cmdLine.ocioFileName->hasValue() ||
+                _cmdLine.ocioInput->hasValue() ||
+                _cmdLine.ocioDisplay->hasValue() ||
+                _cmdLine.ocioView->hasValue() ||
+                _cmdLine.ocioLook->hasValue())
             {
-                _ocioOptions.fileName = _cmdLine.ocioFileName->getValue();
+                _ocioOptions.enabled = true;
+                if (_cmdLine.ocioFileName->hasValue())
+                {
+                    _ocioOptions.fileName = _cmdLine.ocioFileName->getValue();
+                }
+                if (_cmdLine.ocioInput->hasValue())
+                {
+                    _ocioOptions.input = _cmdLine.ocioInput->getValue();
+                }
+                if (_cmdLine.ocioDisplay->hasValue())
+                {
+                    _ocioOptions.display = _cmdLine.ocioDisplay->getValue();
+                }
+                if (_cmdLine.ocioView->hasValue())
+                {
+                    _ocioOptions.view = _cmdLine.ocioView->getValue();
+                }
+                if (_cmdLine.ocioLook->hasValue())
+                {
+                    _ocioOptions.look = _cmdLine.ocioLook->getValue();
+                }
             }
-            if (_cmdLine.ocioInput->hasValue())
+            if (_cmdLine.lutFileName->hasValue() ||
+                _cmdLine.lutOrder->hasValue())
             {
-                _ocioOptions.input = _cmdLine.ocioInput->getValue();
-            }
-            if (_cmdLine.ocioDisplay->hasValue())
-            {
-                _ocioOptions.display = _cmdLine.ocioDisplay->getValue();
-            }
-            if (_cmdLine.ocioView->hasValue())
-            {
-                _ocioOptions.view = _cmdLine.ocioView->getValue();
-            }
-            if (_cmdLine.ocioLook->hasValue())
-            {
-                _ocioOptions.look = _cmdLine.ocioLook->getValue();
-            }
-            if (_cmdLine.lutFileName->hasValue())
-            {
-                _lutOptions.fileName = _cmdLine.lutFileName->getValue();
-            }
-            if (_cmdLine.lutOrder->hasValue())
-            {
-                _lutOptions.order = _cmdLine.lutOrder->getValue();
+                _lutOptions.enabled = true;
+                if (_cmdLine.lutFileName->hasValue())
+                {
+                    _lutOptions.fileName = _cmdLine.lutFileName->getValue();
+                }
+                if (_cmdLine.lutOrder->hasValue())
+                {
+                    _lutOptions.order = _cmdLine.lutOrder->getValue();
+                }
             }
 
             // Start the main loop.
