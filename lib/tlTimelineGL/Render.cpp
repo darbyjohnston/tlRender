@@ -173,13 +173,21 @@ namespace tl
             {
                 p.ocioData.reset(new OCIOData);
 
-                if (!p.ocioOptions.fileName.empty())
+                switch (p.ocioOptions.config)
                 {
-                    p.ocioData->config = OCIO::Config::CreateFromFile(p.ocioOptions.fileName.c_str());
-                }
-                else
-                {
-                    p.ocioData->config = OCIO::GetCurrentConfig();
+                case timeline::OCIOConfig::BuiltIn:
+                    p.ocioData->config = OCIO::Config::CreateFromFile("ocio://default");
+                    break;
+                case timeline::OCIOConfig::File:
+                    if (!p.ocioOptions.fileName.empty())
+                    {
+                        p.ocioData->config = OCIO::Config::CreateFromFile(p.ocioOptions.fileName.c_str());
+                    }
+                    break;
+                case timeline::OCIOConfig::Env:
+                    p.ocioData->config = OCIO::Config::CreateFromEnv();
+                    break;
+                default: break;
                 }
                 if (!p.ocioData->config)
                 {

@@ -27,6 +27,9 @@ namespace tl
         void ColorOptionsTest::run()
         {
             {
+                _enum<OCIOConfig>("OCIOConfig", getOCIOConfigEnums);
+            }
+            {
                 _enum<LUTOrder>("LUTOrder", getLUTOrderEnums);
             }
             {

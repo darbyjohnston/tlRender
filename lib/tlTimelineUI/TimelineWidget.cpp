@@ -34,8 +34,6 @@ namespace tl
             std::vector<int> frameMarkers;
             std::shared_ptr<feather_tk::ObservableValue<ItemOptions> > itemOptions;
             std::shared_ptr<feather_tk::ObservableValue<DisplayOptions> > displayOptions;
-            timeline::OCIOOptions ocioOptions;
-            timeline::LUTOptions lutOptions;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             timeline::Playback playback = timeline::Playback::Stop;
             OTIO_NS::RationalTime currentTime = time::invalidTime;

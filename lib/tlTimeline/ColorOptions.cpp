@@ -23,10 +23,17 @@ namespace tl
 {
     namespace timeline
     {
+        FEATHER_TK_ENUM_IMPL(
+            OCIOConfig,
+            "BuiltIn",
+            "File",
+            "Env");
+
         bool OCIOOptions::operator == (const OCIOOptions& other) const
         {
             return
                 enabled == other.enabled &&
+                config == other.config &&
                 fileName == other.fileName &&
                 input == other.input &&
                 display == other.display &&
@@ -89,6 +96,7 @@ namespace tl
         void to_json(nlohmann::json& json, const OCIOOptions& value)
         {
             json["Enabled"] = value.enabled;
+            json["Config"] = to_string(value.config);
             json["FileName"] = value.fileName;
             json["Input"] = value.input;
             json["Display"] = value.display;
@@ -106,6 +114,7 @@ namespace tl
         void from_json(const nlohmann::json& json, OCIOOptions& value)
         {
             json.at("Enabled").get_to(value.enabled);
+            from_string(json.at("Config").get<std::string>(), value.config);
             json.at("FileName").get_to(value.fileName);
             json.at("Input").get_to(value.input);
             json.at("Display").get_to(value.display);

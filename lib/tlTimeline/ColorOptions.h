@@ -16,10 +16,23 @@ namespace tl
 {
     namespace timeline
     {
+        //! OpenColorIO configuration options.
+        enum class OCIOConfig
+        {
+            BuiltIn,
+            File,
+            Env,
+
+            Count,
+            First = BuiltIn
+        };
+        FEATHER_TK_ENUM(OCIOConfig);
+
         //! OpenColorIO options.
         struct OCIOOptions
         {
-            bool        enabled = false;
+            bool        enabled  = false;
+            OCIOConfig  config   = OCIOConfig::BuiltIn;
             std::string fileName;
             std::string input;
             std::string display;
