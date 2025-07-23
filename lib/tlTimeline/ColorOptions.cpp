@@ -26,8 +26,8 @@ namespace tl
         FEATHER_TK_ENUM_IMPL(
             OCIOConfig,
             "BuiltIn",
-            "File",
-            "Env");
+            "EnvVar",
+            "File");
 
         bool OCIOOptions::operator == (const OCIOOptions& other) const
         {

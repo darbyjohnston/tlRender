@@ -178,14 +178,14 @@ namespace tl
                 case timeline::OCIOConfig::BuiltIn:
                     p.ocioData->config = OCIO::Config::CreateFromFile("ocio://default");
                     break;
+                case timeline::OCIOConfig::EnvVar:
+                    p.ocioData->config = OCIO::Config::CreateFromEnv();
+                    break;
                 case timeline::OCIOConfig::File:
                     if (!p.ocioOptions.fileName.empty())
                     {
                         p.ocioData->config = OCIO::Config::CreateFromFile(p.ocioOptions.fileName.c_str());
                     }
-                    break;
-                case timeline::OCIOConfig::Env:
-                    p.ocioData->config = OCIO::Config::CreateFromEnv();
                     break;
                 default: break;
                 }

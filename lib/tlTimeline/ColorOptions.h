@@ -20,8 +20,8 @@ namespace tl
         enum class OCIOConfig
         {
             BuiltIn,
+            EnvVar,
             File,
-            Env,
 
             Count,
             First = BuiltIn
