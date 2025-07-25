@@ -141,6 +141,9 @@ if(@TLRENDER_USD@)
         add_definitions(-DTLRENDER_USD)
     endif()
 endif()
+if(@TLRENDER_BMD@)
+    add_definitions(-DTLRENDER_BMD)
+endif()
 
 # feather-tk dependencies
 find_package(feather-tk REQUIRED)
