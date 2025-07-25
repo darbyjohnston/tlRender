@@ -200,6 +200,7 @@ set(FFmpeg_CONFIGURE_ARGS
     --enable-demuxer=mov
     --enable-demuxer=mp3
     --enable-demuxer=mp4
+    --enable-demuxer=mxf
     --enable-demuxer=pcm_alaw
     --enable-demuxer=pcm_f32be
     --enable-demuxer=pcm_f32le
@@ -234,6 +235,7 @@ set(FFmpeg_CONFIGURE_ARGS
     --enable-muxer=mov
     --enable-muxer=mp4
     --enable-muxer=mpeg2video
+    --enable-muxer=mxf
     --enable-muxer=pcm_alaw
     --enable-muxer=pcm_f32be
     --enable-muxer=pcm_f32le

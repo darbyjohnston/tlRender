@@ -217,7 +217,8 @@ namespace tl
                     formatLog.push_back(feather_tk::Format("    {0}: {1}").arg(avInputFormat->name).arg(avInputFormat->extensions));
                 }
             }
-            //! \bug Why isn't .wav in the list of input formats?
+            //! \bug Why aren't these in the list of input formats?
+            extensions[".mxf"] = io::FileType::Media;
             extensions[".wav"] = io::FileType::Media;
 
             IReadPlugin::_init("FFmpeg", extensions, logSystem);
