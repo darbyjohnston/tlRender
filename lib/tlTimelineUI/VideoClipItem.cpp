@@ -255,6 +255,7 @@ namespace tl
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
                     p.infoRequest = p.thumbnailGenerator->getInfo(
+                        reinterpret_cast<intptr_t>(this),
                         p.path,
                         p.memoryRead,
                         p.ioOptions);
@@ -337,6 +338,7 @@ namespace tl
                             if (k == p.thumbnailRequests.end())
                             {
                                 p.thumbnailRequests[mediaTime] = p.thumbnailGenerator->getThumbnail(
+                                    reinterpret_cast<intptr_t>(this),
                                     p.path,
                                     p.memoryRead,
                                     _displayOptions.thumbnailHeight,

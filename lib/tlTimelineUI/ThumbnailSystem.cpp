@@ -91,16 +91,17 @@ namespace tl
         }
 
         std::string ThumbnailCache::getInfoKey(
+            intptr_t id,
             const file::Path& path,
             const io::Options& options)
         {
-            std::vector<std::string> s;
-            s.push_back(path.get());
+            std::stringstream ss;
+            ss << id << ";" << path.get() << ";";
             for (const auto& i : options)
             {
-                s.push_back(feather_tk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
-            return feather_tk::join(s, ';');
+            return ss.str();
         }
 
         void ThumbnailCache::addInfo(const std::string& key, const io::Info& info)
@@ -125,20 +126,19 @@ namespace tl
         }
 
         std::string ThumbnailCache::getThumbnailKey(
-            int height,
+            intptr_t id,
             const file::Path& path,
+            int height,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            std::vector<std::string> s;
-            s.push_back(feather_tk::Format("{0}").arg(height));
-            s.push_back(path.get());
-            s.push_back(feather_tk::Format("{0}").arg(time));
+            std::stringstream ss;
+            ss << id << ";" << path.get() << ";" << height << ";";
             for (const auto& i : options)
             {
-                s.push_back(feather_tk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
-            return feather_tk::join(s, ';');
+            return ss.str();
         }
 
         void ThumbnailCache::addThumbnail(
@@ -167,20 +167,19 @@ namespace tl
         }
 
         std::string ThumbnailCache::getWaveformKey(
-            const feather_tk::Size2I& size,
+            intptr_t id,
             const file::Path& path,
+            const feather_tk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
-            std::vector<std::string> s;
-            s.push_back(feather_tk::Format("{0}").arg(size));
-            s.push_back(path.get());
-            s.push_back(feather_tk::Format("{0}").arg(timeRange));
+            std::stringstream ss;
+            ss << id << ";" << path.get() << ";" << size << ";" << timeRange << ";";
             for (const auto& i : options)
             {
-                s.push_back(feather_tk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ss << i.first << ":" << i.second << ";";
             }
-            return feather_tk::join(s, ';');
+            return ss.str();
         }
 
         void ThumbnailCache::addWaveform(
@@ -236,6 +235,7 @@ namespace tl
             struct InfoRequest
             {
                 uint64_t id = 0;
+                intptr_t callerId = 0;
                 file::Path path;
                 std::vector<feather_tk::InMemoryFile> memoryRead;
                 io::Options options;
@@ -245,6 +245,7 @@ namespace tl
             struct ThumbnailRequest
             {
                 uint64_t id = 0;
+                intptr_t callerId = 0;
                 file::Path path;
                 std::vector<feather_tk::InMemoryFile> memoryRead;
                 int height = 0;
@@ -256,6 +257,7 @@ namespace tl
             struct WaveformRequest
             {
                 uint64_t id = 0;
+                intptr_t callerId = 0;
                 file::Path path;
                 std::vector<feather_tk::InMemoryFile> memoryRead;
                 feather_tk::Size2I size;
@@ -432,13 +434,15 @@ namespace tl
         }
 
         InfoRequest ThumbnailGenerator::getInfo(
+            intptr_t id,
             const file::Path& path,
             const io::Options& options)
         {
-            return getInfo(path, {}, options);
+            return getInfo(id, path, {}, options);
         }
 
         InfoRequest ThumbnailGenerator::getInfo(
+            intptr_t id,
             const file::Path& path,
             const std::vector<feather_tk::InMemoryFile>& memoryRead,
             const io::Options& options)
@@ -447,6 +451,7 @@ namespace tl
             (p.requestId)++;
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = p.requestId;
+            request->callerId = id;
             request->path = path;
             request->memoryRead = memoryRead;
             request->options = options;
@@ -474,15 +479,17 @@ namespace tl
         }
 
         ThumbnailRequest ThumbnailGenerator::getThumbnail(
+            intptr_t id,
             const file::Path& path,
             int height,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            return getThumbnail(path, {}, height, time, options);
+            return getThumbnail(id, path, {}, height, time, options);
         }
 
         ThumbnailRequest ThumbnailGenerator::getThumbnail(
+            intptr_t id,
             const file::Path& path,
             const std::vector<feather_tk::InMemoryFile>& memoryRead,
             int height,
@@ -493,6 +500,7 @@ namespace tl
             (p.requestId)++;
             auto request = std::make_shared<Private::ThumbnailRequest>();
             request->id = p.requestId;
+            request->callerId = id;
             request->path = path;
             request->memoryRead = memoryRead;
             request->height = height;
@@ -524,15 +532,17 @@ namespace tl
         }
 
         WaveformRequest ThumbnailGenerator::getWaveform(
+            intptr_t id,
             const file::Path& path,
             const feather_tk::Size2I& size,
             const OTIO_NS::TimeRange& range,
             const io::Options& options)
         {
-            return getWaveform(path, {}, size, range, options);
+            return getWaveform(id, path, {}, size, range, options);
         }
 
         WaveformRequest ThumbnailGenerator::getWaveform(
+            intptr_t id,
             const file::Path& path,
             const std::vector<feather_tk::InMemoryFile>& memoryRead,
             const feather_tk::Size2I& size,
@@ -543,6 +553,7 @@ namespace tl
             (p.requestId)++;
             auto request = std::make_shared<Private::WaveformRequest>();
             request->id = p.requestId;
+            request->callerId = id;
             request->path = path;
             request->memoryRead = memoryRead;
             request->size = size;
@@ -648,6 +659,7 @@ namespace tl
             {
                 io::Info info;
                 const std::string key = ThumbnailCache::getInfoKey(
+                    request->callerId,
                     request->path,
                     request->options);
                 if (!p.cache->getInfo(key, info))
@@ -700,8 +712,9 @@ namespace tl
             {
                 std::shared_ptr<feather_tk::Image> image;
                 const std::string key = ThumbnailCache::getThumbnailKey(
-                    request->height,
+                    request->callerId,
                     request->path,
+                    request->height,
                     request->time,
                     request->options);
                 if (!p.cache->getThumbnail(key, image))
@@ -976,8 +989,9 @@ namespace tl
             {
                 std::shared_ptr<feather_tk::TriMesh2F> mesh;
                 const std::string key = ThumbnailCache::getWaveformKey(
-                    request->size,
+                    request->callerId,
                     request->path,
+                    request->size,
                     request->timeRange,
                     request->options);
                 if (!p.cache->getWaveform(key, mesh))
@@ -1100,28 +1114,31 @@ namespace tl
         }
 
         InfoRequest ThumbnailSystem::getInfo(
+            intptr_t id,
             const file::Path& path,
             const io::Options& ioOptions)
         {
-            return _p->generator->getInfo(path, ioOptions);
+            return _p->generator->getInfo(id, path, ioOptions);
         }
 
         ThumbnailRequest ThumbnailSystem::getThumbnail(
+            intptr_t id,
             const file::Path& path,
             int height,
             const OTIO_NS::RationalTime& time,
             const io::Options& ioOptions)
         {
-            return _p->generator->getThumbnail(path, height, time, ioOptions);
+            return _p->generator->getThumbnail(id, path, height, time, ioOptions);
         }
 
         WaveformRequest ThumbnailSystem::getWaveform(
+            intptr_t id,
             const file::Path& path,
             const feather_tk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& ioOptions)
         {
-            return _p->generator->getWaveform(path, size, timeRange, ioOptions);
+            return _p->generator->getWaveform(id, path, size, timeRange, ioOptions);
         }
 
         void ThumbnailSystem::cancelRequests(const std::vector<uint64_t>& ids)

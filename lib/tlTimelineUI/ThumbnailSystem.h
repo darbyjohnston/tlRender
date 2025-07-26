@@ -81,6 +81,7 @@ namespace tl
             
             //! Get an I/O information cache key.
             static std::string getInfoKey(
+                intptr_t id,
                 const file::Path&,
                 const io::Options&);
 
@@ -95,8 +96,9 @@ namespace tl
             
             //! Get a thumbnail cache key.
             static std::string getThumbnailKey(
-                int height,
+                intptr_t id,
                 const file::Path&,
+                int height,
                 const OTIO_NS::RationalTime&,
                 const io::Options&);
 
@@ -115,8 +117,9 @@ namespace tl
 
             //! Get a waveform cache key.
             static std::string getWaveformKey(
-                const feather_tk::Size2I&,
+                intptr_t id,
                 const file::Path&,
+                const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange&,
                 const io::Options&);
 
@@ -164,17 +167,20 @@ namespace tl
 
             //! Get information.
             InfoRequest getInfo(
+                intptr_t id,
                 const file::Path&,
                 const io::Options& = io::Options());
 
             //! Get information.
             InfoRequest getInfo(
+                intptr_t id,
                 const file::Path&,
                 const std::vector<feather_tk::InMemoryFile>&,
                 const io::Options& = io::Options());
 
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
+                intptr_t id,
                 const file::Path&,
                 int height,
                 const OTIO_NS::RationalTime& = time::invalidTime,
@@ -182,6 +188,7 @@ namespace tl
 
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
+                intptr_t id,
                 const file::Path&,
                 const std::vector<feather_tk::InMemoryFile>&,
                 int height,
@@ -190,6 +197,7 @@ namespace tl
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
+                intptr_t id,
                 const file::Path&,
                 const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,
@@ -197,6 +205,7 @@ namespace tl
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
+                intptr_t id,
                 const file::Path&,
                 const std::vector<feather_tk::InMemoryFile>&,
                 const feather_tk::Size2I&,
@@ -232,11 +241,13 @@ namespace tl
 
             //! Get information.
             InfoRequest getInfo(
+                intptr_t id,
                 const file::Path&,
                 const io::Options& = io::Options());
 
             //! Get a video thumbnail.
             ThumbnailRequest getThumbnail(
+                intptr_t id,
                 const file::Path&,
                 int height,
                 const OTIO_NS::RationalTime& = time::invalidTime,
@@ -244,6 +255,7 @@ namespace tl
 
             //! Get an audio waveform.
             WaveformRequest getWaveform(
+                intptr_t id,
                 const file::Path&,
                 const feather_tk::Size2I&,
                 const OTIO_NS::TimeRange& = time::invalidTimeRange,

@@ -248,6 +248,7 @@ namespace tl
                 if (!p.ioInfo && !p.infoRequest.future.valid())
                 {
                     p.infoRequest = p.thumbnailGenerator->getInfo(
+                        reinterpret_cast<intptr_t>(this),
                         p.path,
                         p.memoryRead,
                         _data->options.ioOptions);
@@ -322,6 +323,7 @@ namespace tl
                             if (j == p.waveformRequests.end())
                             {
                                 p.waveformRequests[mediaRange.start_time()] = p.thumbnailGenerator->getWaveform(
+                                    reinterpret_cast<intptr_t>(this),
                                     p.path,
                                     p.memoryRead,
                                     box.size(),
