@@ -96,14 +96,8 @@ namespace tl
             //! Set whether auto-scroll is enabled.
             void setAutoScroll(bool);
 
-            //! Get the mouse scroll key modifier.
-            feather_tk::KeyModifier getScrollKeyModifier() const;
-
-            //! Set the mouse scroll key modifier.
-            void setScrollKeyModifier(feather_tk::KeyModifier);
-
-            //! Get the mouse wheel scale.
-            float getMouseWheelScale() const;
+            //! Set the scroll binding.
+            void setScrollBinding(int button, feather_tk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);

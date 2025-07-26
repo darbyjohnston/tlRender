@@ -51,8 +51,9 @@ namespace tl
                 double frame = 0.0;
             };
             std::optional<DroppedFramesData> droppedFramesData;
-            feather_tk::KeyModifier panModifier = feather_tk::KeyModifier::Control;
-            feather_tk::KeyModifier wipeModifier = feather_tk::KeyModifier::Alt;
+            std::pair<int, feather_tk::KeyModifier> panBinding = std::make_pair(0, feather_tk::KeyModifier::Control);
+            std::pair<int, feather_tk::KeyModifier> wipeBinding = std::make_pair(0, feather_tk::KeyModifier::Alt);
+            float mouseWheelScale = 1.1F;
 
             bool doRender = false;
             std::shared_ptr<feather_tk::gl::OffscreenBuffer> buffer;
@@ -509,14 +510,19 @@ namespace tl
             return out;
         }
 
-        void Viewport::setPanModifier(feather_tk::KeyModifier value)
+        void Viewport::setPanBinding(int button, feather_tk::KeyModifier modifier)
         {
-            _p->panModifier = value;
+            _p->panBinding = std::make_pair(button, modifier);
         }
 
-        void Viewport::setWipeModifier(feather_tk::KeyModifier value)
+        void Viewport::setWipeBinding(int button, feather_tk::KeyModifier modifier)
         {
-            _p->wipeModifier = value;
+            _p->wipeBinding = std::make_pair(button, modifier);
+        }
+
+        void Viewport::setMouseWheelScale(float value)
+        {
+            _p->mouseWheelScale = value;
         }
 
         void Viewport::setGeometry(const feather_tk::Box2I& value)
@@ -745,14 +751,14 @@ namespace tl
             IWidget::mousePressEvent(event);
             FEATHER_TK_P();
             takeKeyFocus();
-            if (0 == event.button &&
-                feather_tk::checkKeyModifier(p.panModifier, event.modifiers))
+            if (p.panBinding.first == event.button &&
+                feather_tk::checkKeyModifier(p.panBinding.second, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::View;
                 p.mouse.viewPos = p.viewPos->get();
             }
-            else if (0 == event.button &&
-                feather_tk::checkKeyModifier(p.wipeModifier, event.modifiers))
+            else if (p.wipeBinding.first == event.button &&
+                feather_tk::checkKeyModifier(p.wipeBinding.second, event.modifiers))
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
             }
@@ -772,11 +778,10 @@ namespace tl
             {
                 event.accept = true;
                 const double viewZoom = p.viewZoom->get();
-                const double mult = 1.1;
                 const double newZoom =
                     event.value.y < 0 ?
-                    viewZoom / (-event.value.y * mult) :
-                    viewZoom * (event.value.y * mult);
+                    viewZoom / (-event.value.y * p.mouseWheelScale) :
+                    viewZoom * (event.value.y * p.mouseWheelScale);
                 setViewZoom(newZoom, event.pos - getGeometry().min);
             }
             else if (event.modifiers & static_cast<int>(feather_tk::KeyModifier::Control))

@@ -174,11 +174,14 @@ namespace tl
             //! Sample a color from the viewport.
             feather_tk::Color4F getColorSample(const feather_tk::V2I&);
 
-            //! Set the keyboard modifier for panning.
-            void setPanModifier(feather_tk::KeyModifier);
+            //! Set the pan binding.
+            void setPanBinding(int button, feather_tk::KeyModifier);
 
-            //! Set the keyboard modifier for wiping.
-            void setWipeModifier(feather_tk::KeyModifier);
+            //! Set the wipe binding.
+            void setWipeBinding(int button, feather_tk::KeyModifier);
+
+            //! Set the mouse wheel scale.
+            void setMouseWheelScale(float);
 
             void setGeometry(const feather_tk::Box2I&) override;
             void sizeHintEvent(const feather_tk::SizeHintEvent&) override;

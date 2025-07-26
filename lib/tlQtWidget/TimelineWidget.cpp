@@ -117,16 +117,6 @@ namespace tl
             return _p->timelineWidget->hasAutoScroll();
         }
 
-        feather_tk::KeyModifier TimelineWidget::scrollKeyModifier() const
-        {
-            return _p->timelineWidget->getScrollKeyModifier();
-        }
-
-        float TimelineWidget::mouseWheelScale() const
-        {
-            return _p->timelineWidget->getMouseWheelScale();
-        }
-
         bool TimelineWidget::hasStopOnScrub() const
         {
             return _p->timelineWidget->hasStopOnScrub();
@@ -167,9 +157,9 @@ namespace tl
             _p->timelineWidget->setAutoScroll(value);
         }
 
-        void TimelineWidget::setScrollKeyModifier(feather_tk::KeyModifier value)
+        void TimelineWidget::setScrollBinding(int button, feather_tk::KeyModifier modifier)
         {
-            _p->timelineWidget->setScrollKeyModifier(value);
+            _p->timelineWidget->setScrollBinding(button, modifier);
         }
 
         void TimelineWidget::setMouseWheelScale(float value)

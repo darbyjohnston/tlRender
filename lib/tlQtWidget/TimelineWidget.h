@@ -51,12 +51,6 @@ namespace tl
             //! Get whether auto-scroll is enabled.
             bool hasAutoScroll() const;
 
-            //! Get the mouse scroll key modifier.
-            feather_tk::KeyModifier scrollKeyModifier() const;
-
-            //! Get the mouse wheel scale.
-            float mouseWheelScale() const;
-
             //! Get whether to stop playback when scrubbing.
             bool hasStopOnScrub() const;
 
@@ -82,8 +76,8 @@ namespace tl
             //! Set whether auto-scroll is enabled.
             void setAutoScroll(bool);
 
-            //! Set the mouse scroll key modifier.
-            void setScrollKeyModifier(feather_tk::KeyModifier);
+            //! Set the scroll binding.
+            void setScrollBinding(int button, feather_tk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);

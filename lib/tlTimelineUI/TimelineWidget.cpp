@@ -26,7 +26,7 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             std::shared_ptr<feather_tk::ObservableValue<bool> > scrollBarsVisible;
             std::shared_ptr<feather_tk::ObservableValue<bool> > autoScroll;
-            feather_tk::KeyModifier scrollKeyModifier = feather_tk::KeyModifier::Control;
+            std::pair<int, feather_tk::KeyModifier> scrollBinding = std::make_pair(0, feather_tk::KeyModifier::Control);
             float mouseWheelScale = 1.1F;
             std::shared_ptr<feather_tk::ObservableValue<bool> > stopOnScrub;
             std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;
@@ -55,7 +55,6 @@ namespace tl
             {
                 MouseMode mode = MouseMode::None;
                 feather_tk::V2I scrollPos;
-                std::chrono::steady_clock::time_point wheelTimer;
             };
             MouseData mouse;
 
@@ -75,7 +74,7 @@ namespace tl
             FEATHER_TK_P();
 
             _setMouseHoverEnabled(true);
-            _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
+            _setMousePressEnabled(true, p.scrollBinding.first, static_cast<int>(p.scrollBinding.second));
 
             p.itemData = std::make_shared<ItemData>();
             p.itemData->timeUnitsModel = timeUnitsModel;
@@ -293,27 +292,16 @@ namespace tl
             }
         }
 
-        feather_tk::KeyModifier TimelineWidget::getScrollKeyModifier() const
-        {
-            return _p->scrollKeyModifier;
-        }
-
-        void TimelineWidget::setScrollKeyModifier(feather_tk::KeyModifier value)
+        void TimelineWidget::setScrollBinding(int button, feather_tk::KeyModifier modifier)
         {
             FEATHER_TK_P();
-            p.scrollKeyModifier = value;
-            _setMousePressEnabled(true, 0, static_cast<int>(p.scrollKeyModifier));
-        }
-
-        float TimelineWidget::getMouseWheelScale() const
-        {
-            return _p->mouseWheelScale;
+            p.scrollBinding = std::make_pair(button, modifier);
+            _setMousePressEnabled(true, button, static_cast<int>(modifier));
         }
 
         void TimelineWidget::setMouseWheelScale(float value)
         {
-            FEATHER_TK_P();
-            p.mouseWheelScale = value;
+            _p->mouseWheelScale = value;
         }
 
         bool TimelineWidget::hasStopOnScrub() const
@@ -490,8 +478,8 @@ namespace tl
             IWidget::mousePressEvent(event);
             FEATHER_TK_P();
             if (p.itemOptions->get().inputEnabled &&
-                0 == event.button &&
-                event.modifiers & static_cast<int>(p.scrollKeyModifier))
+                p.scrollBinding.first == event.button &&
+                event.modifiers & static_cast<int>(p.scrollBinding.second))
             {
                 takeKeyFocus();
                 p.mouse.mode = Private::MouseMode::Scroll;
