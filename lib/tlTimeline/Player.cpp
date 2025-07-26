@@ -539,10 +539,13 @@ namespace tl
         void Player::setInOutRange(const OTIO_NS::TimeRange& value)
         {
             FEATHER_TK_P();
-            if (p.inOutRange->setIfChanged(value))
+            const OTIO_NS::TimeRange tmp(
+                value.start_time().rescaled_to(p.timeRange.duration().rate()).floor(),
+                value.duration().rescaled_to(p.timeRange.duration().rate()).ceil());
+            if (p.inOutRange->setIfChanged(tmp))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                p.mutex.state.inOutRange = value;
+                p.mutex.state.inOutRange = tmp;
                 p.mutex.clearRequests = true;
             }
         }
