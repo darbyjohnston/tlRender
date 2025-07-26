@@ -718,6 +718,7 @@ namespace tl
                 const feather_tk::Box2I& g = getGeometry();
                 const feather_tk::Color4F color(.4F, .5F, .9F);
 
+                const int h = p.size.border * 2;
                 switch (_displayOptions.inOutDisplay)
                 {
                 case InOutDisplay::InsideRange:
@@ -729,9 +730,7 @@ namespace tl
                         p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.margin);
+                        h);
                     event.render->drawRect(box, color);
                     break;
                 }
@@ -744,9 +743,7 @@ namespace tl
                         p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.margin);
+                        h);
                     event.render->drawRect(box, color);
                     x0 = timeToPos(_p->inOutRange.end_time_exclusive());
                     x1 = timeToPos(_timeRange.end_time_exclusive());
@@ -755,9 +752,7 @@ namespace tl
                         p.size.scrollArea.min.y +
                         g.min.y,
                         x1 - x0 + 1,
-                        p.size.margin +
-                        p.size.fontMetrics.lineHeight +
-                        p.size.margin);
+                        h);
                     event.render->drawRect(box, color);
                     break;
                 }

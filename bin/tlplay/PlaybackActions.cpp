@@ -134,6 +134,58 @@ namespace tl
                 });
             _actions["End"]->setTooltip("Go to the end frame.");
 
+            _actions["SetInPoint"] = feather_tk::Action::create(
+                "Set In Point",
+                feather_tk::Key::I,
+                0,
+                [this]
+                {
+                    if (_player)
+                    {
+                        _player->setInPoint();
+                    }
+                });
+            _actions["SetInPoint"]->setTooltip("Set the playback in point.");
+
+            _actions["ResetInPoint"] = feather_tk::Action::create(
+                "Reset In Point",
+                feather_tk::Key::I,
+                static_cast<int>(feather_tk::KeyModifier::Shift),
+                [this]
+                {
+                    if (_player)
+                    {
+                        _player->resetInPoint();
+                    }
+                });
+            _actions["ResetInPoint"]->setTooltip("Reset the playback in point.");
+
+            _actions["SetOutPoint"] = feather_tk::Action::create(
+                "Set Out Point",
+                feather_tk::Key::O,
+                0,
+                [this]
+                {
+                    if (_player)
+                    {
+                        _player->setOutPoint();
+                    }
+                });
+            _actions["SetOutPoint"]->setTooltip("Set the playback out point.");
+
+            _actions["ResetOutPoint"] = feather_tk::Action::create(
+                "Reset Out Point",
+                feather_tk::Key::O,
+                static_cast<int>(feather_tk::KeyModifier::Shift),
+                [this]
+                {
+                    if (_player)
+                    {
+                        _player->resetOutPoint();
+                    }
+                });
+            _actions["ResetOutPoint"]->setTooltip("Reset the playback out point.");
+
             _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
@@ -168,6 +220,10 @@ namespace tl
                     _actions["Prev"]->setEnabled(value.get());
                     _actions["Next"]->setEnabled(value.get());
                     _actions["End"]->setEnabled(value.get());
+                    _actions["SetInPoint"]->setEnabled(value.get());
+                    _actions["ResetInPoint"]->setEnabled(value.get());
+                    _actions["SetOutPoint"]->setEnabled(value.get());
+                    _actions["ResetOutPoint"]->setEnabled(value.get());
                 });
         }
 

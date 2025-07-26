@@ -102,8 +102,7 @@ namespace tl
         }
 
         FileMenu::~FileMenu()
-        {
-        }
+        {}
 
         std::shared_ptr<FileMenu> FileMenu::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -169,8 +168,7 @@ namespace tl
         }
 
         CompareMenu::~CompareMenu()
-        {
-        }
+        {}
 
         std::shared_ptr<CompareMenu> CompareMenu::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -199,11 +197,15 @@ namespace tl
             addAction(actions["Prev"]);
             addAction(actions["Next"]);
             addAction(actions["End"]);
+            addDivider();
+            addAction(actions["SetInPoint"]);
+            addAction(actions["ResetInPoint"]);
+            addAction(actions["SetOutPoint"]);
+            addAction(actions["ResetOutPoint"]);
         }
 
         PlaybackMenu::~PlaybackMenu()
-        {
-        }
+        {}
 
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -229,8 +231,7 @@ namespace tl
         }
 
         ViewMenu::~ViewMenu()
-        {
-        }
+        {}
 
         std::shared_ptr<ViewMenu> ViewMenu::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -258,8 +259,7 @@ namespace tl
         }
 
         WindowMenu::~WindowMenu()
-        {
-        }
+        {}
 
         std::shared_ptr<WindowMenu> WindowMenu::create(
             const std::shared_ptr<feather_tk::Context>& context,
@@ -290,8 +290,7 @@ namespace tl
         }
 
         MenuBar::~MenuBar()
-        {
-        }
+        {}
 
         std::shared_ptr<MenuBar> MenuBar::create(
             const std::shared_ptr<feather_tk::Context>& context,
