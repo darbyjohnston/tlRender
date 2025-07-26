@@ -541,7 +541,7 @@ namespace tl
             FEATHER_TK_P();
             const OTIO_NS::TimeRange tmp(
                 value.start_time().rescaled_to(p.timeRange.duration().rate()).floor(),
-                value.duration().rescaled_to(p.timeRange.duration().rate()).floor());
+                value.duration().rescaled_to(p.timeRange.duration().rate()).ceil());
             if (p.inOutRange->setIfChanged(tmp))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
