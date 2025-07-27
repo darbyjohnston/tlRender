@@ -4,7 +4,6 @@
 
 #include <tlIOTest/PNGTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/PNG.h>
 #include <tlIO/System.h>
 

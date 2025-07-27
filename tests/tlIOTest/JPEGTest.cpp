@@ -4,7 +4,6 @@
 
 #include <tlIOTest/JPEGTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/JPEG.h>
 #include <tlIO/System.h>
 

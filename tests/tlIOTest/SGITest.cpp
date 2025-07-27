@@ -4,7 +4,6 @@
 
 #include <tlIOTest/SGITest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/SGI.h>
 #include <tlIO/System.h>
 

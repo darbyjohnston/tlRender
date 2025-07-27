@@ -4,7 +4,6 @@
 
 #include <tlIOTest/STBTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/STB.h>
 #include <tlIO/System.h>
 

@@ -4,7 +4,6 @@
 
 #include <tlIOTest/DPXTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/DPX.h>
 #include <tlIO/System.h>
 

@@ -4,7 +4,6 @@
 
 #include <tlIOTest/OpenEXRTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/OpenEXR.h>
 #include <tlIO/System.h>
 

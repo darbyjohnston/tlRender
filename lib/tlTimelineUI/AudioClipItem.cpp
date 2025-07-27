@@ -9,8 +9,6 @@
 #include <tlTimeline/Util.h>
 
 #include <feather-tk/ui/DrawUtil.h>
-#include <tlIO/Cache.h>
-
 #include <feather-tk/core/RenderUtil.h>
 
 namespace tl
@@ -66,7 +64,10 @@ namespace tl
             p.memoryRead = timeline::getMemoryRead(clip->media_reference());
             p.thumbnailGenerator = thumbnailGenerator;
 
-            const std::string infoCacheKey = io::getInfoCacheKey(path, _data->options.ioOptions);
+            const std::string infoCacheKey = ThumbnailCache::getInfoKey(
+                reinterpret_cast<intptr_t>(this),
+                path,
+                _data->options.ioOptions);
             const auto i = itemData->info.find(infoCacheKey);
             if (i != itemData->info.end())
             {
@@ -148,7 +149,10 @@ namespace tl
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
-                const std::string infoCacheKey = io::getInfoCacheKey(p.path, _data->options.ioOptions);
+                const std::string infoCacheKey = ThumbnailCache::getInfoKey(
+                    reinterpret_cast<intptr_t>(this),
+                    p.path,
+                    _data->options.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
                 _setSizeUpdate();
                 _setDrawUpdate();
@@ -162,11 +166,14 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto mesh = i->second.future.get();
-                    const std::string cacheKey = io::getAudioCacheKey(
+                    const std::string cacheKey = ThumbnailCache::getWaveformKey(
+                        reinterpret_cast<intptr_t>(this),
                         p.path,
+                        feather_tk::Size2I(
+                            _displayOptions.waveformWidth,
+                            _displayOptions.waveformHeight),
                         i->second.timeRange,
-                        _data->options.ioOptions,
-                        {});
+                        _data->options.ioOptions);
                     _data->waveforms[cacheKey] = mesh;
                     i = p.waveformRequests.erase(i);
                     _setDrawUpdate();
@@ -299,11 +306,12 @@ namespace tl
                             trimmedRange,
                             p.ioInfo->audio.sampleRate);
 
-                        const std::string cacheKey = io::getAudioCacheKey(
+                        const std::string cacheKey = ThumbnailCache::getWaveformKey(
+                            reinterpret_cast<intptr_t>(this),
                             p.path,
+                            box.size(),
                             mediaRange,
-                            _data->options.ioOptions,
-                            {});
+                            _data->options.ioOptions);
                         const auto i = _data->waveforms.find(cacheKey);
                         if (i != _data->waveforms.end())
                         {

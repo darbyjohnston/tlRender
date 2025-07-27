@@ -779,9 +779,9 @@ namespace tl
                 event.accept = true;
                 const double viewZoom = p.viewZoom->get();
                 const double newZoom =
-                    event.value.y < 0 ?
-                    viewZoom / (-event.value.y * p.mouseWheelScale) :
-                    viewZoom * (event.value.y * p.mouseWheelScale);
+                    event.value.y > 0 ?
+                    viewZoom * p.mouseWheelScale :
+                    viewZoom / p.mouseWheelScale;
                 setViewZoom(newZoom, event.pos - getGeometry().min);
             }
             else if (event.modifiers & static_cast<int>(feather_tk::KeyModifier::Control))

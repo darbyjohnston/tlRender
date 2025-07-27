@@ -9,8 +9,6 @@
 #include <tlTimeline/IRender.h>
 #include <tlTimeline/Util.h>
 
-#include <tlIO/Cache.h>
-
 #include <feather-tk/ui/DrawUtil.h>
 #include <feather-tk/core/RenderUtil.h>
 
@@ -72,7 +70,10 @@ namespace tl
 
             p.ioOptions = _data->options.ioOptions;
             p.ioOptions["USD/CameraName"] = p.clipName;
-            const std::string infoCacheKey = io::getInfoCacheKey(path, p.ioOptions);
+            const std::string infoCacheKey = ThumbnailCache::getInfoKey(
+                reinterpret_cast<intptr_t>(this),
+                path,
+                p.ioOptions);
             const auto i = itemData->info.find(infoCacheKey);
             if (i != itemData->info.end())
             {
@@ -152,7 +153,10 @@ namespace tl
                 p.infoRequest.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
             {
                 p.ioInfo = std::make_shared<io::Info>(p.infoRequest.future.get());
-                const std::string infoCacheKey = io::getInfoCacheKey(p.path, p.ioOptions);
+                const std::string infoCacheKey = ThumbnailCache::getInfoKey(
+                    reinterpret_cast<intptr_t>(this),
+                    p.path,
+                    p.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
                 _setSizeUpdate();
                 _setDrawUpdate();
@@ -166,11 +170,12 @@ namespace tl
                     i->second.future.wait_for(std::chrono::seconds(0)) == std::future_status::ready)
                 {
                     const auto image = i->second.future.get();
-                    const std::string cacheKey = io::getVideoCacheKey(
+                    const std::string cacheKey = ThumbnailCache::getThumbnailKey(
+                        reinterpret_cast<intptr_t>(this),
                         p.path,
+                        _displayOptions.thumbnailHeight,
                         i->first,
-                        p.ioOptions,
-                        {});
+                        p.ioOptions);
                     _data->thumbnails[cacheKey] = image;
                     i = p.thumbnailRequests.erase(i);
                     _setDrawUpdate();
@@ -304,11 +309,12 @@ namespace tl
                             trimmedRange,
                             p.ioInfo->videoTime.duration().rate());
 
-                        const std::string cacheKey = io::getVideoCacheKey(
+                        const std::string cacheKey = ThumbnailCache::getThumbnailKey(
+                            reinterpret_cast<intptr_t>(this),
                             p.path,
+                            _displayOptions.thumbnailHeight,
                             mediaTime,
-                            p.ioOptions,
-                            {});
+                            p.ioOptions);
                         const auto i = _data->thumbnails.find(cacheKey);
                         if (i != _data->thumbnails.end())
                         {

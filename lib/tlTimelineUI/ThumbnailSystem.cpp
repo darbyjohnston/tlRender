@@ -133,7 +133,7 @@ namespace tl
             const io::Options& options)
         {
             std::stringstream ss;
-            ss << id << ";" << path.get() << ";" << height << ";";
+            ss << id << ";" << path.get() << ";" << height << ";" << time << ";";
             for (const auto& i : options)
             {
                 ss << i.first << ":" << i.second << ";";
@@ -838,8 +838,7 @@ namespace tl
                             }
                         }
                         catch (const std::exception&)
-                        {
-                        }
+                        {}
                     }
                 }
                 request->promise.set_value(image);

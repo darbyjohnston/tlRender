@@ -1,5 +1,4 @@
 set(HEADERS
-    Cache.h
     Cineon.h
     DPX.h
     IO.h
@@ -17,7 +16,6 @@ set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
 set(SOURCE
-    Cache.cpp
     CineonRead.cpp
     CineonWrite.cpp
     Cineon.cpp

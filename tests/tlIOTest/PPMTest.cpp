@@ -4,7 +4,6 @@
 
 #include <tlIOTest/PPMTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/PPM.h>
 #include <tlIO/System.h>
 

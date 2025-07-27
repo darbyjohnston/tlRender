@@ -504,16 +504,11 @@ namespace tl
             if (p.itemOptions->get().inputEnabled)
             {
                 event.accept = true;
-                if (event.value.y > 0)
-                {
-                    const double zoom = p.scale * p.mouseWheelScale;
-                    setViewZoom(zoom, event.pos);
-                }
-                else
-                {
-                    const double zoom = p.scale / p.mouseWheelScale;
-                    setViewZoom(zoom, event.pos);
-                }
+                const double newZoom =
+                    event.value.y > 0 ?
+                    p.scale * p.mouseWheelScale :
+                    p.scale / p.mouseWheelScale;
+                setViewZoom(newZoom, event.pos);
             }
         }
 

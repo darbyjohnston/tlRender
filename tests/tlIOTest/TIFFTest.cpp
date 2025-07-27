@@ -4,7 +4,6 @@
 
 #include <tlIOTest/TIFFTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/System.h>
 #include <tlIO/TIFF.h>
 

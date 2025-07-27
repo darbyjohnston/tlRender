@@ -4,7 +4,6 @@
 
 #include <tlIOTest/CineonTest.h>
 
-#include <tlIO/Cache.h>
 #include <tlIO/Cineon.h>
 #include <tlIO/System.h>
 
