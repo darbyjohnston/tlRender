@@ -57,6 +57,14 @@ Optional dependencies:
 
 ## Building on Linux
 
+Dependencies:
+* CMake 3.31
+
+Install system packages (Debian based systems):
+```
+sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils libasound2-dev libpulse-dev
+```
+
 Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
@@ -101,6 +109,10 @@ gcovr -r ../../../../lib --html --object-directory lib --html-details --output g
 
 
 ## Building on macOS
+
+Dependencies:
+* Xcode
+* CMake 3.31
 
 Clone the repository:
 ```
@@ -150,9 +162,14 @@ alias intel="env /usr/bin/arch -x86_64 /bin/zsh --login"
 ## Building on Windows
 
 Dependencies:
-* Install MSYS2 (https://www.msys2.org) for compiling FFmpeg.
-* Install Strawberry Perl (https://strawberryperl.com/) for compiling network support.
-* Install Python 3.11 for compiling USD.
+* Visual Studio 2022
+* CMake 3.31
+* MSYS2 (https://www.msys2.org) for compiling FFmpeg.
+* Strawberry Perl (https://strawberryperl.com/) for compiling network support.
+* Python 3.11 for compiling USD.
+
+Open the Visual Studio command console "x64 Native Tools Command Prompt for VS 2022".
+This can be found in the Start menu, in the "Visual Studio 2022" folder.
 
 Clone the repository:
 ```
