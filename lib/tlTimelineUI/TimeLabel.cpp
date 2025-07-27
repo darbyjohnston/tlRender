@@ -192,7 +192,10 @@ namespace tl
                 p.draw->glyphs,
                 p.size.fontMetrics,
                 g.min,
-                event.style->getColorRole(feather_tk::ColorRole::Text));
+                event.style->getColorRole(
+                    isEnabled() ?
+                    feather_tk::ColorRole::Text :
+                    feather_tk::ColorRole::TextDisabled));
         }
 
         void TimeLabel::_textUpdate()
