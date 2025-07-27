@@ -7,7 +7,7 @@
    viewBox="0 0 5.2916665 5.2916666"
    version="1.1"
    id="svg8"
-   inkscape:version="1.2-rc (6364d40632, 2022-05-08)"
+   inkscape:version="1.4.2 (ebf0e94, 2025-05-08)"
    sodipodi:docname="Files.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
@@ -43,7 +43,12 @@
     <inkscape:grid
        type="xygrid"
        id="grid4526"
-       empspacing="10" />
+       empspacing="10"
+       originx="0"
+       originy="0"
+       spacingy="0.26458333"
+       spacingx="0.26458333"
+       units="px" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -71,6 +76,34 @@
          d="m 1.5875001,292.76664 v 3.175 h 2.1166665 v -2.38125 l -0.7937498,-0.79375 z"
          id="path3424"
          sodipodi:nodetypes="cccccc" />
+      <rect
+         style="fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1.39209"
+         id="rect1"
+         width="1.5875"
+         height="0.26458332"
+         x="1.8520833"
+         y="294.61871" />
+      <rect
+         style="fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1.39209"
+         id="rect2"
+         width="1.5875"
+         height="0.26458332"
+         x="1.8520833"
+         y="295.14789" />
+      <rect
+         style="fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1.39209"
+         id="rect3"
+         width="1.5875"
+         height="0.26458332"
+         x="1.8520833"
+         y="294.08957" />
+      <rect
+         style="fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1.39209"
+         id="rect4"
+         width="1.5875"
+         height="0.26458332"
+         x="1.8520833"
+         y="293.56039" />
     </g>
   </g>
 </svg>
