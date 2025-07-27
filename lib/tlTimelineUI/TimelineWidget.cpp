@@ -405,6 +405,7 @@ namespace tl
                 {
                     _setDisplayOptions(p.timelineItem, value);
                 }
+                _scrollUpdate();
             }
         }
 
@@ -445,13 +446,7 @@ namespace tl
         {
             IWidget::sizeHintEvent(event);
             FEATHER_TK_P();
-            const int b = event.style->getSizeRole(feather_tk::SizeRole::Border, event.displayScale);
-            const int sa = event.style->getSizeRole(feather_tk::SizeRole::ScrollArea, event.displayScale);
-            feather_tk::Size2I sizeHint;
-            sizeHint.w = sa;
-            //! \bug This assumes the scroll bars are hidden.
-            sizeHint.h = p.timelineItem ? (p.timelineItem->getMinimumHeight() + b * 2) : sa;
-            _setSizeHint(sizeHint);
+            _setSizeHint(p.scrollWidget->getSizeHint());
             p.sizeInit |= event.displayScale != p.displayScale;
             p.displayScale = event.displayScale;
         }
@@ -687,6 +682,9 @@ namespace tl
                     p.scrollWidget->setScrollPos(scrollPos);
                 }
             }
+            p.scrollWidget->setScrollType(p.displayOptions->get().minimize ?
+                feather_tk::ScrollType::Horizontal :
+                feather_tk::ScrollType::Both);
         }
 
         void TimelineWidget::_timelineUpdate()

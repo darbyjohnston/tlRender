@@ -79,9 +79,7 @@ namespace tl
             InOutDisplay inOutDisplay = InOutDisplay::InsideRange;
             CacheDisplay cacheDisplay = CacheDisplay::VideoAndAudio;
 
-            std::vector<int> tracks;
-            bool trackInfo = true;
-            bool clipInfo = true;
+            bool minimize = true;
 
             bool thumbnails = true;
             int thumbnailHeight = 100;

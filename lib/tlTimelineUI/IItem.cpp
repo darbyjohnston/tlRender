@@ -48,9 +48,7 @@ namespace tl
             return
                 inOutDisplay == other.inOutDisplay &&
                 cacheDisplay == other.cacheDisplay &&
-                tracks == other.tracks &&
-                trackInfo == other.trackInfo &&
-                clipInfo == other.clipInfo &&
+                minimize == other.minimize &&
                 thumbnails == other.thumbnails &&
                 thumbnailHeight == other.thumbnailHeight &&
                 waveformWidth == other.waveformWidth &&
@@ -276,14 +274,7 @@ namespace tl
         {
             json["InOutDisplay"] = to_string(value.inOutDisplay);
             json["CacheDisplay"] = to_string(value.cacheDisplay);
-            nlohmann::json json2;
-            for (size_t i = 0; i < value.tracks.size(); ++i)
-            {
-                json2.push_back(value.tracks[i]);
-            }
-            json["Tracks"] = json2;
-            json["TrackInfo"] = value.trackInfo;
-            json["ClipInfo"] = value.clipInfo;
+            json["Minimize"] = value.minimize;
             json["Thumbnails"] = value.thumbnails;
             json["ThumbnailHeight"] = value.thumbnailHeight;
             json["WaveformWidth"] = value.waveformWidth;
@@ -307,13 +298,7 @@ namespace tl
         {
             from_string(json["InOutDisplay"].get<std::string>(), value.inOutDisplay);
             from_string(json["CacheDisplay"].get<std::string>(), value.cacheDisplay);
-            auto& json2 = json["Tracks"];
-            for (auto i = json2.begin(); i != json2.end(); ++i)
-            {
-                value.tracks.push_back(i->get<int>());
-            }
-            json["TrackInfo"].get_to(value.trackInfo);
-            json["ClipInfo"].get_to(value.clipInfo);
+            json["Minimize"].get_to(value.minimize);
             json["Thumbnails"].get_to(value.thumbnails);
             json["ThumbnailHeight"].get_to(value.thumbnailHeight);
             json["WaveformWidth"].get_to(value.waveformWidth);

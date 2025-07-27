@@ -77,6 +77,10 @@ namespace tl
                         {
                             trackLabel = "Video Track";
                         }
+                        if (-1 == p.firstVideoTrack)
+                        {
+                            p.firstVideoTrack = track.index;
+                        }
                     }
                     else if (OTIO_NS::Track::Kind::audio == otioTrack->kind())
                     {
@@ -84,6 +88,10 @@ namespace tl
                         if (trackLabel.empty())
                         {
                             trackLabel = "Audio Track";
+                        }
+                        if (-1 == p.firstAudioTrack)
+                        {
+                            p.firstAudioTrack = track.index;
                         }
                     }
                     track.timeRange = otioTrack->trimmed_range();
@@ -261,11 +269,6 @@ namespace tl
             _setDrawUpdate();
         }
 
-        int TimelineItem::getMinimumHeight() const
-        {
-            return _p->minimumHeight;
-        }
-
         std::vector<feather_tk::Box2I> TimelineItem::getTrackGeom() const
         {
             FEATHER_TK_P();
@@ -309,7 +312,7 @@ namespace tl
                 feather_tk::Size2I labelSizeHint;
                 feather_tk::Size2I durationSizeHint;
                 int trackInfoHeight = 0;
-                if (visible && _displayOptions.trackInfo)
+                if (visible && !_displayOptions.minimize)
                 {
                     buttonSizeHint = track.enabledButton->getSizeHint();
                     labelSizeHint = track.label->getSizeHint();
@@ -403,8 +406,6 @@ namespace tl
             }
 
             int tracksHeight = 0;
-            bool minimumTrackHeightInit = true;
-            int minimumTrackHeight = 0;
             for (int i = 0; i < p.tracks.size(); ++i)
             {
                 auto& track = p.tracks[i];
@@ -421,7 +422,7 @@ namespace tl
                         track.size.h = std::max(track.size.h, sizeHint.h);
                     }
                     track.clipHeight = track.size.h;
-                    if (_displayOptions.trackInfo)
+                    if (!_displayOptions.minimize)
                     {
                         track.size.h += std::max(
                             track.enabledButton->getSizeHint().h,
@@ -430,11 +431,6 @@ namespace tl
                                 track.durationLabel->getSizeHint().h));
                     }
                     tracksHeight += track.size.h;
-                    if (minimumTrackHeightInit)
-                    {
-                        minimumTrackHeightInit = false;
-                        minimumTrackHeight = track.size.h;
-                    }
                 }
             }
 
@@ -446,14 +442,6 @@ namespace tl
                 p.size.border * 4 +
                 p.size.border +
                 tracksHeight));
-
-            p.minimumHeight =
-                p.size.margin +
-                p.size.fontMetrics.lineHeight +
-                p.size.margin +
-                p.size.border * 4 +
-                p.size.border +
-                minimumTrackHeight;
         }
 
         void TimelineItem::drawOverlayEvent(
@@ -684,12 +672,13 @@ namespace tl
 
         bool TimelineItem::_isTrackVisible(int index) const
         {
-            return
-                _displayOptions.tracks.empty() ||
-                std::find(
-                    _displayOptions.tracks.begin(),
-                    _displayOptions.tracks.end(),
-                    index) != _displayOptions.tracks.end();
+            FEATHER_TK_P();
+            bool out = true;
+            if (_displayOptions.minimize)
+            {
+                out &= index == p.firstVideoTrack || index == p.firstAudioTrack;
+            }
+            return out;
         }
 
         void TimelineItem::_setTrackEnabled(int stackIndex, bool enabled)
@@ -1114,8 +1103,8 @@ namespace tl
             for (const auto& track : p.tracks)
             {
                 const bool visible = _isTrackVisible(track.index);
-                track.label->setVisible(_displayOptions.trackInfo && visible);
-                track.durationLabel->setVisible(_displayOptions.trackInfo && visible);
+                track.label->setVisible(!_displayOptions.minimize && visible);
+                track.durationLabel->setVisible(!_displayOptions.minimize && visible);
                 for (const auto& item : track.items)
                 {
                     item->setVisible(visible);

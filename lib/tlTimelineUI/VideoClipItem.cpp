@@ -239,7 +239,7 @@ namespace tl
             const feather_tk::Box2I box(
                 g.min.x,
                 g.min.y +
-                (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
+                (!_displayOptions.minimize ? (lineHeight + m * 2) : 0),
                 g.w(),
                 _displayOptions.thumbnailHeight);
             render->drawRect(
@@ -281,7 +281,7 @@ namespace tl
                         g.min.x +
                         x,
                         g.min.y +
-                        (_displayOptions.clipInfo ? (lineHeight + m * 2) : 0),
+                        (!_displayOptions.minimize ? (lineHeight + m * 2) : 0),
                         thumbnailWidth,
                         _displayOptions.thumbnailHeight);
                     if (feather_tk::intersects(box, clipRect))

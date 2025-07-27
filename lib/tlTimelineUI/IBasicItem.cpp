@@ -138,10 +138,10 @@ namespace tl
                     _displayOptions.regularFont,
                     _displayOptions.fontSize * event.displayScale);
                 p.size.fontMetrics = event.fontSystem->getMetrics(p.size.fontInfo);
-                p.size.labelSize = _displayOptions.clipInfo ?
+                p.size.labelSize = !_displayOptions.minimize ?
                     event.fontSystem->getSize(p.label, p.size.fontInfo) :
                     feather_tk::Size2I();
-                p.size.durationSize = _displayOptions.clipInfo ?
+                p.size.durationSize = !_displayOptions.minimize ?
                     event.fontSystem->getSize(p.durationLabel, p.size.fontInfo) :
                     feather_tk::Size2I();
                 p.draw.reset();
@@ -149,7 +149,7 @@ namespace tl
 
             feather_tk::Size2I sizeHint;
             sizeHint.w = _timeRange.duration().rescaled_to(1.0).value() * _scale;
-            if (_displayOptions.clipInfo)
+            if (!_displayOptions.minimize)
             {
                 sizeHint.h +=
                     p.size.fontMetrics.lineHeight +
@@ -213,7 +213,7 @@ namespace tl
                     feather_tk::greyscale(event.style->getColorRole(p.colorRole)));
 
             // Draw the labels.
-            if (_displayOptions.clipInfo)
+            if (!_displayOptions.minimize)
             {
                 std::unique_ptr<feather_tk::ClipRectEnabledState> clipRectEnabledState;
                 std::unique_ptr<feather_tk::ClipRectState> clipRectState;

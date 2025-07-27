@@ -81,9 +81,6 @@ namespace tl
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
 
-            //! Get the minimum height.
-            int getMinimumHeight() const;
-
             //! Get the track geometry.
             std::vector<feather_tk::Box2I> getTrackGeom() const;
 

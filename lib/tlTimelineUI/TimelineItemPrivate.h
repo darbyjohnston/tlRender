@@ -24,7 +24,6 @@ namespace tl
             std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;
             std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
-            int minimumHeight = 0;
             std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
             struct Track
@@ -41,6 +40,8 @@ namespace tl
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;
+            int firstVideoTrack = -1;
+            int firstAudioTrack = -1;
 
             struct SizeData
             {
