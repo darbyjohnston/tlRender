@@ -20,8 +20,7 @@ xvfb-run glxinfo
 # Install ALSA and PulseAudio support
 if [[ $TLRENDER_AUDIO = "ON" ]]
 then
-    sudo apt-get install libasound2-dev
-    sudo apt-get install libpulse-dev
+    sudo apt-get install libasound2-dev libpulse-dev
 fi
 
 # Install Qt support
