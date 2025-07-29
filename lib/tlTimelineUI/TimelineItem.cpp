@@ -473,8 +473,8 @@ namespace tl
 
             _drawInOutPoints(drawRect, event);
             _drawFrameMarkers(drawRect, event);
-            _drawTimeLabels(drawRect, event);
             _drawCacheInfo(drawRect, event);
+            _drawTimeLabels(drawRect, event);
             _drawTimeTicks(drawRect, event);
             _drawCurrentTime(drawRect, event);
 
@@ -696,6 +696,47 @@ namespace tl
             p.player->getTimeline()->setTimeline(otioTimeline);
         }
 
+        feather_tk::Size2I TimelineItem::_getLabelMaxSize(
+            const std::shared_ptr<feather_tk::FontSystem>& fontSystem) const
+        {
+            FEATHER_TK_P();
+            const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
+            const feather_tk::Size2I labelMaxSize = fontSystem->getSize(labelMax, p.size.fontInfo);
+            return labelMaxSize;
+        }
+
+        void TimelineItem::_getTimeTicks(
+            const std::shared_ptr<feather_tk::FontSystem>& fontSystem,
+            double& seconds,
+            int& tick)
+        {
+            FEATHER_TK_P();
+            const int w = getSizeHint().w;
+            const float duration = _timeRange.duration().rescaled_to(1.0).value();
+            const int secondsTick = 1.0 / duration * w;
+            const int minutesTick = 60.0 / duration * w;
+            const int hoursTick = 3600.0 / duration * w;
+            const feather_tk::Size2I labelMaxSize = _getLabelMaxSize(fontSystem);
+            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
+            seconds = 0.0;
+            tick = 0;
+            if (secondsTick >= distanceMin)
+            {
+                seconds = 1.0;
+                tick = secondsTick;
+            }
+            else if (minutesTick >= distanceMin)
+            {
+                seconds = 60.0;
+                tick = minutesTick;
+            }
+            else if (hoursTick >= distanceMin)
+            {
+                seconds = 3600.0;
+                tick = hoursTick;
+            }
+        }
+
         void TimelineItem::_drawInOutPoints(
             const feather_tk::Box2I& drawRect,
             const feather_tk::DrawEvent& event)
@@ -750,47 +791,6 @@ namespace tl
             }
         }
 
-        feather_tk::Size2I TimelineItem::_getLabelMaxSize(
-            const std::shared_ptr<feather_tk::FontSystem>& fontSystem) const
-        {
-            FEATHER_TK_P();
-            const std::string labelMax = _data->timeUnitsModel->getLabel(_timeRange.duration());
-            const feather_tk::Size2I labelMaxSize = fontSystem->getSize(labelMax, p.size.fontInfo);
-            return labelMaxSize;
-        }
-
-        void TimelineItem::_getTimeTicks(
-            const std::shared_ptr<feather_tk::FontSystem>& fontSystem,
-            double& seconds,
-            int& tick)
-        {
-            FEATHER_TK_P();
-            const int w = getSizeHint().w;
-            const float duration = _timeRange.duration().rescaled_to(1.0).value();
-            const int secondsTick = 1.0 / duration * w;
-            const int minutesTick = 60.0 / duration * w;
-            const int hoursTick = 3600.0 / duration * w;
-            const feather_tk::Size2I labelMaxSize = _getLabelMaxSize(fontSystem);
-            const int distanceMin = p.size.border + p.size.margin + labelMaxSize.w;
-            seconds = 0.0;
-            tick = 0;
-            if (secondsTick >= distanceMin)
-            {
-                seconds = 1.0;
-                tick = secondsTick;
-            }
-            else if (minutesTick >= distanceMin)
-            {
-                seconds = 60.0;
-                tick = minutesTick;
-            }
-            else if (hoursTick >= distanceMin)
-            {
-                seconds = 3600.0;
-                tick = hoursTick;
-            }
-        }
-
         void TimelineItem::_drawFrameMarkers(
             const feather_tk::Box2I& drawRect,
             const feather_tk::DrawEvent& event)
@@ -813,55 +813,6 @@ namespace tl
                 if (feather_tk::intersects(g2, drawRect))
                 {
                     event.render->drawRect(g2, color);
-                }
-            }
-        }
-
-        void TimelineItem::_drawTimeLabels(
-            const feather_tk::Box2I& drawRect,
-            const feather_tk::DrawEvent& event)
-        {
-            FEATHER_TK_P();
-            if (_timeRange != time::invalidTimeRange)
-            {
-                const feather_tk::Box2I& g = getGeometry();
-                const int w = getSizeHint().w;
-                const float duration = _timeRange.duration().rescaled_to(1.0).value();
-                double seconds = 0;
-                int tick = 0;
-                _getTimeTicks(event.fontSystem, seconds, tick);
-                if (seconds > 0.0 && tick > 0)
-                {
-                    const feather_tk::Size2I labelMaxSize = _getLabelMaxSize(event.fontSystem);
-                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
-                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
-                    const double inc = seconds;
-                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
-                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
-                    for (double t = x0; t <= x1; t += inc)
-                    {
-                        const OTIO_NS::RationalTime time = _timeRange.start_time() +
-                            OTIO_NS::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
-                        const feather_tk::Box2I box(
-                            g.min.x +
-                            t / duration * w +
-                            p.size.border +
-                            p.size.margin,
-                            p.size.scrollArea.min.y +
-                            g.min.y +
-                            p.size.margin,
-                            labelMaxSize.w,
-                            p.size.fontMetrics.lineHeight);
-                        if (time != p.currentTime && feather_tk::intersects(box, drawRect))
-                        {
-                            const std::string label = _data->timeUnitsModel->getLabel(time);
-                            event.render->drawText(
-                                event.fontSystem->getGlyphs(label, p.size.fontInfo),
-                                p.size.fontMetrics,
-                                box.min,
-                                event.style->getColorRole(feather_tk::ColorRole::TextDisabled));
-                        }
-                    }
                 }
             }
         }
@@ -950,6 +901,55 @@ namespace tl
                     event.render->drawMesh(
                         mesh,
                         event.style->getColorRole(feather_tk::ColorRole::AudioClip));
+                }
+            }
+        }
+
+        void TimelineItem::_drawTimeLabels(
+            const feather_tk::Box2I& drawRect,
+            const feather_tk::DrawEvent& event)
+        {
+            FEATHER_TK_P();
+            if (_timeRange != time::invalidTimeRange)
+            {
+                const feather_tk::Box2I& g = getGeometry();
+                const int w = getSizeHint().w;
+                const float duration = _timeRange.duration().rescaled_to(1.0).value();
+                double seconds = 0;
+                int tick = 0;
+                _getTimeTicks(event.fontSystem, seconds, tick);
+                if (seconds > 0.0 && tick > 0)
+                {
+                    const feather_tk::Size2I labelMaxSize = _getLabelMaxSize(event.fontSystem);
+                    const OTIO_NS::RationalTime t0 = posToTime(g.min.x) - _timeRange.start_time();
+                    const OTIO_NS::RationalTime t1 = posToTime(g.max.x) - _timeRange.start_time();
+                    const double inc = seconds;
+                    const double x0 = static_cast<int>(t0.rescaled_to(1.0).value() / inc) * inc;
+                    const double x1 = static_cast<int>(t1.rescaled_to(1.0).value() / inc) * inc;
+                    for (double t = x0; t <= x1; t += inc)
+                    {
+                        const OTIO_NS::RationalTime time = _timeRange.start_time() +
+                            OTIO_NS::RationalTime(t, 1.0).rescaled_to(_timeRange.duration().rate());
+                        const feather_tk::Box2I box(
+                            g.min.x +
+                            t / duration * w +
+                            p.size.border +
+                            p.size.margin,
+                            p.size.scrollArea.min.y +
+                            g.min.y +
+                            p.size.margin,
+                            labelMaxSize.w,
+                            p.size.fontMetrics.lineHeight);
+                        if (time != p.currentTime && feather_tk::intersects(box, drawRect))
+                        {
+                            const std::string label = _data->timeUnitsModel->getLabel(time);
+                            event.render->drawText(
+                                event.fontSystem->getGlyphs(label, p.size.fontInfo),
+                                p.size.fontMetrics,
+                                box.min,
+                                event.style->getColorRole(feather_tk::ColorRole::TextDisabled));
+                        }
+                    }
                 }
             }
         }
