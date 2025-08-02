@@ -3,7 +3,7 @@ include(ExternalProject)
 set(USD_DEPS)
 
 set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
-set(USD_GIT_TAG v25.05.01)
+set(USD_GIT_TAG v25.08)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LC)
 set(USD_ARGS --build-variant ${CMAKE_BUILD_TYPE_LC})
@@ -27,7 +27,7 @@ if(WIN32)
     # in "bin" instead.
     cmake_path(CONVERT ${CMAKE_INSTALL_PREFIX} TO_NATIVE_PATH_LIST CMAKE_INSTALL_PREFIX_NATIVE)
     set(USD_INSTALL_COMMAND
-        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/lib/usd  ${CMAKE_INSTALL_PREFIX}/bin/usd
+        ${CMAKE_COMMAND} -E copy_directory ${CMAKE_INSTALL_PREFIX}/lib/usd ${CMAKE_INSTALL_PREFIX}/bin/usd
         COMMAND copy /Y "${CMAKE_INSTALL_PREFIX_NATIVE}\\lib\\*.dll" "${CMAKE_INSTALL_PREFIX_NATIVE}\\bin")
 endif()
 
