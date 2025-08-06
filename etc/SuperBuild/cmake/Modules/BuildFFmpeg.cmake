@@ -286,6 +286,7 @@ if(NOT TLRENDER_FFMPEG_MINIMAL)
         --enable-decoder=h264
         --enable-decoder=hevc
         --enable-decoder=prores
+        --enable-decoder=vc1
         --enable-encoder=ac3
         --enable-encoder=eac3
         --enable-encoder=prores
