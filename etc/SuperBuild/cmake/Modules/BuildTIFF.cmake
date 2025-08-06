@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(TIFF_GIT_REPOSITORY "https://gitlab.com/libtiff/libtiff.git")
-set(TIFF_GIT_TAG "v4.5.0")
+set(TIFF_GIT_TAG "v4.7.0")
 
 set(TIFF_ARGS
     ${TLRENDER_EXTERNAL_ARGS}

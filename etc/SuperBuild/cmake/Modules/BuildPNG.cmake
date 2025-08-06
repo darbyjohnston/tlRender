@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(PNG_GIT_REPOSITORY "https://github.com/glennrp/libpng.git")
-set(PNG_GIT_TAG "v1.6.48")
+set(PNG_GIT_TAG "v1.6.50")
 
 set(PNG_SHARED_LIBS ON)
 set(PNG_STATIC_LIBS OFF)

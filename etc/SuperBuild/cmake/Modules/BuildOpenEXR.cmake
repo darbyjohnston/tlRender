@@ -1,12 +1,12 @@
 include(ExternalProject)
 
 set(OpenEXR_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/openexr.git")
-set(OpenEXR_GIT_TAG "v3.2.4")
+set(OpenEXR_GIT_TAG "v3.3.5")
 
 set(OpenEXR_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
     -DOPENEXR_BUILD_TOOLS=OFF
-    -DOPENEXR_INSTALL_EXAMPLES=OFF
+    -DOPENEXR_BUILD_EXAMPLES=OFF
     -DBUILD_TESTING=OFF
     -DOPENEXR_FORCE_INTERNAL_DEFLATE=ON)
 
