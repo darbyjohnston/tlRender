@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(SDL2_GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git")
-set(SDL2_GIT_TAG "release-2.0.12")
+set(SDL2_GIT_TAG "release-2.32.8")
 
 set(SDL2_PATCH
     ${CMAKE_COMMAND} -E copy_if_different
