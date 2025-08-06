@@ -7,7 +7,7 @@ endif()
 list(APPEND OpenSSL_DEPENDS ZLIB)
 
 set(OpenSSL_GIT_REPOSITORY "https://github.com/openssl/openssl.git")
-set(OpenSSL_GIT_TAG "openssl-3.3.0")
+set(OpenSSL_GIT_TAG "openssl-3.5.2")
 
 if(WIN32)
     set(OpenSSL_CONFIGURE
