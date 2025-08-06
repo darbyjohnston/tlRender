@@ -91,7 +91,7 @@ namespace tl
                     _bPlayerIndex->setIfChanged(
                         !_players->isEmpty() && k != feather_tk::ObservableListInvalidIndex ? k : -1);
 
-                    if (player = _player->get())
+                    if ((player = _player->get()))
                     {
                         if (auto bPlayer = _bPlayer->get())
                         {
@@ -248,3 +248,4 @@ namespace tl
         }
     }
 }
+

@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(OpenSSL_DEPENDS)
-if(NOT WIN32)
+if(TLRENDER_EXTERNAL_DEPS_NASM)
     list(APPEND OpenSSL_DEPENDS NASM)
 endif()
 list(APPEND OpenSSL_DEPENDS ZLIB)

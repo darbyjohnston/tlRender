@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <dirent.h>
 
-#if defined(__APPLE__)
-//! \bug OS X doesn't have stat64?
+#if defined(__APPLE__) or defined(__FreeBSD__)
+//! \bug macOS and FreeBSD don't have stat64?
 #define _STAT struct ::stat
 #define _STAT_FNC    ::stat
 #else
