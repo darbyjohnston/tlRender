@@ -3,14 +3,6 @@ include(ExternalProject)
 set(SDL2_GIT_REPOSITORY "https://github.com/libsdl-org/SDL.git")
 set(SDL2_GIT_TAG "release-2.32.8")
 
-set(SDL2_PATCH
-    ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-patch/CMakeLists.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/CMakeLists.txt
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_CURRENT_SOURCE_DIR}/SDL2-patch/src/video/cocoa/SDL_cocoakeyboard.m
-    ${CMAKE_CURRENT_BINARY_DIR}/SDL2/src/SDL2/src/video/cocoa/SDL_cocoakeyboard.m)
-
 set(SDL2_ARGS
     ${TLRENDER_EXTERNAL_ARGS}
     -DSDL_STATIC_PIC=ON
@@ -36,6 +28,5 @@ ExternalProject_Add(
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/SDL2
     GIT_REPOSITORY ${SDL2_GIT_REPOSITORY}
     GIT_TAG ${SDL2_GIT_TAG}
-    PATCH_COMMAND ${SDL2_PATCH}
     LIST_SEPARATOR |
     CMAKE_ARGS ${SDL2_ARGS})
