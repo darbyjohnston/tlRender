@@ -4,6 +4,7 @@ set(pystring_GIT_REPOSITORY "https://github.com/imageworks/pystring.git")
 set(pystring_GIT_TAG "v1.1.4")
 
 set(pystring_ARGS
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
