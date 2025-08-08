@@ -94,7 +94,7 @@ namespace tl
             if (!p.init)
             {
                 std::stringstream ss;
-                ss << "Cannot initialize SDL2";
+                ss << "Cannot initialize SDL: " << SDL_GetError();
                 _log(ss.str(), feather_tk::LogType::Error);
             }
             if (p.init)
