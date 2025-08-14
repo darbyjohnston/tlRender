@@ -196,6 +196,7 @@ set(FFmpeg_CONFIGURE_ARGS
     --enable-demuxer=av1
     --enable-demuxer=flac
     --enable-demuxer=m4v
+    --enable-demuxer=matroska
     --enable-demuxer=mjpeg
     --enable-demuxer=mov
     --enable-demuxer=mp3
