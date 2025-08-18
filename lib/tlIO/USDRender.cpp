@@ -29,8 +29,7 @@
 #include <pxr/imaging/hdx/tokens.h>
 #include <pxr/imaging/hdx/types.h>
 
-#define GLFW_INCLUDE_NONE
-#include <GLFW/glfw3.h>
+#include <SDL2/SDL.h>
 
 #include <filesystem>
 
@@ -61,7 +60,8 @@ namespace tl
         {
             std::weak_ptr<feather_tk::LogSystem> logSystem;
 
-            GLFWwindow* glfwWindow = nullptr;
+            SDL_Window* sdlWindow = nullptr;
+            SDL_GLContext sdlGLContext = nullptr;
             
             struct InfoRequest
             {
@@ -126,21 +126,40 @@ namespace tl
 
 #if defined(__APPLE__)
             const int glVersionMinor = 1;
-            const int glProfile = GLFW_OPENGL_CORE_PROFILE;
 #else //__APPLE__
             const int glVersionMinor = 5;
-            const int glProfile = GLFW_OPENGL_COMPAT_PROFILE;
 #endif //__APPLE__
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, glVersionMinor);
-            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, glProfile);
-            glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-            glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
-            p.glfwWindow = glfwCreateWindow(1, 1, "tl::usd::Render", NULL, NULL);
-            if (!p.glfwWindow)
+#if defined(FEATHER_TK_API_GL_4_1)
+            SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+#elif defined(FEATHER_TK_API_GLES_2)
+            SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+#endif // FEATHER_TK_API_GL_4_1
+            p.sdlWindow = SDL_CreateWindow(
+                "USD",
+                SDL_WINDOWPOS_UNDEFINED,
+                SDL_WINDOWPOS_UNDEFINED,
+                1,
+                1,
+                SDL_WINDOW_OPENGL |
+                SDL_WINDOW_RESIZABLE |
+                SDL_WINDOW_HIDDEN);
+            if (!p.sdlWindow)
             {
-                throw std::runtime_error("Cannot create window");
+                throw std::runtime_error(feather_tk::Format("Cannot create window: {0}").
+                    arg(SDL_GetError()));
+            }
+
+            p.sdlGLContext = SDL_GL_CreateContext(p.sdlWindow);
+            if (!p.sdlGLContext)
+            {
+                throw std::runtime_error(feather_tk::Format("Cannot create OpenGL context: {0}").
+                    arg(SDL_GetError()));
             }
 
             p.thread.logTimer = std::chrono::steady_clock::now();
@@ -149,11 +168,10 @@ namespace tl
                 [this]
                 {
                     FEATHER_TK_P();
-                    glfwMakeContextCurrent(p.glfwWindow);
+                    SDL_GL_MakeCurrent(p.sdlWindow, p.sdlGLContext);
                     _run();
                     p.thread.stageCache.clear();
                     p.thread.diskCache.clear();
-                    glfwMakeContextCurrent(nullptr);
                     _finish();
                 });
             
@@ -185,9 +203,9 @@ namespace tl
             {
                 p.thread.thread.join();
             }
-            if (p.glfwWindow)
+            if (p.sdlWindow)
             {
-                glfwDestroyWindow(p.glfwWindow);
+                SDL_DestroyWindow(p.sdlWindow);
             }
         }
 

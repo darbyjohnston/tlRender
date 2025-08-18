@@ -153,9 +153,6 @@ namespace tl
             {
                 p.thread.thread.join();
             }
-#if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
-            SDL_Quit();
-#endif // TLRENDER_SDL2
         }
 
         std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)

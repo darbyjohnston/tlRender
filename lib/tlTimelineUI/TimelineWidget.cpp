@@ -515,7 +515,7 @@ namespace tl
             {
                 switch (event.key)
                 {
-                case feather_tk::Key::Equal:
+                case feather_tk::Key::Equals:
                     event.accept = true;
                     setViewZoom(p.scale * 2.F, event.pos);
                     break;

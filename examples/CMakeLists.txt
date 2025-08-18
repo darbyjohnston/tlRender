@@ -1,4 +1,3 @@
-add_subdirectory(render)
 add_subdirectory(test-patterns)
 if(TLRENDER_QT6 OR TLRENDER_QT5)
     add_subdirectory(panorama-qtwidget)

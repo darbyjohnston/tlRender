@@ -377,8 +377,8 @@ namespace tl
                     }
                     p.thumbnailThread.buffer.reset();
                     p.thumbnailThread.render.reset();
-                    p.window->doneCurrent();
                     _thumbnailCancel();
+                    p.window->doneCurrent();
                 });
 
             p.waveformThread.ioCache.setMax(ioCacheMax);

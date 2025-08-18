@@ -50,7 +50,7 @@ namespace tl
             _actions["ZoomIn"] = feather_tk::Action::create(
                 "Zoom In",
                 "ViewZoomIn",
-                feather_tk::Key::Equal,
+                feather_tk::Key::Equals,
                 0,
                 [mainWindowWeak]
                 {

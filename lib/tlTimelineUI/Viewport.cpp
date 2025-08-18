@@ -807,7 +807,7 @@ namespace tl
                     event.accept = true;
                     setViewZoom(1.0, event.pos - g.min);
                     break;
-                case feather_tk::Key::Equal:
+                case feather_tk::Key::Equals:
                     event.accept = true;
                     setViewZoom(p.viewZoom->get() * 2.0, event.pos - g.min);
                     break;
