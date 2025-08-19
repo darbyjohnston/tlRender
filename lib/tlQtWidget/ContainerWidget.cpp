@@ -8,7 +8,6 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <feather-tk/ui/IClipboard.h>
 #include <feather-tk/ui/IWindow.h>
 #include <feather-tk/ui/RowLayout.h>
 #include <feather-tk/ui/IconSystem.h>
@@ -18,7 +17,6 @@
 #include <feather-tk/gl/Shader.h>
 #include <feather-tk/core/Context.h>
 
-#include <QClipboard>
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
 #include <QGuiApplication>
@@ -97,44 +95,6 @@ namespace tl
                     }
                 }
             };
-
-            class Clipboard : public feather_tk::IClipboard
-            {
-                FEATHER_TK_NON_COPYABLE(Clipboard);
-
-            public:
-                void _init(const std::shared_ptr<feather_tk::Context>& context)
-                {
-                    IClipboard::_init(context);
-                }
-
-                Clipboard()
-                {}
-
-            public:
-                virtual ~Clipboard()
-                {}
-
-                static std::shared_ptr<Clipboard> create(
-                    const std::shared_ptr<feather_tk::Context>& context)
-                {
-                    auto out = std::shared_ptr<Clipboard>(new Clipboard);
-                    out->_init(context);
-                    return out;
-                }
-
-                std::string getText() const override
-                {
-                    QClipboard* clipboard = QGuiApplication::clipboard();
-                    return clipboard->text().toUtf8().data();
-                }
-
-                void setText(const std::string& value) override
-                {
-                    QClipboard* clipboard = QGuiApplication::clipboard();
-                    clipboard->setText(QString::fromUtf8(value.c_str()));
-                }
-            };
         }
 
         struct ContainerWidget::Private
@@ -143,7 +103,6 @@ namespace tl
             std::shared_ptr<feather_tk::Style> style;
             std::shared_ptr<feather_tk::IconSystem> iconSystem;
             std::shared_ptr<feather_tk::FontSystem> fontSystem;
-            std::shared_ptr<Clipboard> clipboard;
             std::shared_ptr<timeline::IRender> render;
             std::shared_ptr<feather_tk::IWidget> widget;
             std::shared_ptr<ContainerWindow> window;
@@ -177,9 +136,7 @@ namespace tl
             p.style = style;
             p.iconSystem = context->getSystem<feather_tk::IconSystem>();
             p.fontSystem = context->getSystem<feather_tk::FontSystem>();
-            p.clipboard = Clipboard::create(context);
             p.window = ContainerWindow::create(context);
-            p.window->setClipboard(p.clipboard);
 
             _inputUpdate();
             _styleUpdate();
