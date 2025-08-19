@@ -26,7 +26,7 @@ namespace tl
             std::function<void(bool)> frameViewCallback;
             std::shared_ptr<feather_tk::ObservableValue<bool> > scrollBarsVisible;
             std::shared_ptr<feather_tk::ObservableValue<bool> > autoScroll;
-            std::pair<int, feather_tk::KeyModifier> scrollBinding = std::make_pair(0, feather_tk::KeyModifier::Control);
+            std::pair<int, feather_tk::KeyModifier> scrollBinding = std::make_pair(1, feather_tk::KeyModifier::Control);
             float mouseWheelScale = 1.1F;
             std::shared_ptr<feather_tk::ObservableValue<bool> > stopOnScrub;
             std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;

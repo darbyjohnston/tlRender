@@ -30,7 +30,7 @@ namespace tl
             const std::shared_ptr<feather_tk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            timelineui::Window::_init(context, app, "tlplay", feather_tk::Size2I(1920, 1080));
+            timelineui::Window::_init(context, "tlplay", feather_tk::Size2I(1920, 1080));
 
             _app = app;
 

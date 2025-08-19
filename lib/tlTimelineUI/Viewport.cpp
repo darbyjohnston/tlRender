@@ -51,8 +51,8 @@ namespace tl
                 double frame = 0.0;
             };
             std::optional<DroppedFramesData> droppedFramesData;
-            std::pair<int, feather_tk::KeyModifier> panBinding = std::make_pair(0, feather_tk::KeyModifier::Control);
-            std::pair<int, feather_tk::KeyModifier> wipeBinding = std::make_pair(0, feather_tk::KeyModifier::Alt);
+            std::pair<int, feather_tk::KeyModifier> panBinding = std::make_pair(1, feather_tk::KeyModifier::Control);
+            std::pair<int, feather_tk::KeyModifier> wipeBinding = std::make_pair(1, feather_tk::KeyModifier::Alt);
             float mouseWheelScale = 1.1F;
 
             bool doRender = false;

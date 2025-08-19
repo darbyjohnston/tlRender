@@ -49,7 +49,7 @@ namespace tl
             FEATHER_TK_P();
 
             _setMouseHoverEnabled(true);
-            _setMousePressEnabled(true, 0, 0);
+            _setMousePressEnabled(true, 1, 0);
 
             p.player = player;
 
@@ -546,7 +546,7 @@ namespace tl
             IWidget::mousePressEvent(event);
             FEATHER_TK_P();
             if (_options.inputEnabled &&
-                0 == event.button &&
+                1 == event.button &&
                 0 == event.modifiers)
             {
                 takeKeyFocus();

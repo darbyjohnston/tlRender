@@ -21,7 +21,6 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::App>&,
                 const std::string& name,
                 const feather_tk::Size2I&);
 
@@ -33,7 +32,6 @@ namespace tl
             //! Create a new window.
             static std::shared_ptr<Window> create(
                 const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::App>&,
                 const std::string& name,
                 const feather_tk::Size2I&);
 

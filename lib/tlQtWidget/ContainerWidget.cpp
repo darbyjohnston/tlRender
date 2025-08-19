@@ -429,12 +429,12 @@ namespace tl
                 event->accept();
                 p.window->cursorPos(
                     feather_tk::V2I(_toUI(event->x()), _toUI(event->y())));
-                int button = -1;
+                int button = 0;
                 if (event->button() == Qt::LeftButton)
                 {
-                    button = 0;
+                    button = 1;
                 }
-                if (button != -1)
+                if (button != 0)
                 {
                     p.window->mouseButton(
                         button,
@@ -500,8 +500,22 @@ namespace tl
                 feather_tk::Key out = feather_tk::Key::Unknown;
                 switch (key)
                 {
+                case Qt::Key_Enter: out = feather_tk::Key::Return; break;
+                case Qt::Key_Escape: out = feather_tk::Key::Escape; break;
+                case Qt::Key_Backspace: out = feather_tk::Key::Backspace; break;
+                case Qt::Key_Tab: out = feather_tk::Key::Tab; break;
                 case Qt::Key_Space: out = feather_tk::Key::Space; break;
-                case Qt::Key_Apostrophe: out = feather_tk::Key::Apostrophe; break;
+                case Qt::Key_Exclam: out = feather_tk::Key::Exclaim; break;
+                case Qt::Key_QuoteDbl: out = feather_tk::Key::DoubleQuote; break;
+                case Qt::Key_NumberSign: out = feather_tk::Key::Hash; break;
+                case Qt::Key_Percent: out = feather_tk::Key::Percent; break;
+                case Qt::Key_Dollar: out = feather_tk::Key::Dollar; break;
+                case Qt::Key_Ampersand: out = feather_tk::Key::Ampersand; break;
+                case Qt::Key_Apostrophe: out = feather_tk::Key::SingleQuote; break;
+                case Qt::Key_ParenLeft: out = feather_tk::Key::LeftParen; break;
+                case Qt::Key_ParenRight: out = feather_tk::Key::RightParen; break;
+                case Qt::Key_Asterisk: out = feather_tk::Key::Asterisk; break;
+                case Qt::Key_Plus: out = feather_tk::Key::Plus; break;
                 case Qt::Key_Comma: out = feather_tk::Key::Comma; break;
                 case Qt::Key_Minus: out = feather_tk::Key::Minus; break;
                 case Qt::Key_Period: out = feather_tk::Key::Period; break;
@@ -516,8 +530,19 @@ namespace tl
                 case Qt::Key_7: out = feather_tk::Key::_7; break;
                 case Qt::Key_8: out = feather_tk::Key::_8; break;
                 case Qt::Key_9: out = feather_tk::Key::_9; break;
+                case Qt::Key_Colon: out = feather_tk::Key::Colon; break;
                 case Qt::Key_Semicolon: out = feather_tk::Key::Semicolon; break;
-                case Qt::Key_Equal: out = feather_tk::Key::Equal; break;
+                case Qt::Key_Less: out = feather_tk::Key::Less; break;
+                case Qt::Key_Equal: out = feather_tk::Key::Equals; break;
+                case Qt::Key_Greater: out = feather_tk::Key::Greater; break;
+                case Qt::Key_Question: out = feather_tk::Key::Question; break;
+                case Qt::Key_At: out = feather_tk::Key::At; break;
+                case Qt::Key_BracketLeft: out = feather_tk::Key::LeftBracket; break;
+                case Qt::Key_Backslash: out = feather_tk::Key::Backslash; break;
+                case Qt::Key_BracketRight: out = feather_tk::Key::RightBracket; break;
+                case Qt::Key_AsciiCircum: out = feather_tk::Key::Caret; break;
+                case Qt::Key_Underscore: out = feather_tk::Key::Underscore; break;
+                case Qt::Key_QuoteLeft: out = feather_tk::Key::BackQuote; break;
                 case Qt::Key_A: out = feather_tk::Key::A; break;
                 case Qt::Key_B: out = feather_tk::Key::B; break;
                 case Qt::Key_C: out = feather_tk::Key::C; break;
@@ -544,29 +569,7 @@ namespace tl
                 case Qt::Key_X: out = feather_tk::Key::X; break;
                 case Qt::Key_Y: out = feather_tk::Key::Y; break;
                 case Qt::Key_Z: out = feather_tk::Key::Z; break;
-                case Qt::Key_BracketLeft: out = feather_tk::Key::LeftBracket; break;
-                case Qt::Key_Backslash: out = feather_tk::Key::Backslash; break;
-                case Qt::Key_BracketRight: out = feather_tk::Key::RightBracket; break;
-                case Qt::Key_Agrave: out = feather_tk::Key::GraveAccent; break;
-                case Qt::Key_Escape: out = feather_tk::Key::Escape; break;
-                case Qt::Key_Enter: out = feather_tk::Key::Enter; break;
-                case Qt::Key_Tab: out = feather_tk::Key::Tab; break;
-                case Qt::Key_Backspace: out = feather_tk::Key::Backspace; break;
-                case Qt::Key_Insert: out = feather_tk::Key::Insert; break;
-                case Qt::Key_Delete: out = feather_tk::Key::Delete; break;
-                case Qt::Key_Right: out = feather_tk::Key::Right; break;
-                case Qt::Key_Left: out = feather_tk::Key::Left; break;
-                case Qt::Key_Down: out = feather_tk::Key::Down; break;
-                case Qt::Key_Up: out = feather_tk::Key::Up; break;
-                case Qt::Key_PageUp: out = feather_tk::Key::PageUp; break;
-                case Qt::Key_PageDown: out = feather_tk::Key::PageDown; break;
-                case Qt::Key_Home: out = feather_tk::Key::Home; break;
-                case Qt::Key_End: out = feather_tk::Key::End; break;
                 case Qt::Key_CapsLock: out = feather_tk::Key::CapsLock; break;
-                case Qt::Key_ScrollLock: out = feather_tk::Key::ScrollLock; break;
-                case Qt::Key_NumLock: out = feather_tk::Key::NumLock; break;
-                case Qt::Key_Print: out = feather_tk::Key::PrintScreen; break;
-                case Qt::Key_Pause: out = feather_tk::Key::Pause; break;
                 case Qt::Key_F1: out = feather_tk::Key::F1; break;
                 case Qt::Key_F2: out = feather_tk::Key::F2; break;
                 case Qt::Key_F3: out = feather_tk::Key::F3; break;
@@ -579,11 +582,20 @@ namespace tl
                 case Qt::Key_F10: out = feather_tk::Key::F10; break;
                 case Qt::Key_F11: out = feather_tk::Key::F11; break;
                 case Qt::Key_F12: out = feather_tk::Key::F12; break;
-                case Qt::Key_Shift: out = feather_tk::Key::LeftShift; break;
-                case Qt::Key_Control: out = feather_tk::Key::LeftControl; break;
-                case Qt::Key_Alt: out = feather_tk::Key::LeftAlt; break;
-                case Qt::Key_Super_L: out = feather_tk::Key::LeftSuper; break;
-                case Qt::Key_Super_R: out = feather_tk::Key::RightSuper; break;
+                case Qt::Key_Print: out = feather_tk::Key::PrintScreen; break;
+                case Qt::Key_ScrollLock: out = feather_tk::Key::ScrollLock; break;
+                case Qt::Key_Pause: out = feather_tk::Key::Pause; break;
+                case Qt::Key_Insert: out = feather_tk::Key::Insert; break;
+                case Qt::Key_Home: out = feather_tk::Key::Home; break;
+                case Qt::Key_PageUp: out = feather_tk::Key::PageUp; break;
+                case Qt::Key_Delete: out = feather_tk::Key::Delete; break;
+                case Qt::Key_End: out = feather_tk::Key::End; break;
+                case Qt::Key_PageDown: out = feather_tk::Key::PageDown; break;
+                case Qt::Key_Right: out = feather_tk::Key::Right; break;
+                case Qt::Key_Left: out = feather_tk::Key::Left; break;
+                case Qt::Key_Down: out = feather_tk::Key::Down; break;
+                case Qt::Key_Up: out = feather_tk::Key::Up; break;
+                case Qt::Key_NumLock: out = feather_tk::Key::NumLock; break;
                 }
                 return out;
             }
