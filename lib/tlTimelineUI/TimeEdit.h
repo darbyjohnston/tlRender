@@ -51,6 +51,9 @@ namespace tl
             //! Set the time value callback.
             void setCallback(const std::function<void(const OTIO_NS::RationalTime&)>&);
 
+            //! Select all.
+            void selectAll();
+
             //! Set the font role.
             void setFontRole(feather_tk::FontRole);
 

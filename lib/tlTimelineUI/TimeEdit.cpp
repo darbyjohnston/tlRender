@@ -127,6 +127,11 @@ namespace tl
             _p->callback = value;
         }
 
+        void TimeEdit::selectAll()
+        {
+            _p->lineEdit->selectAll();
+        }
+
         void TimeEdit::setFontRole(feather_tk::FontRole value)
         {
             _p->lineEdit->setFontRole(value);
