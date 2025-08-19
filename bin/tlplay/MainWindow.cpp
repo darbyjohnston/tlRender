@@ -121,8 +121,7 @@ namespace tl
         }
 
         MainWindow::~MainWindow()
-        {
-        }
+        {}
 
         std::shared_ptr<MainWindow> MainWindow::create(
             const std::shared_ptr<feather_tk::Context>& context,
