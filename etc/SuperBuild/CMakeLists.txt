@@ -30,15 +30,10 @@ set(TLRENDER_BMD FALSE CACHE BOOL "Enable support for Blackmagic Design devices"
 set(TLRENDER_BMD_SDK "" CACHE PATH "Full path to the Blackmagic Design SDK")
 set(TLRENDER_QT6 FALSE CACHE BOOL "Enable support for Qt6")
 set(TLRENDER_QT5 FALSE CACHE BOOL "Enable support for Qt5")
-set(TLRENDER_PROGRAMS TRUE CACHE BOOL "Build programs")
-set(TLRENDER_EXAMPLES TRUE CACHE BOOL "Build examples")
-set(TLRENDER_TESTS TRUE CACHE BOOL "Build tests")
 if(APPLE)
     set(TLRENDER_IGNORE_PREFIX_PATH_DEFAULT /opt/homebrew)
 endif()
 set(TLRENDER_IGNORE_PREFIX_PATH ${TLRENDER_IGNORE_PREFIX_PATH_DEFAULT} CACHE STRING "Ignore the given prefix path")
-set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
-set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 #-------------------------------------------------------------------------------
