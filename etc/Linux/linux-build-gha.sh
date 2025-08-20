@@ -34,13 +34,14 @@ then
 fi
 
 # Build tlRender
-mkdir build
-cd build
-cmake ../etc/SuperBuild \
+JOBS=4
+
+cmake \
+    -S tlRender/etc/SuperBuild \
+    -B superbuild-$BUILD_TYPE \
     -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
-    -DCMAKE_INSTALL_PREFIX=$PWD/install \
-    -DCMAKE_PREFIX_PATH=$PWD/install \
-    -DCMAKE_CXX_STANDARD=$CMAKE_CXX_STANDARD \
+    -DCMAKE_INSTALL_PREFIX=$PWD/install-$BUILD_TYPE \
+    -DCMAKE_PREFIX_PATH=$PWD/install-$BUILD_TYPE \
     -DTLRENDER_NET=$TLRENDER_NET \
     -DTLRENDER_OCIO=$TLRENDER_OCIO \
     -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
@@ -59,4 +60,13 @@ cmake ../etc/SuperBuild \
     -DTLRENDER_TESTS=$TLRENDER_TESTS \
     -DTLRENDER_GCOV=$TLRENDER_GCOV \
     -Dfeather_tk_API=$FEATHER_TK_API
-cmake --build . -j 4 --config $BUILD_TYPE
+cmake --build superbuild-$BUILD_TYPE -j $JOBS --config $BUILD_TYPE
+
+cmake \
+    -S tlRender \
+    -B build-$BUILD_TYPE \
+    -DCMAKE_INSTALL_PREFIX=$PWD/install-$BUILD_TYPE \
+    -DCMAKE_PREFIX_PATH=$PWD/install-$BUILD_TYPE \
+    -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+cmake --build build-$BUILD_TYPE -j $JOBS --config $BUILD_TYPE
+cmake --build build-$BUILD_TYPE --config $BUILD_TYPE --target install

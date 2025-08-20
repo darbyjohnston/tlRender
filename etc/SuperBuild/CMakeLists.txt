@@ -7,7 +7,9 @@ endif()
 
 project(tlRender-SuperBuild)
 
-# Build options.
+#-------------------------------------------------------------------------------
+# Build options
+
 set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG")
@@ -39,28 +41,35 @@ set(TLRENDER_GCOV FALSE CACHE BOOL "Enable gcov code coverage")
 set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
-# Configure.
-#
+#-------------------------------------------------------------------------------
+# Internal configuration
+
 # \bug Add the OpenColorIO cmake modules.
 list(PREPEND CMAKE_MODULE_PATH
     ${PROJECT_SOURCE_DIR}/../../cmake/Modules
     ${PROJECT_SOURCE_DIR}/cmake/Modules
     ${CMAKE_INSTALL_PREFIX}/share/OpenColorIO/cmake/modules)
+
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif()
+
 if(NOT BUILD_SHARED_LIBS)
     set(BUILD_SHARED_LIBS OFF)
 endif()
+
 if(TLRENDER_IGNORE_PREFIX_PATH)
     set(CMAKE_IGNORE_PREFIX_PATH ${TLRENDER_IGNORE_PREFIX_PATH})
 endif()
+
 if(WIN32)
     set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
 endif()
+
 if(APPLE)
     set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
+
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
@@ -91,57 +100,55 @@ set(TLRENDER_EXTERNAL_ARGS
 string(REPLACE ";" " " TLRENDER_EXTERNAL_ARGS_TMP "${TLRENDER_EXTERNAL_ARGS}")
 message("TLRENDER_EXTERNAL_ARGS: " ${TLRENDER_EXTERNAL_ARGS_TMP})
 
-# External dependencies.
+#-------------------------------------------------------------------------------
+# Dependencies
+
 find_package(Threads REQUIRED)
-list(APPEND TLRENDER_EXTERNAL_DEPS ZLIB)
+include(BuildZLIB)
 if(TLRENDER_PNG)
-    list(APPEND TLRENDER_EXTERNAL_DEPS PNG)
+    include(BuildPNG)
 endif()
-list(APPEND TLRENDER_EXTERNAL_DEPS feather-tk)
-list(APPEND TLRENDER_EXTERNAL_DEPS minizip-ng)
-list(APPEND TLRENDER_EXTERNAL_DEPS Imath)
-list(APPEND TLRENDER_EXTERNAL_DEPS OTIO)
+include(Buildfeather-tk)
+include(Buildminizip-ng)
+include(BuildImath)
+include(BuildOTIO)
 if((TLRENDER_NET OR TLRENDER_AV1 OR TLRENDER_JPEG OR TLRENDER_FFMPEG) AND NOT WIN32 AND NOT BSD)
-    list(APPEND TLRENDER_EXTERNAL_DEPS NASM)
+    include(BuildNASM)
     set(TLRENDER_EXTERNAL_DEPS_NASM ON)
 endif()
 if(TLRENDER_NET)
-    list(APPEND TLRENDER_EXTERNAL_DEPS OpenSSL)
-    list(APPEND TLRENDER_EXTERNAL_DEPS Libssh2)
-    list(APPEND TLRENDER_EXTERNAL_DEPS CURL)
+    include(BuildOpenSSL)
+    include(BuildLibssh2)
+    include(BuildCURL)
 endif()
 if(TLRENDER_OCIO)
-    list(APPEND TLRENDER_EXTERNAL_DEPS yaml-cpp)
-    list(APPEND TLRENDER_EXTERNAL_DEPS expat)
-    list(APPEND TLRENDER_EXTERNAL_DEPS pystring)
-    list(APPEND TLRENDER_EXTERNAL_DEPS OpenColorIO)
+    include(Buildyaml-cpp)
+    include(Buildexpat)
+    include(Buildpystring)
+    include(BuildOpenColorIO)
 endif()
 if(TLRENDER_JPEG)
-    list(APPEND TLRENDER_EXTERNAL_DEPS libjpeg-turbo)
+    include(Buildlibjpeg-turbo)
 endif()
 if(TLRENDER_TIFF)
-    list(APPEND TLRENDER_EXTERNAL_DEPS TIFF)
+    include(BuildTIFF)
 endif()
 if(TLRENDER_EXR)
-    list(APPEND TLRENDER_EXTERNAL_DEPS OpenEXR)
+    include(BuildOpenEXR)
 endif()
 if(TLRENDER_AV1)
-    list(APPEND TLRENDER_EXTERNAL_DEPS svt-av1)
+    include(Buildsvt-av1)
 endif()
 if(TLRENDER_FFMPEG)
-    list(APPEND TLRENDER_EXTERNAL_DEPS FFmpeg)
+    include(BuildFFmpeg)
 endif()
 if(TLRENDER_USD)
-    list(APPEND TLRENDER_EXTERNAL_DEPS USD)
+    include(BuildUSD)
 endif()
 foreach(EXTERNAL_DEP ${TLRENDER_EXTERNAL_DEPS})
     include(Build${EXTERNAL_DEP})
 endforeach()
 
-# Build tests.
 if (TLRENDER_TESTS)
     include(Buildtests)
 endif()
-
-# Build tlRender.
-include(BuildtlRender)

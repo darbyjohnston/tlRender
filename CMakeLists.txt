@@ -54,6 +54,10 @@ set(TLRENDER_GPROF FALSE CACHE BOOL "Enable gprof code profiling")
 
 list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
+if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD 17)
+endif()
+
 if(TLRENDER_USD)
     add_definitions(-DTLRENDER_USD)
 endif()
