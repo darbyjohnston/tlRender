@@ -36,6 +36,7 @@ jobs:
 
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/install-Debug/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -43,22 +44,25 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: |
+        cd ..
+        bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
+        cd ..
         xvfb-run build-Debug/tests/tltest/tltest
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
       run: |
-        cd build-Debug
+        cd ../build-Debug
         bash ../tlRender/etc/Linux/lcov.sh
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
-        files: ${{ github.workspace }}/build-Debug/coverage_filtered.info
+        files: ${{ github.workspace }}/../build-Debug/coverage_filtered.info
         fail_ci_if_error: true
         token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -92,6 +96,7 @@ jobs:
 
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/install-Debug/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -99,10 +104,13 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: |
+        cd ..
+        bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
+        cd ..
         xvfb-run build-Debug/tests/tltest/tltest
 
   linux-gles2-minimal-build:
@@ -135,6 +143,7 @@ jobs:
 
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/install-Debug/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -142,10 +151,13 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: |
+        cd ..
+        bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: |
+        cd ..
         xvfb-run build-Debug/tests/tltest/tltest
 
   linux-package:
@@ -180,6 +192,7 @@ jobs:
 
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Release/bin" >> $GITHUB_PATH
         echo "LD_LIBRARY_PATH=$PWD/install-Release/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Release/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -187,16 +200,19 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Release
+      run: |
+        cd ..
+        bash tlRender/etc/Linux/linux-build-gha.sh Release
 
     - name: Package
       run: |
+        cd ..
         cmake --build build-Release -j 4 --target package
 
     - uses: actions/upload-artifact@v4
       with:
         name: tlRender-Linux-Packages
-        path: build-Release/tlRender-*.tar.gz
+        path: ../build-Release/tlRender-*.tar.gz
 
   macos-13-build:
     runs-on: macos-13
@@ -234,6 +250,7 @@ jobs:
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -242,11 +259,13 @@ jobs:
 
     - name: Build tlRender
       run: |
+        cd ..
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
         bash tlRender/etc/macOS/macos-build-gha.sh Debug
 
     - name: Run tests
       run: |
+        cd ..
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
         build-Debug/tests/tltest/tltest
 
@@ -286,6 +305,7 @@ jobs:
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -294,11 +314,13 @@ jobs:
 
     - name: Build tlRender
       run: |
+        cd ..
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
         bash tlRender/etc/macOS/macos-build-gha.sh Debug
 
     - name: Run tests
       run: |
+        cd ..
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
         build-Debug/tests/tltest/tltest
 
@@ -336,6 +358,7 @@ jobs:
     # \bug DYLD_LIBRARY_PATH is not being set here?
     - name: Setup environment
       run: |
+        cd ..
         echo "$PWD/install-Release/bin" >> $GITHUB_PATH
         echo "DYLD_LIBRARY_PATH=$PWD/install-Release/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
         echo "PYTHONPATH=$PWD/install-Release/lib:$PYTHONPATH" >> $GITHUB_ENV
@@ -344,17 +367,19 @@ jobs:
 
     - name: Build tlRender
       run: |
+        cd ..
         export DYLD_LIBRARY_PATH=$PWD/install-Release/lib:$DYLD_LIBRARY_PATH
         bash tlRender/etc/macOS/macos-build-gha.sh Release
 
     - name: Package
       run: |
+        cd ..
         cmake --build build-Release -j 4 --target package
 
     - uses: actions/upload-artifact@v4
       with:
         name: tlRender-macOS-Packages
-        path: build-Release/tlRender-*.dmg
+        path: ../build-Release/tlRender-*.dmg
 
   windows-build:
     runs-on: windows-latest
@@ -391,6 +416,7 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
+        cd ..
         echo %CD%\install-Debug\bin>> %GITHUB_PATH%
         echo %CD%\install-Debug\lib>> %GITHUB_PATH%
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
@@ -400,11 +426,13 @@ jobs:
     - name: Build tlRender
       shell: cmd
       run: |
+        cd ..
         tlRender\etc\Windows\windows-build-gha.bat Debug
 
     - name: Run tests
       shell: cmd
       run: |
+        cd ..
         build-Debug\tests\tltest\Debug\tltest
 
   windows-package:
@@ -443,6 +471,7 @@ jobs:
     - name: Setup environment
       shell: cmd
       run: |
+        cd ..
         echo %CD%\build-Release\bin>> %GITHUB_PATH%
         echo %CD%\build-Release\lib>> %GITHUB_PATH%
         echo CTEST_OUTPUT_ON_FAILURE=1 >> %GITHUB_ENV%
@@ -452,14 +481,16 @@ jobs:
     - name: Build tlRender
       shell: cmd
       run: |
+        cd ..
         tlRender\etc\Windows\windows-build-gha.bat Release
 
     - name: Package
       shell: cmd
       run: |
+        cd ..
         cmake --build build-Release -j 4 --target package
 
     - uses: actions/upload-artifact@v4
       with:
         name: tlRender-Windows-Packages
-        path: build-Release\tlRender-*.zip
+        path: ..\build-Release\tlRender-*.zip
