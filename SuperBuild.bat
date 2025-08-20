@@ -1,22 +1,23 @@
 set BUILD_TYPE=%1
 IF "%BUILD_TYPE%"=="" set BUILD_TYPE=Release
 
-set JOBS=4
+set FEATHER_TK_API=GL_4_1
+set TLRENDER_NET=OFF
+set TLRENDER_OCIO=ON
+set TLRENDER_AUDIO=ON
+set TLRENDER_JPEG=ON
+set TLRENDER_TIFF=ON
+set TLRENDER_STB=ON
+set TLRENDER_PNG=ON
+set TLRENDER_EXR=ON
+set TLRENDER_FFMPEG=ON
+set TLRENDER_FFMPEG_MINIMAL=OFF
+set TLRENDER_USD=OFF
+set TLRENDER_QT6=ON
+set TLRENDER_QT5=OFF
+set TLRENDER_PROGRAMS=ON
+set TLRENDER_EXAMPLES=ON
+set TLRENDER_TESTS=ON
+set TLRENDER_GCOV=OFF
 
-cmake ^
-    -S tlRender\etc\SuperBuild ^
-    -B superbuild-%BUILD_TYPE% ^
-    -DCMAKE_INSTALL_PREFIX=%CD%\install-%BUILD_TYPE% ^
-    -DCMAKE_PREFIX_PATH=%CD%\install-%BUILD_TYPE% ^
-    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
-cmake --build superbuild-%BUILD_TYPE% -j %JOBS% --config %BUILD_TYPE%
-
-cmake ^
-    -S tlRender ^
-    -B build-%BUILD_TYPE% ^
-    -DCMAKE_INSTALL_PREFIX=%CD%\install-%BUILD_TYPE% ^
-    -DCMAKE_PREFIX_PATH=%CD%\install-%BUILD_TYPE% ^
-    -DCMAKE_BUILD_TYPE=%BUILD_TYPE%
-cmake --build build-%BUILD_TYPE% -j %JOBS% --config %BUILD_TYPE%
-cmake --build build-%BUILD_TYPE% --config %BUILD_TYPE% --target INSTALL
-
+tlRender\etc\Windows\windows-build-gha.bat %BUILD_TYPE%
