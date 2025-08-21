@@ -61,14 +61,17 @@ endif()
 if(TLRENDER_USD)
     add_definitions(-DTLRENDER_USD)
 endif()
+
 if(TLRENDER_BMD)
     add_definitions(-DTLRENDER_BMD)
 endif()
+
 if(TLRENDER_QT6)
     add_definitions(-DTLRENDER_QT6)
 elseif(TLRENDER_QT5)
     add_definitions(-DTLRENDER_QT5)
 endif()
+
 if(TLRENDER_IGNORE_PREFIX_PATH)
     set(CMAKE_IGNORE_PREFIX_PATH ${TLRENDER_IGNORE_PREFIX_PATH})
 endif()
@@ -94,19 +97,21 @@ if(TLRENDER_GPROF)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 endif()
+
 if(TLRENDER_GCOV)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-update=atomic")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage -fprofile-update=atomic")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage -fprofile-update=atomic")
 endif()
 
-if(APPLE)
-    set(CMAKE_FIND_FRAMEWORK LAST)
-endif()
-
 if(MSVC)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>DLL)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /MP")
+endif()
+
+if(APPLE)
+    set(CMAKE_FIND_FRAMEWORK LAST)
 endif()
 
 if(WIN32)
