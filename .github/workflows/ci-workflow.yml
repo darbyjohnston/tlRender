@@ -44,12 +44,10 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: |
-        bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: |
-        xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/tltest/tltest
     
     - name: Code coverage
       if: env.TLRENDER_GCOV == 'ON'
@@ -102,12 +100,10 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: |
-        bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: |
-        xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/tltest/tltest
 
   linux-gles2-minimal-build:
     runs-on: ubuntu-latest
@@ -147,12 +143,10 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: |
-        bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
-      run: |
-        xvfb-run build-Debug/tests/tltest/tltest
+      run: xvfb-run build-Debug/tests/tltest/tltest
 
   linux-package:
     runs-on: ubuntu-latest
@@ -194,12 +188,10 @@ jobs:
         python --version
 
     - name: Build tlRender
-      run: |
-        bash tlRender/etc/Linux/linux-build-gha.sh Release
+      run: bash tlRender/etc/Linux/linux-build-gha.sh Release
 
     - name: Package
-      run: |
-        cmake --build build-Release -j 4 --target package
+      run: cmake --build build-Release -j 4 --target package
 
     - uses: actions/upload-artifact@v4
       with:
@@ -360,6 +352,7 @@ jobs:
 
     - name: Package
       run: |
+        export DYLD_LIBRARY_PATH=$PWD/install-Release/lib:$DYLD_LIBRARY_PATH
         cmake --build build-Release -j 4 --target package
 
     - uses: actions/upload-artifact@v4
@@ -411,13 +404,11 @@ jobs:
         
     - name: Build tlRender
       shell: cmd
-      run: |
-        tlRender\etc\Windows\windows-build-gha.bat Debug
+      run: tlRender\etc\Windows\windows-build-gha.bat Debug
 
     - name: Run tests
       shell: cmd
-      run: |
-        build-Debug\tests\tltest\Debug\tltest
+      run: build-Debug\tests\tltest\Debug\tltest
 
   windows-package:
     runs-on: windows-latest
@@ -464,13 +455,11 @@ jobs:
 
     - name: Build tlRender
       shell: cmd
-      run: |
-        tlRender\etc\Windows\windows-build-gha.bat Release
+      run: tlRender\etc\Windows\windows-build-gha.bat Release
 
     - name: Package
       shell: cmd
-      run: |
-        cmake --build build-Release -j 4 --target package
+      run: cmake --build build-Release -j 4 --config Release --target package
 
     - uses: actions/upload-artifact@v4
       with:

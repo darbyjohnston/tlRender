@@ -74,38 +74,19 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Run CMake with the super build script:
+
+Run the super build script:
 ```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release
+tlRender/SuperBuild.sh
 ```
-Start the build:
-```
-cmake --build Release -j 4 --config Release
-```
+
 Try running the `tlplay` application:
 ```
-export LD_LIBRARY_PATH=$PWD/Release/install/lib:$LD_LIBRARY_PATH
-```
-```
-./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
+./build-Release/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 To build with Qt 6 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT6`:
-```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/gcc_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-To build with Qt 5 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT5`:
-```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/gcc_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-To build with only the minimal required dependencies:
-```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release -DTLRENDER_OCIO=OFF -DTLRENDER_AUDIO=OFF -DTLRENDER_JPEG=OFF -DTLRENDER_TIFF=OFF -DTLRENDER_STB=OFF -DTLRENDER_PNG=OFF -DTLRENDER_EXR=OFF -DTLRENDER_FFMPEG=OFF -DTLRENDER_PROGRAMS=OFF -DTLRENDER_EXAMPLES=OFF -DTLRENDER_TESTS=OFF
-```
+quotes around the list of paths) and enable `TLRENDER_QT6`.
 
 Example running gcovr for code coverage:
 ```
@@ -123,39 +104,19 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Run CMake with the super build script:
+
+Run the super build script:
 ```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH=$PWD/Release/install -DCMAKE_BUILD_TYPE=Release
+tlRender/SuperBuild.sh
 ```
-Start the build:
-```
-cmake --build Release -j 4 --config Release
-```
+
 Try running the `tlplay` application:
 ```
-./Release/tlRender/src/tlRender-build/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
+./build-Release/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 To build with Qt 6 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT6`:
-```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/6.5.3/macos" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-To build with Qt 5 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT5`:
-```
-cmake -S tlRender/etc/SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=$PWD/Release/install -DCMAKE_PREFIX_PATH="$PWD/Release/install;$HOME/Qt/5.15.2/clang_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-The CMake variable `CMAKE_OSX_ARCHITECTURES` can be used to specify the build
-architecture:
-```
--DCMAKE_OSX_ARCHITECTURES=x86_64
-```
-```
--DCMAKE_OSX_ARCHITECTURES=arm64
-```
+quotes around the list of paths) and enable `TLRENDER_QT6`.
 
 These aliases are convenient for switching between architectures:
 ```
@@ -180,30 +141,19 @@ Clone the repository:
 ```
 git clone https://github.com/darbyjohnston/tlRender.git
 ```
-Run CMake with the super build script:
+
+Run the super build script:
 ```
-cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH=%CD%\Release\install -DCMAKE_BUILD_TYPE=Release
+tlRender\SuperBuild.bat
 ```
-Start the build:
-```
-cmake --build Release -j 4 --config Release
-```
+
 Try running the `tlplay` application:
 ```
-set PATH=%CD%\Release\install\bin;%PATH%
+set PATH=%CD%\install-Release\bin;%PATH%
 ```
 ```
-.\Release\tlRender\src\tlRender-build\bin\tlplay\Release\tlplay tlRender\etc\SampleData\MultipleClips.otio
+.\build-Release\bin\tlplay\Release\tlplay tlRender\etc\SampleData\MultipleClips.otio
 ```
 
 To build with Qt 6 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT6`:
-```
-cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH="%CD%\Release\install;C:\Qt\6.5.3\msvc2019_64" -DTLRENDER_QT6=ON -DCMAKE_BUILD_TYPE=Release
-```
-
-To build with Qt 5 add the Qt location to `CMAKE_PREFIX_PATH` (place double
-quotes around the list of paths) and enable `TLRENDER_QT5`:
-```
-cmake -S tlRender\etc\SuperBuild -B Release -DCMAKE_INSTALL_PREFIX=%CD%\Release\install -DCMAKE_PREFIX_PATH="%CD%\Release\install;C:\Qt\5.15.2\msvc2019_64" -DTLRENDER_QT5=ON -DCMAKE_BUILD_TYPE=Release
-```
+quotes around the list of paths) and enable `TLRENDER_QT6`.
