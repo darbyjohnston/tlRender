@@ -6,7 +6,7 @@ set -x
 sudo apt-get update
 
 # Install lcov
-if [ $FEATHER_TK_GCOV = "ON" ]; then
+if [ $TLRENDER_GCOV = "ON" ]; then
     sudo apt-get install lcov
 fi
 
