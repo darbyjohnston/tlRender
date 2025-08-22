@@ -36,7 +36,7 @@ namespace tl
                 const feather_tk::Size2I&);
 
         protected:
-            std::shared_ptr<feather_tk::IRender> _createRender(const std::shared_ptr<feather_tk::Context>&) override;
+            std::shared_ptr<feather_tk::IRender> _createRender(const std::shared_ptr<feather_tk::LogSystem>&) override;
         };
     }
 }

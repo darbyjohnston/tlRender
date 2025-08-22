@@ -132,7 +132,7 @@ namespace tl
                         auto image = feather_tk::Image::create(info);
 
                         // Render the test pattern.
-                        auto render = timeline_gl::Render::create(_context);
+                        auto render = timeline_gl::Render::create(_context->getLogSystem());
                         auto pattern = TestPatternFactory::create(_context, name, size);
                         for (double i = ioInfo.videoTime.start_time().value(); i < ioInfo.videoTime.duration().value(); i = i + 1.0)
                         {

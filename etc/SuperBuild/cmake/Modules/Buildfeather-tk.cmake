@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(feather_tk_GIT_REPOSITORY "https://github.com/darbyjohnston/feather-tk.git")
-set(feather_tk_GIT_TAG "8c26327647e51e8440a3703d5eef7084b045be7c")
+set(feather_tk_GIT_TAG "b2deae474ecb0e1a42acd18c5f6f90c31e327c72")
 
 set(feather_tk_DEPS ZLIB PNG)
 set(feather_tk_ARGS
@@ -14,12 +14,21 @@ set(feather_tk_ARGS
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
-    feather-tk
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk
+    feather-tk-superbuild
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk-superbuild
     DEPENDS ${feather_tk_DEPS}
     GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
     GIT_TAG ${feather_tk_GIT_TAG}
     INSTALL_COMMAND ""
     SOURCE_SUBDIR etc/SuperBuild
+    LIST_SEPARATOR |
+    CMAKE_ARGS ${feather_tk_ARGS})
+
+ExternalProject_Add(
+    feather-tk
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk
+    DEPENDS feather-tk-superbuild
+    GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
+    GIT_TAG ${feather_tk_GIT_TAG}
     LIST_SEPARATOR |
     CMAKE_ARGS ${feather_tk_ARGS})

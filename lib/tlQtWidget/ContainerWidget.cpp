@@ -218,7 +218,7 @@ namespace tl
             {
                 try
                 {
-                    p.render = timeline_gl::Render::create(context);
+                    p.render = timeline_gl::Render::create(context->getLogSystem());
 
                     const std::string vertexSource =
                         "#version 410\n"

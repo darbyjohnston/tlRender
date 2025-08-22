@@ -5,6 +5,7 @@
 #include "PanoramaViewport.h"
 
 #include <feather-tk/gl/Init.h>
+#include <feather-tk/core/Context.h>
 
 #include <QMouseEvent>
 #include <QSurfaceFormat>
@@ -102,7 +103,7 @@ namespace tl
                 // Create the renderer.
                 if (auto context = _context.lock())
                 {
-                    _render = timeline_gl::Render::create(context);
+                    _render = timeline_gl::Render::create(context->getLogSystem());
                 }
 
                 // Create the shader.

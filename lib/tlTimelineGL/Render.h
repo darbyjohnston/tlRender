@@ -21,7 +21,7 @@ namespace tl
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::LogSystem>&,
                 const std::shared_ptr<feather_tk::gl::TextureCache>&);
 
             Render();
@@ -31,7 +31,7 @@ namespace tl
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<feather_tk::LogSystem>& = nullptr,
                 const std::shared_ptr<feather_tk::gl::TextureCache>& = nullptr);
 
             const std::shared_ptr<feather_tk::gl::TextureCache>& getTextureCache() const;

@@ -264,7 +264,7 @@ namespace tl
             _print(feather_tk::Format("Render size: {0}").arg(_renderSize));
 
             // Create the renderer.
-            _render = timeline_gl::Render::create(_context);
+            _render = timeline_gl::Render::create(_context->getLogSystem());
             feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.color = feather_tk::gl::offscreenColorDefault;
             _buffer = feather_tk::gl::OffscreenBuffer::create(_renderSize, offscreenBufferOptions);

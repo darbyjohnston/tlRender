@@ -31,9 +31,9 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<feather_tk::IRender> Window::_createRender(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<feather_tk::IRender> Window::_createRender(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
         {
-            return timeline_gl::Render::create(context);
+            return timeline_gl::Render::create(logSystem);
         }
     }
 }

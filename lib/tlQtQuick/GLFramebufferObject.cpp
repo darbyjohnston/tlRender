@@ -9,6 +9,7 @@
 #include <tlTimelineGL/Render.h>
 
 #include <feather-tk/gl/Init.h>
+#include <feather-tk/core/Context.h>
 
 #include <QOpenGLFramebufferObject>
 
@@ -42,7 +43,7 @@ namespace tl
                     {
                         _init = true;
                         feather_tk::gl::initGLAD();
-                        _render = timeline_gl::Render::create(qtquick::getContext());
+                        _render = timeline_gl::Render::create(qtquick::getContext()->getLogSystem());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();

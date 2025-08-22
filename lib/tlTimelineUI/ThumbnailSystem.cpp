@@ -363,10 +363,7 @@ namespace tl
                 {
                     FEATHER_TK_P();
                     p.window->makeCurrent();
-                    if (auto context = p.context.lock())
-                    {
-                        p.thumbnailThread.render = timeline_gl::Render::create(context);
-                    }
+                    p.thumbnailThread.render = timeline_gl::Render::create();
                     while (p.thumbnailThread.running)
                     {
                         _thumbnailRun();

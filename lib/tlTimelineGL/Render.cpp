@@ -7,8 +7,8 @@
 #include <feather-tk/gl/GL.h>
 #include <feather-tk/gl/Util.h>
 
-#include <feather-tk/core/Context.h>
 #include <feather-tk/core/Format.h>
+#include <feather-tk/core/LogSystem.h>
 
 #include <array>
 #include <list>
@@ -55,12 +55,12 @@ namespace tl
 #endif // TLRENDER_OCIO
 
         void Render::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem,
             const std::shared_ptr<feather_tk::gl::TextureCache>& textureCache)
         {
-            IRender::_init(context);
+            IRender::_init(logSystem);
             FEATHER_TK_P();
-            p.baseRender = feather_tk::gl::Render::create(context, textureCache);
+            p.baseRender = feather_tk::gl::Render::create(logSystem, textureCache);
         }
 
         Render::Render() :
@@ -71,11 +71,11 @@ namespace tl
         {}
 
         std::shared_ptr<Render> Render::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<feather_tk::LogSystem>& logSystem,
             const std::shared_ptr<feather_tk::gl::TextureCache>& textureCache)
         {
             auto out = std::shared_ptr<Render>(new Render);
-            out->_init(context, textureCache);
+            out->_init(logSystem, textureCache);
             return out;
         }
 
@@ -609,11 +609,6 @@ namespace tl
                     lutDef,
                     lut,
                     p.lutOptions.order);
-                if (auto context = _context.lock())
-                {
-                    //context->log("tl::gl::GLRender", source);
-                    context->log("tl::gl::GLRender", "Creating display shader");
-                }
                 p.shaders["display"] = feather_tk::gl::Shader::create(vertexSource(), source);
             }
             p.shaders["display"]->bind();

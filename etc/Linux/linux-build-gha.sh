@@ -18,10 +18,7 @@ sudo apt-get install xorg-dev libglu1-mesa-dev mesa-common-dev mesa-utils xvfb
 xvfb-run glxinfo
 
 # Install ALSA and PulseAudio support
-if [[ $TLRENDER_AUDIO = "ON" ]]
-then
-    sudo apt-get install libasound2-dev libpulse-dev
-fi
+sudo apt-get install libasound2-dev libpulse-dev
 
 # Install Qt support
 if [[ $TLRENDER_QT6 = "ON" ]]
@@ -44,7 +41,6 @@ cmake \
     -DCMAKE_PREFIX_PATH=$PWD/install-$BUILD_TYPE \
     -DTLRENDER_NET=$TLRENDER_NET \
     -DTLRENDER_OCIO=$TLRENDER_OCIO \
-    -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
     -DTLRENDER_JPEG=$TLRENDER_JPEG \
     -DTLRENDER_TIFF=$TLRENDER_TIFF \
     -DTLRENDER_STB=$TLRENDER_STB \
@@ -67,7 +63,6 @@ cmake \
     -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     -DTLRENDER_NET=$TLRENDER_NET \
     -DTLRENDER_OCIO=$TLRENDER_OCIO \
-    -DTLRENDER_AUDIO=$TLRENDER_AUDIO \
     -DTLRENDER_JPEG=$TLRENDER_JPEG \
     -DTLRENDER_TIFF=$TLRENDER_TIFF \
     -DTLRENDER_STB=$TLRENDER_STB \
