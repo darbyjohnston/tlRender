@@ -94,6 +94,8 @@ namespace tl
                 "tl::timelineui::TimelineWidget",
                 feather_tk::Size2I(1, 1),
                 static_cast<int>(feather_tk::gl::WindowOptions::None));
+            //! \todo Should this be moved into feather_tk::gl::Window::create()?
+            p.window->doneCurrent();
 
             p.scrollWidget = feather_tk::ScrollWidget::create(
                 context,
