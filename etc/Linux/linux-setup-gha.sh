@@ -18,9 +18,9 @@ xvfb-run glxinfo
 sudo apt-get install libasound2-dev libpulse-dev
 
 # Install Qt support
-if [ $TLRENDER_QT6 = "ON" ];
+if [ $TLRENDER_QT6 = "ON" ]; then
     sudo apt-get install qt6-base-dev qt6-5compat-dev qt6-declarative-dev qt6-svg-dev
 fi
-if [ $TLRENDER_QT5 = "ON" ];
+if [ $TLRENDER_QT5 = "ON" ]; then
     sudo apt-get install qtdeclarative5-dev libqt5quick5 qtbase5-dev libqt5svg5-dev qtchooser qt5-qmake qtbase5-dev-tools
 fi
