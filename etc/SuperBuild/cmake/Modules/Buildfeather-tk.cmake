@@ -14,8 +14,8 @@ set(feather_tk_ARGS
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
-    feather-tk-superbuild
-    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk-superbuild
+    feather-tk-SuperBuild
+    PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk-SuperBuild
     DEPENDS ${feather_tk_DEPS}
     GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
     GIT_TAG ${feather_tk_GIT_TAG}
@@ -27,7 +27,7 @@ ExternalProject_Add(
 ExternalProject_Add(
     feather-tk
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/feather-tk
-    DEPENDS feather-tk-superbuild
+    DEPENDS feather-tk-SuperBuild
     GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
     GIT_TAG ${feather_tk_GIT_TAG}
     LIST_SEPARATOR |
