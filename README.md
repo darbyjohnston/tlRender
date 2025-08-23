@@ -77,7 +77,7 @@ git clone https://github.com/darbyjohnston/tlRender.git
 
 Run the super build script:
 ```
-tlRender/SuperBuild.sh
+sh tlRender/SuperBuildLinux.sh
 ```
 
 Try running the `tlplay` application:
@@ -107,7 +107,7 @@ git clone https://github.com/darbyjohnston/tlRender.git
 
 Run the super build script:
 ```
-tlRender/SuperBuild.sh
+sh tlRender/SuperBuildmacOS.sh
 ```
 
 Try running the `tlplay` application:

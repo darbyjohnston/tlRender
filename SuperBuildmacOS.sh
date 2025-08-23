@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -x
 
@@ -18,11 +18,13 @@ export TLRENDER_EXR=ON
 export TLRENDER_FFMPEG=ON
 export TLRENDER_FFMPEG_MINIMAL=OFF
 export TLRENDER_USD=OFF
-export TLRENDER_QT6=ON
+export TLRENDER_QT6=OFF
 export TLRENDER_QT5=OFF
 export TLRENDER_PROGRAMS=ON
 export TLRENDER_EXAMPLES=ON
 export TLRENDER_TESTS=ON
 export TLRENDER_GCOV=OFF
+export CMAKE_OSX_DEPLOYMENT_TARGET=10.15
+export CMAKE_OSX_ARCHITECTURES=arm64
 
-tlRender/etc/Linux/linux-build-gha.sh $BUILD_TYPE
+sh tlRender/etc/macOS/macos-build-gha.sh $BUILD_TYPE

@@ -41,9 +41,10 @@ jobs:
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
         cmake --version
         python --version
+        sh tlRender/etc/Linux/linux-setup-gha.sh
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: sh tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: xvfb-run build-Debug/tests/tltest/tltest
@@ -52,7 +53,7 @@ jobs:
       if: env.TLRENDER_GCOV == 'ON'
       run: |
         cd build-Debug
-        bash ../tlRender/etc/Linux/lcov.sh
+        sh ../tlRender/etc/Linux/lcov.sh
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
@@ -96,9 +97,10 @@ jobs:
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
         cmake --version
         python --version
+        sh tlRender/etc/Linux/linux-setup-gha.sh
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: sh tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: xvfb-run build-Debug/tests/tltest/tltest
@@ -138,9 +140,10 @@ jobs:
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
         cmake --version
         python --version
+        sh tlRender/etc/Linux/linux-setup-gha.sh
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Debug
+      run: sh tlRender/etc/Linux/linux-build-gha.sh Debug
 
     - name: Run tests
       run: xvfb-run build-Debug/tests/tltest/tltest
@@ -182,9 +185,10 @@ jobs:
         echo "PYTHONPATH=$PWD/install-Release/lib:$PYTHONPATH" >> $GITHUB_ENV
         cmake --version
         python --version
+        sh tlRender/etc/Linux/linux-setup-gha.sh
 
     - name: Build tlRender
-      run: bash tlRender/etc/Linux/linux-build-gha.sh Release
+      run: sh tlRender/etc/Linux/linux-build-gha.sh Release
 
     - name: Package
       run: cmake --build build-Release -j 4 --target package
@@ -239,7 +243,7 @@ jobs:
     - name: Build tlRender
       run: |
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
-        bash tlRender/etc/macOS/macos-build-gha.sh Debug
+        sh tlRender/etc/macOS/macos-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -291,7 +295,7 @@ jobs:
     - name: Build tlRender
       run: |
         export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
-        bash tlRender/etc/macOS/macos-build-gha.sh Debug
+        sh tlRender/etc/macOS/macos-build-gha.sh Debug
 
     - name: Run tests
       run: |
@@ -319,6 +323,7 @@ jobs:
       TLRENDER_EXAMPLES: OFF
       TLRENDER_TESTS: OFF
       CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
+      CMAKE_OSX_ARCHITECTURES: arm64
 
     steps:
     - uses: actions/checkout@v4
@@ -341,7 +346,7 @@ jobs:
     - name: Build tlRender
       run: |
         export DYLD_LIBRARY_PATH=$PWD/install-Release/lib:$DYLD_LIBRARY_PATH
-        bash tlRender/etc/macOS/macos-build-gha.sh Release
+        sh tlRender/etc/macOS/macos-build-gha.sh Release
 
     - name: Package
       run: |
