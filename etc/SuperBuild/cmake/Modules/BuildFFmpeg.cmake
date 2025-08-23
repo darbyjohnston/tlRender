@@ -5,7 +5,7 @@ if(WIN32)
     find_package(Msys REQUIRED)
 endif()
 
-set(FFmpeg_URL https://ffmpeg.org/releases/ffmpeg-7.1.tar.bz2)
+set(FFmpeg_URL https://ffmpeg.org/releases/ffmpeg-8.0.tar.bz2)
 
 set(FFmpeg_DEPS ZLIB)
 if(TLRENDER_NET)
@@ -57,7 +57,6 @@ set(FFmpeg_CONFIGURE_ARGS
     --prefix=${CMAKE_INSTALL_PREFIX}
     --disable-programs
     --disable-doc
-    --disable-postproc
     --disable-avfilter
     --disable-hwaccels
     --disable-devices
@@ -86,8 +85,10 @@ set(FFmpeg_CONFIGURE_ARGS
     --disable-cuda-llvm
     --disable-cuvid
     --disable-d3d11va
+    --disable-d3d12va
     --disable-dxva2
     --disable-ffnvcodec
+    --disable-mediafoundation
     --disable-nvdec
     --disable-nvenc
     --disable-v4l2-m2m

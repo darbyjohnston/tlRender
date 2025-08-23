@@ -48,7 +48,7 @@ namespace tl
             }
 
             AVCodecID avCodecID = AV_CODEC_ID_MPEG4;
-            int avProfile = FF_PROFILE_UNKNOWN;
+            int avProfile = AV_PROFILE_UNKNOWN;
             auto option = options.find("FFmpeg/Codec");
             std::string codec;
             if (option != options.end())
