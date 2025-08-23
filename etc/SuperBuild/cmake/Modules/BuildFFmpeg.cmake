@@ -103,6 +103,7 @@ set(FFmpeg_CONFIGURE_ARGS
 if(TLRENDER_FFMPEG_MINIMAL)
     list(APPEND FFmpeg_CONFIGURE_ARGS
         --disable-decoders
+        --enable-decoder=apv
         --enable-decoder=av1
         --enable-decoder=flac
         --enable-decoder=mjpeg
@@ -196,6 +197,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-encoder=yuv4
         --disable-demuxers
         --enable-demuxer=aiff
+        --enable-demuxer=apv
         --enable-demuxer=av1
         --enable-demuxer=flac
         --enable-demuxer=m4v
@@ -233,6 +235,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-demuxer=yuv4mpegpipe
         --disable-muxers
         --enable-muxer=aiff
+        --enable-muxer=apv
         --enable-muxer=flac
         --enable-muxer=m4v
         --enable-muxer=mjpeg
@@ -265,6 +268,7 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-muxer=wav
         --enable-muxer=yuv4mpegpipe
         --disable-parsers
+        --enable-parser=apv
         --enable-parser=av1
         --enable-parser=flac
         --enable-parser=mjpeg
