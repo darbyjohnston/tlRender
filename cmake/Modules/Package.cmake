@@ -8,12 +8,12 @@ if(WIN32)
     
     if(TLRENDER_FFMPEG)
         set(FFMPEG_DLLS
-            ${CMAKE_INSTALL_PREFIX}/bin/avcodec-61.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/avdevice-61.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/avformat-61.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/avutil-59.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/swresample-5.dll
-            ${CMAKE_INSTALL_PREFIX}/bin/swscale-8.dll)
+            ${CMAKE_INSTALL_PREFIX}/bin/avcodec-62.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/avdevice-62.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/avformat-62.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/avutil-60.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/swresample-6.dll
+            ${CMAKE_INSTALL_PREFIX}/bin/swscale-9.dll)
         list(APPEND INSTALL_DLLS ${FFMPEG_DLLS})
     endif()
     
