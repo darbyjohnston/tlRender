@@ -284,7 +284,9 @@ if(TLRENDER_FFMPEG_MINIMAL)
         --enable-protocol=httpproxy
         --enable-protocol=https
         --enable-protocol=md5
-        --enable-protocol=tls)
+        --enable-protocol=tcp
+        --enable-protocol=tls
+        --enable-protocol=udp)
 endif()
 if(TLRENDER_AV1)
     list(APPEND FFmpeg_CONFIGURE_ARGS
