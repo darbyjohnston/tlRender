@@ -361,7 +361,7 @@ namespace tl
                         if (isSequence)
                         {
                             auto mediaReference = new OTIO_NS::ImageSequenceReference(
-                                path.getProtocol() + path.getDirectory(),
+                                "",
                                 path.getBaseName(),
                                 path.getExtension(),
                                 info.videoTime.start_time().value(),
@@ -374,7 +374,7 @@ namespace tl
                         else
                         {
                             videoClip->set_media_reference(new OTIO_NS::ExternalReference(
-                                path.get(),
+                                path.get(-1, file::PathType::FileName),
                                 info.videoTime));
                         }
                         videoTrack = new OTIO_NS::Track("Video", std::nullopt, OTIO_NS::Track::Kind::video);
@@ -395,7 +395,7 @@ namespace tl
                             auto audioClip = new OTIO_NS::Clip;
                             audioClip->set_source_range(audioInfo.audioTime);
                             audioClip->set_media_reference(new OTIO_NS::ExternalReference(
-                                audioPath.get(),
+                                audioPath.get(-1, file::PathType::FileName),
                                 audioInfo.audioTime));
 
                             audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
@@ -416,7 +416,7 @@ namespace tl
                         auto audioClip = new OTIO_NS::Clip;
                         audioClip->set_source_range(info.audioTime);
                         audioClip->set_media_reference(new OTIO_NS::ExternalReference(
-                            path.get(),
+                            path.get(-1, file::PathType::FileName),
                             info.audioTime));
 
                         audioTrack = new OTIO_NS::Track("Audio", std::nullopt, OTIO_NS::Track::Kind::audio);
