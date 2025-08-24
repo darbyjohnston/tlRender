@@ -134,6 +134,12 @@ namespace tl
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            /*SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);*/
 #elif defined(FEATHER_TK_API_GLES_2)
             SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
@@ -144,8 +150,8 @@ namespace tl
                 "USD",
                 SDL_WINDOWPOS_UNDEFINED,
                 SDL_WINDOWPOS_UNDEFINED,
-                1,
-                1,
+                100,
+                100,
                 SDL_WINDOW_OPENGL |
                 SDL_WINDOW_RESIZABLE |
                 SDL_WINDOW_HIDDEN);
@@ -173,6 +179,7 @@ namespace tl
                     p.thread.stageCache.clear();
                     p.thread.diskCache.clear();
                     _finish();
+                    SDL_GL_MakeCurrent(p.sdlWindow, nullptr);
                 });
             
             if (auto logSystem = p.logSystem.lock())

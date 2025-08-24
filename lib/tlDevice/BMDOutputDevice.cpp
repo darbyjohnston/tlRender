@@ -51,7 +51,7 @@ namespace tl
 
         struct OutputDevice::Private
         {
-            std::weak_ptr<feather_tk::Context> context;
+            std::weak_ptr<feather_tk::LogSystem> logSystem;
             std::shared_ptr<feather_tk::ObservableValue<DeviceConfig> > config;
             std::shared_ptr<feather_tk::ObservableValue<bool> > enabled;
             std::shared_ptr<feather_tk::ObservableValue<bool> > active;
@@ -135,7 +135,7 @@ namespace tl
         {
             FEATHER_TK_P();
 
-            p.context = context;
+            p.logSystem = context->getLogSystem();
             p.config = feather_tk::ObservableValue<DeviceConfig>::create();
             p.enabled = feather_tk::ObservableValue<bool>::create(false);
             p.active = feather_tk::ObservableValue<bool>::create(false);
@@ -155,7 +155,7 @@ namespace tl
                     FEATHER_TK_P();
                     p.window->makeCurrent();
                     _run();
-                    p.window->doneCurrent();
+                    p.window->clearCurrent();
                 });
         }
 
@@ -585,9 +585,9 @@ namespace tl
             std::vector<timeline::AudioData> audioData;
             std::shared_ptr<feather_tk::Image> overlay;
 
-            if (auto context = p.context.lock())
+            if (auto logSystem = p.logSystem.lock())
             {
-                p.thread.render = timeline_gl::Render::create(context);
+                p.thread.render = timeline_gl::Render::create(logSystem);
             }
 
             auto t = std::chrono::steady_clock::now();
@@ -721,9 +721,9 @@ namespace tl
                         }
                         catch (const std::exception& e)
                         {
-                            if (auto context = p.context.lock())
+                            if (auto logSystem = p.logSystem.lock())
                             {
-                                context->log(
+                                logSystem->print(
                                     "tl::bmd::OutputDevice",
                                     e.what(),
                                     feather_tk::LogType::Error);
@@ -762,9 +762,9 @@ namespace tl
                     }
                     catch (const std::exception& e)
                     {
-                        if (auto context = p.context.lock())
+                        if (auto logSystem = p.logSystem.lock())
                         {
-                            context->log(
+                            logSystem->print(
                                 "tl::bmd::OutputDevice",
                                 e.what(),
                                 feather_tk::LogType::Error);
@@ -876,11 +876,11 @@ namespace tl
                     default: break;
                     }
                 }
-                if (auto context = p.context.lock())
+                if (auto logSystem = p.logSystem.lock())
                 {
                     BOOL value = 0;
                     p.thread.dl->config->GetFlag(bmdDeckLinkConfig444SDIVideoOutput, &value);
-                    context->log(
+                    logSystem->print(
                         "tl::bmd::OutputDevice",
                         feather_tk::Format("444 SDI output: {0}").arg(value));
                 }
@@ -930,9 +930,9 @@ namespace tl
                     frameRate.num = static_cast<int>(frameDuration);
                     frameRate.den = static_cast<int>(frameTimescale);
 
-                    if (auto context = p.context.lock())
+                    if (auto logSystem = p.logSystem.lock())
                     {
-                        context->log(
+                        logSystem->print(
                             "tl::bmd::OutputDevice",
                             feather_tk::Format(
                                 "\n"

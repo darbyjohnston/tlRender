@@ -8,7 +8,7 @@ JOBS=4
 
 cmake \
     -S tlRender/etc/SuperBuild \
-    -B superbuild-$BUILD_TYPE \
+    -B sbuild-$BUILD_TYPE \
     -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     -DCMAKE_INSTALL_PREFIX=$PWD/install-$BUILD_TYPE \
     -DCMAKE_PREFIX_PATH=$PWD/install-$BUILD_TYPE \
@@ -29,7 +29,7 @@ cmake \
     -DTLRENDER_QT6=$TLRENDER_QT6 \
     -DTLRENDER_QT5=$TLRENDER_QT5 \
     -Dfeather_tk_API=$FEATHER_TK_API
-cmake --build superbuild-$BUILD_TYPE -j $JOBS --config $BUILD_TYPE
+cmake --build sbuild-$BUILD_TYPE -j $JOBS --config $BUILD_TYPE
 
 cmake \
     -S tlRender \
