@@ -14,7 +14,7 @@ set(feather_tk_ARGS
     ${TLRENDER_EXTERNAL_ARGS})
 
 ExternalProject_Add(
-    feather-tk-sbuild
+    ftk-sbuild
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ftk-sbuild
     DEPENDS ${feather_tk_DEPS}
     GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
@@ -27,7 +27,7 @@ ExternalProject_Add(
 ExternalProject_Add(
     feather-tk
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/ftk
-    DEPENDS feather-tk-sbuild
+    DEPENDS ftk-sbuild
     GIT_REPOSITORY ${feather_tk_GIT_REPOSITORY}
     GIT_TAG ${feather_tk_GIT_TAG}
     LIST_SEPARATOR |
