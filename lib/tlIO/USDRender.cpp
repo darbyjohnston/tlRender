@@ -124,48 +124,52 @@ namespace tl
 
             p.logSystem = logSystem;
 
+            try
+            {
 #if defined(__APPLE__)
-            const int glVersionMinor = 1;
+                const int glVersionMinor = 1;
 #else //__APPLE__
-            const int glVersionMinor = 5;
+                const int glVersionMinor = 5;
 #endif //__APPLE__
 #if defined(FEATHER_TK_API_GL_4_1)
-            SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-            /*SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);*/
+                SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 #elif defined(FEATHER_TK_API_GLES_2)
-            SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+                SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #endif // FEATHER_TK_API_GL_4_1
-            p.sdlWindow = SDL_CreateWindow(
-                "USD",
-                SDL_WINDOWPOS_UNDEFINED,
-                SDL_WINDOWPOS_UNDEFINED,
-                100,
-                100,
-                SDL_WINDOW_OPENGL |
-                SDL_WINDOW_RESIZABLE |
-                SDL_WINDOW_HIDDEN);
-            if (!p.sdlWindow)
-            {
-                throw std::runtime_error(feather_tk::Format("Cannot create window: {0}").
-                    arg(SDL_GetError()));
-            }
+                p.sdlWindow = SDL_CreateWindow(
+                    "USD",
+                    SDL_WINDOWPOS_UNDEFINED,
+                    SDL_WINDOWPOS_UNDEFINED,
+                    100,
+                    100,
+                    SDL_WINDOW_OPENGL |
+                    SDL_WINDOW_RESIZABLE |
+                    SDL_WINDOW_HIDDEN);
+                if (!p.sdlWindow)
+                {
+                    throw std::runtime_error(feather_tk::Format("Cannot create window: {0}").
+                        arg(SDL_GetError()));
+                }
 
-            p.sdlGLContext = SDL_GL_CreateContext(p.sdlWindow);
-            if (!p.sdlGLContext)
+                p.sdlGLContext = SDL_GL_CreateContext(p.sdlWindow);
+                if (!p.sdlGLContext)
+                {
+                    throw std::runtime_error(feather_tk::Format("Cannot create OpenGL context: {0}").
+                        arg(SDL_GetError()));
+                }
+            }
+            catch (const std::exception&e)
             {
-                throw std::runtime_error(feather_tk::Format("Cannot create OpenGL context: {0}").
-                    arg(SDL_GetError()));
+                logSystem->print(
+                    "tl::usd::Render",
+                    e.what(),
+                    feather_tk::LogType::Error);
             }
 
             p.thread.logTimer = std::chrono::steady_clock::now();
@@ -174,15 +178,20 @@ namespace tl
                 [this]
                 {
                     FEATHER_TK_P();
-                    SDL_GL_MakeCurrent(p.sdlWindow, p.sdlGLContext);
+                    if (p.sdlWindow && p.sdlGLContext)
+                    {
+                        SDL_GL_MakeCurrent(p.sdlWindow, p.sdlGLContext);
+                    }
                     _run();
                     p.thread.stageCache.clear();
                     p.thread.diskCache.clear();
                     _finish();
-                    SDL_GL_MakeCurrent(p.sdlWindow, nullptr);
+                    if (p.sdlWindow && p.sdlGLContext)
+                    {
+                        SDL_GL_MakeCurrent(p.sdlWindow, nullptr);
+                    }
                 });
             
-            if (auto logSystem = p.logSystem.lock())
             {
                 std::vector<std::string> renderers;
                 for (const auto& id : UsdImagingGLEngine::GetRendererPlugins())
@@ -209,6 +218,10 @@ namespace tl
             if (p.thread.thread.joinable())
             {
                 p.thread.thread.join();
+            }
+            if (p.sdlGLContext)
+            {
+                SDL_GL_DeleteContext(p.sdlGLContext);
             }
             if (p.sdlWindow)
             {
