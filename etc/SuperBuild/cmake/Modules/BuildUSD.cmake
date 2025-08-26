@@ -3,7 +3,7 @@ include(ExternalProject)
 set(USD_DEPS)
 
 set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
-set(USD_GIT_TAG v25.05.01)
+set(USD_GIT_TAG v25.08)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LC)
 set(USD_ARGS --build-variant ${CMAKE_BUILD_TYPE_LC})
@@ -17,7 +17,7 @@ if(CMAKE_OSX_DEPLOYMENT_TARGET)
     list(APPEND USD_ARGS MaterialX,"-DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}")
     #list(APPEND USD_ARGS TBB,"CFLAGS=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET} CXXFLAGS=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 endif()
-list(APPEND USD_ARGS --no-python --no-examples --no-tutorials --no-tools)
+list(APPEND USD_ARGS --no-python --no-examples --no-tutorials --no-tools --onetbb)
 list(APPEND USD_ARGS --verbose)
 
 set(USD_INSTALL_COMMAND)
