@@ -348,10 +348,13 @@ else()
         set(TBB_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.so
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc_proxy.so.2.12
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.so
             ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.so.2
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbbmalloc.so.2.12
             ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so
-            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so.2)
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so.12
+            ${CMAKE_INSTALL_PREFIX}/lib/libtbb.so.12.12)
         set(OSD_LIBS
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so
             ${CMAKE_INSTALL_PREFIX}/lib/libosdCPU.so.3.6.0
