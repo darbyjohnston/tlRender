@@ -10,8 +10,14 @@ project(tlRender-SuperBuild)
 #-------------------------------------------------------------------------------
 # Build options
 
+set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
+
 set(TLRENDER_NET FALSE CACHE BOOL "Enable network support")
-set(TLRENDER_OCIO TRUE CACHE BOOL "Enable support for OpenColorIO")
+set(TLRENDER_OCIO_DEFAULT ON)
+if(${feather_tk_API} STREQUAL GLES_2)
+    set(TLRENDER_OCIO_DEFAULT OFF)
+endif()
+set(TLRENDER_OCIO ${TLRENDER_OCIO_DEFAULT} CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_JPEG TRUE CACHE BOOL "Enable support for JPEG")
 set(TLRENDER_TIFF TRUE CACHE BOOL "Enable support for TIFF")
 set(TLRENDER_STB TRUE CACHE BOOL "Enable support for STB I/O (TGA, BMP, PSD)")
@@ -34,7 +40,6 @@ if(APPLE)
     set(TLRENDER_IGNORE_PREFIX_PATH_DEFAULT /opt/homebrew)
 endif()
 set(TLRENDER_IGNORE_PREFIX_PATH ${TLRENDER_IGNORE_PREFIX_PATH_DEFAULT} CACHE STRING "Ignore the given prefix path")
-set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 #-------------------------------------------------------------------------------
 # Internal configuration
