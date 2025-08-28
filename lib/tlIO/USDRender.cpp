@@ -130,14 +130,16 @@ namespace tl
             {
 #if defined(__APPLE__)
                 const int glVersionMinor = 1;
+                const int glProfile = SDL_GL_CONTEXT_PROFILE_CORE;
 #else //__APPLE__
                 const int glVersionMinor = 5;
+                const int glProfile = SDL_GL_CONTEXT_PROFILE_COMPATIBILITY;
 #endif //__APPLE__
                 SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, glProfile);
                 p.sdlWindow = SDL_CreateWindow(
                     "USD",
                     SDL_WINDOWPOS_UNDEFINED,
