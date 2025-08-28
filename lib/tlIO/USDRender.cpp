@@ -135,15 +135,9 @@ namespace tl
 #endif //__APPLE__
                 SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
                 SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 0);
-#if defined(FEATHER_TK_API_GL_4_1)
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
                 SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, glVersionMinor);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-#elif defined(FEATHER_TK_API_GLES_2)
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
-                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
-#endif // FEATHER_TK_API_GL_4_1
+                SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
                 p.sdlWindow = SDL_CreateWindow(
                     "USD",
                     SDL_WINDOWPOS_UNDEFINED,
@@ -174,7 +168,7 @@ namespace tl
                     feather_tk::LogType::Error);
             }
 
-            feather_tk::gl::initGLAD();
+            /*feather_tk::gl::initGLAD();
 
             std::string glVendor;
             std::string glRenderer;
@@ -200,7 +194,9 @@ namespace tl
                     "    glVersion:  {2}").
                 arg(glVendor).
                 arg(glRenderer).
-                arg(glVersion));
+                arg(glVersion));*/
+
+            SDL_GL_MakeCurrent(p.sdlWindow, nullptr);
 
             p.thread.logTimer = std::chrono::steady_clock::now();
             p.thread.running = true;
