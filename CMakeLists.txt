@@ -27,11 +27,7 @@ project(
 set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 set(TLRENDER_NET OFF CACHE BOOL "Enable network support")
-set(TLRENDER_OCIO_DEFAULT ON)
-if(${feather_tk_API} STREQUAL GLES_2)
-    set(TLRENDER_OCIO_DEFAULT OFF)
-endif()
-set(TLRENDER_OCIO ${TLRENDER_OCIO_DEFAULT} CACHE BOOL "Enable support for OpenColorIO")
+set(TLRENDER_OCIO ON CACHE BOOL "Enable support for OpenColorIO")
 set(TLRENDER_SDL2 ON CACHE BOOL "Enable support for SDL2")
 set(TLRENDER_SDL3 OFF CACHE BOOL "Enable support for SDL3")
 set(TLRENDER_JPEG ON CACHE BOOL "Enable support for JPEG I/O")
