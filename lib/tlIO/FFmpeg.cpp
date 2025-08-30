@@ -36,8 +36,8 @@ namespace tl
         io::Options getOptions(const Options& value)
         {
             io::Options out;
-            out["FFmpeg/YUVToRGB"] = feather_tk::Format("{0}").arg(value.yuvToRgb);
-            out["FFmpeg/ThreadCount"] = feather_tk::Format("{0}").arg(value.threadCount);
+            out["FFmpeg/YUVToRGB"] = ftk::Format("{0}").arg(value.yuvToRgb);
+            out["FFmpeg/ThreadCount"] = ftk::Format("{0}").arg(value.threadCount);
             return out;
         }
 
@@ -55,7 +55,7 @@ namespace tl
                 case AV_FRAME_DATA_MASTERING_DISPLAY_METADATA:
                 {
                     auto data = reinterpret_cast<AVMasteringDisplayMetadata*>(sideData[i]->data);
-                    hdr.displayMasteringLuminance = feather_tk::RangeF(
+                    hdr.displayMasteringLuminance = ftk::RangeF(
                         data->min_luminance.num / data->min_luminance.den,
                         data->max_luminance.num / data->max_luminance.den);
                     break;
@@ -142,10 +142,10 @@ namespace tl
                     tag,
                     AV_DICT_IGNORE_SUFFIX)))
                 {
-                    if (feather_tk::compare(
+                    if (ftk::compare(
                         tag->key,
                         "timecode",
-                        feather_tk::CaseCompare::Insensitive))
+                        ftk::CaseCompare::Insensitive))
                     {
                         timecode = tag->value;
                         break;
@@ -167,12 +167,12 @@ namespace tl
 
         std::string getErrorLabel(int r)
         {
-            char buf[feather_tk::cStringSize];
-            av_strerror(r, buf, feather_tk::cStringSize);
+            char buf[ftk::cStringSize];
+            av_strerror(r, buf, ftk::cStringSize);
             return std::string(buf);
         }
 
-        std::weak_ptr<feather_tk::LogSystem> ReadPlugin::_logSystemWeak;
+        std::weak_ptr<ftk::LogSystem> ReadPlugin::_logSystemWeak;
 
         struct ReadPlugin::Private
         {
@@ -180,9 +180,9 @@ namespace tl
             std::vector<std::string> codecNames;
         };
 
-        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             // Get codecs.
             const AVCodec* avCodec = nullptr;
@@ -206,7 +206,7 @@ namespace tl
             {
                 if (avInputFormat->extensions)
                 {
-                    for (auto extension : feather_tk::split(avInputFormat->extensions, ','))
+                    for (auto extension : ftk::split(avInputFormat->extensions, ','))
                     {
                         if (!extension.empty() && extension[0] != '.')
                         {
@@ -214,7 +214,7 @@ namespace tl
                         }
                         extensions[extension] = io::FileType::Media;
                     }
-                    formatLog.push_back(feather_tk::Format("    {0}: {1}").arg(avInputFormat->name).arg(avInputFormat->extensions));
+                    formatLog.push_back(ftk::Format("    {0}: {1}").arg(avInputFormat->name).arg(avInputFormat->extensions));
                 }
             }
             //! \bug Why aren't these in the list of input formats?
@@ -230,10 +230,10 @@ namespace tl
 
             logSystem->print(
                 "tl::io::ffmpeg::ReadPlugin",
-                "Codecs: " + feather_tk::join(p.codecNames, ", "));
+                "Codecs: " + ftk::join(p.codecNames, ", "));
             logSystem->print(
                 "tl::io::ffmpeg::ReadPlugin",
-                "Formats:\n" + feather_tk::join(formatLog, '\n'));
+                "Formats:\n" + ftk::join(formatLog, '\n'));
         }
 
         ReadPlugin::ReadPlugin() :
@@ -241,7 +241,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -257,7 +257,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
@@ -274,10 +274,10 @@ namespace tl
             case AV_LOG_INFO:
                 if (auto logSystem = _logSystemWeak.lock())
                 {
-                    char buf[feather_tk::cStringSize];
-                    vsnprintf(buf, feather_tk::cStringSize, fmt, vl);
+                    char buf[ftk::cStringSize];
+                    vsnprintf(buf, ftk::cStringSize, fmt, vl);
                     std::string s(buf);
-                    feather_tk::removeTrailingNewlines(s);
+                    ftk::removeTrailingNewlines(s);
                     logSystem->print("tl::io::ffmpeg::ReadPlugin", s);
                 }
                 break;
@@ -286,7 +286,7 @@ namespace tl
             }
         }
 
-        std::weak_ptr<feather_tk::LogSystem> WritePlugin::_logSystemWeak;
+        std::weak_ptr<ftk::LogSystem> WritePlugin::_logSystemWeak;
 
         struct WritePlugin::Private
         {
@@ -295,9 +295,9 @@ namespace tl
         };
 
         void WritePlugin::_init(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             // Get codecs.
             const AVCodec* avCodec = nullptr;
@@ -320,7 +320,7 @@ namespace tl
             {
                 if (avOutputFormat->extensions)
                 {
-                    for (auto extension : feather_tk::split(avOutputFormat->extensions, ','))
+                    for (auto extension : ftk::split(avOutputFormat->extensions, ','))
                     {
                         if (!extension.empty() && extension[0] != '.')
                         {
@@ -328,7 +328,7 @@ namespace tl
                         }                            
                         extensions[extension] = io::FileType::Media;
                     }
-                    formatLog.push_back(feather_tk::Format("    {0}: {1}").arg(avOutputFormat->name).arg(avOutputFormat->extensions));
+                    formatLog.push_back(ftk::Format("    {0}: {1}").arg(avOutputFormat->name).arg(avOutputFormat->extensions));
                 }
             }
 
@@ -341,10 +341,10 @@ namespace tl
 
             logSystem->print(
                 "tl::io::ffmpeg::WritePlugin",
-                "Codecs: " + feather_tk::join(p.codecNames, ", "));
+                "Codecs: " + ftk::join(p.codecNames, ", "));
             logSystem->print(
                 "tl::io::ffmpeg::WritePlugin",
-                "Formats:\n" + feather_tk::join(formatLog, '\n'));
+                "Formats:\n" + ftk::join(formatLog, '\n'));
         }
 
         WritePlugin::WritePlugin() :
@@ -352,7 +352,7 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(logSystem);
@@ -364,20 +364,20 @@ namespace tl
             return _p->codecNames;
         }
 
-        feather_tk::ImageInfo WritePlugin::getInfo(
-            const feather_tk::ImageInfo& info,
+        ftk::ImageInfo WritePlugin::getInfo(
+            const ftk::ImageInfo& info,
             const io::Options& options) const
         {
-            feather_tk::ImageInfo out;
+            ftk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case feather_tk::ImageType::L_U8:
-            case feather_tk::ImageType::L_U16:
-            case feather_tk::ImageType::RGB_U8:
-            case feather_tk::ImageType::RGB_U16:
-            case feather_tk::ImageType::RGBA_U8:
-            case feather_tk::ImageType::RGBA_U16:
+            case ftk::ImageType::L_U8:
+            case ftk::ImageType::L_U16:
+            case ftk::ImageType::RGB_U8:
+            case ftk::ImageType::RGB_U16:
+            case ftk::ImageType::RGBA_U8:
+            case ftk::ImageType::RGBA_U16:
                 out.type = info.type;
                 break;
             default: break;
@@ -391,7 +391,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }
@@ -407,10 +407,10 @@ namespace tl
             case AV_LOG_INFO:
                 if (auto logSystem = _logSystemWeak.lock())
                 {
-                    char buf[feather_tk::cStringSize];
-                    vsnprintf(buf, feather_tk::cStringSize, fmt, vl);
+                    char buf[ftk::cStringSize];
+                    vsnprintf(buf, ftk::cStringSize, fmt, vl);
                     std::string s(buf);
-                    feather_tk::removeTrailingNewlines(s);
+                    ftk::removeTrailingNewlines(s);
                     logSystem->print("tl::io::ffmpeg::WritePlugin", s);
                 }
                 break;

@@ -21,8 +21,8 @@ namespace tl
             timeline::PlayerCacheInfo cacheInfo;
             bool editable = false;
             bool stopOnScrub = true;
-            std::shared_ptr<feather_tk::ObservableValue<bool> > scrub;
-            std::shared_ptr<feather_tk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
+            std::shared_ptr<ftk::ObservableValue<bool> > scrub;
+            std::shared_ptr<ftk::ObservableValue<OTIO_NS::RationalTime> > timeScrub;
             std::vector<int> frameMarkers;
             std::shared_ptr<ThumbnailGenerator> thumbnailGenerator;
 
@@ -31,12 +31,12 @@ namespace tl
                 int index = 0;
                 TrackType type = TrackType::None;
                 OTIO_NS::TimeRange timeRange;
-                std::shared_ptr<feather_tk::ToolButton> enabledButton;
-                std::shared_ptr<feather_tk::Label> label;
-                std::shared_ptr<feather_tk::Label> durationLabel;
+                std::shared_ptr<ftk::ToolButton> enabledButton;
+                std::shared_ptr<ftk::Label> label;
+                std::shared_ptr<ftk::Label> durationLabel;
                 std::vector<std::shared_ptr<IItem> > items;
-                feather_tk::Size2I size;
-                feather_tk::Box2I geom;
+                ftk::Size2I size;
+                ftk::Box2I geom;
                 int clipHeight = 0;
             };
             std::vector<Track> tracks;
@@ -50,15 +50,15 @@ namespace tl
                 int spacing = 0;
                 int border = 0;
                 int handle = 0;
-                feather_tk::FontInfo fontInfo = feather_tk::FontInfo("", 0);
-                feather_tk::FontMetrics fontMetrics;
-                feather_tk::Box2I scrollArea;
+                ftk::FontInfo fontInfo = ftk::FontInfo("", 0);
+                ftk::FontMetrics fontMetrics;
+                ftk::Box2I scrollArea;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<feather_tk::Box2I> dropTargets;
+                std::vector<ftk::Box2I> dropTargets;
             };
             std::optional<DrawData> draw;
 
@@ -81,14 +81,14 @@ namespace tl
                 std::shared_ptr<IItem> p;
                 int index = -1;
                 int track = -1;
-                feather_tk::Box2I geometry;
+                ftk::Box2I geometry;
             };
             struct MouseItemDropTarget
             {
                 int index = -1;
                 int track = -1;
-                feather_tk::Box2I mouse;
-                feather_tk::Box2I draw;
+                ftk::Box2I mouse;
+                ftk::Box2I draw;
             };
             struct MouseData
             {
@@ -99,9 +99,9 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
 
             std::shared_ptr<IItem> getAssociated(
                 const std::shared_ptr<IItem>&,
@@ -109,7 +109,7 @@ namespace tl
                 int& trackIndex) const;
 
             std::vector<MouseItemDropTarget> getDropTargets(
-                const feather_tk::Box2I& geometry,
+                const ftk::Box2I& geometry,
                 int index,
                 int track);
         };

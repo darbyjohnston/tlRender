@@ -82,20 +82,20 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<feather_tk::Image>& image)
+                    const std::shared_ptr<ftk::Image>& image)
                 {
                     const auto& info = image->getInfo();
                     Header header;
-                    header.bytes = feather_tk::getBitDepth(info.type) / 8;
+                    header.bytes = ftk::getBitDepth(info.type) / 8;
                     header.dimension = 3;
                     header.width = info.size.w;
                     header.height = info.size.h;
-                    header.channels = feather_tk::getChannelCount(info.type);
+                    header.channels = ftk::getChannelCount(info.type);
                     header.pixelMin = 0;
-                    header.pixelMax = feather_tk::getBitDepth(info.type) == 8 ? 255 : 65535;
+                    header.pixelMax = ftk::getBitDepth(info.type) == 8 ? 255 : 65535;
 
-                    auto io = feather_tk::FileIO::create(fileName, feather_tk::FileMode::Write);
-                    io->setEndianConversion(feather_tk::getEndian() != feather_tk::Endian::MSB);
+                    auto io = ftk::FileIO::create(fileName, ftk::FileMode::Write);
+                    io->setEndianConversion(ftk::getEndian() != ftk::Endian::MSB);
                     io->writeU16(header.magic);
                     io->writeU8(header.storage);
                     io->writeU8(header.bytes);
@@ -109,13 +109,13 @@ namespace tl
                     io->write(dummy.data(), dummy.size());
                     io->setEndianConversion(false);
 
-                    auto tmp = feather_tk::Image::create(info);
+                    auto tmp = ftk::Image::create(info);
                     planarDeinterleave(
                         image->getData(),
                         tmp->getData(),
                         info.size.w,
                         info.size.h,
-                        feather_tk::getChannelCount(info.type));
+                        ftk::getChannelCount(info.type));
                     io->write(tmp->getData(), tmp->getByteCount());
                 }
             };
@@ -125,7 +125,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
         }
@@ -140,7 +140,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -150,7 +150,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<feather_tk::Image>& image,
+            const std::shared_ptr<ftk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image);

@@ -23,12 +23,12 @@ namespace tl
         {
             struct _stati64 info;
             memset(&info, 0, sizeof(struct _stati64));
-            if (_wstati64(feather_tk::toWide(_path.get()).c_str(), &info) != 0)
+            if (_wstati64(ftk::toWide(_path.get()).c_str(), &info) != 0)
             {
                 if (error)
                 {
-                    char tmp[feather_tk::cStringSize] = "";
-                    strerror_s(tmp, feather_tk::cStringSize, errno);
+                    char tmp[ftk::cStringSize] = "";
+                    strerror_s(tmp, ftk::cStringSize, errno);
                     *error = tmp;
                 }
                 return false;
@@ -56,12 +56,12 @@ namespace tl
             const std::string glob =
                 appendSeparator(!path.empty() ? path : std::string(".")) + "*";
             WIN32_FIND_DATAW ffd;
-            HANDLE hFind = FindFirstFileW(feather_tk::toWide(glob).c_str(), &ffd);
+            HANDLE hFind = FindFirstFileW(ftk::toWide(glob).c_str(), &ffd);
             if (hFind != INVALID_HANDLE_VALUE)
             {
                 do
                 {
-                    const std::string fileName = feather_tk::fromWide(ffd.cFileName);
+                    const std::string fileName = ftk::fromWide(ffd.cFileName);
                     if (!listFilter(fileName, options))
                     {
                         listSequence(path, fileName, out, options);

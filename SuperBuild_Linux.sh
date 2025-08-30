@@ -7,7 +7,8 @@ if [ "$#" -eq 1 ]; then
     BUILD_TYPE=$1
 fi
 
-export FEATHER_TK_API=GL_4_1
+export FTK_API=GL_4_1
+
 export TLRENDER_NET=OFF
 export TLRENDER_OCIO=ON
 export TLRENDER_JPEG=ON

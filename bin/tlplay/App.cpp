@@ -20,15 +20,15 @@ namespace tl
     namespace play
     {
         void App::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             std::vector<std::string>& argv)
         {
-            _cmdLine.inputs = feather_tk::CmdLineListArg<std::string>::create(
+            _cmdLine.inputs = ftk::CmdLineListArg<std::string>::create(
                 "input",
                 "One or more timelines, movies, or image sequences.",
                 true);
 
-            feather_tk::App::_init(
+            ftk::App::_init(
                 context,
                 argv,
                 "tlplay",
@@ -40,7 +40,7 @@ namespace tl
         {}
 
         std::shared_ptr<App> App::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             std::vector<std::string>& argv)
         {
             auto out = std::shared_ptr<App>(new App);
@@ -76,7 +76,7 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                auto dialogSystem = _context->getSystem<feather_tk::DialogSystem>();
+                auto dialogSystem = _context->getSystem<ftk::DialogSystem>();
                 dialogSystem->message("ERROR", e.what(), _window);
             }
             _recentFilesModel->addRecent(path);
@@ -84,7 +84,7 @@ namespace tl
 
         void App::open()
         {
-            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
+            auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
             fileBrowserSystem->open(
                 _window,
                 [this](const std::filesystem::path& value)
@@ -92,7 +92,7 @@ namespace tl
                     open(value);
                 },
                 std::filesystem::path(),
-                feather_tk::FileBrowserMode::File);
+                ftk::FileBrowserMode::File);
         }
 
         void App::reload()
@@ -103,23 +103,23 @@ namespace tl
             }
             catch (const std::exception& e)
             {
-                auto dialogSystem = _context->getSystem<feather_tk::DialogSystem>();
+                auto dialogSystem = _context->getSystem<ftk::DialogSystem>();
                 dialogSystem->message("ERROR", e.what(), _window);
             }
         }
 
         void App::run()
         {
-            _context->getSystem<feather_tk::FileBrowserSystem>()->setNativeFileDialog(false);
+            _context->getSystem<ftk::FileBrowserSystem>()->setNativeFileDialog(false);
 
             _settingsModel = SettingsModel::create(
                 _context,
-                feather_tk::getSettingsPath("tlRender", "tlplay.json"));
+                ftk::getSettingsPath("tlRender", "tlplay.json"));
 
             _timeUnitsModel = timeline::TimeUnitsModel::create(_context);
 
             _recentFilesModel = RecentFilesModel::create(_context, _settingsModel->getSettings());
-            auto fileBrowserSystem = _context->getSystem<feather_tk::FileBrowserSystem>();
+            auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
             fileBrowserSystem->getModel()->setExtensions(timeline::getExtensions(_context));
             fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
 
@@ -137,7 +137,7 @@ namespace tl
 
             _window->show();
 
-            feather_tk::App::run();
+            ftk::App::run();
         }
 
         void App::_tick()

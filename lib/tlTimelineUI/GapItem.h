@@ -17,8 +17,8 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
-                feather_tk::ColorRole,
+                const std::shared_ptr<ftk::Context>&,
+                ftk::ColorRole,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>&,
                 double scale,
                 const ItemOptions&,
@@ -33,8 +33,8 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<GapItem> create(
-                const std::shared_ptr<feather_tk::Context>&,
-                feather_tk::ColorRole,
+                const std::shared_ptr<ftk::Context>&,
+                ftk::ColorRole,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Gap>&,
                 double scale,
                 const ItemOptions&,

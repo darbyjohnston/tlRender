@@ -49,13 +49,13 @@ namespace tl
                 double seconds,
                 const OTIO_NS::TimeRange&);
 
-            std::weak_ptr<feather_tk::Context> context;
+            std::weak_ptr<ftk::Context> context;
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
-            std::shared_ptr<feather_tk::ObservableValue<bool> > timelineChanges;
+            std::shared_ptr<ftk::ObservableValue<bool> > timelineChanges;
             file::Path path;
             file::Path audioPath;
             Options options;
-            feather_tk::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
+            ftk::LRUCache<std::string, std::shared_ptr<io::IRead> > readCache;
             OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
             io::Info ioInfo;
             uint64_t requestId = 0;

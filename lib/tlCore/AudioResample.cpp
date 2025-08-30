@@ -47,7 +47,7 @@ namespace tl
             const audio::Info& inputInfo,
             const audio::Info& outputInfo)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.inputInfo = inputInfo;
             p.outputInfo = outputInfo;
 #if defined(TLRENDER_FFMPEG)
@@ -83,7 +83,7 @@ namespace tl
 
         AudioResample::~AudioResample()
         {
-            FEATHER_TK_P();
+            FTK_P();
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {
@@ -113,7 +113,7 @@ namespace tl
 
         std::shared_ptr<Audio> AudioResample::process(const std::shared_ptr<Audio>& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::shared_ptr<Audio> out;
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext && value)
@@ -141,7 +141,7 @@ namespace tl
 
         void AudioResample::flush()
         {
-            FEATHER_TK_P();
+            FTK_P();
 #if defined(TLRENDER_FFMPEG)
             if (p.swrContext)
             {

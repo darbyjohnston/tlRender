@@ -17,16 +17,16 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::string& label,
-                feather_tk::ColorRole,
+                ftk::ColorRole,
                 const std::string& objectName,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Item>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<feather_tk::IWidget>& parent = nullptr);
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             IBasicItem();
 
@@ -36,22 +36,22 @@ namespace tl
             void setScale(double) override;
             void setDisplayOptions(const DisplayOptions&) override;
 
-            void setGeometry(const feather_tk::Box2I&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void clipEvent(const feather_tk::Box2I&, bool) override;
-            void drawEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void clipEvent(const ftk::Box2I&, bool) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
 
         protected:
             int _getMargin() const;
             int _getLineHeight() const;
-            feather_tk::Box2I _getInsideGeometry() const;
+            ftk::Box2I _getInsideGeometry() const;
 
             void _timeUnitsUpdate() override;
 
         private:
             void _textUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

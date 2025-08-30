@@ -10,7 +10,7 @@
 
 namespace tl
 {
-    void init(const std::shared_ptr<feather_tk::Context>& context)
+    void init(const std::shared_ptr<ftk::Context>& context)
     {
         audio::System::create(context);
     }

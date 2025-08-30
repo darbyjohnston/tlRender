@@ -19,20 +19,20 @@ namespace tl
             std::shared_ptr<timeline::TimeUnitsModel> timeUnitsModel;
             OTIO_NS::RationalTime value = time::invalidTime;
             std::function<void(const OTIO_NS::RationalTime&)> callback;
-            std::shared_ptr<feather_tk::LineEdit> lineEdit;
-            std::shared_ptr<feather_tk::IncButtons> incButtons;
-            std::shared_ptr<feather_tk::HorizontalLayout> layout;
+            std::shared_ptr<ftk::LineEdit> lineEdit;
+            std::shared_ptr<ftk::IncButtons> incButtons;
+            std::shared_ptr<ftk::HorizontalLayout> layout;
 
-            std::shared_ptr<feather_tk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeEdit::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "tl::timelineui::TimeEdit", parent);
-            FEATHER_TK_P();
+            FTK_P();
 
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
@@ -40,14 +40,14 @@ namespace tl
                 p.timeUnitsModel = timeline::TimeUnitsModel::create(context);
             }
 
-            p.lineEdit = feather_tk::LineEdit::create(context, shared_from_this());
-            p.lineEdit->setFontRole(feather_tk::FontRole::Mono);
-            p.lineEdit->setHStretch(feather_tk::Stretch::Expanding);
+            p.lineEdit = ftk::LineEdit::create(context, shared_from_this());
+            p.lineEdit->setFontRole(ftk::FontRole::Mono);
+            p.lineEdit->setHStretch(ftk::Stretch::Expanding);
 
-            p.incButtons = feather_tk::IncButtons::create(context);
+            p.incButtons = ftk::IncButtons::create(context);
 
-            p.layout = feather_tk::HorizontalLayout::create(context, shared_from_this());
-            p.layout->setSpacingRole(feather_tk::SizeRole::SpacingTool);
+            p.layout = ftk::HorizontalLayout::create(context, shared_from_this());
+            p.layout->setSpacingRole(ftk::SizeRole::SpacingTool);
             p.lineEdit->setParent(p.layout);
             p.incButtons->setParent(p.layout);
 
@@ -78,7 +78,7 @@ namespace tl
                     _commitValue(_p->value + OTIO_NS::RationalTime(-1.0, _p->value.rate()));
                 });
 
-            p.timeUnitsObserver = feather_tk::ValueObserver<timeline::TimeUnits>::create(
+            p.timeUnitsObserver = ftk::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
                 [this](timeline::TimeUnits)
                 {
@@ -94,7 +94,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeEdit> TimeEdit::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -115,7 +115,7 @@ namespace tl
 
         void TimeEdit::setValue(const OTIO_NS::RationalTime& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value.strictly_equal(p.value))
                 return;
             p.value = value;
@@ -132,12 +132,12 @@ namespace tl
             _p->lineEdit->selectAll();
         }
 
-        void TimeEdit::setFontRole(feather_tk::FontRole value)
+        void TimeEdit::setFontRole(ftk::FontRole value)
         {
             _p->lineEdit->setFontRole(value);
         }
 
-        void TimeEdit::setGeometry(const feather_tk::Box2I& value)
+        void TimeEdit::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _p->layout->setGeometry(value);
@@ -148,38 +148,38 @@ namespace tl
             _p->lineEdit->takeKeyFocus();
         }
 
-        void TimeEdit::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void TimeEdit::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_p->layout->getSizeHint());
         }
 
-        void TimeEdit::keyPressEvent(feather_tk::KeyEvent& event)
+        void TimeEdit::keyPressEvent(ftk::KeyEvent& event)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (isEnabled() && 0 == event.modifiers)
             {
                 switch (event.key)
                 {
-                case feather_tk::Key::Up:
+                case ftk::Key::Up:
                     event.accept = true;
                     _commitValue(
                         p.value +
                         OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
-                case feather_tk::Key::Down:
+                case ftk::Key::Down:
                     event.accept = true;
                     _commitValue(
                         p.value -
                         OTIO_NS::RationalTime(1.0, p.value.rate()));
                     break;
-                case feather_tk::Key::PageUp:
+                case ftk::Key::PageUp:
                     event.accept = true;
                     _commitValue(
                         p.value +
                         OTIO_NS::RationalTime(p.value.rate(), p.value.rate()));
                     break;
-                case feather_tk::Key::PageDown:
+                case ftk::Key::PageDown:
                     event.accept = true;
                     _commitValue(
                         p.value -
@@ -190,14 +190,14 @@ namespace tl
             }
         }
 
-        void TimeEdit::keyReleaseEvent(feather_tk::KeyEvent& event)
+        void TimeEdit::keyReleaseEvent(ftk::KeyEvent& event)
         {
             event.accept = true;
         }
 
         void TimeEdit::_commitValue(const std::string& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             OTIO_NS::RationalTime tmp = time::invalidTime;
             opentime::ErrorStatus errorStatus;
             if (p.timeUnitsModel)
@@ -225,7 +225,7 @@ namespace tl
 
         void TimeEdit::_commitValue(const OTIO_NS::RationalTime& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.value = value;
             _textUpdate();
             if (p.callback)
@@ -236,7 +236,7 @@ namespace tl
 
         void TimeEdit::_textUpdate()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::string text;
             std::string format;
             if (p.timeUnitsModel)

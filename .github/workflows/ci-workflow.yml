@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -67,7 +67,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_JPEG: OFF
@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FEATHER_TK_API: GLES_2
+      FTK_API: GLES_2
       TLRENDER_NET: OFF
       TLRENDER_OCIO: OFF
       TLRENDER_JPEG: ON
@@ -155,7 +155,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -206,7 +206,7 @@ jobs:
     runs-on: macos-13
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -259,7 +259,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -312,7 +312,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -372,7 +372,7 @@ jobs:
     runs-on: windows-latest
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: OFF
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON
@@ -423,7 +423,7 @@ jobs:
     #runs-on: windows-2019
 
     env:
-      FEATHER_TK_API: GL_4_1
+      FTK_API: GL_4_1
       TLRENDER_NET: ON
       TLRENDER_OCIO: ON
       TLRENDER_JPEG: ON

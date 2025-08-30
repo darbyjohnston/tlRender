@@ -13,10 +13,10 @@ namespace tl
         class DisplayOptionsTest : public tests::ITest
         {
         protected:
-            DisplayOptionsTest(const std::shared_ptr<feather_tk::Context>&);
+            DisplayOptionsTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<DisplayOptionsTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<DisplayOptionsTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
         };

@@ -10,14 +10,14 @@
 
 #include <iostream>
 
-FEATHER_TK_MAIN()
+FTK_MAIN()
 {
     int r = 1;
     try
     {
-        auto context = feather_tk::Context::create();
+        auto context = ftk::Context::create();
         tl::timeline::init(context);
-        auto args = feather_tk::convert(argc, argv);
+        auto args = ftk::convert(argc, argv);
         auto app = tl::bake::App::create(context, args);
         r = app->getExit();
         if (0 == r)

@@ -13,10 +13,10 @@ namespace tl
         class EditTest : public tests::ITest
         {
         protected:
-            EditTest(const std::shared_ptr<feather_tk::Context>&);
+            EditTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<EditTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<EditTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
 

@@ -16,7 +16,7 @@ namespace tl
 {
     namespace device
     {
-        void init(const std::shared_ptr<feather_tk::Context>& context)
+        void init(const std::shared_ptr<ftk::Context>& context)
         {
             timeline::init(context);
 #if defined(TLRENDER_BMD)

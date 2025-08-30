@@ -60,7 +60,7 @@ using namespace tl::tests;
 
 void coreTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<feather_tk::Context>& context)
+    const std::shared_ptr<ftk::Context>& context)
 {
     tests.push_back(core_tests::AudioTest::create(context));
     tests.push_back(core_tests::FileInfoTest::create(context));
@@ -72,7 +72,7 @@ void coreTests(
 
 void ioTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<feather_tk::Context>& context)
+    const std::shared_ptr<ftk::Context>& context)
 {
     tests.push_back(io_tests::CineonTest::create(context));
     tests.push_back(io_tests::DPXTest::create(context));
@@ -101,7 +101,7 @@ void ioTests(
 
 void timelineTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<feather_tk::Context>& context)
+    const std::shared_ptr<ftk::Context>& context)
 {
     tests.push_back(timeline_tests::ColorOptionsTest::create(context));
     tests.push_back(timeline_tests::CompareOptionsTest::create(context));
@@ -116,7 +116,7 @@ void timelineTests(
 
 void qtTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
-    const std::shared_ptr<feather_tk::Context>& context)
+    const std::shared_ptr<ftk::Context>& context)
 {
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     tests.push_back(qt_tests::TimeObjectTest::create(context));
@@ -125,7 +125,7 @@ void qtTests(
 
 int main(int argc, char* argv[])
 {
-    auto context = feather_tk::Context::create();
+    auto context = ftk::Context::create();
 #if defined(TLRENDER_QT5) || defined(TLRENDER_QT6)
     qt::init(
         context,
@@ -134,16 +134,16 @@ int main(int argc, char* argv[])
     timeline::init(context);
 #endif // TLRENDER_QT5 || TLRENDER_QT6
 
-    auto logObserver = feather_tk::ListObserver<feather_tk::LogItem>::create(
-        context->getSystem<feather_tk::LogSystem>()->observeLogItems(),
-        [](const std::vector<feather_tk::LogItem>& value)
+    auto logObserver = ftk::ListObserver<ftk::LogItem>::create(
+        context->getSystem<ftk::LogSystem>()->observeLogItems(),
+        [](const std::vector<ftk::LogItem>& value)
         {
             for (const auto& i : value)
             {
                 std::cout << "[LOG] " << toString(i) << std::endl;
             }
         },
-        feather_tk::ObserverAction::Suppress);
+        ftk::ObserverAction::Suppress);
 
     context->tick();
 

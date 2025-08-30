@@ -25,8 +25,8 @@ namespace tl
         Options getOptions(const SequenceOptions& value)
         {
             Options out;
-            out["SequenceIO/DefaultSpeed"] = feather_tk::Format("{0}").arg(value.defaultSpeed);
-            out["SequenceIO/ThreadCount"] = feather_tk::Format("{0}").arg(value.threadCount);
+            out["SequenceIO/DefaultSpeed"] = ftk::Format("{0}").arg(value.defaultSpeed);
+            out["SequenceIO/ThreadCount"] = ftk::Format("{0}").arg(value.threadCount);
             return out;
         }
 

@@ -113,8 +113,8 @@ namespace tl
                     }
                     auto logSystem = context->getLogSystem();
                     logSystem->print(
-                        feather_tk::Format("tl::timeline::Timeline {0}").arg(this),
-                        feather_tk::Format(
+                        ftk::Format("tl::timeline::Timeline {0}").arg(this),
+                        ftk::Format(
                         "\n"
                         "    Path: {0}\n"
                         "    Video requests: {1}, {2} in-progress, {3} max\n"
@@ -131,7 +131,7 @@ namespace tl
             }
 
             // Sleep for a bit.
-            feather_tk::sleep(timeout, t0, t1);
+            ftk::sleep(timeout, t0, t1);
         }
 
         void Timeline::Private::requests()
@@ -457,7 +457,7 @@ namespace tl
                 std::vector<std::string> out;
                 out.push_back(path.get());
                 out.push_back(path.getNumber());
-                return feather_tk::join(out, ';');
+                return ftk::join(out, ';');
             }
         }
 
@@ -477,7 +477,7 @@ namespace tl
                 {
                     const auto memoryRead = getMemoryRead(clip->media_reference());
                     io::Options options = ioOptions;
-                    options["SequenceIO/DefaultSpeed"] = feather_tk::Format("{0}").arg(timeRange.duration().rate());
+                    options["SequenceIO/DefaultSpeed"] = ftk::Format("{0}").arg(timeRange.duration().rate());
                     const auto ioSystem = context->getSystem<io::ReadSystem>();
                     out = ioSystem->read(path, memoryRead, options);
                     readCache.add(key, out);

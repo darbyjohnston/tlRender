@@ -15,11 +15,11 @@ namespace tl
 {
     namespace io_tests
     {
-        TIFFTest::TIFFTest(const std::shared_ptr<feather_tk::Context>& context) :
+        TIFFTest::TIFFTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "io_test::TIFFTest")
         {}
 
-        std::shared_ptr<TIFFTest> TIFFTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<TIFFTest> TIFFTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<TIFFTest>(new TIFFTest(context));
         }
@@ -28,10 +28,10 @@ namespace tl
         {
             void write(
                 const std::shared_ptr<io::IWritePlugin>& plugin,
-                const std::shared_ptr<feather_tk::Image>& image,
+                const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
-                const feather_tk::ImageInfo& imageInfo,
-                const feather_tk::ImageTags& tags)
+                const ftk::ImageInfo& imageInfo,
+                const ftk::ImageTags& tags)
             {
                 Info info;
                 info.video.push_back(imageInfo);
@@ -43,20 +43,20 @@ namespace tl
 
             void read(
                 const std::shared_ptr<io::IReadPlugin>& plugin,
-                const std::shared_ptr<feather_tk::Image>& image,
+                const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
                 bool memoryIO,
-                const feather_tk::ImageTags& tags)
+                const ftk::ImageTags& tags)
             {
                 std::vector<uint8_t> memoryData;
-                std::vector<feather_tk::InMemoryFile> memory;
+                std::vector<ftk::InMemoryFile> memory;
                 std::shared_ptr<io::IRead> read;
                 if (memoryIO)
                 {
-                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
+                    auto fileIO = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(feather_tk::InMemoryFile(memoryData.data(), memoryData.size()));
+                    memory.push_back(ftk::InMemoryFile(memoryData.data(), memoryData.size()));
                     read = plugin->read(path, memory);
                 }
                 else
@@ -64,12 +64,12 @@ namespace tl
                     read = plugin->read(path);
                 }
                 const auto ioInfo = read->getInfo().get();
-                FEATHER_TK_ASSERT(!ioInfo.video.empty());
+                FTK_ASSERT(!ioInfo.video.empty());
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
-                FEATHER_TK_ASSERT(videoData.image);
-                FEATHER_TK_ASSERT(videoData.image->getSize() == image->getSize());
+                FTK_ASSERT(videoData.image);
+                FTK_ASSERT(videoData.image->getSize() == image->getSize());
                 //! \todo Compare image data.
-                //FEATHER_TK_ASSERT(0 == memcmp(
+                //FTK_ASSERT(0 == memcmp(
                 //    videoData.image->getData(),
                 //    image->getData(),
                 //    image->getDataByteCount()));
@@ -77,31 +77,31 @@ namespace tl
                 for (const auto& j : tags)
                 {
                     const auto k = frameTags.find(j.first);
-                    FEATHER_TK_ASSERT(k != frameTags.end());
-                    FEATHER_TK_ASSERT(k->second == j.second);
+                    FTK_ASSERT(k != frameTags.end());
+                    FTK_ASSERT(k->second == j.second);
                 }
             }
 
             void readError(
                 const std::shared_ptr<io::IReadPlugin>& plugin,
-                const std::shared_ptr<feather_tk::Image>& image,
+                const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
                 bool memoryIO)
             {
                 {
-                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
+                    auto fileIO = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
                     const size_t size = fileIO->getSize();
                     fileIO.reset();
-                    feather_tk::truncateFile(path.get(), size / 2);
+                    ftk::truncateFile(path.get(), size / 2);
                 }
                 std::vector<uint8_t> memoryData;
-                std::vector<feather_tk::InMemoryFile> memory;
+                std::vector<ftk::InMemoryFile> memory;
                 if (memoryIO)
                 {
-                    auto fileIO = feather_tk::FileIO::create(path.get(), feather_tk::FileMode::Read);
+                    auto fileIO = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
-                    memory.push_back(feather_tk::InMemoryFile(memoryData.data(), memoryData.size()));
+                    memory.push_back(ftk::InMemoryFile(memoryData.data(), memoryData.size()));
                 }
                 auto read = plugin->read(path, memory);
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
@@ -115,7 +115,7 @@ namespace tl
             auto writeSystem = _context->getSystem<WriteSystem>();
             auto writePlugin = writeSystem->getPlugin<tiff::WritePlugin>();
 
-            const feather_tk::ImageTags tags =
+            const ftk::ImageTags tags =
             {
                 { "Creator", "Creator" },
                 { "Description", "Description" },
@@ -132,11 +132,11 @@ namespace tl
                 false,
                 true
             };
-            const std::vector<feather_tk::Size2I> sizes =
+            const std::vector<ftk::Size2I> sizes =
             {
-                feather_tk::Size2I(16, 16),
-                feather_tk::Size2I(1, 1),
-                feather_tk::Size2I(0, 0)
+                ftk::Size2I(16, 16),
+                ftk::Size2I(1, 1),
+                ftk::Size2I(0, 0)
             };
 
             for (const auto& fileName : fileNames)
@@ -145,9 +145,9 @@ namespace tl
                 {
                     for (const auto& size : sizes)
                     {
-                        for (const auto pixelType : feather_tk::getImageTypeEnums())
+                        for (const auto pixelType : ftk::getImageTypeEnums())
                         {
-                            const auto imageInfo = writePlugin->getInfo(feather_tk::ImageInfo(size, pixelType));
+                            const auto imageInfo = writePlugin->getInfo(ftk::ImageInfo(size, pixelType));
                             if (imageInfo.isValid())
                             {
                                 file::Path path;
@@ -157,7 +157,7 @@ namespace tl
                                     _print(ss.str());
                                     path = file::Path(ss.str());
                                 }
-                                auto image = feather_tk::Image::create(imageInfo);
+                                auto image = ftk::Image::create(imageInfo);
                                 image->zero();
                                 image->setTags(tags);
                                 try

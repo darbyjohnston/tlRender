@@ -26,7 +26,7 @@ namespace tl
             Count,
             First = BuiltIn
         };
-        FEATHER_TK_ENUM(OCIOConfig);
+        FTK_ENUM(OCIOConfig);
 
         //! OpenColorIO options.
         struct OCIOOptions
@@ -52,7 +52,7 @@ namespace tl
             Count,
             First = PostColorConfig
         };
-        FEATHER_TK_ENUM(LUTOrder);
+        FTK_ENUM(LUTOrder);
 
         //! LUT options.
         struct LUTOptions

@@ -17,7 +17,7 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>&,
                 double scale,
                 const ItemOptions&,
@@ -32,7 +32,7 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TransitionItem> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>&,
                 double scale,
                 const ItemOptions&,

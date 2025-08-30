@@ -13,13 +13,13 @@ namespace tl
 {
     namespace image
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             HDR_EOTF,
             "SDR",
             "HDR",
             "ST2084");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             HDRPrimaries,
             "Red",
             "Green",

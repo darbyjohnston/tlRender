@@ -22,14 +22,14 @@ namespace tl
             Count,
             First = Solid
         };
-        FEATHER_TK_ENUM(Background);
+        FTK_ENUM(Background);
 
         //! Outline.
         struct Outline
         {
             bool         enabled = false;
             int          width = 2;
-            feather_tk::Color4F color = feather_tk::Color4F(1.F, 0.F, 0.F);
+            ftk::Color4F color = ftk::Color4F(1.F, 0.F, 0.F);
 
             bool operator == (const Outline&) const;
             bool operator != (const Outline&) const;
@@ -40,19 +40,19 @@ namespace tl
         {
             Background type = Background::Solid;
 
-            feather_tk::Color4F solidColor = feather_tk::Color4F(0.F, 0.F, 0.F);
+            ftk::Color4F solidColor = ftk::Color4F(0.F, 0.F, 0.F);
 
-            std::pair<feather_tk::Color4F, feather_tk::Color4F> checkersColor =
+            std::pair<ftk::Color4F, ftk::Color4F> checkersColor =
             {
-                feather_tk::Color4F(0.F, 0.F, 0.F),
-                feather_tk::Color4F(1.F, 1.F, 1.F)
+                ftk::Color4F(0.F, 0.F, 0.F),
+                ftk::Color4F(1.F, 1.F, 1.F)
             };
-            feather_tk::Size2I checkersSize = feather_tk::Size2I(100, 100);
+            ftk::Size2I checkersSize = ftk::Size2I(100, 100);
 
-            std::pair<feather_tk::Color4F, feather_tk::Color4F> gradientColor =
+            std::pair<ftk::Color4F, ftk::Color4F> gradientColor =
             {
-                feather_tk::Color4F(0.F, 0.F, 0.F),
-                feather_tk::Color4F(1.F, 1.F, 1.F)
+                ftk::Color4F(0.F, 0.F, 0.F),
+                ftk::Color4F(1.F, 1.F, 1.F)
             };
 
             Outline outline;

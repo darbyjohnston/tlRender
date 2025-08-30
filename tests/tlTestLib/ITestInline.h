@@ -27,7 +27,7 @@ namespace tl
                     ss << i;
                     T j;
                     ss >> j;
-                    FEATHER_TK_ASSERT(i == j);
+                    FTK_ASSERT(i == j);
                 }
             }
         }

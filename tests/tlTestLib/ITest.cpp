@@ -11,7 +11,7 @@ namespace tl
     namespace tests
     {
         ITest::ITest(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::string& name) :
             _context(context),
             _name(name)

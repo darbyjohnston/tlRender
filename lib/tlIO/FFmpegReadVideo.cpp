@@ -19,7 +19,7 @@ namespace tl
     {
         ReadVideo::ReadVideo(
             const std::string& fileName,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const ReadOptions& options) :
             _fileName(fileName),
             _options(options)
@@ -29,7 +29,7 @@ namespace tl
                 _avFormatContext = avformat_alloc_context();
                 if (!_avFormatContext)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate format context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate format context: \"{0}\"").arg(fileName));
                 }
 
                 _avIOBufferData = AVIOBufferData(memory[0].p, memory[0].size);
@@ -44,7 +44,7 @@ namespace tl
                     &avIOBufferSeek);
                 if (!_avIOContext)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate I/O context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate I/O context: \"{0}\"").arg(fileName));
                 }
 
                 _avFormatContext->pb = _avIOContext;
@@ -57,13 +57,13 @@ namespace tl
                 nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
 
             r = avformat_find_stream_info(_avFormatContext, nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
             for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
             {
@@ -97,34 +97,34 @@ namespace tl
                 auto avVideoCodec = avcodec_find_decoder(avVideoCodecParameters->codec_id);
                 if (!avVideoCodec)
                 {
-                    throw std::runtime_error(feather_tk::Format("No video codec found: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("No video codec found: \"{0}\"").arg(fileName));
                 }
                 _avCodecParameters[_avStream] = avcodec_parameters_alloc();
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate parameters: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate parameters: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_copy(_avCodecParameters[_avStream], avVideoCodecParameters);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream] = avcodec_alloc_context3(avVideoCodec);
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate context: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_to_context(_avCodecContext[_avStream], _avCodecParameters[_avStream]);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream]->thread_count = options.threadCount;
                 _avCodecContext[_avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avStream], avVideoCodec, 0);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
 
                 _info.size.w = _avCodecParameters[_avStream]->width;
@@ -141,50 +141,50 @@ namespace tl
                 {
                 case AV_PIX_FMT_RGB24:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.type = feather_tk::ImageType::RGB_U8;
+                    _info.type = ftk::ImageType::RGB_U8;
                     break;
                 case AV_PIX_FMT_GRAY8:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.type = feather_tk::ImageType::L_U8;
+                    _info.type = ftk::ImageType::L_U8;
                     break;
                 case AV_PIX_FMT_RGBA:
                     _avOutputPixelFormat = _avInputPixelFormat;
-                    _info.type = feather_tk::ImageType::RGBA_U8;
+                    _info.type = ftk::ImageType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUV420P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.type = feather_tk::ImageType::RGB_U8;
+                        _info.type = ftk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.type = feather_tk::ImageType::YUV_420P_U8;
+                        _info.type = ftk::ImageType::YUV_420P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.type = feather_tk::ImageType::RGB_U8;
+                        _info.type = ftk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.type = feather_tk::ImageType::YUV_422P_U8;
+                        _info.type = ftk::ImageType::YUV_422P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.type = feather_tk::ImageType::RGB_U8;
+                        _info.type = ftk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = _avInputPixelFormat;
-                        _info.type = feather_tk::ImageType::YUV_444P_U8;
+                        _info.type = ftk::ImageType::YUV_444P_U8;
                     }
                     break;
                 case AV_PIX_FMT_YUV420P10BE:
@@ -196,14 +196,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.type = feather_tk::ImageType::RGB_U16;
+                        _info.type = ftk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P16LE;
-                        _info.type = feather_tk::ImageType::YUV_420P_U16;
+                        _info.type = ftk::ImageType::YUV_420P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV422P10BE:
@@ -215,14 +215,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.type = feather_tk::ImageType::RGB_U16;
+                        _info.type = ftk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV422P16LE;
-                        _info.type = feather_tk::ImageType::YUV_422P_U16;
+                        _info.type = ftk::ImageType::YUV_422P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUV444P10BE:
@@ -234,14 +234,14 @@ namespace tl
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB48;
-                        _info.type = feather_tk::ImageType::RGB_U16;
+                        _info.type = ftk::ImageType::RGB_U16;
                     }
                     else
                     {
                         //! \todo Use the _info.layout.endian field instead of
                         //! converting endianness.
                         _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                        _info.type = feather_tk::ImageType::YUV_444P_U16;
+                        _info.type = ftk::ImageType::YUV_444P_U16;
                     }
                     break;
                 case AV_PIX_FMT_YUVA420P:
@@ -249,7 +249,7 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P:
                     //! \todo Support these formats natively.
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA;
-                    _info.type = feather_tk::ImageType::RGBA_U8;
+                    _info.type = ftk::ImageType::RGBA_U8;
                     break;
                 case AV_PIX_FMT_YUVA444P10BE:
                 case AV_PIX_FMT_YUVA444P10LE:
@@ -259,29 +259,29 @@ namespace tl
                 case AV_PIX_FMT_YUVA444P16LE:
                     //! \todo Support these formats natively.
                     _avOutputPixelFormat = AV_PIX_FMT_RGBA64;
-                    _info.type = feather_tk::ImageType::RGBA_U16;
+                    _info.type = ftk::ImageType::RGBA_U16;
                     break;
                 default:
                     if (options.yuvToRGBConversion)
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_RGB24;
-                        _info.type = feather_tk::ImageType::RGB_U8;
+                        _info.type = ftk::ImageType::RGB_U8;
                     }
                     else
                     {
                         _avOutputPixelFormat = AV_PIX_FMT_YUV420P;
-                        _info.type = feather_tk::ImageType::YUV_420P_U8;
+                        _info.type = ftk::ImageType::YUV_420P_U8;
                     }
                     break;
                 }
                 if (_avCodecContext[_avStream]->color_range != AVCOL_RANGE_JPEG)
                 {
-                    _info.videoLevels = feather_tk::VideoLevels::LegalRange;
+                    _info.videoLevels = ftk::VideoLevels::LegalRange;
                 }
                 switch (_avCodecParameters[_avStream]->color_space)
                 {
                 case AVCOL_SPC_BT2020_NCL:
-                    _info.yuvCoefficients = feather_tk::YUVCoefficients::BT2020;
+                    _info.yuvCoefficients = ftk::YUVCoefficients::BT2020;
                     break;
                 default: break;
                 }
@@ -309,17 +309,17 @@ namespace tl
                         swap(avVideoStream->r_frame_rate));
                 }
         
-                feather_tk::ImageTags tags;
+                ftk::ImageTags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
                     const std::string key(tag->key);
                     const std::string value(tag->value);
                     tags[key] = value;
-                    if (feather_tk::compare(
+                    if (ftk::compare(
                         key,
                         "timecode",
-                        feather_tk::CaseCompare::Insensitive))
+                        ftk::CaseCompare::Insensitive))
                     {
                         timecode = value;
                     }
@@ -434,7 +434,7 @@ namespace tl
             return _avStream != -1;
         }
 
-        const feather_tk::ImageInfo& ReadVideo::getInfo() const
+        const ftk::ImageInfo& ReadVideo::getInfo() const
         {
             return _info;
         }
@@ -444,7 +444,7 @@ namespace tl
             return _timeRange;
         }
 
-        const feather_tk::ImageTags& ReadVideo::getTags() const
+        const ftk::ImageTags& ReadVideo::getTags() const
         {
             return _tags;
         }
@@ -468,7 +468,7 @@ namespace tl
                 _avFrame = av_frame_alloc();
                 if (!_avFrame)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
                 }
 
                 if (!canCopy(_avInputPixelFormat, _avOutputPixelFormat))
@@ -476,7 +476,7 @@ namespace tl
                     _avFrame2 = av_frame_alloc();
                     if (!_avFrame2)
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
+                        throw std::runtime_error(ftk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
                     }
                     //! \bug These fields need to be filled out for
                     //! sws_scale_frame()?
@@ -498,12 +498,12 @@ namespace tl
                         0);
                     if (!_swsContext)
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot get context: \"{0}\"").arg(_fileName));
+                        throw std::runtime_error(ftk::Format("Cannot get context: \"{0}\"").arg(_fileName));
                     }*/
                     _swsContext = sws_alloc_context();
                     if (!_swsContext)
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot allocate context: \"{0}\"").arg(_fileName));
+                        throw std::runtime_error(ftk::Format("Cannot allocate context: \"{0}\"").arg(_fileName));
                     }
                     av_opt_set_defaults(_swsContext);
                     int r = av_opt_set_int(_swsContext, "srcw", _avCodecParameters[_avStream]->width, AV_OPT_SEARCH_CHILDREN);
@@ -517,7 +517,7 @@ namespace tl
                     r = sws_init_context(_swsContext, nullptr, nullptr);
                     if (r < 0)
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot initialize sws context: \"{0}\"").arg(_fileName));
+                        throw std::runtime_error(ftk::Format("Cannot initialize sws context: \"{0}\"").arg(_fileName));
                     }
 
                     const int* inTable    = nullptr;
@@ -661,9 +661,9 @@ namespace tl
             return _buffer.empty();
         }
 
-        std::shared_ptr<feather_tk::Image> ReadVideo::popBuffer()
+        std::shared_ptr<ftk::Image> ReadVideo::popBuffer()
         {
-            std::shared_ptr<feather_tk::Image> out;
+            std::shared_ptr<ftk::Image> out;
             if (!_buffer.empty())
             {
                 out = _buffer.front();
@@ -697,7 +697,7 @@ namespace tl
                 if (time >= currentTime)
                 {
                     //std::cout << "video time: " << time << std::endl;
-                    auto image = feather_tk::Image::create(_info);
+                    auto image = ftk::Image::create(_info);
                     
                     auto tags = _tags;
                     AVDictionaryEntry* tag = nullptr;
@@ -719,7 +719,7 @@ namespace tl
             return out;
         }
 
-        void ReadVideo::_copy(const std::shared_ptr<feather_tk::Image>& image)
+        void ReadVideo::_copy(const std::shared_ptr<ftk::Image>& image)
         {
             const auto& info = image->getInfo();
             const std::size_t w = info.size.w;

@@ -23,46 +23,46 @@ namespace tl
         }
 
         void Timeline::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& otioTimeline,
             const Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             auto logSystem = context->getLogSystem();
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(feather_tk::Format("    Image sequence audio: {0}").
+                lines.push_back(ftk::Format("    Image sequence audio: {0}").
                     arg(options.imageSequenceAudio));
-                lines.push_back(feather_tk::Format("    Image sequence audio extensions: {0}").
-                    arg(feather_tk::join(options.imageSequenceAudioExtensions, ", ")));
-                lines.push_back(feather_tk::Format("    Image sequence audio file name: {0}").
+                lines.push_back(ftk::Format("    Image sequence audio extensions: {0}").
+                    arg(ftk::join(options.imageSequenceAudioExtensions, ", ")));
+                lines.push_back(ftk::Format("    Image sequence audio file name: {0}").
                     arg(options.imageSequenceAudioFileName));
-                lines.push_back(feather_tk::Format("    Compatability: {0}").
+                lines.push_back(ftk::Format("    Compatability: {0}").
                     arg(options.compat));
-                lines.push_back(feather_tk::Format("    Video request max: {0}").
+                lines.push_back(ftk::Format("    Video request max: {0}").
                     arg(options.videoRequestMax));
-                lines.push_back(feather_tk::Format("    Audio request max: {0}").
+                lines.push_back(ftk::Format("    Audio request max: {0}").
                     arg(options.audioRequestMax));
-                lines.push_back(feather_tk::Format("    Request timeout: {0}ms").
+                lines.push_back(ftk::Format("    Request timeout: {0}ms").
                     arg(options.requestTimeout.count()));
                 for (const auto& i : options.ioOptions)
                 {
-                    lines.push_back(feather_tk::Format("    AV I/O {0}: {1}").
+                    lines.push_back(ftk::Format("    AV I/O {0}: {1}").
                         arg(i.first).
                         arg(i.second));
                 }
-                lines.push_back(feather_tk::Format("    Path max number digits: {0}").
+                lines.push_back(ftk::Format("    Path max number digits: {0}").
                     arg(options.pathOptions.maxNumberDigits));
                 logSystem->print(
-                    feather_tk::Format("tl::timeline::Timeline {0}").arg(this),
-                    feather_tk::join(lines, "\n"));
+                    ftk::Format("tl::timeline::Timeline {0}").arg(this),
+                    ftk::join(lines, "\n"));
             }
 
             p.context = context;
             p.otioTimeline = otioTimeline;
-            p.timelineChanges = feather_tk::ObservableValue<bool>::create(false);
+            p.timelineChanges = ftk::ObservableValue<bool>::create(false);
             const auto i = otioTimeline->metadata().find("tlRender");
             if (i != otioTimeline->metadata().end())
             {
@@ -100,19 +100,19 @@ namespace tl
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioChannelCount"] =
-                                    feather_tk::Format("{0}").arg(p.ioInfo.audio.channelCount);
+                                    ftk::Format("{0}").arg(p.ioInfo.audio.channelCount);
                             }
                             j = p.options.ioOptions.find("FFmpeg/AudioDataType");
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioDataType"] =
-                                    feather_tk::Format("{0}").arg(p.ioInfo.audio.dataType);
+                                    ftk::Format("{0}").arg(p.ioInfo.audio.dataType);
                             }
                             j = p.options.ioOptions.find("FFmpeg/AudioSampleRate");
                             if (j == p.options.ioOptions.end())
                             {
                                 p.options.ioOptions["FFmpeg/AudioSampleRate"] =
-                                    feather_tk::Format("{0}").arg(p.ioInfo.audio.sampleRate);
+                                    ftk::Format("{0}").arg(p.ioInfo.audio.sampleRate);
                             }
                             break;
                         }
@@ -134,15 +134,15 @@ namespace tl
             }
 
             logSystem->print(
-                feather_tk::Format("tl::timeline::Timeline {0}").arg(this),
-                feather_tk::Format(
+                ftk::Format("tl::timeline::Timeline {0}").arg(this),
+                ftk::Format(
                     "\n"
                     "    Time range: {0}\n"
                     "    Video: {1} {2}\n"
                     "    Audio: {3} {4} {5}").
                 arg(p.timeRange).
-                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : feather_tk::Size2I()).
-                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].type : feather_tk::ImageType::None).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].size : ftk::Size2I()).
+                arg(!p.ioInfo.video.empty() ? p.ioInfo.video[0].type : ftk::ImageType::None).
                 arg(p.ioInfo.audio.channelCount).
                 arg(p.ioInfo.audio.dataType).
                 arg(p.ioInfo.audio.sampleRate));
@@ -153,7 +153,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
-                    FEATHER_TK_P();
+                    FTK_P();
                     p.thread.logTimer = std::chrono::steady_clock::now();
                     while (p.thread.running)
                     {
@@ -169,7 +169,7 @@ namespace tl
 
         Timeline::~Timeline()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -177,7 +177,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<feather_tk::Context> Timeline::getContext() const
+        std::shared_ptr<ftk::Context> Timeline::getContext() const
         {
             return _p->context.lock();
         }
@@ -187,14 +187,14 @@ namespace tl
             return _p->otioTimeline;
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<bool> > Timeline::observeTimelineChanges() const
+        std::shared_ptr<ftk::IObservableValue<bool> > Timeline::observeTimelineChanges() const
         {
             return _p->timelineChanges;
         }
 
         void Timeline::setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.otioTimeline = value;
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             if (!p.mutex.stopped)
@@ -232,7 +232,7 @@ namespace tl
             const OTIO_NS::RationalTime&,
             const io::Options&)
         {
-            FEATHER_TK_P();
+            FTK_P();
             VideoSizeRequest out;
             std::promise<size_t> promise;
             out.future = promise.get_future();
@@ -249,7 +249,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::VideoRequest>();
             request->id = p.requestId;
@@ -282,7 +282,7 @@ namespace tl
             double,
             const io::Options&)
         {
-            FEATHER_TK_P();
+            FTK_P();
             AudioSizeRequest out;
             std::promise<size_t> promise;
             out.future = promise.get_future();
@@ -294,7 +294,7 @@ namespace tl
             double seconds,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::AudioRequest>();
             request->id = p.requestId;
@@ -325,7 +325,7 @@ namespace tl
 
         void Timeline::cancelRequests(const std::vector<uint64_t>& ids)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             {
                 auto i = p.mutex.videoRequests.begin();
@@ -361,7 +361,7 @@ namespace tl
 
         void Timeline::tick()
         {
-            FEATHER_TK_P();
+            FTK_P();
             bool otioTimelineChanged = false;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);

@@ -11,19 +11,19 @@ namespace tl
     namespace play
     {
         void StatusBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "StatusBar", parent);
 
-            _logLabel = feather_tk::Label::create(context, shared_from_this());
+            _logLabel = ftk::Label::create(context, shared_from_this());
             
-            _logTimer = feather_tk::Timer::create(context);
+            _logTimer = ftk::Timer::create(context);
 
-            _logObserver = feather_tk::ListObserver<feather_tk::LogItem>::create(
+            _logObserver = ftk::ListObserver<ftk::LogItem>::create(
                 context->getLogSystem()->observeLogItems(),
-                [this](const std::vector<feather_tk::LogItem>& value)
+                [this](const std::vector<ftk::LogItem>& value)
                 {
                     _logUpdate(value);
                 });
@@ -33,7 +33,7 @@ namespace tl
         {}
 
         std::shared_ptr<StatusBar> StatusBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -42,27 +42,27 @@ namespace tl
             return out;
         }
 
-        void StatusBar::setGeometry(const feather_tk::Box2I& value)
+        void StatusBar::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _logLabel->setGeometry(value);
         }
 
-        void StatusBar::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void StatusBar::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_logLabel->getSizeHint());
         }
 
-        void StatusBar::_logUpdate(const std::vector<feather_tk::LogItem>& value)
+        void StatusBar::_logUpdate(const std::vector<ftk::LogItem>& value)
         {
             for (const auto& i : value)
             {
                 switch (i.type)
                 {
-                case feather_tk::LogType::Error:
+                case ftk::LogType::Error:
                 {
-                    const std::string s = feather_tk::toString(i);
+                    const std::string s = ftk::toString(i);
                     _logLabel->setText(s);
                     _logLabel->setTooltip(s);
                     _logTimer->start(

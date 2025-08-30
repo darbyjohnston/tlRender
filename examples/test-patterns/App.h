@@ -4,7 +4,7 @@
 
 #include <feather-tk/core/IApp.h>
 
-namespace feather_tk
+namespace ftk
 {
     namespace gl
     {
@@ -20,13 +20,13 @@ namespace tl
         namespace test_patterns
         {
             //! Application.
-            class App : public feather_tk::IApp
+            class App : public ftk::IApp
             {
-                FEATHER_TK_NON_COPYABLE(App);
+                FTK_NON_COPYABLE(App);
 
             protected:
                 void _init(
-                    const std::shared_ptr<feather_tk::Context>&,
+                    const std::shared_ptr<ftk::Context>&,
                     std::vector<std::string>&);
                 App();
 
@@ -35,13 +35,13 @@ namespace tl
 
                 //! Create a new application.
                 static std::shared_ptr<App> create(
-                    const std::shared_ptr<feather_tk::Context>&,
+                    const std::shared_ptr<ftk::Context>&,
                     std::vector<std::string>&);
 
                 void run() override;
 
             private:
-                std::shared_ptr<feather_tk::gl::Window> _window;
+                std::shared_ptr<ftk::gl::Window> _window;
             };
         }
     }

@@ -26,7 +26,7 @@ namespace tl
             Count,
             First = SDR
         };
-        FEATHER_TK_ENUM(HDR_EOTF);
+        FTK_ENUM(HDR_EOTF);
 
         //! HDR color primaries.
         enum class HDRPrimaries
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = Red
         };
-        FEATHER_TK_ENUM(HDRPrimaries);
+        FTK_ENUM(HDRPrimaries);
 
         //! HDR data.
         struct HDRData
@@ -47,14 +47,14 @@ namespace tl
             HDR_EOTF eotf = HDR_EOTF::SDR;
 
             //! Default Rec. 2020 color primaries (red, green, blue, white).
-            std::array<feather_tk::V2F, static_cast<size_t>(HDRPrimaries::Count)> primaries =
+            std::array<ftk::V2F, static_cast<size_t>(HDRPrimaries::Count)> primaries =
             {
-                feather_tk::V2F(.708F,  .292F),
-                feather_tk::V2F(.170F,  .797F),
-                feather_tk::V2F(.131F,  .046F),
-                feather_tk::V2F(.3127F, .3290F)
+                ftk::V2F(.708F,  .292F),
+                ftk::V2F(.170F,  .797F),
+                ftk::V2F(.131F,  .046F),
+                ftk::V2F(.3127F, .3290F)
             };
-            feather_tk::RangeF displayMasteringLuminance = feather_tk::RangeF(0.F, 1000.F);
+            ftk::RangeF displayMasteringLuminance = ftk::RangeF(0.F, 1000.F);
             float maxCLL  = 1000.F;
             float maxFALL = 400.F;
 

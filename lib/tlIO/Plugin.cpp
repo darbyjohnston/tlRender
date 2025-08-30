@@ -13,7 +13,7 @@ namespace tl
         void IIO::_init(
             const file::Path& path,
             const Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             _path = path;
             _options = options;
@@ -40,9 +40,9 @@ namespace tl
         void IPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
-            FEATHER_TK_P();
+            FTK_P();
             _logSystem = logSystem;
             p.name = name;
             p.extensions = extensions;

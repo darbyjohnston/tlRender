@@ -17,11 +17,11 @@ namespace tl
     {
         class ITest : public std::enable_shared_from_this<ITest>
         {
-            FEATHER_TK_NON_COPYABLE(ITest);
+            FTK_NON_COPYABLE(ITest);
 
         protected:
             ITest(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::string& name);
 
         public:
@@ -40,7 +40,7 @@ namespace tl
             void _print(const std::string&);
             void _printError(const std::string&);
 
-            std::shared_ptr<feather_tk::Context> _context;
+            std::shared_ptr<ftk::Context> _context;
             std::string _name;
         };
     }

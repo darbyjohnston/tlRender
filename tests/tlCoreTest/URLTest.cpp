@@ -16,11 +16,11 @@ namespace tl
 {
     namespace core_tests
     {
-        URLTest::URLTest(const std::shared_ptr<feather_tk::Context>& context) :
+        URLTest::URLTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "core_tests::URLTest")
         {}
 
-        std::shared_ptr<URLTest> URLTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<URLTest> URLTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<URLTest>(new URLTest(context));
         }
@@ -35,11 +35,11 @@ namespace tl
         {
             {
                 const std::string scheme = url::scheme("file://path");
-                FEATHER_TK_ASSERT("file://" == scheme);
+                FTK_ASSERT("file://" == scheme);
             }
             {
                 const std::string scheme = url::scheme("path");
-                FEATHER_TK_ASSERT(scheme.empty());
+                FTK_ASSERT(scheme.empty());
             }
         }
         
@@ -61,9 +61,9 @@ namespace tl
             for (const auto& i : data)
             {
                 const std::string decoded = decode(i.encoded);
-                FEATHER_TK_ASSERT(decoded == i.decoded);
+                FTK_ASSERT(decoded == i.decoded);
                 const std::string encoded = encode(decoded);
-                FEATHER_TK_ASSERT(encoded == i.encoded);
+                FTK_ASSERT(encoded == i.encoded);
             }
         }
     }

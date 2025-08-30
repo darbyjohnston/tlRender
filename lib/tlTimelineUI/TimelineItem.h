@@ -8,7 +8,7 @@
 
 #include <tlTimeline/Player.h>
 
-namespace feather_tk
+namespace ftk
 {
     namespace gl
     {
@@ -39,14 +39,14 @@ namespace tl
         {
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<feather_tk::gl::Window>&,
+                const std::shared_ptr<ftk::gl::Window>&,
                 const std::shared_ptr<IWidget>& parent);
 
             TimelineItem();
@@ -56,14 +56,14 @@ namespace tl
 
             //! Create a new item.
             static std::shared_ptr<TimelineItem> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Stack>&,
                 double scale,
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<feather_tk::gl::Window>&,
+                const std::shared_ptr<ftk::gl::Window>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Set whether the timeline is editable.
@@ -73,27 +73,27 @@ namespace tl
             void setStopOnScrub(bool);
 
             //! Observe whether scrubbing is in progress.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeScrub() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<ftk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             //! Set the frame markers.
             void setFrameMarkers(const std::vector<int>&);
 
             //! Get the track geometry.
-            std::vector<feather_tk::Box2I> getTrackGeom() const;
+            std::vector<ftk::Box2I> getTrackGeom() const;
 
             void setDisplayOptions(const DisplayOptions&) override;
 
-            void setGeometry(const feather_tk::Box2I&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void drawOverlayEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
-            void mouseMoveEvent(feather_tk::MouseMoveEvent&) override;
-            void mousePressEvent(feather_tk::MouseClickEvent&) override;
-            void mouseReleaseEvent(feather_tk::MouseClickEvent&) override;
-            //void keyPressEvent(feather_tk::KeyEvent&) override;
-            //void keyReleaseEvent(feather_tk::KeyEvent&) override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawOverlayEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseMoveEvent(ftk::MouseMoveEvent&) override;
+            void mousePressEvent(ftk::MouseClickEvent&) override;
+            void mouseReleaseEvent(ftk::MouseClickEvent&) override;
+            //void keyPressEvent(ftk::KeyEvent&) override;
+            //void keyReleaseEvent(ftk::KeyEvent&) override;
 
         protected:
             void _timeUnitsUpdate() override;
@@ -104,36 +104,36 @@ namespace tl
             bool _isTrackVisible(int) const;
             void _setTrackEnabled(int, bool);
 
-            feather_tk::Size2I _getLabelMaxSize(
-                const std::shared_ptr<feather_tk::FontSystem>&) const;
+            ftk::Size2I _getLabelMaxSize(
+                const std::shared_ptr<ftk::FontSystem>&) const;
             void _getTimeTicks(
-                const std::shared_ptr<feather_tk::FontSystem>&,
+                const std::shared_ptr<ftk::FontSystem>&,
                 double& seconds,
                 int& tick);
 
             void _drawInOutPoints(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
             void _drawFrameMarkers(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
             void _drawCacheInfo(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
             void _drawTimeLabels(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
             void _drawTimeTicks(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
             void _drawCurrentTime(
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
 
             void _tracksUpdate();
             void _textUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

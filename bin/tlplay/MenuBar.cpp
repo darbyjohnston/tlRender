@@ -20,12 +20,12 @@ namespace tl
     namespace play
     {
         void FileMenu::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::Menu::_init(context, parent);
+            ftk::Menu::_init(context, parent);
 
             auto actions = fileActions->getActions();
             addAction(actions["Open"]);
@@ -41,7 +41,7 @@ namespace tl
             addAction(actions["Exit"]);
 
             std::weak_ptr<App> appWeak(app);
-            _playersObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            _playersObserver = ftk::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayers(),
                 [this, appWeak](const std::vector<std::shared_ptr<timeline::Player> >& players)
                 {
@@ -49,7 +49,7 @@ namespace tl
                     _filesMenu->clear();
                     for (size_t i = 0; i < players.size(); ++i)
                     {
-                        auto action = feather_tk::Action::create(
+                        auto action = ftk::Action::create(
                             players[i]->getPath().get(-1, file::PathType::FileName),
                             [this, appWeak, i]
                             {
@@ -65,7 +65,7 @@ namespace tl
                     }
                 });
 
-            _playerIndexObserver = feather_tk::ValueObserver<int>::create(
+            _playerIndexObserver = ftk::ValueObserver<int>::create(
                 app->getFilesModel()->observePlayerIndex(),
                 [this](int value)
                 {
@@ -76,7 +76,7 @@ namespace tl
                     }
                 });
 
-            _recentFilesObserver = feather_tk::ListObserver<std::filesystem::path>::create(
+            _recentFilesObserver = ftk::ListObserver<std::filesystem::path>::create(
                 app->getRecentFilesModel()->observeRecent(),
                 [this, appWeak](const std::vector<std::filesystem::path>& value)
                 {
@@ -85,7 +85,7 @@ namespace tl
                     for (auto i = value.rbegin(); i != value.rend(); ++i)
                     {
                         const std::filesystem::path path = *i;
-                        auto action = feather_tk::Action::create(
+                        auto action = ftk::Action::create(
                             path.filename().u8string(),
                             [this, appWeak, path]
                             {
@@ -105,7 +105,7 @@ namespace tl
         {}
 
         std::shared_ptr<FileMenu> FileMenu::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
@@ -116,12 +116,12 @@ namespace tl
         }
 
         void CompareMenu::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::Menu::_init(context, parent);
+            ftk::Menu::_init(context, parent);
 
             _bFileMenu = addSubMenu("B File");
             auto actions = compareActions->getActions();
@@ -131,7 +131,7 @@ namespace tl
             }
 
             std::weak_ptr<App> appWeak(app);
-            _playersObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            _playersObserver = ftk::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayers(),
                 [this, appWeak](const std::vector<std::shared_ptr<timeline::Player> >& players)
                 {
@@ -139,7 +139,7 @@ namespace tl
                     _bFileMenu->clear();
                     for (size_t i = 0; i < players.size(); ++i)
                     {
-                        auto action = feather_tk::Action::create(
+                        auto action = ftk::Action::create(
                             players[i]->getPath().get(-1, file::PathType::FileName),
                             [this, appWeak, i](bool value)
                             {
@@ -155,7 +155,7 @@ namespace tl
                     }
                 });
 
-            _bPlayerIndexObserver = feather_tk::ValueObserver<int>::create(
+            _bPlayerIndexObserver = ftk::ValueObserver<int>::create(
                 app->getFilesModel()->observeBPlayerIndex(),
                 [this](int value)
                 {
@@ -171,7 +171,7 @@ namespace tl
         {}
 
         std::shared_ptr<CompareMenu> CompareMenu::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<IWidget>& parent)
@@ -182,11 +182,11 @@ namespace tl
         }
 
         void PlaybackMenu::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<PlaybackActions>& playbackActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::Menu::_init(context, parent);
+            ftk::Menu::_init(context, parent);
             auto actions = playbackActions->getActions();
             addAction(actions["Stop"]);
             addAction(actions["Forward"]);
@@ -208,7 +208,7 @@ namespace tl
         {}
 
         std::shared_ptr<PlaybackMenu> PlaybackMenu::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<PlaybackActions>& playbackActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -218,11 +218,11 @@ namespace tl
         }
 
         void ViewMenu::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ViewActions>& viewActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::Menu::_init(context, parent);
+            ftk::Menu::_init(context, parent);
             auto actions = viewActions->getActions();
             addAction(actions["Frame"]);
             addAction(actions["ZoomReset"]);
@@ -234,7 +234,7 @@ namespace tl
         {}
 
         std::shared_ptr<ViewMenu> ViewMenu::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ViewActions>& viewActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -244,11 +244,11 @@ namespace tl
         }
 
         void WindowMenu::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<WindowActions>& windowActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::Menu::_init(context, parent);
+            ftk::Menu::_init(context, parent);
             auto actions = windowActions->getActions();
             addAction(actions["FullScreen"]);
             addDivider();
@@ -262,7 +262,7 @@ namespace tl
         {}
 
         std::shared_ptr<WindowMenu> WindowMenu::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<WindowActions>& windowActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -272,7 +272,7 @@ namespace tl
         }
 
         void MenuBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<CompareActions>& compareActions,
@@ -281,7 +281,7 @@ namespace tl
             const std::shared_ptr<WindowActions>& windowActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            feather_tk::MenuBar::_init(context, parent);
+            ftk::MenuBar::_init(context, parent);
             addMenu("File", FileMenu::create(context, app, fileActions));
             addMenu("Compare", CompareMenu::create(context, app, compareActions));
             addMenu("Playback", PlaybackMenu::create(context, playbackActions));
@@ -293,7 +293,7 @@ namespace tl
         {}
 
         std::shared_ptr<MenuBar> MenuBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<CompareActions>& compareActions,

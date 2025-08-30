@@ -14,15 +14,15 @@ namespace tl
         //! 
         //! This window creates a timeline renderer for use by the other
         //! timeline widgets.
-        class Window : public feather_tk::Window
+        class Window : public ftk::Window
         {
-            FEATHER_TK_NON_COPYABLE(Window);
+            FTK_NON_COPYABLE(Window);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::string& name,
-                const feather_tk::Size2I&);
+                const ftk::Size2I&);
 
             Window() = default;
 
@@ -31,12 +31,12 @@ namespace tl
 
             //! Create a new window.
             static std::shared_ptr<Window> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::string& name,
-                const feather_tk::Size2I&);
+                const ftk::Size2I&);
 
         protected:
-            std::shared_ptr<feather_tk::IRender> _createRender(const std::shared_ptr<feather_tk::LogSystem>&) override;
+            std::shared_ptr<ftk::IRender> _createRender(const std::shared_ptr<ftk::LogSystem>&) override;
         };
     }
 }

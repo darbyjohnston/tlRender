@@ -24,7 +24,7 @@ namespace tl
             class File
             {
             public:
-                File(const std::string& fileName, const feather_tk::InMemoryFile* memory)
+                File(const std::string& fileName, const ftk::InMemoryFile* memory)
                 {
                     int res = 0, w = 0, h = 0, n = 0, bits = 8;
 
@@ -36,7 +36,7 @@ namespace tl
                                                     &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                feather_tk::Format("Corrupted image type: \"{0}\"")
+                                ftk::Format("Corrupted image type: \"{0}\"")
                                     .arg(fileName));
                             
                         _info.size.w = w;
@@ -47,13 +47,13 @@ namespace tl
                             
                         _info.type = io::getIntType(n, bits);
                             
-                        if (feather_tk::ImageType::None == _info.type)
+                        if (ftk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
-                                feather_tk::Format("Unsupported image type: \"{0}\"")
+                                ftk::Format("Unsupported image type: \"{0}\"")
                                     .arg(fileName));
                         }
-                        _info.layout.endian = feather_tk::Endian::MSB;
+                        _info.layout.endian = ftk::Endian::MSB;
                     }
                     else
                     {
@@ -61,7 +61,7 @@ namespace tl
                         res = stbi_info(fileName.c_str(), &w, &h, &n);
                         if (res == 0)
                             throw std::runtime_error(
-                                feather_tk::Format("Corrupted image type: \"{0}\"")
+                                ftk::Format("Corrupted image type: \"{0}\"")
                                     .arg(fileName));
 
                         _info.size.w = w;
@@ -71,17 +71,17 @@ namespace tl
                         if (res) bits = 16;
                     
                         _info.type = io::getIntType(n, bits);
-                        if (feather_tk::ImageType::None == _info.type)
+                        if (ftk::ImageType::None == _info.type)
                         {
                             throw std::runtime_error(
-                                feather_tk::Format("Unsupported image type: \"{0}\"")
+                                ftk::Format("Unsupported image type: \"{0}\"")
                                     .arg(fileName));
                         }
-                        _info.layout.endian = feather_tk::Endian::MSB;
+                        _info.layout.endian = ftk::Endian::MSB;
                     }
                 }
 
-                const feather_tk::ImageInfo& getInfo() const
+                const ftk::ImageInfo& getInfo() const
                 {
                     return _info;
                 }
@@ -92,10 +92,10 @@ namespace tl
                 {
                     io::VideoData out;
                     out.time = time;
-                    out.image = feather_tk::Image::create(_info);
+                    out.image = ftk::Image::create(_info);
 
-                    const int channels = feather_tk::getChannelCount(_info.type);
-                    const size_t bytes = feather_tk::getBitDepth(_info.type) / 8;
+                    const int channels = ftk::getChannelCount(_info.type);
+                    const size_t bytes = ftk::getBitDepth(_info.type) / 8;
                     
                     stbi_set_flip_vertically_on_load(1);
 
@@ -131,16 +131,16 @@ namespace tl
                 }
 
             private:
-                feather_tk::ImageInfo _info;
-                const feather_tk::InMemoryFile* _memory;
+                ftk::ImageInfo _info;
+                const ftk::InMemoryFile* _memory;
             };
         }
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -156,7 +156,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -165,9 +165,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -176,7 +176,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory)
+            const ftk::InMemoryFile* memory)
         {
             io::Info out;
             out.video.push_back(File(fileName, memory).getInfo());
@@ -188,7 +188,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory,
+            const ftk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

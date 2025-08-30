@@ -24,7 +24,7 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(Transition);
+        FTK_ENUM(Transition);
 
         //! Convert to a transition.
         Transition toTransition(const std::string&);

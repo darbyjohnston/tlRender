@@ -18,13 +18,13 @@ namespace tl
     namespace timelineui
     {
         //! Time value editor.
-        class TimeEdit : public feather_tk::IWidget
+        class TimeEdit : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(TimeEdit);
+            FTK_NON_COPYABLE(TimeEdit);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -35,7 +35,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeEdit> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -55,20 +55,20 @@ namespace tl
             void selectAll();
 
             //! Set the font role.
-            void setFontRole(feather_tk::FontRole);
+            void setFontRole(ftk::FontRole);
 
-            void setGeometry(const feather_tk::Box2I&) override;
+            void setGeometry(const ftk::Box2I&) override;
             void takeKeyFocus() override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void keyPressEvent(feather_tk::KeyEvent&) override;
-            void keyReleaseEvent(feather_tk::KeyEvent&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void keyPressEvent(ftk::KeyEvent&) override;
+            void keyReleaseEvent(ftk::KeyEvent&) override;
 
         private:
             void _commitValue(const std::string&);
             void _commitValue(const OTIO_NS::RationalTime&);
             void _textUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

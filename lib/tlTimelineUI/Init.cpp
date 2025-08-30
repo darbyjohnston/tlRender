@@ -57,13 +57,13 @@ namespace tl
 {
     namespace timelineui
     {
-        void init(const std::shared_ptr<feather_tk::Context>& context)
+        void init(const std::shared_ptr<ftk::Context>& context)
         {
             tl::timeline::init(context);
-            feather_tk::uiInit(context);
+            ftk::uiInit(context);
             ThumbnailSystem::create(context);
 
-            auto iconSystem = context->getSystem<feather_tk::IconSystem>();
+            auto iconSystem = context->getSystem<ftk::IconSystem>();
             iconSystem->add("ColorControls", tl_resource::ColorControls);
             iconSystem->add("ColorPicker", tl_resource::ColorPicker);
             iconSystem->add("CompareA", tl_resource::CompareA);

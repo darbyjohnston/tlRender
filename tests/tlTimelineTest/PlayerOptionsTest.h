@@ -13,10 +13,10 @@ namespace tl
         class PlayerOptionsTest : public tests::ITest
         {
         protected:
-            PlayerOptionsTest(const std::shared_ptr<feather_tk::Context>&);
+            PlayerOptionsTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<PlayerOptionsTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<PlayerOptionsTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
         };

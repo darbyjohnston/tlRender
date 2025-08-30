@@ -34,13 +34,13 @@ namespace tl
         struct ThumbnailCache::Private
         {
             size_t max = 1000;
-            feather_tk::LRUCache<std::string, io::Info> info;
-            feather_tk::LRUCache<std::string, std::shared_ptr<feather_tk::Image> > thumbnails;
-            feather_tk::LRUCache<std::string, std::shared_ptr<feather_tk::TriMesh2F> > waveforms;
+            ftk::LRUCache<std::string, io::Info> info;
+            ftk::LRUCache<std::string, std::shared_ptr<ftk::Image> > thumbnails;
+            ftk::LRUCache<std::string, std::shared_ptr<ftk::TriMesh2F> > waveforms;
             std::mutex mutex;
         };
 
-        void ThumbnailCache::_init(const std::shared_ptr<feather_tk::Context>& context)
+        void ThumbnailCache::_init(const std::shared_ptr<ftk::Context>& context)
         {
             _maxUpdate();
         }
@@ -53,7 +53,7 @@ namespace tl
         {}
 
         std::shared_ptr<ThumbnailCache> ThumbnailCache::create(
-            const std::shared_ptr<feather_tk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context)
         {
             auto out = std::shared_ptr<ThumbnailCache>(new ThumbnailCache);
             out->_init(context);
@@ -67,7 +67,7 @@ namespace tl
 
         void ThumbnailCache::setMax(size_t value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.max)
                 return;
             p.max = value;
@@ -76,14 +76,14 @@ namespace tl
 
         size_t ThumbnailCache::getSize() const
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.getSize() + p.thumbnails.getSize() + p.waveforms.getSize();
         }
 
         float ThumbnailCache::getPercentage() const
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return
                 (p.info.getSize() + p.thumbnails.getSize() + p.waveforms.getSize()) /
@@ -106,21 +106,21 @@ namespace tl
 
         void ThumbnailCache::addInfo(const std::string& key, const io::Info& info)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.info.add(key, info);
         }
 
         bool ThumbnailCache::containsInfo(const std::string& key)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.contains(key);
         }
 
         bool ThumbnailCache::getInfo(const std::string& key, io::Info& info) const
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.info.get(key, info);
         }
@@ -143,25 +143,25 @@ namespace tl
 
         void ThumbnailCache::addThumbnail(
             const std::string& key,
-            const std::shared_ptr<feather_tk::Image>& thumbnail)
+            const std::shared_ptr<ftk::Image>& thumbnail)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.thumbnails.add(key, thumbnail);
         }
 
         bool ThumbnailCache::containsThumbnail(const std::string& key)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.thumbnails.contains(key);
         }
 
         bool ThumbnailCache::getThumbnail(
             const std::string& key,
-            std::shared_ptr<feather_tk::Image>& thumbnail) const
+            std::shared_ptr<ftk::Image>& thumbnail) const
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.thumbnails.get(key, thumbnail);
         }
@@ -169,7 +169,7 @@ namespace tl
         std::string ThumbnailCache::getWaveformKey(
             intptr_t id,
             const file::Path& path,
-            const feather_tk::Size2I& size,
+            const ftk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
@@ -184,32 +184,32 @@ namespace tl
 
         void ThumbnailCache::addWaveform(
             const std::string& key,
-            const std::shared_ptr<feather_tk::TriMesh2F>& waveform)
+            const std::shared_ptr<ftk::TriMesh2F>& waveform)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.waveforms.add(key, waveform);
         }
 
         bool ThumbnailCache::containsWaveform(const std::string& key)
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.waveforms.contains(key);
         }
 
         bool ThumbnailCache::getWaveform(
             const std::string& key,
-            std::shared_ptr<feather_tk::TriMesh2F>& waveform) const
+            std::shared_ptr<ftk::TriMesh2F>& waveform) const
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             return p.waveforms.get(key, waveform);
         }
 
         void ThumbnailCache::clear()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.info.clear();
             p.thumbnails.clear();
@@ -218,7 +218,7 @@ namespace tl
 
         void ThumbnailCache::_maxUpdate()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex);
             p.info.setMax(p.max);
             p.thumbnails.setMax(p.max);
@@ -227,9 +227,9 @@ namespace tl
 
         struct ThumbnailGenerator::Private
         {
-            std::weak_ptr<feather_tk::Context> context;
+            std::weak_ptr<ftk::Context> context;
             std::shared_ptr<ThumbnailCache> cache;
-            std::shared_ptr<feather_tk::gl::Window> window;
+            std::shared_ptr<ftk::gl::Window> window;
             uint64_t requestId = 0;
 
             struct InfoRequest
@@ -237,7 +237,7 @@ namespace tl
                 uint64_t id = 0;
                 intptr_t callerId = 0;
                 file::Path path;
-                std::vector<feather_tk::InMemoryFile> memoryRead;
+                std::vector<ftk::InMemoryFile> memoryRead;
                 io::Options options;
                 std::promise<io::Info> promise;
             };
@@ -247,11 +247,11 @@ namespace tl
                 uint64_t id = 0;
                 intptr_t callerId = 0;
                 file::Path path;
-                std::vector<feather_tk::InMemoryFile> memoryRead;
+                std::vector<ftk::InMemoryFile> memoryRead;
                 int height = 0;
                 OTIO_NS::RationalTime time = time::invalidTime;
                 io::Options options;
-                std::promise<std::shared_ptr<feather_tk::Image> > promise;
+                std::promise<std::shared_ptr<ftk::Image> > promise;
             };
 
             struct WaveformRequest
@@ -259,11 +259,11 @@ namespace tl
                 uint64_t id = 0;
                 intptr_t callerId = 0;
                 file::Path path;
-                std::vector<feather_tk::InMemoryFile> memoryRead;
-                feather_tk::Size2I size;
+                std::vector<ftk::InMemoryFile> memoryRead;
+                ftk::Size2I size;
                 OTIO_NS::TimeRange timeRange = time::invalidTimeRange;
                 io::Options options;
-                std::promise<std::shared_ptr<feather_tk::TriMesh2F> > promise;
+                std::promise<std::shared_ptr<ftk::TriMesh2F> > promise;
             };
 
             struct InfoMutex
@@ -301,8 +301,8 @@ namespace tl
             struct ThumbnailThread
             {
                 std::shared_ptr<timeline_gl::Render> render;
-                std::shared_ptr<feather_tk::gl::OffscreenBuffer> buffer;
-                feather_tk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
+                std::shared_ptr<ftk::gl::OffscreenBuffer> buffer;
+                ftk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -311,7 +311,7 @@ namespace tl
 
             struct WaveformThread
             {
-                feather_tk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
+                ftk::LRUCache<std::string, std::shared_ptr<io::IRead> > ioCache;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -321,10 +321,10 @@ namespace tl
 
         void ThumbnailGenerator::_init(
             const std::shared_ptr<ThumbnailCache>& cache,
-            const std::shared_ptr<feather_tk::Context>& context,
-            const std::shared_ptr<feather_tk::gl::Window>& window)
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::gl::Window>& window)
         {
-            FEATHER_TK_P();
+            FTK_P();
             
             p.context = context;
 
@@ -333,18 +333,18 @@ namespace tl
             p.window = window;
             if (!p.window)
             {
-                p.window = feather_tk::gl::Window::create(
+                p.window = ftk::gl::Window::create(
                     context,
                     "tl::timelineui::ThumbnailGenerator",
-                    feather_tk::Size2I(1, 1),
-                    static_cast<int>(feather_tk::gl::WindowOptions::None));
+                    ftk::Size2I(1, 1),
+                    static_cast<int>(ftk::gl::WindowOptions::None));
             }
 
             p.infoThread.running = true;
             p.infoThread.thread = std::thread(
                 [this]
                 {
-                    FEATHER_TK_P();
+                    FTK_P();
                     while (p.infoThread.running)
                     {
                         _infoRun();
@@ -361,7 +361,7 @@ namespace tl
             p.thumbnailThread.thread = std::thread(
                 [this]
                 {
-                    FEATHER_TK_P();
+                    FTK_P();
                     p.window->makeCurrent();
                     p.thumbnailThread.render = timeline_gl::Render::create();
                     while (p.thumbnailThread.running)
@@ -383,7 +383,7 @@ namespace tl
             p.waveformThread.thread = std::thread(
                 [this]
                 {
-                    FEATHER_TK_P();
+                    FTK_P();
                     while (p.waveformThread.running)
                     {
                         _waveformRun();
@@ -402,7 +402,7 @@ namespace tl
 
         ThumbnailGenerator::~ThumbnailGenerator()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.infoThread.running = false;
             if (p.infoThread.thread.joinable())
             {
@@ -422,8 +422,8 @@ namespace tl
 
         std::shared_ptr<ThumbnailGenerator> ThumbnailGenerator::create(
             const std::shared_ptr<ThumbnailCache>& cache,
-            const std::shared_ptr<feather_tk::Context>& context,
-            const std::shared_ptr<feather_tk::gl::Window>& window)
+            const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::gl::Window>& window)
         {
             auto out = std::shared_ptr<ThumbnailGenerator>(new ThumbnailGenerator);
             out->_init(cache, context, window);
@@ -441,10 +441,10 @@ namespace tl
         InfoRequest ThumbnailGenerator::getInfo(
             intptr_t id,
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memoryRead,
+            const std::vector<ftk::InMemoryFile>& memoryRead,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::InfoRequest>();
             request->id = p.requestId;
@@ -488,12 +488,12 @@ namespace tl
         ThumbnailRequest ThumbnailGenerator::getThumbnail(
             intptr_t id,
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memoryRead,
+            const std::vector<ftk::InMemoryFile>& memoryRead,
             int height,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::ThumbnailRequest>();
             request->id = p.requestId;
@@ -531,7 +531,7 @@ namespace tl
         WaveformRequest ThumbnailGenerator::getWaveform(
             intptr_t id,
             const file::Path& path,
-            const feather_tk::Size2I& size,
+            const ftk::Size2I& size,
             const OTIO_NS::TimeRange& range,
             const io::Options& options)
         {
@@ -541,12 +541,12 @@ namespace tl
         WaveformRequest ThumbnailGenerator::getWaveform(
             intptr_t id,
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memoryRead,
-            const feather_tk::Size2I& size,
+            const std::vector<ftk::InMemoryFile>& memoryRead,
+            const ftk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             (p.requestId)++;
             auto request = std::make_shared<Private::WaveformRequest>();
             request->id = p.requestId;
@@ -583,7 +583,7 @@ namespace tl
 
         void ThumbnailGenerator::cancelRequests(const std::vector<uint64_t>& ids)
         {
-            FEATHER_TK_P();
+            FTK_P();
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
                 auto i = p.infoMutex.requests.begin();
@@ -636,7 +636,7 @@ namespace tl
 
         void ThumbnailGenerator::_infoRun()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::shared_ptr<Private::InfoRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
@@ -689,7 +689,7 @@ namespace tl
 
         void ThumbnailGenerator::_thumbnailRun()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::shared_ptr<Private::ThumbnailRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
@@ -707,7 +707,7 @@ namespace tl
             }
             if (request)
             {
-                std::shared_ptr<feather_tk::Image> image;
+                std::shared_ptr<ftk::Image> image;
                 const std::string key = ThumbnailCache::getThumbnailKey(
                     request->callerId,
                     request->path,
@@ -736,17 +736,17 @@ namespace tl
                             if (read)
                             {
                                 const io::Info info = read->getInfo().get();
-                                feather_tk::Size2I size;
+                                ftk::Size2I size;
                                 if (!info.video.empty())
                                 {
-                                    size.w = request->height * feather_tk::aspectRatio(info.video[0].size);
+                                    size.w = request->height * ftk::aspectRatio(info.video[0].size);
                                     size.h = request->height;
                                 }
-                                feather_tk::gl::OffscreenBufferOptions options;
-                                options.color = feather_tk::ImageType::RGBA_U8;
-                                if (feather_tk::gl::doCreate(p.thumbnailThread.buffer, size, options))
+                                ftk::gl::OffscreenBufferOptions options;
+                                options.color = ftk::ImageType::RGBA_U8;
+                                if (ftk::gl::doCreate(p.thumbnailThread.buffer, size, options))
                                 {
-                                    p.thumbnailThread.buffer = feather_tk::gl::OffscreenBuffer::create(size, options);
+                                    p.thumbnailThread.buffer = ftk::gl::OffscreenBuffer::create(size, options);
                                 }
                                 const OTIO_NS::RationalTime time =
                                     request->time != time::invalidTime ?
@@ -755,16 +755,16 @@ namespace tl
                                 const auto videoData = read->readVideo(time, request->options).get();
                                 if (p.thumbnailThread.render && p.thumbnailThread.buffer && videoData.image)
                                 {
-                                    feather_tk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
+                                    ftk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
                                     p.thumbnailThread.render->begin(size);
                                     p.thumbnailThread.render->IRender::drawImage(
                                         videoData.image,
-                                        feather_tk::Box2I(0, 0, size.w, size.h));
+                                        ftk::Box2I(0, 0, size.w, size.h));
                                     p.thumbnailThread.render->end();
-                                    image = feather_tk::Image::create(
+                                    image = ftk::Image::create(
                                         size.w,
                                         size.h,
-                                        feather_tk::ImageType::RGBA_U8);
+                                        ftk::ImageType::RGBA_U8);
                                     glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                     glReadPixels(
                                         0,
@@ -777,14 +777,14 @@ namespace tl
                                 }
                             }
                             else if (
-                                feather_tk::compare(
+                                ftk::compare(
                                     ".otio",
                                     request->path.getExtension(),
-                                    feather_tk::CaseCompare::Insensitive) ||
-                                feather_tk::compare(
+                                    ftk::CaseCompare::Insensitive) ||
+                                ftk::compare(
                                     ".otioz",
                                     request->path.getExtension(),
-                                    feather_tk::CaseCompare::Insensitive))
+                                    ftk::CaseCompare::Insensitive))
                             {
                                 timeline::Options timelineOptions;
                                 timelineOptions.ioOptions = request->options;
@@ -795,32 +795,32 @@ namespace tl
                                 const auto info = timeline->getIOInfo();
                                 const auto videoData = timeline->getVideo(
                                     timeline->getTimeRange().start_time()).future.get();
-                                feather_tk::Size2I size;
+                                ftk::Size2I size;
                                 if (!info.video.empty())
                                 {
-                                    size.w = request->height * feather_tk::aspectRatio(info.video.front().size);
+                                    size.w = request->height * ftk::aspectRatio(info.video.front().size);
                                     size.h = request->height;
                                 }
                                 if (size.isValid())
                                 {
-                                    feather_tk::gl::OffscreenBufferOptions options;
-                                    options.color = feather_tk::ImageType::RGBA_U8;
-                                    if (feather_tk::gl::doCreate(p.thumbnailThread.buffer, size, options))
+                                    ftk::gl::OffscreenBufferOptions options;
+                                    options.color = ftk::ImageType::RGBA_U8;
+                                    if (ftk::gl::doCreate(p.thumbnailThread.buffer, size, options))
                                     {
-                                        p.thumbnailThread.buffer = feather_tk::gl::OffscreenBuffer::create(size, options);
+                                        p.thumbnailThread.buffer = ftk::gl::OffscreenBuffer::create(size, options);
                                     }
                                     if (p.thumbnailThread.render && p.thumbnailThread.buffer)
                                     {
-                                        feather_tk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
+                                        ftk::gl::OffscreenBufferBinding binding(p.thumbnailThread.buffer);
                                         p.thumbnailThread.render->begin(size);
                                         p.thumbnailThread.render->drawVideo(
                                             { videoData },
-                                            { feather_tk::Box2I(0, 0, size.w, size.h) });
+                                            { ftk::Box2I(0, 0, size.w, size.h) });
                                         p.thumbnailThread.render->end();
-                                        image = feather_tk::Image::create(
+                                        image = ftk::Image::create(
                                             size.w,
                                             size.h,
-                                            feather_tk::ImageType::RGBA_U8);
+                                            ftk::ImageType::RGBA_U8);
                                         glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                         glReadPixels(
                                             0,
@@ -845,11 +845,11 @@ namespace tl
 
         namespace
         {
-            std::shared_ptr<feather_tk::TriMesh2F> audioMesh(
+            std::shared_ptr<ftk::TriMesh2F> audioMesh(
                 const std::shared_ptr<audio::Audio>& audio,
-                const feather_tk::Size2I& size)
+                const ftk::Size2I& size)
             {
-                auto out = std::shared_ptr<feather_tk::TriMesh2F>(new feather_tk::TriMesh2F);
+                auto out = std::shared_ptr<ftk::TriMesh2F>(new ftk::TriMesh2F);
                 const auto& info = audio->getInfo();
                 const size_t sampleCount = audio->getSampleCount();
                 if (sampleCount > 0)
@@ -883,22 +883,22 @@ namespace tl
                                 }
                             }
                             const int h2 = size.h / 2;
-                            const feather_tk::Box2I box(
-                                feather_tk::V2I(
+                            const ftk::Box2I box(
+                                ftk::V2I(
                                     x,
                                     h2 - h2 * max),
-                                feather_tk::V2I(
+                                ftk::V2I(
                                     x + 1,
                                     h2 - h2 * min));
                             if (box.isValid())
                             {
                                 const size_t j = 1 + out->v.size();
-                                out->v.push_back(feather_tk::V2F(box.x(), box.y()));
-                                out->v.push_back(feather_tk::V2F(box.x() + box.w(), box.y()));
-                                out->v.push_back(feather_tk::V2F(box.x() + box.w(), box.y() + box.h()));
-                                out->v.push_back(feather_tk::V2F(box.x(), box.y() + box.h()));
-                                out->triangles.push_back(feather_tk::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(feather_tk::Triangle2({ j + 2, j + 3, j + 0 }));
+                                out->v.push_back(ftk::V2F(box.x(), box.y()));
+                                out->v.push_back(ftk::V2F(box.x() + box.w(), box.y()));
+                                out->v.push_back(ftk::V2F(box.x() + box.w(), box.y() + box.h()));
+                                out->v.push_back(ftk::V2F(box.x(), box.y() + box.h()));
+                                out->triangles.push_back(ftk::Triangle2({ j + 0, j + 1, j + 2 }));
+                                out->triangles.push_back(ftk::Triangle2({ j + 2, j + 3, j + 0 }));
                             }
                         }
                         break;
@@ -909,11 +909,11 @@ namespace tl
                 return out;
             }
 
-            std::shared_ptr<feather_tk::Image> audioImage(
+            std::shared_ptr<ftk::Image> audioImage(
                 const std::shared_ptr<audio::Audio>& audio,
-                const feather_tk::Size2I& size)
+                const ftk::Size2I& size)
             {
-                auto out = feather_tk::Image::create(size.w, size.h, feather_tk::ImageType::L_U8);
+                auto out = ftk::Image::create(size.w, size.h, ftk::ImageType::L_U8);
                 const auto& info = audio->getInfo();
                 const size_t sampleCount = audio->getSampleCount();
                 if (sampleCount > 0)
@@ -965,7 +965,7 @@ namespace tl
 
         void ThumbnailGenerator::_waveformRun()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::shared_ptr<Private::WaveformRequest> request;
             {
                 std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);
@@ -983,7 +983,7 @@ namespace tl
             }
             if (request)
             {
-                std::shared_ptr<feather_tk::TriMesh2F> mesh;
+                std::shared_ptr<ftk::TriMesh2F> mesh;
                 const std::string key = ThumbnailCache::getWaveformKey(
                     request->callerId,
                     request->path,
@@ -1039,7 +1039,7 @@ namespace tl
 
         void ThumbnailGenerator::_infoCancel()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::list<std::shared_ptr<Private::InfoRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
@@ -1053,7 +1053,7 @@ namespace tl
 
         void ThumbnailGenerator::_thumbnailCancel()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::list<std::shared_ptr<Private::ThumbnailRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
@@ -1067,7 +1067,7 @@ namespace tl
 
         void ThumbnailGenerator::_waveformCancel()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::list<std::shared_ptr<Private::WaveformRequest> > requests;
             {
                 std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);
@@ -1085,11 +1085,11 @@ namespace tl
             std::shared_ptr<ThumbnailGenerator> generator;
         };
 
-        ThumbnailSystem::ThumbnailSystem(const std::shared_ptr<feather_tk::Context>& context) :
+        ThumbnailSystem::ThumbnailSystem(const std::shared_ptr<ftk::Context>& context) :
             ISystem(context, "tl::timelineui::ThumbnailSystem"),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.cache = ThumbnailCache::create(context);
             p.generator = ThumbnailGenerator::create(p.cache, context);
         }
@@ -1098,7 +1098,7 @@ namespace tl
         {}
 
         std::shared_ptr<ThumbnailSystem> ThumbnailSystem::create(
-            const std::shared_ptr<feather_tk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context)
         {
             auto out = context->getSystem<ThumbnailSystem>();
             if (!out)
@@ -1130,7 +1130,7 @@ namespace tl
         WaveformRequest ThumbnailSystem::getWaveform(
             intptr_t id,
             const file::Path& path,
-            const feather_tk::Size2I& size,
+            const ftk::Size2I& size,
             const OTIO_NS::TimeRange& timeRange,
             const io::Options& ioOptions)
         {

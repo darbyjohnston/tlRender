@@ -12,7 +12,7 @@ namespace tl
     {
         ReadAudio::ReadAudio(
             const std::string& fileName,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             double videoRate,
             const ReadOptions& options) :
             _fileName(fileName),
@@ -23,7 +23,7 @@ namespace tl
                 _avFormatContext = avformat_alloc_context();
                 if (!_avFormatContext)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate format context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate format context: \"{0}\"").arg(fileName));
                 }
 
                 _avIOBufferData = AVIOBufferData(memory[0].p, memory[0].size);
@@ -38,7 +38,7 @@ namespace tl
                     &avIOBufferSeek);
                 if (!_avIOContext)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate I/O context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate I/O context: \"{0}\"").arg(fileName));
                 }
 
                 _avFormatContext->pb = _avIOContext;
@@ -51,13 +51,13 @@ namespace tl
                 nullptr);
             if (r < 0)
             {
-                throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
 
             r = avformat_find_stream_info(_avFormatContext, 0);
             if (r < 0)
             {
-                throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
             }
             for (unsigned int i = 0; i < _avFormatContext->nb_streams; ++i)
             {
@@ -89,34 +89,34 @@ namespace tl
                 auto avAudioCodec = avcodec_find_decoder(avAudioCodecParameters->codec_id);
                 if (!avAudioCodec)
                 {
-                    throw std::runtime_error(feather_tk::Format("No audio codec found: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("No audio codec found: \"{0}\"").arg(fileName));
                 }
                 _avCodecParameters[_avStream] = avcodec_parameters_alloc();
                 if (!_avCodecParameters[_avStream])
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate parameters: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate parameters: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_copy(_avCodecParameters[_avStream], avAudioCodecParameters);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream] = avcodec_alloc_context3(avAudioCodec);
                 if (!_avCodecContext[_avStream])
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate context: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate context: \"{0}\"").arg(fileName));
                 }
                 r = avcodec_parameters_to_context(_avCodecContext[_avStream], _avCodecParameters[_avStream]);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
                 _avCodecContext[_avStream]->thread_count = options.threadCount;
                 _avCodecContext[_avStream]->thread_type = FF_THREAD_FRAME;
                 r = avcodec_open2(_avCodecContext[_avStream], avAudioCodec, 0);
                 if (r < 0)
                 {
-                    throw std::runtime_error(feather_tk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
+                    throw std::runtime_error(ftk::Format("{0}: \"{1}\"").arg(getErrorLabel(r)).arg(fileName));
                 }
 
                 const size_t fileChannelCount = _avCodecParameters[_avStream]->ch_layout.nb_channels;
@@ -124,7 +124,7 @@ namespace tl
                     _avCodecParameters[_avStream]->format));
                 if (audio::DataType::None == fileDataType)
                 {
-                    throw std::runtime_error(feather_tk::Format("Unsupported audio format: \"{0}\"").arg(fileName));
+                    throw std::runtime_error(ftk::Format("Unsupported audio format: \"{0}\"").arg(fileName));
                 }
                 const size_t fileSampleRate = _avCodecParameters[_avStream]->sample_rate;
 
@@ -164,24 +164,24 @@ namespace tl
                 }
 
                 OTIO_NS::RationalTime timeReference = time::invalidTime;
-                feather_tk::ImageTags tags;
+                ftk::ImageTags tags;
                 AVDictionaryEntry* tag = nullptr;
                 while ((tag = av_dict_get(_avFormatContext->metadata, "", tag, AV_DICT_IGNORE_SUFFIX)))
                 {
                     const std::string key(tag->key);
                     const std::string value(tag->value);
                     tags[key] = value;
-                    if (feather_tk::compare(
+                    if (ftk::compare(
                         key,
                         "timecode",
-                        feather_tk::CaseCompare::Insensitive))
+                        ftk::CaseCompare::Insensitive))
                     {
                         timecode = value;
                     }
-                    else if (feather_tk::compare(
+                    else if (ftk::compare(
                         key,
                         "time_reference",
-                        feather_tk::CaseCompare::Insensitive))
+                        ftk::CaseCompare::Insensitive))
                     {
                         timeReference = OTIO_NS::RationalTime(std::atoi(value.c_str()), sampleRate);
                     }
@@ -298,7 +298,7 @@ namespace tl
             return _timeRange;
         }
 
-        const feather_tk::ImageTags& ReadAudio::getTags() const
+        const ftk::ImageTags& ReadAudio::getTags() const
         {
             return _tags;
         }
@@ -310,7 +310,7 @@ namespace tl
                 _avFrame = av_frame_alloc();
                 if (!_avFrame)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
+                    throw std::runtime_error(ftk::Format("Cannot allocate frame: \"{0}\"").arg(_fileName));
                 }
 
                 AVChannelLayout channelLayout;
@@ -329,7 +329,7 @@ namespace tl
                 av_channel_layout_uninit(&channelLayout);
                 if (!_swrContext)
                 {
-                    throw std::runtime_error(feather_tk::Format("Cannot get context: \"{0}\"").arg(_fileName));
+                    throw std::runtime_error(ftk::Format("Cannot get context: \"{0}\"").arg(_fileName));
                 }
                 swr_init(_swrContext);
             }

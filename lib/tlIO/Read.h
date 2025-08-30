@@ -16,9 +16,9 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             IRead();
 
@@ -42,19 +42,19 @@ namespace tl
             virtual void cancelRequests() = 0;
 
         protected:
-            std::vector<feather_tk::InMemoryFile> _memory;
+            std::vector<ftk::InMemoryFile> _memory;
         };
 
         //! Base class for read plugins.
         class IReadPlugin : public IPlugin
         {
-            FEATHER_TK_NON_COPYABLE(IReadPlugin);
+            FTK_NON_COPYABLE(IReadPlugin);
 
         protected:
             void _init(
                 const std::string& name,
                 const std::map<std::string, FileType>& extensions,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             IReadPlugin();
 
@@ -69,11 +69,11 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             virtual std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const Options& = Options()) = 0;
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

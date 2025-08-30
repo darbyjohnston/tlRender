@@ -17,11 +17,11 @@ namespace tl
 {
     namespace core_tests
     {
-        PathTest::PathTest(const std::shared_ptr<feather_tk::Context>& context) :
+        PathTest::PathTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "core_tests::PathTest")
         {}
 
-        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<PathTest> PathTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<PathTest>(new PathTest(context));
         }
@@ -38,7 +38,7 @@ namespace tl
             _enum<UserPath>("UserPath", getUserPathEnums);
             for (auto i : getUserPathEnums())
             {
-                _print(feather_tk::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
+                _print(ftk::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
             }
         }
 
@@ -47,37 +47,37 @@ namespace tl
             {
                 PathOptions a;
                 const PathOptions b;
-                FEATHER_TK_ASSERT(a == b);
+                FTK_ASSERT(a == b);
                 a.maxNumberDigits = 0;
-                FEATHER_TK_ASSERT(a != b);
+                FTK_ASSERT(a != b);
             }
             {
                 const Path path;
-                FEATHER_TK_ASSERT(path.isEmpty());
-                FEATHER_TK_ASSERT(path.getDirectory().empty());
-                FEATHER_TK_ASSERT(path.getBaseName().empty());
-                FEATHER_TK_ASSERT(path.getNumber().empty());
-                FEATHER_TK_ASSERT(path.getExtension().empty());
+                FTK_ASSERT(path.isEmpty());
+                FTK_ASSERT(path.getDirectory().empty());
+                FTK_ASSERT(path.getBaseName().empty());
+                FTK_ASSERT(path.getNumber().empty());
+                FTK_ASSERT(path.getExtension().empty());
             }
             {
                 Path path("/tmp/file.txt");
-                FEATHER_TK_ASSERT(path.get() == "/tmp/file.txt");
+                FTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("/tmp", "file.txt");
-                FEATHER_TK_ASSERT(path.get() == "/tmp/file.txt");
+                FTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("/tmp/", "file.txt");
-                FEATHER_TK_ASSERT(path.get() == "/tmp/file.txt");
+                FTK_ASSERT(path.get() == "/tmp/file.txt");
                 path = Path("\\tmp\\file.txt");
-                FEATHER_TK_ASSERT(path.get() == "\\tmp\\file.txt");
+                FTK_ASSERT(path.get() == "\\tmp\\file.txt");
             }
             {
                 std::string s = Path("tmp/", "render.", "0001", 4, ".exr", "http://", "?user=foo;password=bar").get();
-                FEATHER_TK_ASSERT(s == "http://tmp/render.0001.exr?user=foo;password=bar");
+                FTK_ASSERT(s == "http://tmp/render.0001.exr?user=foo;password=bar");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2);
-                FEATHER_TK_ASSERT(s == "http://tmp/render.0002.exr");
+                FTK_ASSERT(s == "http://tmp/render.0002.exr");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::Path);
-                FEATHER_TK_ASSERT(s == "tmp/render.0002.exr");
+                FTK_ASSERT(s == "tmp/render.0002.exr");
                 s = Path("tmp/", "render.", "0001", 4, ".exr", "http://").get(2, PathType::FileName);
-                FEATHER_TK_ASSERT(s == "render.0002.exr");
+                FTK_ASSERT(s == "render.0002.exr");
             }
             {
                 struct Data
@@ -127,116 +127,116 @@ namespace tl
                 {
                     const Path path(i.input);
                     std::string s = path.get();
-                    FEATHER_TK_ASSERT(i.input == s);
-                    FEATHER_TK_ASSERT(i.protocol == path.getProtocol());
-                    FEATHER_TK_ASSERT(i.directory == path.getDirectory());
-                    FEATHER_TK_ASSERT(i.baseName == path.getBaseName());
-                    FEATHER_TK_ASSERT(i.number == path.getNumber());
-                    FEATHER_TK_ASSERT(i.padding == path.getPadding());
-                    FEATHER_TK_ASSERT(i.extension == path.getExtension());
-                    FEATHER_TK_ASSERT(i.request == path.getRequest());
+                    FTK_ASSERT(i.input == s);
+                    FTK_ASSERT(i.protocol == path.getProtocol());
+                    FTK_ASSERT(i.directory == path.getDirectory());
+                    FTK_ASSERT(i.baseName == path.getBaseName());
+                    FTK_ASSERT(i.number == path.getNumber());
+                    FTK_ASSERT(i.padding == path.getPadding());
+                    FTK_ASSERT(i.extension == path.getExtension());
+                    FTK_ASSERT(i.request == path.getRequest());
                 }
             }
             {
                 Path p("render.0001.exr");
-                const feather_tk::RangeI sequence(1, 100);
+                const ftk::RangeI sequence(1, 100);
                 p.setSequence(sequence);
-                FEATHER_TK_ASSERT(sequence == p.getSequence());
-                FEATHER_TK_ASSERT(p.isSequence());
-                FEATHER_TK_ASSERT("0001-0100" == p.getSequenceString());
-                FEATHER_TK_ASSERT(p.sequence(Path("render.0101.exr")));
-                FEATHER_TK_ASSERT(!p.sequence(Path("render.101.exr")));
+                FTK_ASSERT(sequence == p.getSequence());
+                FTK_ASSERT(p.isSequence());
+                FTK_ASSERT("0001-0100" == p.getSequenceString());
+                FTK_ASSERT(p.sequence(Path("render.0101.exr")));
+                FTK_ASSERT(!p.sequence(Path("render.101.exr")));
             }
             {
                 Path p("render.0001.exr");
-                const feather_tk::RangeI sequence(1, 9999);
+                const ftk::RangeI sequence(1, 9999);
                 p.setSequence(sequence);
-                FEATHER_TK_ASSERT("0001-9999" == p.getSequenceString());
-                FEATHER_TK_ASSERT(p.sequence(Path("render.0001.exr")));
-                FEATHER_TK_ASSERT(p.sequence(Path("render.1000.exr")));
+                FTK_ASSERT("0001-9999" == p.getSequenceString());
+                FTK_ASSERT(p.sequence(Path("render.0001.exr")));
+                FTK_ASSERT(p.sequence(Path("render.1000.exr")));
                 //! \bug Handle frame numbers that exceed the zero padding.
-                //FEATHER_TK_ASSERT(p.sequence(Path("render.10000.exr")));
+                //FTK_ASSERT(p.sequence(Path("render.10000.exr")));
             }
             {
                 Path p("render.1000.exr");
-                const feather_tk::RangeI sequence(1, 9999);
+                const ftk::RangeI sequence(1, 9999);
                 p.setSequence(sequence);
-                FEATHER_TK_ASSERT(p.sequence(Path("render.0001.exr")));
-                FEATHER_TK_ASSERT(p.sequence(Path("render.1000.exr")));
+                FTK_ASSERT(p.sequence(Path("render.0001.exr")));
+                FTK_ASSERT(p.sequence(Path("render.1000.exr")));
                 //! \bug How should the padding be handled in this case?
-                //FEATHER_TK_ASSERT("0001-9999" == p.getSequenceString());
+                //FTK_ASSERT("0001-9999" == p.getSequenceString());
             }
             {
                 Path path("render.00000.exr");
-                FEATHER_TK_ASSERT(path.sequence(Path("render.10000.exr")));
+                FTK_ASSERT(path.sequence(Path("render.10000.exr")));
             }
             {
-                FEATHER_TK_ASSERT(Path("/").isAbsolute());
-                FEATHER_TK_ASSERT(Path("/tmp").isAbsolute());
-                FEATHER_TK_ASSERT(Path("\\").isAbsolute());
-                FEATHER_TK_ASSERT(Path("C:").isAbsolute());
-                FEATHER_TK_ASSERT(Path("C:\\tmp").isAbsolute());
-                FEATHER_TK_ASSERT(!Path("").isAbsolute());
-                FEATHER_TK_ASSERT(!Path("../..").isAbsolute());
-                FEATHER_TK_ASSERT(!Path("..\\..").isAbsolute());
+                FTK_ASSERT(Path("/").isAbsolute());
+                FTK_ASSERT(Path("/tmp").isAbsolute());
+                FTK_ASSERT(Path("\\").isAbsolute());
+                FTK_ASSERT(Path("C:").isAbsolute());
+                FTK_ASSERT(Path("C:\\tmp").isAbsolute());
+                FTK_ASSERT(!Path("").isAbsolute());
+                FTK_ASSERT(!Path("../..").isAbsolute());
+                FTK_ASSERT(!Path("..\\..").isAbsolute());
             }
             {
                 const Path a("/");
                 Path b("/");
-                FEATHER_TK_ASSERT(a == b);
+                FTK_ASSERT(a == b);
                 b = Path("/tmp");
-                FEATHER_TK_ASSERT(a != b);
+                FTK_ASSERT(a != b);
             }
             {
                 Path a("/tmp/render.1.exr");
                 a.setProtocol("file://");
-                FEATHER_TK_ASSERT("file://" == a.getProtocol());
-                FEATHER_TK_ASSERT("file:" == a.getProtocolName());
-                FEATHER_TK_ASSERT(a.get() == "file:///tmp/render.1.exr");
+                FTK_ASSERT("file://" == a.getProtocol());
+                FTK_ASSERT("file:" == a.getProtocolName());
+                FTK_ASSERT(a.get() == "file:///tmp/render.1.exr");
                 a.setDirectory("/usr/tmp/");
-                FEATHER_TK_ASSERT("/usr/tmp/" == a.getDirectory());
-                FEATHER_TK_ASSERT(a.get() == "file:///usr/tmp/render.1.exr");
+                FTK_ASSERT("/usr/tmp/" == a.getDirectory());
+                FTK_ASSERT(a.get() == "file:///usr/tmp/render.1.exr");
                 a.setBaseName("comp.");
-                FEATHER_TK_ASSERT("comp." == a.getBaseName());
-                FEATHER_TK_ASSERT(a.get() == "file:///usr/tmp/comp.1.exr");
+                FTK_ASSERT("comp." == a.getBaseName());
+                FTK_ASSERT(a.get() == "file:///usr/tmp/comp.1.exr");
                 a.setNumber("0010");
-                FEATHER_TK_ASSERT("0010" == a.getNumber());
-                FEATHER_TK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
-                FEATHER_TK_ASSERT(a.getPadding() == 4);
-                FEATHER_TK_ASSERT(a.getSequence() == feather_tk::RangeI(10, 10));
+                FTK_ASSERT("0010" == a.getNumber());
+                FTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.exr");
+                FTK_ASSERT(a.getPadding() == 4);
+                FTK_ASSERT(a.getSequence() == ftk::RangeI(10, 10));
                 a.setExtension(".tif");
-                FEATHER_TK_ASSERT(".tif" == a.getExtension());
-                FEATHER_TK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");
+                FTK_ASSERT(".tif" == a.getExtension());
+                FTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif");
                 a.setRequest("?user=foo;password=bar");
-                FEATHER_TK_ASSERT("?user=foo;password=bar" == a.getRequest());
-                FEATHER_TK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif?user=foo;password=bar");
+                FTK_ASSERT("?user=foo;password=bar" == a.getRequest());
+                FTK_ASSERT(a.get() == "file:///usr/tmp/comp.0010.tif?user=foo;password=bar");
             }
         }
 
         void PathTest::_util()
         {
             {
-                FEATHER_TK_ASSERT(isPathSeparator('/'));
-                FEATHER_TK_ASSERT(isPathSeparator('\\'));
+                FTK_ASSERT(isPathSeparator('/'));
+                FTK_ASSERT(isPathSeparator('\\'));
             }
             {
                 std::string path = appendSeparator(std::string());
-                FEATHER_TK_ASSERT(path.empty());
+                FTK_ASSERT(path.empty());
                 path = appendSeparator(std::string("/"));
-                FEATHER_TK_ASSERT("/" == path);
-                FEATHER_TK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp")));
-                FEATHER_TK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp/")));
+                FTK_ASSERT("/" == path);
+                FTK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp")));
+                FTK_ASSERT("/tmp/" == appendSeparator(std::string("/tmp/")));
             }
             {
                 std::string path = getParent("/usr/tmp");
-                FEATHER_TK_ASSERT("/usr" == path);
+                FTK_ASSERT("/usr" == path);
                 path = getParent("/tmp");
-                FEATHER_TK_ASSERT("/" == path);
+                FTK_ASSERT("/" == path);
                 path = getParent("a/b");
-                FEATHER_TK_ASSERT("a" == path);
+                FTK_ASSERT("a" == path);
             }
             {
-                _print(feather_tk::Format("Drives: {0}").arg(feather_tk::join(getDrives(), " ")));
+                _print(ftk::Format("Drives: {0}").arg(ftk::join(getDrives(), " ")));
             }
         }
     }

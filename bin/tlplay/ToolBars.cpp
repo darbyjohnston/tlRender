@@ -16,11 +16,11 @@ namespace tl
     namespace play
     {
         void FileToolBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            ToolBar::_init(context, feather_tk::Orientation::Horizontal, parent);
+            ToolBar::_init(context, ftk::Orientation::Horizontal, parent);
             auto actions = fileActions->getActions();
             addAction(actions["Open"]);
             addAction(actions["Close"]);
@@ -33,7 +33,7 @@ namespace tl
         }
 
         std::shared_ptr<FileToolBar> FileToolBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -43,11 +43,11 @@ namespace tl
         }
 
         void CompareToolBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            ToolBar::_init(context, feather_tk::Orientation::Horizontal, parent);
+            ToolBar::_init(context, ftk::Orientation::Horizontal, parent);
             auto actions = compareActions->getActions();
             for (const auto& label : timeline::getCompareLabels())
             {
@@ -60,7 +60,7 @@ namespace tl
         }
 
         std::shared_ptr<CompareToolBar> CompareToolBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -70,11 +70,11 @@ namespace tl
         }
 
         void ViewToolBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ViewActions>& viewActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            ToolBar::_init(context, feather_tk::Orientation::Horizontal, parent);
+            ToolBar::_init(context, ftk::Orientation::Horizontal, parent);
             auto actions = viewActions->getActions();
             addAction(actions["Frame"]);
             addAction(actions["ZoomReset"]);
@@ -87,7 +87,7 @@ namespace tl
         }
 
         std::shared_ptr<ViewToolBar> ViewToolBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<ViewActions>& viewActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -97,11 +97,11 @@ namespace tl
         }
 
         void WindowToolBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<WindowActions>& windowActions,
             const std::shared_ptr<IWidget>& parent)
         {
-            ToolBar::_init(context, feather_tk::Orientation::Horizontal, parent);
+            ToolBar::_init(context, ftk::Orientation::Horizontal, parent);
             auto actions = windowActions->getActions();
             addAction(actions["FullScreen"]);
             addAction(actions["Settings"]);
@@ -112,7 +112,7 @@ namespace tl
         }
 
         std::shared_ptr<WindowToolBar> WindowToolBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<WindowActions>& windowActions,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -122,7 +122,7 @@ namespace tl
         }
 
         void ToolBars::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<ViewActions>& viewActions,
@@ -130,14 +130,14 @@ namespace tl
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "ToolBars", parent);
-            _layout = feather_tk::HorizontalLayout::create(context, shared_from_this());
-            _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
+            _layout = ftk::HorizontalLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
             FileToolBar::create(context, fileActions, _layout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Horizontal, _layout);
+            ftk::Divider::create(context, ftk::Orientation::Horizontal, _layout);
             CompareToolBar::create(context, compareActions, _layout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Horizontal, _layout);
+            ftk::Divider::create(context, ftk::Orientation::Horizontal, _layout);
             ViewToolBar::create(context, viewActions, _layout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Horizontal, _layout);
+            ftk::Divider::create(context, ftk::Orientation::Horizontal, _layout);
             WindowToolBar::create(context, windowActions, _layout);
         }
 
@@ -146,7 +146,7 @@ namespace tl
         }
 
         std::shared_ptr<ToolBars> ToolBars::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<FileActions>& fileActions,
             const std::shared_ptr<CompareActions>& compareActions,
             const std::shared_ptr<ViewActions>& viewActions,
@@ -164,13 +164,13 @@ namespace tl
             return out;
         }
 
-        void ToolBars::setGeometry(const feather_tk::Box2I& value)
+        void ToolBars::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void ToolBars::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void ToolBars::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());

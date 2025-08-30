@@ -59,8 +59,8 @@ namespace tl
         {
             bool init = false;
             std::vector<std::string> drivers;
-            std::shared_ptr<feather_tk::ObservableList<DeviceInfo> > devices;
-            std::shared_ptr<feather_tk::ObservableValue<DeviceInfo> > defaultDevice;
+            std::shared_ptr<ftk::ObservableList<DeviceInfo> > devices;
+            std::shared_ptr<ftk::ObservableValue<DeviceInfo> > defaultDevice;
 
             struct Mutex
             {
@@ -79,11 +79,11 @@ namespace tl
             Thread thread;
         };
 
-        System::System(const std::shared_ptr<feather_tk::Context>& context) :
+        System::System(const std::shared_ptr<ftk::Context>& context) :
             ISystem(context, "tl::audio::System"),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 #if defined(TLRENDER_SDL2)
@@ -95,7 +95,7 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << "Cannot initialize SDL: " << SDL_GetError();
-                _log(ss.str(), feather_tk::LogType::Error);
+                _log(ss.str(), ftk::LogType::Error);
             }
             if (p.init)
             {
@@ -106,7 +106,7 @@ namespace tl
                 }
                 {
                     std::stringstream ss;
-                    ss << "Audio drivers: " << feather_tk::join(p.drivers, ", ");
+                    ss << "Audio drivers: " << ftk::join(p.drivers, ", ");
                     _log(ss.str());
                 }
                 {
@@ -120,8 +120,8 @@ namespace tl
             const std::vector<DeviceInfo> devices = _getDevices();
             const DeviceInfo defaultDevice = _getDefaultDevice();
 
-            p.devices = feather_tk::ObservableList<DeviceInfo>::create(devices);
-            p.defaultDevice = feather_tk::ObservableValue<DeviceInfo>::create(defaultDevice);
+            p.devices = ftk::ObservableList<DeviceInfo>::create(devices);
+            p.defaultDevice = ftk::ObservableValue<DeviceInfo>::create(defaultDevice);
 
             p.mutex.devices = devices;
             p.mutex.defaultDevice = defaultDevice;
@@ -138,7 +138,7 @@ namespace tl
                             const auto t0 = std::chrono::steady_clock::now();
                             _run();
                             const auto t1 = std::chrono::steady_clock::now();
-                            feather_tk::sleep(timeout, t0, t1);
+                            ftk::sleep(timeout, t0, t1);
                         }
                     });
             }
@@ -147,7 +147,7 @@ namespace tl
 
         System::~System()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.thread.running = false;
             if (p.thread.thread.joinable())
             {
@@ -155,7 +155,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<ftk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
@@ -176,7 +176,7 @@ namespace tl
             return _p->devices->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableList<DeviceInfo> > System::observeDevices() const
+        std::shared_ptr<ftk::IObservableList<DeviceInfo> > System::observeDevices() const
         {
             return _p->devices;
         }
@@ -186,14 +186,14 @@ namespace tl
             return _p->defaultDevice->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<DeviceInfo> > System::observeDefaultDevice() const
+        std::shared_ptr<ftk::IObservableValue<DeviceInfo> > System::observeDefaultDevice() const
         {
             return _p->defaultDevice;
         }
 
         void System::tick()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::vector<DeviceInfo> devices;
             DeviceInfo defaultDevice;
             {
@@ -248,7 +248,7 @@ namespace tl
 
         std::vector<DeviceInfo> System::_getDevices()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::vector<DeviceInfo> out;
 #if defined(TLRENDER_SDL2)
             const int count = SDL_GetNumAudioDevices(0);
@@ -304,7 +304,7 @@ namespace tl
 
         void System::_run()
         {
-            FEATHER_TK_P();
+            FTK_P();
 #if defined(TLRENDER_SDL2) || defined(TLRENDER_SDL3)
 
             const std::vector<DeviceInfo> devices = _getDevices();
@@ -328,7 +328,7 @@ namespace tl
                         log.push_back(ss.str());
                     }
                 }
-                _log(feather_tk::join(log, "\n"));
+                _log(ftk::join(log, "\n"));
             }
             if (defaultDevice != p.thread.defaultDevice)
             {

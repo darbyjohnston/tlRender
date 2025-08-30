@@ -12,13 +12,13 @@ namespace tl
     namespace play
     {
         void PlaybackActions::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            _actions["Stop"] = feather_tk::Action::create(
+            _actions["Stop"] = ftk::Action::create(
                 "Stop",
                 "PlaybackStop",
-                feather_tk::Key::K,
+                ftk::Key::K,
                 0,
                 [this]
                 {
@@ -29,10 +29,10 @@ namespace tl
                 });
             _actions["Stop"]->setTooltip("Stop playback.");
 
-            _actions["Forward"] = feather_tk::Action::create(
+            _actions["Forward"] = ftk::Action::create(
                 "Forward",
                 "PlaybackForward",
-                feather_tk::Key::L,
+                ftk::Key::L,
                 0,
                 [this]
                 {
@@ -44,10 +44,10 @@ namespace tl
                 });
             _actions["Forward"]->setTooltip("Start forward playback.");
 
-            _actions["Reverse"] = feather_tk::Action::create(
+            _actions["Reverse"] = ftk::Action::create(
                 "Reverse",
                 "PlaybackReverse",
-                feather_tk::Key::J,
+                ftk::Key::J,
                 0,
                 [this]
                 {
@@ -59,9 +59,9 @@ namespace tl
                 });
             _actions["Reverse"]->setTooltip("Start reverse playback.");
 
-            _actions["TogglePlayback"] = feather_tk::Action::create(
+            _actions["TogglePlayback"] = ftk::Action::create(
                 "Toggle Playback",
-                feather_tk::Key::Space,
+                ftk::Key::Space,
                 0,
                 [this]
                 {
@@ -78,10 +78,10 @@ namespace tl
                     }
                 });
 
-            _actions["Start"] = feather_tk::Action::create(
+            _actions["Start"] = ftk::Action::create(
                 "Goto Start",
                 "FrameStart",
-                feather_tk::Key::Home,
+                ftk::Key::Home,
                 0,
                 [this]
                 {
@@ -92,10 +92,10 @@ namespace tl
                 });
             _actions["Start"]->setTooltip("Go to the start frame.");
 
-            _actions["Prev"] = feather_tk::Action::create(
+            _actions["Prev"] = ftk::Action::create(
                 "Goto Previous",
                 "FramePrev",
-                feather_tk::Key::Left,
+                ftk::Key::Left,
                 0,
                 [this]
                 {
@@ -106,10 +106,10 @@ namespace tl
                 });
             _actions["Prev"]->setTooltip("Go to the previous frame.");
 
-            _actions["Next"] = feather_tk::Action::create(
+            _actions["Next"] = ftk::Action::create(
                 "Goto Next",
                 "FrameNext",
-                feather_tk::Key::Right,
+                ftk::Key::Right,
                 0,
                 [this]
                 {
@@ -120,10 +120,10 @@ namespace tl
                 });
             _actions["Next"]->setTooltip("Go to the next frame.");
 
-            _actions["End"] = feather_tk::Action::create(
+            _actions["End"] = ftk::Action::create(
                 "Goto End",
                 "FrameEnd",
-                feather_tk::Key::End,
+                ftk::Key::End,
                 0,
                 [this]
                 {
@@ -134,9 +134,9 @@ namespace tl
                 });
             _actions["End"]->setTooltip("Go to the end frame.");
 
-            _actions["SetInPoint"] = feather_tk::Action::create(
+            _actions["SetInPoint"] = ftk::Action::create(
                 "Set In Point",
-                feather_tk::Key::I,
+                ftk::Key::I,
                 0,
                 [this]
                 {
@@ -147,10 +147,10 @@ namespace tl
                 });
             _actions["SetInPoint"]->setTooltip("Set the playback in point.");
 
-            _actions["ResetInPoint"] = feather_tk::Action::create(
+            _actions["ResetInPoint"] = ftk::Action::create(
                 "Reset In Point",
-                feather_tk::Key::I,
-                static_cast<int>(feather_tk::KeyModifier::Shift),
+                ftk::Key::I,
+                static_cast<int>(ftk::KeyModifier::Shift),
                 [this]
                 {
                     if (_player)
@@ -160,9 +160,9 @@ namespace tl
                 });
             _actions["ResetInPoint"]->setTooltip("Reset the playback in point.");
 
-            _actions["SetOutPoint"] = feather_tk::Action::create(
+            _actions["SetOutPoint"] = ftk::Action::create(
                 "Set Out Point",
-                feather_tk::Key::O,
+                ftk::Key::O,
                 0,
                 [this]
                 {
@@ -173,10 +173,10 @@ namespace tl
                 });
             _actions["SetOutPoint"]->setTooltip("Set the playback out point.");
 
-            _actions["ResetOutPoint"] = feather_tk::Action::create(
+            _actions["ResetOutPoint"] = ftk::Action::create(
                 "Reset Out Point",
-                feather_tk::Key::O,
-                static_cast<int>(feather_tk::KeyModifier::Shift),
+                ftk::Key::O,
+                static_cast<int>(ftk::KeyModifier::Shift),
                 [this]
                 {
                     if (_player)
@@ -186,7 +186,7 @@ namespace tl
                 });
             _actions["ResetOutPoint"]->setTooltip("Reset the playback out point.");
 
-            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = ftk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -194,7 +194,7 @@ namespace tl
 
                     if (value)
                     {
-                        _playbackObserver = feather_tk::ValueObserver<timeline::Playback>::create(
+                        _playbackObserver = ftk::ValueObserver<timeline::Playback>::create(
                             value->observePlayback(),
                             [this](timeline::Playback value)
                             {
@@ -232,7 +232,7 @@ namespace tl
         }
 
         std::shared_ptr<PlaybackActions> PlaybackActions::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<PlaybackActions>(new PlaybackActions);
@@ -240,7 +240,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& PlaybackActions::getActions() const
+        const std::map<std::string, std::shared_ptr<ftk::Action> >& PlaybackActions::getActions() const
         {
             return _actions;
         }

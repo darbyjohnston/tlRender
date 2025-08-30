@@ -6,7 +6,7 @@
 
 #include <memory>
 
-namespace feather_tk
+namespace ftk
 {
     class Context;
 }
@@ -14,5 +14,5 @@ namespace feather_tk
 namespace tl
 {
     //! Initialize the library.
-    void init(const std::shared_ptr<feather_tk::Context>&);
+    void init(const std::shared_ptr<ftk::Context>&);
 }

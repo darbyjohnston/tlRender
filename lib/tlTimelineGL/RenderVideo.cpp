@@ -16,11 +16,11 @@ namespace tl
     namespace timeline_gl
     {
         void Render::drawBackground(
-            const std::vector<feather_tk::Box2I>& boxes,
-            const feather_tk::M44F& m,
+            const std::vector<ftk::Box2I>& boxes,
+            const ftk::M44F& m,
             const timeline::BackgroundOptions& options)
         {
-            const feather_tk::Box2I rect(feather_tk::V2I(0, 0), getRenderSize());
+            const ftk::Box2I rect(ftk::V2I(0, 0), getRenderSize());
             switch (options.type)
             {
             case timeline::Background::Solid:
@@ -28,41 +28,41 @@ namespace tl
                 break;
             case timeline::Background::Checkers:
                 drawColorMesh(
-                    feather_tk::checkers(
+                    ftk::checkers(
                         rect,
                         options.checkersColor.first,
                         options.checkersColor.second,
                         options.checkersSize),
-                    feather_tk::Color4F(1.F, 1.F, 1.F));
+                    ftk::Color4F(1.F, 1.F, 1.F));
                 break;
             case timeline::Background::Gradient:
             {
-                feather_tk::TriMesh2F mesh;
-                mesh.v.push_back(feather_tk::V2F(rect.min.x, rect.min.y));
-                mesh.v.push_back(feather_tk::V2F(rect.max.x, rect.min.y));
-                mesh.v.push_back(feather_tk::V2F(rect.max.x, rect.max.y));
-                mesh.v.push_back(feather_tk::V2F(rect.min.x, rect.max.y));
-                mesh.c.push_back(feather_tk::V4F(
+                ftk::TriMesh2F mesh;
+                mesh.v.push_back(ftk::V2F(rect.min.x, rect.min.y));
+                mesh.v.push_back(ftk::V2F(rect.max.x, rect.min.y));
+                mesh.v.push_back(ftk::V2F(rect.max.x, rect.max.y));
+                mesh.v.push_back(ftk::V2F(rect.min.x, rect.max.y));
+                mesh.c.push_back(ftk::V4F(
                     options.gradientColor.first.r,
                     options.gradientColor.first.g,
                     options.gradientColor.first.b,
                     options.gradientColor.first.a));
-                mesh.c.push_back(feather_tk::V4F(
+                mesh.c.push_back(ftk::V4F(
                     options.gradientColor.second.r,
                     options.gradientColor.second.g,
                     options.gradientColor.second.b,
                     options.gradientColor.second.a));
                 mesh.triangles.push_back({
-                    feather_tk::Vertex2(1, 0, 1),
-                    feather_tk::Vertex2(2, 0, 1),
-                    feather_tk::Vertex2(3, 0, 2), });
+                    ftk::Vertex2(1, 0, 1),
+                    ftk::Vertex2(2, 0, 1),
+                    ftk::Vertex2(3, 0, 2), });
                 mesh.triangles.push_back({
-                    feather_tk::Vertex2(3, 0, 2),
-                    feather_tk::Vertex2(4, 0, 2),
-                    feather_tk::Vertex2(1, 0, 1), });
+                    ftk::Vertex2(3, 0, 2),
+                    ftk::Vertex2(4, 0, 2),
+                    ftk::Vertex2(1, 0, 1), });
                 drawColorMesh(
                     mesh,
-                    feather_tk::Color4F(1.F, 1.F, 1.F));
+                    ftk::Color4F(1.F, 1.F, 1.F));
                 break;
             }
             default: break;
@@ -70,7 +70,7 @@ namespace tl
 
             if (options.outline.enabled && !boxes.empty())
             {
-                feather_tk::Box2I bounds = boxes.front();
+                ftk::Box2I bounds = boxes.front();
                 for (size_t i = 1; i < boxes.size(); ++i)
                 {
                     bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
@@ -79,52 +79,52 @@ namespace tl
                     bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
                 }
 
-                feather_tk::TriMesh2F mesh;
-                mesh.v.push_back(feather_tk::V2F(bounds.min.x, bounds.min.y));
-                mesh.v.push_back(feather_tk::V2F(bounds.max.x + 1, bounds.min.y));
-                mesh.v.push_back(feather_tk::V2F(bounds.max.x + 1, bounds.max.y + 1));
-                mesh.v.push_back(feather_tk::V2F(bounds.min.x, bounds.max.y + 1));
+                ftk::TriMesh2F mesh;
+                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.min.y));
+                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.min.y));
+                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.max.y + 1));
+                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.max.y + 1));
                 for (auto& v : mesh.v)
                 {
-                    const feather_tk::V3F v3 = feather_tk::V3F(v.x, v.y, 0.F) * m;
+                    const ftk::V3F v3 = ftk::V3F(v.x, v.y, 0.F) * m;
                     v.x = v3.x;
                     v.y = v3.y;
                 }
-                mesh.v.push_back(feather_tk::round(
-                    feather_tk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
-                    feather_tk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
+                    ftk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
                     mesh.v[0]));
-                mesh.v.push_back(feather_tk::round(
-                    feather_tk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
-                    feather_tk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
+                    ftk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
                     mesh.v[1]));
-                mesh.v.push_back(feather_tk::round(
-                    feather_tk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
-                    feather_tk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
+                    ftk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
                     mesh.v[2]));
-                mesh.v.push_back(feather_tk::round(
-                    feather_tk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
-                    feather_tk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
+                    ftk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
                     mesh.v[3]));
-                mesh.triangles.push_back({ feather_tk::Vertex2(1), feather_tk::Vertex2(2), feather_tk::Vertex2(5) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(2), feather_tk::Vertex2(6), feather_tk::Vertex2(5) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(2), feather_tk::Vertex2(3), feather_tk::Vertex2(6) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(3), feather_tk::Vertex2(7), feather_tk::Vertex2(6) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(3), feather_tk::Vertex2(4), feather_tk::Vertex2(7) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(4), feather_tk::Vertex2(8), feather_tk::Vertex2(7) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(4), feather_tk::Vertex2(1), feather_tk::Vertex2(8) });
-                mesh.triangles.push_back({ feather_tk::Vertex2(1), feather_tk::Vertex2(5), feather_tk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(2), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(3), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(4), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(1), ftk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(8) });
                 drawMesh(mesh, options.outline.color);
             }
         }
 
         void Render::drawVideo(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
             switch (compareOptions.compare)
             {
@@ -203,18 +203,18 @@ namespace tl
 
         void Render::_drawVideoA(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
             if (!videoData.empty() && !boxes.empty())
             {
                 _drawVideo(
                     videoData[0],
                     boxes[0],
-                    !imageOptions.empty() ? std::make_shared<feather_tk::ImageOptions>(imageOptions[0]) : nullptr,
+                    !imageOptions.empty() ? std::make_shared<ftk::ImageOptions>(imageOptions[0]) : nullptr,
                     !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
                     colorBuffer);
             }
@@ -222,18 +222,18 @@ namespace tl
 
         void Render::_drawVideoB(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
             if (videoData.size() > 1 && boxes.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<feather_tk::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<ftk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
                     colorBuffer);
             }
@@ -241,13 +241,13 @@ namespace tl
 
         void Render::_drawVideoWipe(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             float radius = 0.F;
             float x = 0.F;
@@ -259,18 +259,18 @@ namespace tl
                 y = boxes[0].h() * compareOptions.wipeCenter.y;
             }
             const float rotation = compareOptions.wipeRotation;
-            feather_tk::V2F pts[4];
+            ftk::V2F pts[4];
             for (size_t i = 0; i < 4; ++i)
             {
-                float rad = feather_tk::deg2rad(rotation + 90.F * i + 90.F);
+                float rad = ftk::deg2rad(rotation + 90.F * i + 90.F);
                 pts[i].x = cos(rad) * radius + x;
                 pts[i].y = sin(rad) * radius + y;
             }
 
-            feather_tk::gl::SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
+            ftk::gl::SetAndRestore stencilTest(GL_STENCIL_TEST, GL_TRUE);
 
-            const feather_tk::Size2I renderSize = getRenderSize();
-            const feather_tk::Box2I viewport = getViewport();
+            const ftk::Size2I renderSize = getRenderSize();
+            const ftk::Box2I viewport = getViewport();
             glViewport(
                 viewport.x(),
                 renderSize.h - viewport.h() - viewport.y(),
@@ -281,15 +281,15 @@ namespace tl
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", feather_tk::Color4F(1.F, 0.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", ftk::Color4F(1.F, 0.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
-                    feather_tk::TriMesh2F mesh;
+                    ftk::TriMesh2F mesh;
                     mesh.v.push_back(pts[0]);
                     mesh.v.push_back(pts[1]);
                     mesh.v.push_back(pts[2]);
-                    feather_tk::Triangle2 tri;
+                    ftk::Triangle2 tri;
                     tri.v[0] = 1;
                     tri.v[1] = 2;
                     tri.v[2] = 3;
@@ -309,7 +309,7 @@ namespace tl
                 _drawVideo(
                     videoData[0],
                     boxes[0],
-                    !imageOptions.empty() ? std::make_shared<feather_tk::ImageOptions>(imageOptions[0]) : nullptr,
+                    !imageOptions.empty() ? std::make_shared<ftk::ImageOptions>(imageOptions[0]) : nullptr,
                     !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
                     colorBuffer);
             }
@@ -323,15 +323,15 @@ namespace tl
             glStencilFunc(GL_ALWAYS, 1, 0xFF);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
             p.shaders["wipe"]->bind();
-            p.shaders["wipe"]->setUniform("color", feather_tk::Color4F(0.F, 1.F, 0.F));
+            p.shaders["wipe"]->setUniform("color", ftk::Color4F(0.F, 1.F, 0.F));
             {
                 if (p.vbos["wipe"])
                 {
-                    feather_tk::TriMesh2F mesh;
+                    ftk::TriMesh2F mesh;
                     mesh.v.push_back(pts[2]);
                     mesh.v.push_back(pts[3]);
                     mesh.v.push_back(pts[0]);
-                    feather_tk::Triangle2 tri;
+                    ftk::Triangle2 tri;
                     tri.v[0] = 1;
                     tri.v[1] = 2;
                     tri.v[2] = 3;
@@ -351,7 +351,7 @@ namespace tl
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<feather_tk::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<ftk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
                     colorBuffer);
             }
@@ -359,29 +359,29 @@ namespace tl
 
         void Render::_drawVideoOverlay(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             if (videoData.size() > 1 && boxes.size() > 1)
             {
                 _drawVideo(
                     videoData[1],
                     boxes[1],
-                    imageOptions.size() > 1 ? std::make_shared<feather_tk::ImageOptions>(imageOptions[1]) : nullptr,
+                    imageOptions.size() > 1 ? std::make_shared<ftk::ImageOptions>(imageOptions[1]) : nullptr,
                     displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
                     colorBuffer);
             }
             if (!videoData.empty() && !boxes.empty())
             {
-                const feather_tk::Size2I offscreenBufferSize(
+                const ftk::Size2I offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
-                feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.color = colorBuffer;
                 if (!displayOptions.empty())
                 {
@@ -392,16 +392,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["overlay"] = feather_tk::gl::OffscreenBuffer::create(
+                    p.buffers["overlay"] = ftk::gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["overlay"])
                 {
-                    const feather_tk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const ftk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    feather_tk::gl::OffscreenBufferBinding binding(p.buffers["overlay"]);
+                    ftk::gl::OffscreenBufferBinding binding(p.buffers["overlay"]);
                     glViewport(
                         0,
                         0,
@@ -413,7 +413,7 @@ namespace tl
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform(
                         "transform.mvp",
-                        feather_tk::ortho(
+                        ftk::ortho(
                             0.F,
                             static_cast<float>(offscreenBufferSize.w),
                             static_cast<float>(offscreenBufferSize.h),
@@ -423,8 +423,8 @@ namespace tl
 
                     _drawVideo(
                         videoData[0],
-                        feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<feather_tk::ImageOptions>(imageOptions[0]) : nullptr,
+                        ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                        !imageOptions.empty() ? std::make_shared<ftk::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
                         colorBuffer);
 
@@ -436,8 +436,8 @@ namespace tl
                 {
                     glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
-                    const feather_tk::Size2I renderSize = getRenderSize();
-                    const feather_tk::Box2I viewport = getViewport();
+                    const ftk::Size2I renderSize = getRenderSize();
+                    const ftk::Box2I viewport = getViewport();
                     glViewport(
                         viewport.x(),
                         renderSize.h - viewport.h() - viewport.y(),
@@ -445,7 +445,7 @@ namespace tl
                         viewport.h());
 
                     p.shaders["overlay"]->bind();
-                    p.shaders["overlay"]->setUniform("color", feather_tk::Color4F(1.F, 1.F, 1.F, compareOptions.overlay));
+                    p.shaders["overlay"]->setUniform("color", ftk::Color4F(1.F, 1.F, 1.F, compareOptions.overlay));
                     p.shaders["overlay"]->setUniform("textureSampler", 0);
 
                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
@@ -454,7 +454,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            feather_tk::mesh(boxes[0], true),
+                            ftk::mesh(boxes[0], true),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -468,19 +468,19 @@ namespace tl
 
         void Render::_drawVideoDifference(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (!videoData.empty() && !boxes.empty())
             {
-                const feather_tk::Size2I offscreenBufferSize(
+                const ftk::Size2I offscreenBufferSize(
                     boxes[0].w(),
                     boxes[0].h());
-                feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
+                ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
                 offscreenBufferOptions.color = colorBuffer;
                 if (!displayOptions.empty())
                 {
@@ -491,16 +491,16 @@ namespace tl
                     offscreenBufferSize,
                     offscreenBufferOptions))
                 {
-                    p.buffers["difference0"] = feather_tk::gl::OffscreenBuffer::create(
+                    p.buffers["difference0"] = ftk::gl::OffscreenBuffer::create(
                         offscreenBufferSize,
                         offscreenBufferOptions);
                 }
 
                 if (p.buffers["difference0"])
                 {
-                    const feather_tk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                    const ftk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                    feather_tk::gl::OffscreenBufferBinding binding(p.buffers["difference0"]);
+                    ftk::gl::OffscreenBufferBinding binding(p.buffers["difference0"]);
                     glViewport(
                         0,
                         0,
@@ -512,7 +512,7 @@ namespace tl
                     p.shaders["display"]->bind();
                     p.shaders["display"]->setUniform(
                         "transform.mvp",
-                        feather_tk::ortho(
+                        ftk::ortho(
                             0.F,
                             static_cast<float>(offscreenBufferSize.w),
                             static_cast<float>(offscreenBufferSize.h),
@@ -522,8 +522,8 @@ namespace tl
 
                     _drawVideo(
                         videoData[0],
-                        feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                        !imageOptions.empty() ? std::make_shared<feather_tk::ImageOptions>(imageOptions[0]) : nullptr,
+                        ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                        !imageOptions.empty() ? std::make_shared<ftk::ImageOptions>(imageOptions[0]) : nullptr,
                         !displayOptions.empty() ? displayOptions[0] : timeline::DisplayOptions(),
                         colorBuffer);
 
@@ -533,7 +533,7 @@ namespace tl
 
                 if (videoData.size() > 1)
                 {
-                    offscreenBufferOptions = feather_tk::gl::OffscreenBufferOptions();
+                    offscreenBufferOptions = ftk::gl::OffscreenBufferOptions();
                     offscreenBufferOptions.color = colorBuffer;
                     if (displayOptions.size() > 1)
                     {
@@ -544,16 +544,16 @@ namespace tl
                         offscreenBufferSize,
                         offscreenBufferOptions))
                     {
-                        p.buffers["difference1"] = feather_tk::gl::OffscreenBuffer::create(
+                        p.buffers["difference1"] = ftk::gl::OffscreenBuffer::create(
                             offscreenBufferSize,
                             offscreenBufferOptions);
                     }
 
                     if (p.buffers["difference1"])
                     {
-                        const feather_tk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                        const ftk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                        feather_tk::gl::OffscreenBufferBinding binding(p.buffers["difference1"]);
+                        ftk::gl::OffscreenBufferBinding binding(p.buffers["difference1"]);
                         glViewport(
                             0,
                             0,
@@ -565,7 +565,7 @@ namespace tl
                         p.shaders["display"]->bind();
                         p.shaders["display"]->setUniform(
                             "transform.mvp",
-                            feather_tk::ortho(
+                            ftk::ortho(
                                 0.F,
                                 static_cast<float>(offscreenBufferSize.w),
                                 static_cast<float>(offscreenBufferSize.h),
@@ -575,8 +575,8 @@ namespace tl
 
                         _drawVideo(
                             videoData[1],
-                            feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
-                            imageOptions.size() > 1 ? std::make_shared<feather_tk::ImageOptions>(imageOptions[1]) : nullptr,
+                            ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h),
+                            imageOptions.size() > 1 ? std::make_shared<ftk::ImageOptions>(imageOptions[1]) : nullptr,
                             displayOptions.size() > 1 ? displayOptions[1] : timeline::DisplayOptions(),
                             colorBuffer);
                     }
@@ -590,8 +590,8 @@ namespace tl
                 {
                     glBlendFuncSeparate(GL_ONE, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
 
-                    const feather_tk::Size2I renderSize = getRenderSize();
-                    const feather_tk::Box2I viewport = getViewport();
+                    const ftk::Size2I renderSize = getRenderSize();
+                    const ftk::Box2I viewport = getViewport();
                     glViewport(
                         viewport.x(),
                         renderSize.h - viewport.h() - viewport.y(),
@@ -611,7 +611,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            feather_tk::mesh(boxes[0], true),
+                            ftk::mesh(boxes[0], true),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -625,18 +625,18 @@ namespace tl
 
         void Render::_drawVideoTile(
             const std::vector<timeline::VideoData>& videoData,
-            const std::vector<feather_tk::Box2I>& boxes,
-            const std::vector<feather_tk::ImageOptions>& imageOptions,
+            const std::vector<ftk::Box2I>& boxes,
+            const std::vector<ftk::ImageOptions>& imageOptions,
             const std::vector<timeline::DisplayOptions>& displayOptions,
             const timeline::CompareOptions& compareOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
             for (size_t i = 0; i < videoData.size() && i < boxes.size(); ++i)
             {
                 _drawVideo(
                     videoData[i],
                     boxes[i],
-                    i < imageOptions.size() ? std::make_shared<feather_tk::ImageOptions>(imageOptions[i]) : nullptr,
+                    i < imageOptions.size() ? std::make_shared<ftk::ImageOptions>(imageOptions[i]) : nullptr,
                     i < displayOptions.size() ? displayOptions[i] : timeline::DisplayOptions(),
                     colorBuffer);
             }
@@ -676,19 +676,19 @@ namespace tl
 
         void Render::_drawVideo(
             const timeline::VideoData& videoData,
-            const feather_tk::Box2I& box,
-            const std::shared_ptr<feather_tk::ImageOptions>& imageOptions,
+            const ftk::Box2I& box,
+            const std::shared_ptr<ftk::ImageOptions>& imageOptions,
             const timeline::DisplayOptions& displayOptions,
-            feather_tk::ImageType colorBuffer)
+            ftk::ImageType colorBuffer)
         {
-            FEATHER_TK_P();
+            FTK_P();
             
             GLint viewportPrev[4] = { 0, 0, 0, 0 };
             glGetIntegerv(GL_VIEWPORT, viewportPrev);
 
             auto imageShader = p.baseRender->getShader("image");
             imageShader->bind();
-            const auto transform = feather_tk::ortho(
+            const auto transform = ftk::ortho(
                 0.F,
                 static_cast<float>(box.w()),
                 static_cast<float>(box.h()),
@@ -697,8 +697,8 @@ namespace tl
                 1.F);
             imageShader->setUniform("transform.mvp", transform);
 
-            const feather_tk::Size2I& offscreenBufferSize = box.size();
-            feather_tk::gl::OffscreenBufferOptions offscreenBufferOptions;
+            const ftk::Size2I& offscreenBufferSize = box.size();
+            ftk::gl::OffscreenBufferOptions offscreenBufferOptions;
             offscreenBufferOptions.color = colorBuffer;
             offscreenBufferOptions.colorFilters = displayOptions.imageFilters;
             if (doCreate(
@@ -706,16 +706,16 @@ namespace tl
                 offscreenBufferSize,
                 offscreenBufferOptions))
             {
-                p.buffers["video"] = feather_tk::gl::OffscreenBuffer::create(
+                p.buffers["video"] = ftk::gl::OffscreenBuffer::create(
                     offscreenBufferSize,
                     offscreenBufferOptions);
             }
 
             if (p.buffers["video"])
             {
-                const feather_tk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
+                const ftk::gl::SetAndRestore scissorTest(GL_SCISSOR_TEST, GL_FALSE);
 
-                feather_tk::gl::OffscreenBufferBinding binding(p.buffers["video"]);
+                ftk::gl::OffscreenBufferBinding binding(p.buffers["video"]);
                 glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                 glClearColor(0.F, 0.F, 0.F, 0.F);
                 glClear(GL_COLOR_BUFFER_BIT);
@@ -733,7 +733,7 @@ namespace tl
                                     offscreenBufferSize,
                                     offscreenBufferOptions))
                                 {
-                                    p.buffers["dissolve"] = feather_tk::gl::OffscreenBuffer::create(
+                                    p.buffers["dissolve"] = ftk::gl::OffscreenBuffer::create(
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
@@ -742,40 +742,40 @@ namespace tl
                                     offscreenBufferSize,
                                     offscreenBufferOptions))
                                 {
-                                    p.buffers["dissolve2"] = feather_tk::gl::OffscreenBuffer::create(
+                                    p.buffers["dissolve2"] = ftk::gl::OffscreenBuffer::create(
                                         offscreenBufferSize,
                                         offscreenBufferOptions);
                                 }
                                 if (p.buffers["dissolve"])
                                 {
-                                    feather_tk::gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
+                                    ftk::gl::OffscreenBufferBinding binding(p.buffers["dissolve"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                                    dissolveImageOptions.alphaBlend = feather_tk::AlphaBlend::None;
+                                    dissolveImageOptions.alphaBlend = ftk::AlphaBlend::None;
                                     IRender::drawImage(
                                         layer.image,
                                         timeline::getBox(
                                             layer.image->getAspect(),
-                                            feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        feather_tk::Color4F(1.F, 1.F, 1.F),
+                                            ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                        ftk::Color4F(1.F, 1.F, 1.F),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve2"])
                                 {
-                                    feather_tk::gl::OffscreenBufferBinding binding(p.buffers["dissolve2"]);
+                                    ftk::gl::OffscreenBufferBinding binding(p.buffers["dissolve2"]);
                                     glViewport(0, 0, offscreenBufferSize.w, offscreenBufferSize.h);
                                     glClearColor(0.F, 0.F, 0.F, 0.F);
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     auto dissolveImageOptions = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
-                                    dissolveImageOptions.alphaBlend = feather_tk::AlphaBlend::None;
+                                    dissolveImageOptions.alphaBlend = ftk::AlphaBlend::None;
                                     IRender::drawImage(
                                         layer.imageB,
                                         timeline::getBox(
                                             layer.imageB->getAspect(),
-                                            feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                        feather_tk::Color4F(1.F, 1.F, 1.F),
+                                            ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                        ftk::Color4F(1.F, 1.F, 1.F),
                                         dissolveImageOptions);
                                 }
                                 if (p.buffers["dissolve"] && p.buffers["dissolve2"])
@@ -786,7 +786,7 @@ namespace tl
                                     p.shaders["dissolve"]->setUniform("textureSampler", 0);
                                     p.shaders["dissolve"]->setUniform("textureSampler2", 1);
 
-                                    feather_tk::gl::setAlphaBlend(feather_tk::AlphaBlend::Straight);
+                                    ftk::gl::setAlphaBlend(ftk::AlphaBlend::Straight);
 
                                     glActiveTexture(static_cast<GLenum>(GL_TEXTURE0));
                                     glBindTexture(GL_TEXTURE_2D, p.buffers["dissolve"]->getColorID());
@@ -795,7 +795,7 @@ namespace tl
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
-                                            feather_tk::mesh(feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
+                                            ftk::mesh(ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
                                             p.vbos["video"]->getType()));
                                     }
                                     if (p.vaos["video"])
@@ -811,8 +811,8 @@ namespace tl
                                     layer.image,
                                     timeline::getBox(
                                         layer.image->getAspect(),
-                                        feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    feather_tk::Color4F(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
+                                        ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                    ftk::Color4F(1.F, 1.F, 1.F, 1.F - layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptions);
                             }
                             else if (layer.imageB)
@@ -821,8 +821,8 @@ namespace tl
                                     layer.imageB,
                                     timeline::getBox(
                                         layer.imageB->getAspect(),
-                                        feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                    feather_tk::Color4F(1.F, 1.F, 1.F, layer.transitionValue),
+                                        ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                    ftk::Color4F(1.F, 1.F, 1.F, layer.transitionValue),
                                     imageOptions.get() ? *imageOptions : layer.imageOptionsB);
                             }
                             break;
@@ -834,8 +834,8 @@ namespace tl
                                 layer.image,
                                 timeline::getBox(
                                     layer.image->getAspect(),
-                                    feather_tk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
-                                feather_tk::Color4F(1.F, 1.F, 1.F),
+                                    ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
+                                ftk::Color4F(1.F, 1.F, 1.F),
                                 imageOptions.get() ? *imageOptions : layer.imageOptions);
                         }
                         break;
@@ -935,7 +935,7 @@ namespace tl
                 if (p.vbos["video"])
                 {
                     p.vbos["video"]->copy(convert(
-                        feather_tk::mesh(box, true),
+                        ftk::mesh(box, true),
                         p.vbos["video"]->getType()));
                 }
                 if (p.vaos["video"])
@@ -950,17 +950,17 @@ namespace tl
         }
 
         void Render::drawForeground(
-            const std::vector<feather_tk::Box2I>& boxes,
-            const feather_tk::M44F& m,
+            const std::vector<ftk::Box2I>& boxes,
+            const ftk::M44F& m,
             const timeline::ForegroundOptions& options)
         {
             if (options.grid.enabled && !boxes.empty())
             {
-                const feather_tk::V3F v0 = feather_tk::V3F(0.F, 0.F, 0.F) * m;
-                const feather_tk::V3F v1 = feather_tk::V3F(options.grid.size, 0.F, 0.F) * m;
-                if (feather_tk::length(v1 - v0) > options.grid.lineWidth + 10.F)
+                const ftk::V3F v0 = ftk::V3F(0.F, 0.F, 0.F) * m;
+                const ftk::V3F v1 = ftk::V3F(options.grid.size, 0.F, 0.F) * m;
+                if (ftk::length(v1 - v0) > options.grid.lineWidth + 10.F)
                 {
-                    feather_tk::Box2I bounds = boxes.front();
+                    ftk::Box2I bounds = boxes.front();
                     for (size_t i = 1; i < boxes.size(); ++i)
                     {
                         bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
@@ -969,29 +969,29 @@ namespace tl
                         bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
                     }
 
-                    const feather_tk::Size2I& renderSize = getRenderSize();
-                    const feather_tk::Box2F vp(0, 0, renderSize.w, renderSize.h);
-                    std::vector<std::pair<feather_tk::V2F, feather_tk::V2F> > lines;
-                    feather_tk::LineOptions lineOptions;
+                    const ftk::Size2I& renderSize = getRenderSize();
+                    const ftk::Box2F vp(0, 0, renderSize.w, renderSize.h);
+                    std::vector<std::pair<ftk::V2F, ftk::V2F> > lines;
+                    ftk::LineOptions lineOptions;
                     lineOptions.width = options.grid.lineWidth;
                     for (int y = bounds.min.y; y <= bounds.max.y + 1; y += options.grid.size)
                     {
-                        const feather_tk::V3F v0 = feather_tk::V3F(bounds.min.x, y, 0.F) * m;
-                        const feather_tk::V3F v1 = feather_tk::V3F(bounds.max.x + 1, y, 0.F) * m;
-                        const feather_tk::V2F v2(std::round(v0.x), std::round(v0.y));
-                        const feather_tk::V2F v3(std::round(v1.x), std::round(v1.y));
-                        if (feather_tk::intersects(feather_tk::Box2F(v2, v3), vp))
+                        const ftk::V3F v0 = ftk::V3F(bounds.min.x, y, 0.F) * m;
+                        const ftk::V3F v1 = ftk::V3F(bounds.max.x + 1, y, 0.F) * m;
+                        const ftk::V2F v2(std::round(v0.x), std::round(v0.y));
+                        const ftk::V2F v3(std::round(v1.x), std::round(v1.y));
+                        if (ftk::intersects(ftk::Box2F(v2, v3), vp))
                         {
                             lines.push_back(std::make_pair(v2, v3));
                         }
                     }
                     for (int x = bounds.min.x; x <= bounds.max.x + 1; x += options.grid.size)
                     {
-                        const feather_tk::V3F v0 = feather_tk::V3F(x, bounds.min.y, 0.F) * m;
-                        const feather_tk::V3F v1 = feather_tk::V3F(x, bounds.max.y + 1, 0.F) * m;
-                        const feather_tk::V2F v2(std::round(v0.x), std::round(v0.y));
-                        const feather_tk::V2F v3(std::round(v1.x), std::round(v1.y));
-                        if (feather_tk::intersects(feather_tk::Box2F(v2, v3), vp))
+                        const ftk::V3F v0 = ftk::V3F(x, bounds.min.y, 0.F) * m;
+                        const ftk::V3F v1 = ftk::V3F(x, bounds.max.y + 1, 0.F) * m;
+                        const ftk::V2F v2(std::round(v0.x), std::round(v0.y));
+                        const ftk::V2F v3(std::round(v1.x), std::round(v1.y));
+                        if (ftk::intersects(ftk::Box2F(v2, v3), vp))
                         {
                             lines.push_back(std::make_pair(v2, v3));
                         }

@@ -14,7 +14,7 @@ namespace tl
 {
     namespace audio
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             DataType,
             "None",
             "S8",
@@ -151,9 +151,9 @@ namespace tl
                         TI v = 0;
                         for (size_t k = 0; k < inCount; ++k)
                         {
-                            v += feather_tk::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
+                            v += ftk::clamp(static_cast<TI>(inP[k][i * channelCount + j] * volume[j]), min, max);
                         }
-                        outP[j] = feather_tk::clamp(v, min, max);
+                        outP[j] = ftk::clamp(v, min, max);
                     }
                 }
             }

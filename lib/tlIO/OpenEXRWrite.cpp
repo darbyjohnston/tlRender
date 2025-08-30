@@ -17,7 +17,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
 
@@ -45,7 +45,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -55,7 +55,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<feather_tk::Image>& image,
+            const std::shared_ptr<ftk::Image>& image,
             const io::Options&)
         {
             const auto& info = image->getInfo();

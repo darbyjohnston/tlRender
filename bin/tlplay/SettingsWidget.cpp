@@ -14,27 +14,27 @@ namespace tl
     namespace play
     {
         void CacheSettingsWidget::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "CacheSettingsWidget", parent);
 
-            _videoEdit = feather_tk::DoubleEdit::create(context);
+            _videoEdit = ftk::DoubleEdit::create(context);
             _videoEdit->setRange(0.0, 128.0);
             _videoEdit->setStep(1.0);
             _videoEdit->setLargeStep(10.0);
 
-            _audioEdit = feather_tk::DoubleEdit::create(context);
+            _audioEdit = ftk::DoubleEdit::create(context);
             _audioEdit->setRange(0.0, 128.0);
             _audioEdit->setStep(1.0);
             _audioEdit->setLargeStep(10.0);
 
-            _readBehindEdit = feather_tk::DoubleEdit::create(context);
+            _readBehindEdit = ftk::DoubleEdit::create(context);
             _readBehindEdit->setRange(0.0, 2.0);
 
-            _layout = feather_tk::FormLayout::create(context, shared_from_this());
-            _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
+            _layout = ftk::FormLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
             _layout->addRow("Video cache (GB):", _videoEdit);
             _layout->addRow("Audio cache (GB):", _audioEdit);
             _layout->addRow("Read behind (seconds):", _readBehindEdit);
@@ -73,7 +73,7 @@ namespace tl
                     }
                 });
 
-            _cacheObserver = feather_tk::ValueObserver<timeline::PlayerCacheOptions>::create(
+            _cacheObserver = ftk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 app->getSettingsModel()->observeCache(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
@@ -88,7 +88,7 @@ namespace tl
         }
 
         std::shared_ptr<CacheSettingsWidget> CacheSettingsWidget::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -97,28 +97,28 @@ namespace tl
             return out;
         }
 
-        void CacheSettingsWidget::setGeometry(const feather_tk::Box2I& value)
+        void CacheSettingsWidget::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void CacheSettingsWidget::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void CacheSettingsWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());
         }
 
         void SettingsWidget::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "SettingsWidget", parent);
-            _layout = feather_tk::VerticalLayout::create(context, shared_from_this());
-            _layout->setMarginRole(feather_tk::SizeRole::MarginSmall);
-            _layout->setSpacingRole(feather_tk::SizeRole::SpacingSmall);
-            auto groupBox = feather_tk::GroupBox::create(context, "Cache", _layout);
+            _layout = ftk::VerticalLayout::create(context, shared_from_this());
+            _layout->setMarginRole(ftk::SizeRole::MarginSmall);
+            _layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
+            auto groupBox = ftk::GroupBox::create(context, "Cache", _layout);
             CacheSettingsWidget::create(context, app, groupBox);
         }
 
@@ -127,7 +127,7 @@ namespace tl
         }
 
         std::shared_ptr<SettingsWidget> SettingsWidget::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -136,13 +136,13 @@ namespace tl
             return out;
         }
 
-        void SettingsWidget::setGeometry(const feather_tk::Box2I& value)
+        void SettingsWidget::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _layout->setGeometry(value);
         }
 
-        void SettingsWidget::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void SettingsWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_layout->getSizeHint());

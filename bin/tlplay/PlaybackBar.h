@@ -21,15 +21,15 @@ namespace tl
         class App;
 
         //! Playback tool bar.
-        class PlaybackBar : public feather_tk::IWidget
+        class PlaybackBar : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(PlaybackBar);
+            FTK_NON_COPYABLE(PlaybackBar);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<feather_tk::Action> >&,
+                const std::map<std::string, std::shared_ptr<ftk::Action> >&,
                 const std::shared_ptr<IWidget>& parent);
 
             PlaybackBar() = default;
@@ -38,23 +38,23 @@ namespace tl
             ~PlaybackBar();
 
             static std::shared_ptr<PlaybackBar> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
-                const std::map<std::string, std::shared_ptr<feather_tk::Action> >&,
+                const std::map<std::string, std::shared_ptr<ftk::Action> >&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const feather_tk::Box2I&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
 
         private:
             std::shared_ptr<timeline::Player> _player;
-            std::shared_ptr<feather_tk::HorizontalLayout> _layout;
+            std::shared_ptr<ftk::HorizontalLayout> _layout;
             std::shared_ptr<timelineui::TimeEdit> _currentTimeEdit;
             std::shared_ptr<timelineui::TimeLabel> _durationLabel;
-            std::shared_ptr<feather_tk::ComboBox> _timeUnitsComboBox;
-            std::shared_ptr<feather_tk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > _currentTimeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::TimeUnits> > _timeUnitsObserver;
+            std::shared_ptr<ftk::ComboBox> _timeUnitsComboBox;
+            std::shared_ptr<ftk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > _currentTimeObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::TimeUnits> > _timeUnitsObserver;
         };
     }
 }

@@ -18,13 +18,13 @@ namespace tl
         class WindowActions;
 
         //! File tool bar.
-        class FileToolBar : public feather_tk::ToolBar
+        class FileToolBar : public ftk::ToolBar
         {
-            FEATHER_TK_NON_COPYABLE(FileToolBar);
+            FTK_NON_COPYABLE(FileToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -34,19 +34,19 @@ namespace tl
             ~FileToolBar();
 
             static std::shared_ptr<FileToolBar> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Compare tool bar.
-        class CompareToolBar : public feather_tk::ToolBar
+        class CompareToolBar : public ftk::ToolBar
         {
-            FEATHER_TK_NON_COPYABLE(CompareToolBar);
+            FTK_NON_COPYABLE(CompareToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -56,19 +56,19 @@ namespace tl
             ~CompareToolBar();
 
             static std::shared_ptr<CompareToolBar> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! View tool bar.
-        class ViewToolBar : public feather_tk::ToolBar
+        class ViewToolBar : public ftk::ToolBar
         {
-            FEATHER_TK_NON_COPYABLE(ViewToolBar);
+            FTK_NON_COPYABLE(ViewToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -78,19 +78,19 @@ namespace tl
             ~ViewToolBar();
 
             static std::shared_ptr<ViewToolBar> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Window tool bar.
-        class WindowToolBar : public feather_tk::ToolBar
+        class WindowToolBar : public ftk::ToolBar
         {
-            FEATHER_TK_NON_COPYABLE(WindowToolBar);
+            FTK_NON_COPYABLE(WindowToolBar);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -100,19 +100,19 @@ namespace tl
             ~WindowToolBar();
 
             static std::shared_ptr<WindowToolBar> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
         };
 
         //! Tool bars.
-        class ToolBars : public feather_tk::IWidget
+        class ToolBars : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(ToolBars);
+            FTK_NON_COPYABLE(ToolBars);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<ViewActions>&,
@@ -125,18 +125,18 @@ namespace tl
             ~ToolBars();
 
             static std::shared_ptr<ToolBars> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<FileActions>&,
                 const std::shared_ptr<CompareActions>&,
                 const std::shared_ptr<ViewActions>&,
                 const std::shared_ptr<WindowActions>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            void setGeometry(const feather_tk::Box2I&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
 
         private:
-            std::shared_ptr<feather_tk::HorizontalLayout> _layout;
+            std::shared_ptr<ftk::HorizontalLayout> _layout;
         };
     }
 }

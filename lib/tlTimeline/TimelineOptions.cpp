@@ -13,7 +13,7 @@ namespace tl
 {
     namespace timeline
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             ImageSequenceAudio,
             "None",
             "Extension",

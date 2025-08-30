@@ -17,13 +17,13 @@ namespace tl
     namespace timelineui
     {
         //! Timeline viewport.
-        class Viewport : public feather_tk::IWidget
+        class Viewport : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(Viewport);
+            FTK_NON_COPYABLE(Viewport);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<IWidget>& parent);
 
             Viewport();
@@ -33,14 +33,14 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<Viewport> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
             //! Get the comparison options.
             const timeline::CompareOptions& getCompareOptions() const;
 
             //! Observe the comparison options.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::CompareOptions> > observeCompareOptions() const;
 
             //! Set the comparison options.
             void setCompareOptions(const timeline::CompareOptions&);
@@ -49,7 +49,7 @@ namespace tl
             const timeline::OCIOOptions& getOCIOOptions() const;
 
             //! Observe the OpenColorIO options.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::OCIOOptions> > observeOCIOOptions() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::OCIOOptions> > observeOCIOOptions() const;
 
             //! Set the OpenColorIO options.
             void setOCIOOptions(const timeline::OCIOOptions&);
@@ -58,25 +58,25 @@ namespace tl
             const timeline::LUTOptions& getLUTOptions() const;
 
             //! Observe the LUT options.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::LUTOptions> > observeLUTOptions() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::LUTOptions> > observeLUTOptions() const;
 
             //! Set the LUT options.
             void setLUTOptions(const timeline::LUTOptions&);
 
             //! Get the image options.
-            const std::vector<feather_tk::ImageOptions>& getImageOptions() const;
+            const std::vector<ftk::ImageOptions>& getImageOptions() const;
 
             //! Observe the image options.
-            std::shared_ptr<feather_tk::IObservableList<feather_tk::ImageOptions> > observeImageOptions() const;
+            std::shared_ptr<ftk::IObservableList<ftk::ImageOptions> > observeImageOptions() const;
 
             //! Set the image options.
-            void setImageOptions(const std::vector<feather_tk::ImageOptions>&);
+            void setImageOptions(const std::vector<ftk::ImageOptions>&);
 
             //! Get the display options.
             const std::vector<timeline::DisplayOptions>& getDisplayOptions() const;
 
             //! Observe the display options.
-            std::shared_ptr<feather_tk::IObservableList<timeline::DisplayOptions> > observeDisplayOptions() const;
+            std::shared_ptr<ftk::IObservableList<timeline::DisplayOptions> > observeDisplayOptions() const;
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
@@ -85,7 +85,7 @@ namespace tl
             const timeline::BackgroundOptions& getBackgroundOptions() const;
 
             //! Observe the background options.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::BackgroundOptions> > observeBackgroundOptions() const;
 
             //! Set the background options.
             void setBackgroundOptions(const timeline::BackgroundOptions&);
@@ -94,19 +94,19 @@ namespace tl
             const timeline::ForegroundOptions& getForegroundOptions() const;
 
             //! Observe the foreground options.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::ForegroundOptions> > observeForegroundOptions() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::ForegroundOptions> > observeForegroundOptions() const;
 
             //! Set the foreground options.
             void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Get the color buffer type.
-            feather_tk::ImageType getColorBuffer() const;
+            ftk::ImageType getColorBuffer() const;
 
             //! Observe the color buffer type.
-            std::shared_ptr<feather_tk::IObservableValue<feather_tk::ImageType> > observeColorBuffer() const;
+            std::shared_ptr<ftk::IObservableValue<ftk::ImageType> > observeColorBuffer() const;
 
             //! Set the color buffer type.
-            void setColorBuffer(feather_tk::ImageType);
+            void setColorBuffer(ftk::ImageType);
 
             //! Get the timeline player.
             const std::shared_ptr<timeline::Player>& getPlayer() const;
@@ -115,37 +115,37 @@ namespace tl
             virtual void setPlayer(const std::shared_ptr<timeline::Player>&);
 
             //! Get the view position.
-            const feather_tk::V2I& getViewPos() const;
+            const ftk::V2I& getViewPos() const;
 
             //! Observe the view position.
-            std::shared_ptr<feather_tk::IObservableValue<feather_tk::V2I> > observeViewPos() const;
+            std::shared_ptr<ftk::IObservableValue<ftk::V2I> > observeViewPos() const;
 
             //! Get the view zoom.
             double getViewZoom() const;
 
             //! Observe the view zoom.
-            std::shared_ptr<feather_tk::IObservableValue<double> > observeViewZoom() const;
+            std::shared_ptr<ftk::IObservableValue<double> > observeViewZoom() const;
 
             //! Get the view position and zoom.
-            std::pair<feather_tk::V2I, double> getViewPosAndZoom() const;
+            std::pair<ftk::V2I, double> getViewPosAndZoom() const;
 
             //! Observe the view position and zoom.
-            std::shared_ptr<feather_tk::IObservableValue<std::pair<feather_tk::V2I, double> > > observeViewPosAndZoom() const;
+            std::shared_ptr<ftk::IObservableValue<std::pair<ftk::V2I, double> > > observeViewPosAndZoom() const;
 
             //! Set the view position and zoom.
-            void setViewPosAndZoom(const feather_tk::V2I&, double);
+            void setViewPosAndZoom(const ftk::V2I&, double);
 
             //! Set the view zoom.
-            void setViewZoom(double, const feather_tk::V2I& focus = feather_tk::V2I());
+            void setViewZoom(double, const ftk::V2I& focus = ftk::V2I());
 
             //! Get whether the view is framed automatically.
             bool hasFrameView() const;
 
             //! Observe whether the view is framed automatically.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeFrameView() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeFrameView() const;
 
             //! Observe when the view is framed.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeFramed() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeFramed() const;
 
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
@@ -163,47 +163,47 @@ namespace tl
             double getFPS() const;
 
             //! Observe the frames per second.
-            std::shared_ptr<feather_tk::IObservableValue<double> > observeFPS() const;
+            std::shared_ptr<ftk::IObservableValue<double> > observeFPS() const;
 
             //! Get the number of dropped frames during playback.
             size_t getDroppedFrames() const;
 
             //! Observe the number of dropped frames during playback.
-            std::shared_ptr<feather_tk::IObservableValue<size_t> > observeDroppedFrames() const;
+            std::shared_ptr<ftk::IObservableValue<size_t> > observeDroppedFrames() const;
             
             //! Sample a color from the viewport.
-            feather_tk::Color4F getColorSample(const feather_tk::V2I&);
+            ftk::Color4F getColorSample(const ftk::V2I&);
 
             //! Set the pan binding.
-            void setPanBinding(int button, feather_tk::KeyModifier);
+            void setPanBinding(int button, ftk::KeyModifier);
 
             //! Set the wipe binding.
-            void setWipeBinding(int button, feather_tk::KeyModifier);
+            void setWipeBinding(int button, ftk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
 
-            void setGeometry(const feather_tk::Box2I&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void drawEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
-            void mouseMoveEvent(feather_tk::MouseMoveEvent&) override;
-            void mousePressEvent(feather_tk::MouseClickEvent&) override;
-            void mouseReleaseEvent(feather_tk::MouseClickEvent&) override;
-            void scrollEvent(feather_tk::ScrollEvent&) override;
-            void keyPressEvent(feather_tk::KeyEvent&) override;
-            void keyReleaseEvent(feather_tk::KeyEvent&) override;
+            void setGeometry(const ftk::Box2I&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
+            void mouseMoveEvent(ftk::MouseMoveEvent&) override;
+            void mousePressEvent(ftk::MouseClickEvent&) override;
+            void mouseReleaseEvent(ftk::MouseClickEvent&) override;
+            void scrollEvent(ftk::ScrollEvent&) override;
+            void keyPressEvent(ftk::KeyEvent&) override;
+            void keyReleaseEvent(ftk::KeyEvent&) override;
 
         protected:
             void _releaseMouse() override;
 
         private:
-            feather_tk::Size2I _getRenderSize() const;
-            feather_tk::V2I _getViewportCenter() const;
+            ftk::Size2I _getRenderSize() const;
+            ftk::V2I _getViewportCenter() const;
             void _frameView();
 
             void _droppedFramesUpdate(const OTIO_NS::RationalTime&);
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

@@ -24,7 +24,7 @@ project(
 #-------------------------------------------------------------------------------
 # Build options
 
-set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
+set(ftk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 set(TLRENDER_NET OFF CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO ON CACHE BOOL "Enable support for OpenColorIO")
@@ -79,7 +79,7 @@ if(TLRENDER_IGNORE_PREFIX_PATH)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "^Debug$")
-    add_definitions(-DFEATHER_TK_ASSERT)
+    add_definitions(-DFTK_ASSERT)
 endif()
 
 if(TLRENDER_TESTS)

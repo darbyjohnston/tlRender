@@ -13,13 +13,13 @@ namespace tl
     namespace file
     {
         //! File logging system.
-        class FileLogSystem : public feather_tk::ISystem
+        class FileLogSystem : public ftk::ISystem
         {
-            FEATHER_TK_NON_COPYABLE(FileLogSystem);
+            FTK_NON_COPYABLE(FileLogSystem);
 
         protected:
             FileLogSystem(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
 
         public:
@@ -27,11 +27,11 @@ namespace tl
 
             //! Create a new system.
             static std::shared_ptr<FileLogSystem> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

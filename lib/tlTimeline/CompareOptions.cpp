@@ -17,7 +17,7 @@ namespace tl
 {
     namespace timeline
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Compare,
             "A",
             "B",
@@ -28,7 +28,7 @@ namespace tl
             "Vertical",
             "Tile");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             CompareTime,
             "Relative",
             "Absolute");
@@ -47,22 +47,22 @@ namespace tl
             return !(*this == other);
         }
 
-        std::vector<feather_tk::Box2I> getBoxes(Compare compare, const std::vector<feather_tk::ImageInfo>& infos)
+        std::vector<ftk::Box2I> getBoxes(Compare compare, const std::vector<ftk::ImageInfo>& infos)
         {
-            std::vector<feather_tk::Box2I> out;
+            std::vector<ftk::Box2I> out;
             const size_t count = infos.size();
             switch (compare)
             {
             case Compare::Horizontal:
             {
-                feather_tk::ImageInfo info;
+                ftk::ImageInfo info;
                 if (count > 0)
                 {
                     info = infos[0];
                 }
                 if (count > 0)
                 {
-                    out.push_back(feather_tk::Box2I(
+                    out.push_back(ftk::Box2I(
                         0,
                         0,
                         info.size.w * info.pixelAspectRatio,
@@ -70,7 +70,7 @@ namespace tl
                 }
                 if (count > 1)
                 {
-                    out.push_back(feather_tk::Box2I(
+                    out.push_back(ftk::Box2I(
                         info.size.w * info.pixelAspectRatio,
                         0,
                         info.size.w * info.pixelAspectRatio,
@@ -80,14 +80,14 @@ namespace tl
             }
             case Compare::Vertical:
             {
-                feather_tk::ImageInfo info;
+                ftk::ImageInfo info;
                 if (count > 0)
                 {
                     info = infos[0];
                 }
                 if (count > 0)
                 {
-                    out.push_back(feather_tk::Box2I(
+                    out.push_back(ftk::Box2I(
                         0,
                         0,
                         info.size.w * info.pixelAspectRatio,
@@ -95,7 +95,7 @@ namespace tl
                 }
                 if (count > 1)
                 {
-                    out.push_back(feather_tk::Box2I(
+                    out.push_back(ftk::Box2I(
                         0,
                         info.size.h,
                         info.size.w * info.pixelAspectRatio,
@@ -106,11 +106,11 @@ namespace tl
             case Compare::Tile:
                 if (count > 0)
                 {
-                    feather_tk::Size2I tileSize;
+                    ftk::Size2I tileSize;
                     float pixelAspectRatio = 1.F;
                     for (const auto& info : infos)
                     {
-                        if (feather_tk::area(info.size) > feather_tk::area(tileSize))
+                        if (ftk::area(info.size) > ftk::area(tileSize))
                         {
                             tileSize = info.size;
                         }
@@ -141,7 +141,7 @@ namespace tl
                             if (i < count)
                             {
                                 const auto& info = infos[i];
-                                const feather_tk::Box2I box(
+                                const ftk::Box2I box(
                                     x,
                                     y,
                                     tileSize.w * pixelAspectRatio,
@@ -157,7 +157,7 @@ namespace tl
             default:
                 for (size_t i = 0; i < std::min(count, static_cast<size_t>(2)); ++i)
                 {
-                    out.push_back(feather_tk::Box2I(
+                    out.push_back(ftk::Box2I(
                         0,
                         0,
                         infos[0].size.w * infos[0].pixelAspectRatio,
@@ -168,12 +168,12 @@ namespace tl
             return out;
         }
 
-        std::vector<feather_tk::Box2I> getBoxes(Compare compare, const std::vector<VideoData>& videoData)
+        std::vector<ftk::Box2I> getBoxes(Compare compare, const std::vector<VideoData>& videoData)
         {
-            std::vector<feather_tk::ImageInfo> infos;
+            std::vector<ftk::ImageInfo> infos;
             for (const auto& i : videoData)
             {
-                feather_tk::ImageInfo info;
+                ftk::ImageInfo info;
                 for (const auto& layer : i.layers)
                 {
                     if (layer.image)
@@ -192,17 +192,17 @@ namespace tl
             return getBoxes(compare, infos);
         }
 
-        feather_tk::Size2I getRenderSize(Compare compare, const std::vector<feather_tk::ImageInfo>& infos)
+        ftk::Size2I getRenderSize(Compare compare, const std::vector<ftk::ImageInfo>& infos)
         {
-            feather_tk::Size2I out;
-            feather_tk::Box2I box;
+            ftk::Size2I out;
+            ftk::Box2I box;
             const auto boxes = getBoxes(compare, infos);
             if (!boxes.empty())
             {
                 box = boxes[0];
                 for (size_t i = 1; i < boxes.size(); ++i)
                 {
-                    box = feather_tk::expand(box, boxes[i]);
+                    box = ftk::expand(box, boxes[i]);
                 }
                 out.w = box.w();
                 out.h = box.h();
@@ -210,12 +210,12 @@ namespace tl
             return out;
         }
 
-        feather_tk::Size2I getRenderSize(Compare compare, const std::vector<VideoData>& videoData)
+        ftk::Size2I getRenderSize(Compare compare, const std::vector<VideoData>& videoData)
         {
-            std::vector<feather_tk::ImageInfo> infos;
+            std::vector<ftk::ImageInfo> infos;
             for (const auto& i : videoData)
             {
-                feather_tk::ImageInfo info;
+                ftk::ImageInfo info;
                 for (const auto& layer : i.layers)
                 {
                     if (layer.image)

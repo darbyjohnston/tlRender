@@ -106,10 +106,10 @@ namespace tl
             void setPadding(size_t);
 
             //! Get the number sequence.
-            const feather_tk::RangeI& getSequence() const;
+            const ftk::RangeI& getSequence() const;
 
             //! Set the number sequence.
-            void setSequence(const feather_tk::RangeI&);
+            void setSequence(const ftk::RangeI&);
 
             //! Get whether this path is a sequence.
             bool isSequence() const;
@@ -152,7 +152,7 @@ namespace tl
             std::string _number;
             int _numberValue = 0;
             size_t _numberDigits = 0;
-            feather_tk::RangeI _sequence;
+            ftk::RangeI _sequence;
             size_t _padding = 0;
             std::string _extension;
             std::string _request;
@@ -181,7 +181,7 @@ namespace tl
             Count,
             First = Home
         };
-        FEATHER_TK_ENUM(UserPath);
+        FTK_ENUM(UserPath);
 
         //! Get a user path.
         std::string getUserPath(UserPath);

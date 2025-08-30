@@ -205,7 +205,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<feather_tk::FileIO> _file_io;
+                std::shared_ptr<ftk::FileIO> _file_io;
             };
 
             class ZipMemorySequenceData : public RawMemorySequenceData
@@ -240,7 +240,7 @@ namespace tl
                 }
 
             private:
-                std::shared_ptr<feather_tk::FileIO> _file_io;
+                std::shared_ptr<ftk::FileIO> _file_io;
             };
         }
 

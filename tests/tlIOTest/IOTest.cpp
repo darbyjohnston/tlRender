@@ -17,11 +17,11 @@ namespace tl
 {
     namespace io_tests
     {
-        IOTest::IOTest(const std::shared_ptr<feather_tk::Context>& context) :
+        IOTest::IOTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "IOTest::IOTest")
         {}
 
-        std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<IOTest> IOTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<IOTest>(new IOTest(context));
         }
@@ -36,28 +36,28 @@ namespace tl
         {
             {
                 const VideoData v;
-                FEATHER_TK_ASSERT(!time::isValid(v.time));
-                FEATHER_TK_ASSERT(!v.image);
+                FTK_ASSERT(!time::isValid(v.time));
+                FTK_ASSERT(!v.image);
             }
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = feather_tk::Image::create(160, 80, feather_tk::ImageType::L_U8);
+                const auto image = ftk::Image::create(160, 80, ftk::ImageType::L_U8);
                 const VideoData v(time, layer, image);
-                FEATHER_TK_ASSERT(time.strictly_equal(v.time));
-                FEATHER_TK_ASSERT(layer == v.layer);
-                FEATHER_TK_ASSERT(image == v.image);
+                FTK_ASSERT(time.strictly_equal(v.time));
+                FTK_ASSERT(layer == v.layer);
+                FTK_ASSERT(image == v.image);
             }
             {
                 const auto time = OTIO_NS::RationalTime(1.0, 24.0);
                 const uint16_t layer = 1;
-                const auto image = feather_tk::Image::create(16, 16, feather_tk::ImageType::L_U8);
+                const auto image = ftk::Image::create(16, 16, ftk::ImageType::L_U8);
                 const VideoData a(time, layer, image);
                 VideoData b(time, layer, image);
-                FEATHER_TK_ASSERT(a == b);
+                FTK_ASSERT(a == b);
                 b.time = OTIO_NS::RationalTime(2.0, 24.0);
-                FEATHER_TK_ASSERT(a != b);
-                FEATHER_TK_ASSERT(a < b);
+                FTK_ASSERT(a != b);
+                FTK_ASSERT(a < b);
             }
         }
 
@@ -77,11 +77,11 @@ namespace tl
             class DummyWritePlugin : public IWritePlugin
             {
             public:
-                feather_tk::ImageInfo getInfo(
-                    const feather_tk::ImageInfo&,
+                ftk::ImageInfo getInfo(
+                    const ftk::ImageInfo&,
                     const io::Options & = io::Options()) const override
                 {
-                    return feather_tk::ImageInfo();
+                    return ftk::ImageInfo();
                 }
 
                 std::shared_ptr<IWrite> write(
@@ -104,7 +104,7 @@ namespace tl
                     plugins.push_back(plugin->getName());
                 }
                 std::stringstream ss;
-                ss << "Plugins: " << feather_tk::join(plugins, ", ");
+                ss << "Plugins: " << ftk::join(plugins, ", ");
                 _print(ss.str());
             }
             {
@@ -119,10 +119,10 @@ namespace tl
                 }
                 for (const auto& plugin : plugins)
                 {
-                    FEATHER_TK_ASSERT(readSystem->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
+                    FTK_ASSERT(readSystem->getPlugin(file::Path("test" + plugin.first)) == plugin.second);
                 }
-                FEATHER_TK_ASSERT(!readSystem->getPlugin(file::Path()));
-                FEATHER_TK_ASSERT(!readSystem->getPlugin<DummyReadPlugin>());
+                FTK_ASSERT(!readSystem->getPlugin(file::Path()));
+                FTK_ASSERT(!readSystem->getPlugin<DummyReadPlugin>());
             }
             {
                 std::vector<std::string> extensions;
@@ -131,12 +131,12 @@ namespace tl
                     extensions.push_back(extension);
                 }
                 std::stringstream ss;
-                ss << "Extensions: " << feather_tk::join(extensions, ", ");
+                ss << "Extensions: " << ftk::join(extensions, ", ");
                 _print(ss.str());
             }
-            FEATHER_TK_ASSERT(!readSystem->read(file::Path()));
+            FTK_ASSERT(!readSystem->read(file::Path()));
             auto writeSystem = _context->getSystem<WriteSystem>();
-            FEATHER_TK_ASSERT(!writeSystem->write(file::Path(), Info()));
+            FTK_ASSERT(!writeSystem->write(file::Path(), Info()));
         }
     }
 }

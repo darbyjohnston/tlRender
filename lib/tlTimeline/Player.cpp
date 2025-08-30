@@ -30,19 +30,19 @@ namespace tl
             return !(*this == other);
         }
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Playback,
             "Stop",
             "Forward",
             "Reverse");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Loop,
             "Loop",
             "Once",
             "Ping-Pong");
 
-        FEATHER_TK_ENUM_IMPL(TimeAction,
+        FTK_ENUM_IMPL(TimeAction,
             "Start",
             "End",
             "FramePrev",
@@ -57,31 +57,31 @@ namespace tl
             "JumpForward10s");
 
         void Player::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<Timeline>& timeline,
             const PlayerOptions& playerOptions)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             auto logSystem = context->getLogSystem();
             {
                 std::vector<std::string> lines;
                 lines.push_back(std::string());
-                lines.push_back(feather_tk::Format("    Video cache: {0}GB").
+                lines.push_back(ftk::Format("    Video cache: {0}GB").
                     arg(playerOptions.cache.videoGB));
-                lines.push_back(feather_tk::Format("    Audio cache: {0}GB").
+                lines.push_back(ftk::Format("    Audio cache: {0}GB").
                     arg(playerOptions.cache.audioGB));
-                lines.push_back(feather_tk::Format("    Cache read behind: {0}").
+                lines.push_back(ftk::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
-                lines.push_back(feather_tk::Format("    Audio buffer frame count: {0}").
+                lines.push_back(ftk::Format("    Audio buffer frame count: {0}").
                     arg(playerOptions.audioBufferFrameCount));
-                lines.push_back(feather_tk::Format("    Mute timeout: {0}ms").
+                lines.push_back(ftk::Format("    Mute timeout: {0}ms").
                     arg(playerOptions.muteTimeout.count()));
-                lines.push_back(feather_tk::Format("    Sleep timeout: {0}ms").
+                lines.push_back(ftk::Format("    Sleep timeout: {0}ms").
                     arg(playerOptions.sleepTimeout.count()));
                 logSystem->print(
-                    feather_tk::Format("tl::timeline::Player {0}").arg(this),
-                    feather_tk::join(lines, "\n"));
+                    ftk::Format("tl::timeline::Player {0}").arg(this),
+                    ftk::join(lines, "\n"));
             }
 
             p.playerOptions = playerOptions;
@@ -90,31 +90,31 @@ namespace tl
             p.ioInfo = timeline->getIOInfo();
 
             // Create observers.
-            p.speed = feather_tk::ObservableValue<double>::create(p.timeRange.duration().rate());
-            p.playback = feather_tk::ObservableValue<Playback>::create(Playback::Stop);
-            p.loop = feather_tk::ObservableValue<Loop>::create(Loop::Loop);
-            p.currentTime = feather_tk::ObservableValue<OTIO_NS::RationalTime>::create(
+            p.speed = ftk::ObservableValue<double>::create(p.timeRange.duration().rate());
+            p.playback = ftk::ObservableValue<Playback>::create(Playback::Stop);
+            p.loop = ftk::ObservableValue<Loop>::create(Loop::Loop);
+            p.currentTime = ftk::ObservableValue<OTIO_NS::RationalTime>::create(
                 playerOptions.currentTime != time::invalidTime ?
                 playerOptions.currentTime :
                 p.timeRange.start_time());
-            p.seek = feather_tk::ObservableValue<OTIO_NS::RationalTime>::create(p.currentTime->get());
-            p.inOutRange = feather_tk::ObservableValue<OTIO_NS::TimeRange>::create(p.timeRange);
-            p.compare = feather_tk::ObservableList<std::shared_ptr<Timeline> >::create();
-            p.compareTime = feather_tk::ObservableValue<CompareTime>::create(CompareTime::Relative);
-            p.ioOptions = feather_tk::ObservableValue<io::Options>::create();
-            p.videoLayer = feather_tk::ObservableValue<int>::create(0);
-            p.compareVideoLayers = feather_tk::ObservableList<int>::create();
-            p.currentVideoData = feather_tk::ObservableList<VideoData>::create();
-            p.audioDevice = feather_tk::ObservableValue<audio::DeviceID>::create(playerOptions.audioDevice);
-            p.volume = feather_tk::ObservableValue<float>::create(1.F);
-            p.mute = feather_tk::ObservableValue<bool>::create(false);
-            p.channelMute = feather_tk::ObservableList<bool>::create();
-            p.audioOffset = feather_tk::ObservableValue<double>::create(0.0);
-            p.currentAudioData = feather_tk::ObservableList<AudioData>::create();
-            p.cacheOptions = feather_tk::ObservableValue<PlayerCacheOptions>::create(playerOptions.cache);
-            p.cacheInfo = feather_tk::ObservableValue<PlayerCacheInfo>::create();
+            p.seek = ftk::ObservableValue<OTIO_NS::RationalTime>::create(p.currentTime->get());
+            p.inOutRange = ftk::ObservableValue<OTIO_NS::TimeRange>::create(p.timeRange);
+            p.compare = ftk::ObservableList<std::shared_ptr<Timeline> >::create();
+            p.compareTime = ftk::ObservableValue<CompareTime>::create(CompareTime::Relative);
+            p.ioOptions = ftk::ObservableValue<io::Options>::create();
+            p.videoLayer = ftk::ObservableValue<int>::create(0);
+            p.compareVideoLayers = ftk::ObservableList<int>::create();
+            p.currentVideoData = ftk::ObservableList<VideoData>::create();
+            p.audioDevice = ftk::ObservableValue<audio::DeviceID>::create(playerOptions.audioDevice);
+            p.volume = ftk::ObservableValue<float>::create(1.F);
+            p.mute = ftk::ObservableValue<bool>::create(false);
+            p.channelMute = ftk::ObservableList<bool>::create();
+            p.audioOffset = ftk::ObservableValue<double>::create(0.0);
+            p.currentAudioData = ftk::ObservableList<AudioData>::create();
+            p.cacheOptions = ftk::ObservableValue<PlayerCacheOptions>::create(playerOptions.cache);
+            p.cacheInfo = ftk::ObservableValue<PlayerCacheInfo>::create();
             auto weak = std::weak_ptr<Player>(shared_from_this());
-            p.timelineObserver = feather_tk::ValueObserver<bool>::create(
+            p.timelineObserver = ftk::ValueObserver<bool>::create(
                 p.timeline->observeTimelineChanges(),
                 [weak](bool)
                 {
@@ -124,7 +124,7 @@ namespace tl
                     }
                 });
             auto audioSystem = context->getSystem<audio::System>();
-            p.audioDevicesObserver = feather_tk::ListObserver<audio::DeviceInfo>::create(
+            p.audioDevicesObserver = ftk::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [weak](const std::vector<audio::DeviceInfo>&)
                 {
@@ -136,7 +136,7 @@ namespace tl
                         }
                     }
                 });
-            p.defaultAudioDeviceObserver = feather_tk::ValueObserver<audio::DeviceInfo>::create(
+            p.defaultAudioDeviceObserver = ftk::ValueObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDefaultDevice(),
                 [weak](const audio::DeviceInfo&)
                 {
@@ -176,7 +176,7 @@ namespace tl
 
         Player::~Player()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.running = false;
             if (p.thread.thread.joinable())
             {
@@ -198,7 +198,7 @@ namespace tl
         }
 
         std::shared_ptr<Player> Player::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<Timeline>& timeline,
             const PlayerOptions& playerOptions)
         {
@@ -207,7 +207,7 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<feather_tk::Context> Player::getContext() const
+        std::shared_ptr<ftk::Context> Player::getContext() const
         {
             return _p->timeline->getContext();
         }
@@ -257,14 +257,14 @@ namespace tl
             return _p->speed->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<double> > Player::observeSpeed() const
+        std::shared_ptr<ftk::IObservableValue<double> > Player::observeSpeed() const
         {
             return _p->speed;
         }
 
         void Player::setSpeed(double value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.speed->setIfChanged(value))
             {
                 {
@@ -284,14 +284,14 @@ namespace tl
             return _p->playback->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<Playback> > Player::observePlayback() const
+        std::shared_ptr<ftk::IObservableValue<Playback> > Player::observePlayback() const
         {
             return _p->playback;
         }
 
         void Player::setPlayback(Playback value)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             // Update the frame for loop modes.
             switch (p.loop->get())
@@ -398,7 +398,7 @@ namespace tl
             return _p->loop->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<Loop> > Player::observeLoop() const
+        std::shared_ptr<ftk::IObservableValue<Loop> > Player::observeLoop() const
         {
             return _p->loop;
         }
@@ -413,19 +413,19 @@ namespace tl
             return _p->currentTime->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > Player::observeCurrentTime() const
+        std::shared_ptr<ftk::IObservableValue<OTIO_NS::RationalTime> > Player::observeCurrentTime() const
         {
             return _p->currentTime;
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > Player::observeSeek() const
+        std::shared_ptr<ftk::IObservableValue<OTIO_NS::RationalTime> > Player::observeSeek() const
         {
             return _p->seek;
         }
 
         void Player::seek(const OTIO_NS::RationalTime& time)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             // Loop the time.
             const auto tmp = loop(
@@ -454,7 +454,7 @@ namespace tl
 
         void Player::timeAction(TimeAction time)
         {
-            FEATHER_TK_P();
+            FTK_P();
             const auto& currentTime = p.currentTime->get();
             switch (time)
             {
@@ -531,14 +531,14 @@ namespace tl
             return _p->inOutRange->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::TimeRange> > Player::observeInOutRange() const
+        std::shared_ptr<ftk::IObservableValue<OTIO_NS::TimeRange> > Player::observeInOutRange() const
         {
             return _p->inOutRange;
         }
 
         void Player::setInOutRange(const OTIO_NS::TimeRange& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             OTIO_NS::TimeRange tmp(
                 value.start_time().rescaled_to(p.timeRange.duration().rate()).floor(),
                 value.duration().rescaled_to(p.timeRange.duration().rate()).ceil());
@@ -553,7 +553,7 @@ namespace tl
 
         void Player::setInPoint()
         {
-            FEATHER_TK_P();
+            FTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time(
                 p.currentTime->get(),
                 p.inOutRange->get().end_time_exclusive()));
@@ -561,7 +561,7 @@ namespace tl
 
         void Player::resetInPoint()
         {
-            FEATHER_TK_P();
+            FTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time(
                 p.timeRange.start_time(),
                 p.inOutRange->get().end_time_exclusive()));
@@ -569,7 +569,7 @@ namespace tl
 
         void Player::setOutPoint()
         {
-            FEATHER_TK_P();
+            FTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
                 p.currentTime->get()));
@@ -577,7 +577,7 @@ namespace tl
 
         void Player::resetOutPoint()
         {
-            FEATHER_TK_P();
+            FTK_P();
             setInOutRange(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 p.inOutRange->get().start_time(),
                 p.timeRange.end_time_inclusive()));
@@ -588,14 +588,14 @@ namespace tl
             return _p->compare->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableList<std::shared_ptr<Timeline> > > Player::observeCompare() const
+        std::shared_ptr<ftk::IObservableList<std::shared_ptr<Timeline> > > Player::observeCompare() const
         {
             return _p->compare;
         }
 
         void Player::setCompare(const std::vector<std::shared_ptr<Timeline> >& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.compare->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -610,14 +610,14 @@ namespace tl
             return _p->compareTime->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<CompareTime> > Player::observeCompareTime() const
+        std::shared_ptr<ftk::IObservableValue<CompareTime> > Player::observeCompareTime() const
         {
             return _p->compareTime;
         }
 
         void Player::setCompareTime(CompareTime value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.compareTime->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -632,14 +632,14 @@ namespace tl
             return _p->ioOptions->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<io::Options> > Player::observeIOOptions() const
+        std::shared_ptr<ftk::IObservableValue<io::Options> > Player::observeIOOptions() const
         {
             return _p->ioOptions;
         }
 
         void Player::setIOOptions(const io::Options& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.ioOptions->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -654,14 +654,14 @@ namespace tl
             return _p->videoLayer->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<int> > Player::observeVideoLayer() const
+        std::shared_ptr<ftk::IObservableValue<int> > Player::observeVideoLayer() const
         {
             return _p->videoLayer;
         }
 
         void Player::setVideoLayer(int value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.videoLayer->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -676,14 +676,14 @@ namespace tl
             return _p->compareVideoLayers->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableList<int> > Player::observeCompareVideoLayers() const
+        std::shared_ptr<ftk::IObservableList<int> > Player::observeCompareVideoLayers() const
         {
             return _p->compareVideoLayers;
         }
 
         void Player::setCompareVideoLayers(const std::vector<int>& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.compareVideoLayers->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -698,7 +698,7 @@ namespace tl
             return _p->currentVideoData->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableList<VideoData> > Player::observeCurrentVideo() const
+        std::shared_ptr<ftk::IObservableList<VideoData> > Player::observeCurrentVideo() const
         {
             return _p->currentVideoData;
         }
@@ -708,14 +708,14 @@ namespace tl
             return _p->cacheOptions->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<PlayerCacheOptions> > Player::observeCacheOptions() const
+        std::shared_ptr<ftk::IObservableValue<PlayerCacheOptions> > Player::observeCacheOptions() const
         {
             return _p->cacheOptions;
         }
 
         void Player::setCacheOptions(const PlayerCacheOptions& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.cacheOptions->setIfChanged(value))
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);
@@ -723,14 +723,14 @@ namespace tl
             }
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<PlayerCacheInfo> > Player::observeCacheInfo() const
+        std::shared_ptr<ftk::IObservableValue<PlayerCacheInfo> > Player::observeCacheInfo() const
         {
             return _p->cacheInfo;
         }
 
         void Player::clearCache()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.clearRequests = true;
             p.mutex.clearCache = true;
@@ -738,7 +738,7 @@ namespace tl
 
         void Player::tick()
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             // Tick the timeline.
             p.timeline->tick();
@@ -801,7 +801,7 @@ namespace tl
 
         void Player::_thread()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.thread.cacheTimer = std::chrono::steady_clock::now();
             p.thread.logTimer = std::chrono::steady_clock::now();
             while (p.running)
@@ -929,7 +929,7 @@ namespace tl
                 }
 
                 // Sleep for a bit.
-                feather_tk::sleep(p.playerOptions.sleepTimeout, t0, t1);
+                ftk::sleep(p.playerOptions.sleepTimeout, t0, t1);
             }
             p.clearRequests();
         }

@@ -27,7 +27,7 @@ namespace tl
             Count,
             First = A
         };
-        FEATHER_TK_ENUM(Compare);
+        FTK_ENUM(Compare);
 
         //! Comparison time modes.
         enum class CompareTime
@@ -38,13 +38,13 @@ namespace tl
             Count,
             First = Relative
         };
-        FEATHER_TK_ENUM(CompareTime);
+        FTK_ENUM(CompareTime);
 
         //! Comparison options.
         struct CompareOptions
         {
             Compare  compare      = Compare::A;
-            feather_tk::V2F wipeCenter   = feather_tk::V2F(.5F, .5F);
+            ftk::V2F wipeCenter   = ftk::V2F(.5F, .5F);
             float    wipeRotation = 0.F;
             float    overlay      = .5F;
 
@@ -53,16 +53,16 @@ namespace tl
         };
 
         //! Get the boxes for the given compare mode.
-        std::vector<feather_tk::Box2I> getBoxes(Compare, const std::vector<feather_tk::ImageInfo>&);
+        std::vector<ftk::Box2I> getBoxes(Compare, const std::vector<ftk::ImageInfo>&);
 
         //! Get the boxes for the given compare mode.
-        std::vector<feather_tk::Box2I> getBoxes(Compare, const std::vector<VideoData>&);
+        std::vector<ftk::Box2I> getBoxes(Compare, const std::vector<VideoData>&);
 
         //! Get the render size for the given compare mode.
-        feather_tk::Size2I getRenderSize(Compare, const std::vector<feather_tk::ImageInfo>&);
+        ftk::Size2I getRenderSize(Compare, const std::vector<ftk::ImageInfo>&);
 
         //! Get the render size for the given compare mode.
-        feather_tk::Size2I getRenderSize(Compare, const std::vector<VideoData>&);
+        ftk::Size2I getRenderSize(Compare, const std::vector<VideoData>&);
 
         //! Get a compare time.
         OTIO_NS::RationalTime getCompareTime(

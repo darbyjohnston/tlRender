@@ -34,7 +34,7 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(DataType);
+        FTK_ENUM(DataType);
 
         typedef int8_t   S8_T;
         typedef int16_t S16_T;
@@ -42,17 +42,17 @@ namespace tl
         typedef float   F32_T;
         typedef double  F64_T;
 
-        const feather_tk::Range<S8_T> S8Range(
+        const ftk::Range<S8_T> S8Range(
             std::numeric_limits<S8_T>::min(),
             std::numeric_limits<S8_T>::max());
-        const feather_tk::Range<S16_T> S16Range(
+        const ftk::Range<S16_T> S16Range(
             std::numeric_limits<S16_T>::min(),
             std::numeric_limits<S16_T>::max());
-        const feather_tk::Range<S32_T> S32Range(
+        const ftk::Range<S32_T> S32Range(
             std::numeric_limits<S32_T>::min(),
             std::numeric_limits<S32_T>::max());
-        const feather_tk::Range<F32_T> F32Range(-1.F, 1.F);
-        const feather_tk::Range<F64_T> F64Range(-1.F, 1.F);
+        const ftk::Range<F32_T> F32Range(-1.F, 1.F);
+        const ftk::Range<F64_T> F64Range(-1.F, 1.F);
 
         //! Get the byte count for the given data type.
         size_t getByteCount(DataType);
@@ -123,7 +123,7 @@ namespace tl
         //! Audio data.
         class Audio : public std::enable_shared_from_this<Audio>
         {
-            FEATHER_TK_NON_COPYABLE(Audio);
+            FTK_NON_COPYABLE(Audio);
 
         protected:
             void _init(const Info&, size_t sampleCount);

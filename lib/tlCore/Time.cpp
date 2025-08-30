@@ -93,7 +93,7 @@ namespace tl
             list.push_back(std::to_string(prefix));
             list.push_back(std::to_string(count));
             list.push_back(std::to_string(offset));
-            return feather_tk::join(list, ":");
+            return ftk::join(list, ":");
         }
 
         void stringToKeycode(
@@ -104,10 +104,10 @@ namespace tl
             int& count,
             int& offset)
         {
-            const auto pieces = feather_tk::split(string, ':');
+            const auto pieces = ftk::split(string, ':');
             if (pieces.size() != 5)
             {
-                throw feather_tk::ParseError();
+                throw ftk::ParseError();
             }
             id = std::stoi(pieces[0]);
             type = std::stoi(pieces[1]);
@@ -178,11 +178,11 @@ namespace tl
             int minute = 0;
             int second = 0;
             int frame = 0;
-            const auto pieces = feather_tk::split(in, ':');
+            const auto pieces = ftk::split(in, ':');
             size_t i = 0;
             if (pieces.size() != 4)
             {
-                throw feather_tk::ParseError();
+                throw ftk::ParseError();
             }
             hour = std::stoi(pieces[i]); ++i;
             minute = std::stoi(pieces[i]); ++i;
@@ -243,10 +243,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = feather_tk::split(s, '/');
+            auto split = ftk::split(s, '/');
             if (split.size() != 2)
             {
-                throw feather_tk::ParseError();
+                throw ftk::ParseError();
             }
             out = RationalTime(std::stof(split[0]), std::stof(split[1]));
             return is;
@@ -256,10 +256,10 @@ namespace opentime
         {
             std::string s;
             is >> s;
-            auto split = feather_tk::split(s, '/');
+            auto split = ftk::split(s, '/');
             if (split.size() != 3)
             {
-                throw feather_tk::ParseError();
+                throw ftk::ParseError();
             }
             double startTime = 0.0;
             {

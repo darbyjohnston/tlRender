@@ -17,13 +17,13 @@ namespace tl
 {
     namespace timeline
     {
-        void init(const std::shared_ptr<feather_tk::Context>& context)
+        void init(const std::shared_ptr<ftk::Context>& context)
         {
             io::init(context);
             System::create(context);
         }
 
-        System::System(const std::shared_ptr<feather_tk::Context>& context) :
+        System::System(const std::shared_ptr<ftk::Context>& context) :
             ISystem(context, "tl::timeline::System")
         {
             const std::vector<std::pair<std::string, bool> > registerTypes
@@ -55,7 +55,7 @@ namespace tl
             };
             for (const auto& t : registerTypes)
             {
-                _log(feather_tk::Format("Register type {0}: {1}").
+                _log(ftk::Format("Register type {0}: {1}").
                     arg(t.first).
                     arg(t.second));
             }
@@ -64,7 +64,7 @@ namespace tl
         System::~System()
         {}
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<ftk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)

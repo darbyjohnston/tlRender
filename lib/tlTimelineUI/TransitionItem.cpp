@@ -9,7 +9,7 @@ namespace tl
     namespace timelineui
     {
         void TransitionItem::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,
@@ -47,7 +47,7 @@ namespace tl
         {}
 
         std::shared_ptr<TransitionItem> TransitionItem::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Transition>& transition,
             double scale,
             const ItemOptions& options,

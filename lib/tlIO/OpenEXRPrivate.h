@@ -17,23 +17,23 @@ namespace tl
     namespace exr
     {
         //! Read the tags from an Imf header.
-        void readTags(const Imf::Header&, feather_tk::ImageTags&);
+        void readTags(const Imf::Header&, ftk::ImageTags&);
 
         //! Write tags to an Imf header.
         //!
         //! \todo Write all the tags that are handled by readTags().
-        void writeTags(const feather_tk::ImageTags&, double speed, Imf::Header&);
+        void writeTags(const ftk::ImageTags&, double speed, Imf::Header&);
 
         //! Convert to Imf.
         Imf::Compression toImf(Compression);
 
         //! Convert from Imath.
-        feather_tk::Box2I fromImath(const Imath::Box2i&);
+        ftk::Box2I fromImath(const Imath::Box2i&);
 
         //! Input stream.
         class IStream : public Imf::IStream
         {
-            FEATHER_TK_NON_COPYABLE(IStream);
+            FTK_NON_COPYABLE(IStream);
 
         public:
             IStream(const std::string& fileName);
@@ -48,7 +48,7 @@ namespace tl
             void seekg(uint64_t pos) override;
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
    }
 }

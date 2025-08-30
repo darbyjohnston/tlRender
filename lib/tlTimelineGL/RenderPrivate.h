@@ -81,7 +81,7 @@ namespace tl
 
         struct Render::Private
         {
-            std::shared_ptr<feather_tk::gl::Render> baseRender;
+            std::shared_ptr<ftk::gl::Render> baseRender;
 
             timeline::OCIOOptions ocioOptions;
             timeline::LUTOptions lutOptions;
@@ -92,10 +92,10 @@ namespace tl
             std::unique_ptr<OCIOLUTData> lutData;
 #endif // TLRENDER_OCIO
 
-            std::map<std::string, std::shared_ptr<feather_tk::gl::Shader> > shaders;
-            std::map<std::string, std::shared_ptr<feather_tk::gl::OffscreenBuffer> > buffers;
-            std::map<std::string, std::shared_ptr<feather_tk::gl::VBO> > vbos;
-            std::map<std::string, std::shared_ptr<feather_tk::gl::VAO> > vaos;
+            std::map<std::string, std::shared_ptr<ftk::gl::Shader> > shaders;
+            std::map<std::string, std::shared_ptr<ftk::gl::OffscreenBuffer> > buffers;
+            std::map<std::string, std::shared_ptr<ftk::gl::VBO> > vbos;
+            std::map<std::string, std::shared_ptr<ftk::gl::VAO> > vaos;
         };
     }
 }

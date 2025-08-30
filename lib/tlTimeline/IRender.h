@@ -18,7 +18,7 @@ namespace tl
     namespace timeline
     {
         //! Base class for renderers.
-        class IRender : public feather_tk::IRender
+        class IRender : public ftk::IRender
         {
         public:
             virtual ~IRender() = 0;
@@ -31,23 +31,23 @@ namespace tl
 
             //! Draw the background.
             virtual void drawBackground(
-                const std::vector<feather_tk::Box2I>&,
-                const feather_tk::M44F&,
+                const std::vector<ftk::Box2I>&,
+                const ftk::M44F&,
                 const BackgroundOptions&) = 0;
 
             //! Draw timeline video data.
             virtual void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>& = {},
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>& = {},
                 const std::vector<DisplayOptions>& = {},
                 const CompareOptions& = CompareOptions(),
-                feather_tk::ImageType colorBuffer = feather_tk::ImageType::RGBA_U8) = 0;
+                ftk::ImageType colorBuffer = ftk::ImageType::RGBA_U8) = 0;
 
             //! Draw the foreground.
             virtual void drawForeground(
-                const std::vector<feather_tk::Box2I>&,
-                const feather_tk::M44F&,
+                const std::vector<ftk::Box2I>&,
+                const ftk::M44F&,
                 const ForegroundOptions&) = 0;
         };
     }

@@ -14,7 +14,7 @@ namespace tl
 {
     namespace timeline
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             TimeUnits,
             "Frames",
             "Seconds",
@@ -26,11 +26,11 @@ namespace tl
             switch (units)
             {
             case timeline::TimeUnits::Frames:
-                out = feather_tk::Format("{0}").
+                out = ftk::Format("{0}").
                     arg(time::isValid(time) ? time.to_frames() : 0);
                 break;
             case timeline::TimeUnits::Seconds:
-                out = feather_tk::Format("{0}").
+                out = ftk::Format("{0}").
                     arg(time::isValid(time) ? time.to_seconds() : 0.0, 2);
                 break;
             case timeline::TimeUnits::Timecode:
@@ -117,9 +117,9 @@ namespace tl
             return out;
         }
 
-        void ITimeUnitsModel::_init(const std::shared_ptr<feather_tk::Context>& context)
+        void ITimeUnitsModel::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            _timeUnitsChanged = feather_tk::ObservableValue<bool>::create();
+            _timeUnitsChanged = ftk::ObservableValue<bool>::create();
         }
 
         ITimeUnitsModel::ITimeUnitsModel()
@@ -128,21 +128,21 @@ namespace tl
         ITimeUnitsModel::~ITimeUnitsModel()
         {}
 
-        std::shared_ptr<feather_tk::IObservableValue<bool> > ITimeUnitsModel::observeTimeUnitsChanged() const
+        std::shared_ptr<ftk::IObservableValue<bool> > ITimeUnitsModel::observeTimeUnitsChanged() const
         {
             return _timeUnitsChanged;
         }
 
         struct TimeUnitsModel::Private
         {
-            std::shared_ptr<feather_tk::ObservableValue<TimeUnits> > timeUnits;
+            std::shared_ptr<ftk::ObservableValue<TimeUnits> > timeUnits;
         };
 
-        void TimeUnitsModel::_init(const std::shared_ptr<feather_tk::Context>& context)
+        void TimeUnitsModel::_init(const std::shared_ptr<ftk::Context>& context)
         {
-            FEATHER_TK_P();
+            FTK_P();
             ITimeUnitsModel::_init(context);
-            p.timeUnits = feather_tk::ObservableValue<TimeUnits>::create(TimeUnits::Timecode);
+            p.timeUnits = ftk::ObservableValue<TimeUnits>::create(TimeUnits::Timecode);
         }
 
         TimeUnitsModel::TimeUnitsModel() :
@@ -153,7 +153,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeUnitsModel> TimeUnitsModel::create(
-            const std::shared_ptr<feather_tk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context)
         {
             auto out = std::shared_ptr<TimeUnitsModel>(new TimeUnitsModel);
             out->_init(context);
@@ -165,7 +165,7 @@ namespace tl
             return _p->timeUnits->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<TimeUnits> > TimeUnitsModel::observeTimeUnits() const
+        std::shared_ptr<ftk::IObservableValue<TimeUnits> > TimeUnitsModel::observeTimeUnits() const
         {
             return _p->timeUnits;
         }

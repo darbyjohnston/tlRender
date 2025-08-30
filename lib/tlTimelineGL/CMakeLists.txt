@@ -7,9 +7,9 @@ set(SOURCE
     Render.cpp
     RenderPrims.cpp
     RenderVideo.cpp)
-if("${feather_tk_API}" STREQUAL "GL_4_1" OR "${feather_tk_API}" STREQUAL "GL_4_1_Debug")
+if("${ftk_API}" STREQUAL "GL_4_1" OR "${ftk_API}" STREQUAL "GL_4_1_Debug")
     list(APPEND SOURCE RenderShaders_GL_4_1.cpp)
-elseif("${feather_tk_API}" STREQUAL "GLES_2")
+elseif("${ftk_API}" STREQUAL "GLES_2")
     list(APPEND SOURCE RenderShaders_GLES_2.cpp)
 endif()
 

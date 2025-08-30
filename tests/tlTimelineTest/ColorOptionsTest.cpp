@@ -15,11 +15,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        ColorOptionsTest::ColorOptionsTest(const std::shared_ptr<feather_tk::Context>& context) :
+        ColorOptionsTest::ColorOptionsTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "timeline_tests::ColorOptionsTest")
         {}
 
-        std::shared_ptr<ColorOptionsTest> ColorOptionsTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<ColorOptionsTest> ColorOptionsTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<ColorOptionsTest>(new ColorOptionsTest(context));
         }
@@ -33,17 +33,17 @@ namespace tl
                 _enum<LUTOrder>("LUTOrder", getLUTOrderEnums);
             }
             {
-                _print("LUT format names: " + feather_tk::join(getLUTFormatNames(), ", "));
+                _print("LUT format names: " + ftk::join(getLUTFormatNames(), ", "));
             }
             {
-                _print("LUT format extensions: " + feather_tk::join(getLUTFormatExtensions(), ", "));
+                _print("LUT format extensions: " + ftk::join(getLUTFormatExtensions(), ", "));
             }
             {
                 OCIOOptions a;
                 OCIOOptions b;
-                FEATHER_TK_ASSERT(a == b);
+                FTK_ASSERT(a == b);
                 a.fileName = "fileName";
-                FEATHER_TK_ASSERT(a != b);
+                FTK_ASSERT(a != b);
             }
         }
     }

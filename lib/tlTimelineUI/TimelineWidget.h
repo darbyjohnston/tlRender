@@ -14,13 +14,13 @@ namespace tl
         //! 
         //! \tool Adjust the current frame label to stay visible on the right
         //! side of the timeline widget.
-        class TimelineWidget : public feather_tk::IWidget
+        class TimelineWidget : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(TimelineWidget);
+            FTK_NON_COPYABLE(TimelineWidget);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -31,7 +31,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimelineWidget> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -48,7 +48,7 @@ namespace tl
             bool isEditable() const;
 
             //! Observe whether the timeline is editable.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeEditable() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeEditable() const;
 
             //! Set whether the timeline is editable.
             void setEditable(bool);
@@ -64,7 +64,7 @@ namespace tl
             //! Set the view zoom.
             void setViewZoom(
                 double,
-                const feather_tk::V2I& focus);
+                const ftk::V2I& focus);
 
             //! Frame the view.
             void frameView();
@@ -73,7 +73,7 @@ namespace tl
             bool hasFrameView() const;
             
             //! Observe whether the view is framed automatically.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeFrameView() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeFrameView() const;
 
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
@@ -82,7 +82,7 @@ namespace tl
             bool areScrollBarsVisible() const;
 
             //! Observe whether the scroll bars are visible.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeScrollBarsVisible() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeScrollBarsVisible() const;
 
             //! Set whether the scroll bars are visible.
             void setScrollBarsVisible(bool);
@@ -91,13 +91,13 @@ namespace tl
             bool hasAutoScroll() const;
 
             //! Observe whether auto-scroll is enabled.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeAutoScroll() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeAutoScroll() const;
 
             //! Set whether auto-scroll is enabled.
             void setAutoScroll(bool);
 
             //! Set the scroll binding.
-            void setScrollBinding(int button, feather_tk::KeyModifier);
+            void setScrollBinding(int button, ftk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
@@ -111,16 +111,16 @@ namespace tl
             bool hasStopOnScrub() const;
 
             //! Observe whether to stop playback when scrubbing.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeStopOnScrub() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeStopOnScrub() const;
 
             //! Set whether to stop playback when scrubbing.
             void setStopOnScrub(bool);
 
             //! Observe whether scrubbing is in progress.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeScrub() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeScrub() const;
 
             //! Observe time scrubbing.
-            std::shared_ptr<feather_tk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
+            std::shared_ptr<ftk::IObservableValue<OTIO_NS::RationalTime> > observeTimeScrub() const;
 
             ///@}
 
@@ -142,7 +142,7 @@ namespace tl
             const ItemOptions& getItemOptions() const;
 
             //! Observe the item options.
-            std::shared_ptr<feather_tk::IObservableValue<ItemOptions> > observeItemOptions() const;
+            std::shared_ptr<ftk::IObservableValue<ItemOptions> > observeItemOptions() const;
 
             //! Set the item options.
             void setItemOptions(const ItemOptions&);
@@ -151,7 +151,7 @@ namespace tl
             const DisplayOptions& getDisplayOptions() const;
 
             //! Observe the display options.
-            std::shared_ptr<feather_tk::IObservableValue<DisplayOptions> > observeDisplayOptions() const;
+            std::shared_ptr<ftk::IObservableValue<DisplayOptions> > observeDisplayOptions() const;
 
             //! Set the display options.
             void setDisplayOptions(const DisplayOptions&);
@@ -159,20 +159,20 @@ namespace tl
             ///@}
 
             //! Get the track geometry.
-            std::vector<feather_tk::Box2I> getTrackGeom() const;
+            std::vector<ftk::Box2I> getTrackGeom() const;
 
-            void setGeometry(const feather_tk::Box2I&) override;
+            void setGeometry(const ftk::Box2I&) override;
             void tickEvent(
                 bool,
                 bool,
-                const feather_tk::TickEvent&) override;
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void mouseMoveEvent(feather_tk::MouseMoveEvent&) override;
-            void mousePressEvent(feather_tk::MouseClickEvent&) override;
-            void mouseReleaseEvent(feather_tk::MouseClickEvent&) override;
-            void scrollEvent(feather_tk::ScrollEvent&) override;
-            void keyPressEvent(feather_tk::KeyEvent&) override;
-            void keyReleaseEvent(feather_tk::KeyEvent&) override;
+                const ftk::TickEvent&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void mouseMoveEvent(ftk::MouseMoveEvent&) override;
+            void mousePressEvent(ftk::MouseClickEvent&) override;
+            void mouseReleaseEvent(ftk::MouseClickEvent&) override;
+            void scrollEvent(ftk::ScrollEvent&) override;
+            void keyPressEvent(ftk::KeyEvent&) override;
+            void keyReleaseEvent(ftk::KeyEvent&) override;
 
         protected:
             void _releaseMouse() override;
@@ -181,8 +181,8 @@ namespace tl
             void _setViewZoom(
                 double zoomNew,
                 double zoomPrev,
-                const feather_tk::V2I& focus,
-                const feather_tk::V2I& scrollPos);
+                const ftk::V2I& focus,
+                const ftk::V2I& scrollPos);
 
             double _getTimelineScale() const;
             double _getTimelineScaleMax() const;
@@ -201,7 +201,7 @@ namespace tl
             void _scrollUpdate();
             void _timelineUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

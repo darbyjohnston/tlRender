@@ -13,10 +13,10 @@ namespace tl
         class AudioTest : public tests::ITest
         {
         protected:
-            AudioTest(const std::shared_ptr<feather_tk::Context>&);
+            AudioTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<AudioTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<AudioTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
 

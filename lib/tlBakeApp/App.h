@@ -20,7 +20,7 @@
 #include <feather-tk/gl/OffscreenBuffer.h>
 #include <feather-tk/core/IApp.h>
 
-namespace feather_tk
+namespace ftk
 {
     namespace gl
     {
@@ -36,47 +36,47 @@ namespace tl
         //! Application command line.
         struct CmdLine
         {
-            std::shared_ptr<feather_tk::CmdLineValueArg<std::string> > input;
-            std::shared_ptr<feather_tk::CmdLineValueArg<std::string> > output;
-            std::shared_ptr<feather_tk::CmdLineValueOption<OTIO_NS::TimeRange> > inOutRange;
-            std::shared_ptr<feather_tk::CmdLineValueOption<feather_tk::Size2I> > renderSize;
-            std::shared_ptr<feather_tk::CmdLineValueOption<feather_tk::ImageType> > outputPixelType;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioFileName;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioInput;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioDisplay;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioView;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ocioLook;
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > lutFileName;
-            std::shared_ptr<feather_tk::CmdLineValueOption<timeline::LUTOrder> > lutOrder;
-            std::shared_ptr<feather_tk::CmdLineValueOption<double> > sequenceDefaultSpeed;
-            std::shared_ptr<feather_tk::CmdLineValueOption<int> > sequenceThreadCount;
+            std::shared_ptr<ftk::CmdLineValueArg<std::string> > input;
+            std::shared_ptr<ftk::CmdLineValueArg<std::string> > output;
+            std::shared_ptr<ftk::CmdLineValueOption<OTIO_NS::TimeRange> > inOutRange;
+            std::shared_ptr<ftk::CmdLineValueOption<ftk::Size2I> > renderSize;
+            std::shared_ptr<ftk::CmdLineValueOption<ftk::ImageType> > outputPixelType;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ocioFileName;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ocioInput;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ocioDisplay;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ocioView;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ocioLook;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > lutFileName;
+            std::shared_ptr<ftk::CmdLineValueOption<timeline::LUTOrder> > lutOrder;
+            std::shared_ptr<ftk::CmdLineValueOption<double> > sequenceDefaultSpeed;
+            std::shared_ptr<ftk::CmdLineValueOption<int> > sequenceThreadCount;
 #if defined(TLRENDER_EXR)
-            std::shared_ptr<feather_tk::CmdLineValueOption<exr::Compression> > exrCompression;
-            std::shared_ptr<feather_tk::CmdLineValueOption<float> > exrDWACompressionLevel;
+            std::shared_ptr<ftk::CmdLineValueOption<exr::Compression> > exrCompression;
+            std::shared_ptr<ftk::CmdLineValueOption<float> > exrDWACompressionLevel;
 #endif // TLRENDER_EXR
 #if defined(TLRENDER_FFMPEG)
-            std::shared_ptr<feather_tk::CmdLineValueOption<std::string> > ffmpegCodec;
-            std::shared_ptr<feather_tk::CmdLineValueOption<int> > ffmpegThreadCount;
+            std::shared_ptr<ftk::CmdLineValueOption<std::string> > ffmpegCodec;
+            std::shared_ptr<ftk::CmdLineValueOption<int> > ffmpegThreadCount;
 #endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_USD)
-            std::shared_ptr<feather_tk::CmdLineValueOption<int> > usdRenderWidth;
-            std::shared_ptr<feather_tk::CmdLineValueOption<float> > usdComplexity;
-            std::shared_ptr<feather_tk::CmdLineValueOption<usd::DrawMode> > usdDrawMode;
-            std::shared_ptr<feather_tk::CmdLineValueOption<bool> > usdEnableLighting;
-            std::shared_ptr<feather_tk::CmdLineValueOption<bool> > usdSRGB;
-            std::shared_ptr<feather_tk::CmdLineValueOption<size_t> > usdStageCache;
-            std::shared_ptr<feather_tk::CmdLineValueOption<size_t> > usdDiskCache;
+            std::shared_ptr<ftk::CmdLineValueOption<int> > usdRenderWidth;
+            std::shared_ptr<ftk::CmdLineValueOption<float> > usdComplexity;
+            std::shared_ptr<ftk::CmdLineValueOption<usd::DrawMode> > usdDrawMode;
+            std::shared_ptr<ftk::CmdLineValueOption<bool> > usdEnableLighting;
+            std::shared_ptr<ftk::CmdLineValueOption<bool> > usdSRGB;
+            std::shared_ptr<ftk::CmdLineValueOption<size_t> > usdStageCache;
+            std::shared_ptr<ftk::CmdLineValueOption<size_t> > usdDiskCache;
 #endif // TLRENDER_USD
         };
 
         //! Application.
-        class App : public feather_tk::IApp
+        class App : public ftk::IApp
         {
-            FEATHER_TK_NON_COPYABLE(App);
+            FTK_NON_COPYABLE(App);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 std::vector<std::string>&);
             App();
 
@@ -85,7 +85,7 @@ namespace tl
 
             //! Create a new application.
             static std::shared_ptr<App> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 std::vector<std::string>&);
 
             //! Run the application.
@@ -102,20 +102,20 @@ namespace tl
             timeline::LUTOptions _lutOptions;
 
             std::shared_ptr<timeline::Timeline> _timeline;
-            feather_tk::Size2I _renderSize;
-            feather_tk::ImageInfo _outputInfo;
+            ftk::Size2I _renderSize;
+            ftk::ImageInfo _outputInfo;
             OTIO_NS::TimeRange _timeRange = time::invalidTimeRange;
             OTIO_NS::RationalTime _inputTime = time::invalidTime;
             OTIO_NS::RationalTime _outputTime = time::invalidTime;
 
-            std::shared_ptr<feather_tk::gl::Window> _window;
+            std::shared_ptr<ftk::gl::Window> _window;
             std::shared_ptr<io::IPlugin> _usdPlugin;
             std::shared_ptr<timeline::IRender> _render;
-            std::shared_ptr<feather_tk::gl::OffscreenBuffer> _buffer;
+            std::shared_ptr<ftk::gl::OffscreenBuffer> _buffer;
 
             std::shared_ptr<io::IWritePlugin> _writerPlugin;
             std::shared_ptr<io::IWrite> _writer;
-            std::shared_ptr<feather_tk::Image> _outputImage;
+            std::shared_ptr<ftk::Image> _outputImage;
 
             bool _running = true;
             std::chrono::steady_clock::time_point _startTime;

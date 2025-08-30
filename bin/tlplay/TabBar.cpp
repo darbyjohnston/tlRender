@@ -12,13 +12,13 @@ namespace tl
     namespace play
     {
         void TabBar::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "TabBar", parent);
 
-            _tabBar = feather_tk::TabBar::create(context, shared_from_this());
+            _tabBar = ftk::TabBar::create(context, shared_from_this());
             _tabBar->setTabsClosable(true);
 
             std::weak_ptr<App> appWeak(app);
@@ -39,7 +39,7 @@ namespace tl
                     }
                 });
 
-            _playersObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Player> >::create(
+            _playersObserver = ftk::ListObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayers(),
                 [this](const std::vector<std::shared_ptr<timeline::Player> >& value)
                 {
@@ -54,7 +54,7 @@ namespace tl
                     _tabBar->setCurrentTab(index);
                 });
 
-            _playerIndexObserver = feather_tk::ValueObserver<int>::create(
+            _playerIndexObserver = ftk::ValueObserver<int>::create(
                 app->getFilesModel()->observePlayerIndex(),
                 [this](int value)
                 {
@@ -66,7 +66,7 @@ namespace tl
         {}
 
         std::shared_ptr<TabBar> TabBar::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -75,13 +75,13 @@ namespace tl
             return out;
         }
 
-        void TabBar::setGeometry(const feather_tk::Box2I& value)
+        void TabBar::setGeometry(const ftk::Box2I& value)
         {
             IWidget::setGeometry(value);
             _tabBar->setGeometry(value);
         }
 
-        void TabBar::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void TabBar::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
             _setSizeHint(_tabBar->getSizeHint());

@@ -10,7 +10,7 @@ project(tlRender-SuperBuild)
 #-------------------------------------------------------------------------------
 # Build options
 
-set(feather_tk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
+set(ftk_API "GL_4_1" CACHE STRING "Graphics API (GL_4_1, GL_4_1_Debug, GLES_2)")
 
 set(TLRENDER_NET OFF CACHE BOOL "Enable network support")
 set(TLRENDER_OCIO ON CACHE BOOL "Enable support for OpenColorIO")

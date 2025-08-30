@@ -28,8 +28,8 @@ namespace tl
             bool jpegOpen(
                 FILE* f,
                 jpeg_compress_struct* jpeg,
-                const feather_tk::ImageInfo& info,
-                const feather_tk::ImageTags& tags,
+                const ftk::ImageInfo& info,
+                const ftk::ImageTags& tags,
                 int quality,
                 ErrorStruct* error)
             {
@@ -40,12 +40,12 @@ namespace tl
                 jpeg_stdio_dest(jpeg, f);
                 jpeg->image_width = info.size.w;
                 jpeg->image_height = info.size.h;
-                if (feather_tk::ImageType::L_U8 == info.type)
+                if (ftk::ImageType::L_U8 == info.type)
                 {
                     jpeg->input_components = 1;
                     jpeg->in_color_space = JCS_GRAYSCALE;
                 }
-                else if (feather_tk::ImageType::RGB_U8 == info.type)
+                else if (ftk::ImageType::RGB_U8 == info.type)
                 {
                     jpeg->input_components = 3;
                     jpeg->in_color_space = JCS_RGB;
@@ -97,7 +97,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const std::shared_ptr<feather_tk::Image>& image,
+                    const std::shared_ptr<ftk::Image>& image,
                     int quality)
                 {
                     std::memset(&_jpeg.compress, 0, sizeof(jpeg_compress_struct));
@@ -107,10 +107,10 @@ namespace tl
                     _error.pub.emit_message = warningFunc;
                     if (!jpegInit(&_jpeg.compress, &_error))
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 #if defined(_WINDOWS)
-                    if (_wfopen_s(&_f.p, feather_tk::toWide(fileName).c_str(), L"wb") != 0)
+                    if (_wfopen_s(&_f.p, ftk::toWide(fileName).c_str(), L"wb") != 0)
                     {
                         _f.p = nullptr;
                     }
@@ -119,33 +119,33 @@ namespace tl
 #endif // _WINDOWS
                     if (!_f.p)
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
                     const auto& info = image->getInfo();
                     if (!jpegOpen(_f.p, &_jpeg.compress, info, image->getTags(), quality, &_error))
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
 
                     size_t scanlineByteCount = 0;
                     switch (info.type)
                     {
-                    case feather_tk::ImageType::L_U8: scanlineByteCount = info.size.w; break;
-                    case feather_tk::ImageType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
+                    case ftk::ImageType::L_U8: scanlineByteCount = info.size.w; break;
+                    case ftk::ImageType::RGB_U8: scanlineByteCount = static_cast<size_t>(info.size.w) * 3; break;
                     default: break;
                     }
-                    scanlineByteCount = feather_tk::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
+                    scanlineByteCount = ftk::getAlignedByteCount(scanlineByteCount, info.layout.alignment);
                     const uint8_t* imageP = image->getData() + (info.size.h - 1) * scanlineByteCount;
                     for (uint16_t y = 0; y < info.size.h; ++y, imageP -= scanlineByteCount)
                     {
                         if (!jpegScanline(&_jpeg.compress, imageP, &_error))
                         {
-                            throw std::runtime_error(feather_tk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
+                            throw std::runtime_error(ftk::Format("Cannot write scanline: \"{0}\": {1}").arg(fileName).arg(y));
                         }
                     }
                     if (!jpegEnd(&_jpeg.compress, &_error))
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot close: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Cannot close: \"{0}\"").arg(fileName));
                     }
                 }
 
@@ -181,7 +181,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceWrite::_init(path, info, options, logSystem);
 
@@ -203,7 +203,7 @@ namespace tl
             const file::Path& path,
             const io::Info& info,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Write>(new Write);
             out->_init(path, info, options, logSystem);
@@ -213,7 +213,7 @@ namespace tl
         void Write::_writeVideo(
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
-            const std::shared_ptr<feather_tk::Image>& image,
+            const std::shared_ptr<ftk::Image>& image,
             const io::Options&)
         {
             const auto f = File(fileName, image, _quality);

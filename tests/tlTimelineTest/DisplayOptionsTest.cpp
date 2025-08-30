@@ -16,11 +16,11 @@ namespace tl
 {
     namespace timeline_tests
     {
-        DisplayOptionsTest::DisplayOptionsTest(const std::shared_ptr<feather_tk::Context>& context) :
+        DisplayOptionsTest::DisplayOptionsTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "timeline_tests::DisplayOptionsTest")
         {}
 
-        std::shared_ptr<DisplayOptionsTest> DisplayOptionsTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<DisplayOptionsTest> DisplayOptionsTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<DisplayOptionsTest>(new DisplayOptionsTest(context));
         }
@@ -30,43 +30,43 @@ namespace tl
             {
                 Color color;
                 color.enabled = true;
-                FEATHER_TK_ASSERT(color == color);
-                FEATHER_TK_ASSERT(color != Color());
+                FTK_ASSERT(color == color);
+                FTK_ASSERT(color != Color());
             }
             {
                 Color color;
-                color.brightness = feather_tk::V3F(2.F, 1.F, 1.F);
-                color.contrast = feather_tk::V3F(2.F, 1.F, 1.F);
-                color.saturation = feather_tk::V3F(2.F, 1.F, 1.F);
+                color.brightness = ftk::V3F(2.F, 1.F, 1.F);
+                color.contrast = ftk::V3F(2.F, 1.F, 1.F);
+                color.saturation = ftk::V3F(2.F, 1.F, 1.F);
                 color.tint = 2.F;
                 color.invert = true;
-                const feather_tk::V3F v(1.F, 1.F, 1.F);
+                const ftk::V3F v(1.F, 1.F, 1.F);
                 const auto m = timeline::color(color);
-                _print(feather_tk::Format("{0} color: {1}").arg(v).arg(v * m));
+                _print(ftk::Format("{0} color: {1}").arg(v).arg(v * m));
             }
             {
                 Levels levels;
                 levels.enabled = true;
-                FEATHER_TK_ASSERT(levels == levels);
-                FEATHER_TK_ASSERT(levels != Levels());
+                FTK_ASSERT(levels == levels);
+                FTK_ASSERT(levels != Levels());
             }
             {
                 EXRDisplay exrDisplay;
                 exrDisplay.enabled = true;
-                FEATHER_TK_ASSERT(exrDisplay == exrDisplay);
-                FEATHER_TK_ASSERT(exrDisplay != EXRDisplay());
+                FTK_ASSERT(exrDisplay == exrDisplay);
+                FTK_ASSERT(exrDisplay != EXRDisplay());
             }
             {
                 SoftClip softClip;
                 softClip.enabled = true;
-                FEATHER_TK_ASSERT(softClip == softClip);
-                FEATHER_TK_ASSERT(softClip != SoftClip());
+                FTK_ASSERT(softClip == softClip);
+                FTK_ASSERT(softClip != SoftClip());
             }
             {
                 DisplayOptions displayOptions;
-                displayOptions.channels = feather_tk::ChannelDisplay::Red;
-                FEATHER_TK_ASSERT(displayOptions == displayOptions);
-                FEATHER_TK_ASSERT(displayOptions != DisplayOptions());
+                displayOptions.channels = ftk::ChannelDisplay::Red;
+                FTK_ASSERT(displayOptions == displayOptions);
+                FTK_ASSERT(displayOptions != DisplayOptions());
             }
         }
     }

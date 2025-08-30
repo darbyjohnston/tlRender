@@ -16,11 +16,11 @@ namespace tl
         //! Window actions.
         class WindowActions : public std::enable_shared_from_this<WindowActions>
         {
-            FEATHER_TK_NON_COPYABLE(WindowActions);
+            FTK_NON_COPYABLE(WindowActions);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
@@ -30,15 +30,15 @@ namespace tl
             ~WindowActions();
 
             static std::shared_ptr<WindowActions> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& getActions() const;
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
         private:
-            std::map<std::string, std::shared_ptr<feather_tk::Action> > _actions;
-            std::shared_ptr<feather_tk::ValueObserver<bool> > _fullScreenObserver;
+            std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
+            std::shared_ptr<ftk::ValueObserver<bool> > _fullScreenObserver;
         };
     }
 }

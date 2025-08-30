@@ -23,7 +23,7 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(ImageSequenceAudio);
+        FTK_ENUM(ImageSequenceAudio);
 
         //! Timeline options.
         struct Options

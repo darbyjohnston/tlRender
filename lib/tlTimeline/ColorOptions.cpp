@@ -23,7 +23,7 @@ namespace tl
 {
     namespace timeline
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             OCIOConfig,
             "BuiltIn",
             "EnvVar",
@@ -46,7 +46,7 @@ namespace tl
             return !(*this == other);
         }
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             LUTOrder,
             "PostColorConfig",
             "PreColorConfig");

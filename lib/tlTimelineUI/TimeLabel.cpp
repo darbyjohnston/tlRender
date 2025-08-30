@@ -20,38 +20,38 @@ namespace tl
             OTIO_NS::RationalTime value = time::invalidTime;
             std::string text;
             std::string format;
-            feather_tk::SizeRole marginRole = feather_tk::SizeRole::None;
-            feather_tk::FontRole fontRole = feather_tk::FontRole::Label;
+            ftk::SizeRole marginRole = ftk::SizeRole::None;
+            ftk::FontRole fontRole = ftk::FontRole::Label;
 
             struct SizeData
             {
                 std::optional<float> displayScale;
                 int margin = 0;
-                feather_tk::FontInfo fontInfo;
-                feather_tk::FontMetrics fontMetrics;
-                feather_tk::Size2I textSize;
-                feather_tk::Size2I formatSize;
+                ftk::FontInfo fontInfo;
+                ftk::FontMetrics fontMetrics;
+                ftk::Size2I textSize;
+                ftk::Size2I formatSize;
             };
             SizeData size;
 
             struct DrawData
             {
-                std::vector<std::shared_ptr<feather_tk::Glyph> > glyphs;
+                std::vector<std::shared_ptr<ftk::Glyph> > glyphs;
             };
             std::optional<DrawData> draw;
 
-            std::shared_ptr<feather_tk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::TimeUnits> > timeUnitsObserver;
         };
 
         void TimeLabel::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
             IWidget::_init(context, "tl::timelineui::TimeLabel", parent);
-            FEATHER_TK_P();
+            FTK_P();
 
-            setVAlign(feather_tk::VAlign::Center);
+            setVAlign(ftk::VAlign::Center);
 
             p.timeUnitsModel = timeUnitsModel;
             if (!p.timeUnitsModel)
@@ -61,7 +61,7 @@ namespace tl
 
             _textUpdate();
 
-            p.timeUnitsObserver = feather_tk::ValueObserver<timeline::TimeUnits>::create(
+            p.timeUnitsObserver = ftk::ValueObserver<timeline::TimeUnits>::create(
                 p.timeUnitsModel->observeTimeUnits(),
                 [this](timeline::TimeUnits)
                 {
@@ -77,7 +77,7 @@ namespace tl
         {}
 
         std::shared_ptr<TimeLabel> TimeLabel::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::TimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
@@ -98,16 +98,16 @@ namespace tl
 
         void TimeLabel::setValue(const OTIO_NS::RationalTime& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value.strictly_equal(p.value))
                 return;
             p.value = value;
             _textUpdate();
         }
 
-        void TimeLabel::setMarginRole(feather_tk::SizeRole value)
+        void TimeLabel::setMarginRole(ftk::SizeRole value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.marginRole)
                 return;
             p.marginRole = value;
@@ -116,9 +116,9 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimeLabel::setFontRole(feather_tk::FontRole value)
+        void TimeLabel::setFontRole(ftk::FontRole value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.fontRole)
                 return;
             p.fontRole = value;
@@ -127,10 +127,10 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimeLabel::sizeHintEvent(const feather_tk::SizeHintEvent& event)
+        void TimeLabel::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
             IWidget::sizeHintEvent(event);
-            FEATHER_TK_P();
+            FTK_P();
 
             if (!p.size.displayScale.has_value() ||
                 (p.size.displayScale.has_value() && p.size.displayScale.value() != event.displayScale))
@@ -144,7 +144,7 @@ namespace tl
                 p.draw.reset();
             }
 
-            feather_tk::Size2I sizeHint;
+            ftk::Size2I sizeHint;
             sizeHint.w =
                 std::max(p.size.textSize.w, p.size.formatSize.w) +
                 p.size.margin * 2;
@@ -154,10 +154,10 @@ namespace tl
             _setSizeHint(sizeHint);
         }
 
-        void TimeLabel::clipEvent(const feather_tk::Box2I& clipRect, bool clipped)
+        void TimeLabel::clipEvent(const ftk::Box2I& clipRect, bool clipped)
         {
             IWidget::clipEvent(clipRect, clipped);
-            FEATHER_TK_P();
+            FTK_P();
             if (clipped)
             {
                 p.draw.reset();
@@ -165,18 +165,18 @@ namespace tl
         }
 
         void TimeLabel::drawEvent(
-            const feather_tk::Box2I& drawRect,
-            const feather_tk::DrawEvent& event)
+            const ftk::Box2I& drawRect,
+            const ftk::DrawEvent& event)
         {
             IWidget::drawEvent(drawRect, event);
-            FEATHER_TK_P();
+            FTK_P();
 
             if (!p.draw.has_value())
             {
                 p.draw = Private::DrawData();
             }
 
-            const feather_tk::Box2I g = feather_tk::margin(
+            const ftk::Box2I g = ftk::margin(
                 align(
                     getGeometry(),
                     getSizeHint(),
@@ -194,13 +194,13 @@ namespace tl
                 g.min,
                 event.style->getColorRole(
                     isEnabled() ?
-                    feather_tk::ColorRole::Text :
-                    feather_tk::ColorRole::TextDisabled));
+                    ftk::ColorRole::Text :
+                    ftk::ColorRole::TextDisabled));
         }
 
         void TimeLabel::_textUpdate()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.text = std::string();
             p.format = std::string();
             if (p.timeUnitsModel)

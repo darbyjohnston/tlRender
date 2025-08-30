@@ -13,10 +13,10 @@ namespace tl
         class STBTest : public tests::ITest
         {
         protected:
-            STBTest(const std::shared_ptr<feather_tk::Context>&);
+            STBTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<STBTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<STBTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
 

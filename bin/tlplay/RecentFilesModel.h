@@ -12,14 +12,14 @@ namespace tl
     namespace play
     {
         //! Recent files model.
-        class RecentFilesModel : public feather_tk::RecentFilesModel
+        class RecentFilesModel : public ftk::RecentFilesModel
         {
-            FEATHER_TK_NON_COPYABLE(RecentFilesModel);
+            FTK_NON_COPYABLE(RecentFilesModel);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::Settings>&);
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Settings>&);
 
             RecentFilesModel() = default;
 
@@ -28,11 +28,11 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<RecentFilesModel> create(
-                const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::Settings>&);
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Settings>&);
 
         private:
-            std::shared_ptr<feather_tk::Settings> _settings;
+            std::shared_ptr<ftk::Settings> _settings;
         };
     }
 }

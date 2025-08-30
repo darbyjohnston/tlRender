@@ -16,11 +16,11 @@ namespace tl
 {
     namespace core_tests
     {
-        TimeTest::TimeTest(const std::shared_ptr<feather_tk::Context>& context) :
+        TimeTest::TimeTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "core_tests::TimeTest")
         {}
 
-        std::shared_ptr<TimeTest> TimeTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<TimeTest> TimeTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<TimeTest>(new TimeTest(context));
         }
@@ -47,12 +47,12 @@ namespace tl
                 _print(ss.str());
             }
             {
-                FEATHER_TK_ASSERT(!isValid(invalidTime));
-                FEATHER_TK_ASSERT(isValid(OTIO_NS::RationalTime(24.0, 24.0)));
+                FTK_ASSERT(!isValid(invalidTime));
+                FTK_ASSERT(isValid(OTIO_NS::RationalTime(24.0, 24.0)));
             }
             {
-                FEATHER_TK_ASSERT(!isValid(invalidTimeRange));
-                FEATHER_TK_ASSERT(isValid(OTIO_NS::TimeRange(
+                FTK_ASSERT(!isValid(invalidTimeRange));
+                FTK_ASSERT(isValid(OTIO_NS::TimeRange(
                     OTIO_NS::RationalTime(0.0, 24.0),
                     OTIO_NS::RationalTime(24.0, 24.0))));
             }
@@ -60,12 +60,12 @@ namespace tl
                 const OTIO_NS::TimeRange a(
                     OTIO_NS::RationalTime(24.0, 24.0),
                     OTIO_NS::RationalTime(24.0, 24.0));
-                FEATHER_TK_ASSERT(compareExact(a, a));
+                FTK_ASSERT(compareExact(a, a));
                 const OTIO_NS::TimeRange b(
                     OTIO_NS::RationalTime(1.0, 1.0),
                     OTIO_NS::RationalTime(1.0, 1.0));
-                FEATHER_TK_ASSERT(a == b);
-                FEATHER_TK_ASSERT(!compareExact(a, b));
+                FTK_ASSERT(a == b);
+                FTK_ASSERT(!compareExact(a, b));
             }
         }
         
@@ -116,7 +116,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto frames = time::frames(i.range);
-                    FEATHER_TK_ASSERT(frames == i.frames);
+                    FTK_ASSERT(frames == i.frames);
                 }
             }
             {
@@ -216,7 +216,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto seconds = time::seconds(i.range);
-                    FEATHER_TK_ASSERT(seconds == i.seconds);
+                    FTK_ASSERT(seconds == i.seconds);
                 }
             }
             {
@@ -241,7 +241,7 @@ namespace tl
                 for (const auto& i : data)
                 {
                     const auto rational = toRational(i.rate);
-                    FEATHER_TK_ASSERT(
+                    FTK_ASSERT(
                         rational.first == i.rational.first &&
                         rational.second == i.rational.second);
                 }
@@ -258,11 +258,11 @@ namespace tl
                 int count = 0;
                 int offset = 0;
                 stringToKeycode(s, id, type, prefix, count, offset);
-                FEATHER_TK_ASSERT(1 == id);
-                FEATHER_TK_ASSERT(2 == type);
-                FEATHER_TK_ASSERT(3 == prefix);
-                FEATHER_TK_ASSERT(4 == count);
-                FEATHER_TK_ASSERT(5 == offset);
+                FTK_ASSERT(1 == id);
+                FTK_ASSERT(2 == type);
+                FTK_ASSERT(3 == prefix);
+                FTK_ASSERT(4 == count);
+                FTK_ASSERT(5 == offset);
             }
             try
             {
@@ -273,7 +273,7 @@ namespace tl
                 int count = 0;
                 int offset = 0;
                 stringToKeycode(s, id, type, prefix, count, offset);
-                FEATHER_TK_ASSERT(false);
+                FTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -288,23 +288,23 @@ namespace tl
                 int second = 0;
                 int frame = 0;
                 timecodeToTime(t, hour, minute, second, frame);
-                FEATHER_TK_ASSERT(1 == hour);
-                FEATHER_TK_ASSERT(2 == minute);
-                FEATHER_TK_ASSERT(3 == second);
-                FEATHER_TK_ASSERT(4 == frame);
+                FTK_ASSERT(1 == hour);
+                FTK_ASSERT(2 == minute);
+                FTK_ASSERT(3 == second);
+                FTK_ASSERT(4 == frame);
             }
             {
                 const std::string s = "01:02:03:04";
                 uint32_t t = 0;
                 stringToTimecode(s, t);
-                FEATHER_TK_ASSERT(s == timecodeToString(t));
+                FTK_ASSERT(s == timecodeToString(t));
             }
             try
             {
                 const std::string s = "...";
                 uint32_t t = 0;
                 stringToTimecode(s, t);
-                FEATHER_TK_ASSERT(false);
+                FTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -318,7 +318,7 @@ namespace tl
                 to_json(json, t);
                 OTIO_NS::RationalTime t2 = invalidTime;
                 from_json(json, t2);
-                FEATHER_TK_ASSERT(t == t2);
+                FTK_ASSERT(t == t2);
             }
             {
                 const auto t = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
@@ -326,7 +326,7 @@ namespace tl
                 to_json(json, t);
                 OTIO_NS::TimeRange t2 = invalidTimeRange;
                 from_json(json, t2);
-                FEATHER_TK_ASSERT(t == t2);
+                FTK_ASSERT(t == t2);
             }
             {
                 const auto t = OTIO_NS::RationalTime(1.0, 24.0);
@@ -334,14 +334,14 @@ namespace tl
                 ss << t;
                 OTIO_NS::RationalTime t2 = invalidTime;
                 ss >> t2;
-                FEATHER_TK_ASSERT(t == t2);
+                FTK_ASSERT(t == t2);
             }
             try
             {
                 OTIO_NS::RationalTime t = invalidTime;
                 std::stringstream ss("...");
                 ss >> t;
-                FEATHER_TK_ASSERT(false);
+                FTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -351,14 +351,14 @@ namespace tl
                 ss << t;
                 OTIO_NS::TimeRange t2 = invalidTimeRange;
                 ss >> t2;
-                FEATHER_TK_ASSERT(t == t2);
+                FTK_ASSERT(t == t2);
             }
             try
             {
                 OTIO_NS::TimeRange t = invalidTimeRange;
                 std::stringstream ss("...");
                 ss >> t;
-                FEATHER_TK_ASSERT(false);
+                FTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}
@@ -367,7 +367,7 @@ namespace tl
                 OTIO_NS::TimeRange t = invalidTimeRange;
                 std::stringstream ss(".-.");
                 ss >> t;
-                FEATHER_TK_ASSERT(false);
+                FTK_ASSERT(false);
             }
             catch (const std::exception&)
             {}

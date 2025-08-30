@@ -19,13 +19,13 @@ namespace tl
         class SettingsModel;
 
         //! Application.
-        class App : public feather_tk::App
+        class App : public ftk::App
         {
-            FEATHER_TK_NON_COPYABLE(App);
+            FTK_NON_COPYABLE(App);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 std::vector<std::string>&);
 
             App() = default;
@@ -34,7 +34,7 @@ namespace tl
             ~App();
 
             static std::shared_ptr<App> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 std::vector<std::string>&);
 
             const std::shared_ptr<SettingsModel>& getSettingsModel() const;
@@ -54,7 +54,7 @@ namespace tl
         private:
             struct CmdLine
             {
-                std::shared_ptr<feather_tk::CmdLineListArg<std::string> > inputs;
+                std::shared_ptr<ftk::CmdLineListArg<std::string> > inputs;
             };
             CmdLine _cmdLine;
             std::shared_ptr<SettingsModel> _settingsModel;

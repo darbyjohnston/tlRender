@@ -9,14 +9,14 @@ namespace tl
     namespace play
     {
         void SettingsModel::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::filesystem::path& path)
         {
-            _settings = feather_tk::Settings::create(context, path);
+            _settings = ftk::Settings::create(context, path);
 
             timeline::PlayerCacheOptions cache;
             _settings->getT("/Cache", cache);
-            _cache = feather_tk::ObservableValue<timeline::PlayerCacheOptions>::create(cache);
+            _cache = ftk::ObservableValue<timeline::PlayerCacheOptions>::create(cache);
         }
 
         SettingsModel::~SettingsModel()
@@ -25,7 +25,7 @@ namespace tl
         }
 
         std::shared_ptr<SettingsModel> SettingsModel::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::filesystem::path& path)
         {
             auto out = std::shared_ptr<SettingsModel>(new SettingsModel);
@@ -33,7 +33,7 @@ namespace tl
             return out;
         }
 
-        const std::shared_ptr<feather_tk::Settings>& SettingsModel::getSettings() const
+        const std::shared_ptr<ftk::Settings>& SettingsModel::getSettings() const
         {
             return _settings;
         }
@@ -43,7 +43,7 @@ namespace tl
             return _cache->get();
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<timeline::PlayerCacheOptions> > SettingsModel::observeCache() const
+        std::shared_ptr<ftk::IObservableValue<timeline::PlayerCacheOptions> > SettingsModel::observeCache() const
         {
             return _cache;
         }

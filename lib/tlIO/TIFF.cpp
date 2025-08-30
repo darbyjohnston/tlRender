@@ -14,7 +14,7 @@ namespace tl
 {
     namespace tiff
     {
-        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "TIFF",
@@ -31,7 +31,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -47,13 +47,13 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
         }
 
-        void WritePlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void WritePlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IWritePlugin::_init(
                 "TIFF",
@@ -70,33 +70,33 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(logSystem);
             return out;
         }
 
-        feather_tk::ImageInfo WritePlugin::getInfo(
-            const feather_tk::ImageInfo& info,
+        ftk::ImageInfo WritePlugin::getInfo(
+            const ftk::ImageInfo& info,
             const io::Options& options) const
         {
-            feather_tk::ImageInfo out;
+            ftk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case feather_tk::ImageType::L_U8:
-            case feather_tk::ImageType::L_U16:
-            case feather_tk::ImageType::L_F32:
-            case feather_tk::ImageType::LA_U8:
-            case feather_tk::ImageType::LA_U16:
-            case feather_tk::ImageType::LA_F32:
-            case feather_tk::ImageType::RGB_U8:
-            case feather_tk::ImageType::RGB_U16:
-            case feather_tk::ImageType::RGB_F32:
-            case feather_tk::ImageType::RGBA_U8:
-            case feather_tk::ImageType::RGBA_U16:
-            case feather_tk::ImageType::RGBA_F32:
+            case ftk::ImageType::L_U8:
+            case ftk::ImageType::L_U16:
+            case ftk::ImageType::L_F32:
+            case ftk::ImageType::LA_U8:
+            case ftk::ImageType::LA_U16:
+            case ftk::ImageType::LA_F32:
+            case ftk::ImageType::RGB_U8:
+            case ftk::ImageType::RGB_U16:
+            case ftk::ImageType::RGB_F32:
+            case ftk::ImageType::RGBA_U8:
+            case ftk::ImageType::RGBA_U16:
+            case ftk::ImageType::RGBA_F32:
                 out.type = info.type;
                 break;
             default: break;
@@ -111,7 +111,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

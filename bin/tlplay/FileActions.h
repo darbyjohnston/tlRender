@@ -17,11 +17,11 @@ namespace tl
         //! File actions.
         class FileActions : public std::enable_shared_from_this<FileActions>
         {
-            FEATHER_TK_NON_COPYABLE(FileActions);
+            FTK_NON_COPYABLE(FileActions);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&);
 
             FileActions() = default;
@@ -30,15 +30,15 @@ namespace tl
             ~FileActions();
 
             static std::shared_ptr<FileActions> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&);
 
-            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& getActions() const;
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
         private:
-            std::map<std::string, std::shared_ptr<feather_tk::Action> > _actions;
-            std::shared_ptr<feather_tk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
-            std::shared_ptr<feather_tk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
+            std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<timeline::Player> > > _playersObserver;
+            std::shared_ptr<ftk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
         };
     }
 }

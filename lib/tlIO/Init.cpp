@@ -15,10 +15,10 @@ namespace tl
 {
     namespace io
     {
-        void init(const std::shared_ptr<feather_tk::Context>& context)
+        void init(const std::shared_ptr<ftk::Context>& context)
         {
             tl::init(context);
-            feather_tk::gl::init(context);
+            ftk::gl::init(context);
             ReadSystem::create(context);
             WriteSystem::create(context);
         }

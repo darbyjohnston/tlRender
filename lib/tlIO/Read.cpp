@@ -12,9 +12,9 @@ namespace tl
     {
         void IRead::_init(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IIO::_init(path, options, logSystem);
             _memory = memory;
@@ -47,7 +47,7 @@ namespace tl
         void IReadPlugin::_init(
             const std::string& name,
             const std::map<std::string, FileType>& extensions,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IPlugin::_init(name, extensions, logSystem);
         }

@@ -16,7 +16,7 @@ namespace tl
 {
     namespace file
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Type,
             "File",
             "Directory");
@@ -40,10 +40,10 @@ namespace tl
                  _path.getNumber().size() == value._path.getPadding()))
             {
                 _path.setPadding(std::max(_path.getPadding(), value._path.getPadding()));
-                feather_tk::RangeI sequence = _path.getSequence();
-                const feather_tk::RangeI& otherSequence = value._path.getSequence();
-                sequence = feather_tk::expand(sequence, otherSequence.min());
-                sequence = feather_tk::expand(sequence, otherSequence.max());
+                ftk::RangeI sequence = _path.getSequence();
+                const ftk::RangeI& otherSequence = value._path.getSequence();
+                sequence = ftk::expand(sequence, otherSequence.min());
+                sequence = ftk::expand(sequence, otherSequence.max());
                 _path.setSequence(sequence);
                 _size += value._size;
                 _permissions = std::min(_permissions, value._permissions);
@@ -51,7 +51,7 @@ namespace tl
             }
         }
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             ListSort,
             "Name",
             "Extension",
@@ -110,10 +110,10 @@ namespace tl
                 {
                     const size_t size = extension.size();
                     if (size < fileNameSize &&
-                        feather_tk::compare(
+                        ftk::compare(
                             fileName.substr(fileNameSize - size, size),
                             extension,
-                            feather_tk::CaseCompare::Insensitive))
+                            ftk::CaseCompare::Insensitive))
                     {
                         match = true;
                     }
@@ -151,10 +151,10 @@ namespace tl
                         options.sequenceExtensions.end(),
                         [extension](const std::string& value)
                         {
-                            return feather_tk::compare(
+                            return ftk::compare(
                                 value,
                                 extension,
-                                feather_tk::CaseCompare::Insensitive);
+                                ftk::CaseCompare::Insensitive);
                         }) != options.sequenceExtensions.end();
                 }
                 if (sequenceExtension)

@@ -15,7 +15,7 @@ namespace tl
 {
     namespace ppm
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Data,
             "ASCII",
             "Binary");
@@ -39,15 +39,15 @@ namespace tl
         {
             template<typename T>
             void _readASCII(
-                const std::shared_ptr<feather_tk::FileIO>& io,
+                const std::shared_ptr<ftk::FileIO>& io,
                 uint8_t* out,
                 size_t                               size)
             {
-                char tmp[feather_tk::cStringSize] = "";
+                char tmp[ftk::cStringSize] = "";
                 T* outP = reinterpret_cast<T*>(out);
                 for (int i = 0; i < size; ++i)
                 {
-                    feather_tk::readWord(io, tmp, feather_tk::cStringSize);
+                    ftk::readWord(io, tmp, ftk::cStringSize);
                     const int value = std::atoi(tmp);
                     outP[i] = value;
                 }
@@ -56,7 +56,7 @@ namespace tl
         } // namespace
 
         void readASCII(
-            const std::shared_ptr<feather_tk::FileIO>& io,
+            const std::shared_ptr<ftk::FileIO>& io,
             uint8_t* out,
             size_t                               size,
             size_t                               bitDepth)
@@ -114,7 +114,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(
@@ -133,7 +133,7 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
@@ -143,7 +143,7 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(
@@ -153,18 +153,18 @@ namespace tl
             return out;
         }
 
-        feather_tk::ImageInfo WritePlugin::getInfo(
-            const feather_tk::ImageInfo& info,
+        ftk::ImageInfo WritePlugin::getInfo(
+            const ftk::ImageInfo& info,
             const io::Options& options) const
         {
-            feather_tk::ImageInfo out;
+            ftk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case feather_tk::ImageType::L_U8:
-            case feather_tk::ImageType::L_U16:
-            case feather_tk::ImageType::RGB_U8:
-            case feather_tk::ImageType::RGB_U16:
+            case ftk::ImageType::L_U8:
+            case ftk::ImageType::L_U16:
+            case ftk::ImageType::RGB_U8:
+            case ftk::ImageType::RGB_U16:
                 out.type = info.type;
                 break;
             default: break;
@@ -176,7 +176,7 @@ namespace tl
                 std::stringstream ss(option->second);
                 ss >> data;
             }
-            out.layout.endian = Data::Binary == data ? feather_tk::Endian::MSB : feather_tk::getEndian();
+            out.layout.endian = Data::Binary == data ? ftk::Endian::MSB : ftk::getEndian();
             return out;
         }
 
@@ -186,7 +186,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

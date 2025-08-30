@@ -26,8 +26,8 @@ namespace tl
             timeline::Options options;
             std::shared_ptr<timeline::ITimeUnitsModel> timeUnitsModel;
             std::map<std::string, std::shared_ptr<io::Info> > info;
-            std::map<std::string, std::shared_ptr<feather_tk::Image> > thumbnails;
-            std::map<std::string, std::shared_ptr<feather_tk::TriMesh2F> > waveforms;
+            std::map<std::string, std::shared_ptr<ftk::Image> > thumbnails;
+            std::map<std::string, std::shared_ptr<ftk::TriMesh2F> > waveforms;
         };
 
         //! In/out points display options.
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = InsideRange
         };
-        FEATHER_TK_ENUM(InOutDisplay);
+        FTK_ENUM(InOutDisplay);
         
         //! Cache display options.
         enum class CacheDisplay
@@ -50,7 +50,7 @@ namespace tl
             Count,
             First = VideoAndAudio
         };
-        FEATHER_TK_ENUM(CacheDisplay);
+        FTK_ENUM(CacheDisplay);
 
         //! Waveform primitive type.
         enum class WaveformPrim
@@ -61,7 +61,7 @@ namespace tl
             Count,
             First = Mesh
         };
-        FEATHER_TK_ENUM(WaveformPrim);
+        FTK_ENUM(WaveformPrim);
 
         //! Item options.
         struct ItemOptions
@@ -103,7 +103,7 @@ namespace tl
         struct Marker
         {
             std::string name;
-            feather_tk::Color4F color;
+            ftk::Color4F color;
             OTIO_NS::TimeRange range;
         };
 
@@ -111,10 +111,10 @@ namespace tl
         std::vector<Marker> getMarkers(const OTIO_NS::Item*);
 
         //! Convert a named marker color.
-        feather_tk::Color4F getMarkerColor(const std::string&);
+        ftk::Color4F getMarkerColor(const std::string&);
 
         //! Drag and drop data.
-        class DragAndDropData : public feather_tk::DragAndDropData
+        class DragAndDropData : public ftk::DragAndDropData
         {
         public:
             DragAndDropData(const std::shared_ptr<IItem>&);
@@ -128,11 +128,11 @@ namespace tl
         };
 
         //! Base class for items.
-        class IItem : public feather_tk::IWidget
+        class IItem : public ftk::IWidget
         {
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::string& objectName,
                 const OTIO_NS::TimeRange& timeRange,
                 const OTIO_NS::TimeRange& availableRange,
@@ -141,7 +141,7 @@ namespace tl
                 const ItemOptions&,
                 const DisplayOptions&,
                 const std::shared_ptr<ItemData>&,
-                const std::shared_ptr<feather_tk::IWidget>& parent = nullptr);
+                const std::shared_ptr<ftk::IWidget>& parent = nullptr);
 
             IItem();
 
@@ -161,10 +161,10 @@ namespace tl
             virtual void setDisplayOptions(const DisplayOptions&);
 
             //! Get the selection color role.
-            feather_tk::ColorRole getSelectRole() const;
+            ftk::ColorRole getSelectRole() const;
 
             //! Set the selection color role.
-            void setSelectRole(feather_tk::ColorRole);
+            void setSelectRole(ftk::ColorRole);
 
             //! Convert a position to a time.
             OTIO_NS::RationalTime posToTime(float) const;
@@ -173,8 +173,8 @@ namespace tl
             int timeToPos(const OTIO_NS::RationalTime&) const;
 
         protected:
-            static feather_tk::Box2I _getClipRect(
-                const feather_tk::Box2I&,
+            static ftk::Box2I _getClipRect(
+                const ftk::Box2I&,
                 double scale);
 
             std::string _getDurationLabel(const OTIO_NS::RationalTime&);
@@ -190,7 +190,7 @@ namespace tl
             std::shared_ptr<ItemData> _data;
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
 
         //! \name Serialize

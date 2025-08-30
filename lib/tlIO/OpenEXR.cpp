@@ -23,7 +23,7 @@ namespace tl
 {
     namespace exr
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Compression,
             "None",
             "RLE",
@@ -68,7 +68,7 @@ namespace tl
                 std::list<std::string>::iterator out = list.end();
                 for (auto i = list.begin(); i != list.end(); ++i)
                 {
-                    const std::string s = feather_tk::toLower(*i);
+                    const std::string s = ftk::toLower(*i);
                     const size_t size = s.size();
                     if (1 == size && s[0] == c)
                     {
@@ -185,10 +185,10 @@ namespace tl
                 {
                     for (size_t i = 0; i < 4; ++i)
                     {
-                        s.push_back(feather_tk::Format("{0}").arg(value.x[j][i]));
+                        s.push_back(ftk::Format("{0}").arg(value.x[j][i]));
                     }
                 }
-                return feather_tk::join(s, ' ');
+                return ftk::join(s, ' ');
             }
 
             template<>
@@ -259,7 +259,7 @@ namespace tl
             template<>
             std::string serialize(const Imf::KeyCode& value)
             {
-                return feather_tk::Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}").
+                return ftk::Format("{0}:{1}:{2}:{3}:{4}:{5}:{6}").
                     arg(value.filmMfcCode()).
                     arg(value.filmType()).
                     arg(value.prefix()).
@@ -272,10 +272,10 @@ namespace tl
             template<>
             void deserialize(const std::string& s, Imf::KeyCode& value)
             {
-                auto split = feather_tk::split(s, ':');
+                auto split = ftk::split(s, ':');
                 if (split.size() != 7)
                 {
-                    throw feather_tk::ParseError();
+                    throw ftk::ParseError();
                 }
                 value.setFilmMfcCode(std::atoi(split[0].c_str()));
                 value.setFilmType(std::atoi(split[1].c_str()));
@@ -289,7 +289,7 @@ namespace tl
             template<>
             std::string serialize(const Imf::TimeCode& value)
             {
-                return feather_tk::Format("{0}:{1}:{2}:{3}").
+                return ftk::Format("{0}:{1}:{2}:{3}").
                     arg(value.hours(), 2, '0').
                     arg(value.minutes(), 2, '0').
                     arg(value.seconds(), 2, '0').
@@ -299,10 +299,10 @@ namespace tl
             template<>
             void deserialize(const std::string& s, Imf::TimeCode& value)
             {
-                auto split = feather_tk::split(s, ':');
+                auto split = ftk::split(s, ':');
                 if (split.size() != 4)
                 {
-                    throw feather_tk::ParseError();
+                    throw ftk::ParseError();
                 }
                 value.setHours(std::atoi(split[0].c_str()));
                 value.setMinutes(std::atoi(split[1].c_str()));
@@ -333,7 +333,7 @@ namespace tl
                 std::stringstream ss;
                 for (const auto& i : value)
                 {
-                    ss << std::string(feather_tk::Format("{0}:{1}").arg(i.size()).arg(i));
+                    ss << std::string(ftk::Format("{0}:{1}").arg(i.size()).arg(i));
                 }
                 return ss.str();
             }
@@ -344,14 +344,14 @@ namespace tl
                 std::string tmp = s;
                 while (!tmp.empty())
                 {
-                    auto split = feather_tk::split(tmp, ':');
+                    auto split = ftk::split(tmp, ':');
                     if (split.size() < 2)
                     {
-                        throw feather_tk::ParseError();
+                        throw ftk::ParseError();
                     }
                     int size = std::atoi(split[0].c_str());
                     split.erase(split.begin());
-                    tmp = feather_tk::join(split, ':');
+                    tmp = ftk::join(split, ':');
                     value.push_back(tmp.substr(0, size));
                     tmp.erase(0, size);
                 }
@@ -393,7 +393,7 @@ namespace tl
 
         } // namespace
 
-        void readTags(const Imf::Header& header, feather_tk::ImageTags& tags)
+        void readTags(const Imf::Header& header, ftk::ImageTags& tags)
         {
             // Predefined attributes.
             tags["Display Window"] = serialize(header.displayWindow());
@@ -407,7 +407,7 @@ namespace tl
                 {
                     values.push_back(i.name());
                 }
-                tags["Channels"] = feather_tk::join(values, " ");
+                tags["Channels"] = ftk::join(values, " ");
             }
             tags["Line Order"] = serialize(header.lineOrder());
             tags["Compression"] = serialize(header.compression());
@@ -494,7 +494,7 @@ namespace tl
             TLRENDER_SERIALIZE_STD_ATTR(XDensity, xDensity);
         }
 
-        void writeTags(const feather_tk::ImageTags& tags, double speed, Imf::Header& header)
+        void writeTags(const ftk::ImageTags& tags, double speed, Imf::Header& header)
         {
             // Standard attributes.
             TLRENDER_DESERIALIZE_STD_ATTR(AdoptedNeutral, Imath::V2f);
@@ -574,12 +574,12 @@ namespace tl
             return data[static_cast<size_t>(value)];
         }
 
-        feather_tk::Box2I fromImath(const Imath::Box2i& value)
+        ftk::Box2I fromImath(const Imath::Box2i& value)
         {
-            return feather_tk::Box2I(feather_tk::V2I(value.min.x, value.min.y), feather_tk::V2I(value.max.x, value.max.y));
+            return ftk::Box2I(ftk::V2I(value.min.x, value.min.y), ftk::V2I(value.max.x, value.max.y));
         }
 
-        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "OpenEXR",
@@ -593,7 +593,7 @@ namespace tl
         {}
             
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -609,14 +609,14 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
         }
 
         void WritePlugin::_init(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IWritePlugin::_init(
                 "OpenEXR",
@@ -630,22 +630,22 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(logSystem);
             return out;
         }
 
-        feather_tk::ImageInfo WritePlugin::getInfo(
-            const feather_tk::ImageInfo& info,
+        ftk::ImageInfo WritePlugin::getInfo(
+            const ftk::ImageInfo& info,
             const io::Options& options) const
         {
-            feather_tk::ImageInfo out;
+            ftk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case feather_tk::ImageType::RGBA_F16:
+            case ftk::ImageType::RGBA_F16:
                 out.type = info.type;
                 break;
             default: break;
@@ -660,7 +660,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

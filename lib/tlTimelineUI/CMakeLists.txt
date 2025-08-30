@@ -33,7 +33,7 @@ set(SOURCE
     Window.cpp)
 
 add_library(tlTimelineUI ${HEADERS} ${HEADERS_PRIVATE} ${SOURCE})
-target_link_libraries(tlTimelineUI PUBLIC tlTimelineGL feather-tk::feather-tk-ui)
+target_link_libraries(tlTimelineUI PUBLIC tlTimelineGL ftk::feather-tk-ui)
 set_target_properties(tlTimelineUI PROPERTIES FOLDER lib)
 set_target_properties(tlTimelineUI PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

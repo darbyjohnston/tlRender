@@ -13,10 +13,10 @@ namespace tl
         class JPEGTest : public tests::ITest
         {
         protected:
-            JPEGTest(const std::shared_ptr<feather_tk::Context>&);
+            JPEGTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<JPEGTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<JPEGTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
         };

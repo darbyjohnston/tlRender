@@ -18,11 +18,11 @@ namespace tl
         //! Video layer.
         struct VideoLayer
         {
-            std::shared_ptr<feather_tk::Image> image;
-            feather_tk::ImageOptions imageOptions;
+            std::shared_ptr<ftk::Image> image;
+            ftk::ImageOptions imageOptions;
 
-            std::shared_ptr<feather_tk::Image> imageB;
-            feather_tk::ImageOptions imageOptionsB;
+            std::shared_ptr<ftk::Image> imageB;
+            ftk::ImageOptions imageOptionsB;
 
             Transition transition = Transition::None;
             float transitionValue = 0.F;
@@ -34,7 +34,7 @@ namespace tl
         //! Video data.
         struct VideoData
         {
-            feather_tk::Size2I size;
+            ftk::Size2I size;
             OTIO_NS::RationalTime time = time::invalidTime;
             std::vector<VideoLayer> layers;
 

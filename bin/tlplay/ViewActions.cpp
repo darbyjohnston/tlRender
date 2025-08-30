@@ -14,15 +14,15 @@ namespace tl
     namespace play
     {
         void ViewActions::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
             auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
-            _actions["Frame"] = feather_tk::Action::create(
+            _actions["Frame"] = ftk::Action::create(
                 "Frame",
                 "ViewFrame",
-                feather_tk::Key::Backspace,
+                ftk::Key::Backspace,
                 0,
                 [mainWindowWeak](bool value)
                 {
@@ -33,10 +33,10 @@ namespace tl
                 });
             _actions["Frame"]->setTooltip("Toggle whether the view is automatically framed.");
 
-            _actions["ZoomReset"] = feather_tk::Action::create(
+            _actions["ZoomReset"] = ftk::Action::create(
                 "Zoom Reset",
                 "ViewZoomReset",
-                feather_tk::Key::_0,
+                ftk::Key::_0,
                 0,
                 [mainWindowWeak]
                 {
@@ -47,10 +47,10 @@ namespace tl
                 });
             _actions["ZoomReset"]->setTooltip("Reset the view zoom to 1:1.");
 
-            _actions["ZoomIn"] = feather_tk::Action::create(
+            _actions["ZoomIn"] = ftk::Action::create(
                 "Zoom In",
                 "ViewZoomIn",
-                feather_tk::Key::Equals,
+                ftk::Key::Equals,
                 0,
                 [mainWindowWeak]
                 {
@@ -61,10 +61,10 @@ namespace tl
                 });
             _actions["ZoomIn"]->setTooltip("Zoom the view in.");
 
-            _actions["ZoomOut"] = feather_tk::Action::create(
+            _actions["ZoomOut"] = ftk::Action::create(
                 "Zoom Out",
                 "ViewZoomOut",
-                feather_tk::Key::Minus,
+                ftk::Key::Minus,
                 0,
                 [mainWindowWeak]
                 {
@@ -75,7 +75,7 @@ namespace tl
                 });
             _actions["ZoomOut"]->setTooltip("Zoom the view out.");
 
-            _frameObserver = feather_tk::ValueObserver<bool>::create(
+            _frameObserver = ftk::ValueObserver<bool>::create(
                 mainWindow->getViewport()->observeFrameView(),
                 [this](bool value)
                 {
@@ -88,7 +88,7 @@ namespace tl
         }
 
         std::shared_ptr<ViewActions> ViewActions::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
             const std::shared_ptr<MainWindow>& mainWindow)
         {
@@ -97,7 +97,7 @@ namespace tl
             return out;
         }
 
-        const std::map<std::string, std::shared_ptr<feather_tk::Action> >& ViewActions::getActions() const
+        const std::map<std::string, std::shared_ptr<ftk::Action> >& ViewActions::getActions() const
         {
             return _actions;
         }

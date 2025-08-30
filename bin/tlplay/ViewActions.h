@@ -16,11 +16,11 @@ namespace tl
         //! View actions.
         class ViewActions : public std::enable_shared_from_this<ViewActions>
         {
-            FEATHER_TK_NON_COPYABLE(ViewActions);
+            FTK_NON_COPYABLE(ViewActions);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
@@ -30,15 +30,15 @@ namespace tl
             ~ViewActions();
 
             static std::shared_ptr<ViewActions> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<App>&,
                 const std::shared_ptr<MainWindow>&);
 
-            const std::map<std::string, std::shared_ptr<feather_tk::Action> >& getActions() const;
+            const std::map<std::string, std::shared_ptr<ftk::Action> >& getActions() const;
 
         private:
-            std::map<std::string, std::shared_ptr<feather_tk::Action> > _actions;
-            std::shared_ptr<feather_tk::ValueObserver<bool> > _frameObserver;
+            std::map<std::string, std::shared_ptr<ftk::Action> > _actions;
+            std::shared_ptr<ftk::ValueObserver<bool> > _frameObserver;
         };
     }
 }

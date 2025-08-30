@@ -16,16 +16,16 @@ namespace tl
         //! Read system.
         class ReadSystem : public system::ISystem
         {
-            FEATHER_TK_NON_COPYABLE(ReadSystem);
+            FTK_NON_COPYABLE(ReadSystem);
 
         protected:
-            ReadSystem(const std::shared_ptr<feather_tk::Context>&);
+            ReadSystem(const std::shared_ptr<ftk::Context>&);
 
         public:
             virtual ~ReadSystem();
 
             //! Create a new system.
-            static std::shared_ptr<ReadSystem> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<ReadSystem> create(const std::shared_ptr<ftk::Context>&);
 
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IReadPlugin> >& getPlugins() const;
@@ -62,28 +62,28 @@ namespace tl
             //! Create a reader for the given path and memory locations.
             std::shared_ptr<IRead> read(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const Options& = Options());
 
         private:
             std::vector<std::shared_ptr<IReadPlugin> > _plugins;
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
 
         //! Write system.
         class WriteSystem : public system::ISystem
         {
-            FEATHER_TK_NON_COPYABLE(WriteSystem);
+            FTK_NON_COPYABLE(WriteSystem);
 
         protected:
-            WriteSystem(const std::shared_ptr<feather_tk::Context>&);
+            WriteSystem(const std::shared_ptr<ftk::Context>&);
 
         public:
             virtual ~WriteSystem();
 
             //! Create a new system.
-            static std::shared_ptr<WriteSystem> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<WriteSystem> create(const std::shared_ptr<ftk::Context>&);
 
             //! Get the list of plugins.
             const std::vector<std::shared_ptr<IWritePlugin> >& getPlugins() const;
@@ -121,7 +121,7 @@ namespace tl
         private:
             std::vector<std::shared_ptr<IWritePlugin> > _plugins;
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

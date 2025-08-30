@@ -27,10 +27,10 @@ namespace tl
     namespace play
     {
         void MainWindow::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            timelineui::Window::_init(context, "tlplay", feather_tk::Size2I(1920, 1080));
+            timelineui::Window::_init(context, "tlplay", ftk::Size2I(1920, 1080));
 
             _app = app;
 
@@ -74,35 +74,35 @@ namespace tl
             _timelineWidget = timelineui::TimelineWidget::create(
                 context,
                 app->getTimeUnitsModel());
-            _timelineWidget->setVStretch(feather_tk::Stretch::Expanding);
+            _timelineWidget->setVStretch(ftk::Stretch::Expanding);
 
             _statusBar = StatusBar::create(context, app);
 
             _settingsWidget = SettingsWidget::create(context, app);
             _settingsWidget->hide();
 
-            _layout = feather_tk::VerticalLayout::create(context, shared_from_this());
-            _layout->setSpacingRole(feather_tk::SizeRole::None);
+            _layout = ftk::VerticalLayout::create(context, shared_from_this());
+            _layout->setSpacingRole(ftk::SizeRole::None);
             _menuBar->setParent(_layout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, _layout);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, _layout);
             toolBars->setParent(_layout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, _layout);
-            _splitter = feather_tk::Splitter::create(context, feather_tk::Orientation::Vertical, _layout);
-            _splitter2 = feather_tk::Splitter::create(context, feather_tk::Orientation::Horizontal, _splitter);
-            auto vLayout = feather_tk::VerticalLayout::create(context, _splitter2);
-            vLayout->setSpacingRole(feather_tk::SizeRole::None);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, _layout);
+            _splitter = ftk::Splitter::create(context, ftk::Orientation::Vertical, _layout);
+            _splitter2 = ftk::Splitter::create(context, ftk::Orientation::Horizontal, _splitter);
+            auto vLayout = ftk::VerticalLayout::create(context, _splitter2);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
             _tabBar->setParent(vLayout);
             _viewport->setParent(vLayout);
             _settingsWidget->setParent(_splitter2);
-            vLayout = feather_tk::VerticalLayout::create(context, _splitter);
-            vLayout->setSpacingRole(feather_tk::SizeRole::None);
+            vLayout = ftk::VerticalLayout::create(context, _splitter);
+            vLayout->setSpacingRole(ftk::SizeRole::None);
             _playbackBar->setParent(vLayout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, vLayout);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, vLayout);
             _timelineWidget->setParent(vLayout);
-            feather_tk::Divider::create(context, feather_tk::Orientation::Vertical, vLayout);
+            ftk::Divider::create(context, ftk::Orientation::Vertical, vLayout);
             _statusBar->setParent(vLayout);
 
-            _playerObserver = feather_tk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+            _playerObserver = ftk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 app->getFilesModel()->observePlayer(),
                 [this](const std::shared_ptr<timeline::Player>& value)
                 {
@@ -110,7 +110,7 @@ namespace tl
                     _timelineWidget->setPlayer(value);
                 });
 
-            _compareObserver = feather_tk::ValueObserver<timeline::Compare>::create(
+            _compareObserver = ftk::ValueObserver<timeline::Compare>::create(
                 app->getFilesModel()->observeCompare(),
                 [this](timeline::Compare value)
                 {
@@ -124,7 +124,7 @@ namespace tl
         {}
 
         std::shared_ptr<MainWindow> MainWindow::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app)
         {
             auto out = std::shared_ptr<MainWindow>(new MainWindow);
@@ -142,12 +142,12 @@ namespace tl
             _settingsWidget->setVisible(value);
         }
 
-        void MainWindow::keyPressEvent(feather_tk::KeyEvent& event)
+        void MainWindow::keyPressEvent(ftk::KeyEvent& event)
         {
             event.accept = _menuBar->shortcut(event.key, event.modifiers);
         }
 
-        void MainWindow::keyReleaseEvent(feather_tk::KeyEvent& event)
+        void MainWindow::keyReleaseEvent(ftk::KeyEvent& event)
         {
             event.accept = true;
         }

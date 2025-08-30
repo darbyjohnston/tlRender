@@ -106,7 +106,7 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const feather_tk::InMemoryFile* memory)
+                    const ftk::InMemoryFile* memory)
                 {
                     std::memset(&_jpeg.decompress, 0, sizeof(jpeg_decompress_struct));
 
@@ -115,19 +115,19 @@ namespace tl
                     _error.pub.emit_message = warningFunc;
                     if (!jpegCreate(&_jpeg.decompress, &_error))
                     {
-                        throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                     }
                     if (memory)
                     {
                         if (!jpegOpen(memory->p, memory->size, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                            throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                     }
                     else
                     {
 #if defined(_WINDOWS)
-                        if (_wfopen_s(&_f.p, feather_tk::toWide(fileName).c_str(), L"rb") != 0)
+                        if (_wfopen_s(&_f.p, ftk::toWide(fileName).c_str(), L"rb") != 0)
                         {
                             _f.p = nullptr;
                         }
@@ -136,21 +136,21 @@ namespace tl
 #endif // _WINDOWS
                         if (!_f.p)
                         {
-                            throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                            throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                         if (!jpegOpen(_f.p, &_jpeg.decompress, &_error))
                         {
-                            throw std::runtime_error(feather_tk::Format("Cannot open: \"{0}\"").arg(fileName));
+                            throw std::runtime_error(ftk::Format("Cannot open: \"{0}\"").arg(fileName));
                         }
                     }
 
-                    feather_tk::ImageType pixelType = io::getIntType(_jpeg.decompress.out_color_components, 8);
-                    if (feather_tk::ImageType::None == pixelType)
+                    ftk::ImageType pixelType = io::getIntType(_jpeg.decompress.out_color_components, 8);
+                    if (ftk::ImageType::None == pixelType)
                     {
-                        throw std::runtime_error(feather_tk::Format("File not supported: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("File not supported: \"{0}\"").arg(fileName));
                     }
 
-                    feather_tk::ImageInfo imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);
+                    ftk::ImageInfo imageInfo(_jpeg.decompress.output_width, _jpeg.decompress.output_height, pixelType);
                     imageInfo.layout.mirror.y = true;
                     _info.video.push_back(imageInfo);
 
@@ -173,16 +173,16 @@ namespace tl
                     io::VideoData out;
                     out.time = time;
                     const auto& info = _info.video[0];
-                    out.image = feather_tk::Image::create(info);
+                    out.image = ftk::Image::create(info);
                     out.image->setTags(_info.tags);
 
                     std::size_t scanlineByteCount = 0;
                     switch (info.type)
                     {
-                    case feather_tk::ImageType::L_U8:
+                    case ftk::ImageType::L_U8:
                         scanlineByteCount = info.size.w;
                         break;
-                    case feather_tk::ImageType::RGB_U8:
+                    case ftk::ImageType::RGB_U8:
                         scanlineByteCount = info.size.w * 3;
                         break;
                     default: break;
@@ -232,9 +232,9 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -250,7 +250,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -259,9 +259,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -270,7 +270,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory)
+            const ftk::InMemoryFile* memory)
         {
             io::Info out = File(fileName, memory).getInfo();
             out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
@@ -281,7 +281,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory,
+            const ftk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options&)
         {

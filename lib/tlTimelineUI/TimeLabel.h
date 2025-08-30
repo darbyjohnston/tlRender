@@ -18,13 +18,13 @@ namespace tl
     namespace timelineui
     {
         //! Time label.
-        class TimeLabel : public feather_tk::IWidget
+        class TimeLabel : public ftk::IWidget
         {
-            FEATHER_TK_NON_COPYABLE(TimeLabel);
+            FTK_NON_COPYABLE(TimeLabel);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent);
 
@@ -35,7 +35,7 @@ namespace tl
 
             //! Create a new widget.
             static std::shared_ptr<TimeLabel> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::TimeUnitsModel>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
@@ -49,19 +49,19 @@ namespace tl
             void setValue(const OTIO_NS::RationalTime&);
 
             //! Set the margin role.
-            void setMarginRole(feather_tk::SizeRole);
+            void setMarginRole(ftk::SizeRole);
 
             //! Set the font role.
-            void setFontRole(feather_tk::FontRole);
+            void setFontRole(ftk::FontRole);
 
-            void sizeHintEvent(const feather_tk::SizeHintEvent&) override;
-            void clipEvent(const feather_tk::Box2I&, bool) override;
-            void drawEvent(const feather_tk::Box2I&, const feather_tk::DrawEvent&) override;
+            void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void clipEvent(const ftk::Box2I&, bool) override;
+            void drawEvent(const ftk::Box2I&, const ftk::DrawEvent&) override;
 
         private:
             void _textUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

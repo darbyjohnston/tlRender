@@ -17,12 +17,12 @@ namespace tl
         //! OpenGL renderer.
         class Render : public timeline::IRender
         {
-            FEATHER_TK_NON_COPYABLE(Render);
+            FTK_NON_COPYABLE(Render);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::LogSystem>&,
-                const std::shared_ptr<feather_tk::gl::TextureCache>&);
+                const std::shared_ptr<ftk::LogSystem>&,
+                const std::shared_ptr<ftk::gl::TextureCache>&);
 
             Render();
 
@@ -31,143 +31,143 @@ namespace tl
 
             //! Create a new renderer.
             static std::shared_ptr<Render> create(
-                const std::shared_ptr<feather_tk::LogSystem>& = nullptr,
-                const std::shared_ptr<feather_tk::gl::TextureCache>& = nullptr);
+                const std::shared_ptr<ftk::LogSystem>& = nullptr,
+                const std::shared_ptr<ftk::gl::TextureCache>& = nullptr);
 
-            const std::shared_ptr<feather_tk::gl::TextureCache>& getTextureCache() const;
+            const std::shared_ptr<ftk::gl::TextureCache>& getTextureCache() const;
 
             void setOCIOOptions(const timeline::OCIOOptions&) override;
             void setLUTOptions(const timeline::LUTOptions&) override;
 
             void drawTexture(
                 unsigned int,
-                const feather_tk::Box2I&,
-                const feather_tk::Color4F & = feather_tk::Color4F(1.F, 1.F, 1.F),
-                feather_tk::AlphaBlend = feather_tk::AlphaBlend::Straight) override;
+                const ftk::Box2I&,
+                const ftk::Color4F & = ftk::Color4F(1.F, 1.F, 1.F),
+                ftk::AlphaBlend = ftk::AlphaBlend::Straight) override;
             void drawBackground(
-                const std::vector<feather_tk::Box2I>&,
-                const feather_tk::M44F&,
+                const std::vector<ftk::Box2I>&,
+                const ftk::M44F&,
                 const timeline::BackgroundOptions&) override;
             void drawVideo(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>& = {},
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>& = {},
                 const std::vector<timeline::DisplayOptions>& = {},
                 const timeline::CompareOptions& = timeline::CompareOptions(),
-                feather_tk::ImageType colorBuffer = feather_tk::ImageType::RGBA_U8) override;
+                ftk::ImageType colorBuffer = ftk::ImageType::RGBA_U8) override;
             void drawForeground(
-                const std::vector<feather_tk::Box2I>&,
-                const feather_tk::M44F&,
+                const std::vector<ftk::Box2I>&,
+                const ftk::M44F&,
                 const timeline::ForegroundOptions&) override;
 
             void begin(
-                const feather_tk::Size2I&,
-                const feather_tk::RenderOptions& = feather_tk::RenderOptions()) override;
+                const ftk::Size2I&,
+                const ftk::RenderOptions& = ftk::RenderOptions()) override;
             void end() override;
-            feather_tk::Size2I getRenderSize() const override;
-            void setRenderSize(const feather_tk::Size2I&) override;
-            feather_tk::RenderOptions getRenderOptions() const override;
-            feather_tk::Box2I getViewport() const override;
-            void setViewport(const feather_tk::Box2I&) override;
-            void clearViewport(const feather_tk::Color4F&) override;
+            ftk::Size2I getRenderSize() const override;
+            void setRenderSize(const ftk::Size2I&) override;
+            ftk::RenderOptions getRenderOptions() const override;
+            ftk::Box2I getViewport() const override;
+            void setViewport(const ftk::Box2I&) override;
+            void clearViewport(const ftk::Color4F&) override;
             bool getClipRectEnabled() const override;
             void setClipRectEnabled(bool) override;
-            feather_tk::Box2I getClipRect() const override;
-            void setClipRect(const feather_tk::Box2I&) override;
-            feather_tk::M44F getTransform() const override;
-            void setTransform(const feather_tk::M44F&) override;
+            ftk::Box2I getClipRect() const override;
+            void setClipRect(const ftk::Box2I&) override;
+            ftk::M44F getTransform() const override;
+            void setTransform(const ftk::M44F&) override;
             void drawRect(
-                const feather_tk::Box2F&,
-                const feather_tk::Color4F&) override;
+                const ftk::Box2F&,
+                const ftk::Color4F&) override;
             void drawRects(
-                const std::vector<feather_tk::Box2F>&,
-                const feather_tk::Color4F&) override;
+                const std::vector<ftk::Box2F>&,
+                const ftk::Color4F&) override;
             void drawLine(
-                const feather_tk::V2F&,
-                const feather_tk::V2F&,
-                const feather_tk::Color4F&,
-                const feather_tk::LineOptions& = feather_tk::LineOptions()) override;
+                const ftk::V2F&,
+                const ftk::V2F&,
+                const ftk::Color4F&,
+                const ftk::LineOptions& = ftk::LineOptions()) override;
             void drawLines(
-                const std::vector<std::pair<feather_tk::V2F, feather_tk::V2F> >&,
-                const feather_tk::Color4F&,
-                const feather_tk::LineOptions& = feather_tk::LineOptions()) override;
+                const std::vector<std::pair<ftk::V2F, ftk::V2F> >&,
+                const ftk::Color4F&,
+                const ftk::LineOptions& = ftk::LineOptions()) override;
             void drawMesh(
-                const feather_tk::TriMesh2F&,
-                const feather_tk::Color4F& = feather_tk::Color4F(1.F, 1.F, 1.F, 1.F),
-                const feather_tk::V2F& pos = feather_tk::V2F()) override;
+                const ftk::TriMesh2F&,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const ftk::V2F& pos = ftk::V2F()) override;
             void drawColorMesh(
-                const feather_tk::TriMesh2F&,
-                const feather_tk::Color4F& = feather_tk::Color4F(1.F, 1.F, 1.F, 1.F),
-                const feather_tk::V2F& pos = feather_tk::V2F()) override;
+                const ftk::TriMesh2F&,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const ftk::V2F& pos = ftk::V2F()) override;
             void drawText(
-                const std::vector<std::shared_ptr<feather_tk::Glyph> >&,
-                const feather_tk::FontMetrics&,
-                const feather_tk::V2F& position,
-                const feather_tk::Color4F& = feather_tk::Color4F(1.F, 1.F, 1.F, 1.F)) override;
+                const std::vector<std::shared_ptr<ftk::Glyph> >&,
+                const ftk::FontMetrics&,
+                const ftk::V2F& position,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F, 1.F)) override;
             void drawImage(
-                const std::shared_ptr<feather_tk::Image>&,
-                const feather_tk::TriMesh2F&,
-                const feather_tk::Color4F& = feather_tk::Color4F(1.F, 1.F, 1.F, 1.F),
-                const feather_tk::ImageOptions& = feather_tk::ImageOptions()) override;
+                const std::shared_ptr<ftk::Image>&,
+                const ftk::TriMesh2F&,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const ftk::ImageOptions& = ftk::ImageOptions()) override;
             void drawImage(
-                const std::shared_ptr<feather_tk::Image>&,
-                const feather_tk::Box2F&,
-                const feather_tk::Color4F& = feather_tk::Color4F(1.F, 1.F, 1.F, 1.F),
-                const feather_tk::ImageOptions& = feather_tk::ImageOptions()) override;
+                const std::shared_ptr<ftk::Image>&,
+                const ftk::Box2F&,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F, 1.F),
+                const ftk::ImageOptions& = ftk::ImageOptions()) override;
 
         private:
             void _displayShader();
 
             void _drawVideoA(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideoB(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideoWipe(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideoOverlay(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideoDifference(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideoTile(
                 const std::vector<timeline::VideoData>&,
-                const std::vector<feather_tk::Box2I>&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::Box2I>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
             void _drawVideo(
                 const timeline::VideoData&,
-                const feather_tk::Box2I&,
-                const std::shared_ptr<feather_tk::ImageOptions>&,
+                const ftk::Box2I&,
+                const std::shared_ptr<ftk::ImageOptions>&,
                 const timeline::DisplayOptions&,
-                feather_tk::ImageType colorBuffer);
+                ftk::ImageType colorBuffer);
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

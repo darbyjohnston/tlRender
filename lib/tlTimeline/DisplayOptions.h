@@ -17,10 +17,10 @@ namespace tl
         {
         public:
             bool            enabled    = false;
-            feather_tk::V3F add        = feather_tk::V3F(0.F, 0.F, 0.F);
-            feather_tk::V3F brightness = feather_tk::V3F(1.F, 1.F, 1.F);
-            feather_tk::V3F contrast   = feather_tk::V3F(1.F, 1.F, 1.F);
-            feather_tk::V3F saturation = feather_tk::V3F(1.F, 1.F, 1.F);
+            ftk::V3F add        = ftk::V3F(0.F, 0.F, 0.F);
+            ftk::V3F brightness = ftk::V3F(1.F, 1.F, 1.F);
+            ftk::V3F contrast   = ftk::V3F(1.F, 1.F, 1.F);
+            ftk::V3F saturation = ftk::V3F(1.F, 1.F, 1.F);
             float           tint       = 0.F;
             bool            invert     = false;
 
@@ -29,19 +29,19 @@ namespace tl
         };
 
         //! Get a brightness color matrix.
-        feather_tk::M44F brightness(const feather_tk::V3F&);
+        ftk::M44F brightness(const ftk::V3F&);
 
         //! Get a contrast color matrix.
-        feather_tk::M44F contrast(const feather_tk::V3F&);
+        ftk::M44F contrast(const ftk::V3F&);
 
         //! Get a saturation color matrix.
-        feather_tk::M44F saturation(const feather_tk::V3F&);
+        ftk::M44F saturation(const ftk::V3F&);
 
         //! Get a tint color matrix.
-        feather_tk::M44F tint(float);
+        ftk::M44F tint(float);
 
         //! Get a color matrix.
-        feather_tk::M44F color(const Color&);
+        ftk::M44F color(const Color&);
 
         //! Levels values.
         struct Levels
@@ -84,14 +84,14 @@ namespace tl
         //! Display options.
         struct DisplayOptions
         {
-            feather_tk::ChannelDisplay channels     = feather_tk::ChannelDisplay::Color;
-            feather_tk::ImageMirror    mirror;
+            ftk::ChannelDisplay channels     = ftk::ChannelDisplay::Color;
+            ftk::ImageMirror    mirror;
             Color                      color;
             Levels                     levels;
             EXRDisplay                 exrDisplay;
             SoftClip                   softClip;
-            feather_tk::ImageFilters   imageFilters;
-            feather_tk::VideoLevels    videoLevels  = feather_tk::VideoLevels::FullRange;
+            ftk::ImageFilters   imageFilters;
+            ftk::VideoLevels    videoLevels  = ftk::VideoLevels::FullRange;
 
             bool operator == (const DisplayOptions&) const;
             bool operator != (const DisplayOptions&) const;

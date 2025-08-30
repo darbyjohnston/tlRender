@@ -15,11 +15,11 @@ namespace tl
         //! Settings model.
         class SettingsModel : public std::enable_shared_from_this<SettingsModel>
         {
-            FEATHER_TK_NON_COPYABLE(SettingsModel);
+            FTK_NON_COPYABLE(SettingsModel);
 
         protected:
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
 
             SettingsModel() = default;
@@ -29,24 +29,24 @@ namespace tl
 
             //! Create a new model.
             static std::shared_ptr<SettingsModel> create(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::filesystem::path&);
 
             //! Get the settings.
-            const std::shared_ptr<feather_tk::Settings>& getSettings() const;
+            const std::shared_ptr<ftk::Settings>& getSettings() const;
 
             //! Get the cache settings.
             const timeline::PlayerCacheOptions& getCache() const;
 
             //! Observe the cache settings.
-            std::shared_ptr<feather_tk::IObservableValue<timeline::PlayerCacheOptions> > observeCache() const;
+            std::shared_ptr<ftk::IObservableValue<timeline::PlayerCacheOptions> > observeCache() const;
 
             //! Set the cache settings.
             void setCache(const timeline::PlayerCacheOptions&);
 
         private:
-            std::shared_ptr<feather_tk::Settings> _settings;
-            std::shared_ptr<feather_tk::ObservableValue<timeline::PlayerCacheOptions> > _cache;
+            std::shared_ptr<ftk::Settings> _settings;
+            std::shared_ptr<ftk::ObservableValue<timeline::PlayerCacheOptions> > _cache;
         };
     }
 }

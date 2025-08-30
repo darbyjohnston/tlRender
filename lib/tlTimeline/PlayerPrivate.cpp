@@ -164,10 +164,10 @@ namespace tl
         {
             //std::cout << "current time: " << currentTime->get() << std::endl;
 
-            thread.videoCache.setMax(thread.state.cacheOptions.videoGB * feather_tk::gigabyte);
+            thread.videoCache.setMax(thread.state.cacheOptions.videoGB * ftk::gigabyte);
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioMutex.cache.setMax(thread.state.cacheOptions.audioGB * feather_tk::gigabyte);
+                audioMutex.cache.setMax(thread.state.cacheOptions.audioGB * ftk::gigabyte);
             }
 
             // Fill the video cache.
@@ -203,7 +203,7 @@ namespace tl
                             //std::cout << this << " video request: " << t << std::endl;
                             auto& request = thread.videoDataRequests[t];
                             io::Options ioOptions2 = thread.state.ioOptions;
-                            ioOptions2["Layer"] = feather_tk::Format("{0}").arg(thread.state.videoLayer);
+                            ioOptions2["Layer"] = ftk::Format("{0}").arg(thread.state.videoLayer);
                             request.list.clear();
                             request.list.push_back(timeline->getVideo(t, ioOptions2));
                             for (size_t i = 0; i < thread.state.compare.size(); ++i)
@@ -213,7 +213,7 @@ namespace tl
                                     timeRange,
                                     thread.state.compare[i]->getTimeRange(),
                                     thread.state.compareTime);
-                                ioOptions2["Layer"] = feather_tk::Format("{0}").
+                                ioOptions2["Layer"] = ftk::Format("{0}").
                                     arg(i < thread.state.compareVideoLayers.size() ?
                                         thread.state.compareVideoLayers[i] :
                                         thread.state.videoLayer);
@@ -392,7 +392,7 @@ namespace tl
                 if (thread.state.cacheOptions.videoGB > 0.F)
                 {
                     cachedVideoPercentage =
-                        (thread.videoCache.getSize() / static_cast<float>(feather_tk::gigabyte)) /
+                        (thread.videoCache.getSize() / static_cast<float>(ftk::gigabyte)) /
                         thread.state.cacheOptions.videoGB *
                         100.F;
                 }
@@ -413,7 +413,7 @@ namespace tl
                     if (thread.state.cacheOptions.audioGB > 0.F)
                     {
                         cachedAudioPercentage =
-                            (cacheSize / static_cast<float>(feather_tk::gigabyte)) /
+                            (cacheSize / static_cast<float>(ftk::gigabyte)) /
                             thread.state.cacheOptions.audioGB *
                             100.F;
                     }
@@ -443,9 +443,9 @@ namespace tl
             noAudio.start = time;
         }
 
-        void Player::Private::log(const std::shared_ptr<feather_tk::Context>& context)
+        void Player::Private::log(const std::shared_ptr<ftk::Context>& context)
         {
-            const std::string id = feather_tk::Format("tl::timeline::Player {0}").arg(this);
+            const std::string id = ftk::Format("tl::timeline::Player {0}").arg(this);
 
             // Get values.
             OTIO_NS::RationalTime currentTime = time::invalidTime;
@@ -470,7 +470,7 @@ namespace tl
             const size_t lineLength = 80;
             std::string currentTimeDisplay(lineLength, '.');
             double n = (currentTime - timeRange.start_time()).value() / timeRange.duration().value();
-            size_t index = feather_tk::clamp(n, 0.0, 1.0) * (lineLength - 1);
+            size_t index = ftk::clamp(n, 0.0, 1.0) * (lineLength - 1);
             if (index < currentTimeDisplay.size())
             {
                 currentTimeDisplay[index] = 'T';
@@ -481,9 +481,9 @@ namespace tl
             for (const auto& i : cacheInfo.video)
             {
                 n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t0 = feather_tk::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t0 = ftk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t1 = feather_tk::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t1 = ftk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
                     if (j < cachedVideoFramesDisplay.size())
@@ -498,9 +498,9 @@ namespace tl
             for (const auto& i : cacheInfo.audio)
             {
                 double n = (i.start_time() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t0 = feather_tk::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t0 = ftk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 n = (i.end_time_inclusive() - timeRange.start_time()).value() / timeRange.duration().value();
-                const size_t t1 = feather_tk::clamp(n, 0.0, 1.0) * (lineLength - 1);
+                const size_t t1 = ftk::clamp(n, 0.0, 1.0) * (lineLength - 1);
                 for (size_t j = t0; j <= t1; ++j)
                 {
                     if (j < cachedAudioFramesDisplay.size())
@@ -513,11 +513,11 @@ namespace tl
             std::vector<std::string> ioOptionStrings;
             for (const auto& i : ioOptions)
             {
-                ioOptionStrings.push_back(feather_tk::Format("{0}:{1}").arg(i.first).arg(i.second));
+                ioOptionStrings.push_back(ftk::Format("{0}:{1}").arg(i.first).arg(i.second));
             }
 
             auto logSystem = context->getLogSystem();
-            logSystem->print(id, feather_tk::Format(
+            logSystem->print(id, ftk::Format(
                 "\n"
                 "    Path: {0}\n"
                 "    Current time: {1}\n"
@@ -535,10 +535,10 @@ namespace tl
                 arg(timeline->getPath().get()).
                 arg(currentTime).
                 arg(inOutRange).
-                arg(feather_tk::join(ioOptionStrings, ", ")).
-                arg(videoCacheByteCount / static_cast<float>(feather_tk::gigabyte)).
+                arg(ftk::join(ioOptionStrings, ", ")).
+                arg(videoCacheByteCount / static_cast<float>(ftk::gigabyte)).
                 arg(cacheOptions->get().videoGB).
-                arg(audioCacheByteCount / static_cast<float>(feather_tk::gigabyte)).
+                arg(audioCacheByteCount / static_cast<float>(ftk::gigabyte)).
                 arg(cacheOptions->get().audioGB).
                 arg(cacheOptions->get().readBehind).
                 arg(thread.videoDataRequests.size()).

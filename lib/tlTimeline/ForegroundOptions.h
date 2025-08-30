@@ -18,7 +18,7 @@ namespace tl
             bool                enabled   = false;
             int                 size      = 100;
             int                 lineWidth = 2;
-            feather_tk::Color4F color     = feather_tk::Color4F(0.F, 0.F, 0.F);
+            ftk::Color4F color     = ftk::Color4F(0.F, 0.F, 0.F);
 
             bool operator == (const Grid&) const;
             bool operator != (const Grid&) const;

@@ -22,7 +22,7 @@ namespace tl
             Count,
             First = File
         };
-        FEATHER_TK_ENUM(Type);
+        FTK_ENUM(Type);
 
         //! File permissions.
         enum class Permissions
@@ -79,7 +79,7 @@ namespace tl
             Count,
             First = Name
         };
-        FEATHER_TK_ENUM(ListSort);
+        FTK_ENUM(ListSort);
 
         //! Directory list options.
         struct ListOptions

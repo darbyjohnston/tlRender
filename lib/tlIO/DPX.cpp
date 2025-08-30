@@ -19,18 +19,18 @@ namespace tl
 {
     namespace dpx
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Version,
             "1.0",
             "2.0");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Endian,
             "Auto",
             "MSB",
             "LSB");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Orient,
             "LeftRightTopBottom",
             "RightLeftTopBottom",
@@ -41,7 +41,7 @@ namespace tl
             "BottomTopLeftRight",
             "BottomTopRightLeft");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Transfer,
             "User",
             "FilmPrint",
@@ -57,7 +57,7 @@ namespace tl
             "Z",
             "ZHomogeneous");
 
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             Components,
             "Pack",
             "TypeA",
@@ -106,55 +106,55 @@ namespace tl
         {
             void convertEndian(Header& header)
             {
-                feather_tk::endian(&header.file.imageOffset, 1, 4);
-                feather_tk::endian(&header.file.size, 1, 4);
-                feather_tk::endian(&header.file.dittoKey, 1, 4);
-                feather_tk::endian(&header.file.headerSize, 1, 4);
-                feather_tk::endian(&header.file.industryHeaderSize, 1, 4);
-                feather_tk::endian(&header.file.userHeaderSize, 1, 4);
-                feather_tk::endian(&header.file.encryptionKey, 1, 4);
+                ftk::endian(&header.file.imageOffset, 1, 4);
+                ftk::endian(&header.file.size, 1, 4);
+                ftk::endian(&header.file.dittoKey, 1, 4);
+                ftk::endian(&header.file.headerSize, 1, 4);
+                ftk::endian(&header.file.industryHeaderSize, 1, 4);
+                ftk::endian(&header.file.userHeaderSize, 1, 4);
+                ftk::endian(&header.file.encryptionKey, 1, 4);
 
-                feather_tk::endian(&header.image.orient, 1, 2);
-                feather_tk::endian(&header.image.elemSize, 1, 2);
-                feather_tk::endian(&header.image.size, 2, 4);
+                ftk::endian(&header.image.orient, 1, 2);
+                ftk::endian(&header.image.elemSize, 1, 2);
+                ftk::endian(&header.image.size, 2, 4);
                 for (size_t i = 0; i < 8; ++i)
                 {
-                    feather_tk::endian(&header.image.elem[i].dataSign, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].lowData, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].lowQuantity, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].highData, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].highQuantity, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].packing, 1, 2);
-                    feather_tk::endian(&header.image.elem[i].encoding, 1, 2);
-                    feather_tk::endian(&header.image.elem[i].dataOffset, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].linePadding, 1, 4);
-                    feather_tk::endian(&header.image.elem[i].elemPadding, 1, 4);
+                    ftk::endian(&header.image.elem[i].dataSign, 1, 4);
+                    ftk::endian(&header.image.elem[i].lowData, 1, 4);
+                    ftk::endian(&header.image.elem[i].lowQuantity, 1, 4);
+                    ftk::endian(&header.image.elem[i].highData, 1, 4);
+                    ftk::endian(&header.image.elem[i].highQuantity, 1, 4);
+                    ftk::endian(&header.image.elem[i].packing, 1, 2);
+                    ftk::endian(&header.image.elem[i].encoding, 1, 2);
+                    ftk::endian(&header.image.elem[i].dataOffset, 1, 4);
+                    ftk::endian(&header.image.elem[i].linePadding, 1, 4);
+                    ftk::endian(&header.image.elem[i].elemPadding, 1, 4);
                 }
 
-                feather_tk::endian(&header.source.offset, 2, 4);
-                feather_tk::endian(&header.source.center, 2, 4);
-                feather_tk::endian(&header.source.size, 2, 4);
-                feather_tk::endian(&header.source.border, 4, 2);
-                feather_tk::endian(&header.source.pixelAspect, 2, 4);
-                feather_tk::endian(&header.source.scanSize, 2, 4);
+                ftk::endian(&header.source.offset, 2, 4);
+                ftk::endian(&header.source.center, 2, 4);
+                ftk::endian(&header.source.size, 2, 4);
+                ftk::endian(&header.source.border, 4, 2);
+                ftk::endian(&header.source.pixelAspect, 2, 4);
+                ftk::endian(&header.source.scanSize, 2, 4);
 
-                feather_tk::endian(&header.film.frame, 1, 4);
-                feather_tk::endian(&header.film.sequence, 1, 4);
-                feather_tk::endian(&header.film.hold, 1, 4);
-                feather_tk::endian(&header.film.frameRate, 1, 4);
-                feather_tk::endian(&header.film.shutter, 1, 4);
+                ftk::endian(&header.film.frame, 1, 4);
+                ftk::endian(&header.film.sequence, 1, 4);
+                ftk::endian(&header.film.hold, 1, 4);
+                ftk::endian(&header.film.frameRate, 1, 4);
+                ftk::endian(&header.film.shutter, 1, 4);
 
-                feather_tk::endian(&header.tv.timecode, 1, 4);
-                feather_tk::endian(&header.tv.userBits, 1, 4);
-                feather_tk::endian(&header.tv.sampleRate, 2, 4);
-                feather_tk::endian(&header.tv.frameRate, 1, 4);
-                feather_tk::endian(&header.tv.timeOffset, 1, 4);
-                feather_tk::endian(&header.tv.gamma, 1, 4);
-                feather_tk::endian(&header.tv.blackLevel, 1, 4);
-                feather_tk::endian(&header.tv.blackGain, 1, 4);
-                feather_tk::endian(&header.tv.breakpoint, 1, 4);
-                feather_tk::endian(&header.tv.whiteLevel, 1, 4);
-                feather_tk::endian(&header.tv.integrationTimes, 1, 4);
+                ftk::endian(&header.tv.timecode, 1, 4);
+                ftk::endian(&header.tv.userBits, 1, 4);
+                ftk::endian(&header.tv.sampleRate, 2, 4);
+                ftk::endian(&header.tv.frameRate, 1, 4);
+                ftk::endian(&header.tv.timeOffset, 1, 4);
+                ftk::endian(&header.tv.gamma, 1, 4);
+                ftk::endian(&header.tv.blackLevel, 1, 4);
+                ftk::endian(&header.tv.blackGain, 1, 4);
+                ftk::endian(&header.tv.breakpoint, 1, 4);
+                ftk::endian(&header.tv.whiteLevel, 1, 4);
+                ftk::endian(&header.tv.integrationTimes, 1, 4);
             }
 
             bool isValid(const uint8_t* in)
@@ -179,7 +179,7 @@ namespace tl
         }
 
         Header read(
-            const std::shared_ptr<feather_tk::FileIO>& io,
+            const std::shared_ptr<ftk::FileIO>& io,
             io::Info& info,
             Transfer& transfer)
         {
@@ -189,18 +189,18 @@ namespace tl
             io->read(&out.file, sizeof(Header::File));
 
             // Check the magic number.
-            feather_tk::Endian fileEndian = feather_tk::Endian::First;
+            ftk::Endian fileEndian = ftk::Endian::First;
             if (0 == memcmp(&out.file.magic, magic[0], 4))
             {
-                fileEndian = feather_tk::Endian::MSB;
+                fileEndian = ftk::Endian::MSB;
             }
             else if (0 == memcmp(&out.file.magic, magic[1], 4))
             {
-                fileEndian = feather_tk::Endian::LSB;
+                fileEndian = ftk::Endian::LSB;
             }
             else
             {
-                throw std::runtime_error(feather_tk::Format("Bad magic number: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Bad magic number: \"{0}\"").
                     arg(io->getPath()));
             }
 
@@ -211,18 +211,18 @@ namespace tl
             io->read(&out.tv, sizeof(Header::TV));
 
             // Flip the endian of the data if necessary.
-            feather_tk::ImageInfo imageInfo;
-            if (fileEndian != feather_tk::getEndian())
+            ftk::ImageInfo imageInfo;
+            if (fileEndian != ftk::getEndian())
             {
                 io->setEndianConversion(true);
                 convertEndian(out);
-                imageInfo.layout.endian = feather_tk::opposite(feather_tk::getEndian());
+                imageInfo.layout.endian = ftk::opposite(ftk::getEndian());
             }
 
             // Image information.
             if (out.image.elemSize != 1)
             {
-                throw std::runtime_error(feather_tk::Format("Unsupported file: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported file: \"{0}\"").
                     arg(io->getPath()));
             }
             imageInfo.size.w = out.image.size[0];
@@ -264,7 +264,7 @@ namespace tl
                 case 10:
                     if (Descriptor::RGB == static_cast<Descriptor>(out.image.elem[0].descriptor))
                     {
-                        imageInfo.type = feather_tk::ImageType::RGB_U10;
+                        imageInfo.type = ftk::ImageType::RGB_U10;
                         imageInfo.layout.alignment = 4;
                     }
                     break;
@@ -286,28 +286,28 @@ namespace tl
                 break;
             default: break;
             }
-            if (feather_tk::ImageType::None == imageInfo.type)
+            if (ftk::ImageType::None == imageInfo.type)
             {
-                throw std::runtime_error(feather_tk::Format("Unsupported file: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported file: \"{0}\"").
                     arg(io->getPath()));
             }
             const size_t dataByteCount = imageInfo.getByteCount();
             const size_t ioSize = io->getSize();
             if (dataByteCount > ioSize - out.file.imageOffset)
             {
-                throw std::runtime_error(feather_tk::Format("Incomplete file: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Incomplete file: \"{0}\"").
                     arg(io->getPath()));
             }
 
             if (out.image.elem[0].encoding)
             {
-                throw std::runtime_error(feather_tk::Format("Unsupported file: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported file: \"{0}\"").
                     arg(io->getPath()));
             }
 
             if (isValid(&out.image.elem[0].linePadding) && out.image.elem[0].linePadding)
             {
-                throw std::runtime_error(feather_tk::Format("Unsupported file: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported file: \"{0}\"").
                     arg(io->getPath()));
             }
 
@@ -534,7 +534,7 @@ namespace tl
         }
 
         void write(
-            const std::shared_ptr<feather_tk::FileIO>& io,
+            const std::shared_ptr<ftk::FileIO>& io,
             const io::Info& info,
             Version version,
             Endian endian,
@@ -565,23 +565,23 @@ namespace tl
 
             switch (imageInfo.type)
             {
-            case feather_tk::ImageType::L_U8:
-            case feather_tk::ImageType::L_U16:
-            case feather_tk::ImageType::L_F16:
-            case feather_tk::ImageType::L_F32:
+            case ftk::ImageType::L_U8:
+            case ftk::ImageType::L_U16:
+            case ftk::ImageType::L_F16:
+            case ftk::ImageType::L_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::L);
                 break;
-            case feather_tk::ImageType::RGB_U8:
-            case feather_tk::ImageType::RGB_U10:
-            case feather_tk::ImageType::RGB_U16:
-            case feather_tk::ImageType::RGB_F16:
-            case feather_tk::ImageType::RGB_F32:
+            case ftk::ImageType::RGB_U8:
+            case ftk::ImageType::RGB_U10:
+            case ftk::ImageType::RGB_U16:
+            case ftk::ImageType::RGB_F16:
+            case ftk::ImageType::RGB_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGB);
                 break;
-            case feather_tk::ImageType::RGBA_U8:
-            case feather_tk::ImageType::RGBA_U16:
-            case feather_tk::ImageType::RGBA_F16:
-            case feather_tk::ImageType::RGBA_F32:
+            case ftk::ImageType::RGBA_U8:
+            case ftk::ImageType::RGBA_U16:
+            case ftk::ImageType::RGBA_F16:
+            case ftk::ImageType::RGBA_F32:
                 header.image.elem[0].descriptor = static_cast<uint8_t>(Descriptor::RGBA);
                 break;
             default: break;
@@ -589,13 +589,13 @@ namespace tl
 
             switch (imageInfo.type)
             {
-            case feather_tk::ImageType::RGB_U10:
+            case ftk::ImageType::RGB_U10:
                 header.image.elem[0].packing = static_cast<uint16_t>(Components::TypeA);
                 break;
             default: break;
             }
 
-            const int bitDepth = feather_tk::getBitDepth(imageInfo.type);
+            const int bitDepth = ftk::getBitDepth(imageInfo.type);
             header.image.elem[0].bitDepth = bitDepth;
             header.image.elem[0].dataSign = 0;
             header.image.elem[0].lowData = 0;
@@ -851,21 +851,21 @@ namespace tl
                 header.tv.integrationTimes = std::stof(i->second);
             }
 
-            feather_tk::Endian fileEndian = feather_tk::getEndian();
+            ftk::Endian fileEndian = ftk::getEndian();
             switch (endian)
             {
-            case Endian::MSB: fileEndian = feather_tk::Endian::MSB; break;
-            case Endian::LSB: fileEndian = feather_tk::Endian::LSB; break;
+            case Endian::MSB: fileEndian = ftk::Endian::MSB; break;
+            case Endian::LSB: fileEndian = ftk::Endian::LSB; break;
             default: break;
             }
-            if (fileEndian != feather_tk::getEndian())
+            if (fileEndian != ftk::getEndian())
             {
                 io->setEndianConversion(true);
                 convertEndian(header);
             }
             std::memcpy(
                 &header.file.magic,
-                feather_tk::Endian::MSB == fileEndian ? magic[0] : magic[1],
+                ftk::Endian::MSB == fileEndian ? magic[0] : magic[1],
                 4);
             io->write(&header.file, sizeof(Header::File));
             io->write(&header.image, sizeof(Header::Image));
@@ -874,14 +874,14 @@ namespace tl
             io->write(&header.tv, sizeof(Header::TV));
         }
 
-        void finishWrite(const std::shared_ptr<feather_tk::FileIO>& io)
+        void finishWrite(const std::shared_ptr<ftk::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
             io->setPos(12);
             io->writeU32(size);
         }
 
-        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "DPX",
@@ -893,7 +893,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -909,14 +909,14 @@ namespace tl
 
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
             return Read::create(path, memory, options, _logSystem.lock());
         }
 
         void WritePlugin::_init(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IWritePlugin::_init(
                 "DPX",
@@ -928,22 +928,22 @@ namespace tl
         {}
 
         std::shared_ptr<WritePlugin> WritePlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<WritePlugin>(new WritePlugin);
             out->_init(logSystem);
             return out;
         }
 
-        feather_tk::ImageInfo WritePlugin::getInfo(
-            const feather_tk::ImageInfo& info,
+        ftk::ImageInfo WritePlugin::getInfo(
+            const ftk::ImageInfo& info,
             const io::Options& options) const
         {
-            feather_tk::ImageInfo out;
+            ftk::ImageInfo out;
             out.size = info.size;
             switch (info.type)
             {
-            case feather_tk::ImageType::RGB_U10:
+            case ftk::ImageType::RGB_U10:
                 out.type = info.type;
                 break;
             default: break;
@@ -959,7 +959,7 @@ namespace tl
             const io::Options& options)
         {
             if (info.video.empty() || (!info.video.empty() && !_isCompatible(info.video[0], options)))
-                throw std::runtime_error(feather_tk::Format("Unsupported video: \"{0}\"").
+                throw std::runtime_error(ftk::Format("Unsupported video: \"{0}\"").
                     arg(path.get()));
             return Write::create(path, info, options, _logSystem.lock());
         }

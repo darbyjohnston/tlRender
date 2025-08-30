@@ -12,6 +12,6 @@ namespace tl
     {
         //! Get a box with the given aspect ratio that fits within
         //! the given box.
-        feather_tk::Box2I getBox(float aspect, const feather_tk::Box2I&);
+        ftk::Box2I getBox(float aspect, const ftk::Box2I&);
     }
 }

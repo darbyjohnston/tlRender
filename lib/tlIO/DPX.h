@@ -27,7 +27,7 @@ namespace tl
             Count,
             First = _1_0
         };
-        FEATHER_TK_ENUM(Version);
+        FTK_ENUM(Version);
 
         //! DPX endian options.
         enum class Endian
@@ -39,7 +39,7 @@ namespace tl
             Count,
             First = Auto
         };
-        FEATHER_TK_ENUM(Endian);
+        FTK_ENUM(Endian);
 
         //! DPX header magic numbers.
         static const char magic[][5] =
@@ -63,7 +63,7 @@ namespace tl
             Count,
             First = LeftRightTopBottom
         };
-        FEATHER_TK_ENUM(Orient);
+        FTK_ENUM(Orient);
 
         //! DPX channel descriptors.
         enum class Descriptor
@@ -113,7 +113,7 @@ namespace tl
             Count,
             First = User
         };
-        FEATHER_TK_ENUM(Transfer);
+        FTK_ENUM(Transfer);
 
         //! DPX colorimetric information for version 1.0.
         enum class Colorimetric_1_0
@@ -153,7 +153,7 @@ namespace tl
             Count,
             First = Pack
         };
-        FEATHER_TK_ENUM(Components);
+        FTK_ENUM(Components);
 
         //! DPX header.
         struct Header
@@ -275,20 +275,20 @@ namespace tl
 
         //! Read a header.
         Header read(
-            const std::shared_ptr<feather_tk::FileIO>&,
+            const std::shared_ptr<ftk::FileIO>&,
             io::Info&,
             Transfer&);
 
         //! Write a header.
         void write(
-            const std::shared_ptr<feather_tk::FileIO>&,
+            const std::shared_ptr<ftk::FileIO>&,
             const io::Info&,
             Version,
             Endian,
             Transfer);
 
         //! Finish writing the header.
-        void finishWrite(const std::shared_ptr<feather_tk::FileIO>&);
+        void finishWrite(const std::shared_ptr<ftk::FileIO>&);
 
         //! DPX reader.
         class Read : public io::ISequenceRead
@@ -296,9 +296,9 @@ namespace tl
         protected:
             void _init(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             Read();
 
@@ -309,22 +309,22 @@ namespace tl
             static std::shared_ptr<Read> create(
                 const file::Path&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             //! Create a new reader.
             static std::shared_ptr<Read> create(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
         protected:
             io::Info _getInfo(
                 const std::string& fileName,
-                const feather_tk::InMemoryFile*) override;
+                const ftk::InMemoryFile*) override;
             io::VideoData _readVideo(
                 const std::string& fileName,
-                const feather_tk::InMemoryFile*,
+                const ftk::InMemoryFile*,
                 const OTIO_NS::RationalTime&,
                 const io::Options&) override;
         };
@@ -337,7 +337,7 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             Write();
 
@@ -349,13 +349,13 @@ namespace tl
                 const file::Path&,
                 const io::Info&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
         protected:
             void _writeVideo(
                 const std::string& fileName,
                 const OTIO_NS::RationalTime&,
-                const std::shared_ptr<feather_tk::Image>&,
+                const std::shared_ptr<ftk::Image>&,
                 const io::Options&) override;
         };
 
@@ -363,21 +363,21 @@ namespace tl
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
+            void _init(const std::shared_ptr<ftk::LogSystem>&);
 
             ReadPlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<ReadPlugin> create(
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const io::Options & = io::Options()) override;
         };
 
@@ -385,17 +385,17 @@ namespace tl
         class WritePlugin : public io::IWritePlugin
         {
         protected:
-            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
+            void _init(const std::shared_ptr<ftk::LogSystem>&);
 
             WritePlugin();
 
         public:
             //! Create a new plugin.
             static std::shared_ptr<WritePlugin> create(
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
-            feather_tk::ImageInfo getInfo(
-                const feather_tk::ImageInfo&,
+            ftk::ImageInfo getInfo(
+                const ftk::ImageInfo&,
                 const io::Options & = io::Options()) const override;
             std::shared_ptr<io::IWrite> write(
                 const file::Path&,

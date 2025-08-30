@@ -21,7 +21,7 @@ namespace tl
     {
         struct IStream::Private
         {
-            std::shared_ptr<feather_tk::FileIO> f;
+            std::shared_ptr<ftk::FileIO> f;
             const uint8_t* p = nullptr;
             uint64_t size = 0;
             uint64_t pos = 0;
@@ -31,8 +31,8 @@ namespace tl
             Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
-            FEATHER_TK_P();
-            p.f = feather_tk::FileIO::create(fileName, feather_tk::FileMode::Read);
+            FTK_P();
+            p.f = ftk::FileIO::create(fileName, ftk::FileMode::Read);
             p.p = p.f->getMemoryP();
             p.size = p.f->getSize();
         }
@@ -41,7 +41,7 @@ namespace tl
             Imf::IStream(fileName.c_str()),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.p = memoryP;
             p.size = memorySize;
         }
@@ -56,10 +56,10 @@ namespace tl
 
         char* IStream::readMemoryMapped(int n)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(feather_tk::Format("Error reading file: \"{0}\"").arg(fileName()));
+                throw std::runtime_error(ftk::Format("Error reading file: \"{0}\"").arg(fileName()));
             }
             char* out = nullptr;
             if (p.p)
@@ -72,10 +72,10 @@ namespace tl
 
         bool IStream::read(char c[], int n)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.pos >= p.size || (p.pos + n) > p.size)
             {
-                throw std::runtime_error(feather_tk::Format("Error reading file: \"{0}\"").arg(fileName()));
+                throw std::runtime_error(ftk::Format("Error reading file: \"{0}\"").arg(fileName()));
             }
             if (p.p)
             {
@@ -96,7 +96,7 @@ namespace tl
 
         void IStream::seekg(uint64_t pos)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (p.f)
             {
                 p.f->setPos(pos);
@@ -140,8 +140,8 @@ namespace tl
             public:
                 File(
                     const std::string& fileName,
-                    const feather_tk::InMemoryFile* memory,
-                    const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+                    const ftk::InMemoryFile* memory,
+                    const std::shared_ptr<ftk::LogSystem>& logSystem)
                 {
                     // Open the file.
                     if (memory)
@@ -155,8 +155,8 @@ namespace tl
                     _f.reset(new Imf::MultiPartInputFile(*_s));
 
                     {
-                        const std::string id = feather_tk::Format("tl::io::exr::Read {0}").arg(this);
-                        logSystem->print(id, feather_tk::Format("file name: {0}").arg(fileName));
+                        const std::string id = ftk::Format("tl::io::exr::Read {0}").arg(this);
+                        logSystem->print(id, ftk::Format("file name: {0}").arg(fileName));
                     }
 
                     // Get the tags.
@@ -180,7 +180,7 @@ namespace tl
                             }
                         }
 
-                        const feather_tk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
+                        const ftk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
                         const auto& imfChannels = imfHeader.channels();
                         std::set<std::string> imfChannelNames;
                         for (auto i = imfChannels.begin(); i != imfChannels.end(); ++i)
@@ -228,7 +228,7 @@ namespace tl
                                 1 == imfChannels[*a].xSampling &&
                                 1 == imfChannels[*a].ySampling)
                             {
-                                feather_tk::ImageInfo info;
+                                ftk::ImageInfo info;
                                 info.name = "RGBA" + view;
                                 info.size.w = displayWindow.w();
                                 info.size.h = displayWindow.h();
@@ -236,12 +236,12 @@ namespace tl
                                 info.layout.mirror.y = true;
                                 switch (imfPixelType)
                                 {
-                                case Imf::PixelType::HALF:  info.type = feather_tk::ImageType::RGBA_F16; break;
-                                case Imf::PixelType::FLOAT: info.type = feather_tk::ImageType::RGBA_F32; break;
-                                case Imf::PixelType::UINT:  info.type = feather_tk::ImageType::RGBA_U32; break;
+                                case Imf::PixelType::HALF:  info.type = ftk::ImageType::RGBA_F16; break;
+                                case Imf::PixelType::FLOAT: info.type = ftk::ImageType::RGBA_F32; break;
+                                case Imf::PixelType::UINT:  info.type = ftk::ImageType::RGBA_U32; break;
                                 default: break;
                                 }
-                                if (info.type != feather_tk::ImageType::None)
+                                if (info.type != ftk::ImageType::None)
                                 {
                                     _info.video.push_back(info);
                                     Layer layer;
@@ -273,15 +273,15 @@ namespace tl
                                 1 == imfChannels[*b].xSampling &&
                                 1 == imfChannels[*b].ySampling)
                             {
-                                feather_tk::ImageInfo info;
+                                ftk::ImageInfo info;
                                 switch (imfPixelType)
                                 {
-                                case Imf::PixelType::HALF:  info.type = feather_tk::ImageType::RGB_F16; break;
-                                case Imf::PixelType::FLOAT: info.type = feather_tk::ImageType::RGB_F32; break;
-                                case Imf::PixelType::UINT:  info.type = feather_tk::ImageType::RGB_U32; break;
+                                case Imf::PixelType::HALF:  info.type = ftk::ImageType::RGB_F16; break;
+                                case Imf::PixelType::FLOAT: info.type = ftk::ImageType::RGB_F32; break;
+                                case Imf::PixelType::UINT:  info.type = ftk::ImageType::RGB_U32; break;
                                 default: break;
                                 }
-                                if (info.type != feather_tk::ImageType::None)
+                                if (info.type != ftk::ImageType::None)
                                 {
                                     info.name = "RGB" + view;
                                     info.size.w = displayWindow.w();
@@ -306,16 +306,16 @@ namespace tl
                         // Add remaining default layers.
                         for (const auto& imfChannelName : imfDefaultChannelNames)
                         {
-                            feather_tk::ImageInfo info;
+                            ftk::ImageInfo info;
                             const Imf::PixelType imfPixelType = imfChannels[imfChannelName].type;
                             switch (imfPixelType)
                             {
-                            case Imf::PixelType::HALF:  info.type = feather_tk::ImageType::L_F16; break;
-                            case Imf::PixelType::FLOAT: info.type = feather_tk::ImageType::L_F32; break;
-                            case Imf::PixelType::UINT:  info.type = feather_tk::ImageType::L_U32; break;
+                            case Imf::PixelType::HALF:  info.type = ftk::ImageType::L_F16; break;
+                            case Imf::PixelType::FLOAT: info.type = ftk::ImageType::L_F32; break;
+                            case Imf::PixelType::UINT:  info.type = ftk::ImageType::L_U32; break;
                             default: break;
                             }
-                            if (info.type != feather_tk::ImageType::None &&
+                            if (info.type != ftk::ImageType::None &&
                                 1 == imfChannels[imfChannelName].xSampling &&
                                 1 == imfChannels[imfChannelName].ySampling)
                             {
@@ -358,7 +358,7 @@ namespace tl
                                     }
                                 }
                             }
-                            feather_tk::ImageInfo info;
+                            ftk::ImageInfo info;
                             Layer layer;
                             if (imfHalfNames.size() > 0 && imfHalfNames.size() <= 4)
                             {
@@ -381,7 +381,7 @@ namespace tl
                                 layer.channels.insert(layer.channels.end(), imfUIntNames.begin(), imfUIntNames.end());
                                 layer.pixelType = Imf::PixelType::UINT;
                             }
-                            if (info.type != feather_tk::ImageType::None)
+                            if (info.type != ftk::ImageType::None)
                             {
                                 info.name = i + view;
                                 info.size.w = displayWindow.w();
@@ -396,7 +396,7 @@ namespace tl
                     }
                     if (_info.video.empty())
                     {
-                        throw std::runtime_error(feather_tk::Format("Unsupported image type: \"{0}\"").arg(fileName));
+                        throw std::runtime_error(ftk::Format("Unsupported image type: \"{0}\"").arg(fileName));
                     }
                 }
 
@@ -423,16 +423,16 @@ namespace tl
                     {
                         Imf::InputPart imfPart(*_f, _layers[layer].part);
                         const Imf::Header& imfHeader = _f->header(_layers[layer].part);
-                        const feather_tk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
-                        const feather_tk::Box2I dataWindow = fromImath(imfHeader.dataWindow());
-                        const feather_tk::Box2I intersectedWindow = feather_tk::intersect(displayWindow, dataWindow);
+                        const ftk::Box2I displayWindow = fromImath(imfHeader.displayWindow());
+                        const ftk::Box2I dataWindow = fromImath(imfHeader.dataWindow());
+                        const ftk::Box2I intersectedWindow = ftk::intersect(displayWindow, dataWindow);
                         const bool fast = displayWindow == dataWindow;
 
-                        const feather_tk::ImageInfo& imageInfo = _info.video[layer];
-                        out.image = feather_tk::Image::create(imageInfo);
+                        const ftk::ImageInfo& imageInfo = _info.video[layer];
+                        out.image = ftk::Image::create(imageInfo);
                         out.image->setTags(_info.tags);
-                        const size_t channels = feather_tk::getChannelCount(imageInfo.type);
-                        const size_t channelByteCount = feather_tk::getBitDepth(imageInfo.type) / 8;
+                        const size_t channels = ftk::getChannelCount(imageInfo.type);
+                        const size_t channelByteCount = ftk::getBitDepth(imageInfo.type) / 8;
                         const size_t cb = channels * channelByteCount;
                         const size_t scb = imageInfo.size.w * channels * channelByteCount;
                         if (fast)
@@ -440,7 +440,7 @@ namespace tl
                             Imf::FrameBuffer frameBuffer;
                             for (size_t c = 0; c < channels; ++c)
                             {
-                                const feather_tk::V2I sampling(1, 1);
+                                const ftk::V2I sampling(1, 1);
                                 frameBuffer.insert(
                                     _layers[layer].channels[c],
                                     Imf::Slice(
@@ -461,7 +461,7 @@ namespace tl
                             std::vector<char> buf(dataWindow.w() * cb);
                             for (int c = 0; c < channels; ++c)
                             {
-                                const feather_tk::V2I sampling(1, 1);
+                                const ftk::V2I sampling(1, 1);
                                 frameBuffer.insert(
                                     _layers[layer].channels[c],
                                     Imf::Slice(
@@ -515,9 +515,9 @@ namespace tl
 
         void Read::_init(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             ISequenceRead::_init(path, memory, options, logSystem);
         }
@@ -533,7 +533,7 @@ namespace tl
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, {}, options, logSystem);
@@ -542,9 +542,9 @@ namespace tl
 
         std::shared_ptr<Read> Read::create(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options,
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<Read>(new Read);
             out->_init(path, memory, options, logSystem);
@@ -553,7 +553,7 @@ namespace tl
 
         io::Info Read::_getInfo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory)
+            const ftk::InMemoryFile* memory)
         {
             io::Info out = File(fileName, memory, _logSystem.lock()).getInfo();
             float speed = _defaultSpeed;
@@ -570,7 +570,7 @@ namespace tl
 
         io::VideoData Read::_readVideo(
             const std::string& fileName,
-            const feather_tk::InMemoryFile* memory,
+            const ftk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
