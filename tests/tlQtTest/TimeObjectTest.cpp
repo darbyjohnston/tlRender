@@ -8,11 +8,11 @@ namespace tl
 {
 namespace qt_tests
     {
-        TimeObjectTest::TimeObjectTest(const std::shared_ptr<feather_tk::Context>& context) :
+        TimeObjectTest::TimeObjectTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "qt_tests::TimeObjectTest")
         {}
 
-        std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<TimeObjectTest> TimeObjectTest::create(const std::shared_ptr<ftk::Context>& context)
         {
             return std::shared_ptr<TimeObjectTest>(new TimeObjectTest(context));
         }

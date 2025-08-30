@@ -28,17 +28,17 @@ namespace tl
 
         public:
             Viewport(
-                const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::Style>&,
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~Viewport();
 
             //! Get the color buffer type.
-            feather_tk::ImageType colorBuffer() const;
+            ftk::ImageType colorBuffer() const;
 
             //! Get the view position.
-            const feather_tk::V2I& viewPos() const;
+            const ftk::V2I& viewPos() const;
 
             //! Get the view zoom.
             double viewZoom() const;
@@ -60,7 +60,7 @@ namespace tl
             void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the image options.
-            void setImageOptions(const std::vector<feather_tk::ImageOptions>&);
+            void setImageOptions(const std::vector<ftk::ImageOptions>&);
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
@@ -75,16 +75,16 @@ namespace tl
             void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Set the color buffer type.
-            void setColorBuffer(feather_tk::ImageType);
+            void setColorBuffer(ftk::ImageType);
 
             //! Set the timeline player.
             void setPlayer(const QSharedPointer<qt::PlayerObject>&);
 
             //! Set the view position and zoom.
-            void setViewPosAndZoom(const feather_tk::V2I&, double);
+            void setViewPosAndZoom(const ftk::V2I&, double);
 
             //! Set the view zoom.
-            void setViewZoom(double, const feather_tk::V2I& focus = feather_tk::V2I());
+            void setViewZoom(double, const ftk::V2I& focus = ftk::V2I());
 
             //! Frame the view.
             void setFrameView(bool);
@@ -103,7 +103,7 @@ namespace tl
             void compareOptionsChanged(const tl::timeline::CompareOptions&);
 
             //! This signal is emitted when the position and zoom change.
-            void viewPosAndZoomChanged(const feather_tk::V2I&, double);
+            void viewPosAndZoomChanged(const ftk::V2I&, double);
 
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
@@ -115,10 +115,10 @@ namespace tl
             void droppedFramesChanged(size_t);
 
             //! This signal is emitted when the color picker is changed.
-            void colorPickerChanged(const feather_tk::Color4F&);
+            void colorPickerChanged(const ftk::Color4F&);
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

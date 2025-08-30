@@ -18,7 +18,7 @@ namespace tl
     namespace qt
     {
         void init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             DefaultSurfaceFormat defaultSurfaceFormat)
         {
             timeline::init(context);
@@ -26,7 +26,7 @@ namespace tl
         }
 
         System::System(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             DefaultSurfaceFormat defaultSurfaceFormat) :
             ISystem(context, "tl::qt::System")
         {
@@ -34,18 +34,18 @@ namespace tl
             qRegisterMetaType<OTIO_NS::TimeRange>("OTIO_NS::TimeRange");
             qRegisterMetaType<std::vector<OTIO_NS::TimeRange> >("std::vector<OTIO_NS::TimeRange>");
 
-            qRegisterMetaType<feather_tk::AlphaBlend>("feather_tk::AlphaBlend");
-            qRegisterMetaType<feather_tk::ChannelDisplay>("feather_tk::ChannelDisplay");
-            qRegisterMetaType<feather_tk::ImageType>("feather_tk::ImageType");
-            qRegisterMetaType<feather_tk::ImageFilter>("feather_tk::ImageFilter");
-            qRegisterMetaType<feather_tk::InputVideoLevels>("feather_tk::InputVideoLevels");
-            qRegisterMetaType<feather_tk::Size2I>("feather_tk::Size2I");
+            qRegisterMetaType<ftk::AlphaBlend>("ftk::AlphaBlend");
+            qRegisterMetaType<ftk::ChannelDisplay>("ftk::ChannelDisplay");
+            qRegisterMetaType<ftk::ImageType>("ftk::ImageType");
+            qRegisterMetaType<ftk::ImageFilter>("ftk::ImageFilter");
+            qRegisterMetaType<ftk::InputVideoLevels>("ftk::InputVideoLevels");
+            qRegisterMetaType<ftk::Size2I>("ftk::Size2I");
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
-            QMetaType::registerComparators<feather_tk::AlphaBlend>();
-            QMetaType::registerComparators<feather_tk::ChannelDisplay>();
-            QMetaType::registerComparators<feather_tk::ImageType>();
-            QMetaType::registerComparators<feather_tk::ImageFilter>();
-            QMetaType::registerComparators<feather_tk::InputVideoLevels>();
+            QMetaType::registerComparators<ftk::AlphaBlend>();
+            QMetaType::registerComparators<ftk::ChannelDisplay>();
+            QMetaType::registerComparators<ftk::ImageType>();
+            QMetaType::registerComparators<ftk::ImageFilter>();
+            QMetaType::registerComparators<ftk::InputVideoLevels>();
 #endif // QT_VERSION
 
             qRegisterMetaType<audio::DataType>("tl::audio::DataType");
@@ -117,7 +117,7 @@ namespace tl
         {}
 
         std::shared_ptr<System> System::create(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             DefaultSurfaceFormat defaultSurfaceFormat)
         {
             auto out = context->getSystem<System>();

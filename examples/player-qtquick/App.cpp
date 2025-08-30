@@ -22,19 +22,19 @@ namespace tl
         namespace player_qtquick
         {
             App::App(
-                const std::shared_ptr<feather_tk::Context>& context,
+                const std::shared_ptr<ftk::Context>& context,
                 int& argc,
                 char** argv) :
                 QGuiApplication(argc, argv)
             {
-                auto args = feather_tk::convert(argc, argv);
+                auto args = ftk::convert(argc, argv);
                 IApp::_init(
                     context,
                     args,
                     "player-qtquick",
                     "Example Qt Quick player application.",
                     {
-                        feather_tk::CmdLineValueArg<std::string>::create(
+                        ftk::CmdLineValueArg<std::string>::create(
                             _input,
                             "input",
                             "The input timeline.")

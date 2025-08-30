@@ -8,24 +8,24 @@ namespace tl
 {
     namespace qtwidget
     {
-        QSize toQt(const feather_tk::Size2I& value)
+        QSize toQt(const ftk::Size2I& value)
         {
             return QSize(value.w, value.h);
         }
 
-        feather_tk::Size2I fromQt(const QSize& value)
+        ftk::Size2I fromQt(const QSize& value)
         {
-            return feather_tk::Size2I(value.width(), value.height());
+            return ftk::Size2I(value.width(), value.height());
         }
 
-        QColor toQt(const feather_tk::Color4F& value)
+        QColor toQt(const ftk::Color4F& value)
         {
             return QColor::fromRgbF(value.r, value.g, value.b, value.a);
         }
 
-        feather_tk::Color4F fromQt(const QColor& value)
+        ftk::Color4F fromQt(const QColor& value)
         {
-            return feather_tk::Color4F(
+            return ftk::Color4F(
                 value.redF(),
                 value.greenF(),
                 value.blueF(),

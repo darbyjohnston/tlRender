@@ -27,163 +27,163 @@ namespace tl
             std::shared_ptr<timeline::Player> player;
             std::unique_ptr<QTimer> timer;
 
-            std::shared_ptr<feather_tk::ValueObserver<double> > speedObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::Playback> > playbackObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::Loop> > loopObserver;
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
-            std::shared_ptr<feather_tk::ListObserver<std::shared_ptr<timeline::Timeline> > > compareObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<io::Options> > ioOptionsObserver;
-            std::shared_ptr<feather_tk::ValueObserver<int> > videoLayerObserver;
-            std::shared_ptr<feather_tk::ListObserver<int> > compareVideoLayersObserver;
-            std::shared_ptr<feather_tk::ListObserver<timeline::VideoData> > currentVideoObserver;
-            std::shared_ptr<feather_tk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
-            std::shared_ptr<feather_tk::ValueObserver<float> > volumeObserver;
-            std::shared_ptr<feather_tk::ValueObserver<bool> > muteObserver;
-            std::shared_ptr<feather_tk::ListObserver<bool> > channelMuteObserver;
-            std::shared_ptr<feather_tk::ValueObserver<double> > audioOffsetObserver;
-            std::shared_ptr<feather_tk::ListObserver<timeline::AudioData> > currentAudioObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::PlayerCacheOptions> > cacheOptionsObserver;
-            std::shared_ptr<feather_tk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
+            std::shared_ptr<ftk::ValueObserver<double> > speedObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::Playback> > playbackObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::Loop> > loopObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::TimeRange> > inOutRangeObserver;
+            std::shared_ptr<ftk::ListObserver<std::shared_ptr<timeline::Timeline> > > compareObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::CompareTime> > compareTimeObserver;
+            std::shared_ptr<ftk::ValueObserver<io::Options> > ioOptionsObserver;
+            std::shared_ptr<ftk::ValueObserver<int> > videoLayerObserver;
+            std::shared_ptr<ftk::ListObserver<int> > compareVideoLayersObserver;
+            std::shared_ptr<ftk::ListObserver<timeline::VideoData> > currentVideoObserver;
+            std::shared_ptr<ftk::ValueObserver<audio::DeviceID> > audioDeviceObserver;
+            std::shared_ptr<ftk::ValueObserver<float> > volumeObserver;
+            std::shared_ptr<ftk::ValueObserver<bool> > muteObserver;
+            std::shared_ptr<ftk::ListObserver<bool> > channelMuteObserver;
+            std::shared_ptr<ftk::ValueObserver<double> > audioOffsetObserver;
+            std::shared_ptr<ftk::ListObserver<timeline::AudioData> > currentAudioObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::PlayerCacheOptions> > cacheOptionsObserver;
+            std::shared_ptr<ftk::ValueObserver<timeline::PlayerCacheInfo> > cacheInfoObserver;
         };
 
         void PlayerObject::_init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::Player>& player)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             p.player = player;
 
-            p.speedObserver = feather_tk::ValueObserver<double>::create(
+            p.speedObserver = ftk::ValueObserver<double>::create(
                 p.player->observeSpeed(),
                 [this](double value)
                 {
                     Q_EMIT speedChanged(value);
                 });
 
-            p.playbackObserver = feather_tk::ValueObserver<timeline::Playback>::create(
+            p.playbackObserver = ftk::ValueObserver<timeline::Playback>::create(
                 p.player->observePlayback(),
                 [this](timeline::Playback value)
                 {
                     Q_EMIT playbackChanged(value);
                 });
 
-            p.loopObserver = feather_tk::ValueObserver<timeline::Loop>::create(
+            p.loopObserver = ftk::ValueObserver<timeline::Loop>::create(
                 p.player->observeLoop(),
                 [this](timeline::Loop value)
                 {
                     Q_EMIT loopChanged(value);
                 });
 
-            p.currentTimeObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
+            p.currentTimeObserver = ftk::ValueObserver<OTIO_NS::RationalTime>::create(
                 p.player->observeCurrentTime(),
                 [this](const OTIO_NS::RationalTime& value)
                 {
                     Q_EMIT currentTimeChanged(value);
                 });
 
-            p.inOutRangeObserver = feather_tk::ValueObserver<OTIO_NS::TimeRange>::create(
+            p.inOutRangeObserver = ftk::ValueObserver<OTIO_NS::TimeRange>::create(
                 p.player->observeInOutRange(),
                 [this](const OTIO_NS::TimeRange value)
                 {
                     Q_EMIT inOutRangeChanged(value);
                 });
 
-            p.compareObserver = feather_tk::ListObserver<std::shared_ptr<timeline::Timeline> >::create(
+            p.compareObserver = ftk::ListObserver<std::shared_ptr<timeline::Timeline> >::create(
                 p.player->observeCompare(),
                 [this](const std::vector<std::shared_ptr<timeline::Timeline> >& value)
                 {
                     Q_EMIT compareChanged(value);
                 });
 
-            p.compareTimeObserver = feather_tk::ValueObserver<timeline::CompareTime>::create(
+            p.compareTimeObserver = ftk::ValueObserver<timeline::CompareTime>::create(
                 p.player->observeCompareTime(),
                 [this](timeline::CompareTime value)
                 {
                     Q_EMIT compareTimeChanged(value);
                 });
 
-            p.ioOptionsObserver = feather_tk::ValueObserver<io::Options>::create(
+            p.ioOptionsObserver = ftk::ValueObserver<io::Options>::create(
                 p.player->observeIOOptions(),
                 [this](const io::Options& value)
                 {
                     Q_EMIT ioOptionsChanged(value);
                 });
 
-            p.videoLayerObserver = feather_tk::ValueObserver<int>::create(
+            p.videoLayerObserver = ftk::ValueObserver<int>::create(
                 p.player->observeVideoLayer(),
                 [this](int value)
                 {
                     Q_EMIT videoLayerChanged(value);
                 });
 
-            p.compareVideoLayersObserver = feather_tk::ListObserver<int>::create(
+            p.compareVideoLayersObserver = ftk::ListObserver<int>::create(
                 p.player->observeCompareVideoLayers(),
                 [this](const std::vector<int>& value)
                 {
                     Q_EMIT compareVideoLayersChanged(value);
                 });
 
-            p.currentVideoObserver = feather_tk::ListObserver<timeline::VideoData>::create(
+            p.currentVideoObserver = ftk::ListObserver<timeline::VideoData>::create(
                 p.player->observeCurrentVideo(),
                 [this](const std::vector<timeline::VideoData>& value)
                 {
                     Q_EMIT currentVideoChanged(value);
                 },
-                feather_tk::ObserverAction::Suppress);
+                ftk::ObserverAction::Suppress);
 
-            p.audioDeviceObserver = feather_tk::ValueObserver<audio::DeviceID>::create(
+            p.audioDeviceObserver = ftk::ValueObserver<audio::DeviceID>::create(
                 p.player->observeAudioDevice(),
                 [this](const audio::DeviceID& value)
                 {
                     Q_EMIT audioDeviceChanged(value);
                 });
 
-            p.volumeObserver = feather_tk::ValueObserver<float>::create(
+            p.volumeObserver = ftk::ValueObserver<float>::create(
                 p.player->observeVolume(),
                 [this](float value)
                 {
                     Q_EMIT volumeChanged(value);
                 });
 
-            p.muteObserver = feather_tk::ValueObserver<bool>::create(
+            p.muteObserver = ftk::ValueObserver<bool>::create(
                 p.player->observeMute(),
                 [this](bool value)
                 {
                     Q_EMIT muteChanged(value);
                 });
 
-            p.channelMuteObserver = feather_tk::ListObserver<bool>::create(
+            p.channelMuteObserver = ftk::ListObserver<bool>::create(
                 p.player->observeChannelMute(),
                 [this](const std::vector<bool>& value)
                 {
                     Q_EMIT channelMuteChanged(value);
                 });
 
-            p.audioOffsetObserver = feather_tk::ValueObserver<double>::create(
+            p.audioOffsetObserver = ftk::ValueObserver<double>::create(
                 p.player->observeAudioOffset(),
                 [this](double value)
                 {
                     Q_EMIT audioOffsetChanged(value);
                 });
 
-            p.currentAudioObserver = feather_tk::ListObserver<timeline::AudioData>::create(
+            p.currentAudioObserver = ftk::ListObserver<timeline::AudioData>::create(
                 p.player->observeCurrentAudio(),
                 [this](const std::vector<timeline::AudioData>& value)
                 {
                     Q_EMIT currentAudioChanged(value);
                 });
 
-            p.cacheOptionsObserver = feather_tk::ValueObserver<timeline::PlayerCacheOptions>::create(
+            p.cacheOptionsObserver = ftk::ValueObserver<timeline::PlayerCacheOptions>::create(
                 p.player->observeCacheOptions(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
                     Q_EMIT cacheOptionsChanged(value);
                 });
 
-            p.cacheInfoObserver = feather_tk::ValueObserver<timeline::PlayerCacheInfo>::create(
+            p.cacheInfoObserver = ftk::ValueObserver<timeline::PlayerCacheInfo>::create(
                 p.player->observeCacheInfo(),
                 [this](const timeline::PlayerCacheInfo& value)
                 {
@@ -197,7 +197,7 @@ namespace tl
         }
 
         PlayerObject::PlayerObject(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::Player>& player,
             QObject* parent) :
             QObject(parent),
@@ -209,7 +209,7 @@ namespace tl
         PlayerObject::~PlayerObject()
         {}
         
-        std::shared_ptr<feather_tk::Context> PlayerObject::context() const
+        std::shared_ptr<ftk::Context> PlayerObject::context() const
         {
             return _p->player->getContext();
         }

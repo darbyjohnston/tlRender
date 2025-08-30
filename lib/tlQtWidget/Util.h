@@ -16,16 +16,16 @@ namespace tl
     namespace qtwidget
     {
         //! Convert to a Qt size.
-        QSize toQt(const feather_tk::Size2I&);
+        QSize toQt(const ftk::Size2I&);
 
         //! Convert from a Qt size.
-        feather_tk::Size2I fromQt(const QSize&);
+        ftk::Size2I fromQt(const QSize&);
 
         //! Convert to a Qt color.
-        QColor toQt(const feather_tk::Color4F&);
+        QColor toQt(const ftk::Color4F&);
 
         //! Convert from a Qt color.
-        feather_tk::Color4F fromQt(const QColor&);
+        ftk::Color4F fromQt(const QColor&);
 
         //! Set whether the window is floating on top.
         void setFloatOnTop(bool, QWidget*);

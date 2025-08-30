@@ -23,7 +23,7 @@ namespace tl
                 Q_OBJECT
 
             public:
-                MainWindow(const std::shared_ptr<feather_tk::Context>&);
+                MainWindow(const std::shared_ptr<ftk::Context>&);
 
                 virtual ~MainWindow();
 

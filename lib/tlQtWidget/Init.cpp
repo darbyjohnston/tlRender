@@ -18,7 +18,7 @@
 
 #include <iostream>
 
-namespace feather_tk_resource
+namespace ftk_resource
 {
     extern std::vector<uint8_t> NotoSansBold;
     extern std::vector<uint8_t> NotoSansMonoRegular;
@@ -30,20 +30,20 @@ namespace tl
     namespace qtwidget
     {
         void init(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             qt::DefaultSurfaceFormat defaultSurfaceFormat)
         {
             timelineui::init(context);
             qt::init(context, defaultSurfaceFormat);
         }
 
-        void initFonts(const std::shared_ptr<feather_tk::Context>& context)
+        void initFonts(const std::shared_ptr<ftk::Context>& context)
         {
             const std::vector<std::vector<uint8_t> > fonts =
             {
-                feather_tk_resource::NotoSansMonoRegular,
-                feather_tk_resource::NotoSansBold,
-                feather_tk_resource::NotoSansRegular
+                ftk_resource::NotoSansMonoRegular,
+                ftk_resource::NotoSansBold,
+                ftk_resource::NotoSansRegular
             };
             std::vector<std::string> fontFamilyList;
             for (const auto& font : fonts)
@@ -57,7 +57,7 @@ namespace tl
             }
             context->log(
                 "tl::qtwidget::initFonts",
-                feather_tk::Format("Added Qt application fonts: {0}").arg(feather_tk::join(fontFamilyList, ", ")));
+                ftk::Format("Added Qt application fonts: {0}").arg(ftk::join(fontFamilyList, ", ")));
         }
     }
 }

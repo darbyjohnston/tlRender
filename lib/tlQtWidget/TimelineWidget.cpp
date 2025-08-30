@@ -26,21 +26,21 @@ namespace tl
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
             QAction* trackEnabledAction = nullptr;
 
-            std::shared_ptr<feather_tk::ValueObserver<bool> > editableObserver;
-            std::shared_ptr<feather_tk::ValueObserver<bool> > frameViewObserver;
-            std::shared_ptr<feather_tk::ValueObserver<bool> > scrubObserver;
-            std::shared_ptr<feather_tk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
+            std::shared_ptr<ftk::ValueObserver<bool> > editableObserver;
+            std::shared_ptr<ftk::ValueObserver<bool> > frameViewObserver;
+            std::shared_ptr<ftk::ValueObserver<bool> > scrubObserver;
+            std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
         };
 
         TimelineWidget::TimelineWidget(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
-            const std::shared_ptr<feather_tk::Style>& style,
+            const std::shared_ptr<ftk::Style>& style,
             QWidget* parent) :
             ContainerWidget(context, style, parent),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
             //p.timelineWidget->setScrollBarsVisible(false);
@@ -55,28 +55,28 @@ namespace tl
                 SIGNAL(toggled(bool)),
                 SLOT(_trackEnabledCallback(bool)));
 
-            p.editableObserver = feather_tk::ValueObserver<bool>::create(
+            p.editableObserver = ftk::ValueObserver<bool>::create(
                 p.timelineWidget->observeEditable(),
                 [this](bool value)
                 {
                     Q_EMIT editableChanged(value);
                 });
 
-            p.frameViewObserver = feather_tk::ValueObserver<bool>::create(
+            p.frameViewObserver = ftk::ValueObserver<bool>::create(
                 p.timelineWidget->observeFrameView(),
                 [this](bool value)
                 {
                     Q_EMIT frameViewChanged(value);
                 });
 
-            p.scrubObserver = feather_tk::ValueObserver<bool>::create(
+            p.scrubObserver = ftk::ValueObserver<bool>::create(
                 p.timelineWidget->observeScrub(),
                 [this](bool value)
                 {
                     Q_EMIT scrubChanged(value);
                 });
 
-            p.timeScrubObserver = feather_tk::ValueObserver<OTIO_NS::RationalTime>::create(
+            p.timeScrubObserver = ftk::ValueObserver<OTIO_NS::RationalTime>::create(
                 p.timelineWidget->observeTimeScrub(),
                 [this](const OTIO_NS::RationalTime& value)
                 {
@@ -157,7 +157,7 @@ namespace tl
             _p->timelineWidget->setAutoScroll(value);
         }
 
-        void TimelineWidget::setScrollBinding(int button, feather_tk::KeyModifier modifier)
+        void TimelineWidget::setScrollBinding(int button, ftk::KeyModifier modifier)
         {
             _p->timelineWidget->setScrollBinding(button, modifier);
         }
@@ -179,7 +179,7 @@ namespace tl
 
         void TimelineWidget::setItemOptions(const timelineui::ItemOptions& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.timelineWidget->setItemOptions(value);
             setInputEnabled(value.inputEnabled);
         }
@@ -191,14 +191,14 @@ namespace tl
 
         void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (auto player = p.timelineWidget->getPlayer())
             {
-                const feather_tk::V2I pos = _toUI(feather_tk::V2I(event->x(), event->y()));
-                const std::vector<feather_tk::Box2I> trackGeom = p.timelineWidget->getTrackGeom();
+                const ftk::V2I pos = _toUI(ftk::V2I(event->x(), event->y()));
+                const std::vector<ftk::Box2I> trackGeom = p.timelineWidget->getTrackGeom();
                 for (int i = 0; i < trackGeom.size(); ++i)
                 {
-                    if (feather_tk::contains(trackGeom[i], pos))
+                    if (ftk::contains(trackGeom[i], pos))
                     {
                         p.currentTrack = i;
 
@@ -225,7 +225,7 @@ namespace tl
 
         void TimelineWidget::_trackEnabledCallback(bool value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (auto player = p.timelineWidget->getPlayer())
             {
                 auto otioTimeline = player->getTimeline()->getTimeline();

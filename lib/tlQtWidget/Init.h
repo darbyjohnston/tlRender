@@ -14,11 +14,11 @@ namespace tl
         //! Initialize the library. This needs to be called before the Qt
         //! application is created.
         void init(
-            const std::shared_ptr<feather_tk::Context>&,
+            const std::shared_ptr<ftk::Context>&,
             qt::DefaultSurfaceFormat);
 
         //! Initialize the fonts. This needs to be called after the Qt
         //! application is created.
-        void initFonts(const std::shared_ptr<feather_tk::Context>& context);
+        void initFonts(const std::shared_ptr<ftk::Context>& context);
     }
 }

@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     int r = 1;
     try
     {
-        auto context = feather_tk::Context::create();
+        auto context = ftk::Context::create();
         tl::qtquick::init(
             context,
             tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);

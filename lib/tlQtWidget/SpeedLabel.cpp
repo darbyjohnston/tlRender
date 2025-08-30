@@ -23,7 +23,7 @@ namespace tl
             QWidget(parent),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             const QFont fixedFont("Noto Mono");
             setFont(fixedFont);
@@ -49,7 +49,7 @@ namespace tl
 
         void SpeedLabel::setValue(const OTIO_NS::RationalTime& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value.value() == p.value.value() &&
                 value.rate() == p.value.rate())
                 return;
@@ -59,7 +59,7 @@ namespace tl
 
         void SpeedLabel::_textUpdate()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.label->setText(QString("%1").
                 arg(time::isValid(p.value) ? p.value.rate() : 0.0, 0, 'f', 2));
         }

@@ -10,7 +10,7 @@
 
 #include <memory>
 
-namespace feather_tk
+namespace ftk
 {
     class Context;
 }
@@ -26,18 +26,18 @@ namespace tl
 
         public:
             ContextObject(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 QObject* parent = nullptr);
 
             virtual ~ContextObject();
 
             //! Get the context.
-            const std::shared_ptr<feather_tk::Context>& context() const;
+            const std::shared_ptr<ftk::Context>& context() const;
 
         private:
             void _timerCallback();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

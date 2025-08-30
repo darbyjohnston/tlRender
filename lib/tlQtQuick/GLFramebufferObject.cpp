@@ -42,18 +42,18 @@ namespace tl
                     if (!_init)
                     {
                         _init = true;
-                        feather_tk::gl::initGLAD();
+                        ftk::gl::initGLAD();
                         _render = timeline_gl::Render::create(qtquick::getContext()->getLogSystem());
                     }
 
                     QOpenGLFramebufferObject* fbo = framebufferObject();
-                    const feather_tk::Size2I size(fbo->width(), fbo->height());
+                    const ftk::Size2I size(fbo->width(), fbo->height());
                     _render->begin(size);
                     if (!_videoData.empty())
                     {
                         _render->drawVideo(
                             { _videoData.front() },
-                            { feather_tk::Box2I(0, 0, size.w, size.h) });
+                            { ftk::Box2I(0, 0, size.w, size.h) });
                     }
                     _render->end();
 

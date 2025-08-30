@@ -69,7 +69,7 @@ namespace tl
         namespace
         {
             const std::string videoLevels =
-                "// enum feather_tk::VideoLevels\n"
+                "// enum ftk::VideoLevels\n"
                 "const uint VideoLevels_FullRange  = 0;\n"
                 "const uint VideoLevels_LegalRange = 1;\n";
         }
@@ -103,7 +103,7 @@ namespace tl
                 "in vec2 fTexture;\n"
                 "out vec4 outColor;\n"
                 "\n"
-                "// enum tl::feather_tk::ChannelDisplay\n"
+                "// enum tl::ftk::ChannelDisplay\n"
                 "const uint Channels_Color = 0;\n"
                 "const uint Channels_Red   = 1;\n"
                 "const uint Channels_Green = 2;\n"

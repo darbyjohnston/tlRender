@@ -71,7 +71,7 @@ namespace tl
             void _vaidatorUpdate();
             void _textUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

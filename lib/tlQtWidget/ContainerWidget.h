@@ -22,17 +22,17 @@ namespace tl
 
         public:
             ContainerWidget(
-                const std::shared_ptr<feather_tk::Context>&,
-                const std::shared_ptr<feather_tk::Style>&,
+                const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~ContainerWidget();
 
             //! Get the widget.
-            const std::shared_ptr<feather_tk::IWidget>& getWidget() const;
+            const std::shared_ptr<ftk::IWidget>& getWidget() const;
 
             //! Set the widget.
-            void setWidget(const std::shared_ptr<feather_tk::IWidget>&);
+            void setWidget(const std::shared_ptr<ftk::IWidget>&);
 
             //! Get whether input is enabled.
             bool isInputEnabled() const;
@@ -64,43 +64,43 @@ namespace tl
             bool event(QEvent*) override;
 
             int _toUI(int) const;
-            feather_tk::V2I _toUI(const feather_tk::V2I&) const;
+            ftk::V2I _toUI(const ftk::V2I&) const;
             int _fromUI(int) const;
-            feather_tk::V2I _fromUI(const feather_tk::V2I&) const;
+            ftk::V2I _fromUI(const ftk::V2I&) const;
 
         private:
             void _tickEvent();
             void _tickEvent(
-                const std::shared_ptr<feather_tk::IWidget>&,
+                const std::shared_ptr<ftk::IWidget>&,
                 bool visible,
                 bool enabled,
-                const feather_tk::TickEvent&);
+                const ftk::TickEvent&);
 
-            bool _hasSizeUpdate(const std::shared_ptr<feather_tk::IWidget>&) const;
+            bool _hasSizeUpdate(const std::shared_ptr<ftk::IWidget>&) const;
             void _sizeHintEvent();
             void _sizeHintEvent(
-                const std::shared_ptr<feather_tk::IWidget>&,
-                const feather_tk::SizeHintEvent&);
+                const std::shared_ptr<ftk::IWidget>&,
+                const ftk::SizeHintEvent&);
 
             void _setGeometry();
 
             void _clipEvent();
             void _clipEvent(
-                const std::shared_ptr<feather_tk::IWidget>&,
-                const feather_tk::Box2I&,
+                const std::shared_ptr<ftk::IWidget>&,
+                const ftk::Box2I&,
                 bool clipped);
 
-            bool _hasDrawUpdate(const std::shared_ptr<feather_tk::IWidget>&) const;
+            bool _hasDrawUpdate(const std::shared_ptr<ftk::IWidget>&) const;
             void _drawEvent(
-                const std::shared_ptr<feather_tk::IWidget>&,
-                const feather_tk::Box2I&,
-                const feather_tk::DrawEvent&);
+                const std::shared_ptr<ftk::IWidget>&,
+                const ftk::Box2I&,
+                const ftk::DrawEvent&);
 
             void _inputUpdate();
             void _timerUpdate();
             void _styleUpdate();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

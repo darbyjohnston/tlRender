@@ -14,12 +14,12 @@
 
 #include <QMetaType>
 
-Q_DECLARE_METATYPE(feather_tk::AlphaBlend);
-Q_DECLARE_METATYPE(feather_tk::ChannelDisplay);
-Q_DECLARE_METATYPE(feather_tk::ImageType);
-Q_DECLARE_METATYPE(feather_tk::ImageFilter);
-Q_DECLARE_METATYPE(feather_tk::InputVideoLevels);
-Q_DECLARE_METATYPE(feather_tk::Size2I);
+Q_DECLARE_METATYPE(ftk::AlphaBlend);
+Q_DECLARE_METATYPE(ftk::ChannelDisplay);
+Q_DECLARE_METATYPE(ftk::ImageType);
+Q_DECLARE_METATYPE(ftk::ImageFilter);
+Q_DECLARE_METATYPE(ftk::InputVideoLevels);
+Q_DECLARE_METATYPE(ftk::Size2I);
 
 Q_DECLARE_METATYPE(tl::audio::DataType);
 

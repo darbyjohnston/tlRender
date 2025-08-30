@@ -19,17 +19,17 @@ namespace tl
 
         struct ContextObject::Private
         {
-            std::shared_ptr<feather_tk::Context> context;
+            std::shared_ptr<ftk::Context> context;
             std::unique_ptr<QTimer> timer;
         };
 
         ContextObject::ContextObject(
-            const std::shared_ptr<feather_tk::Context>& context,
+            const std::shared_ptr<ftk::Context>& context,
             QObject* parent) :
             QObject(parent),
             _p(new Private)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             p.context = context;
 
@@ -42,7 +42,7 @@ namespace tl
         ContextObject::~ContextObject()
         {}
 
-        const std::shared_ptr<feather_tk::Context>& ContextObject::context() const
+        const std::shared_ptr<ftk::Context>& ContextObject::context() const
         {
             return _p->context;
         }

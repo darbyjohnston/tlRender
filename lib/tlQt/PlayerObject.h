@@ -118,19 +118,19 @@ namespace tl
                 NOTIFY cacheInfoChanged)
 
             void _init(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::Player>&);
 
         public:
             PlayerObject(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::Player>&,
                 QObject* parent = nullptr);
 
             virtual ~PlayerObject();
             
             //! Get the context.
-            std::shared_ptr<feather_tk::Context> context() const;
+            std::shared_ptr<ftk::Context> context() const;
 
             //! Get the timeline player.
             const std::shared_ptr<timeline::Player>& player() const;
@@ -484,7 +484,7 @@ namespace tl
         private:
             void _timerCallback();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

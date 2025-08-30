@@ -18,7 +18,7 @@
 int main(int argc, char* argv[])
 {
     // Initialize.
-    auto context = feather_tk::Context::create();
+    auto context = ftk::Context::create();
     tl::qtwidget::init(
         context,
         tl::qt::DefaultSurfaceFormat::OpenGL_4_1_CoreProfile);

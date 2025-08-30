@@ -22,13 +22,13 @@ namespace tl
         namespace player_qtquick
         {
             //! Application.
-            class App : public QGuiApplication, public feather_tk::IApp
+            class App : public QGuiApplication, public ftk::IApp
             {
                 Q_OBJECT
 
             public:
                 App(
-                    const std::shared_ptr<feather_tk::Context>&,
+                    const std::shared_ptr<ftk::Context>&,
                     int& argc,
                     char** argv);
                 

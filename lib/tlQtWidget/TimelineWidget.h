@@ -26,9 +26,9 @@ namespace tl
 
         public:
             TimelineWidget(
-                const std::shared_ptr<feather_tk::Context>&,
+                const std::shared_ptr<ftk::Context>&,
                 const std::shared_ptr<timeline::ITimeUnitsModel>&,
-                const std::shared_ptr<feather_tk::Style>&,
+                const std::shared_ptr<ftk::Style>&,
                 QWidget* parent = nullptr);
 
             virtual ~TimelineWidget();
@@ -77,7 +77,7 @@ namespace tl
             void setAutoScroll(bool);
 
             //! Set the scroll binding.
-            void setScrollBinding(int button, feather_tk::KeyModifier);
+            void setScrollBinding(int button, ftk::KeyModifier);
 
             //! Set the mouse wheel scale.
             void setMouseWheelScale(float);
@@ -114,7 +114,7 @@ namespace tl
             void _trackEnabledCallback(bool);
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

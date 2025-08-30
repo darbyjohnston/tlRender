@@ -13,10 +13,10 @@ namespace tl
         class TimeObjectTest : public tests::ITest
         {
         protected:
-            TimeObjectTest(const std::shared_ptr<feather_tk::Context>&);
+            TimeObjectTest(const std::shared_ptr<ftk::Context>&);
 
         public:
-            static std::shared_ptr<TimeObjectTest> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<TimeObjectTest> create(const std::shared_ptr<ftk::Context>&);
 
             void run() override;
         };
