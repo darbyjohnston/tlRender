@@ -11,7 +11,7 @@ namespace tl
 {
     namespace usd
     {
-        FEATHER_TK_ENUM_IMPL(
+        FTK_ENUM_IMPL(
             DrawMode,
             "Points",
             "Wireframe",
@@ -42,13 +42,13 @@ namespace tl
         io::Options getOptions(const Options& value)
         {
             io::Options out;
-            out["USD/RenderWidth"] = feather_tk::Format("{0}").arg(value.renderWidth);
-            out["USD/Complexity"] = feather_tk::Format("{0}").arg(value.complexity);
-            out["USD/DrawMode"] = feather_tk::Format("{0}").arg(value.drawMode);
-            out["USD/EnableLighting"] = feather_tk::Format("{0}").arg(value.enableLighting);
-            out["USD/sRGB"] = feather_tk::Format("{0}").arg(value.sRGB);
-            out["USD/StageCache"] = feather_tk::Format("{0}").arg(value.stageCache);
-            out["USD/DiskCache"] = feather_tk::Format("{0}").arg(value.diskCache);
+            out["USD/RenderWidth"] = ftk::Format("{0}").arg(value.renderWidth);
+            out["USD/Complexity"] = ftk::Format("{0}").arg(value.complexity);
+            out["USD/DrawMode"] = ftk::Format("{0}").arg(value.drawMode);
+            out["USD/EnableLighting"] = ftk::Format("{0}").arg(value.enableLighting);
+            out["USD/sRGB"] = ftk::Format("{0}").arg(value.sRGB);
+            out["USD/StageCache"] = ftk::Format("{0}").arg(value.stageCache);
+            out["USD/DiskCache"] = ftk::Format("{0}").arg(value.diskCache);
             return out;
         }
 
@@ -59,7 +59,7 @@ namespace tl
             std::shared_ptr<Render> render;
         };
         
-        void ReadPlugin::_init(const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+        void ReadPlugin::_init(const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IReadPlugin::_init(
                 "USD",
@@ -70,7 +70,7 @@ namespace tl
                     { ".usdz", io::FileType::Sequence }
                 },
                 logSystem);
-            FEATHER_TK_P();
+            FTK_P();
             p.render = Render::create(logSystem);
         }
         
@@ -82,7 +82,7 @@ namespace tl
         {}
 
         std::shared_ptr<ReadPlugin> ReadPlugin::create(
-            const std::shared_ptr<feather_tk::LogSystem>& logSystem)
+            const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             auto out = std::shared_ptr<ReadPlugin>(new ReadPlugin);
             out->_init(logSystem);
@@ -93,7 +93,7 @@ namespace tl
             const file::Path& path,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);
@@ -105,10 +105,10 @@ namespace tl
         
         std::shared_ptr<io::IRead> ReadPlugin::read(
             const file::Path& path,
-            const std::vector<feather_tk::InMemoryFile>& memory,
+            const std::vector<ftk::InMemoryFile>& memory,
             const io::Options& options)
         {
-            FEATHER_TK_P();
+            FTK_P();
             int64_t id = -1;
             {
                 std::unique_lock<std::mutex> lock(p.mutex);

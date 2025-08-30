@@ -28,7 +28,7 @@ namespace tl
             Count,
             First = Points
         };
-        FEATHER_TK_ENUM(DrawMode);
+        FTK_ENUM(DrawMode);
 
         //! USD options.
         struct Options
@@ -56,9 +56,9 @@ namespace tl
                 int64_t id,
                 const std::shared_ptr<Render>&,
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             Read();
 
@@ -71,7 +71,7 @@ namespace tl
                 const std::shared_ptr<Render>&,
                 const file::Path&,
                 const io::Options&,
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
 
             std::future<io::Info> getInfo() override;
             std::future<io::VideoData> readVideo(
@@ -80,14 +80,14 @@ namespace tl
             void cancelRequests() override;
 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
 
         //! USD read plugin.
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            void _init(const std::shared_ptr<feather_tk::LogSystem>&);
+            void _init(const std::shared_ptr<ftk::LogSystem>&);
             
             ReadPlugin();
 
@@ -96,18 +96,18 @@ namespace tl
 
             //! Create a new plugin.
             static std::shared_ptr<ReadPlugin> create(
-                const std::shared_ptr<feather_tk::LogSystem>&);
+                const std::shared_ptr<ftk::LogSystem>&);
             
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
                 const io::Options& = io::Options()) override;
             std::shared_ptr<io::IRead> read(
                 const file::Path&,
-                const std::vector<feather_tk::InMemoryFile>&,
+                const std::vector<ftk::InMemoryFile>&,
                 const io::Options& = io::Options()) override;
                 
         private:
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
 
         //! \name Serialize
