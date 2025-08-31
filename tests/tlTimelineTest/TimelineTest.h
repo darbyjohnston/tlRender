@@ -31,7 +31,6 @@ namespace tl
             void _timeline();
             void _timeline(const std::shared_ptr<timeline::Timeline>&);
             void _separateAudio();
-            void _setTimeline();
         };
     }
 }

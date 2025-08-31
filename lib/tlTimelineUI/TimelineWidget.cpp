@@ -58,7 +58,6 @@ namespace tl
             };
             MouseData mouse;
 
-            std::shared_ptr<ftk::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<ftk::ValueObserver<timeline::Playback> > playbackObserver;
             std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > currentTimeObserver;
             std::shared_ptr<ftk::ValueObserver<bool> > scrubObserver;
@@ -137,25 +136,19 @@ namespace tl
             p.itemData->waveforms.clear();
             p.timeRange = time::invalidTimeRange;
             p.playback = timeline::Playback::Stop;
-            p.timelineObserver.reset();
             p.playbackObserver.reset();
             p.currentTimeObserver.reset();
             p.scrollWidget->setWidget(nullptr);
             p.timelineItem.reset();
 
             p.player = player;
-
             p.scale = _getTimelineScale();
+
+            _timelineUpdate();
+
             if (p.player)
             {
                 p.timeRange = p.player->getTimeRange();
-
-                p.timelineObserver = ftk::ValueObserver<bool>::create(
-                    p.player->getTimeline()->observeTimelineChanges(),
-                    [this](bool)
-                    {
-                        _timelineUpdate();
-                    });
 
                 p.playbackObserver = ftk::ValueObserver<timeline::Playback>::create(
                     p.player->observePlayback(),
@@ -171,32 +164,6 @@ namespace tl
                         _p->currentTime = value;
                         _scrollUpdate();
                     });
-            }
-            else
-            {
-                _timelineUpdate();
-            }
-        }
-
-        bool TimelineWidget::isEditable() const
-        {
-            return _p->editable->get();
-        }
-
-        std::shared_ptr<ftk::IObservableValue<bool> > TimelineWidget::observeEditable() const
-        {
-            return _p->editable;
-        }
-
-        void TimelineWidget::setEditable(bool value)
-        {
-            FTK_P();
-            if (p.editable->setIfChanged(value))
-            {
-                if (p.timelineItem)
-                {
-                    p.timelineItem->setEditable(value);
-                }
             }
         }
 
@@ -714,7 +681,6 @@ namespace tl
                         p.displayOptions->get(),
                         p.itemData,
                         p.window);
-                    p.timelineItem->setEditable(p.editable->get());
                     p.timelineItem->setStopOnScrub(p.stopOnScrub->get());
                     p.timelineItem->setFrameMarkers(p.frameMarkers);
                     p.scrollWidget->setScrollPos(scrollPos);

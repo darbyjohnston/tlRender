@@ -40,7 +40,6 @@ namespace tl
             _videoData();
             _timeline();
             _separateAudio();
-            _setTimeline();
         }
 
         void TimelineTest::_enums()
@@ -288,18 +287,6 @@ namespace tl
                 _printError(e.what());
             }
 #endif // TLRENDER_FFMPEG
-        }
-
-        void TimelineTest::_setTimeline()
-        {
-            auto timeline = Timeline::create(
-                _context,
-                file::Path(TLRENDER_SAMPLE_DATA, "SingleClip.otio"));
-            auto otioTimeline = timeline::create(
-                _context,
-                file::Path(TLRENDER_SAMPLE_DATA, "SingleClipSeq.otio"));
-            timeline->setTimeline(otioTimeline);
-            FTK_ASSERT(otioTimeline.value == timeline->getTimeline().value);
         }
     }
 }

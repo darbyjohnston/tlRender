@@ -113,17 +113,8 @@ namespace tl
             p.currentAudioData = ftk::ObservableList<AudioData>::create();
             p.cacheOptions = ftk::ObservableValue<PlayerCacheOptions>::create(playerOptions.cache);
             p.cacheInfo = ftk::ObservableValue<PlayerCacheInfo>::create();
-            auto weak = std::weak_ptr<Player>(shared_from_this());
-            p.timelineObserver = ftk::ValueObserver<bool>::create(
-                p.timeline->observeTimelineChanges(),
-                [weak](bool)
-                {
-                    if (auto player = weak.lock())
-                    {
-                        player->clearCache();
-                    }
-                });
             auto audioSystem = context->getSystem<audio::System>();
+            auto weak = std::weak_ptr<Player>(shared_from_this());
             p.audioDevicesObserver = ftk::ListObserver<audio::DeviceInfo>::create(
                 audioSystem->observeDevices(),
                 [weak](const std::vector<audio::DeviceInfo>&)
@@ -739,9 +730,6 @@ namespace tl
         void Player::tick()
         {
             FTK_P();
-
-            // Tick the timeline.
-            p.timeline->tick();
 
             // Calculate the current time.
             const double timelineSpeed = p.timeRange.duration().rate();

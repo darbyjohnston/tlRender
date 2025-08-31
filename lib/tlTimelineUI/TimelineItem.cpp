@@ -8,7 +8,6 @@
 #include <tlTimelineUI/GapItem.h>
 #include <tlTimelineUI/VideoClipItem.h>
 
-#include <tlTimeline/Edit.h>
 #include <tlTimeline/Util.h>
 
 #include <feather-tk/ui/DrawUtil.h>
@@ -95,21 +94,6 @@ namespace tl
                         }
                     }
                     track.timeRange = otioTrack->trimmed_range();
-                    track.enabledButton = ftk::ToolButton::create(
-                        context,
-                        shared_from_this());
-                    track.enabledButton->setIcon("Hidden");
-                    track.enabledButton->setCheckedIcon("Visible");
-                    track.enabledButton->setCheckedRole(ftk::ColorRole::None);
-                    track.enabledButton->setCheckable(true);
-                    track.enabledButton->setChecked(otioTrack->enabled());
-                    track.enabledButton->setCheckedCallback(
-                        [this, stackIndex](bool value)
-                        {
-                            _setTrackEnabled(stackIndex, value);
-                        });
-                    track.enabledButton->setAcceptsKeyFocus(false);
-                    track.enabledButton->setTooltip("Toggle the enabled state");
                     track.label = ftk::Label::create(
                         context,
                         trackLabel,
@@ -240,11 +224,6 @@ namespace tl
             return out;
         }
 
-        void TimelineItem::setEditable(bool value)
-        {
-            _p->editable = value;
-        }
-
         void TimelineItem::setStopOnScrub(bool value)
         {
             _p->stopOnScrub = value;
@@ -308,28 +287,19 @@ namespace tl
             {
                 const bool visible = _isTrackVisible(track.index);
 
-                ftk::Size2I buttonSizeHint;
                 ftk::Size2I labelSizeHint;
                 ftk::Size2I durationSizeHint;
                 int trackInfoHeight = 0;
                 if (visible && !_displayOptions.minimize)
                 {
-                    buttonSizeHint = track.enabledButton->getSizeHint();
                     labelSizeHint = track.label->getSizeHint();
                     durationSizeHint = track.durationLabel->getSizeHint();
                     trackInfoHeight = std::max(
-                        buttonSizeHint.h,
-                        std::max(
-                            labelSizeHint.h,
-                            durationSizeHint.h));
+                        labelSizeHint.h,
+                        durationSizeHint.h);
                 }
-                track.enabledButton->setGeometry(ftk::Box2I(
-                    value.min.x,
-                    y + trackInfoHeight / 2 - buttonSizeHint.h / 2,
-                    buttonSizeHint.w,
-                    buttonSizeHint.h));
                 track.label->setGeometry(ftk::Box2I(
-                    value.min.x + buttonSizeHint.w + p.size.spacing,
+                    value.min.x,
                     y + trackInfoHeight / 2 - labelSizeHint.h / 2,
                     labelSizeHint.w,
                     labelSizeHint.h));
@@ -341,17 +311,6 @@ namespace tl
 
                 for (const auto& item : track.items)
                 {
-                    const auto i = std::find_if(
-                        p.mouse.items.begin(),
-                        p.mouse.items.end(),
-                        [item](const std::shared_ptr<Private::MouseItemData>& value)
-                        {
-                            return item == value->p;
-                        });
-                    if (i != p.mouse.items.end())
-                    {
-                        continue;
-                    }
                     const OTIO_NS::TimeRange& timeRange = item->getTimeRange();
                     ftk::Size2I sizeHint;
                     if (visible)
@@ -425,10 +384,8 @@ namespace tl
                     if (!_displayOptions.minimize)
                     {
                         track.size.h += std::max(
-                            track.enabledButton->getSizeHint().h,
-                            std::max(
-                                track.label->getSizeHint().h,
-                                track.durationLabel->getSizeHint().h));
+                            track.label->getSizeHint().h,
+                            track.durationLabel->getSizeHint().h);
                     }
                     tracksHeight += track.size.h;
                 }
@@ -477,64 +434,19 @@ namespace tl
             _drawTimeLabels(drawRect, event);
             _drawTimeTicks(drawRect, event);
             _drawCurrentTime(drawRect, event);
-
-            if (p.mouse.currentDropTarget >= 0 &&
-                p.mouse.currentDropTarget < p.mouse.dropTargets.size())
-            {
-                const auto& dt = p.mouse.dropTargets[p.mouse.currentDropTarget];
-                event.render->drawRect(
-                    dt.draw,
-                    event.style->getColorRole(ftk::ColorRole::Green));
-            }
         }
 
         void TimelineItem::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
             IWidget::mouseMoveEvent(event);
             FTK_P();
-            switch (p.mouse.mode)
+            switch (p.mouseMode)
             {
             case Private::MouseMode::CurrentTime:
             {
                 const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                 p.timeScrub->setIfChanged(time);
                 p.player->seek(time);
-                break;
-            }
-            case Private::MouseMode::Item:
-            {
-                if (!p.mouse.items.empty())
-                {
-                    for (const auto& item : p.mouse.items)
-                    {
-                        const ftk::Box2I& g = item->geometry;
-                        item->p->setGeometry(ftk::Box2I(
-                            g.min + _getMousePos() - _getMousePressPos(),
-                            g.size()));
-                    }
-                    
-                    int dropTarget = -1;
-                    for (size_t i = 0; i < p.mouse.dropTargets.size(); ++i)
-                    {
-                        if (ftk::contains(p.mouse.dropTargets[i].mouse, event.pos))
-                        {
-                            dropTarget = i;
-                            break;
-                        }
-                    }
-                    if (dropTarget != p.mouse.currentDropTarget)
-                    {
-                        for (const auto& item : p.mouse.items)
-                        {
-                            item->p->setSelectRole(
-                                dropTarget != -1 ?
-                                ftk::ColorRole::Green :
-                                ftk::ColorRole::Checked);
-                        }
-                        p.mouse.currentDropTarget = dropTarget;
-                        _setDrawUpdate();
-                    }
-                }
                 break;
             }
             default: break;
@@ -551,58 +463,15 @@ namespace tl
             {
                 takeKeyFocus();
 
-                p.mouse.mode = Private::MouseMode::None;
-
-                const ftk::Box2I& g = getGeometry();
-                if (p.editable)
+                p.mouseMode = Private::MouseMode::CurrentTime;
+                if (p.stopOnScrub)
                 {
-                    for (int i = 0; i < p.tracks.size(); ++i)
-                    {
-                        if (_isTrackVisible(i))
-                        {
-                            const auto& items = p.tracks[i].items;
-                            for (int j = 0; j < items.size(); ++j)
-                            {
-                                const auto& item = items[j];
-                                if (ftk::contains(item->getGeometry(), event.pos))
-                                {
-                                    p.mouse.mode = Private::MouseMode::Item;
-                                    p.mouse.items.push_back(
-                                        std::make_shared<Private::MouseItemData>(item, j, i));
-                                    p.mouse.dropTargets = p.getDropTargets(g, j, i);
-                                    moveToFront(item);
-                                    if (_options.editAssociatedClips)
-                                    {
-                                        if (auto associated = p.getAssociated(item, j, i))
-                                        {
-                                            p.mouse.items.push_back(
-                                                std::make_shared<Private::MouseItemData>(associated, j, i));
-                                            moveToFront(associated);
-                                        }
-                                    }
-                                    break;
-                                }
-                            }
-                        }
-                        if (!p.mouse.items.empty())
-                        {
-                            break;
-                        }
-                    }
+                    p.player->stop();
                 }
-
-                if (p.mouse.items.empty())
-                {
-                    p.mouse.mode = Private::MouseMode::CurrentTime;
-                    if (p.stopOnScrub)
-                    {
-                        p.player->stop();
-                    }
-                    const OTIO_NS::RationalTime time = posToTime(event.pos.x);
-                    p.scrub->setIfChanged(true);
-                    p.timeScrub->setIfChanged(time);
-                    p.player->seek(time);
-                }
+                const OTIO_NS::RationalTime time = posToTime(event.pos.x);
+                p.scrub->setIfChanged(true);
+                p.timeScrub->setIfChanged(time);
+                p.player->seek(time);
             }
         }
 
@@ -611,29 +480,7 @@ namespace tl
             IWidget::mouseReleaseEvent(event);
             FTK_P();
             p.scrub->setIfChanged(false);
-            p.mouse.mode = Private::MouseMode::None;
-            if (!p.mouse.items.empty() && p.mouse.currentDropTarget != -1)
-            {
-                const auto& dropTarget = p.mouse.dropTargets[p.mouse.currentDropTarget];
-                std::vector<timeline::MoveData> moveData;
-                for (const auto& item : p.mouse.items)
-                {
-                    const int track = dropTarget.track + (item->track - p.mouse.items[0]->track);
-                    moveData.push_back({ item->track, item->index, track, dropTarget.index });
-                    item->p->hide();
-                }
-                auto otioTimeline = timeline::move(
-                    p.player->getTimeline()->getTimeline().value,
-                    moveData);
-                p.player->getTimeline()->setTimeline(otioTimeline);
-            }
-            p.mouse.items.clear();
-            if (!p.mouse.dropTargets.empty())
-            {
-                p.mouse.dropTargets.clear();
-                _setDrawUpdate();
-            }
-            p.mouse.currentDropTarget = -1;
+            p.mouseMode = Private::MouseMode::None;
         }
 
         /*void TimelineItem::keyPressEvent(ftk::KeyEvent& event)
@@ -663,13 +510,6 @@ namespace tl
             _setDrawUpdate();
         }
 
-        void TimelineItem::_releaseMouse()
-        {
-            FTK_P();
-            IWidget::_releaseMouse();
-            p.mouse.items.clear();
-        }
-
         bool TimelineItem::_isTrackVisible(int index) const
         {
             FTK_P();
@@ -679,21 +519,6 @@ namespace tl
                 out &= index == p.firstVideoTrack || index == p.firstAudioTrack;
             }
             return out;
-        }
-
-        void TimelineItem::_setTrackEnabled(int stackIndex, bool enabled)
-        {
-            FTK_P();
-            auto otioTimeline = timeline::copy(p.player->getTimeline()->getTimeline().value);
-            const auto& children = otioTimeline->tracks()->children();
-            if (stackIndex >= 0 && stackIndex < children.size())
-            {
-                if (auto item = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[stackIndex]))
-                {
-                    item->set_enabled(enabled);
-                }
-            }
-            p.player->getTimeline()->setTimeline(otioTimeline);
         }
 
         ftk::Size2I TimelineItem::_getLabelMaxSize(
@@ -1129,157 +954,6 @@ namespace tl
                     arg(khz ? "kHz" : "FPS");
                 track.durationLabel->setText(label);
             }
-        }
-
-        TimelineItem::Private::MouseItemData::MouseItemData()
-        {}
-
-        TimelineItem::Private::MouseItemData::MouseItemData(
-            const std::shared_ptr<IItem>& item,
-            int index,
-            int track) :
-            p(item),
-            index(index),
-            track(track)
-        {
-            if (p)
-            {
-                p->setSelectRole(ftk::ColorRole::Checked);
-                geometry = p->getGeometry();
-            }
-        }
-
-        TimelineItem::Private::MouseItemData::~MouseItemData()
-        {
-            if (p)
-            {
-                p->setSelectRole(ftk::ColorRole::None);
-                p->setGeometry(geometry);
-            }
-        }
-
-        std::shared_ptr<IItem> TimelineItem::Private::getAssociated(
-            const std::shared_ptr<IItem>& item,
-            int& index,
-            int& trackIndex) const
-        {
-            std::shared_ptr<IItem> out;
-            if (trackIndex >= 0 && trackIndex < tracks.size() &&
-                tracks.size() > 1)
-            {
-                const OTIO_NS::TimeRange& timeRange = item->getTimeRange();
-                if (TrackType::Video == tracks[trackIndex].type &&
-                    trackIndex < tracks.size() - 1 &&
-                    TrackType::Audio == tracks[trackIndex + 1].type)
-                {
-                    for (size_t i = 0; i < tracks[trackIndex + 1].items.size(); ++i)
-                    {
-                        const OTIO_NS::TimeRange& audioTimeRange =
-                            tracks[trackIndex + 1].items[i]->getTimeRange();
-                        const OTIO_NS::RationalTime audioStartTime =
-                            audioTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
-                        const OTIO_NS::RationalTime audioDuration =
-                            audioTimeRange.duration().rescaled_to(timeRange.duration().rate());
-                        if (ftk::fuzzyCompare(
-                                audioStartTime.value(),
-                                timeRange.start_time().value()) &&
-                            ftk::fuzzyCompare(
-                                audioDuration.value(),
-                                timeRange.duration().value()))
-                        {
-                            out = tracks[trackIndex + 1].items[i];
-                            index = i;
-                            trackIndex = trackIndex + 1;
-                            break;
-                        }
-                    }
-                }
-                else if (TrackType::Audio == tracks[trackIndex].type &&
-                    trackIndex > 0 &&
-                    TrackType::Video == tracks[trackIndex - 1].type)
-                {
-                    for (size_t i = 0; i < tracks[trackIndex - 1].items.size(); ++i)
-                    {
-                        const OTIO_NS::TimeRange& videoTimeRange = 
-                            tracks[trackIndex - 1].items[i]->getTimeRange();
-                        const OTIO_NS::RationalTime videoStartTime =
-                            videoTimeRange.start_time().rescaled_to(timeRange.start_time().rate());
-                        const OTIO_NS::RationalTime videoDuration =
-                            videoTimeRange.duration().rescaled_to(timeRange.duration().rate());
-                        if (ftk::fuzzyCompare(
-                                videoStartTime.value(),
-                                timeRange.start_time().value()) &&
-                            ftk::fuzzyCompare(
-                                videoDuration.value(),
-                                timeRange.duration().value()))
-                        {
-                            out = tracks[trackIndex - 1].items[i];
-                            index = i;
-                            trackIndex = trackIndex - 1;
-                            break;
-                        }
-                    }
-                }
-            }
-            return out;
-        }
-
-        std::vector<TimelineItem::Private::MouseItemDropTarget> TimelineItem::Private::getDropTargets(
-            const ftk::Box2I& geometry,
-            int index,
-            int trackIndex)
-        {
-            std::vector<MouseItemDropTarget> out;
-            if (trackIndex >= 0 && trackIndex < tracks.size())
-            {
-                const auto& track = tracks[trackIndex];
-                if (track.type == tracks[trackIndex].type)
-                {
-                    size_t i = 0;
-                    ftk::Box2I g;
-                    for (; i < track.items.size(); ++i)
-                    {
-                        const auto& item = track.items[i];
-                        g = item->getGeometry();
-                        if (i == index || i == (index + 1))
-                        {
-                            continue;
-                        }
-                        MouseItemDropTarget dt;
-                        dt.index = i;
-                        dt.track = trackIndex;
-                        dt.mouse = ftk::Box2I(
-                            g.min.x - size.handle,
-                            g.min.y,
-                            size.handle * 2,
-                            g.h());
-                        dt.draw = ftk::Box2I(
-                            g.min.x - size.border * 2,
-                            size.scrollArea.min.y + geometry.min.y,
-                            size.border * 4,
-                            geometry.h());
-                        out.push_back(dt);
-                    }
-                    if (!track.items.empty() && index < (track.items.size() - 1))
-                    {
-                        MouseItemDropTarget dt;
-                        dt.index = i;
-                        dt.track = trackIndex;
-                        dt.mouse = ftk::Box2I(
-                            g.max.x - size.handle,
-                            g.min.y,
-                            size.handle * 2,
-                            g.h());
-                        dt.draw = ftk::Box2I(
-                            g.max.x - size.border * 2,
-                            size.scrollArea.min.y + geometry.min.y,
-                            size.border * 4,
-                            geometry.h());
-                        out.push_back(dt);
-                    }
-                }
-            }
-            return out;
         }
     }
 }

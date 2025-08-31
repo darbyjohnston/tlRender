@@ -41,20 +41,6 @@ namespace tl
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
-            //! \name Editing
-            ///@{
-
-            //! Get whether the timeline is editable.
-            bool isEditable() const;
-
-            //! Observe whether the timeline is editable.
-            std::shared_ptr<ftk::IObservableValue<bool> > observeEditable() const;
-
-            //! Set whether the timeline is editable.
-            void setEditable(bool);
-
-            ///@}
-
             //! \name View
             ///@{
 

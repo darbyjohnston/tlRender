@@ -129,12 +129,6 @@ namespace tl
             //! Get the timeline.
             const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& getTimeline() const;
 
-            //! Observe timeline changes.
-            std::shared_ptr<ftk::IObservableValue<bool> > observeTimelineChanges() const;
-
-            //! Set the timeline.
-            void setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>&);
-
             //! Get the file path.
             const file::Path& getPath() const;
 
@@ -189,9 +183,6 @@ namespace tl
             void cancelRequests(const std::vector<uint64_t>&);
 
             ///@}
-
-            //! Tick the timeline.
-            void tick();
 
         private:
             FTK_PRIVATE();

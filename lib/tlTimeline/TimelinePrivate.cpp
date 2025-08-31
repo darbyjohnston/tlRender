@@ -147,18 +147,11 @@ namespace tl
                     [this]
                     {
                         return
-                            mutex.otioTimeline.value ||
                             !mutex.videoRequests.empty() ||
                             !thread.videoRequestsInProgress.empty() ||
                             !mutex.audioRequests.empty() ||
                             !thread.audioRequestsInProgress.empty();
                     });
-                if (mutex.otioTimeline.value)
-                {
-                    thread.otioTimeline = mutex.otioTimeline;
-                    mutex.otioTimeline = nullptr;
-                    mutex.otioTimelineChanged = true;
-                }
                 while (!mutex.videoRequests.empty() &&
                     (thread.videoRequestsInProgress.size() + newVideoRequests.size()) < options.videoRequestMax)
                 {
@@ -176,7 +169,7 @@ namespace tl
             // Traverse the timeline for new video requests.
             for (auto& request : newVideoRequests)
             {
-                for (const auto& otioTrack : thread.otioTimeline->video_tracks())
+                for (const auto& otioTrack : otioTimeline->video_tracks())
                 {
                     if (otioTrack->enabled())
                     {
@@ -248,7 +241,7 @@ namespace tl
             // Traverse the timeline for new audio requests.
             for (auto& request : newAudioRequests)
             {
-                for (const auto& otioTrack : thread.otioTimeline->audio_tracks())
+                for (const auto& otioTrack : otioTimeline->audio_tracks())
                 {
                     if (otioTrack->enabled())
                     {

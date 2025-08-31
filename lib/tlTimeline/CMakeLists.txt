@@ -4,7 +4,6 @@ set(HEADERS
     ColorOptions.h
     CompareOptions.h
     DisplayOptions.h
-    Edit.h
     ForegroundOptions.h
     IRender.h
     Init.h
@@ -29,7 +28,6 @@ set(SOURCE
     ColorOptions.cpp
     CompareOptions.cpp
     DisplayOptions.cpp
-    Edit.cpp
     ForegroundOptions.cpp
     IRender.cpp
     Init.cpp

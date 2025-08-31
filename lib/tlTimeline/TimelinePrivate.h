@@ -51,7 +51,6 @@ namespace tl
 
             std::weak_ptr<ftk::Context> context;
             OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
-            std::shared_ptr<ftk::ObservableValue<bool> > timelineChanges;
             file::Path path;
             file::Path audioPath;
             Options options;
@@ -107,8 +106,6 @@ namespace tl
 
             struct Mutex
             {
-                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
-                bool otioTimelineChanged = false;
                 std::list<std::shared_ptr<VideoRequest> > videoRequests;
                 std::list<std::shared_ptr<AudioRequest> > audioRequests;
                 bool stopped = false;
@@ -117,7 +114,6 @@ namespace tl
             Mutex mutex;
             struct Thread
             {
-                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline;
                 std::list<std::shared_ptr<VideoRequest> > videoRequestsInProgress;
                 std::list<std::shared_ptr<AudioRequest> > audioRequestsInProgress;
                 std::condition_variable cv;

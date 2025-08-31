@@ -75,7 +75,6 @@ namespace tl
             std::shared_ptr<ftk::ObservableList<AudioData> > currentAudioData;
             std::shared_ptr<ftk::ObservableValue<PlayerCacheOptions> > cacheOptions;
             std::shared_ptr<ftk::ObservableValue<PlayerCacheInfo> > cacheInfo;
-            std::shared_ptr<ftk::ValueObserver<bool> > timelineObserver;
             std::shared_ptr<ftk::ListObserver<audio::DeviceInfo> > audioDevicesObserver;
             std::shared_ptr<ftk::ValueObserver<audio::DeviceInfo> > defaultAudioDeviceObserver;
 

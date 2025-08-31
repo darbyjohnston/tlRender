@@ -62,7 +62,6 @@ namespace tl
 
             p.context = context;
             p.otioTimeline = otioTimeline;
-            p.timelineChanges = ftk::ObservableValue<bool>::create(false);
             const auto i = otioTimeline->metadata().find("tlRender");
             if (i != otioTimeline->metadata().end())
             {
@@ -148,7 +147,6 @@ namespace tl
                 arg(p.ioInfo.audio.sampleRate));
 
             // Create a new thread.
-            p.mutex.otioTimeline = p.otioTimeline;
             p.thread.running = true;
             p.thread.thread = std::thread(
                 [this]
@@ -185,22 +183,6 @@ namespace tl
         const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& Timeline::getTimeline() const
         {
             return _p->otioTimeline;
-        }
-
-        std::shared_ptr<ftk::IObservableValue<bool> > Timeline::observeTimelineChanges() const
-        {
-            return _p->timelineChanges;
-        }
-
-        void Timeline::setTimeline(const OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline>& value)
-        {
-            FTK_P();
-            p.otioTimeline = value;
-            std::unique_lock<std::mutex> lock(p.mutex.mutex);
-            if (!p.mutex.stopped)
-            {
-                p.mutex.otioTimeline = value;
-            }
         }
 
         const file::Path& Timeline::getPath() const
@@ -356,21 +338,6 @@ namespace tl
                         ++i;
                     }
                 }
-            }
-        }
-
-        void Timeline::tick()
-        {
-            FTK_P();
-            bool otioTimelineChanged = false;
-            {
-                std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                otioTimelineChanged = p.mutex.otioTimelineChanged;
-                p.mutex.otioTimelineChanged = false;
-            }
-            if (otioTimelineChanged)
-            {
-                p.timelineChanges->setAlways(true);
             }
         }
     }

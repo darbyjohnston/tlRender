@@ -66,9 +66,6 @@ namespace tl
                 const std::shared_ptr<ftk::gl::Window>&,
                 const std::shared_ptr<IWidget>& parent = nullptr);
 
-            //! Set whether the timeline is editable.
-            void setEditable(bool);
-
             //! Set whether playback stops when scrubbing.
             void setStopOnScrub(bool);
 
@@ -98,11 +95,8 @@ namespace tl
         protected:
             void _timeUnitsUpdate() override;
 
-            void _releaseMouse() override;
-
         private:
             bool _isTrackVisible(int) const;
-            void _setTrackEnabled(int, bool);
 
             ftk::Size2I _getLabelMaxSize(
                 const std::shared_ptr<ftk::FontSystem>&) const;
