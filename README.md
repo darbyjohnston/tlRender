@@ -144,7 +144,7 @@ git clone https://github.com/darbyjohnston/tlRender.git
 
 Run the super build script:
 ```
-tlRender\sbuild.bat
+tlRender\sbuild-win.bat
 ```
 
 Try running the `tlplay` application:
