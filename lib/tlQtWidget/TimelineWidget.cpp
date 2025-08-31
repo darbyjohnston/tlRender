@@ -9,8 +9,6 @@
 #include <tlTimelineUI/TimelineWidget.h>
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <tlTimeline/Edit.h>
-
 #include <QAction>
 #include <QContextMenuEvent>
 #include <QMenu>
@@ -21,12 +19,8 @@ namespace tl
     {
         struct TimelineWidget::Private
         {
-            int currentTrack = -1;
-
             std::shared_ptr<timelineui::TimelineWidget> timelineWidget;
-            QAction* trackEnabledAction = nullptr;
 
-            std::shared_ptr<ftk::ValueObserver<bool> > editableObserver;
             std::shared_ptr<ftk::ValueObserver<bool> > frameViewObserver;
             std::shared_ptr<ftk::ValueObserver<bool> > scrubObserver;
             std::shared_ptr<ftk::ValueObserver<OTIO_NS::RationalTime> > timeScrubObserver;
@@ -43,24 +37,7 @@ namespace tl
             FTK_P();
 
             p.timelineWidget = timelineui::TimelineWidget::create(context, timeUnitsModel);
-            //p.timelineWidget->setScrollBarsVisible(false);
             setWidget(p.timelineWidget);
-
-            p.trackEnabledAction = new QAction(this);
-            p.trackEnabledAction->setText("Track enabled");
-            p.trackEnabledAction->setCheckable(true);
-
-            connect(
-                p.trackEnabledAction,
-                SIGNAL(toggled(bool)),
-                SLOT(_trackEnabledCallback(bool)));
-
-            p.editableObserver = ftk::ValueObserver<bool>::create(
-                p.timelineWidget->observeEditable(),
-                [this](bool value)
-                {
-                    Q_EMIT editableChanged(value);
-                });
 
             p.frameViewObserver = ftk::ValueObserver<bool>::create(
                 p.timelineWidget->observeFrameView(),
@@ -97,11 +74,6 @@ namespace tl
             _p->timelineWidget->setPlayer(player);
         }
 
-        bool TimelineWidget::isEditable() const
-        {
-            return _p->timelineWidget->isEditable();
-        }
-
         bool TimelineWidget::hasFrameView() const
         {
             return _p->timelineWidget->hasFrameView();
@@ -135,11 +107,6 @@ namespace tl
         const timelineui::DisplayOptions& TimelineWidget::displayOptions() const
         {
             return _p->timelineWidget->getDisplayOptions();
-        }
-
-        void TimelineWidget::setEditable(bool value)
-        {
-            _p->timelineWidget->setEditable(value);
         }
 
         void TimelineWidget::setFrameView(bool value)
@@ -187,64 +154,6 @@ namespace tl
         void TimelineWidget::setDisplayOptions(const timelineui::DisplayOptions& value)
         {
             _p->timelineWidget->setDisplayOptions(value);
-        }
-
-        void TimelineWidget::contextMenuEvent(QContextMenuEvent* event)
-        {
-            FTK_P();
-            if (auto player = p.timelineWidget->getPlayer())
-            {
-                const ftk::V2I pos = _toUI(ftk::V2I(event->x(), event->y()));
-                const std::vector<ftk::Box2I> trackGeom = p.timelineWidget->getTrackGeom();
-                for (int i = 0; i < trackGeom.size(); ++i)
-                {
-                    if (ftk::contains(trackGeom[i], pos))
-                    {
-                        p.currentTrack = i;
-
-                        bool checked = false;
-                        auto otioTimeline = player->getTimeline()->getTimeline();
-                        const auto& children = otioTimeline->tracks()->children();
-                        if (i >= 0 && i < children.size())
-                        {
-                            if (auto track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[i]))
-                            {
-                                checked = track->enabled();
-                            }
-                        }
-                        p.trackEnabledAction->setChecked(checked);
-
-                        QMenu menu(this);
-                        menu.addAction(p.trackEnabledAction);
-                        menu.exec(event->globalPos());
-                        break;
-                    }
-                }
-            }
-        }
-
-        void TimelineWidget::_trackEnabledCallback(bool value)
-        {
-            FTK_P();
-            if (auto player = p.timelineWidget->getPlayer())
-            {
-                auto otioTimeline = player->getTimeline()->getTimeline();
-                auto children = otioTimeline->tracks()->children();
-                if (p.currentTrack >= 0 && p.currentTrack < children.size())
-                {
-                    if (auto track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[p.currentTrack]))
-                    {
-                        if (value != track->enabled())
-                        {
-                            auto otioTimelineNew = timeline::copy(player->getTimeline()->getTimeline().value);
-                            children = otioTimelineNew->tracks()->children();
-                            track = OTIO_NS::dynamic_retainer_cast<OTIO_NS::Item>(children[p.currentTrack]);
-                            track->set_enabled(value);
-                            player->getTimeline()->setTimeline(otioTimelineNew);
-                        }
-                    }
-                }
-            }
         }
     }
 }

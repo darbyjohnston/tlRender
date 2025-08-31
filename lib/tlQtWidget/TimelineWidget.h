@@ -39,9 +39,6 @@ namespace tl
             //! Set the timeline player.
             void setPlayer(const std::shared_ptr<timeline::Player>&);
 
-            //! Get whether the timeline is editable.
-            bool isEditable() const;
-
             //! Get whether the view is framed automatically.
             bool hasFrameView() const;
 
@@ -64,9 +61,6 @@ namespace tl
             const timelineui::DisplayOptions& displayOptions() const;
 
         public Q_SLOTS:
-            //! Set whether the timeline is editable.
-            void setEditable(bool);
-
             //! Set whether the view is framed automatically.
             void setFrameView(bool);
 
@@ -95,9 +89,6 @@ namespace tl
             void setDisplayOptions(const timelineui::DisplayOptions&);
 
         Q_SIGNALS:
-            //! This signal is emitted when the editable timeline is changed.
-            void editableChanged(bool);
-
             //! This signal is emitted when the frame view is changed.
             void frameViewChanged(bool);
 
@@ -106,12 +97,6 @@ namespace tl
 
             //! This signal is emitted when the time is scrubbed.
             void timeScrubbed(const OTIO_NS::RationalTime&);
-
-        protected:
-            void contextMenuEvent(QContextMenuEvent* event) override;
-
-        private Q_SLOTS:
-            void _trackEnabledCallback(bool);
 
         private:
             FTK_PRIVATE();
