@@ -237,6 +237,7 @@ jobs:
         python-version: '3.11'
 
     # \bug DYLD_LIBRARY_PATH is not being set here?
+    # \bug Remove OpenEXR install.
     - name: Setup environment
       run: |
         echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
@@ -244,6 +245,7 @@ jobs:
         echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
         cmake --version
         python --version
+        brew uninstall --ignore-dependencies openexr imath || true
 
     - name: Build tlRender
       run: |
