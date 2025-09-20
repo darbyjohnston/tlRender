@@ -70,7 +70,6 @@ namespace tl
             const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             IRead::_init(path, memory, options, logSystem);
-
             FTK_P();
 
             auto i = options.find("FFmpeg/YUVToRGB");
