@@ -21,6 +21,7 @@ namespace tl
     {
         namespace
         {
+            const double timeConversion = 10000000.0;
             const size_t requestTimeout = 5;
         }
 
@@ -87,22 +88,21 @@ namespace tl
             class WMFObject
             {
             public:
-                WMFObject(
-                    const file::Path& path,
-                    const std::vector<ftk::InMemoryFile>& memory);
+                WMFObject(const file::Path& path);
 
                 ~WMFObject();
 
                 double getDuration() const;
-                ftk::ImageInfo getImageInfo() const;
+                const ftk::ImageInfo& getImageInfo() const;
                 double getVideoSpeed() const;
+                const audio::Info& WMFObject::getAudioInfo() const;
 
                 void seek(double);
 
                 std::shared_ptr<ftk::Image> readImage();
 
             private:
-                int _getFirstVideoStream();
+                int _getFirstStream(GUID);
 
                 bool _comInit = false;
                 bool _wmfInit = false;
@@ -111,12 +111,12 @@ namespace tl
                 int _videoStream = -1;
                 ftk::ImageInfo _imageInfo;
                 double _videoSpeed = 0.0;
+                int _audioStream = -1;
+                audio::Info _audioInfo;
                 double _seek = -1.0;
             };
 
-            WMFObject::WMFObject(
-                const file::Path& path,
-                const std::vector<ftk::InMemoryFile>& memory)
+            WMFObject::WMFObject(const file::Path& path)
             {
                 // Initialize COM.
                 HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
@@ -142,7 +142,7 @@ namespace tl
                     throw std::runtime_error("Cannot create atrtibutes");
                 }
                 //wmfAttr->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
-                //wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
+                wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
                 const std::wstring fileName = ftk::toWide(path.get());
                 hr = MFCreateSourceReaderFromURL(
                     fileName.data(),
@@ -164,12 +164,12 @@ namespace tl
                 {
                     LONGLONG durationNanoseconds = 0;
                     hr = PropVariantToInt64(mfPresAttr, &durationNanoseconds);
-                    _duration = durationNanoseconds / 10000000.0;
+                    _duration = durationNanoseconds / timeConversion;
                     PropVariantClear(&mfPresAttr);
                 }
 
                 // Initialize the video stream.
-                _videoStream = _getFirstVideoStream();
+                _videoStream = _getFirstStream(MFMediaType_Video);
                 if (_videoStream != -1)
                 {
                     WMFMediaTypeWrapper wmfMediaType;
@@ -183,8 +183,8 @@ namespace tl
                     MFGetAttributeSize(wmfMediaType.p, MF_MT_FRAME_SIZE, &width, &height);
                     _imageInfo.size.w = width;
                     _imageInfo.size.h = height;
-                    //_imageInfo.type = ftk::ImageType::RGBA_U8;
-                    _imageInfo.type = ftk::ImageType::YUV_420P_U8;
+                    _imageInfo.type = ftk::ImageType::RGB_U8;
+                    //_imageInfo.type = ftk::ImageType::YUV_420P_U8;
 
                     UINT32 frameRateNum = 0;
                     UINT32 frameRateDen = 0;
@@ -203,12 +203,61 @@ namespace tl
                     if (SUCCEEDED(hr))
                     {
                         wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
-                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_I420);
+                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_I420);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_IYUV);
                         hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
                         if (FAILED(hr))
                         {
                             throw std::runtime_error("Cannot set video format");
+                        }
+                    }
+                }
+
+                // Initialize the audio stream.
+                _audioStream = _getFirstStream(MFMediaType_Audio);
+                if (_audioStream != -1)
+                {
+                    WMFMediaTypeWrapper wmfMediaType;
+                    hr = _wmfReader->GetNativeMediaType(_audioStream, 0, &wmfMediaType.p);
+
+                    GUID subType;
+                    wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+
+                    _audioInfo.channelCount = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_NUM_CHANNELS, 0);
+                    const UINT32 bitsPerSample = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_BITS_PER_SAMPLE, 0);
+                    const UINT32 samplesPerSecond = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_SAMPLES_PER_SECOND, 0);
+                    const double samplesPerSecondF = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND, 0.0);
+                    switch (bitsPerSample)
+                    {
+                    case 16:
+                        _audioInfo.dataType = audio::DataType::S16;
+                        _audioInfo.sampleRate = samplesPerSecond;
+                        break;
+                    case 32:
+                        if (samplesPerSecond > 0)
+                        {
+                            _audioInfo.dataType = audio::DataType::S32;
+                            _audioInfo.sampleRate = samplesPerSecond;
+                        }
+                        else if (samplesPerSecondF > 0.0)
+                        {
+                            _audioInfo.dataType = audio::DataType::F32;
+                            _audioInfo.sampleRate = samplesPerSecondF;
+                        }
+                        break;
+                    default: break;
+                    }
+                    WMFMediaTypeWrapper wmfMediaType2;
+                    hr = MFCreateMediaType(&wmfMediaType2.p);
+                    if (SUCCEEDED(hr))
+                    {
+                        wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);
+                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
+                        hr = _wmfReader->SetCurrentMediaType(_audioStream, nullptr, wmfMediaType2.p);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot set audio format");
                         }
                     }
                 }
@@ -235,7 +284,7 @@ namespace tl
                 return _duration;
             }
 
-            ftk::ImageInfo WMFObject::getImageInfo() const
+            const ftk::ImageInfo& WMFObject::getImageInfo() const
             {
                 return _imageInfo;
             }
@@ -245,11 +294,16 @@ namespace tl
                 return _videoSpeed;
             }
 
+            const audio::Info& WMFObject::getAudioInfo() const
+            {
+                return _audioInfo;
+            }
+
             void WMFObject::seek(double value)
             {
                 _seek = value;
                 PROPVARIANT var;
-                HRESULT hr = InitPropVariantFromInt64(value * 10000000.0, &var);
+                HRESULT hr = InitPropVariantFromInt64(value * timeConversion, &var);
                 if (SUCCEEDED(hr))
                 {
                     hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
@@ -262,6 +316,7 @@ namespace tl
                 std::shared_ptr<ftk::Image> out;
                 HRESULT hr = S_OK;
                 LONGLONG timeStamp;
+                bool end = false;
                 do
                 {
                     DWORD flags;
@@ -279,29 +334,45 @@ namespace tl
                     }
                     if (flags & MF_SOURCE_READERF_ENDOFSTREAM)
                     {
-                        break;
+                        end = true;
                     }
-                    if (timeStamp / 10000000.0 >= _seek)
+                    if (sample && timeStamp / timeConversion >= _seek)
                     {
+                        out = ftk::Image::create(_imageInfo);
+
                         IMFMediaBuffer* buf = nullptr;
                         sample->ConvertToContiguousBuffer(&buf);
-                        //DWORD bufLen = 0;
-                        //buf->GetCurrentLength(&bufLen);
                         BYTE* bufP = nullptr;
                         DWORD bufLen = 0;
                         buf->Lock(&bufP, nullptr, &bufLen);
-                        out = ftk::Image::create(_imageInfo);
-                        memcpy(out->getData(), bufP, out->getByteCount());
+
+                        const int w = _imageInfo.size.w;
+                        const int h = _imageInfo.size.h;
+                        for (int y = 0; y < h; ++y)
+                        {
+                            const BYTE* bufP2 = bufP + (h - 1 - y) * w * 4;
+                            uint8_t* outP = out->getData() + y * w * 3;
+                            for (int x = 0; x < w; ++x, bufP2 += 4, outP += 3)
+                            {
+                                outP[0] = bufP2[2];
+                                outP[1] = bufP2[1];
+                                outP[2] = bufP2[0];
+                            }
+                        }
+
                         buf->Unlock();
                         buf->Release();
+                    }
+                    if (sample)
+                    {
                         sample->Release();
                     }
                 }
-                while (timeStamp / 10000000.0 < _seek);
+                while (timeStamp / timeConversion < _seek && !end);
                 return out;
             }
 
-            int WMFObject::_getFirstVideoStream()
+            int WMFObject::_getFirstStream(GUID guid)
             {
                 int out = -1;
                 HRESULT hr = S_OK;
@@ -313,7 +384,7 @@ namespace tl
                     {
                         GUID majorType;
                         wmfMediaType.p->GetMajorType(&majorType);
-                        if (majorType == MFMediaType_Video)
+                        if (majorType == guid)
                         {
                             out = i;
                         }
@@ -339,7 +410,7 @@ namespace tl
                     FTK_P();
                     try
                     {
-                        _thread(path, memory);
+                        _thread(path);
                     }
                     catch (const std::exception& e)
                     {
@@ -503,17 +574,19 @@ namespace tl
             }
         }
 
-        void Read::_thread(
-            const file::Path& path,
-            const std::vector<ftk::InMemoryFile>& memory)
+        void Read::_thread(const file::Path& path)
         {
             FTK_P();
 
-            WMFObject wmf(path, memory);
+            WMFObject wmf(path);
             p.info.video.push_back(wmf.getImageInfo());
             p.info.videoTime = OTIO_NS::TimeRange(
                 OTIO_NS::RationalTime(0.0, wmf.getVideoSpeed()),
-                OTIO_NS::RationalTime(wmf.getDuration() * wmf.getVideoSpeed(), wmf.getVideoSpeed()));
+                OTIO_NS::RationalTime(floor(wmf.getDuration() * wmf.getVideoSpeed()), wmf.getVideoSpeed()));
+            p.info.audio = wmf.getAudioInfo();
+            p.info.audioTime = OTIO_NS::TimeRange(
+                OTIO_NS::RationalTime(0.0, p.info.audio.sampleRate),
+                OTIO_NS::RationalTime(floor(wmf.getDuration() * p.info.audio.sampleRate), p.info.audio.sampleRate));
 
             while (p.thread.running)
             {
@@ -558,7 +631,7 @@ namespace tl
                 if (videoRequest &&
                     !videoRequest->time.strictly_equal(p.thread.videoTime))
                 {
-                    wmf.seek(videoRequest->time.rescaled_to(1.0).value() * 10000000.0);
+                    wmf.seek(videoRequest->time.rescaled_to(1.0).value());
                     p.thread.videoTime = videoRequest->time;
                 }
 
