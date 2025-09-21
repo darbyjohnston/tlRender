@@ -97,9 +97,7 @@ namespace tl
                 double getVideoSpeed() const;
                 const audio::Info& WMFObject::getAudioInfo() const;
 
-                void seek(double);
-
-                std::shared_ptr<ftk::Image> readImage();
+                std::shared_ptr<ftk::Image> readImage(const OTIO_NS::RationalTime&);
 
             private:
                 int _getFirstStream(GUID);
@@ -113,7 +111,7 @@ namespace tl
                 double _videoSpeed = 0.0;
                 int _audioStream = -1;
                 audio::Info _audioInfo;
-                double _seek = -1.0;
+                OTIO_NS::RationalTime _time;
             };
 
             WMFObject::WMFObject(const file::Path& path)
@@ -299,27 +297,30 @@ namespace tl
                 return _audioInfo;
             }
 
-            void WMFObject::seek(double value)
-            {
-                _seek = value;
-                PROPVARIANT var;
-                HRESULT hr = InitPropVariantFromInt64(value * timeConversion, &var);
-                if (SUCCEEDED(hr))
-                {
-                    hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
-                    PropVariantClear(&var);
-                }
-            }
-
-            std::shared_ptr<ftk::Image> WMFObject::readImage()
+            std::shared_ptr<ftk::Image> WMFObject::readImage(const OTIO_NS::RationalTime& time)
             {
                 std::shared_ptr<ftk::Image> out;
+                //std::cout << "read: " << time << std::endl;
+
+                if (time != _time + OTIO_NS::RationalTime(1.0, _videoSpeed))
+                {
+                    //std::cout << "seek: " << time << std::endl;
+                    PROPVARIANT var;
+                    HRESULT hr = InitPropVariantFromInt64(time.rescaled_to(1.0).value() * timeConversion, &var);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
+                        PropVariantClear(&var);
+                    }
+                }
+
+                OTIO_NS::RationalTime t;
                 HRESULT hr = S_OK;
                 LONGLONG timeStamp;
                 bool end = false;
                 do
                 {
-                    DWORD flags;
+                    DWORD flags = 0;
                     IMFSample* sample = nullptr;
                     hr = _wmfReader->ReadSample(
                         _videoStream,
@@ -336,39 +337,53 @@ namespace tl
                     {
                         end = true;
                     }
-                    if (sample && timeStamp / timeConversion >= _seek)
+                    t = OTIO_NS::RationalTime(
+                        timeStamp / timeConversion * _videoSpeed,
+                        _videoSpeed).round();
+                    if (sample && t >= time)
                     {
+                        end = true;
+                        _time = time;
+
                         out = ftk::Image::create(_imageInfo);
 
                         IMFMediaBuffer* buf = nullptr;
-                        sample->ConvertToContiguousBuffer(&buf);
-                        BYTE* bufP = nullptr;
-                        DWORD bufLen = 0;
-                        buf->Lock(&bufP, nullptr, &bufLen);
-
-                        const int w = _imageInfo.size.w;
-                        const int h = _imageInfo.size.h;
-                        for (int y = 0; y < h; ++y)
+                        hr = sample->ConvertToContiguousBuffer(&buf);
+                        if (SUCCEEDED(hr))
                         {
-                            const BYTE* bufP2 = bufP + (h - 1 - y) * w * 4;
-                            uint8_t* outP = out->getData() + y * w * 3;
-                            for (int x = 0; x < w; ++x, bufP2 += 4, outP += 3)
+                            BYTE* bufP = nullptr;
+                            DWORD bufLen = 0;
+                            hr = buf->Lock(&bufP, nullptr, &bufLen);
+                            if (SUCCEEDED(hr))
                             {
-                                outP[0] = bufP2[2];
-                                outP[1] = bufP2[1];
-                                outP[2] = bufP2[0];
+                                const int w = _imageInfo.size.w;
+                                const int h = _imageInfo.size.h;
+                                for (int y = 0; y < h; ++y)
+                                {
+                                    const BYTE* bufP2 = bufP + (h - 1 - y) * w * 4;
+                                    uint8_t* outP = out->getData() + y * w * 3;
+                                    for (int x = 0; x < w; ++x, bufP2 += 4, outP += 3)
+                                    {
+                                        outP[0] = bufP2[2];
+                                        outP[1] = bufP2[1];
+                                        outP[2] = bufP2[0];
+                                    }
+                                }
+                                buf->Unlock();
                             }
+                            buf->Release();
                         }
-
-                        buf->Unlock();
-                        buf->Release();
+                    }
+                    else
+                    {
+                        //std::cout << "  skip: " << t << std::endl;
                     }
                     if (sample)
                     {
                         sample->Release();
                     }
                 }
-                while (timeStamp / timeConversion < _seek && !end);
+                while (t < time && !end);
                 return out;
             }
 
@@ -627,20 +642,12 @@ namespace tl
                     request->promise.set_value(p.info);
                 }
 
-                // Seek.
-                if (videoRequest &&
-                    !videoRequest->time.strictly_equal(p.thread.videoTime))
-                {
-                    wmf.seek(videoRequest->time.rescaled_to(1.0).value());
-                    p.thread.videoTime = videoRequest->time;
-                }
-
                 // Handle video requests.
                 if (videoRequest)
                 {
                     io::VideoData data;
                     data.time = videoRequest->time;
-                    data.image = wmf.readImage();
+                    data.image = wmf.readImage(videoRequest->time);
                     videoRequest->promise.set_value(data);
                     p.thread.videoTime += OTIO_NS::RationalTime(1.0, p.info.videoTime.duration().rate());
                 }

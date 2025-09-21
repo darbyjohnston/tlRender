@@ -63,6 +63,7 @@ namespace tl
             std::shared_ptr<ftk::ObservableValue<std::shared_ptr<timeline::Player> > > _bPlayer;
             std::shared_ptr<ftk::ObservableValue<int> > _bPlayerIndex;
             std::shared_ptr<ftk::ObservableValue<timeline::Compare> > _compare;
+            timeline::PlayerCacheOptions _cacheOptions;
             std::shared_ptr<ftk::ValueObserver<timeline::PlayerCacheOptions> > _cacheObserver;
         };
     }

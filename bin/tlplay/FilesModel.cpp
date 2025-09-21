@@ -26,6 +26,7 @@ namespace tl
                 settingsModel->observeCache(),
                 [this](const timeline::PlayerCacheOptions& value)
                 {
+                    _cacheOptions = value;
                     for (const auto& player : _players->get())
                     {
                         player->setCacheOptions(value);
@@ -34,8 +35,7 @@ namespace tl
         }
 
         FilesModel::~FilesModel()
-        {
-        }
+        {}
 
         std::shared_ptr<FilesModel> FilesModel::create(
             const std::shared_ptr<ftk::Context>& context,
@@ -52,6 +52,7 @@ namespace tl
             {
                 auto timeline = timeline::Timeline::create(context, file::Path(path.u8string()));
                 auto player = timeline::Player::create(context, timeline);
+                player->setCacheOptions(_cacheOptions);
                 const int index = _players->getSize();
                 _players->pushBack(player);
                 _player->setIfChanged(player);
