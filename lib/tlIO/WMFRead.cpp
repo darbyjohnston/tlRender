@@ -4,6 +4,10 @@
 
 #include <tlIO/WMF.h>
 
+#include <feather-tk/core/Assert.h>
+#include <feather-tk/core/Format.h>
+#include <feather-tk/core/LogSystem.h>
+
 #include <combaseapi.h>
 #include <mfapi.h>
 #include <mferror.h>
@@ -64,6 +68,261 @@ namespace tl
             Thread thread;
         };
 
+        namespace
+        {
+            class WMFMediaTypeWrapper
+            {
+            public:
+                ~WMFMediaTypeWrapper()
+                {
+                    if (p)
+                    {
+                        p->Release();
+                    }
+                }
+
+                IMFMediaType* p = nullptr;
+            };
+
+            class WMFObject
+            {
+            public:
+                WMFObject(
+                    const file::Path& path,
+                    const std::vector<ftk::InMemoryFile>& memory);
+
+                ~WMFObject();
+
+                double getDuration() const;
+                ftk::ImageInfo getImageInfo() const;
+                double getVideoSpeed() const;
+
+                void seek(double);
+
+                std::shared_ptr<ftk::Image> readImage();
+
+            private:
+                int _getFirstVideoStream();
+
+                bool _comInit = false;
+                bool _wmfInit = false;
+                IMFSourceReader* _wmfReader = nullptr;
+                double _duration = 0.0;
+                int _videoStream = -1;
+                ftk::ImageInfo _imageInfo;
+                double _videoSpeed = 0.0;
+                double _seek = -1.0;
+            };
+
+            WMFObject::WMFObject(
+                const file::Path& path,
+                const std::vector<ftk::InMemoryFile>& memory)
+            {
+                // Initialize COM.
+                HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+                if (FAILED(hr))
+                {
+                    throw std::runtime_error("Cannot initialize COM");
+                }
+                _comInit = true;
+
+                // Initialize WMF.
+                hr = MFStartup(MF_VERSION);
+                if (FAILED(hr))
+                {
+                    throw std::runtime_error("Cannot initialize WMF");
+                }
+                _wmfInit = true;
+
+                // Create source reader.
+                IMFAttributes* wmfAttr = NULL;
+                hr = MFCreateAttributes(&wmfAttr, 1);
+                if (FAILED(hr))
+                {
+                    throw std::runtime_error("Cannot create atrtibutes");
+                }
+                //wmfAttr->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
+                //wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
+                const std::wstring fileName = ftk::toWide(path.get());
+                hr = MFCreateSourceReaderFromURL(
+                    fileName.data(),
+                    wmfAttr,
+                    &_wmfReader);
+                wmfAttr->Release();
+                if (FAILED(hr))
+                {
+                    throw std::runtime_error("Cannot create source reader");
+                }
+
+                // Get the duration.
+                PROPVARIANT mfPresAttr;
+                hr = _wmfReader->GetPresentationAttribute(
+                    MF_SOURCE_READER_MEDIASOURCE,
+                    MF_PD_DURATION,
+                    &mfPresAttr);
+                if (SUCCEEDED(hr))
+                {
+                    LONGLONG durationNanoseconds = 0;
+                    hr = PropVariantToInt64(mfPresAttr, &durationNanoseconds);
+                    _duration = durationNanoseconds / 10000000.0;
+                    PropVariantClear(&mfPresAttr);
+                }
+
+                // Initialize the video stream.
+                _videoStream = _getFirstVideoStream();
+                if (_videoStream != -1)
+                {
+                    WMFMediaTypeWrapper wmfMediaType;
+                    hr = _wmfReader->GetNativeMediaType(_videoStream, 0, &wmfMediaType.p);
+
+                    GUID subType;
+                    wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+
+                    UINT32 width = 0;
+                    UINT32 height = 0;
+                    MFGetAttributeSize(wmfMediaType.p, MF_MT_FRAME_SIZE, &width, &height);
+                    _imageInfo.size.w = width;
+                    _imageInfo.size.h = height;
+                    //_imageInfo.type = ftk::ImageType::RGBA_U8;
+                    _imageInfo.type = ftk::ImageType::YUV_420P_U8;
+
+                    UINT32 frameRateNum = 0;
+                    UINT32 frameRateDen = 0;
+                    MFGetAttributeRatio(
+                        wmfMediaType.p,
+                        MF_MT_FRAME_RATE,
+                        &frameRateNum,
+                        &frameRateDen);
+                    if (frameRateDen > 0)
+                    {
+                        _videoSpeed = frameRateNum / static_cast<double>(frameRateDen);
+                    }
+
+                    WMFMediaTypeWrapper wmfMediaType2;
+                    hr = MFCreateMediaType(&wmfMediaType2.p);
+                    if (SUCCEEDED(hr))
+                    {
+                        wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
+                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_I420);
+                        hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot set video format");
+                        }
+                    }
+                }
+            }
+
+            WMFObject::~WMFObject()
+            {
+                if (_wmfReader)
+                {
+                    _wmfReader->Release();
+                }
+                if (_wmfInit)
+                {
+                    MFShutdown();
+                }
+                if (_comInit)
+                {
+                    CoUninitialize();
+                }
+            }
+
+            double WMFObject::getDuration() const
+            {
+                return _duration;
+            }
+
+            ftk::ImageInfo WMFObject::getImageInfo() const
+            {
+                return _imageInfo;
+            }
+
+            double WMFObject::getVideoSpeed() const
+            {
+                return _videoSpeed;
+            }
+
+            void WMFObject::seek(double value)
+            {
+                _seek = value;
+                PROPVARIANT var;
+                HRESULT hr = InitPropVariantFromInt64(value * 10000000.0, &var);
+                if (SUCCEEDED(hr))
+                {
+                    hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
+                    PropVariantClear(&var);
+                }
+            }
+
+            std::shared_ptr<ftk::Image> WMFObject::readImage()
+            {
+                std::shared_ptr<ftk::Image> out;
+                HRESULT hr = S_OK;
+                LONGLONG timeStamp;
+                do
+                {
+                    DWORD flags;
+                    IMFSample* sample = nullptr;
+                    hr = _wmfReader->ReadSample(
+                        _videoStream,
+                        0,
+                        nullptr,
+                        &flags,
+                        &timeStamp,
+                        &sample);
+                    if (FAILED(hr))
+                    {
+                        break;
+                    }
+                    if (flags & MF_SOURCE_READERF_ENDOFSTREAM)
+                    {
+                        break;
+                    }
+                    if (timeStamp / 10000000.0 >= _seek)
+                    {
+                        IMFMediaBuffer* buf = nullptr;
+                        sample->ConvertToContiguousBuffer(&buf);
+                        //DWORD bufLen = 0;
+                        //buf->GetCurrentLength(&bufLen);
+                        BYTE* bufP = nullptr;
+                        DWORD bufLen = 0;
+                        buf->Lock(&bufP, nullptr, &bufLen);
+                        out = ftk::Image::create(_imageInfo);
+                        memcpy(out->getData(), bufP, out->getByteCount());
+                        buf->Unlock();
+                        buf->Release();
+                        sample->Release();
+                    }
+                }
+                while (timeStamp / 10000000.0 < _seek);
+                return out;
+            }
+
+            int WMFObject::_getFirstVideoStream()
+            {
+                int out = -1;
+                HRESULT hr = S_OK;
+                for (int i = 0; -1 == out && SUCCEEDED(hr); ++i)
+                {
+                    WMFMediaTypeWrapper wmfMediaType;
+                    hr = _wmfReader->GetNativeMediaType(i, 0, &wmfMediaType.p);
+                    if (SUCCEEDED(hr))
+                    {
+                        GUID majorType;
+                        wmfMediaType.p->GetMajorType(&majorType);
+                        if (majorType == MFMediaType_Video)
+                        {
+                            out = i;
+                        }
+                    }
+                }
+                return out;
+            }
+        }
+
         void Read::_init(
             const file::Path& path,
             const std::vector<ftk::InMemoryFile>& memory,
@@ -75,87 +334,28 @@ namespace tl
 
             p.thread.running = true;
             p.thread.thread = std::thread(
-                [this, path]
+                [this, path, memory]
                 {
                     FTK_P();
-
-                    HRESULT hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-                    if (SUCCEEDED(hr))
+                    try
                     {
-                        hr = MFStartup(MF_VERSION);
-                        if (SUCCEEDED(hr))
-                        {
-                            const std::wstring fileName = ftk::toWide(path.get());
-                            IMFSourceReader* mfReader = nullptr;
-                            hr = MFCreateSourceReaderFromURL(
-                                fileName.data(),
-                                nullptr,
-                                &mfReader);
-                            if (SUCCEEDED(hr))
-                            {
-                                ftk::Size2I size;
-                                double speed = 0.0;
-                                double duration = 0.0;
-
-                                IMFMediaType* mfMediaType = nullptr;
-                                hr = mfReader->GetCurrentMediaType(MF_SOURCE_READER_FIRST_VIDEO_STREAM, &mfMediaType);
-                                if (SUCCEEDED(hr))
-                                {
-                                    GUID subtype;
-                                    hr = mfMediaType->GetGUID(MF_MT_SUBTYPE, &subtype);
-                                    UINT32 width = 0;
-                                    UINT32 height = 0;
-                                    MFGetAttributeSize(mfMediaType, MF_MT_FRAME_SIZE, &width, &height);
-                                    size.w = width;
-                                    size.h = height;
-
-                                    UINT32 frameRateNum = 0;
-                                    UINT32 frameRateDen = 0;
-                                    MFGetAttributeRatio(
-                                        mfMediaType,
-                                        MF_MT_FRAME_RATE,
-                                        &frameRateNum,
-                                        &frameRateDen);
-                                    if (frameRateDen > 0)
-                                    {
-                                        speed = frameRateNum / static_cast<double>(frameRateDen);
-                                    }
-
-                                    mfMediaType->Release();
-                                }
-
-                                PROPVARIANT mfPresAttr;
-                                HRESULT hr = mfReader->GetPresentationAttribute(
-                                    MF_SOURCE_READER_MEDIASOURCE,
-                                    MF_PD_DURATION,
-                                    &mfPresAttr);
-                                if (SUCCEEDED(hr))
-                                {
-                                    LONGLONG durationNanoseconds = 0;
-                                    hr = PropVariantToInt64(mfPresAttr, &durationNanoseconds);
-                                    duration = durationNanoseconds / 10000000.0;
-                                    PropVariantClear(&mfPresAttr);
-                                }
-
-                                p.info.video.push_back(ftk::ImageInfo(size, ftk::ImageType::RGB_U8));
-                                p.info.videoTime = OTIO_NS::TimeRange(
-                                    OTIO_NS::RationalTime(0.0, speed),
-                                    OTIO_NS::RationalTime(duration * speed, speed));
-
-                                _thread();
-
-                                {
-                                    std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                                    p.mutex.stopped = true;
-                                }
-                                cancelRequests();
-
-                                mfReader->Release();
-                            }
-                            MFShutdown();
-                        }
-                        CoUninitialize();
+                        _thread(path, memory);
                     }
+                    catch (const std::exception& e)
+                    {
+                        if (auto logSystem = _logSystem.lock())
+                        {
+                            logSystem->print(
+                                "tl::io::ffmpeg::Read",
+                                e.what(),
+                                ftk::LogType::Error);
+                        }
+                    }
+                    {
+                        std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                        p.mutex.stopped = true;
+                    }
+                    cancelRequests();
                 });
         }
 
@@ -303,9 +503,18 @@ namespace tl
             }
         }
 
-        void Read::_thread()
+        void Read::_thread(
+            const file::Path& path,
+            const std::vector<ftk::InMemoryFile>& memory)
         {
             FTK_P();
+
+            WMFObject wmf(path, memory);
+            p.info.video.push_back(wmf.getImageInfo());
+            p.info.videoTime = OTIO_NS::TimeRange(
+                OTIO_NS::RationalTime(0.0, wmf.getVideoSpeed()),
+                OTIO_NS::RationalTime(wmf.getDuration() * wmf.getVideoSpeed(), wmf.getVideoSpeed()));
+
             while (p.thread.running)
             {
                 // Check requests.
@@ -349,6 +558,7 @@ namespace tl
                 if (videoRequest &&
                     !videoRequest->time.strictly_equal(p.thread.videoTime))
                 {
+                    wmf.seek(videoRequest->time.rescaled_to(1.0).value() * 10000000.0);
                     p.thread.videoTime = videoRequest->time;
                 }
 
@@ -357,8 +567,8 @@ namespace tl
                 {
                     io::VideoData data;
                     data.time = videoRequest->time;
+                    data.image = wmf.readImage();
                     videoRequest->promise.set_value(data);
-
                     p.thread.videoTime += OTIO_NS::RationalTime(1.0, p.info.videoTime.duration().rate());
                 }
 

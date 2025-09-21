@@ -58,7 +58,9 @@ namespace tl
             void cancelRequests() override;
 
         private:
-            void _thread();
+            void _thread(
+                const file::Path&,
+                const std::vector<ftk::InMemoryFile>&);
 
             FTK_PRIVATE();
         };
