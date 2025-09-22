@@ -122,12 +122,9 @@ namespace tl
             {
                 PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-
                 std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
                 ftk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
-
                 std::map<int64_t, AudioRequest> audioDataRequests;
-
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
                 std::thread thread;
