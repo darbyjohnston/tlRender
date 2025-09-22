@@ -153,25 +153,9 @@ namespace tl
             //! \name Video and Audio Data
             ///@{
 
-            //! Get video data size.
-            //! 
-            //! \todo Make this more accurate by taking into account
-            //! multiple clips and tracks.
-            VideoSizeRequest getVideoSize(
-                const OTIO_NS::RationalTime&,
-                const io::Options& = io::Options());
-
             //! Get video data.
             VideoRequest getVideo(
                 const OTIO_NS::RationalTime&,
-                const io::Options& = io::Options());
-
-            //! Get audio data size.
-            //! 
-            //! \todo Make this more accurate by taking into account
-            //! multiple clips and tracks.
-            AudioSizeRequest getAudioSize(
-                double seconds,
                 const io::Options& = io::Options());
 
             //! Get audio data.

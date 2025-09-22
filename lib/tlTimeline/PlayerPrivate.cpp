@@ -174,33 +174,42 @@ namespace tl
             if (!ioInfo.video.empty())
             {
                 const double rate = thread.state.currentTime.rate();
-                const int64_t start = (thread.state.currentTime -
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).rescaled_to(rate)).value();
-                const int64_t end = (thread.state.currentTime +
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).rescaled_to(rate)).value();
-                for (int64_t frame = start;
-                    frame <= end &&
-                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
-                    ++frame)
+                OTIO_NS::RationalTime start = thread.state.currentTime;
+                OTIO_NS::RationalTime end = thread.state.currentTime;
+                OTIO_NS::RationalTime inc(1.0, rate);
+                switch (thread.cacheDirection)
                 {
-                    const OTIO_NS::RationalTime t = timeline::loop(
-                        OTIO_NS::RationalTime(frame, rate),
-                        thread.state.inOutRange);
-                    if (!thread.videoCache.contains(t))
+                case CacheDirection::Forward:
+                    start -= OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).rescaled_to(rate);
+                    end += OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).rescaled_to(rate);
+                        break;
+                case CacheDirection::Reverse:
+                    start -= OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).rescaled_to(rate);
+                    end += OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).rescaled_to(rate);
+                    break;
+                default: break;
+                }
+                for (OTIO_NS::RationalTime t = start;
+                    t <= end &&
+                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
+                    t += inc)
+                {
+                    const OTIO_NS::RationalTime t2 = timeline::loop(t, thread.state.inOutRange);
+                    if (!thread.videoCache.contains(t2))
                     {
-                        const auto i = thread.videoDataRequests.find(t);
+                        const auto i = thread.videoDataRequests.find(t2);
                         if (i == thread.videoDataRequests.end())
                         {
-                            //std::cout << this << " video request: " << t << std::endl;
-                            auto& requests = thread.videoDataRequests[t];
+                            //std::cout << this << " video request: " << t2 << std::endl;
+                            auto& requests = thread.videoDataRequests[t2];
                             io::Options ioOptions2 = thread.state.ioOptions;
                             ioOptions2["Layer"] = ftk::Format("{0}").arg(thread.state.videoLayer);
                             requests.clear();
-                            requests.push_back(timeline->getVideo(t, ioOptions2));
+                            requests.push_back(timeline->getVideo(t2, ioOptions2));
                             for (size_t i = 0; i < thread.state.compare.size(); ++i)
                             {
-                                const OTIO_NS::RationalTime time2 = timeline::getCompareTime(
-                                    t,
+                                const OTIO_NS::RationalTime t3 = timeline::getCompareTime(
+                                    t2,
                                     timeRange,
                                     thread.state.compare[i]->getTimeRange(),
                                     thread.state.compareTime);
@@ -208,7 +217,7 @@ namespace tl
                                     arg(i < thread.state.compareVideoLayers.size() ?
                                         thread.state.compareVideoLayers[i] :
                                         thread.state.videoLayer);
-                                requests.push_back(thread.state.compare[i]->getVideo(time2, ioOptions2));
+                                requests.push_back(thread.state.compare[i]->getVideo(t3, ioOptions2));
                             }
                         }
                     }
@@ -218,32 +227,38 @@ namespace tl
             // Fill the audio cache.
             if (ioInfo.audio.isValid())
             {
-                const int64_t start = (thread.state.currentTime -
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0)).
-                    rescaled_to(1.0).value();
-                const int64_t end = (thread.state.currentTime +
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0)).
-                    rescaled_to(1.0).value();
+                int64_t start = thread.state.currentTime.rescaled_to(1.0).value();
+                int64_t end = thread.state.currentTime.rescaled_to(1.0).value();
+                switch (thread.cacheDirection)
+                {
+                case CacheDirection::Forward:
+                    start -= OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).value();
+                    end += OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).value();
+                    break;
+                case CacheDirection::Reverse:
+                    start -= OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).value();
+                    end += OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).value();
+                    break;
+                default: break;
+                }
                 for (int64_t s = start;
                     s <= end &&
                     thread.audioDataRequests.size() < playerOptions.audioRequestMax;
                     ++s)
                 {
-                    const int64_t t = timeline::loop(
-                        s + thread.state.audioOffset,
-                        thread.state.inOutRange);
+                    const int64_t s2 = timeline::loop(s + thread.state.audioOffset, thread.state.inOutRange);
                     bool found = false;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        found = audioMutex.cache.contains(t);
+                        found = audioMutex.cache.contains(s2);
                     }
                     if (!found)
                     {
-                        const auto i = thread.audioDataRequests.find(t);
+                        const auto i = thread.audioDataRequests.find(s2);
                         if (i == thread.audioDataRequests.end())
                         {
-                            auto& request = thread.audioDataRequests[t];
-                            request = timeline->getAudio(t, thread.state.ioOptions);
+                            auto& request = thread.audioDataRequests[s2];
+                            request = timeline->getAudio(s2, thread.state.ioOptions);
                         }
                     }
                 }
