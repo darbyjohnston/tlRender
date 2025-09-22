@@ -43,6 +43,7 @@ namespace tl
         private:
             std::shared_ptr<ftk::DoubleEdit> _videoEdit;
             std::shared_ptr<ftk::DoubleEdit> _audioEdit;
+            std::shared_ptr<ftk::DoubleEdit> _readAheadEdit;
             std::shared_ptr<ftk::DoubleEdit> _readBehindEdit;
             std::shared_ptr<ftk::FormLayout> _layout;
             std::shared_ptr<ftk::ValueObserver<timeline::PlayerCacheOptions> > _cacheObserver;

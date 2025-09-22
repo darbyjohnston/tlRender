@@ -203,7 +203,7 @@ namespace tl
                         wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
                         wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
                         //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_I420);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_IYUV);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
                         hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
                         if (FAILED(hr))
                         {
@@ -356,6 +356,7 @@ namespace tl
                             hr = buf->Lock(&bufP, nullptr, &bufLen);
                             if (SUCCEEDED(hr))
                             {
+                                //memcpy(out->getData(), bufP, out->getByteCount());
                                 const int w = _imageInfo.size.w;
                                 const int h = _imageInfo.size.h;
                                 for (int y = 0; y < h; ++y)

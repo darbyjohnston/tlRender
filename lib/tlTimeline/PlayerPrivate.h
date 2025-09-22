@@ -120,30 +120,13 @@ namespace tl
 
             struct Thread
             {
-                OTIO_NS::RationalTime getVideoTime(int64_t) const;
-                int64_t getAudioTime(int64_t) const;
-
                 PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
 
-                struct VideoRequestData
-                {
-                    size_t byteCount = 0;
-                    std::vector<VideoRequest> list;
-                };
-                std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
+                std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
                 ftk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
-                int64_t videoFillFrame = 0;
-                size_t videoFillByteCount = 0;
 
-                struct AudioRequestData
-                {
-                    size_t byteCount = 0;
-                    AudioRequest request;
-                };
-                std::map<int64_t, AudioRequestData> audioDataRequests;
-                int64_t audioFillSeconds = 0;
-                size_t audioFillByteCount = 0;
+                std::map<int64_t, AudioRequest> audioDataRequests;
 
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;

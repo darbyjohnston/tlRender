@@ -13,7 +13,8 @@ namespace tl
             return
                 videoGB == other.videoGB &&
                 audioGB == other.audioGB &&
-                readBehind == other.readBehind;
+                readAhead == other.readAhead &&
+                readBehind == other.readBehind;;
         }
 
         bool PlayerCacheOptions::operator != (const PlayerCacheOptions& other) const
@@ -43,6 +44,7 @@ namespace tl
         {
             json["VideoGB"] = value.videoGB;
             json["AudioGB"] = value.audioGB;
+            json["ReadAhead"] = value.readAhead;
             json["ReadBehind"] = value.readBehind;
         }
 
@@ -50,6 +52,7 @@ namespace tl
         {
             json.at("VideoGB").get_to(value.videoGB);
             json.at("AudioGB").get_to(value.audioGB);
+            json.at("ReadAhead").get_to(value.readAhead);
             json.at("ReadBehind").get_to(value.readBehind);
         }
     }

@@ -71,6 +71,8 @@ namespace tl
                     arg(playerOptions.cache.videoGB));
                 lines.push_back(ftk::Format("    Audio cache: {0}GB").
                     arg(playerOptions.cache.audioGB));
+                lines.push_back(ftk::Format("    Cache read ahead: {0}").
+                    arg(playerOptions.cache.readAhead));
                 lines.push_back(ftk::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
                 lines.push_back(ftk::Format("    Audio buffer frame count: {0}").
@@ -818,10 +820,6 @@ namespace tl
                 {
                     p.thread.state = state;
                     p.thread.cacheDirection = cacheDirection;
-                    p.thread.videoFillFrame = 0;
-                    p.thread.videoFillByteCount = 0;
-                    p.thread.audioFillSeconds = 0;
-                    p.thread.audioFillByteCount = 0;
                 }
 
                 // Clear requests.
