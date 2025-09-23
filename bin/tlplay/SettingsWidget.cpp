@@ -30,9 +30,6 @@ namespace tl
             _audioEdit->setStep(1.0);
             _audioEdit->setLargeStep(10.0);
 
-            _readAheadEdit = ftk::DoubleEdit::create(context);
-            _readAheadEdit->setRange(0.0, 10.0);
-
             _readBehindEdit = ftk::DoubleEdit::create(context);
             _readBehindEdit->setRange(0.0, 2.0);
 
@@ -40,7 +37,6 @@ namespace tl
             _layout->setSpacingRole(ftk::SizeRole::SpacingSmall);
             _layout->addRow("Video cache (GB):", _videoEdit);
             _layout->addRow("Audio cache (GB):", _audioEdit);
-            _layout->addRow("Read ahead (seconds):", _readAheadEdit);
             _layout->addRow("Read behind (seconds):", _readBehindEdit);
 
             std::weak_ptr<App> appWeak(app);
@@ -66,17 +62,6 @@ namespace tl
                     }
                 });
 
-            _readAheadEdit->setCallback(
-                [appWeak](double value)
-                {
-                    if (auto app = appWeak.lock())
-                    {
-                        auto cache = app->getSettingsModel()->getCache();
-                        cache.readAhead = value;
-                        app->getSettingsModel()->setCache(cache);
-                    }
-                });
-
             _readBehindEdit->setCallback(
                 [appWeak](double value)
                 {
@@ -94,14 +79,12 @@ namespace tl
                 {
                     _videoEdit->setValue(value.videoGB);
                     _audioEdit->setValue(value.audioGB);
-                    _readAheadEdit->setValue(value.readAhead);
                     _readBehindEdit->setValue(value.readBehind);
                 });
         }
 
         CacheSettingsWidget::~CacheSettingsWidget()
-        {
-        }
+        {}
 
         std::shared_ptr<CacheSettingsWidget> CacheSettingsWidget::create(
             const std::shared_ptr<ftk::Context>& context,

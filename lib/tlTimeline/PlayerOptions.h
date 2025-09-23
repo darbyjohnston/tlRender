@@ -22,9 +22,6 @@ namespace tl
             //! Audio cache size in gigabytes.
             float audioGB = .5F;
 
-            //! Number of seconds to read ahead of the current frame.
-            float readAhead = 4.F;
-
             //! Number of seconds to read behind the current frame.
             float readBehind = .5F;
 

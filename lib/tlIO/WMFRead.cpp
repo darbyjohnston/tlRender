@@ -433,7 +433,7 @@ namespace tl
                         if (auto logSystem = _logSystem.lock())
                         {
                             logSystem->print(
-                                "tl::io::ffmpeg::Read",
+                                "tl::io::wmf::Read",
                                 e.what(),
                                 ftk::LogType::Error);
                         }

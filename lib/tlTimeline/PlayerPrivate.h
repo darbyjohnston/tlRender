@@ -10,8 +10,6 @@
 
 #include <tlCore/AudioResample.h>
 
-#include <feather-tk/core/LRUCache.h>
-
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
 #endif // TLRENDER_SDL2
@@ -35,8 +33,8 @@ namespace tl
             void clearCache();
             size_t getVideoCacheMax() const;
             size_t getAudioCacheMax() const;
-            std::vector<OTIO_NS::RationalTime> getVideoCacheTimes() const;
-            std::vector<int64_t> getAudioCacheSeconds() const;
+            OTIO_NS::TimeRange getVideoCacheRange(size_t max) const;
+            ftk::Range<int64_t> getAudioCacheRange(size_t max) const;
             void cacheUpdate();
 
             bool hasAudio() const;
@@ -127,7 +125,7 @@ namespace tl
                 PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
                 std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
-                ftk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
+                std::map<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
                 std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
@@ -152,7 +150,7 @@ namespace tl
             struct AudioMutex
             {
                 AudioState state;
-                ftk::LRUCache<int64_t, AudioData> cache;
+                std::map<int64_t, AudioData> cache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;

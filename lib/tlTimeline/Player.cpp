@@ -71,8 +71,6 @@ namespace tl
                     arg(playerOptions.cache.videoGB));
                 lines.push_back(ftk::Format("    Audio cache: {0}GB").
                     arg(playerOptions.cache.audioGB));
-                lines.push_back(ftk::Format("    Cache read ahead: {0}").
-                    arg(playerOptions.cache.readAhead));
                 lines.push_back(ftk::Format("    Cache read behind: {0}").
                     arg(playerOptions.cache.readBehind));
                 lines.push_back(ftk::Format("    Audio buffer frame count: {0}").
@@ -840,11 +838,11 @@ namespace tl
                 // Update the current video data.
                 if (!p.ioInfo.video.empty())
                 {
-                    std::vector<VideoData> videoDataList;
-                    if (p.thread.videoCache.get(p.thread.state.currentTime, videoDataList))
+                    const auto i = p.thread.videoCache.find(p.thread.state.currentTime);
+                    if (i != p.thread.videoCache.end())
                     {
                         std::unique_lock<std::mutex> lock(p.mutex.mutex);
-                        p.mutex.currentVideoData = videoDataList;
+                        p.mutex.currentVideoData = i->second;
                     }
                     else if (p.thread.state.playback != Playback::Stop)
                     {
@@ -888,10 +886,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                         for (int64_t s : { seconds - 1, seconds, seconds + 1 })
                         {
-                            AudioData audioData;
-                            if (p.audioMutex.cache.get(s, audioData))
+                            const auto i = p.audioMutex.cache.find(s);
+                            if (i != p.audioMutex.cache.end())
                             {
-                                audioDataList.push_back(audioData);
+                                audioDataList.push_back(i->second);
                             }
                         }
                     }
@@ -917,6 +915,8 @@ namespace tl
                 // Sleep for a bit.
                 ftk::sleep(p.playerOptions.sleepTimeout, t0, t1);
             }
+
+            // Finished.
             p.clearRequests();
         }
     }
