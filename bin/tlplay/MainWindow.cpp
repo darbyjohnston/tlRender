@@ -74,9 +74,9 @@ namespace tl
             _timelineWidget = timelineui::TimelineWidget::create(
                 context,
                 app->getTimeUnitsModel());
-            //timelineui::DisplayOptions displayOptions;
-            //displayOptions.thumbnails = false;
-            //_timelineWidget->setDisplayOptions(displayOptions);
+            timelineui::DisplayOptions displayOptions;
+            displayOptions.thumbnails = false;
+            _timelineWidget->setDisplayOptions(displayOptions);
             _timelineWidget->setVStretch(ftk::Stretch::Expanding);
 
             _statusBar = StatusBar::create(context, app);
