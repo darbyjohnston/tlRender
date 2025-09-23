@@ -35,6 +35,8 @@ namespace tl
             void clearCache();
             size_t getVideoCacheMax() const;
             size_t getAudioCacheMax() const;
+            std::vector<OTIO_NS::RationalTime> getVideoCacheTimes() const;
+            std::vector<int64_t> getAudioCacheSeconds() const;
             void cacheUpdate();
 
             bool hasAudio() const;

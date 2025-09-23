@@ -197,6 +197,76 @@ namespace tl
                 (ioInfo.audio.sampleRate * ioInfo.audio.getByteCount());
         }
 
+        std::vector<OTIO_NS::RationalTime> Player::Private::getVideoCacheTimes() const
+        {
+            std::vector<OTIO_NS::RationalTime> out;
+
+            const double rate = thread.state.currentTime.rate();
+            const OTIO_NS::RationalTime readAhead =
+                OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).rescaled_to(rate);
+            const OTIO_NS::RationalTime readBehind =
+                OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).rescaled_to(rate);
+
+            switch (thread.cacheDirection)
+            {
+            case CacheDirection::Forward:
+                for (OTIO_NS::RationalTime t = thread.state.currentTime - readBehind;
+                    t <= thread.state.currentTime + readAhead &&
+                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
+                    t += OTIO_NS::RationalTime(1.0, rate))
+                {
+                    out.push_back(t);
+                }
+                break;
+            case CacheDirection::Reverse:
+                for (OTIO_NS::RationalTime t = thread.state.currentTime + readBehind;
+                    t >= thread.state.currentTime - readAhead &&
+                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
+                    t -= OTIO_NS::RationalTime(1.0, rate))
+                {
+                    out.push_back(t);
+                }
+                break;
+            default: break;
+            }
+
+            return out;
+        }
+
+        std::vector<int64_t> Player::Private::getAudioCacheSeconds() const
+        {
+            std::vector<int64_t> out;
+
+            const int64_t c = thread.state.currentTime.rescaled_to(1.0).value();
+            const int64_t readAhead = OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).value();
+            const int64_t readBehind = OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).value();
+
+            switch (thread.cacheDirection)
+            {
+            case CacheDirection::Forward:
+                for (int64_t s = c - readBehind;
+                    s <= c + readAhead &&
+                    thread.audioDataRequests.size() < playerOptions.audioRequestMax;
+                    ++s)
+                {
+                    out.push_back(s);
+                }
+                break;
+            case CacheDirection::Reverse:
+                for (int64_t s = c + readBehind;
+                    s >= c - readAhead &&
+                    thread.audioDataRequests.size() < playerOptions.audioRequestMax;
+                    --s)
+                {
+                    out.push_back(s);
+                }
+                break;
+            default: break;
+            }
+
+            return out;
+        }
+
         void Player::Private::cacheUpdate()
         {
             //std::cout << "current time: " << currentTime->get() << std::endl;
@@ -210,34 +280,7 @@ namespace tl
             // Fill the video cache.
             if (!ioInfo.video.empty())
             {
-                std::vector<OTIO_NS::RationalTime> times;
-                const double rate = thread.state.currentTime.rate();
-                const OTIO_NS::RationalTime readAhead =
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).rescaled_to(rate);
-                const OTIO_NS::RationalTime readBehind =
-                    OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).rescaled_to(rate);
-                switch (thread.cacheDirection)
-                {
-                case CacheDirection::Forward:
-                    for (OTIO_NS::RationalTime t = thread.state.currentTime - readBehind;
-                        t <= thread.state.currentTime + readAhead &&
-                        thread.videoDataRequests.size() < playerOptions.videoRequestMax;
-                        t += OTIO_NS::RationalTime(1.0, rate))
-                    {
-                        times.push_back(t);
-                    }
-                    break;
-                case CacheDirection::Reverse:
-                    for (OTIO_NS::RationalTime t = thread.state.currentTime + readBehind;
-                        t >= thread.state.currentTime - readAhead &&
-                        thread.videoDataRequests.size() < playerOptions.videoRequestMax;
-                        t -= OTIO_NS::RationalTime(1.0, rate))
-                    {
-                        times.push_back(t);
-                    }
-                    break;
-                default: break;
-                }
+                const auto times = getVideoCacheTimes();
                 for (size_t i = 0;
                     i < times.size() &&
                     thread.videoDataRequests.size() < playerOptions.videoRequestMax;
@@ -277,38 +320,13 @@ namespace tl
             // Fill the audio cache.
             if (ioInfo.audio.isValid())
             {
-                std::vector<int64_t> times;
-                const int64_t c = thread.state.currentTime.rescaled_to(1.0).value();
-                const int64_t readAhead = OTIO_NS::RationalTime(thread.state.cacheOptions.readAhead, 1.0).value();
-                const int64_t readBehind = OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).value();
-                switch (thread.cacheDirection)
-                {
-                case CacheDirection::Forward:
-                    for (int64_t s = c - readBehind;
-                        s <= c + readAhead &&
-                        thread.audioDataRequests.size() < playerOptions.audioRequestMax;
-                        ++s)
-                    {
-                        times.push_back(s);
-                    }
-                    break;
-                case CacheDirection::Reverse:
-                    for (int64_t s = c + readBehind;
-                        s >= c - readAhead &&
-                        thread.audioDataRequests.size() < playerOptions.audioRequestMax;
-                        --s)
-                    {
-                        times.push_back(s);
-                    }
-                    break;
-                default: break;
-                }
+                const auto seconds = getAudioCacheSeconds();
                 for (size_t i = 0;
-                    i < times.size() &&
+                    i < seconds.size() &&
                     thread.audioDataRequests.size() < playerOptions.audioRequestMax;
                     ++i)
                 {
-                    const int64_t t = timeline::loop(times[i] + thread.state.audioOffset, thread.state.inOutRange);
+                    const int64_t t = timeline::loop(seconds[i] + thread.state.audioOffset, thread.state.inOutRange);
                     bool found = false;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
