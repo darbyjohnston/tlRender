@@ -160,14 +160,51 @@ namespace tl
             }
         }
 
+        size_t Player::Private::getVideoCacheMax() const
+        {
+            // This function returns the approximate number of video frames
+            // that can fit in the cache. Note that this doesn't take into
+            // account clips with different sizes or multiple tracks.
+            size_t byteCount = 0;
+            if (thread.state.videoLayer >= 0 &&
+                thread.state.videoLayer < ioInfo.video.size())
+            {
+                byteCount += ioInfo.video[thread.state.videoLayer].getByteCount();
+
+                // Add byte counts from timelines that are being compared.
+                for (size_t i = 0; i < thread.state.compare.size(); ++i)
+                {
+                    const int compareLayer = i < thread.state.compareVideoLayers.size() ?
+                        thread.state.compareVideoLayers[i] :
+                        thread.state.videoLayer;
+                    const io::Info& compareInfo = thread.state.compare[i]->getIOInfo();
+                    if (compareLayer >= 0 &&
+                        compareLayer < compareInfo.video.size())
+                    {
+                        byteCount += compareInfo.video[compareLayer].getByteCount();
+                    }
+                }
+            }
+            return (thread.state.cacheOptions.videoGB * ftk::gigabyte) / byteCount;
+        }
+
+        size_t Player::Private::getAudioCacheMax() const
+        {
+            // This function returns the approximate number seconds of audio
+            // that can fit in the cache. Note that this doesn't take into
+            // account clips with different sizes or multiple tracks.
+            return (thread.state.cacheOptions.audioGB * ftk::gigabyte) /
+                (ioInfo.audio.sampleRate * ioInfo.audio.getByteCount());
+        }
+
         void Player::Private::cacheUpdate()
         {
             //std::cout << "current time: " << currentTime->get() << std::endl;
 
-            thread.videoCache.setMax(thread.state.cacheOptions.videoGB * ftk::gigabyte);
+            thread.videoCache.setMax(getVideoCacheMax());
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioMutex.cache.setMax(thread.state.cacheOptions.audioGB * ftk::gigabyte);
+                audioMutex.cache.setMax(getAudioCacheMax());
             }
 
             // Fill the video cache.
@@ -201,13 +238,16 @@ namespace tl
                     break;
                 default: break;
                 }
-                for (const auto& time : times)
+                for (size_t i = 0;
+                    i < times.size() &&
+                    thread.videoDataRequests.size() < playerOptions.videoRequestMax;
+                    ++i)
                 {
-                    const OTIO_NS::RationalTime t = timeline::loop(time, thread.state.inOutRange);
+                    const OTIO_NS::RationalTime t = timeline::loop(times[i], thread.state.inOutRange);
                     if (!thread.videoCache.contains(t))
                     {
-                        const auto i = thread.videoDataRequests.find(t);
-                        if (i == thread.videoDataRequests.end())
+                        const auto j = thread.videoDataRequests.find(t);
+                        if (j == thread.videoDataRequests.end())
                         {
                             //std::cout << this << " video request: " << t << std::endl;
                             auto& requests = thread.videoDataRequests[t];
@@ -216,18 +256,18 @@ namespace tl
                             requests.clear();
                             requests.push_back(timeline->getVideo(t, ioOptions2));
 
-                            for (size_t i = 0; i < thread.state.compare.size(); ++i)
+                            for (size_t k = 0; k < thread.state.compare.size(); ++k)
                             {
                                 const OTIO_NS::RationalTime t2 = timeline::getCompareTime(
                                     t,
                                     timeRange,
-                                    thread.state.compare[i]->getTimeRange(),
+                                    thread.state.compare[k]->getTimeRange(),
                                     thread.state.compareTime);
                                 ioOptions2["Layer"] = ftk::Format("{0}").
-                                    arg(i < thread.state.compareVideoLayers.size() ?
-                                        thread.state.compareVideoLayers[i] :
+                                    arg(k < thread.state.compareVideoLayers.size() ?
+                                        thread.state.compareVideoLayers[k] :
                                         thread.state.videoLayer);
-                                requests.push_back(thread.state.compare[i]->getVideo(t2, ioOptions2));
+                                requests.push_back(thread.state.compare[k]->getVideo(t2, ioOptions2));
                             }
                         }
                     }
@@ -263,9 +303,12 @@ namespace tl
                     break;
                 default: break;
                 }
-                for (auto time : times)
+                for (size_t i = 0;
+                    i < times.size() &&
+                    thread.audioDataRequests.size() < playerOptions.audioRequestMax;
+                    ++i)
                 {
-                    const int64_t t = timeline::loop(time + thread.state.audioOffset, thread.state.inOutRange);
+                    const int64_t t = timeline::loop(times[i] + thread.state.audioOffset, thread.state.inOutRange);
                     bool found = false;
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
@@ -273,8 +316,8 @@ namespace tl
                     }
                     if (!found)
                     {
-                        const auto i = thread.audioDataRequests.find(t);
-                        if (i == thread.audioDataRequests.end())
+                        const auto j = thread.audioDataRequests.find(t);
+                        if (j == thread.audioDataRequests.end())
                         {
                             auto& request = thread.audioDataRequests[t];
                             request = timeline->getAudio(t, thread.state.ioOptions);
@@ -300,7 +343,6 @@ namespace tl
                 {
                     const OTIO_NS::RationalTime time = videoDataRequestsIt->first;
                     std::vector<VideoData> videoDataList;
-                    size_t byteCount = 0;
                     for (auto videoDataRequestIt = videoDataRequestsIt->second.begin();
                         videoDataRequestIt != videoDataRequestsIt->second.end();
                         ++videoDataRequestIt)
@@ -308,19 +350,8 @@ namespace tl
                         auto videoData = videoDataRequestIt->future.get();
                         videoData.time = time;
                         videoDataList.emplace_back(videoData);
-                        for (const auto& layer : videoData.layers)
-                        {
-                            if (layer.image)
-                            {
-                                byteCount += layer.image->getByteCount();
-                            }
-                            if (layer.imageB)
-                            {
-                                byteCount += layer.imageB->getByteCount();
-                            }
-                        }
                     }
-                    thread.videoCache.add(time, videoDataList, byteCount);
+                    thread.videoCache.add(time, videoDataList);
                     videoCacheChanged = true;
                     videoDataRequestsIt = thread.videoDataRequests.erase(videoDataRequestsIt);
                 }
@@ -341,20 +372,9 @@ namespace tl
                 {
                     auto audioData = audioDataRequestsIt->second.future.get();
                     audioData.seconds = s;
-                    size_t byteCount = 0;
-                    for (const auto& layer : audioData.layers)
-                    {
-                        if (layer.audio)
-                        {
-                            byteCount += layer.audio->getByteCount();
-                        }
-                    }
                     {
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                        audioMutex.cache.add(
-                            audioDataRequestsIt->first,
-                            audioData,
-                            byteCount);
+                        audioMutex.cache.add(audioDataRequestsIt->first, audioData);
                     }
                     audioDataRequestsIt = thread.audioDataRequests.erase(audioDataRequestsIt);
                     audioCacheChanged = true;
@@ -447,11 +467,14 @@ namespace tl
                 ioOptions = mutex.state.ioOptions;
                 cacheInfo = mutex.cacheInfo;
             }
-            const size_t videoCacheByteCount = thread.videoCache.getSize();
-            size_t audioCacheByteCount = 0;
+            const size_t videoCacheMax = thread.videoCache.getMax();
+            const size_t videoCacheSize = thread.videoCache.getSize();
+            size_t audioCacheMax = 0;
+            size_t audioCacheSize = 0;
             {
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
-                audioCacheByteCount = audioMutex.cache.getSize();
+                audioCacheMax = audioMutex.cache.getMax();
+                audioCacheSize = audioMutex.cache.getSize();
             }
 
             // Create an array of characters to draw the timeline.
@@ -511,8 +534,8 @@ namespace tl
                 "    Current time: {1}\n"
                 "    In/out range: {2}\n"
                 "    I/O options: {3}\n"
-                "    Video cache: {4}/{5}GB\n"
-                "    Audio cache: {6}/{7}GB\n"
+                "    Video cache: {4}% {5}GB\n"
+                "    Audio cache: {6}% {7}GB\n"
                 "    Read behind: {8}GB\n"
                 "    Video requests: {9}\n"
                 "    Audio requests: {10}\n"
@@ -524,9 +547,9 @@ namespace tl
                 arg(currentTime).
                 arg(inOutRange).
                 arg(ftk::join(ioOptionStrings, ", ")).
-                arg(videoCacheByteCount / static_cast<float>(ftk::gigabyte)).
+                arg(videoCacheMax > 0 ? (videoCacheSize / static_cast<double>(videoCacheMax) * 100.0) : 0.0).
                 arg(cacheOptions->get().videoGB).
-                arg(audioCacheByteCount / static_cast<float>(ftk::gigabyte)).
+                arg(audioCacheMax > 0 ? (audioCacheSize / static_cast<double>(audioCacheMax) * 100.0) : 0.0).
                 arg(cacheOptions->get().audioGB).
                 arg(cacheOptions->get().readBehind).
                 arg(thread.videoDataRequests.size()).
