@@ -8,12 +8,21 @@
 #include <feather-tk/core/Format.h>
 #include <feather-tk/core/LogSystem.h>
 
+extern "C"
+{
+#include <libswscale/swscale.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
+
+} // extern "C"
+
 #include <combaseapi.h>
 #include <mfapi.h>
 #include <mferror.h>
 #include <mfidl.h>
 #include <propvarutil.h>
 #include <mfreadwrite.h>
+#include <uuids.h>
 
 namespace tl
 {
@@ -23,6 +32,77 @@ namespace tl
         {
             const double timeConversion = 10000000.0;
             const size_t requestTimeout = 5;
+
+            const GUID MFVideoFormat_I422 = { FCC('I422'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_I444 = { FCC('I444'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_P010 = { FCC('P010'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_P016 = { FCC('P016'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_P210 = { FCC('P210'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_P216 = { FCC('P216'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_v210 = { FCC('v210'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_v216 = { FCC('v216'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_v40 = { FCC('v40'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_Y210 = { FCC('Y210'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_Y216 = { FCC('Y216'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_Y40 = { FCC('Y40'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+            const GUID MFVideoFormat_Y416 = { FCC('Y416'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
+
+            std::string videoFormatToString(GUID guid)
+            {
+                const std::vector<std::pair<GUID, std::string> > data =
+                {
+                    { MFVideoFormat_RGB8, "RGB8" },
+                    { MFVideoFormat_RGB555, "RGB555" },
+                    { MFVideoFormat_RGB565, "RGB565" },
+                    { MFVideoFormat_RGB24, "RGB24" },
+                    { MFVideoFormat_RGB32, "RGB32" },
+                    { MFVideoFormat_ARGB32, "ARGB32" },
+                    { MFVideoFormat_A2R10G10B10, "A2R10G10B10" },
+                    { MFVideoFormat_A16B16G16R16F, "A16B16G16R16F" },
+
+                    { MFVideoFormat_AI44, "AI44" },
+                    { MFVideoFormat_AYUV, "AYUV" },
+                    { MFVideoFormat_I420, "I420" },
+                    { MFVideoFormat_IYUV, "IYUV" },
+                    { MFVideoFormat_NV11, "NV11" },
+                    { MFVideoFormat_NV12, "NV12" },
+                    { MFVideoFormat_NV21, "NV21" },
+                    { MFVideoFormat_UYVY, "UYVY" },
+                    { MFVideoFormat_Y41P, "Y41P" },
+                    { MFVideoFormat_Y41T, "Y41T" },
+                    { MFVideoFormat_Y42T, "Y42T" },
+                    { MFVideoFormat_YUY2, "YUY2" },
+                    { MFVideoFormat_YVU9, "YVU9" },
+                    { MFVideoFormat_YV12, "YV12" },
+                    { MFVideoFormat_YVYU, "YVYU" },
+
+                    { MFVideoFormat_I422, "I422"},
+                    { MFVideoFormat_I444, "I444"},
+                    { MFVideoFormat_P010, "P010"},
+                    { MFVideoFormat_P016, "P016"},
+                    { MFVideoFormat_P210, "P210"},
+                    { MFVideoFormat_P216, "P216"},
+                    { MFVideoFormat_v210, "v210"},
+                    { MFVideoFormat_v216, "v216"},
+                    { MFVideoFormat_v40, "v40"},
+                    { MFVideoFormat_Y210, "Y210"},
+                    { MFVideoFormat_Y216, "Y216"},
+                    { MFVideoFormat_Y40, "Y40"},
+                    { MFVideoFormat_Y416, "Y416"},
+
+                    { MFVideoFormat_L8, "L8" },
+                    { MFVideoFormat_L16, "L16" },
+                    { MFVideoFormat_D16, "D16" }
+                };
+                auto i = std::find_if(
+                    data.begin(),
+                    data.end(),
+                    [guid](const std::pair<GUID, std::string>& value)
+                    {
+                        return guid == value.first;
+                    });
+                return i != data.end() ? i->second : std::string();
+            }
         }
 
         struct Read::Private
@@ -112,6 +192,12 @@ namespace tl
                 int _audioStream = -1;
                 audio::Info _audioInfo;
                 OTIO_NS::RationalTime _time;
+
+                AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_P010;
+                AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                AVFrame* _avFrame = nullptr;
+                AVFrame* _avFrame2 = nullptr;
+                SwsContext* _swsContext = nullptr;
             };
 
             WMFObject::WMFObject(const file::Path& path)
@@ -139,8 +225,8 @@ namespace tl
                 {
                     throw std::runtime_error("Cannot create atrtibutes");
                 }
-                //wmfAttr->SetUINT32(MF_READWRITE_ENABLE_HARDWARE_TRANSFORMS, TRUE);
-                wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_VIDEO_PROCESSING, TRUE);
+                wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_ADVANCED_VIDEO_PROCESSING, TRUE);
+                wmfAttr->SetUINT32(MF_READWRITE_DISABLE_CONVERTERS, FALSE);
                 const std::wstring fileName = ftk::toWide(path.get());
                 hr = MFCreateSourceReaderFromURL(
                     fileName.data(),
@@ -175,6 +261,7 @@ namespace tl
 
                     GUID subType;
                     wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+                    std::cout << "video: " << videoFormatToString(subType) << std::endl;
 
                     UINT32 width = 0;
                     UINT32 height = 0;
@@ -182,7 +269,6 @@ namespace tl
                     _imageInfo.size.w = width;
                     _imageInfo.size.h = height;
                     _imageInfo.type = ftk::ImageType::RGB_U8;
-                    //_imageInfo.type = ftk::ImageType::YUV_420P_U8;
 
                     UINT32 frameRateNum = 0;
                     UINT32 frameRateDen = 0;
@@ -201,15 +287,73 @@ namespace tl
                     if (SUCCEEDED(hr))
                     {
                         wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_I420);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
+                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_P010);
                         hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
                         if (FAILED(hr))
                         {
                             throw std::runtime_error("Cannot set video format");
                         }
                     }
+
+                    _avFrame = av_frame_alloc();
+                    if (!_avFrame)
+                    {
+                        throw std::runtime_error("Cannot allocate sws frame");
+                    }
+                    //! \bug These fields need to be filled out for
+                    //! sws_scale_frame()?
+                    _avFrame->format = _avInputPixelFormat;
+                    _avFrame->width = width;
+                    _avFrame->height = height;
+                    av_frame_get_buffer(_avFrame, 0);
+
+                    _avFrame2 = av_frame_alloc();
+                    if (!_avFrame2)
+                    {
+                        throw std::runtime_error("Cannot allocate sws frame");
+                    }
+                    //! \bug These fields need to be filled out for
+                    //! sws_scale_frame()?
+                    _avFrame2->format = _avOutputPixelFormat;
+                    _avFrame2->width = width;
+                    _avFrame2->height = height;
+                    av_frame_get_buffer(_avFrame2, 0);
+
+                    _swsContext = sws_alloc_context();
+                    if (!_swsContext)
+                    {
+                        throw std::runtime_error("Cannot allocate sws context");
+                    }
+                    av_opt_set_defaults(_swsContext);
+                    int r = av_opt_set_int(_swsContext, "srcw", width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "srch", height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "src_format", _avInputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "dstw", width, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "dsth", height, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "dst_format", _avOutputPixelFormat, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "sws_flags", SWS_FAST_BILINEAR, AV_OPT_SEARCH_CHILDREN);
+                    r = av_opt_set_int(_swsContext, "threads", 0, AV_OPT_SEARCH_CHILDREN);
+                    r = sws_init_context(_swsContext, nullptr, nullptr);
+                    if (r < 0)
+                    {
+                        throw std::runtime_error("Cannot initialize sws context");
+                    }
+
+                    AVColorSpace colorSpace = AVCOL_SPC_BT2020_NCL;
+                    if (AVCOL_SPC_UNSPECIFIED == colorSpace)
+                    {
+                        colorSpace = AVCOL_SPC_BT709;
+                    }
+                    r = sws_setColorspaceDetails(
+                        _swsContext,
+                        sws_getCoefficients(colorSpace),
+                        1,
+                        sws_getCoefficients(AVCOL_SPC_BT709),
+                        1,
+                        0,
+                        65536,
+                        65536);
                 }
 
                 // Initialize the audio stream.
@@ -263,6 +407,18 @@ namespace tl
 
             WMFObject::~WMFObject()
             {
+                if (_swsContext)
+                {
+                    sws_freeContext(_swsContext);
+                }
+                if (_avFrame2)
+                {
+                    av_frame_free(&_avFrame2);
+                }
+                if (_avFrame)
+                {
+                    av_frame_free(&_avFrame);
+                }
                 if (_wmfReader)
                 {
                     _wmfReader->Release();
@@ -357,19 +513,23 @@ namespace tl
                             if (SUCCEEDED(hr))
                             {
                                 //memcpy(out->getData(), bufP, out->getByteCount());
-                                const int w = _imageInfo.size.w;
-                                const int h = _imageInfo.size.h;
-                                for (int y = 0; y < h; ++y)
-                                {
-                                    const BYTE* bufP2 = bufP + (h - 1 - y) * w * 4;
-                                    uint8_t* outP = out->getData() + y * w * 3;
-                                    for (int x = 0; x < w; ++x, bufP2 += 4, outP += 3)
-                                    {
-                                        outP[0] = bufP2[2];
-                                        outP[1] = bufP2[1];
-                                        outP[2] = bufP2[0];
-                                    }
-                                }
+                                av_image_fill_arrays(
+                                    _avFrame->data,
+                                    _avFrame->linesize,
+                                    bufP,
+                                    _avInputPixelFormat,
+                                    _imageInfo.size.w,
+                                    _imageInfo.size.h,
+                                    1);
+                                av_image_fill_arrays(
+                                    _avFrame2->data,
+                                    _avFrame2->linesize,
+                                    out->getData(),
+                                    _avOutputPixelFormat,
+                                    _imageInfo.size.w,
+                                    _imageInfo.size.h,
+                                    1);
+                                sws_scale_frame(_swsContext, _avFrame2, _avFrame);
                                 buf->Unlock();
                             }
                             buf->Release();
