@@ -202,61 +202,6 @@ jobs:
         name: tlRender-Linux-Packages
         path: build-Release/tlRender-*.tar.gz
 
-  macos-13-build:
-    runs-on: macos-13
-
-    env:
-      FTK_API: GL_4_1
-      TLRENDER_NET: OFF
-      TLRENDER_OCIO: ON
-      TLRENDER_JPEG: ON
-      TLRENDER_TIFF: ON
-      TLRENDER_STB: ON
-      TLRENDER_EXR: ON
-      TLRENDER_FFMPEG: ON
-      TLRENDER_FFMPEG_MINIMAL: OFF
-      TLRENDER_USD: OFF
-      TLRENDER_BMD: OFF
-      TLRENDER_BMD_SDK:
-      TLRENDER_QT6: OFF
-      TLRENDER_QT5: OFF
-      TLRENDER_PROGRAMS: ON
-      TLRENDER_EXAMPLES: ON
-      TLRENDER_TESTS: ON
-      TLRENDER_GCOV: OFF
-      CMAKE_OSX_DEPLOYMENT_TARGET: 10.15
-      CMAKE_OSX_ARCHITECTURES: x86_64
-
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        path: tlRender
-        submodules: recursive
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-
-    # \bug DYLD_LIBRARY_PATH is not being set here?
-    # \bug Remove OpenEXR install.
-    - name: Setup environment
-      run: |
-        echo "$PWD/install-Debug/bin" >> $GITHUB_PATH
-        echo "DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
-        echo "PYTHONPATH=$PWD/install-Debug/lib:$PYTHONPATH" >> $GITHUB_ENV
-        cmake --version
-        python --version
-        brew uninstall --ignore-dependencies openexr imath || true
-
-    - name: Build tlRender
-      run: |
-        export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
-        sh tlRender/etc/macOS/macos-build-gha.sh Debug
-
-    - name: Run tests
-      run: |
-        export DYLD_LIBRARY_PATH=$PWD/install-Debug/lib:$DYLD_LIBRARY_PATH
-        build-Debug/tests/tltest/tltest
-
   macos-build:
     runs-on: macos-latest
 
