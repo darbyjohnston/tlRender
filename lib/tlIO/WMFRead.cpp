@@ -20,9 +20,8 @@ extern "C"
 #include <mfapi.h>
 #include <mferror.h>
 #include <mfidl.h>
-#include <propvarutil.h>
 #include <mfreadwrite.h>
-#include <uuids.h>
+#include <propvarutil.h>
 
 namespace tl
 {
@@ -92,7 +91,83 @@ namespace tl
 
                     { MFVideoFormat_L8, "L8" },
                     { MFVideoFormat_L16, "L16" },
-                    { MFVideoFormat_D16, "D16" }
+                    { MFVideoFormat_D16, "D16" },
+
+                    { MFVideoFormat_MP43, "MP43" },
+                    { MFVideoFormat_MP4S, "MP4S" },
+                    { MFVideoFormat_M4S2, "M4S2" },
+                    { MFVideoFormat_MP4V, "MP4V" },
+                    { MFVideoFormat_WMV1, "WMV1" },
+                    { MFVideoFormat_WMV2, "WMV2" },
+                    { MFVideoFormat_WMV3, "WMV3" },
+                    { MFVideoFormat_WVC1, "WVC1" },
+                    { MFVideoFormat_MSS1, "MSS1" },
+                    { MFVideoFormat_MSS2, "MSS2" },
+                    { MFVideoFormat_MPG1, "MPG1" },
+                    { MFVideoFormat_DVSL, "dvsl" },
+                    { MFVideoFormat_DVSD, "dvsd" },
+                    { MFVideoFormat_DVHD, "dvhd" },
+                    { MFVideoFormat_DV25, "dv25" },
+                    { MFVideoFormat_DV50, "dv50" },
+                    { MFVideoFormat_DVH1, "dvh1" },
+                    { MFVideoFormat_DVC, "dvc " },
+                    { MFVideoFormat_H264, "H264" },
+                    { MFVideoFormat_H265, "H265" },
+                    { MFVideoFormat_MJPG, "MJPG" },
+                    { MFVideoFormat_420O, "420O" },
+                    { MFVideoFormat_HEVC, "HEVC" },
+                    { MFVideoFormat_HEVC_ES, "HEVS" },
+                    { MFVideoFormat_VP80, "VP80" },
+                    { MFVideoFormat_VP90, "VP90" },
+                    { MFVideoFormat_ORAW, "ORAW" }
+                };
+                auto i = std::find_if(
+                    data.begin(),
+                    data.end(),
+                    [guid](const std::pair<GUID, std::string>& value)
+                    {
+                        return guid == value.first;
+                    });
+                return i != data.end() ? i->second : std::string();
+            }
+
+            std::string audioFormatToString(GUID guid)
+            {
+                const std::vector<std::pair<GUID, std::string> > data =
+                {
+                    { MFAudioFormat_PCM, "PCM" },
+                    { MFAudioFormat_Float, "Float" },
+                    { MFAudioFormat_DRM, "DRM" },
+                    { MFAudioFormat_WMAudioV8, "WMAudioV8" },
+                    { MFAudioFormat_WMAudioV9, "WMAudioV9" },
+                    { MFAudioFormat_WMAudio_Lossless, "WMAudio_Lossless" },
+                    { MFAudioFormat_WMASPDIF, "WMASPDIF" },
+                    { MFAudioFormat_MSP1, "MSP1" },
+                    { MFAudioFormat_MP3, "MP3" },
+                    { MFAudioFormat_MPEG, "MPEG" },
+                    { MFAudioFormat_AAC, "AAC" },
+                    { MFAudioFormat_ADTS, "ADTS" },
+                    { MFAudioFormat_AMR_NB, "AMR_NB" },
+                    { MFAudioFormat_AMR_WB, "AMR_WB" },
+                    { MFAudioFormat_AMR_WP, "AMR_WP" },
+                    { MFAudioFormat_FLAC, "FLAC" },
+                    { MFAudioFormat_ALAC, "ALAC" },
+                    { MFAudioFormat_Dolby_AC4, "Dolby_AC4" },
+                    { MFAudioFormat_Dolby_AC3, "Dolby_AC3" },
+                    { MFAudioFormat_Dolby_DDPlus, "Dolby_DDPlus" },
+                    { MFAudioFormat_Dolby_AC4_V1, "Dolby_AC4_V1" },
+                    { MFAudioFormat_Dolby_AC4_V2, "Dolby_AC4_V2" },
+                    { MFAudioFormat_Dolby_AC4_V1_ES, "Dolby_AC4_V1_ES" },
+                    { MFAudioFormat_Dolby_AC4_V2_ES, "Dolby_AC4_V2_ES" },
+                    { MFAudioFormat_MPEGH, "MPEGH" },
+                    { MFAudioFormat_MPEGH_ES, "MPEGH_ES" },
+                    { MFAudioFormat_Vorbis, "Vorbis" },
+                    { MFAudioFormat_DTS_RAW, "DTS_RAW" },
+                    { MFAudioFormat_DTS_HD, "DTS_HD" },
+                    { MFAudioFormat_DTS_XLL, "DTS_XLL" },
+                    { MFAudioFormat_DTS_LBR, "DTS_LBR" },
+                    { MFAudioFormat_DTS_UHD, "DTS_UHD" },
+                    { MFAudioFormat_DTS_UHDY, "DTS_UHDY" }
                 };
                 auto i = std::find_if(
                     data.begin(),
@@ -193,7 +268,7 @@ namespace tl
                 audio::Info _audioInfo;
                 OTIO_NS::RationalTime _time;
 
-                AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_P010;
+                AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NV12;
                 AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_RGB24;
                 AVFrame* _avFrame = nullptr;
                 AVFrame* _avFrame2 = nullptr;
@@ -269,6 +344,8 @@ namespace tl
                     _imageInfo.size.w = width;
                     _imageInfo.size.h = height;
                     _imageInfo.type = ftk::ImageType::RGB_U8;
+                    //_imageInfo.type = ftk::ImageType::YUV_420P_U8;
+                    _imageInfo.layout.mirror.y = true;
 
                     UINT32 frameRateNum = 0;
                     UINT32 frameRateDen = 0;
@@ -286,14 +363,22 @@ namespace tl
                     hr = MFCreateMediaType(&wmfMediaType2.p);
                     if (SUCCEEDED(hr))
                     {
-                        wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+                        wmfMediaType.p->CopyAllItems(wmfMediaType2.p);
                         //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
-                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_P010);
+                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
+                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_P010);
                         hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
                         if (FAILED(hr))
                         {
-                            throw std::runtime_error("Cannot set video format");
+                            //std::cout << "cannot set video format" << std::endl;
+                            _videoStream = -1;
                         }
+
+                        //UINT32 stride = MFGetAttributeUINT32(wmfMediaType2.p, MF_MT_DEFAULT_STRIDE, 0);
+                        //std::cout << "stride: " << stride << std::endl;
+                        //LONG stridel = 0;
+                        //hr = MFGetStrideForBitmapInfoHeader(subType.Data1, width, &stridel);
+                        //std::cout << "stridel: " << stridel << std::endl;
                     }
 
                     _avFrame = av_frame_alloc();
@@ -306,7 +391,7 @@ namespace tl
                     _avFrame->format = _avInputPixelFormat;
                     _avFrame->width = width;
                     _avFrame->height = height;
-                    av_frame_get_buffer(_avFrame, 0);
+                    av_frame_get_buffer(_avFrame, 1);
 
                     _avFrame2 = av_frame_alloc();
                     if (!_avFrame2)
@@ -318,7 +403,7 @@ namespace tl
                     _avFrame2->format = _avOutputPixelFormat;
                     _avFrame2->width = width;
                     _avFrame2->height = height;
-                    av_frame_get_buffer(_avFrame2, 0);
+                    av_frame_get_buffer(_avFrame2, 1);
 
                     _swsContext = sws_alloc_context();
                     if (!_swsContext)
@@ -340,7 +425,8 @@ namespace tl
                         throw std::runtime_error("Cannot initialize sws context");
                     }
 
-                    AVColorSpace colorSpace = AVCOL_SPC_BT2020_NCL;
+                    /*AVColorSpace colorSpace = AVCOL_SPC_UNSPECIFIED;
+                    //AVColorSpace colorSpace = AVCOL_SPC_BT2020_NCL;
                     if (AVCOL_SPC_UNSPECIFIED == colorSpace)
                     {
                         colorSpace = AVCOL_SPC_BT709;
@@ -353,7 +439,7 @@ namespace tl
                         1,
                         0,
                         65536,
-                        65536);
+                        65536);*/
                 }
 
                 // Initialize the audio stream.
@@ -365,6 +451,7 @@ namespace tl
 
                     GUID subType;
                     wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+                    std::cout << "audio: " << audioFormatToString(subType) << std::endl;
 
                     _audioInfo.channelCount = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_NUM_CHANNELS, 0);
                     const UINT32 bitsPerSample = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_BITS_PER_SAMPLE, 0);
@@ -394,12 +481,13 @@ namespace tl
                     hr = MFCreateMediaType(&wmfMediaType2.p);
                     if (SUCCEEDED(hr))
                     {
-                        wmfMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Audio);
+                        wmfMediaType.p->CopyAllItems(wmfMediaType2.p);
                         wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
                         hr = _wmfReader->SetCurrentMediaType(_audioStream, nullptr, wmfMediaType2.p);
                         if (FAILED(hr))
                         {
-                            throw std::runtime_error("Cannot set audio format");
+                            //std::cout << "cannot set audio format" << std::endl;
+                            _audioStream = -1;
                         }
                     }
                 }
@@ -458,93 +546,132 @@ namespace tl
                 std::shared_ptr<ftk::Image> out;
                 //std::cout << "read: " << time << std::endl;
 
-                if (time != _time + OTIO_NS::RationalTime(1.0, _videoSpeed))
+                if (_videoStream != -1)
                 {
-                    //std::cout << "seek: " << time << std::endl;
-                    PROPVARIANT var;
-                    HRESULT hr = InitPropVariantFromInt64(time.rescaled_to(1.0).value() * timeConversion, &var);
-                    if (SUCCEEDED(hr))
+                    HRESULT hr = S_OK;
+                    LONGLONG timeStamp;
+                    if (time != _time + OTIO_NS::RationalTime(1.0, _videoSpeed))
                     {
-                        hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
-                        PropVariantClear(&var);
-                    }
-                }
+                        //std::cout << "seek: " << time << std::endl;
 
-                OTIO_NS::RationalTime t;
-                HRESULT hr = S_OK;
-                LONGLONG timeStamp;
-                bool end = false;
-                do
-                {
-                    DWORD flags = 0;
-                    IMFSample* sample = nullptr;
-                    hr = _wmfReader->ReadSample(
-                        _videoStream,
-                        0,
-                        nullptr,
-                        &flags,
-                        &timeStamp,
-                        &sample);
-                    if (FAILED(hr))
-                    {
-                        break;
-                    }
-                    if (flags & MF_SOURCE_READERF_ENDOFSTREAM)
-                    {
-                        end = true;
-                    }
-                    t = OTIO_NS::RationalTime(
-                        timeStamp / timeConversion * _videoSpeed,
-                        _videoSpeed).round();
-                    if (sample && t >= time)
-                    {
-                        end = true;
-                        _time = time;
+                        /*DWORD flags = 0;
+                        IMFSample* sample = nullptr;
+                        do
+                        {
+                            hr = _wmfReader->ReadSample(
+                                _videoStream,
+                                MF_SOURCE_READER_CONTROLF_DRAIN,
+                                nullptr,
+                                &flags,
+                                &timeStamp,
+                                &sample);
+                        } while (sample != nullptr);*/
 
-                        out = ftk::Image::create(_imageInfo);
-
-                        IMFMediaBuffer* buf = nullptr;
-                        hr = sample->ConvertToContiguousBuffer(&buf);
+                        PROPVARIANT var;
+                        HRESULT hr = InitPropVariantFromInt64(time.rescaled_to(1.0).value() * timeConversion, &var);
                         if (SUCCEEDED(hr))
                         {
-                            BYTE* bufP = nullptr;
-                            DWORD bufLen = 0;
-                            hr = buf->Lock(&bufP, nullptr, &bufLen);
-                            if (SUCCEEDED(hr))
-                            {
-                                //memcpy(out->getData(), bufP, out->getByteCount());
-                                av_image_fill_arrays(
-                                    _avFrame->data,
-                                    _avFrame->linesize,
-                                    bufP,
-                                    _avInputPixelFormat,
-                                    _imageInfo.size.w,
-                                    _imageInfo.size.h,
-                                    1);
-                                av_image_fill_arrays(
-                                    _avFrame2->data,
-                                    _avFrame2->linesize,
-                                    out->getData(),
-                                    _avOutputPixelFormat,
-                                    _imageInfo.size.w,
-                                    _imageInfo.size.h,
-                                    1);
-                                sws_scale_frame(_swsContext, _avFrame2, _avFrame);
-                                buf->Unlock();
-                            }
-                            buf->Release();
+                            hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
+                            //if (FAILED(hr))
+                            //{
+                            //    std::cout << "seek failed" << std::endl;
+                            //}
+                            PropVariantClear(&var);
                         }
                     }
-                    else
+
+                    OTIO_NS::RationalTime t;
+                    bool end = false;
+                    do
                     {
-                        //std::cout << "  skip: " << t << std::endl;
-                    }
-                    if (sample)
-                    {
-                        sample->Release();
-                    }
+                        DWORD flags = 0;
+                        IMFSample* sample = nullptr;
+                        hr = _wmfReader->ReadSample(
+                            _videoStream,
+                            0,
+                            nullptr,
+                            &flags,
+                            &timeStamp,
+                            &sample);
+                        if (FAILED(hr))
+                        {
+                            //std::cout << "failed to read sample" << std::endl;
+                            break;
+                        }
+                        if (flags & MF_SOURCE_READERF_ENDOFSTREAM)
+                        {
+                            //std::cout << "end of stream" << std::endl;
+                            end = true;
+                        }
+                        t = OTIO_NS::RationalTime(
+                            timeStamp / timeConversion * _videoSpeed,
+                            _videoSpeed).round();
+                        if (sample && t >= time)
+                        {
+                            //std::cout << "t: " << t << std::endl;
+
+                            end = true;
+                            _time = time;
+
+                            out = ftk::Image::create(_imageInfo);
+                            //out->zero();
+
+                            /*IMF2DBuffer* buf2D = nullptr;
+                            sample->QueryInterface(IID_PPV_ARGS(&buf2D));
+                            if (buf2D)
+                            {
+                                BYTE* bufP = nullptr;
+                                LONG bufPitch = 0;
+                                hr = buf2D->Lock2D(&bufP, &bufPitch);
+                                if (SUCCEEDED(hr))
+                                {}
+                            }*/
+
+                            IMFMediaBuffer* buf = nullptr;
+                            hr = sample->ConvertToContiguousBuffer(&buf);
+                            if (SUCCEEDED(hr))
+                            {
+                                BYTE* bufP = nullptr;
+                                DWORD bufLen = 0;
+                                hr = buf->Lock(&bufP, nullptr, &bufLen);
+                                if (SUCCEEDED(hr))
+                                {
+                                    //memcpy(out->getData(), bufP, out->getByteCount());
+
+                                    av_image_fill_arrays(
+                                        _avFrame->data,
+                                        _avFrame->linesize,
+                                        bufP,
+                                        _avInputPixelFormat,
+                                        _imageInfo.size.w,
+                                        _imageInfo.size.h,
+                                        1);
+                                    av_image_fill_arrays(
+                                        _avFrame2->data,
+                                        _avFrame2->linesize,
+                                        out->getData(),
+                                        _avOutputPixelFormat,
+                                        _imageInfo.size.w,
+                                        _imageInfo.size.h,
+                                        1);
+                                    sws_scale_frame(_swsContext, _avFrame2, _avFrame);
+
+                                    buf->Unlock();
+                                }
+                                buf->Release();
+                            }
+                        }
+                        else
+                        {
+                            //std::cout << "  skip: " << t << std::endl;
+                        }
+                        if (sample)
+                        {
+                            sample->Release();
+                        }
+                    } while (t < time && !end);
                 }
-                while (t < time && !end);
+
                 return out;
             }
 
@@ -758,11 +885,11 @@ namespace tl
             p.info.video.push_back(wmf.getImageInfo());
             p.info.videoTime = OTIO_NS::TimeRange(
                 OTIO_NS::RationalTime(0.0, wmf.getVideoSpeed()),
-                OTIO_NS::RationalTime(floor(wmf.getDuration() * wmf.getVideoSpeed()), wmf.getVideoSpeed()));
+                OTIO_NS::RationalTime(wmf.getDuration() * wmf.getVideoSpeed(), wmf.getVideoSpeed()).floor());
             p.info.audio = wmf.getAudioInfo();
             p.info.audioTime = OTIO_NS::TimeRange(
                 OTIO_NS::RationalTime(0.0, p.info.audio.sampleRate),
-                OTIO_NS::RationalTime(floor(wmf.getDuration() * p.info.audio.sampleRate), p.info.audio.sampleRate));
+                OTIO_NS::RationalTime(wmf.getDuration() * p.info.audio.sampleRate, p.info.audio.sampleRate).floor());
 
             while (p.thread.running)
             {
