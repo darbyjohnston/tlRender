@@ -83,7 +83,7 @@ endif()
 if(TLRENDER_WMF)
     list(APPEND HEADERS WMF.h)
     list(APPEND SOURCE WMF.cpp WMFRead.cpp)
-    list(APPEND LIBRARIES_PRIVATE mf mfplat mfreadwrite mfuuid propsys)
+    list(APPEND LIBRARIES_PRIVATE mf mfplat mfreadwrite mfuuid propsys wmcodecdspuuid)
 endif()
 list(APPEND LIBRARIES tlCore ftk::feather-tk-gl)
 

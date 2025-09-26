@@ -8,13 +8,13 @@
 #include <feather-tk/core/Format.h>
 #include <feather-tk/core/LogSystem.h>
 
-extern "C"
+/*extern "C"
 {
 #include <libswscale/swscale.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/opt.h>
 
-} // extern "C"
+} // extern "C"*/
 
 #include <combaseapi.h>
 #include <mfapi.h>
@@ -22,6 +22,7 @@ extern "C"
 #include <mfidl.h>
 #include <mfreadwrite.h>
 #include <propvarutil.h>
+#include <wmcodecdsp.h>
 
 namespace tl
 {
@@ -226,10 +227,10 @@ namespace tl
 
         namespace
         {
-            class WMFMediaTypeWrapper
+            class IMFMediaTypeWrapper
             {
             public:
-                ~WMFMediaTypeWrapper()
+                ~IMFMediaTypeWrapper()
                 {
                     if (p)
                     {
@@ -238,6 +239,48 @@ namespace tl
                 }
 
                 IMFMediaType* p = nullptr;
+            };
+
+            class IMFAttributesWrapper
+            {
+            public:
+                ~IMFAttributesWrapper()
+                {
+                    if (p)
+                    {
+                        p->Release();
+                    }
+                }
+
+                IMFAttributes* p = nullptr;
+            };
+
+            class IMFSampleWrapper
+            {
+            public:
+                ~IMFSampleWrapper()
+                {
+                    if (p)
+                    {
+                        p->Release();
+                    }
+                }
+
+                IMFSample* p = nullptr;
+            };
+
+            class IMFMediaBufferWrapper
+            {
+            public:
+                ~IMFMediaBufferWrapper()
+                {
+                    if (p)
+                    {
+                        p->Release();
+                    }
+                }
+
+                IMFMediaBuffer* p = nullptr;
             };
 
             class WMFObject
@@ -259,20 +302,27 @@ namespace tl
 
                 bool _comInit = false;
                 bool _wmfInit = false;
-                IMFSourceReader* _wmfReader = nullptr;
+                IMFSourceReader* _reader = nullptr;
                 double _duration = 0.0;
                 int _videoStream = -1;
+                GUID _videoType = MFVideoFormat_NV12;
+                size_t _videoStride = 0;
                 ftk::ImageInfo _imageInfo;
                 double _videoSpeed = 0.0;
                 int _audioStream = -1;
                 audio::Info _audioInfo;
                 OTIO_NS::RationalTime _time;
 
-                AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_NV12;
-                AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_RGB24;
+                /*AVPixelFormat _avInputPixelFormat = AV_PIX_FMT_P010;
+                AVPixelFormat _avOutputPixelFormat = AV_PIX_FMT_RGB48;
                 AVFrame* _avFrame = nullptr;
                 AVFrame* _avFrame2 = nullptr;
-                SwsContext* _swsContext = nullptr;
+                SwsContext* _swsContext = nullptr;*/
+
+                /*IUnknown* _colorTransformUnknown = nullptr;
+                IMFTransform* _colorTransform = nullptr;
+                IMFSampleWrapper _outSample;
+                IMFMediaBufferWrapper _outBuffer;*/
             };
 
             WMFObject::WMFObject(const file::Path& path)
@@ -293,64 +343,82 @@ namespace tl
                 }
                 _wmfInit = true;
 
+                // Initialize color converter.
+                /*hr = MFTRegisterLocalByCLSID(
+                    __uuidof(CColorConvertDMO),
+                    MFT_CATEGORY_VIDEO_PROCESSOR,
+                    L"",
+                    MFT_ENUM_FLAG_SYNCMFT,
+                    0,
+                    NULL,
+                    0,
+                    NULL);
+                if (FAILED(hr))
+                {
+                    throw std::runtime_error("Cannot initialize color converter");
+                }*/
+
                 // Create source reader.
-                IMFAttributes* wmfAttr = NULL;
-                hr = MFCreateAttributes(&wmfAttr, 1);
+                IMFAttributesWrapper attr;
+                hr = MFCreateAttributes(&attr.p, 1);
                 if (FAILED(hr))
                 {
                     throw std::runtime_error("Cannot create atrtibutes");
                 }
-                wmfAttr->SetUINT32(MF_SOURCE_READER_ENABLE_ADVANCED_VIDEO_PROCESSING, TRUE);
-                wmfAttr->SetUINT32(MF_READWRITE_DISABLE_CONVERTERS, FALSE);
+                attr.p->SetUINT32(MF_SOURCE_READER_ENABLE_ADVANCED_VIDEO_PROCESSING, TRUE);
+                attr.p->SetUINT32(MF_READWRITE_DISABLE_CONVERTERS, FALSE);
                 const std::wstring fileName = ftk::toWide(path.get());
                 hr = MFCreateSourceReaderFromURL(
                     fileName.data(),
-                    wmfAttr,
-                    &_wmfReader);
-                wmfAttr->Release();
+                    attr.p,
+                    &_reader);
                 if (FAILED(hr))
                 {
                     throw std::runtime_error("Cannot create source reader");
                 }
 
                 // Get the duration.
-                PROPVARIANT mfPresAttr;
-                hr = _wmfReader->GetPresentationAttribute(
+                PROPVARIANT presAttr;
+                hr = _reader->GetPresentationAttribute(
                     MF_SOURCE_READER_MEDIASOURCE,
                     MF_PD_DURATION,
-                    &mfPresAttr);
+                    &presAttr);
                 if (SUCCEEDED(hr))
                 {
                     LONGLONG durationNanoseconds = 0;
-                    hr = PropVariantToInt64(mfPresAttr, &durationNanoseconds);
+                    hr = PropVariantToInt64(presAttr, &durationNanoseconds);
                     _duration = durationNanoseconds / timeConversion;
-                    PropVariantClear(&mfPresAttr);
+                    PropVariantClear(&presAttr);
                 }
 
                 // Initialize the video stream.
                 _videoStream = _getFirstStream(MFMediaType_Video);
                 if (_videoStream != -1)
                 {
-                    WMFMediaTypeWrapper wmfMediaType;
-                    hr = _wmfReader->GetNativeMediaType(_videoStream, 0, &wmfMediaType.p);
+                    IMFMediaTypeWrapper readerMediaType;
+                    hr = _reader->GetNativeMediaType(_videoStream, 0, &readerMediaType.p);
 
                     GUID subType;
-                    wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+                    readerMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
                     std::cout << "video: " << videoFormatToString(subType) << std::endl;
+                    _imageInfo.type = ftk::ImageType::YUV_420P_U8;
+                    if (MFVideoFormat_HEVC == subType)
+                    {
+                        _videoType = MFVideoFormat_P010;
+                        _imageInfo.type = ftk::ImageType::YUV_420P_U16;
+                    }
 
                     UINT32 width = 0;
                     UINT32 height = 0;
-                    MFGetAttributeSize(wmfMediaType.p, MF_MT_FRAME_SIZE, &width, &height);
+                    MFGetAttributeSize(readerMediaType.p, MF_MT_FRAME_SIZE, &width, &height);
                     _imageInfo.size.w = width;
                     _imageInfo.size.h = height;
-                    _imageInfo.type = ftk::ImageType::RGB_U8;
-                    //_imageInfo.type = ftk::ImageType::YUV_420P_U8;
                     _imageInfo.layout.mirror.y = true;
 
                     UINT32 frameRateNum = 0;
                     UINT32 frameRateDen = 0;
                     MFGetAttributeRatio(
-                        wmfMediaType.p,
+                        readerMediaType.p,
                         MF_MT_FRAME_RATE,
                         &frameRateNum,
                         &frameRateDen);
@@ -359,29 +427,42 @@ namespace tl
                         _videoSpeed = frameRateNum / static_cast<double>(frameRateDen);
                     }
 
-                    WMFMediaTypeWrapper wmfMediaType2;
-                    hr = MFCreateMediaType(&wmfMediaType2.p);
-                    if (SUCCEEDED(hr))
-                    {
-                        wmfMediaType.p->CopyAllItems(wmfMediaType2.p);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32);
-                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_NV12);
-                        //wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_P010);
-                        hr = _wmfReader->SetCurrentMediaType(_videoStream, nullptr, wmfMediaType2.p);
-                        if (FAILED(hr))
-                        {
-                            //std::cout << "cannot set video format" << std::endl;
-                            _videoStream = -1;
-                        }
+                    UINT32 stride = MFGetAttributeUINT32(readerMediaType.p, MF_MT_DEFAULT_STRIDE, 0);
+                    std::cout << "stride: " << stride << std::endl;
 
-                        //UINT32 stride = MFGetAttributeUINT32(wmfMediaType2.p, MF_MT_DEFAULT_STRIDE, 0);
-                        //std::cout << "stride: " << stride << std::endl;
-                        //LONG stridel = 0;
-                        //hr = MFGetStrideForBitmapInfoHeader(subType.Data1, width, &stridel);
-                        //std::cout << "stridel: " << stridel << std::endl;
+                    IMFMediaTypeWrapper inputMediaType;
+                    MFCreateMediaType(&inputMediaType.p);
+                    //readerMediaType.p->CopyAllItems(inputMediaType.p);
+                    inputMediaType.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+                    inputMediaType.p->SetGUID(MF_MT_SUBTYPE, _videoType);
+                    //inputMediaType.p->SetUINT32(MF_MT_DEFAULT_STRIDE, 0);
+                    
+                    //MFSetAttributeSize(inputMediaType.p, MF_MT_FRAME_SIZE, width, height);
+                    hr = _reader->SetCurrentMediaType(_videoStream, nullptr, inputMediaType.p);
+                    if (FAILED(hr))
+                    {
+                        std::cout << "cannot set video format" << std::endl;
+                        _videoStream = -1;
                     }
 
-                    _avFrame = av_frame_alloc();
+                    stride = MFGetAttributeUINT32(inputMediaType.p, MF_MT_DEFAULT_STRIDE, 0);
+                    std::cout << "stride2: " << stride << std::endl;
+                    if (stride > 0)
+                    {
+                        _videoStride = stride;
+                    }
+                    else
+                    {
+                        LONG stridel = 0;
+                        MFGetStrideForBitmapInfoHeader(subType.Data1, width, &stridel);
+                        //std::cout << "stridel: " << stridel << std::endl;
+                        if (stridel > 0)
+                        {
+                            _videoStride = stridel;
+                        }
+                    }
+
+                    /*_avFrame = av_frame_alloc();
                     if (!_avFrame)
                     {
                         throw std::runtime_error("Cannot allocate sws frame");
@@ -425,8 +506,24 @@ namespace tl
                         throw std::runtime_error("Cannot initialize sws context");
                     }
 
-                    /*AVColorSpace colorSpace = AVCOL_SPC_UNSPECIFIED;
-                    //AVColorSpace colorSpace = AVCOL_SPC_BT2020_NCL;
+                    const int* inTable = nullptr;
+                    int        inFull = 0;
+                    const int* outTable = nullptr;
+                    int        outFull = 0;
+                    int        brightness = 0;
+                    int        contrast = 0;
+                    int        saturation = 0;
+                    r = sws_getColorspaceDetails(
+                        _swsContext,
+                        (int**)&inTable,
+                        &inFull,
+                        (int**)&outTable,
+                        &outFull,
+                        &brightness,
+                        &contrast,
+                        &saturation);
+                    int colorSpace = AVCOL_SPC_UNSPECIFIED;
+                    colorSpace = AVCOL_SPC_BT2020_NCL;
                     if (AVCOL_SPC_UNSPECIFIED == colorSpace)
                     {
                         colorSpace = AVCOL_SPC_BT709;
@@ -437,26 +534,78 @@ namespace tl
                         1,
                         sws_getCoefficients(AVCOL_SPC_BT709),
                         1,
-                        0,
-                        65536,
-                        65536);*/
+                        brightness,
+                        contrast,
+                        saturation);*/
+
+                    /*if (_videoStream != -1)
+                    {
+                        // Create the color converter.
+                        hr = CoCreateInstance(
+                            CLSID_CColorConvertDMO,
+                            nullptr,
+                            CLSCTX_INPROC_SERVER,
+                            IID_IUnknown,
+                            (void**)&_colorTransformUnknown);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot create color converter");
+                        }
+                        hr = _colorTransformUnknown->QueryInterface(IID_PPV_ARGS(&_colorTransform));
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot query color converter");
+                        }
+                        IMFMediaTypeWrapper outputMediaType;
+                        MFCreateMediaType(&outputMediaType.p);
+                        inputMediaType.p->CopyAllItems(outputMediaType.p);
+                        outputMediaType.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB24);
+                        hr = _colorTransform->SetInputType(0, inputMediaType.p, 0);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot set color converter input");
+                        }
+                        hr = _colorTransform->SetOutputType(0, outputMediaType.p, 0);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot set color converter output");
+                        }
+                        DWORD wmfStatus = 0;
+                        hr = _colorTransform->GetInputStatus(0, &wmfStatus);
+                        if (FAILED(hr))
+                        {
+                            throw std::runtime_error("Cannot get color converter input status");
+                        }
+                        if (MFT_INPUT_STATUS_ACCEPT_DATA != wmfStatus)
+                        {
+                            throw std::runtime_error("Color converter not accepting data");
+                        }
+                        _colorTransform->ProcessMessage(MFT_MESSAGE_COMMAND_FLUSH, NULL);
+                        _colorTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_BEGIN_STREAMING, NULL);
+                        _colorTransform->ProcessMessage(MFT_MESSAGE_NOTIFY_START_OF_STREAM, NULL);
+                        MFT_OUTPUT_STREAM_INFO streamInfo;
+                        _colorTransform->GetOutputStreamInfo(0, &streamInfo);
+                        MFCreateSample(&_outSample.p);
+                        MFCreateMemoryBuffer(streamInfo.cbSize, &_outBuffer.p);
+                        _outSample.p->AddBuffer(_outBuffer.p);
+                    }*/
                 }
 
                 // Initialize the audio stream.
                 _audioStream = _getFirstStream(MFMediaType_Audio);
                 if (_audioStream != -1)
                 {
-                    WMFMediaTypeWrapper wmfMediaType;
-                    hr = _wmfReader->GetNativeMediaType(_audioStream, 0, &wmfMediaType.p);
+                    IMFMediaTypeWrapper readerMediaType;
+                    hr = _reader->GetNativeMediaType(_audioStream, 0, &readerMediaType.p);
 
                     GUID subType;
-                    wmfMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
+                    readerMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
                     std::cout << "audio: " << audioFormatToString(subType) << std::endl;
 
-                    _audioInfo.channelCount = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_NUM_CHANNELS, 0);
-                    const UINT32 bitsPerSample = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_BITS_PER_SAMPLE, 0);
-                    const UINT32 samplesPerSecond = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_SAMPLES_PER_SECOND, 0);
-                    const double samplesPerSecondF = MFGetAttributeUINT32(wmfMediaType.p, MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND, 0.0);
+                    _audioInfo.channelCount = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_NUM_CHANNELS, 0);
+                    const UINT32 bitsPerSample = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_BITS_PER_SAMPLE, 0);
+                    const UINT32 samplesPerSecond = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_SAMPLES_PER_SECOND, 0);
+                    const double samplesPerSecondF = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND, 0.0);
                     switch (bitsPerSample)
                     {
                     case 16:
@@ -477,25 +626,22 @@ namespace tl
                         break;
                     default: break;
                     }
-                    WMFMediaTypeWrapper wmfMediaType2;
-                    hr = MFCreateMediaType(&wmfMediaType2.p);
-                    if (SUCCEEDED(hr))
+                    IMFMediaTypeWrapper inputMediaType;
+                    hr = MFCreateMediaType(&inputMediaType.p);
+                    readerMediaType.p->CopyAllItems(inputMediaType.p);
+                    inputMediaType.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
+                    hr = _reader->SetCurrentMediaType(_audioStream, nullptr, inputMediaType.p);
+                    if (FAILED(hr))
                     {
-                        wmfMediaType.p->CopyAllItems(wmfMediaType2.p);
-                        wmfMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
-                        hr = _wmfReader->SetCurrentMediaType(_audioStream, nullptr, wmfMediaType2.p);
-                        if (FAILED(hr))
-                        {
-                            //std::cout << "cannot set audio format" << std::endl;
-                            _audioStream = -1;
-                        }
+                        //std::cout << "cannot set audio format" << std::endl;
+                        _audioStream = -1;
                     }
                 }
             }
 
             WMFObject::~WMFObject()
             {
-                if (_swsContext)
+                /*if (_swsContext)
                 {
                     sws_freeContext(_swsContext);
                 }
@@ -506,10 +652,18 @@ namespace tl
                 if (_avFrame)
                 {
                     av_frame_free(&_avFrame);
-                }
-                if (_wmfReader)
+                }*/
+                /*if (_colorTransform)
                 {
-                    _wmfReader->Release();
+                    _colorTransform->Release();
+                }
+                if (_colorTransformUnknown)
+                {
+                    _colorTransform->Release();
+                }*/
+                if (_reader)
+                {
+                    _reader->Release();
                 }
                 if (_wmfInit)
                 {
@@ -553,25 +707,11 @@ namespace tl
                     if (time != _time + OTIO_NS::RationalTime(1.0, _videoSpeed))
                     {
                         //std::cout << "seek: " << time << std::endl;
-
-                        /*DWORD flags = 0;
-                        IMFSample* sample = nullptr;
-                        do
-                        {
-                            hr = _wmfReader->ReadSample(
-                                _videoStream,
-                                MF_SOURCE_READER_CONTROLF_DRAIN,
-                                nullptr,
-                                &flags,
-                                &timeStamp,
-                                &sample);
-                        } while (sample != nullptr);*/
-
                         PROPVARIANT var;
                         HRESULT hr = InitPropVariantFromInt64(time.rescaled_to(1.0).value() * timeConversion, &var);
                         if (SUCCEEDED(hr))
                         {
-                            hr = _wmfReader->SetCurrentPosition(GUID_NULL, var);
+                            hr = _reader->SetCurrentPosition(GUID_NULL, var);
                             //if (FAILED(hr))
                             //{
                             //    std::cout << "seek failed" << std::endl;
@@ -585,14 +725,14 @@ namespace tl
                     do
                     {
                         DWORD flags = 0;
-                        IMFSample* sample = nullptr;
-                        hr = _wmfReader->ReadSample(
+                        IMFSampleWrapper sample;
+                        hr = _reader->ReadSample(
                             _videoStream,
                             0,
                             nullptr,
                             &flags,
                             &timeStamp,
-                            &sample);
+                            &sample.p);
                         if (FAILED(hr))
                         {
                             //std::cout << "failed to read sample" << std::endl;
@@ -603,21 +743,41 @@ namespace tl
                             //std::cout << "end of stream" << std::endl;
                             end = true;
                         }
+
                         t = OTIO_NS::RationalTime(
                             timeStamp / timeConversion * _videoSpeed,
                             _videoSpeed).round();
-                        if (sample && t >= time)
+                        if (sample.p && t >= time)
                         {
                             //std::cout << "t: " << t << std::endl;
-
                             end = true;
                             _time = time;
+
+                            /*hr = _colorTransform->ProcessInput(0, sample.p, NULL);
+                            if (FAILED(hr))
+                            {
+                                std::cout << "failed to process color input" << std::endl;
+                                break;
+                            }
+
+                            MFT_OUTPUT_DATA_BUFFER outputDataBuffer;
+                            outputDataBuffer.dwStreamID = 0;
+                            outputDataBuffer.dwStatus = 0;
+                            outputDataBuffer.pEvents = NULL;
+                            outputDataBuffer.pSample = _outSample.p;
+                            DWORD processOutputStatus = 0;
+                            _colorTransform->ProcessOutput(0, 1, &outputDataBuffer, &processOutputStatus);
+                            if (FAILED(processOutputStatus))
+                            {
+                                std::cout << "failed to process color output" << std::endl;
+                                break;
+                            }*/
 
                             out = ftk::Image::create(_imageInfo);
                             //out->zero();
 
                             /*IMF2DBuffer* buf2D = nullptr;
-                            sample->QueryInterface(IID_PPV_ARGS(&buf2D));
+                            _outSample->QueryInterface(IID_PPV_ARGS(&buf2D));
                             if (buf2D)
                             {
                                 BYTE* bufP = nullptr;
@@ -628,7 +788,8 @@ namespace tl
                             }*/
 
                             IMFMediaBuffer* buf = nullptr;
-                            hr = sample->ConvertToContiguousBuffer(&buf);
+                            //hr = _outSample.p->ConvertToContiguousBuffer(&buf);
+                            hr = sample.p->ConvertToContiguousBuffer(&buf);
                             if (SUCCEEDED(hr))
                             {
                                 BYTE* bufP = nullptr;
@@ -638,7 +799,47 @@ namespace tl
                                 {
                                     //memcpy(out->getData(), bufP, out->getByteCount());
 
-                                    av_image_fill_arrays(
+                                    const int w = _imageInfo.size.w;
+                                    const int h = _imageInfo.size.h;
+                                    if (MFVideoFormat_NV12 == _videoType)
+                                    {
+                                        uint8_t* outP = out->getData();
+                                        size_t stride = _videoStride > 0 ? _videoStride : w;
+                                        for (int y = 0; y < h; ++y, bufP += stride, outP += w)
+                                        {
+                                            memcpy(outP, bufP, w);
+                                        }
+                                        uint8_t* outP2 = outP + w / 2 * h / 2;
+                                        for (int y = 0; y < h / 2; ++y, bufP += stride, outP += w / 2, outP2 += w / 2)
+                                        {
+                                            for (int x = 0; x < w / 2; ++x)
+                                            {
+                                                outP[x] = bufP[x * 2];
+                                                outP2[x] = bufP[x * 2 + 1];
+                                            }
+                                        }
+                                    }
+                                    else if (MFVideoFormat_P010 == _videoType)
+                                    {
+                                        uint16_t* bufP16 = reinterpret_cast<uint16_t*>(bufP);
+                                        uint16_t* outP16 = reinterpret_cast<uint16_t*>(out->getData());
+                                        size_t stride = _videoStride > 0 ? _videoStride : w;
+                                        for (int y = 0; y < h; ++y, bufP16 += stride, outP16 += w)
+                                        {
+                                            memcpy(outP16, bufP16, w * 2);
+                                        }
+                                        uint16_t* outP16_2 = outP16 + w / 2 * h / 2;
+                                        for (int y = 0; y < h / 2; ++y, bufP16 += stride, outP16 += w / 2, outP16_2 += w / 2)
+                                        {
+                                            for (int x = 0; x < w / 2; ++x)
+                                            {
+                                                outP16[x] = bufP16[x * 2];
+                                                outP16_2[x] = bufP16[x * 2 + 1];
+                                            }
+                                        }
+                                    }
+
+                                    /*av_image_fill_arrays(
                                         _avFrame->data,
                                         _avFrame->linesize,
                                         bufP,
@@ -654,7 +855,7 @@ namespace tl
                                         _imageInfo.size.w,
                                         _imageInfo.size.h,
                                         1);
-                                    sws_scale_frame(_swsContext, _avFrame2, _avFrame);
+                                    sws_scale_frame(_swsContext, _avFrame2, _avFrame);*/
 
                                     buf->Unlock();
                                 }
@@ -664,10 +865,6 @@ namespace tl
                         else
                         {
                             //std::cout << "  skip: " << t << std::endl;
-                        }
-                        if (sample)
-                        {
-                            sample->Release();
                         }
                     } while (t < time && !end);
                 }
@@ -681,12 +878,12 @@ namespace tl
                 HRESULT hr = S_OK;
                 for (int i = 0; -1 == out && SUCCEEDED(hr); ++i)
                 {
-                    WMFMediaTypeWrapper wmfMediaType;
-                    hr = _wmfReader->GetNativeMediaType(i, 0, &wmfMediaType.p);
+                    IMFMediaTypeWrapper mediaType;
+                    hr = _reader->GetNativeMediaType(i, 0, &mediaType.p);
                     if (SUCCEEDED(hr))
                     {
                         GUID majorType;
-                        wmfMediaType.p->GetMajorType(&majorType);
+                        mediaType.p->GetMajorType(&majorType);
                         if (majorType == guid)
                         {
                             out = i;
