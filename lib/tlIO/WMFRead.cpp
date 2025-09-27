@@ -24,6 +24,8 @@
 #include <propvarutil.h>
 #include <wmcodecdsp.h>
 
+//#include <strsafe.h>
+
 namespace tl
 {
     namespace wmf
@@ -47,10 +49,24 @@ namespace tl
             const GUID MFVideoFormat_Y40 = { FCC('Y40'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
             const GUID MFVideoFormat_Y416 = { FCC('Y416'), 0x0000, 0x0010, { 0x80, 0x00, 0x00, 0xAA, 0x00, 0x38, 0x9B, 0x71 } };
 
-            std::string videoFormatToString(GUID guid)
+            std::string guidToString(GUID guid)
             {
                 const std::vector<std::pair<GUID, std::string> > data =
                 {
+                    { MFMediaType_Default, "Default" },
+                    { MFMediaType_Audio, "Audio" },
+                    { MFMediaType_Video, "Video" },
+                    { MFMediaType_Protected, "Protected" },
+                    { MFMediaType_SAMI, "SAMI" },
+                    { MFMediaType_Script, "Script" },
+                    { MFMediaType_Image, "Image" },
+                    { MFMediaType_HTML, "HTML" },
+                    { MFMediaType_Binary, "Binary" },
+                    { MFMediaType_FileTransfer, "FileTransfer" },
+                    { MFMediaType_Stream, "Stream" },
+                    { MFMediaType_MultiplexedFrames, "MultiplexedFrames" },
+                    { MFMediaType_Subtitle, "Subtitle" },
+
                     { MFVideoFormat_RGB8, "RGB8" },
                     { MFVideoFormat_RGB555, "RGB555" },
                     { MFVideoFormat_RGB565, "RGB565" },
@@ -120,22 +136,8 @@ namespace tl
                     { MFVideoFormat_HEVC_ES, "HEVS" },
                     { MFVideoFormat_VP80, "VP80" },
                     { MFVideoFormat_VP90, "VP90" },
-                    { MFVideoFormat_ORAW, "ORAW" }
-                };
-                auto i = std::find_if(
-                    data.begin(),
-                    data.end(),
-                    [guid](const std::pair<GUID, std::string>& value)
-                    {
-                        return guid == value.first;
-                    });
-                return i != data.end() ? i->second : std::string();
-            }
+                    { MFVideoFormat_ORAW, "ORAW" },
 
-            std::string audioFormatToString(GUID guid)
-            {
-                const std::vector<std::pair<GUID, std::string> > data =
-                {
                     { MFAudioFormat_PCM, "PCM" },
                     { MFAudioFormat_Float, "Float" },
                     { MFAudioFormat_DRM, "DRM" },
@@ -168,16 +170,133 @@ namespace tl
                     { MFAudioFormat_DTS_XLL, "DTS_XLL" },
                     { MFAudioFormat_DTS_LBR, "DTS_LBR" },
                     { MFAudioFormat_DTS_UHD, "DTS_UHD" },
-                    { MFAudioFormat_DTS_UHDY, "DTS_UHDY" }
+                    { MFAudioFormat_DTS_UHDY, "DTS_UHDY" },
+
+                    { MF_MT_MAJOR_TYPE, "MF_MT_MAJOR_TYPE" },
+                    { MF_MT_MAJOR_TYPE, "MF_MT_MAJOR_TYPE" },
+                    { MF_MT_SUBTYPE, "MF_MT_SUBTYPE" },
+                    { MF_MT_ALL_SAMPLES_INDEPENDENT, "MF_MT_ALL_SAMPLES_INDEPENDENT" },
+                    { MF_MT_FIXED_SIZE_SAMPLES, "MF_MT_FIXED_SIZE_SAMPLES" },
+                    { MF_MT_COMPRESSED, "MF_MT_COMPRESSED" },
+                    { MF_MT_SAMPLE_SIZE, "MF_MT_SAMPLE_SIZE" },
+                    { MF_MT_WRAPPED_TYPE, "MF_MT_WRAPPED_TYPE" },
+                    { MF_MT_ALPHA_MODE, "MF_MT_ALPHA_MODE" },
+                    { MF_MT_ALPHA_MODE, "MF_MT_VIDEO_ROTATION" },
+
+                    { MF_MT_AUDIO_NUM_CHANNELS, "MF_MT_AUDIO_NUM_CHANNELS" },
+                    { MF_MT_AUDIO_SAMPLES_PER_SECOND, "MF_MT_AUDIO_SAMPLES_PER_SECOND" },
+                    { MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND, "MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND" },
+                    { MF_MT_AUDIO_AVG_BYTES_PER_SECOND, "MF_MT_AUDIO_AVG_BYTES_PER_SECOND" },
+                    { MF_MT_AUDIO_BLOCK_ALIGNMENT, "MF_MT_AUDIO_BLOCK_ALIGNMENT" },
+                    { MF_MT_AUDIO_BITS_PER_SAMPLE, "MF_MT_AUDIO_BITS_PER_SAMPLE" },
+                    { MF_MT_AUDIO_VALID_BITS_PER_SAMPLE, "MF_MT_AUDIO_VALID_BITS_PER_SAMPLE" },
+                    { MF_MT_AUDIO_SAMPLES_PER_BLOCK, "MF_MT_AUDIO_SAMPLES_PER_BLOCK" },
+                    { MF_MT_AUDIO_CHANNEL_MASK, "MF_MT_AUDIO_CHANNEL_MASK" },
+                    { MF_MT_AUDIO_FOLDDOWN_MATRIX, "MF_MT_AUDIO_FOLDDOWN_MATRIX" },
+                    { MF_MT_AUDIO_WMADRC_PEAKREF, "MF_MT_AUDIO_WMADRC_PEAKREF" },
+                    { MF_MT_AUDIO_WMADRC_PEAKTARGET, "MF_MT_AUDIO_WMADRC_PEAKTARGET" },
+                    { MF_MT_AUDIO_WMADRC_AVGREF, "MF_MT_AUDIO_WMADRC_AVGREF" },
+                    { MF_MT_AUDIO_WMADRC_AVGTARGET, "MF_MT_AUDIO_WMADRC_AVGTARGET" },
+                    { MF_MT_AUDIO_PREFER_WAVEFORMATEX, "MF_MT_AUDIO_PREFER_WAVEFORMATEX" },
+                    { MF_MT_AAC_PAYLOAD_TYPE, "MF_MT_AAC_PAYLOAD_TYPE" },
+                    { MF_MT_AAC_AUDIO_PROFILE_LEVEL_INDICATION, "MF_MT_AAC_AUDIO_PROFILE_LEVEL_INDICATION" },
+
+                    { MF_MT_FRAME_SIZE, "MF_MT_FRAME_SIZE" },
+                    { MF_MT_FRAME_RATE, "MF_MT_FRAME_RATE" },
+                    { MF_MT_FRAME_RATE_RANGE_MAX, "MF_MT_FRAME_RATE_RANGE_MAX" },
+                    { MF_MT_FRAME_RATE_RANGE_MIN, "MF_MT_FRAME_RATE_RANGE_MIN" },
+                    { MF_MT_PIXEL_ASPECT_RATIO, "MF_MT_PIXEL_ASPECT_RATIO" },
+                    { MF_MT_DRM_FLAGS, "MF_MT_DRM_FLAGS" },
+                    { MF_MT_TIMESTAMP_CAN_BE_DTS, "MF_MT_TIMESTAMP_CAN_BE_DTS" },
+                    { MF_MT_PAD_CONTROL_FLAGS, "MF_MT_PAD_CONTROL_FLAGS" },
+                    { MF_MT_SOURCE_CONTENT_HINT, "MF_MT_SOURCE_CONTENT_HINT" },
+                    { MF_MT_VIDEO_CHROMA_SITING, "MF_MT_VIDEO_CHROMA_SITING" },
+                    { MF_MT_INTERLACE_MODE, "MF_MT_INTERLACE_MODE" },
+                    { MF_MT_TRANSFER_FUNCTION, "MF_MT_TRANSFER_FUNCTION" },
+                    { MF_MT_VIDEO_PRIMARIES, "MF_MT_VIDEO_PRIMARIES" },
+                    { MF_MT_MAX_LUMINANCE_LEVEL, "MF_MT_MAX_LUMINANCE_LEVEL" },
+                    { MF_MT_MAX_FRAME_AVERAGE_LUMINANCE_LEVEL, "MF_MT_MAX_FRAME_AVERAGE_LUMINANCE_LEVEL" },
+                    { MF_MT_MAX_MASTERING_LUMINANCE, "MF_MT_MAX_MASTERING_LUMINANCE" },
+                    { MF_MT_MIN_MASTERING_LUMINANCE, "MF_MT_MIN_MASTERING_LUMINANCE" },
+                    { MF_MT_CUSTOM_VIDEO_PRIMARIES, "MF_MT_CUSTOM_VIDEO_PRIMARIES" },
+                    { MF_MT_YUV_MATRIX, "MF_MT_YUV_MATRIX" },
+                    { MF_MT_VIDEO_LIGHTING, "MF_MT_VIDEO_LIGHTING" },
+                    { MF_MT_VIDEO_NOMINAL_RANGE, "MF_MT_VIDEO_NOMINAL_RANGE" },
+                    { MF_MT_GEOMETRIC_APERTURE, "MF_MT_GEOMETRIC_APERTURE" },
+                    { MF_MT_MINIMUM_DISPLAY_APERTURE, "MF_MT_MINIMUM_DISPLAY_APERTURE" },
+                    { MF_MT_PAN_SCAN_APERTURE, "MF_MT_PAN_SCAN_APERTURE" },
+                    { MF_MT_PAN_SCAN_ENABLED, "MF_MT_PAN_SCAN_ENABLED" },
+                    { MF_MT_AVG_BITRATE, "MF_MT_AVG_BITRATE" },
+                    { MF_MT_AVG_BIT_ERROR_RATE, "MF_MT_AVG_BIT_ERROR_RATE" },
+                    { MF_MT_MAX_KEYFRAME_SPACING, "MF_MT_MAX_KEYFRAME_SPACING" },
+                    { MF_MT_DEFAULT_STRIDE, "MF_MT_DEFAULT_STRIDE" },
+                    { MF_MT_PALETTE, "MF_MT_PALETTE" },
+                    { MF_MT_USER_DATA, "MF_MT_USER_DATA" },
+                    { MF_MT_AM_FORMAT_TYPE, "MF_MT_AM_FORMAT_TYPE" },
+                    { MF_MT_VIDEO_PROFILE, "MF_MT_VIDEO_PROFILE" },
+                    { MF_MT_VIDEO_LEVEL, "MF_MT_VIDEO_LEVEL" },
+                    { MF_MT_MPEG_START_TIME_CODE, "MF_MT_MPEG_START_TIME_CODE" },
+                    { MF_MT_MPEG2_PROFILE, "MF_MT_MPEG2_PROFILE" },
+                    { MF_MT_MPEG2_LEVEL, "MF_MT_MPEG2_LEVEL" },
+                    { MF_MT_MPEG2_FLAGS, "MF_MT_MPEG2_FLAGS" },
+                    { MF_MT_MPEG_SEQUENCE_HEADER, "MF_MT_MPEG_SEQUENCE_HEADER" },
+                    { MF_MT_MPEG2_STANDARD, "MF_MT_MPEG2_STANDARD" },
+                    { MF_MT_MPEG2_TIMECODE, "MF_MT_MPEG2_TIMECODE" },
+                    { MF_MT_MPEG2_CONTENT_PACKET, "MF_MT_MPEG2_CONTENT_PACKET" },
+                    { MF_MT_MPEG2_ONE_FRAME_PER_PACKET, "MF_MT_MPEG2_ONE_FRAME_PER_PACKET" },
+                    { MF_MT_MPEG2_HDCP, "MF_MT_MPEG2_HDCP" },
+
+                    { MF_MT_H264_MAX_CODEC_CONFIG_DELAY, "MF_MT_H264_MAX_CODEC_CONFIG_DELAY" },
+                    { MF_MT_H264_SUPPORTED_SLICE_MODES, "MF_MT_H264_SUPPORTED_SLICE_MODES" },
+                    { MF_MT_H264_SUPPORTED_SYNC_FRAME_TYPES, "MF_MT_H264_SUPPORTED_SYNC_FRAME_TYPES" },
+                    { MF_MT_H264_RESOLUTION_SCALING, "MF_MT_H264_RESOLUTION_SCALING" },
+                    { MF_MT_H264_SIMULCAST_SUPPORT, "MF_MT_H264_SIMULCAST_SUPPORT" },
+                    { MF_MT_H264_SUPPORTED_RATE_CONTROL_MODES, "MF_MT_H264_SUPPORTED_RATE_CONTROL_MODES" },
+                    { MF_MT_H264_MAX_MB_PER_SEC, "MF_MT_H264_MAX_MB_PER_SEC" },
+                    { MF_MT_H264_SUPPORTED_USAGES, "MF_MT_H264_SUPPORTED_USAGES" },
+                    { MF_MT_H264_CAPABILITIES, "MF_MT_H264_CAPABILITIES" },
+                    { MF_MT_H264_SVC_CAPABILITIES, "MF_MT_H264_SVC_CAPABILITIES" },
+                    { MF_MT_H264_USAGE, "MF_MT_H264_USAGE" },
+                    { MF_MT_H264_RATE_CONTROL_MODES, "MF_MT_H264_RATE_CONTROL_MODES" },
+                    { MF_MT_H264_LAYOUT_PER_STREAM, "MF_MT_H264_LAYOUT_PER_STREAM" },
+                    { MF_MT_IN_BAND_PARAMETER_SET, "MF_MT_IN_BAND_PARAMETER_SET" },
+                    { MF_MT_MPEG4_TRACK_TYPE, "MF_MT_MPEG4_TRACK_TYPE" },
+                    { MF_MT_CONTAINER_RATE_SCALING, "MF_MT_CONTAINER_RATE_SCALING" },
+
+                    { MF_MT_DV_AAUX_SRC_PACK_0, "MF_MT_DV_AAUX_SRC_PACK_0" },
+                    { MF_MT_DV_AAUX_CTRL_PACK_0, "MF_MT_DV_AAUX_CTRL_PACK_0" },
+                    { MF_MT_DV_AAUX_SRC_PACK_1, "MF_MT_DV_AAUX_SRC_PACK_1" },
+                    { MF_MT_DV_AAUX_CTRL_PACK_1, "MF_MT_DV_AAUX_CTRL_PACK_1" },
+                    { MF_MT_DV_VAUX_SRC_PACK, "MF_MT_DV_VAUX_SRC_PACK" },
+                    { MF_MT_DV_VAUX_CTRL_PACK, "MF_MT_DV_VAUX_CTRL_PACK" },
+
+                    { MF_MT_ARBITRARY_HEADER, "MF_MT_ARBITRARY_HEADER" },
+                    { MF_MT_ARBITRARY_FORMAT, "MF_MT_ARBITRARY_FORMAT" },
+                    { MF_MT_IMAGE_LOSS_TOLERANT, "MF_MT_IMAGE_LOSS_TOLERANT" },
+                    { MF_MT_MPEG4_SAMPLE_DESCRIPTION, "MF_MT_MPEG4_SAMPLE_DESCRIPTION" },
+                    { MF_MT_MPEG4_CURRENT_SAMPLE_ENTRY, "MF_MT_MPEG4_CURRENT_SAMPLE_ENTRY" },
+                    { MF_MT_ORIGINAL_4CC, "MF_MT_ORIGINAL_4CC" },
+                    { MF_MT_ORIGINAL_WAVE_FORMAT_TAG, "MF_MT_ORIGINAL_WAVE_FORMAT_TAG" },
                 };
-                auto i = std::find_if(
+                const auto i = std::find_if(
                     data.begin(),
                     data.end(),
                     [guid](const std::pair<GUID, std::string>& value)
                     {
                         return guid == value.first;
                     });
-                return i != data.end() ? i->second : std::string();
+                std::string out;
+                if (i != data.end())
+                {
+                    out = i->second;
+                }
+                else
+                {
+                    wchar_t szGuidW[40] = { 0 };
+                    StringFromGUID2(guid, szGuidW, 40);
+                    out = ftk::fromWide(szGuidW);
+                }
+                return out;
             }
         }
 
@@ -388,6 +507,7 @@ namespace tl
                     LONGLONG durationNanoseconds = 0;
                     hr = PropVariantToInt64(presAttr, &durationNanoseconds);
                     _duration = durationNanoseconds / timeConversion;
+                    std::cout << "duration: " << _duration << std::endl;
                     PropVariantClear(&presAttr);
                 }
 
@@ -400,9 +520,14 @@ namespace tl
 
                     GUID subType;
                     readerMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
-                    std::cout << "video: " << videoFormatToString(subType) << std::endl;
-                    _imageInfo.type = ftk::ImageType::YUV_420P_U8;
-                    if (MFVideoFormat_HEVC == subType)
+                    std::cout << "video: " << guidToString(subType) << std::endl;
+                    _imageInfo.type = ftk::ImageType::YUV_420P_U8;                    
+                    if (MFVideoFormat_H264 == subType)
+                    {
+                        _videoType = MFVideoFormat_YUY2;
+                        _imageInfo.type = ftk::ImageType::YUV_422P_U8;
+                    }
+                    else if (MFVideoFormat_HEVC == subType)
                     {
                         _videoType = MFVideoFormat_P010;
                         _imageInfo.type = ftk::ImageType::YUV_420P_U16;
@@ -411,9 +536,18 @@ namespace tl
                     UINT32 width = 0;
                     UINT32 height = 0;
                     MFGetAttributeSize(readerMediaType.p, MF_MT_FRAME_SIZE, &width, &height);
+                    std::cout << "size: " << width << " " << height << std::endl;
                     _imageInfo.size.w = width;
                     _imageInfo.size.h = height;
                     _imageInfo.layout.mirror.y = true;
+
+                    UINT32 pixelAspectNum = 0;
+                    UINT32 pixelAspectDen = 0;
+                    MFGetAttributeRatio(readerMediaType.p, MF_MT_PIXEL_ASPECT_RATIO, &pixelAspectNum, &pixelAspectDen);
+                    std::cout << "pixel aspect ratio: " << pixelAspectNum << "/" << pixelAspectDen << std::endl;
+                    _imageInfo.pixelAspectRatio = pixelAspectDen > 0 ?
+                        (pixelAspectNum / static_cast<float>(pixelAspectDen)) :
+                        1.0F;
 
                     UINT32 frameRateNum = 0;
                     UINT32 frameRateDen = 0;
@@ -422,31 +556,51 @@ namespace tl
                         MF_MT_FRAME_RATE,
                         &frameRateNum,
                         &frameRateDen);
+                    std::cout << "frame rate: " << frameRateNum << "/" << frameRateDen << std::endl;
                     if (frameRateDen > 0)
                     {
                         _videoSpeed = frameRateNum / static_cast<double>(frameRateDen);
                     }
 
+                    UINT32 sampleSize = MFGetAttributeUINT32(readerMediaType.p, MF_MT_SAMPLE_SIZE, 0);
+                    std::cout << "sampleSize: " << sampleSize << std::endl;
+                    UINT32 interlaceMode = MFGetAttributeUINT32(readerMediaType.p, MF_MT_INTERLACE_MODE, 0);
+                    std::cout << "interlaceMode: " << interlaceMode << std::endl;
                     UINT32 stride = MFGetAttributeUINT32(readerMediaType.p, MF_MT_DEFAULT_STRIDE, 0);
                     std::cout << "stride: " << stride << std::endl;
 
-                    IMFMediaTypeWrapper inputMediaType;
-                    MFCreateMediaType(&inputMediaType.p);
-                    //readerMediaType.p->CopyAllItems(inputMediaType.p);
-                    inputMediaType.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
-                    inputMediaType.p->SetGUID(MF_MT_SUBTYPE, _videoType);
-                    //inputMediaType.p->SetUINT32(MF_MT_DEFAULT_STRIDE, 0);
-                    
-                    //MFSetAttributeSize(inputMediaType.p, MF_MT_FRAME_SIZE, width, height);
-                    hr = _reader->SetCurrentMediaType(_videoStream, nullptr, inputMediaType.p);
+                    UINT32 itemCount = 0;
+                    readerMediaType.p->GetCount(&itemCount);
+                    for (UINT32 i = 0; i < itemCount; ++i)
+                    {
+                        GUID guid;
+                        PROPVARIANT propVar;
+                        readerMediaType.p->GetItemByIndex(i, &guid, &propVar);
+                        std::cout << "guid: " << guidToString(guid) << std::endl;
+                    }
+
+                    IMFMediaTypeWrapper readerMediaType2;
+                    MFCreateMediaType(&readerMediaType2.p);
+                    //readerMediaType.p->CopyAllItems(readerMediaType2.p);
+                    readerMediaType2.p->SetGUID(MF_MT_MAJOR_TYPE, MFMediaType_Video);
+                    readerMediaType2.p->SetGUID(MF_MT_SUBTYPE, _videoType);
+                    MFSetAttributeSize(readerMediaType2.p, MF_MT_FRAME_SIZE, width, height);
+                    MFSetAttributeRatio(readerMediaType2.p, MF_MT_PIXEL_ASPECT_RATIO, pixelAspectNum, pixelAspectDen);
+                    if (MFVideoFormat_H264 == subType)
+                    {
+                        //! \bug Why is this only necessary for H264?
+                        readerMediaType2.p->SetUINT32(MF_MT_SAMPLE_SIZE, sampleSize);
+                    }
+                    readerMediaType2.p->SetUINT32(MF_MT_INTERLACE_MODE, interlaceMode);
+                    hr = _reader->SetCurrentMediaType(_videoStream, nullptr, readerMediaType2.p);
                     if (FAILED(hr))
                     {
                         std::cout << "cannot set video format" << std::endl;
                         _videoStream = -1;
                     }
 
-                    stride = MFGetAttributeUINT32(inputMediaType.p, MF_MT_DEFAULT_STRIDE, 0);
-                    std::cout << "stride2: " << stride << std::endl;
+                    stride = MFGetAttributeUINT32(readerMediaType2.p, MF_MT_DEFAULT_STRIDE, 0);
+                    std::cout << "out stride: " << stride << std::endl;
                     if (stride > 0)
                     {
                         _videoStride = stride;
@@ -558,9 +712,9 @@ namespace tl
                         }
                         IMFMediaTypeWrapper outputMediaType;
                         MFCreateMediaType(&outputMediaType.p);
-                        inputMediaType.p->CopyAllItems(outputMediaType.p);
+                        readerMediaType2.p->CopyAllItems(outputMediaType.p);
                         outputMediaType.p->SetGUID(MF_MT_SUBTYPE, MFVideoFormat_RGB24);
-                        hr = _colorTransform->SetInputType(0, inputMediaType.p, 0);
+                        hr = _colorTransform->SetInputType(0, readerMediaType2.p, 0);
                         if (FAILED(hr))
                         {
                             throw std::runtime_error("Cannot set color converter input");
@@ -600,12 +754,16 @@ namespace tl
 
                     GUID subType;
                     readerMediaType.p->GetGUID(MF_MT_SUBTYPE, &subType);
-                    std::cout << "audio: " << audioFormatToString(subType) << std::endl;
+                    std::cout << "audio: " << guidToString(subType) << std::endl;
 
                     _audioInfo.channelCount = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_NUM_CHANNELS, 0);
+                    std::cout << "channel count: " << _audioInfo.channelCount << std::endl;
                     const UINT32 bitsPerSample = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_BITS_PER_SAMPLE, 0);
+                    std::cout << "bits per sample: " << bitsPerSample << std::endl;
                     const UINT32 samplesPerSecond = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_SAMPLES_PER_SECOND, 0);
+                    std::cout << "samples per second: " << samplesPerSecond << std::endl;
                     const double samplesPerSecondF = MFGetAttributeUINT32(readerMediaType.p, MF_MT_AUDIO_FLOAT_SAMPLES_PER_SECOND, 0.0);
+                    std::cout << "float samples per second: " << samplesPerSecondF << std::endl;
                     switch (bitsPerSample)
                     {
                     case 16:
@@ -626,11 +784,22 @@ namespace tl
                         break;
                     default: break;
                     }
-                    IMFMediaTypeWrapper inputMediaType;
-                    hr = MFCreateMediaType(&inputMediaType.p);
-                    readerMediaType.p->CopyAllItems(inputMediaType.p);
-                    inputMediaType.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
-                    hr = _reader->SetCurrentMediaType(_audioStream, nullptr, inputMediaType.p);
+
+                    UINT32 itemCount = 0;
+                    readerMediaType.p->GetCount(&itemCount);
+                    for (UINT32 i = 0; i < itemCount; ++i)
+                    {
+                        GUID guid;
+                        PROPVARIANT propVar;
+                        readerMediaType.p->GetItemByIndex(i, &guid, &propVar);
+                        std::cout << "guid: " << guidToString(guid) << std::endl;
+                    }
+
+                    IMFMediaTypeWrapper readerMediaType2;
+                    hr = MFCreateMediaType(&readerMediaType2.p);
+                    readerMediaType.p->CopyAllItems(readerMediaType2.p);
+                    readerMediaType2.p->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
+                    hr = _reader->SetCurrentMediaType(_audioStream, nullptr, readerMediaType2.p);
                     if (FAILED(hr))
                     {
                         //std::cout << "cannot set audio format" << std::endl;
@@ -819,6 +988,22 @@ namespace tl
                                             }
                                         }
                                     }
+                                    else if (MFVideoFormat_YUY2 == _videoType)
+                                    {
+                                        uint8_t* outP = out->getData();
+                                        uint8_t* outP2 = outP + w * h;
+                                        uint8_t* outP3 = outP2 + w / 2 * h;
+                                        for (int y = 0; y < h; ++y, bufP += w * 2, outP += w, outP2 += w / 2, outP3 += w / 2)
+                                        {
+                                            for (int x = 0; x < w / 2; ++x)
+                                            {
+                                                outP[x * 2] = bufP[x * 4];
+                                                outP2[x] = bufP[x * 4 + 1];
+                                                outP[x * 2 + 1] = bufP[x * 4 + 2];
+                                                outP3[x] = bufP[x * 4 + 3];
+                                            }
+                                        }
+                                    }
                                     else if (MFVideoFormat_P010 == _videoType)
                                     {
                                         uint16_t* bufP16 = reinterpret_cast<uint16_t*>(bufP);
@@ -884,6 +1069,7 @@ namespace tl
                     {
                         GUID majorType;
                         mediaType.p->GetMajorType(&majorType);
+                        //std::cout << "stream " << i << ": " << guidToString(majorType) << std::endl;
                         if (majorType == guid)
                         {
                             out = i;
