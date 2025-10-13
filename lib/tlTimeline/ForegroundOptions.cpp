@@ -27,10 +27,24 @@ namespace tl
             return !(*this == other);
         }
 
+        bool Outline::operator == (const Outline& other) const
+        {
+            return
+                enabled == other.enabled &&
+                width == other.width &&
+                color == other.color;
+        }
+
+        bool Outline::operator != (const Outline& other) const
+        {
+            return !(*this == other);
+        }
+
         bool ForegroundOptions::operator == (const ForegroundOptions& other) const
         {
             return
-                grid == other.grid;
+                grid == other.grid &&
+                outline == other.outline;
         }
 
         bool ForegroundOptions::operator != (const ForegroundOptions& other) const
@@ -46,9 +60,17 @@ namespace tl
             json["Color"] = in.color;
         }
 
+        void to_json(nlohmann::json& json, const Outline& in)
+        {
+            json["Enabled"] = in.enabled;
+            json["Width"] = in.width;
+            json["Color"] = in.color;
+        }
+
         void to_json(nlohmann::json& json, const ForegroundOptions& in)
         {
             json["Grid"] = in.grid;
+            json["Outline"] = in.outline;
         }
 
         void from_json(const nlohmann::json& json, Grid& out)
@@ -59,9 +81,17 @@ namespace tl
             json.at("Color").get_to(out.color);
         }
 
+        void from_json(const nlohmann::json& json, Outline& out)
+        {
+            json.at("Enabled").get_to(out.enabled);
+            json.at("Width").get_to(out.width);
+            json.at("Color").get_to(out.color);
+        }
+
         void from_json(const nlohmann::json& json, ForegroundOptions& out)
         {
             json.at("Grid").get_to(out.grid);
+            json.at("Outline").get_to(out.outline);
         }
     }
 }
