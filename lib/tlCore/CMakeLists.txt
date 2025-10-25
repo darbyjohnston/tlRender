@@ -40,7 +40,7 @@ else()
 endif()
 
 set(LIBRARIES tlResource ftk::feather-tk-core OTIO::opentimelineio Imath::Imath nlohmann_json::nlohmann_json)
-set(LIBRARIES_PRIVATE Freetype::Freetype MINIZIP::minizip ZLIB::ZLIB)
+set(LIBRARIES_PRIVATE Freetype::Freetype MINIZIP::minizip-ng ZLIB::ZLIB)
 if(TLRENDER_OCIO)
     list(APPEND LIBRARIES OpenColorIO::OpenColorIO)
 endif()

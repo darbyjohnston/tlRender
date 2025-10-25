@@ -99,7 +99,7 @@ namespace tl
         public:
             ZipReader(const std::string& fileName)
             {
-                mz_zip_reader_create(&reader);
+                reader = mz_zip_reader_create();
                 if (!reader)
                 {
                     throw std::runtime_error(ftk::Format(
