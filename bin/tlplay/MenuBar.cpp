@@ -93,7 +93,6 @@ namespace tl
                                 {
                                     app->open(path);
                                 }
-                                close();
                             });
                         _recentFilesActions.push_back(action);
                         _recentFilesMenu->addAction(action);
