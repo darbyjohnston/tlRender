@@ -37,6 +37,7 @@ set(TLRENDER_PNG ON CACHE BOOL "Enable support for PNG I/O")
 set(TLRENDER_EXR ON CACHE BOOL "Enable support for EXR I/O")
 set(TLRENDER_FFMPEG ON CACHE BOOL "Enable support for FFmpeg I/O")
 set(TLRENDER_USD OFF CACHE BOOL "Enable support for USD")
+set(TLRENDER_WMF ${WIN32} CACHE BOOL "Enable support for Windows Media Foundation")
 set(TLRENDER_BMD OFF CACHE BOOL "Enable support for Blackmagic Design devices")
 set(TLRENDER_BMD_SDK "" CACHE PATH "Full path to the Blackmagic Design SDK")
 set(TLRENDER_QT6 OFF CACHE BOOL "Enable support for Qt6")
@@ -58,10 +59,6 @@ list(PREPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
-endif()
-
-if(TLRENDER_USD)
-    add_definitions(-DTLRENDER_USD)
 endif()
 
 if(TLRENDER_BMD)
@@ -271,6 +268,9 @@ if(TLRENDER_USD)
     if(pxr_FOUND)
         add_definitions(-DTLRENDER_USD)
     endif()
+endif()
+if(TLRENDER_WMF)
+    add_definitions(-DTLRENDER_WMF)
 endif()
 
 # feather-tk dependencies

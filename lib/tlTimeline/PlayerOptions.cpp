@@ -13,7 +13,7 @@ namespace tl
             return
                 videoGB == other.videoGB &&
                 audioGB == other.audioGB &&
-                readBehind == other.readBehind;
+                readBehind == other.readBehind;;
         }
 
         bool PlayerCacheOptions::operator != (const PlayerCacheOptions& other) const

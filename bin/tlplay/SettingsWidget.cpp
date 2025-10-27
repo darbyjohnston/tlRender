@@ -84,8 +84,7 @@ namespace tl
         }
 
         CacheSettingsWidget::~CacheSettingsWidget()
-        {
-        }
+        {}
 
         std::shared_ptr<CacheSettingsWidget> CacheSettingsWidget::create(
             const std::shared_ptr<ftk::Context>& context,

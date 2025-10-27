@@ -391,10 +391,10 @@ namespace tl
                         std::unique_lock<std::mutex> lock(audioMutex.mutex);
                         for (int64_t i = seconds - 1; i < seconds + 1; ++i)
                         {
-                            AudioData audioData;
-                            if (audioMutex.cache.get(i, audioData))
+                            const auto j = audioMutex.cache.find(i);
+                            if (j != audioMutex.cache.end())
                             {
-                                audioDataList.push_back(audioData);
+                                audioDataList.push_back(j->second);
                             }
                         }
                     }

@@ -35,6 +35,14 @@ namespace tl
             _app = app;
 
             _viewport = timelineui::Viewport::create(context);
+            ftk::ImageOptions imageOptions;
+            imageOptions.imageFilters.minify = ftk::ImageFilter::Nearest;
+            imageOptions.imageFilters.magnify = ftk::ImageFilter::Nearest;
+            _viewport->setImageOptions({ imageOptions });
+            timeline::DisplayOptions displayOptions;
+            displayOptions.imageFilters.minify = ftk::ImageFilter::Nearest;
+            displayOptions.imageFilters.magnify = ftk::ImageFilter::Nearest;
+            _viewport->setDisplayOptions({ displayOptions });
 
             _fileActions = FileActions::create(context, app);
             _compareActions = CompareActions::create(context, app);
@@ -74,6 +82,9 @@ namespace tl
             _timelineWidget = timelineui::TimelineWidget::create(
                 context,
                 app->getTimeUnitsModel());
+            timelineui::DisplayOptions timelineDisplayOptions;
+            timelineDisplayOptions.thumbnails = false;
+            _timelineWidget->setDisplayOptions(timelineDisplayOptions);
             _timelineWidget->setVStretch(ftk::Stretch::Expanding);
 
             _statusBar = StatusBar::create(context, app);

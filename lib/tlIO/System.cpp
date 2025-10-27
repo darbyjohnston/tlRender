@@ -29,6 +29,9 @@
 #if defined(TLRENDER_USD)
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
+#if defined(TLRENDER_WMF)
+#include <tlIO/WMF.h>
+#endif // TLRENDER_WMF
 
 #include <feather-tk/core/Context.h>
 #include <feather-tk/core/String.h>
@@ -61,6 +64,10 @@ namespace tl
 #if defined(TLRENDER_STB)
                 _plugins.push_back(stb::ReadPlugin::create(logSystem));
 #endif
+#if defined(TLRENDER_WMF)
+                // \todo WMF support is still a WIP.
+                //_plugins.push_back(wmf::ReadPlugin::create(logSystem));
+#endif // TLRENDER_WMF
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_FFMPEG

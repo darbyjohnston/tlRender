@@ -86,10 +86,10 @@ namespace tl
         {
             ftk::ChannelDisplay channels     = ftk::ChannelDisplay::Color;
             ftk::ImageMirror    mirror;
-            Color                      color;
-            Levels                     levels;
-            EXRDisplay                 exrDisplay;
-            SoftClip                   softClip;
+            Color               color;
+            Levels              levels;
+            EXRDisplay          exrDisplay;
+            SoftClip            softClip;
             ftk::ImageFilters   imageFilters;
             ftk::VideoLevels    videoLevels  = ftk::VideoLevels::FullRange;
 

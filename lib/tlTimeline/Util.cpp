@@ -92,24 +92,26 @@ namespace tl
             bool* looped)
         {
             auto out = value;
+            const OTIO_NS::RationalTime start = range.start_time();
+            const OTIO_NS::RationalTime end = range.end_time_inclusive();
             const OTIO_NS::RationalTime duration = range.duration();
             if (duration.value() > 0.0)
             {
-                while (out < range.start_time())
+                while (out < start)
                 {
                     if (looped)
                     {
                         *looped = true;
                     }
-                    out += range.duration();
+                    out += duration;
                 }
-                while (out > range.end_time_inclusive())
+                while (out > end)
                 {
                     if (looped)
                     {
                         *looped = true;
                     }
-                    out -= range.duration();
+                    out -= duration;
                 }
             }
             return out;

@@ -10,8 +10,6 @@
 
 #include <tlCore/AudioResample.h>
 
-#include <feather-tk/core/LRUCache.h>
-
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>
 #endif // TLRENDER_SDL2
@@ -33,6 +31,10 @@ namespace tl
 
             void clearRequests();
             void clearCache();
+            size_t getVideoCacheMax() const;
+            size_t getAudioCacheMax() const;
+            OTIO_NS::TimeRange getVideoCacheRange(size_t max) const;
+            ftk::Range<int64_t> getAudioCacheRange(size_t max) const;
             void cacheUpdate();
 
             bool hasAudio() const;
@@ -120,31 +122,11 @@ namespace tl
 
             struct Thread
             {
-                OTIO_NS::RationalTime getVideoTime(int64_t) const;
-                int64_t getAudioTime(int64_t) const;
-
                 PlaybackState state;
                 CacheDirection cacheDirection = CacheDirection::Forward;
-
-                struct VideoRequestData
-                {
-                    size_t byteCount = 0;
-                    std::vector<VideoRequest> list;
-                };
-                std::map<OTIO_NS::RationalTime, VideoRequestData> videoDataRequests;
-                ftk::LRUCache<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
-                int64_t videoFillFrame = 0;
-                size_t videoFillByteCount = 0;
-
-                struct AudioRequestData
-                {
-                    size_t byteCount = 0;
-                    AudioRequest request;
-                };
-                std::map<int64_t, AudioRequestData> audioDataRequests;
-                int64_t audioFillSeconds = 0;
-                size_t audioFillByteCount = 0;
-
+                std::map<OTIO_NS::RationalTime, std::vector<VideoRequest> > videoDataRequests;
+                std::map<OTIO_NS::RationalTime, std::vector<VideoData> > videoCache;
+                std::map<int64_t, AudioRequest> audioDataRequests;
                 std::chrono::steady_clock::time_point cacheTimer;
                 std::chrono::steady_clock::time_point logTimer;
                 std::thread thread;
@@ -168,7 +150,7 @@ namespace tl
             struct AudioMutex
             {
                 AudioState state;
-                ftk::LRUCache<int64_t, AudioData> cache;
+                std::map<int64_t, AudioData> cache;
                 bool reset = false;
                 OTIO_NS::RationalTime start = time::invalidTime;
                 int64_t frame = 0;

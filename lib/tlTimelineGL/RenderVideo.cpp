@@ -67,55 +67,6 @@ namespace tl
             }
             default: break;
             }
-
-            if (options.outline.enabled && !boxes.empty())
-            {
-                ftk::Box2I bounds = boxes.front();
-                for (size_t i = 1; i < boxes.size(); ++i)
-                {
-                    bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
-                    bounds.min.y = std::min(bounds.min.y, boxes[i].min.y);
-                    bounds.max.x = std::max(bounds.max.x, boxes[i].max.x);
-                    bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
-                }
-
-                ftk::TriMesh2F mesh;
-                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.min.y));
-                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.min.y));
-                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.max.y + 1));
-                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.max.y + 1));
-                for (auto& v : mesh.v)
-                {
-                    const ftk::V3F v3 = ftk::V3F(v.x, v.y, 0.F) * m;
-                    v.x = v3.x;
-                    v.y = v3.y;
-                }
-                mesh.v.push_back(ftk::round(
-                    ftk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
-                    ftk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
-                    mesh.v[0]));
-                mesh.v.push_back(ftk::round(
-                    ftk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
-                    ftk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
-                    mesh.v[1]));
-                mesh.v.push_back(ftk::round(
-                    ftk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
-                    ftk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
-                    mesh.v[2]));
-                mesh.v.push_back(ftk::round(
-                    ftk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
-                    ftk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
-                    mesh.v[3]));
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(2), ftk::Vertex2(5) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(5) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(3), ftk::Vertex2(6) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(6) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(4), ftk::Vertex2(7) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(7) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(1), ftk::Vertex2(8) });
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(8) });
-                drawMesh(mesh, options.outline.color);
-            }
         }
 
         void Render::drawVideo(
@@ -998,6 +949,55 @@ namespace tl
                     }
                     drawLines(lines, options.grid.color, lineOptions);
                 }
+            }
+
+            if (options.outline.enabled && !boxes.empty())
+            {
+                ftk::Box2I bounds = boxes.front();
+                for (size_t i = 1; i < boxes.size(); ++i)
+                {
+                    bounds.min.x = std::min(bounds.min.x, boxes[i].min.x);
+                    bounds.min.y = std::min(bounds.min.y, boxes[i].min.y);
+                    bounds.max.x = std::max(bounds.max.x, boxes[i].max.x);
+                    bounds.max.y = std::max(bounds.max.y, boxes[i].max.y);
+                }
+
+                ftk::TriMesh2F mesh;
+                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.min.y));
+                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.min.y));
+                mesh.v.push_back(ftk::V2F(bounds.max.x + 1, bounds.max.y + 1));
+                mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.max.y + 1));
+                for (auto& v : mesh.v)
+                {
+                    const ftk::V3F v3 = ftk::V3F(v.x, v.y, 0.F) * m;
+                    v.x = v3.x;
+                    v.y = v3.y;
+                }
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[0] - mesh.v[1]) * options.outline.width +
+                    ftk::normalize(mesh.v[0] - mesh.v[3]) * options.outline.width +
+                    mesh.v[0]));
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[1] - mesh.v[2]) * options.outline.width +
+                    ftk::normalize(mesh.v[1] - mesh.v[0]) * options.outline.width +
+                    mesh.v[1]));
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[2] - mesh.v[1]) * options.outline.width +
+                    ftk::normalize(mesh.v[2] - mesh.v[3]) * options.outline.width +
+                    mesh.v[2]));
+                mesh.v.push_back(ftk::round(
+                    ftk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
+                    ftk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
+                    mesh.v[3]));
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(2), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(3), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(4), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(1), ftk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(8) });
+                drawMesh(mesh, options.outline.color);
             }
         }
     }
