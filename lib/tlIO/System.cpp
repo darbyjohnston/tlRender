@@ -65,7 +65,8 @@ namespace tl
                 _plugins.push_back(stb::ReadPlugin::create(logSystem));
 #endif
 #if defined(TLRENDER_WMF)
-                _plugins.push_back(wmf::ReadPlugin::create(logSystem));
+                // \todo WMF support is still a WIP.
+                //_plugins.push_back(wmf::ReadPlugin::create(logSystem));
 #endif // TLRENDER_WMF
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
