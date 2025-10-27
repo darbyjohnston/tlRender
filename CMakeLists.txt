@@ -140,7 +140,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 find_package(Imath REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(ZLIB REQUIRED)
-find_package(minizip REQUIRED)
+find_package(minizip-ng REQUIRED)
 find_package(OpenTimelineIO REQUIRED)
 
 # OpenColorIO dependencies
