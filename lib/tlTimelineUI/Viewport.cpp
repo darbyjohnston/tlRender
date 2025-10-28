@@ -142,7 +142,7 @@ namespace tl
             if (p.compareOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -162,7 +162,7 @@ namespace tl
             if (p.ocioOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -182,7 +182,7 @@ namespace tl
             if (p.lutOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -202,7 +202,7 @@ namespace tl
             if (p.imageOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -222,7 +222,7 @@ namespace tl
             if (p.displayOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -242,7 +242,7 @@ namespace tl
             if (p.bgOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -262,7 +262,7 @@ namespace tl
             if (p.fgOptions->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -282,7 +282,7 @@ namespace tl
             if (p.colorBuffer->setIfChanged(value))
             {
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -351,14 +351,14 @@ namespace tl
                         }
 
                         p.doRender = true;
-                        _setDrawUpdate();
+                        setDrawUpdate();
                     });
             }
             else if (!p.videoData.empty())
             {
                 p.videoData.clear();
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -400,7 +400,7 @@ namespace tl
                 p.viewPos->setIfChanged(pos);
                 p.viewZoom->setIfChanged(zoom);
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
                 setFrameView(false);
             }
         }
@@ -438,7 +438,7 @@ namespace tl
             {
                 p.framed->setAlways(true);
                 p.doRender = true;
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -491,9 +491,9 @@ namespace tl
                 std::vector<float> sample(4);
                 ftk::gl::OffscreenBufferBinding binding(p.buffer);
                 glPixelStorei(GL_PACK_ALIGNMENT, 1);
-#if defined(FEATHER_TK_API_GL_4_1)
+#if defined(FTK_API_GL_4_1)
                 glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
-#endif // FEATHER_TK_API_GL_4_1
+#endif // FTK_API_GL_4_1
                 glReadPixels(
                     pos.x,
                     pos.y,
@@ -584,12 +584,12 @@ namespace tl
                     {
                         offscreenBufferOptions.colorFilters = p.displayOptions->getItem(0).imageFilters;
                     }
-#if defined(FEATHER_TK_API_GL_4_1)
+#if defined(FTK_API_GL_4_1)
                     offscreenBufferOptions.depth = ftk::gl::OffscreenDepth::_24;
                     offscreenBufferOptions.stencil = ftk::gl::OffscreenStencil::_8;
-#elif defined(FEATHER_TK_API_GLES_2)
+#elif defined(FTK_API_GLES_2)
                     offscreenBufferOptions.stencil = ftk::gl::OffscreenStencil::_8;
-#endif // FEATHER_TK_API_GL_4_1
+#endif // FTK_API_GL_4_1
                     if (ftk::gl::doCreate(p.buffer, size, offscreenBufferOptions))
                     {
                         p.buffer = ftk::gl::OffscreenBuffer::create(size, offscreenBufferOptions);
@@ -712,7 +712,7 @@ namespace tl
                     p.viewPos->setIfChanged(viewPos);
                     p.viewZoom->setIfChanged(viewZoom);
                     p.doRender = true;
-                    _setDrawUpdate();
+                    setDrawUpdate();
                     setFrameView(false);
                 }
                 break;
@@ -736,7 +736,7 @@ namespace tl
                         if (p.compareOptions->setIfChanged(compareOptions))
                         {
                             p.doRender = true;
-                            _setDrawUpdate();
+                            setDrawUpdate();
                         }
                     }
                 }

@@ -144,9 +144,9 @@ namespace tl
 
                             // Write the image.
                             glPixelStorei(GL_PACK_ALIGNMENT, info.layout.alignment);
-#if defined(FEATHER_TK_API_GL_4_1)
+#if defined(FTK_API_GL_4_1)
                             glPixelStorei(GL_PACK_SWAP_BYTES, info.layout.endian != ftk::getEndian());
-#endif // FEATHER_TK_API_GL_4_1
+#endif // FTK_API_GL_4_1
                             const GLenum format = ftk::gl::getReadPixelsFormat(info.type);
                             const GLenum type = ftk::gl::getReadPixelsType(info.type);
                             if (GL_NONE == format || GL_NONE == type)

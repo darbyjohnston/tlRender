@@ -273,24 +273,24 @@ namespace tl
             return out;
         }
 
-        feather_tk::ImageType getColorBuffer(PixelType value)
+        ftk::ImageType getColorBuffer(PixelType value)
         {
-            const std::array<feather_tk::ImageType, static_cast<size_t>(PixelType::Count)> data =
+            const std::array<ftk::ImageType, static_cast<size_t>(PixelType::Count)> data =
             {
-                feather_tk::ImageType::None,
-                feather_tk::ImageType::RGBA_U8,
-                feather_tk::ImageType::RGBA_U8,
-                feather_tk::ImageType::RGB_U16,
-                feather_tk::ImageType::RGB_U16,
-                feather_tk::ImageType::RGB_U16,
-                //feather_tk::ImageType::RGB_U10,
-                feather_tk::ImageType::RGB_U16,
-                feather_tk::ImageType::RGB_U16
+                ftk::ImageType::None,
+                ftk::ImageType::RGBA_U8,
+                ftk::ImageType::RGBA_U8,
+                ftk::ImageType::RGB_U16,
+                ftk::ImageType::RGB_U16,
+                ftk::ImageType::RGB_U16,
+                //ftk::ImageType::RGB_U10,
+                ftk::ImageType::RGB_U16,
+                ftk::ImageType::RGB_U16
             };
             return data[static_cast<size_t>(value)];
         }
 
-        size_t getPackPixelsSize(const feather_tk::Size2I& size, PixelType pixelType)
+        size_t getPackPixelsSize(const ftk::Size2I& size, PixelType pixelType)
         {
             size_t out = 0;
             switch (pixelType)
@@ -384,7 +384,7 @@ namespace tl
         void copyPackPixels(
             const void* inP,
             void* outP,
-            const feather_tk::Size2I& size,
+            const ftk::Size2I& size,
             PixelType pixelType)
         {
             const size_t rowByteCount = getRowByteCount(size.w, pixelType);

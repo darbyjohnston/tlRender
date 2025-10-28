@@ -122,7 +122,7 @@ namespace tl
             if (changed)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -136,7 +136,7 @@ namespace tl
             if (thumbnailsChanged)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -158,8 +158,8 @@ namespace tl
                     p.path,
                     p.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
-                _setSizeUpdate();
-                _setDrawUpdate();
+                setSizeUpdate();
+                setDrawUpdate();
             }
 
             // Check if any thumbnails are finished.
@@ -178,7 +178,7 @@ namespace tl
                         p.ioOptions);
                     _data->thumbnails[cacheKey] = image;
                     i = p.thumbnailRequests.erase(i);
-                    _setDrawUpdate();
+                    setDrawUpdate();
                 }
                 else
                 {
@@ -210,7 +210,7 @@ namespace tl
             if (clipped)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 

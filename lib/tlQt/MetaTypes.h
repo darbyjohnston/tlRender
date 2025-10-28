@@ -10,7 +10,7 @@
 
 #include <tlCore/AudioSystem.h>
 
-#include <feather-tk/core/RenderOptions.h>
+#include <ftk/Core/RenderOptions.h>
 
 #include <QMetaType>
 

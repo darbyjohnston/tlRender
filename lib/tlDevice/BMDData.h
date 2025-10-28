@@ -9,7 +9,7 @@
 #include <tlCore/HDR.h>
 #include <tlCore/Time.h>
 
-#include <feather-tk/core/Size.h>
+#include <ftk/Core/Size.h>
 
 namespace tl
 {
@@ -19,7 +19,7 @@ namespace tl
         struct DisplayMode
         {
             std::string           name;
-            feather_tk::Size2I           size;
+            ftk::Size2I           size;
             OTIO_NS::RationalTime frameRate;
 
             bool operator == (const DisplayMode&) const;
@@ -44,13 +44,13 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(PixelType);
+        FTK_ENUM(PixelType);
 
         //! Get the number of bytes used to store a row of pixel data.
         size_t getRowByteCount(int, PixelType);
 
         //! Get the number of bytes used to storepixel data.
-        size_t getDataByteCount(const feather_tk::Size2I&, PixelType);
+        size_t getDataByteCount(const ftk::Size2I&, PixelType);
 
         //! Device information.
         struct DeviceInfo
@@ -75,7 +75,7 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(Option);
+        FTK_ENUM(Option);
 
         //! Device boolean options.
         typedef std::map<Option, bool> BoolOptions;
@@ -102,7 +102,7 @@ namespace tl
             Count,
             First = None
         };
-        FEATHER_TK_ENUM(HDRMode);
+        FTK_ENUM(HDRMode);
 
         //! Get HDR data from timeline video data.
         std::shared_ptr<image::HDRData> getHDRData(const timeline::VideoData&);

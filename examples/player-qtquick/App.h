@@ -8,7 +8,7 @@
 #include <tlQt/PlayerObject.h>
 #include <tlQt/TimeObject.h>
 
-#include <feather-tk/core/IApp.h>
+#include <ftk/Core/IApp.h>
 
 #include <QGuiApplication>
 

@@ -116,7 +116,7 @@ namespace tl
             if (changed)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -132,7 +132,7 @@ namespace tl
             if (thumbnailsChanged)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 
@@ -154,8 +154,8 @@ namespace tl
                     p.path,
                     _data->options.ioOptions);
                 _data->info[infoCacheKey] = p.ioInfo;
-                _setSizeUpdate();
-                _setDrawUpdate();
+                setSizeUpdate();
+                setDrawUpdate();
             }
 
             // Check if any audio waveforms are finished.
@@ -176,7 +176,7 @@ namespace tl
                         _data->options.ioOptions);
                     _data->waveforms[cacheKey] = mesh;
                     i = p.waveformRequests.erase(i);
-                    _setDrawUpdate();
+                    setDrawUpdate();
                 }
                 else
                 {
@@ -208,7 +208,7 @@ namespace tl
             if (clipped)
             {
                 _cancelRequests();
-                _setDrawUpdate();
+                setDrawUpdate();
             }
         }
 

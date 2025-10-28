@@ -172,7 +172,7 @@ namespace tl
                 [this](const OTIO_NS::RationalTime& value)
                 {
                     _p->currentTime = value;
-                    _setDrawUpdate();
+                    setDrawUpdate();
                 });
 
             p.inOutRangeObserver = ftk::ValueObserver<OTIO_NS::TimeRange>::create(
@@ -180,7 +180,7 @@ namespace tl
                 [this](const OTIO_NS::TimeRange value)
                 {
                     _p->inOutRange = value;
-                    _setDrawUpdate();
+                    setDrawUpdate();
                 });
 
             p.cacheInfoObserver = ftk::ValueObserver<timeline::PlayerCacheInfo>::create(
@@ -188,7 +188,7 @@ namespace tl
                 [this](const timeline::PlayerCacheInfo& value)
                 {
                     _p->cacheInfo = value;
-                    _setDrawUpdate();
+                    setDrawUpdate();
                 });
         }
 
@@ -245,7 +245,7 @@ namespace tl
             if (value == p.frameMarkers)
                 return;
             p.frameMarkers = value;
-            _setDrawUpdate();
+            setDrawUpdate();
         }
 
         std::vector<ftk::Box2I> TimelineItem::getTrackGeom() const
@@ -506,8 +506,8 @@ namespace tl
         {
             IItem::_timeUnitsUpdate();
             _textUpdate();
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
 
         bool TimelineItem::_isTrackVisible(int index) const

@@ -4,14 +4,14 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Init.h>
-#include <feather-tk/core/File.h>
-#include <feather-tk/core/FileIO.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LRUCache.h>
-#include <feather-tk/core/LogSystem.h>
-#include <feather-tk/core/Memory.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Init.h>
+#include <ftk/Core/File.h>
+#include <ftk/Core/FileIO.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LRUCache.h>
+#include <ftk/Core/LogSystem.h>
+#include <ftk/Core/Memory.h>
 
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>

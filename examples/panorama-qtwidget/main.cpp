@@ -9,7 +9,7 @@
 #include <tlQt/ContextObject.h>
 #include <tlQt/PlayerObject.h>
 
-#include <feather-tk/core/Context.h>
+#include <ftk/Core/Context.h>
 
 #include <QApplication>
 

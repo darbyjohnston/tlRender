@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/core/Color.h>
-#include <feather-tk/core/Size.h>
+#include <ftk/Core/Color.h>
+#include <ftk/Core/Size.h>
 
 #include <QColor>
 #include <QSize>

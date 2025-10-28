@@ -194,8 +194,8 @@ namespace tl
             {
                 p.scale = scale;
                 _setItemScale();
-                _setSizeUpdate();
-                _setDrawUpdate();
+                setSizeUpdate();
+                setDrawUpdate();
             }
         }
 

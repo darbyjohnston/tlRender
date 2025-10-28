@@ -6,7 +6,7 @@
 
 #include <tlDevice/BMDSystem.h>
 
-#include <feather-tk/core/Context.h>
+#include <ftk/Core/Context.h>
 
 #include <sstream>
 
@@ -38,25 +38,25 @@ namespace tl
             int pixelTypeIndex = 0;
             bool deviceEnabled = true;
             BoolOptions boolOptions;
-            feather_tk::VideoLevels videoLevels = feather_tk::VideoLevels::LegalRange;
+            ftk::VideoLevels videoLevels = ftk::VideoLevels::LegalRange;
             HDRMode hdrMode = HDRMode::FromFile;
             image::HDRData hdrData;
-            std::shared_ptr<feather_tk::ObservableValue<DevicesModelData> > data;
-            std::shared_ptr<feather_tk::ListObserver<DeviceInfo> > deviceInfoObserver;
+            std::shared_ptr<ftk::ObservableValue<DevicesModelData> > data;
+            std::shared_ptr<ftk::ListObserver<DeviceInfo> > deviceInfoObserver;
         };
 
         void DevicesModel::_init(
-            const std::shared_ptr<feather_tk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context)
         {
-            FEATHER_TK_P();
+            FTK_P();
 
-            p.data = feather_tk::ObservableValue<DevicesModelData>::create();
+            p.data = ftk::ObservableValue<DevicesModelData>::create();
 
             _update();
 
             if (auto system = context->getSystem<System>())
             {
-                p.deviceInfoObserver = feather_tk::ListObserver<DeviceInfo>::create(
+                p.deviceInfoObserver = ftk::ListObserver<DeviceInfo>::create(
                     system->observeDeviceInfo(),
                     [this](const std::vector<DeviceInfo>& value)
                     {
@@ -74,21 +74,21 @@ namespace tl
         {}
 
         std::shared_ptr<DevicesModel> DevicesModel::create(
-            const std::shared_ptr<feather_tk::Context>& context)
+            const std::shared_ptr<ftk::Context>& context)
         {
             auto out = std::shared_ptr<DevicesModel>(new DevicesModel);
             out->_init(context);
             return out;
         }
 
-        std::shared_ptr<feather_tk::IObservableValue<DevicesModelData> > DevicesModel::observeData() const
+        std::shared_ptr<ftk::IObservableValue<DevicesModelData> > DevicesModel::observeData() const
         {
             return _p->data;
         }
 
         void DevicesModel::setDeviceIndex(int index)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (index == p.deviceIndex)
                 return;
             p.deviceIndex = index;
@@ -97,7 +97,7 @@ namespace tl
 
         void DevicesModel::setDisplayModeIndex(int index)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (index == p.displayModeIndex)
                 return;
             p.displayModeIndex = index;
@@ -106,7 +106,7 @@ namespace tl
 
         void DevicesModel::setPixelTypeIndex(int index)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (index == p.pixelTypeIndex)
                 return;
             p.pixelTypeIndex = index;
@@ -115,7 +115,7 @@ namespace tl
 
         void DevicesModel::setDeviceEnabled(bool value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.deviceEnabled)
                 return;
             p.deviceEnabled = value;
@@ -124,16 +124,16 @@ namespace tl
 
         void DevicesModel::setBoolOptions(const BoolOptions& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.boolOptions)
                 return;
             p.boolOptions = value;
             _update();
         }
 
-        void DevicesModel::setVideoLevels(feather_tk::VideoLevels value)
+        void DevicesModel::setVideoLevels(ftk::VideoLevels value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.videoLevels)
                 return;
             p.videoLevels = value;
@@ -142,7 +142,7 @@ namespace tl
 
         void DevicesModel::setHDRMode(HDRMode value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.hdrMode)
                 return;
             p.hdrMode = value;
@@ -151,7 +151,7 @@ namespace tl
 
         void DevicesModel::setHDRData(const image::HDRData& value)
         {
-            FEATHER_TK_P();
+            FTK_P();
             if (value == p.hdrData)
                 return;
             p.hdrData = value;
@@ -160,7 +160,7 @@ namespace tl
 
         void DevicesModel::_update()
         {
-            FEATHER_TK_P();
+            FTK_P();
 
             DevicesModelData data;
 

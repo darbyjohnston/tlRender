@@ -26,10 +26,10 @@ namespace tl
         //! BMD output device.
         class OutputDevice : public std::enable_shared_from_this<OutputDevice>
         {
-            FEATHER_TK_NON_COPYABLE(OutputDevice);
+            FTK_NON_COPYABLE(OutputDevice);
 
         protected:
-            void _init(const std::shared_ptr<feather_tk::Context>&);
+            void _init(const std::shared_ptr<ftk::Context>&);
 
             OutputDevice();
 
@@ -37,13 +37,13 @@ namespace tl
             ~OutputDevice();
 
             //! Create a new output device.
-            static std::shared_ptr<OutputDevice> create(const std::shared_ptr<feather_tk::Context>&);
+            static std::shared_ptr<OutputDevice> create(const std::shared_ptr<ftk::Context>&);
 
             //! Get the device configuration.
             DeviceConfig getConfig() const;
 
             //! Observe the device configuration.
-            std::shared_ptr<feather_tk::IObservableValue<DeviceConfig> > observeConfig() const;
+            std::shared_ptr<ftk::IObservableValue<DeviceConfig> > observeConfig() const;
 
             //! Set the device configuration.
             void setConfig(const DeviceConfig&);
@@ -52,7 +52,7 @@ namespace tl
             bool isEnabled() const;
 
             //! Observe whether the device is enabled.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeEnabled() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeEnabled() const;
 
             //! Set whether the device is enabled.
             void setEnabled(bool);
@@ -61,29 +61,29 @@ namespace tl
             bool isActive() const;
 
             //! Observe whether the device is active.
-            std::shared_ptr<feather_tk::IObservableValue<bool> > observeActive() const;
+            std::shared_ptr<ftk::IObservableValue<bool> > observeActive() const;
 
             //! Get the video size.
-            const feather_tk::Size2I& getSize() const;
+            const ftk::Size2I& getSize() const;
 
             //! Observe the video size.
-            std::shared_ptr<feather_tk::IObservableValue<feather_tk::Size2I> > observeSize() const;
+            std::shared_ptr<ftk::IObservableValue<ftk::Size2I> > observeSize() const;
 
             //! Get the frame rate.
             const FrameRate& getFrameRate() const;
 
             //! Observe the frame rate.
-            std::shared_ptr<feather_tk::IObservableValue<FrameRate> > observeFrameRate() const;
+            std::shared_ptr<ftk::IObservableValue<FrameRate> > observeFrameRate() const;
 
             //! Get the video frame delay.
             int getVideoFrameDelay() const;
 
             //! Observe the video frame delay.
-            std::shared_ptr<feather_tk::IObservableValue<int> > observeVideoFrameDelay() const;
+            std::shared_ptr<ftk::IObservableValue<int> > observeVideoFrameDelay() const;
 
             //! Set the view.
             void setView(
-                const feather_tk::V2I& position,
+                const ftk::V2I& position,
                 double          zoom,
                 bool            frame);
 
@@ -94,7 +94,7 @@ namespace tl
             void setLUTOptions(const timeline::LUTOptions&);
 
             //! Set the image options.
-            void setImageOptions(const std::vector<feather_tk::ImageOptions>&);
+            void setImageOptions(const std::vector<ftk::ImageOptions>&);
 
             //! Set the display options.
             void setDisplayOptions(const std::vector<timeline::DisplayOptions>&);
@@ -112,7 +112,7 @@ namespace tl
             void setForegroundOptions(const timeline::ForegroundOptions&);
 
             //! Set the overlay.
-            void setOverlay(const std::shared_ptr<feather_tk::Image>&);
+            void setOverlay(const std::shared_ptr<ftk::Image>&);
 
             //! Set the audio volume.
             void setVolume(float);
@@ -137,21 +137,21 @@ namespace tl
             void _createDevice(
                 const DeviceConfig&,
                 bool& active,
-                feather_tk::Size2I& size,
+                ftk::Size2I& size,
                 FrameRate& frameRate,
                 int videoFrameDelay);
             void _render(
                 const DeviceConfig&,
                 const timeline::OCIOOptions&,
                 const timeline::LUTOptions&,
-                const std::vector<feather_tk::ImageOptions>&,
+                const std::vector<ftk::ImageOptions>&,
                 const std::vector<timeline::DisplayOptions>&,
                 const timeline::CompareOptions&,
                 const timeline::BackgroundOptions&,
                 const timeline::ForegroundOptions&);
             void _read();
 
-            FEATHER_TK_PRIVATE();
+            FTK_PRIVATE();
         };
     }
 }

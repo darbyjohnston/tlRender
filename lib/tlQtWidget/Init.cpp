@@ -8,9 +8,9 @@
 
 #include <tlTimelineUI/Init.h>
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/String.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/String.h>
+#include <ftk/Core/Format.h>
 
 #include <QDir>
 #include <QFontDatabase>
@@ -21,7 +21,7 @@
 namespace ftk_resource
 {
     extern std::vector<uint8_t> NotoSansBold;
-    extern std::vector<uint8_t> NotoSansMonoRegular;
+    extern std::vector<uint8_t> NotoMonoRegular;
     extern std::vector<uint8_t> NotoSansRegular;
 }
 
@@ -41,7 +41,7 @@ namespace tl
         {
             const std::vector<std::vector<uint8_t> > fonts =
             {
-                ftk_resource::NotoSansMonoRegular,
+                ftk_resource::NotoMonoRegular,
                 ftk_resource::NotoSansBold,
                 ftk_resource::NotoSansRegular
             };

@@ -4,8 +4,8 @@
 
 #include <tlIO/USDPrivate.h>
 
-#include <feather-tk/core/Error.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
 
 namespace tl
 {

@@ -6,10 +6,10 @@
 
 #include <tlDevice/BMDOutputDevice.h>
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/String.h>
-#include <feather-tk/core/Time.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
+#include <ftk/Core/Time.h>
 
 #include "platform.h"
 
@@ -30,8 +30,8 @@ namespace tl
     {
         struct System::Private
         {
-            std::weak_ptr<feather_tk::Context> context;
-            std::shared_ptr<feather_tk::ObservableList<DeviceInfo> > deviceInfo;
+            std::weak_ptr<ftk::Context> context;
+            std::shared_ptr<ftk::ObservableList<DeviceInfo> > deviceInfo;
             struct Mutex
             {
                 std::vector<DeviceInfo> deviceInfo;
@@ -42,22 +42,22 @@ namespace tl
             std::atomic<bool> running;
         };
 
-        System::System(const std::shared_ptr<feather_tk::Context>& context) :
+        System::System(const std::shared_ptr<ftk::Context>& context) :
             ISystem(context, "tl::bmd::System"),
             _p(new Private)
         {
             
-            FEATHER_TK_P();
+            FTK_P();
 
             p.context = context;
 
-            p.deviceInfo = feather_tk::ObservableList<DeviceInfo>::create();
+            p.deviceInfo = ftk::ObservableList<DeviceInfo>::create();
 
             p.running = true;
             p.thread = std::thread(
                 [this]
                 {
-                    FEATHER_TK_P();
+                    FTK_P();
 
 #if defined(_WINDOWS)
                     CoInitialize(NULL);
@@ -190,7 +190,7 @@ namespace tl
                                     }
                                     context->log(
                                         "tl::bmd::System",
-                                        feather_tk::Format(
+                                        ftk::Format(
                                             "\n"
                                             "    {0}\n"
                                             "        Display modes: {1}\n"
@@ -198,7 +198,7 @@ namespace tl
                                             "        HDR metadata: {3}\n"
                                             "        Max audio channels: {4}").
                                         arg(i.name).
-                                        arg(feather_tk::join(displayModes, ", ")).
+                                        arg(ftk::join(displayModes, ", ")).
                                         arg(i.minVideoPreroll).
                                         arg(i.hdrMetaData).
                                         arg(i.maxAudioChannels));
@@ -207,7 +207,7 @@ namespace tl
                         }
 
                         const auto t1 = std::chrono::steady_clock::now();
-                        feather_tk::sleep(getTickTime(), t0, t1);
+                        ftk::sleep(getTickTime(), t0, t1);
                     }
 
 #if defined(_WINDOWS)
@@ -218,7 +218,7 @@ namespace tl
 
         System::~System()
         {
-            FEATHER_TK_P();
+            FTK_P();
             p.running = false;
             if (p.thread.joinable())
             {
@@ -226,7 +226,7 @@ namespace tl
             }
         }
 
-        std::shared_ptr<System> System::create(const std::shared_ptr<feather_tk::Context>& context)
+        std::shared_ptr<System> System::create(const std::shared_ptr<ftk::Context>& context)
         {
             auto out = context->getSystem<System>();
             if (!out)
@@ -237,14 +237,14 @@ namespace tl
             return out;
         }
 
-        std::shared_ptr<feather_tk::IObservableList<DeviceInfo> > System::observeDeviceInfo() const
+        std::shared_ptr<ftk::IObservableList<DeviceInfo> > System::observeDeviceInfo() const
         {
             return _p->deviceInfo;
         }
 
         void System::tick()
         {
-            FEATHER_TK_P();
+            FTK_P();
             std::vector<DeviceInfo> deviceInfo;
             {
                 std::unique_lock<std::mutex> lock(p.mutex.mutex);

@@ -6,7 +6,7 @@
 
 #include <tlCore/Time.h>
 
-#include <feather-tk/core/Math.h>
+#include <ftk/Core/Math.h>
 
 #include <QTimer>
 

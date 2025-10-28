@@ -6,8 +6,8 @@
 
 #include <tlDevice/BMDData.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/core/Image.h>
+#include <ftk/GL/GL.h>
+#include <ftk/Core/Image.h>
 
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -45,10 +45,10 @@ namespace tl
         PixelType getOutputType(PixelType);
 
         //! Get the color buffer type.
-        feather_tk::ImageType getColorBuffer(PixelType);
+        ftk::ImageType getColorBuffer(PixelType);
 
         //! Get the pack pixels buffer size.
-        size_t getPackPixelsSize(const feather_tk::Size2I&, PixelType);
+        size_t getPackPixelsSize(const ftk::Size2I&, PixelType);
 
         //! Get the pack pixels format.
         GLenum getPackPixelsFormat(PixelType);
@@ -66,7 +66,7 @@ namespace tl
         void copyPackPixels(
             const void*,
             void*,
-            const feather_tk::Size2I&,
+            const ftk::Size2I&,
             PixelType);
     }
 }

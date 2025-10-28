@@ -112,8 +112,8 @@ namespace tl
                 return;
             p.marginRole = value;
             p.size.displayScale.reset();
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
 
         void TimeLabel::setFontRole(ftk::FontRole value)
@@ -123,8 +123,8 @@ namespace tl
                 return;
             p.fontRole = value;
             p.size.displayScale.reset();
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
 
         void TimeLabel::sizeHintEvent(const ftk::SizeHintEvent& event)
@@ -210,8 +210,8 @@ namespace tl
                 p.format = timeline::formatString(timeUnits);
             }
             p.size.displayScale.reset();
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
     }
 }

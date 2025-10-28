@@ -289,8 +289,8 @@ namespace tl
             FTK_P();
             p.durationLabel = _getDurationLabel(_timeRange.duration());
             p.size.displayScale.reset();
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
     }
 }

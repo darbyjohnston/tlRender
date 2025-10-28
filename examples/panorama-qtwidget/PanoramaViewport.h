@@ -8,9 +8,9 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <feather-tk/gl/Mesh.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/gl/Shader.h>
+#include <ftk/GL/Mesh.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Shader.h>
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions_4_1_Core>

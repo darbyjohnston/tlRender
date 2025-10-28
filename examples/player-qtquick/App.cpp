@@ -9,8 +9,8 @@
 #include <tlCore/AudioSystem.h>
 #include <tlCore/Path.h>
 
-#include <feather-tk/core/CmdLine.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/CmdLine.h>
+#include <ftk/Core/Format.h>
 
 #include <QQmlComponent>
 #include <QQmlContext>

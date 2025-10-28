@@ -465,9 +465,9 @@ namespace tl
 
             // Write the frame.
             glPixelStorei(GL_PACK_ALIGNMENT, _outputInfo.layout.alignment);
-#if defined(FEATHER_TK_API_GL_4_1)
+#if defined(FTK_API_GL_4_1)
             glPixelStorei(GL_PACK_SWAP_BYTES, _outputInfo.layout.endian != ftk::getEndian());
-#endif // FEATHER_TK_API_GL_4_1
+#endif // FTK_API_GL_4_1
             const GLenum format = ftk::gl::getReadPixelsFormat(_outputInfo.type);
             const GLenum type = ftk::gl::getReadPixelsType(_outputInfo.type);
             if (GL_NONE == format || GL_NONE == type)

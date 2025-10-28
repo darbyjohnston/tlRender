@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <feather-tk/core/Util.h>
+#include <ftk/Core/Util.h>
 
 #include <QObject>
 

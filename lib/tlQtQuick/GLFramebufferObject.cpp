@@ -8,8 +8,8 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <feather-tk/gl/Init.h>
-#include <feather-tk/core/Context.h>
+#include <ftk/GL/Init.h>
+#include <ftk/Core/Context.h>
 
 #include <QOpenGLFramebufferObject>
 

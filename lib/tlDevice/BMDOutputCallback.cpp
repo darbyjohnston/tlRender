@@ -20,7 +20,7 @@ namespace tl
 
         DLOutputCallback::DLOutputCallback(
             IDeckLinkOutput* dlOutput,
-            const feather_tk::Size2I& size,
+            const ftk::Size2I& size,
             PixelType pixelType,
             const FrameRate& frameRate,
             int videoFrameDelay,

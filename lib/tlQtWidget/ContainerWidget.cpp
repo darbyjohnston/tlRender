@@ -8,14 +8,14 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <feather-tk/ui/IWindow.h>
-#include <feather-tk/ui/RowLayout.h>
-#include <feather-tk/ui/IconSystem.h>
-#include <feather-tk/gl/Init.h>
-#include <feather-tk/gl/Mesh.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/gl/Shader.h>
-#include <feather-tk/core/Context.h>
+#include <ftk/UI/IWindow.h>
+#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/IconSystem.h>
+#include <ftk/GL/Init.h>
+#include <ftk/GL/Mesh.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Shader.h>
+#include <ftk/Core/Context.h>
 
 #include <QDragEnterEvent>
 #include <QDragMoveEvent>
@@ -699,7 +699,7 @@ namespace tl
 
         bool ContainerWidget::_hasSizeUpdate(const std::shared_ptr<ftk::IWidget>& widget) const
         {
-            bool out = widget->getUpdates() & static_cast<int>(ftk::Update::Size);
+            bool out = widget->hasSizeUpdate();
             if (out)
             {
                 //std::cout << "Size update: " << widget->getObjectName() << std::endl;
@@ -778,7 +778,7 @@ namespace tl
             bool out = false;
             if (!widget->isClipped())
             {
-                out = widget->getUpdates() & static_cast<int>(ftk::Update::Draw);
+                out = widget->hasDrawUpdate();
                 if (out)
                 {
                     //std::cout << "Draw update: " << widget->getObjectName() << std::endl;

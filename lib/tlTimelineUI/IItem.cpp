@@ -180,8 +180,8 @@ namespace tl
             if (value == _scale)
                 return;
             _scale = value;
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
 
         void IItem::setOptions(const ItemOptions& value)
@@ -194,8 +194,8 @@ namespace tl
             if (value == _displayOptions)
                 return;
             _displayOptions = value;
-            _setSizeUpdate();
-            _setDrawUpdate();
+            setSizeUpdate();
+            setDrawUpdate();
         }
 
         ftk::ColorRole IItem::getSelectRole() const
@@ -209,7 +209,7 @@ namespace tl
             if (value == p.selectRole)
                 return;
             p.selectRole = value;
-            _setDrawUpdate();
+            setDrawUpdate();
         }
 
         OTIO_NS::RationalTime IItem::posToTime(float value) const
