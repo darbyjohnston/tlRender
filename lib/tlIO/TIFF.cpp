@@ -4,7 +4,7 @@
 
 #include <tlIO/TIFF.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 #include <tiffio.h>
 

@@ -9,9 +9,9 @@
 #include <tlCore/ISystem.h>
 #include <tlCore/Path.h>
 
-#include <feather-tk/core/FileIO.h>
-#include <feather-tk/core/Image.h>
-#include <feather-tk/core/Mesh.h>
+#include <ftk/Core/FileIO.h>
+#include <ftk/Core/Image.h>
+#include <ftk/Core/Mesh.h>
 
 #include <future>
 

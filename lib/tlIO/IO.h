@@ -7,7 +7,7 @@
 #include <tlCore/Audio.h>
 #include <tlCore/Time.h>
 
-#include <feather-tk/core/Image.h>
+#include <ftk/Core/Image.h>
 
 namespace tl
 {

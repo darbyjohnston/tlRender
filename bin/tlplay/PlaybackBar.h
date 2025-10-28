@@ -10,9 +10,9 @@
 #include <tlTimeline/Player.h>
 #include <tlTimeline/TimeUnits.h>
 
-#include <feather-tk/ui/Action.h>
-#include <feather-tk/ui/ComboBox.h>
-#include <feather-tk/ui/RowLayout.h>
+#include <ftk/UI/Action.h>
+#include <ftk/UI/ComboBox.h>
+#include <ftk/UI/RowLayout.h>
 
 namespace tl
 {

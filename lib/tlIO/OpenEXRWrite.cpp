@@ -4,7 +4,7 @@
 
 #include <tlIO/OpenEXRPrivate.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 #include <ImfRgbaFile.h>
 #include <ImfStandardAttributes.h>

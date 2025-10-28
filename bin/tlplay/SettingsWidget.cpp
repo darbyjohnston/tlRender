@@ -7,7 +7,7 @@
 #include "App.h"
 #include "SettingsModel.h"
 
-#include <feather-tk/ui/GroupBox.h>
+#include <ftk/UI/GroupBox.h>
 
 namespace tl
 {

@@ -9,8 +9,8 @@
 
 #include <tlIO/System.h>
 
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/Time.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/Time.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>

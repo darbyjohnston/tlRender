@@ -12,7 +12,7 @@
 
 #include <tlIO/STB.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 namespace tl
 {

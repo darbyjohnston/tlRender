@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/core/Range.h>
-#include <feather-tk/core/Util.h>
+#include <ftk/Core/Range.h>
+#include <ftk/Core/Util.h>
 
 #include <nlohmann/json.hpp>
 

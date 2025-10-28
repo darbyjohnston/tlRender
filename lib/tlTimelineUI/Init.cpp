@@ -8,8 +8,8 @@
 
 #include <tlTimeline/Init.h>
 
-#include <feather-tk/ui/Init.h>
-#include <feather-tk/ui/IconSystem.h>
+#include <ftk/UI/Init.h>
+#include <ftk/UI/IconSystem.h>
 
 namespace tl_resource
 {

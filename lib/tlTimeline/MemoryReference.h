@@ -6,7 +6,7 @@
 
 #include <tlCore/Time.h>
 
-#include <feather-tk/core/FileIO.h>
+#include <ftk/Core/FileIO.h>
 
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>

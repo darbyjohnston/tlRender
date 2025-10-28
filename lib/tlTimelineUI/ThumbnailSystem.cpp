@@ -12,13 +12,13 @@
 
 #include <tlCore/AudioResample.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Window.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LRUCache.h>
-#include <feather-tk/core/String.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Window.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LRUCache.h>
+#include <ftk/Core/String.h>
 
 #include <sstream>
 
@@ -761,10 +761,11 @@ namespace tl
                                         videoData.image,
                                         ftk::Box2I(0, 0, size.w, size.h));
                                     p.thumbnailThread.render->end();
-                                    image = ftk::Image::create(
-                                        size.w,
+                                    ftk::ImageInfo info(size.w,
                                         size.h,
                                         ftk::ImageType::RGBA_U8);
+                                    info.layout.mirror.y = true;
+                                    image = ftk::Image::create(info);
                                     glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                     glReadPixels(
                                         0,
@@ -817,10 +818,11 @@ namespace tl
                                             { videoData },
                                             { ftk::Box2I(0, 0, size.w, size.h) });
                                         p.thumbnailThread.render->end();
-                                        image = ftk::Image::create(
-                                            size.w,
+                                        ftk::ImageInfo info(size.w,
                                             size.h,
                                             ftk::ImageType::RGBA_U8);
+                                        info.layout.mirror.y = true;
+                                        image = ftk::Image::create(info);
                                         glPixelStorei(GL_PACK_ALIGNMENT, 1);
                                         glReadPixels(
                                             0,
@@ -897,8 +899,8 @@ namespace tl
                                 out->v.push_back(ftk::V2F(box.x() + box.w(), box.y()));
                                 out->v.push_back(ftk::V2F(box.x() + box.w(), box.y() + box.h()));
                                 out->v.push_back(ftk::V2F(box.x(), box.y() + box.h()));
-                                out->triangles.push_back(ftk::Triangle2({ j + 0, j + 1, j + 2 }));
-                                out->triangles.push_back(ftk::Triangle2({ j + 2, j + 3, j + 0 }));
+                                out->triangles.push_back(ftk::Triangle2({ j + 0, j + 2, j + 1 }));
+                                out->triangles.push_back(ftk::Triangle2({ j + 2, j + 0, j + 3 }));
                             }
                         }
                         break;

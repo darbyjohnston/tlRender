@@ -8,7 +8,7 @@
 #include <tlTimeline/TimeUnits.h>
 #include <tlTimeline/Timeline.h>
 
-#include <feather-tk/ui/IWidget.h>
+#include <ftk/UI/IMouseWidget.h>
 
 #include <opentimelineio/item.h>
 
@@ -128,7 +128,7 @@ namespace tl
         };
 
         //! Base class for items.
-        class IItem : public ftk::IWidget
+        class IItem : public ftk::IMouseWidget
         {
         protected:
             void _init(

@@ -6,8 +6,8 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <feather-tk/gl/Render.h>
-#include <feather-tk/core/LRUCache.h>
+#include <ftk/GL/Render.h>
+#include <ftk/Core/LRUCache.h>
 
 namespace tl
 {
@@ -42,7 +42,8 @@ namespace tl
             void drawTexture(
                 unsigned int,
                 const ftk::Box2I&,
-                const ftk::Color4F & = ftk::Color4F(1.F, 1.F, 1.F),
+                bool flipV = false,
+                const ftk::Color4F& = ftk::Color4F(1.F, 1.F, 1.F),
                 ftk::AlphaBlend = ftk::AlphaBlend::Straight) override;
             void drawBackground(
                 const std::vector<ftk::Box2I>&,

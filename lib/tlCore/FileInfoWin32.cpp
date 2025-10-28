@@ -4,7 +4,7 @@
 
 #include <tlCore/FileInfoPrivate.h>
 
-#include <feather-tk/core/String.h>
+#include <ftk/Core/String.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN

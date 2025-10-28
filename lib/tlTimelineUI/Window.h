@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <feather-tk/ui/Window.h>
+#include <ftk/UI/Window.h>
 
 namespace tl
 {

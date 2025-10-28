@@ -7,7 +7,7 @@
 #include "App.h"
 #include "FilesModel.h"
 
-#include <feather-tk/ui/ToolButton.h>
+#include <ftk/UI/ToolButton.h>
 
 namespace tl
 {

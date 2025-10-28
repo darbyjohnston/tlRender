@@ -8,8 +8,8 @@
 
 #include <tlTimeline/Util.h>
 
-#include <feather-tk/ui/DrawUtil.h>
-#include <feather-tk/core/RenderUtil.h>
+#include <ftk/UI/DrawUtil.h>
+#include <ftk/Core/RenderUtil.h>
 
 namespace tl
 {

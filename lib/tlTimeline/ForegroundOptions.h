@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <feather-tk/core/Color.h>
-#include <feather-tk/core/Size.h>
-#include <feather-tk/core/Util.h>
+#include <ftk/Core/Color.h>
+#include <ftk/Core/Size.h>
+#include <ftk/Core/Util.h>
 
 namespace tl
 {

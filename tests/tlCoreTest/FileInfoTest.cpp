@@ -6,7 +6,7 @@
 
 #include <tlCore/FileInfo.h>
 
-#include <feather-tk/core/FileIO.h>
+#include <ftk/Core/FileIO.h>
 
 #include <cstdio>
 #include <sstream>

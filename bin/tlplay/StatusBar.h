@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/ui/Label.h>
-#include <feather-tk/core/Timer.h>
+#include <ftk/UI/Label.h>
+#include <ftk/Core/Timer.h>
 
 namespace tl
 {

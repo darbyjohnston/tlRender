@@ -6,9 +6,9 @@
 
 #include <tlTimeline/Player.h>
 
-#include <feather-tk/ui/DoubleEdit.h>
-#include <feather-tk/ui/FormLayout.h>
-#include <feather-tk/ui/RowLayout.h>
+#include <ftk/UI/DoubleEdit.h>
+#include <ftk/UI/FormLayout.h>
+#include <ftk/UI/RowLayout.h>
 
 namespace tl
 {

@@ -11,9 +11,9 @@
 
 #include <tlTimeline/Util.h>
 
-#include <feather-tk/ui/DialogSystem.h>
-#include <feather-tk/ui/FileBrowser.h>
-#include <feather-tk/core/File.h>
+#include <ftk/UI/DialogSystem.h>
+#include <ftk/UI/FileBrowser.h>
+#include <ftk/Core/File.h>
 
 namespace tl
 {
@@ -90,9 +90,7 @@ namespace tl
                 [this](const std::filesystem::path& value)
                 {
                     open(value);
-                },
-                std::filesystem::path(),
-                ftk::FileBrowserMode::File);
+                });
         }
 
         void App::reload()

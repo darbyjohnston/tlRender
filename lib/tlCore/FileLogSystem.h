@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <feather-tk/core/ISystem.h>
+#include <ftk/Core/ISystem.h>
 
 #include <filesystem>
 

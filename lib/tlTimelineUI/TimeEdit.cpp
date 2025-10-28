@@ -6,9 +6,9 @@
 
 #include <tlTimeline/TimeUnits.h>
 
-#include <feather-tk/ui/LineEdit.h>
-#include <feather-tk/ui/IncButtons.h>
-#include <feather-tk/ui/RowLayout.h>
+#include <ftk/UI/LineEdit.h>
+#include <ftk/UI/IncButtons.h>
+#include <ftk/UI/RowLayout.h>
 
 namespace tl
 {

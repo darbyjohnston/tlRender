@@ -10,10 +10,10 @@
 
 #include <tlTimeline/Util.h>
 
-#include <feather-tk/ui/DrawUtil.h>
-#include <feather-tk/ui/ScrollArea.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/UI/DrawUtil.h>
+#include <ftk/UI/ScrollArea.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
 
 namespace tl
 {
@@ -273,7 +273,7 @@ namespace tl
 
         void TimelineItem::setGeometry(const ftk::Box2I& value)
         {
-            IWidget::setGeometry(value);
+            IItem::setGeometry(value);
             FTK_P();
 
             float y =
@@ -438,7 +438,7 @@ namespace tl
 
         void TimelineItem::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
-            IWidget::mouseMoveEvent(event);
+            IItem::mouseMoveEvent(event);
             FTK_P();
             switch (p.mouseMode)
             {
@@ -455,7 +455,7 @@ namespace tl
 
         void TimelineItem::mousePressEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mousePressEvent(event);
+            IItem::mousePressEvent(event);
             FTK_P();
             if (_options.inputEnabled &&
                 1 == event.button &&
@@ -477,7 +477,7 @@ namespace tl
 
         void TimelineItem::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mouseReleaseEvent(event);
+            IItem::mouseReleaseEvent(event);
             FTK_P();
             p.scrub->setIfChanged(false);
             p.mouseMode = Private::MouseMode::None;
@@ -678,8 +678,8 @@ namespace tl
                         mesh.v.push_back(ftk::V2F(box.max.x + 1, box.min.y));
                         mesh.v.push_back(ftk::V2F(box.max.x + 1, box.max.y + 1));
                         mesh.v.push_back(ftk::V2F(box.min.x, box.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        mesh.triangles.push_back({ i + 0, i + 2, i + 1 });
+                        mesh.triangles.push_back({ i + 2, i + 0, i + 3 });
                         i += 4;
                     }
                 }
@@ -716,8 +716,8 @@ namespace tl
                         mesh.v.push_back(ftk::V2F(box.max.x + 1, box.min.y));
                         mesh.v.push_back(ftk::V2F(box.max.x + 1, box.max.y + 1));
                         mesh.v.push_back(ftk::V2F(box.min.x, box.max.y + 1));
-                        mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                        mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                        mesh.triangles.push_back({ i + 0, i + 2, i + 1 });
+                        mesh.triangles.push_back({ i + 2, i + 0, i + 3 });
                         i += 4;
                     }
                 }
@@ -817,8 +817,8 @@ namespace tl
                             mesh.v.push_back(ftk::V2F(box.max.x + 1, box.min.y));
                             mesh.v.push_back(ftk::V2F(box.max.x + 1, box.max.y + 1));
                             mesh.v.push_back(ftk::V2F(box.min.x, box.max.y + 1));
-                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            mesh.triangles.push_back({ i + 0, i + 2, i + 1 });
+                            mesh.triangles.push_back({ i + 2, i + 0, i + 3 });
                             i += 4;
                         }
                     }
@@ -860,8 +860,8 @@ namespace tl
                             mesh.v.push_back(ftk::V2F(box.max.x + 1, box.min.y));
                             mesh.v.push_back(ftk::V2F(box.max.x + 1, box.max.y + 1));
                             mesh.v.push_back(ftk::V2F(box.min.x, box.max.y + 1));
-                            mesh.triangles.push_back({ i + 0, i + 1, i + 2 });
-                            mesh.triangles.push_back({ i + 2, i + 3, i + 0 });
+                            mesh.triangles.push_back({ i + 0, i + 2, i + 1 });
+                            mesh.triangles.push_back({ i + 2, i + 0, i + 3 });
                             i += 4;
                         }
                     }

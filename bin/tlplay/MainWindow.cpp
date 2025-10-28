@@ -18,9 +18,9 @@
 #include "ViewActions.h"
 #include "WindowActions.h"
 
-#include <feather-tk/ui/Divider.h>
-#include <feather-tk/ui/Menu.h>
-#include <feather-tk/ui/ToolBar.h>
+#include <ftk/UI/Divider.h>
+#include <ftk/UI/Menu.h>
+#include <ftk/UI/ToolBar.h>
 
 namespace tl
 {
@@ -83,7 +83,8 @@ namespace tl
                 context,
                 app->getTimeUnitsModel());
             timelineui::DisplayOptions timelineDisplayOptions;
-            timelineDisplayOptions.thumbnails = false;
+            timelineDisplayOptions.minimize = false;
+            //timelineDisplayOptions.thumbnails = false;
             _timelineWidget->setDisplayOptions(timelineDisplayOptions);
             _timelineWidget->setVStretch(ftk::Stretch::Expanding);
 

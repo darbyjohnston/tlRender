@@ -6,8 +6,8 @@
 
 #include <tlTimeline/TimeUnits.h>
 
-#include <feather-tk/ui/App.h>
-#include <feather-tk/core/CmdLine.h>
+#include <ftk/UI/App.h>
+#include <ftk/Core/CmdLine.h>
 
 namespace tl
 {

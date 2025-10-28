@@ -9,7 +9,7 @@
 
 #include <tlTimeline/Player.h>
 
-#include <feather-tk/ui/TabBar.h>
+#include <ftk/UI/TabBar.h>
 
 namespace tl
 {

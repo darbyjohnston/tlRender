@@ -10,10 +10,10 @@
 
 #include <tlTimeline/Player.h>
 
-#include <feather-tk/ui/MainWindow.h>
-#include <feather-tk/ui/MenuBar.h>
-#include <feather-tk/ui/RowLayout.h>
-#include <feather-tk/ui/Splitter.h>
+#include <ftk/UI/MainWindow.h>
+#include <ftk/UI/MenuBar.h>
+#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/Splitter.h>
 
 namespace tl
 {

@@ -4,10 +4,10 @@
 
 #include <tlIO/PNGPrivate.h>
 
-#include <feather-tk/core/Error.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/Memory.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/Memory.h>
+#include <ftk/Core/String.h>
 
 namespace tl
 {

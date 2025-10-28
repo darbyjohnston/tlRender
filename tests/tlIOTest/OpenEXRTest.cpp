@@ -7,8 +7,8 @@
 #include <tlIO/OpenEXR.h>
 #include <tlIO/System.h>
 
-#include <feather-tk/core/Assert.h>
-#include <feather-tk/core/FileIO.h>
+#include <ftk/Core/Assert.h>
+#include <ftk/Core/FileIO.h>
 
 #include <sstream>
 

@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <feather-tk/core/Image.h>
-#include <feather-tk/core/Matrix.h>
-#include <feather-tk/core/RenderOptions.h>
+#include <ftk/Core/Image.h>
+#include <ftk/Core/Matrix.h>
+#include <ftk/Core/RenderOptions.h>
 
 namespace tl
 {

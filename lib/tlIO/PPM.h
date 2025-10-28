@@ -6,7 +6,7 @@
 
 #include <tlIO/SequenceIO.h>
 
-#include <feather-tk/core/Util.h>
+#include <ftk/Core/Util.h>
 
 namespace tl
 {

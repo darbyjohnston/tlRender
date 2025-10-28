@@ -4,9 +4,9 @@
 
 #include <tlTimelineUI/TimelineWidget.h>
 
-#include <feather-tk/ui/ScrollWidget.h>
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Window.h>
+#include <ftk/UI/ScrollWidget.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Window.h>
 
 namespace tl
 {
@@ -69,7 +69,7 @@ namespace tl
             const std::shared_ptr<timeline::ITimeUnitsModel>& timeUnitsModel,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, "tl::timelineui::TimelineWidget", parent);
+            IMouseWidget::_init(context, "tl::timelineui::TimelineWidget", parent);
             FTK_P();
 
             _setMouseHoverEnabled(true);
@@ -384,7 +384,7 @@ namespace tl
         void TimelineWidget::setGeometry(const ftk::Box2I& value)
         {
             const bool changed = value != getGeometry();
-            IWidget::setGeometry(value);
+            IMouseWidget::setGeometry(value);
             FTK_P();
             p.scrollWidget->setGeometry(value);
             if (p.sizeInit || (changed && p.frameView->get()))
@@ -406,12 +406,11 @@ namespace tl
             bool parentsEnabled,
             const ftk::TickEvent& event)
         {
-            IWidget::tickEvent(parentsVisible, parentsEnabled, event);
+            IMouseWidget::tickEvent(parentsVisible, parentsEnabled, event);
         }
 
         void TimelineWidget::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
-            IWidget::sizeHintEvent(event);
             FTK_P();
             _setSizeHint(p.scrollWidget->getSizeHint());
             p.sizeInit |= event.displayScale != p.displayScale;
@@ -420,7 +419,7 @@ namespace tl
 
         void TimelineWidget::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
-            IWidget::mouseMoveEvent(event);
+            IMouseWidget::mouseMoveEvent(event);
             FTK_P();
             switch (p.mouse.mode)
             {
@@ -437,7 +436,7 @@ namespace tl
 
         void TimelineWidget::mousePressEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mousePressEvent(event);
+            IMouseWidget::mousePressEvent(event);
             FTK_P();
             if (p.itemOptions->get().inputEnabled &&
                 p.scrollBinding.first == event.button &&
@@ -455,7 +454,7 @@ namespace tl
 
         void TimelineWidget::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mouseReleaseEvent(event);
+            IMouseWidget::mouseReleaseEvent(event);
             FTK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
@@ -502,13 +501,6 @@ namespace tl
         void TimelineWidget::keyReleaseEvent(ftk::KeyEvent& event)
         {
             event.accept = true;
-        }
-
-        void TimelineWidget::_releaseMouse()
-        {
-            IWidget::_releaseMouse();
-            FTK_P();
-            p.mouse.mode = Private::MouseMode::None;
         }
 
         void TimelineWidget::_setViewZoom(

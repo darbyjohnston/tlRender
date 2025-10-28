@@ -2,7 +2,7 @@
 // Copyright (c) 2021-2024 Darby Johnston
 // All rights reserved.
 
-#include <feather-tk/core/IApp.h>
+#include <ftk/Core/IApp.h>
 
 namespace ftk
 {

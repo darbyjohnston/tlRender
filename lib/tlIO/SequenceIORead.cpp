@@ -4,8 +4,8 @@
 
 #include <tlIO/SequenceIOReadPrivate.h>
 
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LogSystem.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LogSystem.h>
 
 #include <cstring>
 #include <sstream>

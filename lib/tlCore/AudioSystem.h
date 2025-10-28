@@ -7,8 +7,8 @@
 #include <tlCore/Audio.h>
 #include <tlCore/ISystem.h>
 
-#include <feather-tk/core/ObservableList.h>
-#include <feather-tk/core/ObservableValue.h>
+#include <ftk/Core/ObservableList.h>
+#include <ftk/Core/ObservableValue.h>
 
 namespace tl
 {

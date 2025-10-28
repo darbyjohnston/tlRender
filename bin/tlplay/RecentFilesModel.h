@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/ui/RecentFilesModel.h>
-#include <feather-tk/ui/Settings.h>
+#include <ftk/UI/RecentFilesModel.h>
+#include <ftk/UI/Settings.h>
 
 namespace tl
 {

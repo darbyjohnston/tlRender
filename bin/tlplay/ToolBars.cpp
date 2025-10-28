@@ -9,7 +9,7 @@
 #include "ViewActions.h"
 #include "WindowActions.h"
 
-#include <feather-tk/ui/Divider.h>
+#include <ftk/UI/Divider.h>
 
 namespace tl
 {

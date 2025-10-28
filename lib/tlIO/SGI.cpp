@@ -4,7 +4,7 @@
 
 #include <tlIO/SGI.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 #include <array>
 #include <sstream>

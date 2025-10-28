@@ -8,7 +8,7 @@
 
 #include <tlIO/Read.h>
 
-#include <feather-tk/core/LRUCache.h>
+#include <ftk/Core/LRUCache.h>
 
 #include <opentimelineio/clip.h>
 

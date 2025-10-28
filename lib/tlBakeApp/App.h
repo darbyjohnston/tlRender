@@ -16,9 +16,9 @@
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
 
-#include <feather-tk/core/CmdLine.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/core/IApp.h>
+#include <ftk/Core/CmdLine.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/Core/IApp.h>
 
 namespace ftk
 {

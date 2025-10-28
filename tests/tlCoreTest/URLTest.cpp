@@ -6,7 +6,7 @@
 
 #include <tlCore/URL.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 #include <sstream>
 

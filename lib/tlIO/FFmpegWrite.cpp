@@ -4,7 +4,7 @@
 
 #include <tlIO/FFmpegPrivate.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 extern "C"
 {

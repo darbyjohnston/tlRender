@@ -6,8 +6,8 @@
 
 #include <tlTimeline/MemoryReference.h>
 
-#include <feather-tk/core/Assert.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Assert.h>
+#include <ftk/Core/String.h>
 
 using namespace tl::timeline;
 

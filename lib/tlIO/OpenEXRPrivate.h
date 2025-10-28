@@ -6,7 +6,7 @@
 
 #include <tlIO/OpenEXR.h>
 
-#include <feather-tk/core/Box.h>
+#include <ftk/Core/Box.h>
 
 #include <ImathBox.h>
 #include <ImfHeader.h>

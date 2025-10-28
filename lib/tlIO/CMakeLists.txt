@@ -85,7 +85,7 @@ if(TLRENDER_WMF)
     list(APPEND SOURCE WMF.cpp WMFRead.cpp)
     list(APPEND LIBRARIES_PRIVATE mf mfplat mfreadwrite mfuuid propsys wmcodecdspuuid)
 endif()
-list(APPEND LIBRARIES tlCore ftk::feather-tk-gl)
+list(APPEND LIBRARIES tlCore ftk::ftkGL)
 
 add_library(tlIO ${HEADERS})
 target_sources(tlIO PRIVATE ${HEADERS_PRIVATE} ${SOURCE})

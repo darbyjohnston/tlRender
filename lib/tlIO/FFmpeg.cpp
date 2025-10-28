@@ -4,9 +4,9 @@
 
 #include <tlIO/FFmpegPrivate.h>
 
-#include <feather-tk/core/Assert.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LogSystem.h>
+#include <ftk/Core/Assert.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LogSystem.h>
 
 extern "C"
 {

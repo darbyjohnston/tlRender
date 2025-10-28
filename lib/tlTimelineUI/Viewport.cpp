@@ -6,13 +6,13 @@
 
 #include <tlTimeline/IRender.h>
 
-#include <feather-tk/ui/DrawUtil.h>
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/gl/Util.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/LogSystem.h>
-#include <feather-tk/core/RenderUtil.h>
+#include <ftk/UI/DrawUtil.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Util.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/LogSystem.h>
+#include <ftk/Core/RenderUtil.h>
 
 #include <cmath>
 
@@ -81,7 +81,7 @@ namespace tl
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, "tl::timelineui::Viewport", parent);
+            IMouseWidget::_init(context, "tl::timelineui::Viewport", parent);
             FTK_P();
 
             setHStretch(ftk::Stretch::Expanding);
@@ -528,7 +528,7 @@ namespace tl
         void Viewport::setGeometry(const ftk::Box2I& value)
         {
             const bool changed = value != getGeometry();
-            IWidget::setGeometry(value);
+            IMouseWidget::setGeometry(value);
             FTK_P();
             if (changed)
             {
@@ -538,7 +538,6 @@ namespace tl
 
         void Viewport::sizeHintEvent(const ftk::SizeHintEvent& event)
         {
-            IWidget::sizeHintEvent(event);
             const int sa = event.style->getSizeRole(ftk::SizeRole::ScrollArea, event.displayScale);
             _setSizeHint(ftk::Size2I(sa, sa));
         }
@@ -600,17 +599,17 @@ namespace tl
                     const auto pm = ftk::ortho(
                         0.F,
                         static_cast<float>(g.w()),
-                        0.F,
                         static_cast<float>(g.h()),
+                        0.F,
                         -1.F,
                         1.F);
                     const timeline::CompareOptions& compareOptions = p.compareOptions->get();
                     const auto boxes = timeline::getBoxes(compareOptions.compare, p.videoData);
-                    ftk::M44F vm;
                     const ftk::V2I& viewPos = p.viewPos->get();
                     const double viewZoom = p.viewZoom->get();
-                    vm = vm * ftk::translate(ftk::V3F(viewPos.x, viewPos.y, 0.F));
-                    vm = vm * ftk::scale(ftk::V3F(viewZoom, viewZoom, 1.F));
+                    const ftk::M44F vm =
+                        ftk::translate(ftk::V3F(viewPos.x, viewPos.y, 0.F)) *
+                        ftk::scale(ftk::V3F(viewZoom, viewZoom, 1.F));
 
                     // Setup the state.
                     const ftk::ViewportState viewportState(render);
@@ -685,6 +684,7 @@ namespace tl
                 render->drawTexture(
                     p.buffer->getColorID(),
                     g,
+                    false,
                     ftk::Color4F(1.F, 1.F, 1.F),
                     alphaBlend);
             }
@@ -696,7 +696,7 @@ namespace tl
 
         void Viewport::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
-            IWidget::mouseMoveEvent(event);
+            IMouseWidget::mouseMoveEvent(event);
             FTK_P();
             switch (p.mouse.mode)
             {
@@ -748,7 +748,7 @@ namespace tl
 
         void Viewport::mousePressEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mousePressEvent(event);
+            IMouseWidget::mousePressEvent(event);
             FTK_P();
             takeKeyFocus();
             if (p.panBinding.first == event.button &&
@@ -766,7 +766,7 @@ namespace tl
 
         void Viewport::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
-            IWidget::mouseReleaseEvent(event);
+            IMouseWidget::mouseReleaseEvent(event);
             FTK_P();
             p.mouse.mode = Private::MouseMode::None;
         }
@@ -827,13 +827,6 @@ namespace tl
         void Viewport::keyReleaseEvent(ftk::KeyEvent& event)
         {
             event.accept = true;
-        }
-
-        void Viewport::_releaseMouse()
-        {
-            IWidget::_releaseMouse();
-            FTK_P();
-            p.mouse.mode = Private::MouseMode::None;
         }
 
         ftk::Size2I Viewport::_getRenderSize() const

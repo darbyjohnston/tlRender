@@ -28,7 +28,7 @@ namespace tl
                 "\n"
                 "void main()\n"
                 "{\n"
-                "    gl_Position = vec4(vPos, 1.0) * transform.mvp;\n"
+                "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
                 "    fTexture = vTexture;\n"
                 "}\n";
         }

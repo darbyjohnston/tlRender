@@ -10,7 +10,7 @@
 
 #include <tlCore/Path.h>
 
-#include <feather-tk/core/ObservableValue.h>
+#include <ftk/Core/ObservableValue.h>
 
 #include <opentimelineio/timeline.h>
 

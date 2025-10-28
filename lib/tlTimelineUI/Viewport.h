@@ -10,14 +10,14 @@
 #include <tlTimeline/ForegroundOptions.h>
 #include <tlTimeline/Player.h>
 
-#include <feather-tk/ui/IWidget.h>
+#include <ftk/UI/IMouseWidget.h>
 
 namespace tl
 {
     namespace timelineui
     {
         //! Timeline viewport.
-        class Viewport : public ftk::IWidget
+        class Viewport : public ftk::IMouseWidget
         {
             FTK_NON_COPYABLE(Viewport);
 
@@ -192,9 +192,6 @@ namespace tl
             void scrollEvent(ftk::ScrollEvent&) override;
             void keyPressEvent(ftk::KeyEvent&) override;
             void keyReleaseEvent(ftk::KeyEvent&) override;
-
-        protected:
-            void _releaseMouse() override;
 
         private:
             ftk::Size2I _getRenderSize() const;

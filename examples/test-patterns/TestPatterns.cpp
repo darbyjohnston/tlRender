@@ -4,9 +4,9 @@
 
 #include "TestPatterns.h"
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/Math.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/Math.h>
 
 #include <cmath>
 

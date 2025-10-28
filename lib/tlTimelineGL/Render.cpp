@@ -4,11 +4,11 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Util.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Util.h>
 
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LogSystem.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LogSystem.h>
 
 #include <array>
 #include <list>

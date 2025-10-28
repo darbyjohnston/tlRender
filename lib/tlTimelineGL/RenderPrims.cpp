@@ -4,7 +4,7 @@
 
 #include <tlTimelineGL/RenderPrivate.h>
 
-#include <feather-tk/gl/GL.h>
+#include <ftk/GL/GL.h>
 
 namespace tl
 {
@@ -60,10 +60,11 @@ namespace tl
         void Render::drawTexture(
             unsigned int id,
             const ftk::Box2I& rect,
+            bool flipV,
             const ftk::Color4F& color,
             ftk::AlphaBlend alphaBlend)
         {
-            _p->baseRender->drawTexture(id, rect, color, alphaBlend);
+            _p->baseRender->drawTexture(id, rect, flipV, color, alphaBlend);
         }
 
         void Render::drawText(

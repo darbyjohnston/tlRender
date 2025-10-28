@@ -11,7 +11,7 @@
 #include <tlTimeline/ForegroundOptions.h>
 #include <tlTimeline/Video.h>
 
-#include <feather-tk/core/IRender.h>
+#include <ftk/Core/IRender.h>
 
 namespace tl
 {

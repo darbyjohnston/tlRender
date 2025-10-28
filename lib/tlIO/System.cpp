@@ -33,8 +33,8 @@
 #include <tlIO/WMF.h>
 #endif // TLRENDER_WMF
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/String.h>
 
 #include <iomanip>
 #include <sstream>

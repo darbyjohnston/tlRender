@@ -14,7 +14,7 @@ namespace tl
         //! 
         //! \tool Adjust the current frame label to stay visible on the right
         //! side of the timeline widget.
-        class TimelineWidget : public ftk::IWidget
+        class TimelineWidget : public ftk::IMouseWidget
         {
             FTK_NON_COPYABLE(TimelineWidget);
 
@@ -159,9 +159,6 @@ namespace tl
             void scrollEvent(ftk::ScrollEvent&) override;
             void keyPressEvent(ftk::KeyEvent&) override;
             void keyReleaseEvent(ftk::KeyEvent&) override;
-
-        protected:
-            void _releaseMouse() override;
 
         private:
             void _setViewZoom(

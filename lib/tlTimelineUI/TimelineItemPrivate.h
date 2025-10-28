@@ -6,8 +6,8 @@
 
 #include <tlTimelineUI/ThumbnailSystem.h>
 
-#include <feather-tk/ui/ToolButton.h>
-#include <feather-tk/ui/Label.h>
+#include <ftk/UI/ToolButton.h>
+#include <ftk/UI/Label.h>
 
 namespace tl
 {

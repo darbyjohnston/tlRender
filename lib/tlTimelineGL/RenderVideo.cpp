@@ -6,10 +6,10 @@
 
 #include <tlTimeline/RenderUtil.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Mesh.h>
-#include <feather-tk/gl/Util.h>
-#include <feather-tk/core/Math.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Mesh.h>
+#include <ftk/GL/Util.h>
+#include <ftk/Core/Math.h>
 
 namespace tl
 {
@@ -54,12 +54,12 @@ namespace tl
                     options.gradientColor.second.a));
                 mesh.triangles.push_back({
                     ftk::Vertex2(1, 0, 1),
-                    ftk::Vertex2(2, 0, 1),
-                    ftk::Vertex2(3, 0, 2), });
+                    ftk::Vertex2(3, 0, 1),
+                    ftk::Vertex2(2, 0, 2), });
                 mesh.triangles.push_back({
                     ftk::Vertex2(3, 0, 2),
-                    ftk::Vertex2(4, 0, 2),
-                    ftk::Vertex2(1, 0, 1), });
+                    ftk::Vertex2(1, 0, 2),
+                    ftk::Vertex2(4, 0, 1), });
                 drawColorMesh(
                     mesh,
                     ftk::Color4F(1.F, 1.F, 1.F));
@@ -242,8 +242,8 @@ namespace tl
                     mesh.v.push_back(pts[2]);
                     ftk::Triangle2 tri;
                     tri.v[0] = 1;
-                    tri.v[1] = 2;
-                    tri.v[2] = 3;
+                    tri.v[1] = 3;
+                    tri.v[2] = 2;
                     mesh.triangles.push_back(tri);
                     p.vbos["wipe"]->copy(convert(mesh, p.vbos["wipe"]->getType()));
                 }
@@ -284,8 +284,8 @@ namespace tl
                     mesh.v.push_back(pts[0]);
                     ftk::Triangle2 tri;
                     tri.v[0] = 1;
-                    tri.v[1] = 2;
-                    tri.v[2] = 3;
+                    tri.v[1] = 3;
+                    tri.v[2] = 2;
                     mesh.triangles.push_back(tri);
                     p.vbos["wipe"]->copy(convert(mesh, p.vbos["wipe"]->getType()));
                 }
@@ -405,7 +405,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            ftk::mesh(boxes[0], true),
+                            ftk::mesh(boxes[0]),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -562,7 +562,7 @@ namespace tl
                     if (p.vbos["video"])
                     {
                         p.vbos["video"]->copy(convert(
-                            ftk::mesh(boxes[0], true),
+                            ftk::mesh(boxes[0]),
                             p.vbos["video"]->getType()));
                     }
                     if (p.vaos["video"])
@@ -746,7 +746,7 @@ namespace tl
                                     if (p.vbos["video"])
                                     {
                                         p.vbos["video"]->copy(convert(
-                                            ftk::mesh(ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h), true),
+                                            ftk::mesh(ftk::Box2I(0, 0, offscreenBufferSize.w, offscreenBufferSize.h)),
                                             p.vbos["video"]->getType()));
                                     }
                                     if (p.vaos["video"])
@@ -886,7 +886,7 @@ namespace tl
                 if (p.vbos["video"])
                 {
                     p.vbos["video"]->copy(convert(
-                        ftk::mesh(box, true),
+                        ftk::mesh(box),
                         p.vbos["video"]->getType()));
                 }
                 if (p.vaos["video"])
@@ -907,8 +907,8 @@ namespace tl
         {
             if (options.grid.enabled && !boxes.empty())
             {
-                const ftk::V3F v0 = ftk::V3F(0.F, 0.F, 0.F) * m;
-                const ftk::V3F v1 = ftk::V3F(options.grid.size, 0.F, 0.F) * m;
+                const ftk::V3F v0 = m * ftk::V3F(0.F, 0.F, 0.F);
+                const ftk::V3F v1 = m * ftk::V3F(options.grid.size, 0.F, 0.F);
                 if (ftk::length(v1 - v0) > options.grid.lineWidth + 10.F)
                 {
                     ftk::Box2I bounds = boxes.front();
@@ -927,8 +927,8 @@ namespace tl
                     lineOptions.width = options.grid.lineWidth;
                     for (int y = bounds.min.y; y <= bounds.max.y + 1; y += options.grid.size)
                     {
-                        const ftk::V3F v0 = ftk::V3F(bounds.min.x, y, 0.F) * m;
-                        const ftk::V3F v1 = ftk::V3F(bounds.max.x + 1, y, 0.F) * m;
+                        const ftk::V3F v0 = m * ftk::V3F(bounds.min.x, y, 0.F);
+                        const ftk::V3F v1 = m * ftk::V3F(bounds.max.x + 1, y, 0.F);
                         const ftk::V2F v2(std::round(v0.x), std::round(v0.y));
                         const ftk::V2F v3(std::round(v1.x), std::round(v1.y));
                         if (ftk::intersects(ftk::Box2F(v2, v3), vp))
@@ -938,8 +938,8 @@ namespace tl
                     }
                     for (int x = bounds.min.x; x <= bounds.max.x + 1; x += options.grid.size)
                     {
-                        const ftk::V3F v0 = ftk::V3F(x, bounds.min.y, 0.F) * m;
-                        const ftk::V3F v1 = ftk::V3F(x, bounds.max.y + 1, 0.F) * m;
+                        const ftk::V3F v0 = m * ftk::V3F(x, bounds.min.y, 0.F);
+                        const ftk::V3F v1 = m * ftk::V3F(x, bounds.max.y + 1, 0.F);
                         const ftk::V2F v2(std::round(v0.x), std::round(v0.y));
                         const ftk::V2F v3(std::round(v1.x), std::round(v1.y));
                         if (ftk::intersects(ftk::Box2F(v2, v3), vp))
@@ -969,7 +969,7 @@ namespace tl
                 mesh.v.push_back(ftk::V2F(bounds.min.x, bounds.max.y + 1));
                 for (auto& v : mesh.v)
                 {
-                    const ftk::V3F v3 = ftk::V3F(v.x, v.y, 0.F) * m;
+                    const ftk::V3F v3 = m * ftk::V3F(v.x, v.y, 0.F);
                     v.x = v3.x;
                     v.y = v3.y;
                 }
@@ -989,14 +989,14 @@ namespace tl
                     ftk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
                     ftk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
                     mesh.v[3]));
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(2), ftk::Vertex2(5) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(5) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(3), ftk::Vertex2(6) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(6) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(4), ftk::Vertex2(7) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(7) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(1), ftk::Vertex2(8) });
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(2) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(5), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(3) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(6), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(4) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(7), ftk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(1) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(8), ftk::Vertex2(5) });
                 drawMesh(mesh, options.outline.color);
             }
         }

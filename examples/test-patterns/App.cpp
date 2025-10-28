@@ -10,12 +10,12 @@
 
 #include <tlIO/System.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/gl/Util.h>
-#include <feather-tk/gl/Window.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Util.h>
+#include <ftk/GL/Window.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/imageSequenceReference.h>

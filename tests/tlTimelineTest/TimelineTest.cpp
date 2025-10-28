@@ -9,7 +9,7 @@
 
 #include <tlIO/System.h>
 
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Format.h>
 
 #include <opentimelineio/clip.h>
 #include <opentimelineio/externalReference.h>

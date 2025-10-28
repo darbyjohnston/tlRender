@@ -4,9 +4,9 @@
 
 #include <tlCore/FileLogSystem.h>
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/FileIO.h>
-#include <feather-tk/core/Time.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/FileIO.h>
+#include <ftk/Core/Time.h>
 
 #include <atomic>
 #include <mutex>

@@ -6,10 +6,10 @@
 
 #include <tlIO/Cineon.h>
 
-#include <feather-tk/core/Error.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/Memory.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/Memory.h>
+#include <ftk/Core/String.h>
 
 #include <array>
 #include <cstring>
@@ -527,7 +527,7 @@ namespace tl
             // Set the file position.
             if (out.file.imageOffset)
             {
-                io->setPos(out.file.imageOffset);
+                io->seek(out.file.imageOffset, ftk::SeekMode::Set);
             }
 
             return out;
@@ -877,7 +877,7 @@ namespace tl
         void finishWrite(const std::shared_ptr<ftk::FileIO>& io)
         {
             const uint32_t size = static_cast<uint32_t>(io->getPos());
-            io->setPos(12);
+            io->seek(12, ftk::SeekMode::Set);
             io->writeU32(size);
         }
 

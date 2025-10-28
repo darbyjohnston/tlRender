@@ -6,9 +6,9 @@
 
 #include <tlTimeline/DisplayOptions.h>
 
-#include <feather-tk/core/Assert.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Assert.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 using namespace tl::timeline;
 
@@ -42,7 +42,7 @@ namespace tl
                 color.invert = true;
                 const ftk::V3F v(1.F, 1.F, 1.F);
                 const auto m = timeline::color(color);
-                _print(ftk::Format("{0} color: {1}").arg(v).arg(v * m));
+                _print(ftk::Format("{0} color: {1}").arg(v).arg(m * v));
             }
             {
                 Levels levels;

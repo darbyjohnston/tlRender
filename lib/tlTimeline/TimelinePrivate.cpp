@@ -8,11 +8,11 @@
 
 #include <tlIO/System.h>
 
-#include <feather-tk/core/Assert.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/String.h>
-#include <feather-tk/core/Time.h>
+#include <ftk/Core/Assert.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
+#include <ftk/Core/Time.h>
 
 #include <opentimelineio/transition.h>
 

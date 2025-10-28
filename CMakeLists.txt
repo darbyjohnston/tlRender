@@ -274,7 +274,7 @@ if(TLRENDER_WMF)
 endif()
 
 # feather-tk dependencies
-find_package(feather-tk REQUIRED)
+find_package(ftk REQUIRED)
 
 # Qt dependencies
 if(TLRENDER_QT6)

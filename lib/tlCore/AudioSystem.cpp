@@ -4,10 +4,10 @@
 
 #include <tlCore/AudioSystem.h>
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/String.h>
-#include <feather-tk/core/Time.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
+#include <ftk/Core/Time.h>
 
 #if defined(TLRENDER_SDL2)
 #include <SDL2/SDL.h>

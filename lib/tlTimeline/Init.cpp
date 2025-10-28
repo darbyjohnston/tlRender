@@ -8,8 +8,8 @@
 
 #include <tlIO/Init.h>
 
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
 
 #include <opentimelineio/typeRegistry.h>
 

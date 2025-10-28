@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/core/ISystem.h>
-#include <feather-tk/core/LogSystem.h>
+#include <ftk/Core/ISystem.h>
+#include <ftk/Core/LogSystem.h>
 
 namespace tl
 {

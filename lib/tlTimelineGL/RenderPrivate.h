@@ -6,11 +6,11 @@
 
 #include <tlTimelineGL/Render.h>
 
-#include <feather-tk/gl/Mesh.h>
-#include <feather-tk/gl/OffscreenBuffer.h>
-#include <feather-tk/gl/Render.h>
-#include <feather-tk/gl/Shader.h>
-#include <feather-tk/gl/TextureAtlas.h>
+#include <ftk/GL/Mesh.h>
+#include <ftk/GL/OffscreenBuffer.h>
+#include <ftk/GL/Render.h>
+#include <ftk/GL/Shader.h>
+#include <ftk/GL/TextureAtlas.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>

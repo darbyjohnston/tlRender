@@ -6,8 +6,8 @@
 
 #include <tlTimeline/Player.h>
 
-#include <feather-tk/ui/Menu.h>
-#include <feather-tk/ui/MenuBar.h>
+#include <ftk/UI/Menu.h>
+#include <ftk/UI/MenuBar.h>
 
 namespace tl
 {

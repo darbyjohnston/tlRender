@@ -4,9 +4,9 @@
 
 #include <tlTimelineUI/IItem.h>
 
-#include <feather-tk/core/Error.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/String.h>
+#include <ftk/Core/Error.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/String.h>
 
 #include <opentimelineio/marker.h>
 
@@ -144,7 +144,7 @@ namespace tl
             const std::shared_ptr<ItemData>& data,
             const std::shared_ptr<IWidget>& parent)
         {
-            IWidget::_init(context, objectName, parent);
+            IMouseWidget::_init(context, objectName, parent);
             FTK_P();
 
             _timeRange = timeRange;

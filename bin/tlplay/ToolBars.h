@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <feather-tk/ui/RowLayout.h>
-#include <feather-tk/ui/ToolBar.h>
+#include <ftk/UI/RowLayout.h>
+#include <ftk/UI/ToolBar.h>
 
 namespace tl
 {

@@ -4,8 +4,8 @@
 
 #include <tlIO/OpenEXRPrivate.h>
 
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/LogSystem.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/LogSystem.h>
 
 #include <ImfChannelList.h>
 #include <ImfFrameBuffer.h>
@@ -99,7 +99,7 @@ namespace tl
             FTK_P();
             if (p.f)
             {
-                p.f->setPos(pos);
+                p.f->seek(pos, ftk::SeekMode::Set);
             }
             p.pos = pos;
         }

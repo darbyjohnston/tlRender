@@ -10,14 +10,14 @@
 
 #include <tlCore/Time.h>
 
-#include <feather-tk/gl/GL.h>
-#include <feather-tk/gl/Util.h>
-#include <feather-tk/gl/Window.h>
-#include <feather-tk/core/CmdLine.h>
-#include <feather-tk/core/Context.h>
-#include <feather-tk/core/Format.h>
-#include <feather-tk/core/Math.h>
-#include <feather-tk/core/String.h>
+#include <ftk/GL/GL.h>
+#include <ftk/GL/Util.h>
+#include <ftk/GL/Window.h>
+#include <ftk/Core/CmdLine.h>
+#include <ftk/Core/Context.h>
+#include <ftk/Core/Format.h>
+#include <ftk/Core/Math.h>
+#include <ftk/Core/String.h>
 
 namespace tl
 {
