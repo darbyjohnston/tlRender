@@ -146,7 +146,7 @@ if(@TLRENDER_BMD@)
 endif()
 
 # feather-tk dependencies
-find_package(feather-tk REQUIRED)
+find_package(ftk REQUIRED)
 
 # Qt dependencies
 if(@TLRENDER_QT6@)
