@@ -123,17 +123,34 @@ namespace tl
 
             _filesModel = FilesModel::create(_context, _settingsModel);
 
+#if defined(TLRENDER_BMD)
+            _bmdOutputDevice = bmd::OutputDevice::create(_context);
+            bmd::DeviceConfig bmdConfig;
+            bmdConfig.deviceIndex = 0;
+            bmdConfig.displayModeIndex = 3;
+            bmdConfig.pixelType = bmd::PixelType::_8BitBGRA;
+            _bmdOutputDevice->setConfig(bmdConfig);
+            _bmdOutputDevice->setEnabled(true);
+#endif // TLRENDER_BMD
+
             _window = MainWindow::create(
                 _context,
                 std::dynamic_pointer_cast<App>(shared_from_this()));
             addWindow(_window);
 
+            _playerObserver = ftk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
+                _filesModel->observePlayer(),
+                [this](const std::shared_ptr<timeline::Player>& value)
+                {
+#if defined(TLRENDER_BMD)
+                    _bmdOutputDevice->setPlayer(value);
+#endif // TLRENDER_BMD
+                });
+
             for (const auto& input : _cmdLine.inputs->getList())
             {
                 open(std::filesystem::u8path(input));
             }
-
-            _window->show();
 
             ftk::App::run();
         }
@@ -141,6 +158,12 @@ namespace tl
         void App::_tick()
         {
             _filesModel->tick();
+#if defined(TLRENDER_BMD)
+            if (_bmdOutputDevice)
+            {
+                _bmdOutputDevice->tick();
+            }
+#endif // TLRENDER_BMD
         }
     }
 }

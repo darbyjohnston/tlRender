@@ -5,6 +5,7 @@
 #include "App.h"
 
 #include <tlTimelineUI/Init.h>
+#include <tlDevice/Init.h>
 
 int main(int argc, char* argv[])
 {
@@ -13,6 +14,7 @@ int main(int argc, char* argv[])
     {
         auto context = ftk::Context::create();
         tl::timelineui::init(context);
+        tl::device::init(context);
         auto args = ftk::convert(argc, argv);
         auto app = tl::play::App::create(context, args);
         r = app->getExit();

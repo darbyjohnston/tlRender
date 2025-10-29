@@ -62,6 +62,7 @@ namespace tl
 
         private:
             std::weak_ptr<App> _app;
+
             std::shared_ptr<timelineui::Viewport> _viewport;
             std::shared_ptr<FileActions> _fileActions;
             std::shared_ptr<CompareActions> _compareActions;
@@ -77,6 +78,7 @@ namespace tl
             std::shared_ptr<ftk::Splitter> _splitter;
             std::shared_ptr<ftk::Splitter> _splitter2;
             std::shared_ptr<ftk::VerticalLayout> _layout;
+
             std::shared_ptr<ftk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
             std::shared_ptr<ftk::ValueObserver<timeline::Compare> > _compareObserver;
         };

@@ -6,6 +6,10 @@
 
 #include <tlTimeline/TimeUnits.h>
 
+#if defined(TLRENDER_BMD)
+#include <tlDevice/BMDOutputDevice.h>
+#endif // TLRENDER_BMD
+
 #include <ftk/UI/App.h>
 #include <ftk/Core/CmdLine.h>
 
@@ -57,11 +61,19 @@ namespace tl
                 std::shared_ptr<ftk::CmdLineListArg<std::string> > inputs;
             };
             CmdLine _cmdLine;
+
             std::shared_ptr<SettingsModel> _settingsModel;
             std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
             std::shared_ptr<RecentFilesModel> _recentFilesModel;
             std::shared_ptr<FilesModel> _filesModel;
+
             std::shared_ptr<MainWindow> _window;
+
+#if defined(TLRENDER_BMD)
+            std::shared_ptr<bmd::OutputDevice> _bmdOutputDevice;
+#endif // TLRENDER_BMD
+
+            std::shared_ptr<ftk::ValueObserver<std::shared_ptr<timeline::Player> > > _playerObserver;
         };
     }
 }

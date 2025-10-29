@@ -53,10 +53,7 @@ namespace tl
             _fileActions = FileActions::create(context, app);
             _compareActions = CompareActions::create(context, app);
             _playbackActions = PlaybackActions::create(context, app);
-            _viewActions = ViewActions::create(
-                context,
-                app,
-                std::dynamic_pointer_cast<MainWindow>(shared_from_this()));
+            _viewActions = ViewActions::create(context, app, _viewport);
             _windowActions = WindowActions::create(
                 context,
                 app,

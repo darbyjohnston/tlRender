@@ -5,7 +5,6 @@
 #include "ViewActions.h"
 
 #include "App.h"
-#include "MainWindow.h"
 
 #include <tlTimelineUI/Viewport.h>
 
@@ -16,19 +15,19 @@ namespace tl
         void ViewActions::_init(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<MainWindow>& mainWindow)
+            const std::shared_ptr<timelineui::Viewport>& viewport)
         {
-            auto mainWindowWeak = std::weak_ptr<MainWindow>(mainWindow);
+            auto viewportWeak = std::weak_ptr<timelineui::Viewport>(viewport);
             _actions["Frame"] = ftk::Action::create(
                 "Frame",
                 "ViewFrame",
                 ftk::Key::Backspace,
                 0,
-                [mainWindowWeak](bool value)
+                [viewportWeak](bool value)
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto viewport = viewportWeak.lock())
                     {
-                        mainWindow->getViewport()->setFrameView(value);
+                        viewport->setFrameView(value);
                     }
                 });
             _actions["Frame"]->setTooltip("Toggle whether the view is automatically framed.");
@@ -38,11 +37,11 @@ namespace tl
                 "ViewZoomReset",
                 ftk::Key::_0,
                 0,
-                [mainWindowWeak]
+                [viewportWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto viewport = viewportWeak.lock())
                     {
-                        mainWindow->getViewport()->viewZoomReset();
+                        viewport->viewZoomReset();
                     }
                 });
             _actions["ZoomReset"]->setTooltip("Reset the view zoom to 1:1.");
@@ -52,11 +51,11 @@ namespace tl
                 "ViewZoomIn",
                 ftk::Key::Equals,
                 0,
-                [mainWindowWeak]
+                [viewportWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto viewport = viewportWeak.lock())
                     {
-                        mainWindow->getViewport()->viewZoomIn();
+                        viewport->viewZoomIn();
                     }
                 });
             _actions["ZoomIn"]->setTooltip("Zoom the view in.");
@@ -66,17 +65,17 @@ namespace tl
                 "ViewZoomOut",
                 ftk::Key::Minus,
                 0,
-                [mainWindowWeak]
+                [viewportWeak]
                 {
-                    if (auto mainWindow = mainWindowWeak.lock())
+                    if (auto viewport = viewportWeak.lock())
                     {
-                        mainWindow->getViewport()->viewZoomOut();
+                        viewport->viewZoomOut();
                     }
                 });
             _actions["ZoomOut"]->setTooltip("Zoom the view out.");
 
             _frameObserver = ftk::ValueObserver<bool>::create(
-                mainWindow->getViewport()->observeFrameView(),
+                viewport->observeFrameView(),
                 [this](bool value)
                 {
                     _actions["Frame"]->setChecked(value);
@@ -84,16 +83,15 @@ namespace tl
         }
 
         ViewActions::~ViewActions()
-        {
-        }
+        {}
 
         std::shared_ptr<ViewActions> ViewActions::create(
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app,
-            const std::shared_ptr<MainWindow>& mainWindow)
+            const std::shared_ptr<timelineui::Viewport>& viewport)
         {
             auto out = std::shared_ptr<ViewActions>(new ViewActions);
-            out->_init(context, app, mainWindow);
+            out->_init(context, app, viewport);
             return out;
         }
 

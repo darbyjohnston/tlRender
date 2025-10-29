@@ -153,9 +153,15 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+#if defined(_WINDOWS)
+                    CoInitialize(NULL);
+#endif // _WINDOWS
                     p.window->makeCurrent();
                     _run();
                     p.window->clearCurrent();
+#if defined(_WINDOWS)
+                    CoUninitialize();
+#endif // _WINDOWS
                 });
         }
 
@@ -1043,8 +1049,8 @@ namespace tl
                 const auto pm = ftk::ortho(
                     0.F,
                     static_cast<float>(p.thread.size.w),
-                    0.F,
                     static_cast<float>(p.thread.size.h),
+                    0.F,
                     -1.F,
                     1.F);
                 p.thread.render->setTransform(pm);

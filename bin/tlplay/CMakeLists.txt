@@ -35,7 +35,7 @@ set(SOURCE
     main.cpp)
 
 add_executable(tlplay ${HEADERS} ${SOURCE})
-target_link_libraries(tlplay tlTimelineUI)
+target_link_libraries(tlplay tlTimelineUI tlDevice)
 set_target_properties(tlplay PROPERTIES FOLDER bin)
 
 install(

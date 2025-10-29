@@ -46,7 +46,6 @@ namespace tl
             ISystem(context, "tl::bmd::System"),
             _p(new Private)
         {
-            
             FTK_P();
 
             p.context = context;
