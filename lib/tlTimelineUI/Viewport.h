@@ -195,6 +195,10 @@ namespace tl
             void keyPressEvent(ftk::KeyEvent&) override;
             void keyReleaseEvent(ftk::KeyEvent&) override;
 
+        protected:
+            bool _isMouseInside() const;
+            const ftk::V2I& _getMousePressPos() const;
+
         private:
             ftk::Size2I _getRenderSize() const;
             ftk::V2I _getViewportCenter() const;

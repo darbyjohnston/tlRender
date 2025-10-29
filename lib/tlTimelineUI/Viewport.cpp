@@ -874,6 +874,16 @@ namespace tl
             event.accept = true;
         }
 
+        bool Viewport::_isMouseInside() const
+        {
+            return _p->mouse.inside;
+        }
+
+        const ftk::V2I& Viewport::_getMousePressPos() const
+        {
+            return _p->mouse.press;
+        }
+
         ftk::Size2I Viewport::_getRenderSize() const
         {
             FTK_P();
