@@ -514,6 +514,16 @@ namespace tl
             event.accept = true;
         }
 
+        bool TimelineWidget::_isMouseInside() const
+        {
+            return _p->mouse.inside;
+        }
+
+        const ftk::V2I& TimelineWidget::_getMousePressPos() const
+        {
+            return _p->mouse.press;
+        }
+
         void TimelineWidget::_setViewZoom(
             double zoomNew,
             double zoomPrev,
