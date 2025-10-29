@@ -68,6 +68,8 @@ namespace tl
             };
             struct MouseData
             {
+                bool inside = false;
+                ftk::V2I press;
                 MouseMode mode = MouseMode::None;
                 ftk::V2I viewPos;
             };
@@ -81,14 +83,11 @@ namespace tl
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<IWidget>& parent)
         {
-            IMouseWidget::_init(context, "tl::timelineui::Viewport", parent);
+            IWidget::_init(context, "tl::timelineui::Viewport", parent);
             FTK_P();
 
             setHStretch(ftk::Stretch::Expanding);
             setVStretch(ftk::Stretch::Expanding);
-
-            _setMouseHoverEnabled(true);
-            _setMousePressEnabled(true);
 
             p.compareOptions = ftk::ObservableValue<timeline::CompareOptions>::create();
             p.ocioOptions = ftk::ObservableValue<timeline::OCIOOptions>::create();
@@ -512,12 +511,14 @@ namespace tl
 
         void Viewport::setPanBinding(int button, ftk::KeyModifier modifier)
         {
-            _p->panBinding = std::make_pair(button, modifier);
+            FTK_P();
+            p.panBinding = std::make_pair(button, modifier);
         }
 
         void Viewport::setWipeBinding(int button, ftk::KeyModifier modifier)
         {
-            _p->wipeBinding = std::make_pair(button, modifier);
+            FTK_P();
+            p.wipeBinding = std::make_pair(button, modifier);
         }
 
         void Viewport::setMouseWheelScale(float value)
@@ -528,7 +529,7 @@ namespace tl
         void Viewport::setGeometry(const ftk::Box2I& value)
         {
             const bool changed = value != getGeometry();
-            IMouseWidget::setGeometry(value);
+            IWidget::setGeometry(value);
             FTK_P();
             if (changed)
             {
@@ -693,19 +694,36 @@ namespace tl
                 render->drawTexture(p.fgBuffer->getColorID(), g);
             }
         }
+        void Viewport::mouseEnterEvent(ftk::MouseEnterEvent& event)
+        {
+            FTK_P();
+            event.accept = true;
+            p.mouse.inside = true;
+        }
+
+        void Viewport::mouseLeaveEvent()
+        {
+            FTK_P();
+            p.mouse.inside = false;
+        }
 
         void Viewport::mouseMoveEvent(ftk::MouseMoveEvent& event)
         {
-            IMouseWidget::mouseMoveEvent(event);
             FTK_P();
+            event.accept = true;
+
+            const ftk::Box2I& g = getGeometry();
+            const ftk::V2I pos(
+                event.pos.x - g.min.x,
+                (g.h() - 1) - (event.pos.y - g.min.y));
+
             switch (p.mouse.mode)
             {
             case Private::MouseMode::View:
             {
-                const ftk::V2I& mousePressPos = _getMousePressPos();
                 const ftk::V2I viewPos(
-                    p.mouse.viewPos.x + (event.pos.x - mousePressPos.x),
-                    p.mouse.viewPos.y + (event.pos.y - mousePressPos.y));
+                    p.mouse.viewPos.x + (pos.x - p.mouse.press.x),
+                    p.mouse.viewPos.y + (pos.y - p.mouse.press.y));
                 const double viewZoom = p.viewZoom->get();
                 if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
                 {
@@ -724,14 +742,13 @@ namespace tl
                     const io::Info& ioInfo = p.player->getIOInfo();
                     if (!ioInfo.video.empty())
                     {
-                        const ftk::Box2I& g = getGeometry();
                         const ftk::V2I& viewPos = p.viewPos->get();
                         const double viewZoom = p.viewZoom->get();
                         const auto& imageInfo = ioInfo.video[0];
                         timeline::CompareOptions compareOptions = p.compareOptions->get();
-                        compareOptions.wipeCenter.x = (event.pos.x - g.min.x - viewPos.x) / viewZoom /
+                        compareOptions.wipeCenter.x = (pos.x - viewPos.x) / viewZoom /
                             static_cast<float>(imageInfo.size.w * imageInfo.pixelAspectRatio);
-                        compareOptions.wipeCenter.y = (event.pos.y - g.min.y - viewPos.y) / viewZoom /
+                        compareOptions.wipeCenter.y = (pos.y - viewPos.y) / viewZoom /
                             static_cast<float>(imageInfo.size.h);
                         if (p.compareOptions->setIfChanged(compareOptions))
                         {
@@ -748,9 +765,16 @@ namespace tl
 
         void Viewport::mousePressEvent(ftk::MouseClickEvent& event)
         {
-            IMouseWidget::mousePressEvent(event);
             FTK_P();
+            event.accept = true;
             takeKeyFocus();
+
+            const ftk::Box2I& g = getGeometry();
+            const ftk::V2I pos(
+                event.pos.x - g.min.x,
+                (g.h() - 1) - (event.pos.y - g.min.y));
+            p.mouse.press = pos;
+
             if (p.panBinding.first == event.button &&
                 ftk::checkKeyModifier(p.panBinding.second, event.modifiers))
             {
@@ -762,31 +786,43 @@ namespace tl
             {
                 p.mouse.mode = Private::MouseMode::Wipe;
             }
+            else
+            {
+                p.mouse.mode = Private::MouseMode::None;
+            }
         }
 
         void Viewport::mouseReleaseEvent(ftk::MouseClickEvent& event)
         {
-            IMouseWidget::mouseReleaseEvent(event);
             FTK_P();
+            event.accept = true;
             p.mouse.mode = Private::MouseMode::None;
         }
 
         void Viewport::scrollEvent(ftk::ScrollEvent& event)
         {
             FTK_P();
+
             if (static_cast<int>(ftk::KeyModifier::None) == event.modifiers)
             {
                 event.accept = true;
+
+                const ftk::Box2I& g = getGeometry();
+                const ftk::V2I pos(
+                    event.pos.x - g.min.x,
+                    (g.h() - 1) - (event.pos.y - g.min.y));
+
                 const double viewZoom = p.viewZoom->get();
                 const double newZoom =
                     event.value.y > 0 ?
                     viewZoom * p.mouseWheelScale :
                     viewZoom / p.mouseWheelScale;
-                setViewZoom(newZoom, event.pos - getGeometry().min);
+                setViewZoom(newZoom, pos);
             }
             else if (event.modifiers & static_cast<int>(ftk::KeyModifier::Control))
             {
                 event.accept = true;
+
                 if (p.player)
                 {
                     const OTIO_NS::RationalTime t = p.player->getCurrentTime();
@@ -798,27 +834,36 @@ namespace tl
         void Viewport::keyPressEvent(ftk::KeyEvent& event)
         {
             FTK_P();
+
+            const ftk::Box2I& g = getGeometry();
+            const ftk::V2I pos(
+                event.pos.x - g.min.x,
+                (g.h() - 1) - (event.pos.y - g.min.y));
+
             if (0 == event.modifiers)
             {
-                const ftk::Box2I& g = getGeometry();
                 switch (event.key)
                 {
                 case ftk::Key::_0:
                     event.accept = true;
-                    setViewZoom(1.0, event.pos - g.min);
+                    setViewZoom(1.0, pos);
                     break;
+
                 case ftk::Key::Equals:
                     event.accept = true;
-                    setViewZoom(p.viewZoom->get() * 2.0, event.pos - g.min);
+                    setViewZoom(p.viewZoom->get() * 2.0, pos);
                     break;
+
                 case ftk::Key::Minus:
                     event.accept = true;
-                    setViewZoom(p.viewZoom->get() / 2.0, event.pos - g.min);
+                    setViewZoom(p.viewZoom->get() / 2.0, pos);
                     break;
+
                 case ftk::Key::Backspace:
                     event.accept = true;
                     setFrameView(true);
                     break;
+
                 default: break;
                 }
             }

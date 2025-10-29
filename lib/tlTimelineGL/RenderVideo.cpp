@@ -20,6 +20,8 @@ namespace tl
             const ftk::M44F& m,
             const timeline::BackgroundOptions& options)
         {
+            glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
             const ftk::Box2I rect(ftk::V2I(0, 0), getRenderSize());
             switch (options.type)
             {
@@ -53,13 +55,13 @@ namespace tl
                     options.gradientColor.second.b,
                     options.gradientColor.second.a));
                 mesh.triangles.push_back({
-                    ftk::Vertex2(1, 0, 1),
+                    ftk::Vertex2(1, 0, 2),
                     ftk::Vertex2(3, 0, 1),
                     ftk::Vertex2(2, 0, 2), });
                 mesh.triangles.push_back({
-                    ftk::Vertex2(3, 0, 2),
                     ftk::Vertex2(1, 0, 2),
-                    ftk::Vertex2(4, 0, 1), });
+                    ftk::Vertex2(4, 0, 1),
+                    ftk::Vertex2(3, 0, 1), });
                 drawColorMesh(
                     mesh,
                     ftk::Color4F(1.F, 1.F, 1.F));
@@ -907,6 +909,8 @@ namespace tl
         {
             if (options.grid.enabled && !boxes.empty())
             {
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
                 const ftk::V3F v0 = m * ftk::V3F(0.F, 0.F, 0.F);
                 const ftk::V3F v1 = m * ftk::V3F(options.grid.size, 0.F, 0.F);
                 if (ftk::length(v1 - v0) > options.grid.lineWidth + 10.F)
@@ -953,6 +957,8 @@ namespace tl
 
             if (options.outline.enabled && !boxes.empty())
             {
+                glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+
                 ftk::Box2I bounds = boxes.front();
                 for (size_t i = 1; i < boxes.size(); ++i)
                 {
@@ -989,14 +995,14 @@ namespace tl
                     ftk::normalize(mesh.v[3] - mesh.v[0]) * options.outline.width +
                     ftk::normalize(mesh.v[3] - mesh.v[2]) * options.outline.width +
                     mesh.v[3]));
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(2) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(5), ftk::Vertex2(6) });
-                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(3) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(6), ftk::Vertex2(7) });
-                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(4) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(7), ftk::Vertex2(8) });
-                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(1) });
-                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(8), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(2), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(6), ftk::Vertex2(5) });
+                mesh.triangles.push_back({ ftk::Vertex2(2), ftk::Vertex2(3), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(7), ftk::Vertex2(6) });
+                mesh.triangles.push_back({ ftk::Vertex2(3), ftk::Vertex2(4), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(8), ftk::Vertex2(7) });
+                mesh.triangles.push_back({ ftk::Vertex2(4), ftk::Vertex2(1), ftk::Vertex2(8) });
+                mesh.triangles.push_back({ ftk::Vertex2(1), ftk::Vertex2(5), ftk::Vertex2(8) });
                 drawMesh(mesh, options.outline.color);
             }
         }

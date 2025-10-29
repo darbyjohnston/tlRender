@@ -35,6 +35,12 @@ namespace tl
             _app = app;
 
             _viewport = timelineui::Viewport::create(context);
+            timeline::BackgroundOptions bgOptions;
+            bgOptions.type = timeline::Background::Gradient;
+            //_viewport->setBackgroundOptions(bgOptions);
+            timeline::ForegroundOptions fgOptions;
+            fgOptions.outline.enabled = true;
+            //_viewport->setForegroundOptions(fgOptions);
             ftk::ImageOptions imageOptions;
             imageOptions.imageFilters.minify = ftk::ImageFilter::Nearest;
             imageOptions.imageFilters.magnify = ftk::ImageFilter::Nearest;

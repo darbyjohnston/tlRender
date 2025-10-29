@@ -14,7 +14,7 @@ namespace tl
         //! 
         //! \tool Adjust the current frame label to stay visible on the right
         //! side of the timeline widget.
-        class TimelineWidget : public ftk::IMouseWidget
+        class TimelineWidget : public ftk::IWidget
         {
             FTK_NON_COPYABLE(TimelineWidget);
 
@@ -153,6 +153,8 @@ namespace tl
                 bool,
                 const ftk::TickEvent&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
+            void mouseEnterEvent(ftk::MouseEnterEvent&);
+            void mouseLeaveEvent();
             void mouseMoveEvent(ftk::MouseMoveEvent&) override;
             void mousePressEvent(ftk::MouseClickEvent&) override;
             void mouseReleaseEvent(ftk::MouseClickEvent&) override;
