@@ -64,13 +64,6 @@ namespace tl
 #if defined(TLRENDER_STB)
                 _plugins.push_back(stb::ReadPlugin::create(logSystem));
 #endif
-#if defined(TLRENDER_WMF)
-                // \todo WMF support is still a WIP.
-                //_plugins.push_back(wmf::ReadPlugin::create(logSystem));
-#endif // TLRENDER_WMF
-#if defined(TLRENDER_FFMPEG)
-                _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
-#endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_JPEG)
                 _plugins.push_back(jpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_JPEG
@@ -86,6 +79,13 @@ namespace tl
 #if defined(TLRENDER_USD)
                 _plugins.push_back(usd::ReadPlugin::create(logSystem));
 #endif // TLRENDER_USD
+#if defined(TLRENDER_WMF)
+                // \todo WMF support is still a WIP.
+                //_plugins.push_back(wmf::ReadPlugin::create(logSystem));
+#endif // TLRENDER_WMF
+#if defined(TLRENDER_FFMPEG)
+                _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
+#endif // TLRENDER_FFMPEG
             }
 
             for (const auto& plugin : _plugins)
@@ -226,9 +226,6 @@ namespace tl
 #if defined(TLRENDER_STB)
                 _plugins.push_back(stb::WritePlugin::create(logSystem));
 #endif
-#if defined(TLRENDER_FFMPEG)
-                _plugins.push_back(ffmpeg::WritePlugin::create(logSystem));
-#endif // TLRENDER_FFMPEG
 #if defined(TLRENDER_JPEG)
                 _plugins.push_back(jpeg::WritePlugin::create(logSystem));
 #endif // TLRENDER_JPEG
@@ -241,6 +238,9 @@ namespace tl
 #if defined(TLRENDER_TIFF)
                 _plugins.push_back(tiff::WritePlugin::create(logSystem));
 #endif // TLRENDER_TIFF
+#if defined(TLRENDER_FFMPEG)
+                _plugins.push_back(ffmpeg::WritePlugin::create(logSystem));
+#endif // TLRENDER_FFMPEG
             }
 
             for (const auto& plugin : _plugins)
