@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <tlTimeline/Player.h>
 #include <tlTimeline/TimeUnits.h>
 
 #if defined(TLRENDER_BMD)
