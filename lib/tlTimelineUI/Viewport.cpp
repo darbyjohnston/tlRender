@@ -439,7 +439,10 @@ namespace tl
             FTK_P();
             if (p.frameView->setIfChanged(value))
             {
-                p.framed->setAlways(true);
+                if (value)
+                {
+                    p.framed->setAlways(true);
+                }
                 p.doRender = true;
                 setDrawUpdate();
             }
