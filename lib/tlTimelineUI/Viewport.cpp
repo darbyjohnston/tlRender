@@ -396,11 +396,11 @@ namespace tl
             FTK_P();
             if (p.viewPosZoom->setIfChanged(std::make_pair(pos, zoom)))
             {
+                setFrameView(false);
                 p.viewPos->setIfChanged(pos);
                 p.viewZoom->setIfChanged(zoom);
                 p.doRender = true;
                 setDrawUpdate();
-                setFrameView(false);
             }
         }
 
@@ -727,11 +727,11 @@ namespace tl
                 const double viewZoom = p.viewZoom->get();
                 if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
                 {
+                    setFrameView(false);
                     p.viewPos->setIfChanged(viewPos);
                     p.viewZoom->setIfChanged(viewZoom);
                     p.doRender = true;
                     setDrawUpdate();
-                    setFrameView(false);
                 }
                 break;
             }
