@@ -394,9 +394,13 @@ namespace tl
         void Viewport::setViewPosAndZoom(const ftk::V2I& pos, double zoom)
         {
             FTK_P();
-            if (p.viewPosZoom->setIfChanged(std::make_pair(pos, zoom)))
+            const std::pair<ftk::V2I, double> pair(pos, zoom);
+            if (pair != p.viewPosZoom->get())
             {
                 setFrameView(false);
+            }
+            if (p.viewPosZoom->setIfChanged(pair))
+            {
                 p.viewPos->setIfChanged(pos);
                 p.viewZoom->setIfChanged(zoom);
                 p.doRender = true;
@@ -725,9 +729,13 @@ namespace tl
                     p.mouse.viewPos.x + (pos.x - p.mouse.press.x),
                     p.mouse.viewPos.y + (pos.y - p.mouse.press.y));
                 const double viewZoom = p.viewZoom->get();
-                if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
+                const std::pair<ftk::V2I, double> pair(viewPos, viewZoom);
+                if (pair != p.viewPosZoom->get())
                 {
                     setFrameView(false);
+                }
+                if (p.viewPosZoom->setIfChanged(std::make_pair(viewPos, viewZoom)))
+                {
                     p.viewPos->setIfChanged(viewPos);
                     p.viewZoom->setIfChanged(viewZoom);
                     p.doRender = true;
