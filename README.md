@@ -35,7 +35,7 @@ source except for Qt. If building with Qt is enabled, it needs to be installed
 separately.
 
 Required dependencies:
-* [dtk](https://github.com/darbyjohnston/dtk)
+* [feather-tk](https://github.com/darbyjohnston/feather-tk)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
