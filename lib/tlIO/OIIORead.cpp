@@ -141,10 +141,17 @@ namespace tl
             io::Info out;
             ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
             imageInfo.layout.mirror.y = true;
+            ftk::ImageTags tags;
+            for (const auto& i : oiioSpec.extra_attribs)
+            {
+                tags[std::string(i.name())] = i.get_string();
+            }
+
             out.video.push_back(imageInfo);
             out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 OTIO_NS::RationalTime(_startFrame, _defaultSpeed),
                 OTIO_NS::RationalTime(_endFrame, _defaultSpeed));
+            out.tags = tags;
             return out;
         }
 
