@@ -18,13 +18,13 @@ set(LEGAL
     LICENSE_oneTBB.txt
     LICENSE_OpenColorIO.txt
     LICENSE_OpenEXR.txt
+    LICENSE_OpenImageIO.txt
     LICENSE_OpenSSL.txt
     LICENSE_OpenSubdiv.txt
     LICENSE_OpenTimelineIO.txt
     LICENSE_OpenUSD.txt
     LICENSE_pystring.txt
     LICENSE_Qt.txt
-    LICENSE_stb.txt
     LICENSE_tlRender.txt
     LICENSE_yaml-cpp.txt
     LICENSE_zlib.txt)
