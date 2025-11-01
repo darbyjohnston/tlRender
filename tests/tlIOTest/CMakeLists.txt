@@ -3,16 +3,14 @@ set(HEADERS
     DPXTest.h
     IOTest.h
     PPMTest.h
-    SGITest.h
-    STBTest.h)
+    SGITest.h)
 
 set(SOURCE
     CineonTest.cpp
     DPXTest.cpp
     IOTest.cpp
     PPMTest.cpp
-    SGITest.cpp
-    STBTest.cpp)
+    SGITest.cpp)
 
 if(TLRENDER_FFMPEG)
     list(APPEND HEADERS FFmpegTest.h)
@@ -34,9 +32,9 @@ if(TLRENDER_TIFF)
     list(APPEND HEADERS TIFFTest.h)
     list(APPEND SOURCE TIFFTest.cpp)
 endif()
-if(TLRENDER_STB)
-    list(APPEND HEADERS STBTest.h)
-    list(APPEND SOURCE STBTest.cpp)
+if(TLRENDER_OIIO)
+    list(APPEND HEADERS OIIOTest.h)
+    list(APPEND SOURCE OIIOTest.cpp)
 endif()
 
 add_library(tlIOTest ${SOURCE} ${HEADERS})

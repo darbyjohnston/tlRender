@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the tlRender project.
 
-#include <tlIOTest/STBTest.h>
+#include <tlIOTest/OIIOTest.h>
 
-#include <tlIO/STB.h>
+#include <tlIO/OIIO.h>
 #include <tlIO/System.h>
 
 #include <sstream>
@@ -14,18 +14,13 @@ namespace tl
 {
     namespace io_tests
     {
-        STBTest::STBTest(const std::shared_ptr<ftk::Context>& context) :
-            ITest(context, "io_test::STBTest")
+        OIIOTest::OIIOTest(const std::shared_ptr<ftk::Context>& context) :
+            ITest(context, "io_tests::OIIOTest")
         {}
 
-        std::shared_ptr<STBTest> STBTest::create(const std::shared_ptr<ftk::Context>& context)
+        std::shared_ptr<OIIOTest> OIIOTest::create(const std::shared_ptr<ftk::Context>& context)
         {
-            return std::shared_ptr<STBTest>(new STBTest(context));
-        }
-
-        void STBTest::run()
-        {
-            _io();
+            return std::shared_ptr<OIIOTest>(new OIIOTest(context));
         }
 
         namespace
@@ -83,9 +78,9 @@ namespace tl
                 bool memoryIO)
             {
                 {
-                    auto io = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
-                    const size_t size = io->getSize();
-                    io.reset();
+                    auto fileIO = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
+                    const size_t size = fileIO->getSize();
+                    fileIO.reset();
                     ftk::truncateFile(path.get(), size / 2);
                 }
                 std::vector<uint8_t> memoryData;
@@ -102,16 +97,16 @@ namespace tl
             }
         }
 
-        void STBTest::_io()
+        void OIIOTest::run()
         {
             auto readSystem = _context->getSystem<ReadSystem>();
-            auto readPlugin = readSystem->getPlugin<stb::ReadPlugin>();
+            auto readPlugin = readSystem->getPlugin<oiio::ReadPlugin>();
             auto writeSystem = _context->getSystem<WriteSystem>();
-            auto writePlugin = writeSystem->getPlugin<stb::WritePlugin>();
-
+            auto writePlugin = writeSystem->getPlugin<oiio::WritePlugin>();
+            
             const std::vector<std::string> fileNames =
             {
-                "STBTest",
+                "OIIOTest",
                 "大平原"
             };
             const std::vector<bool> memoryIOList =
@@ -140,28 +135,12 @@ namespace tl
                                 file::Path path;
                                 {
                                     std::stringstream ss;
-                                    ss << fileName << '_' << size << '_' << pixelType << ".0.tga";
+                                    ss << fileName << '_' << size << '_' << pixelType << ".0.png";
                                     _print(ss.str());
                                     path = file::Path(ss.str());
                                 }
-                                auto image = ftk::Image::create(imageInfo);
+                                const auto image = ftk::Image::create(imageInfo);
                                 image->zero();
-                                try
-                                {
-                                    write(writePlugin, image, path, imageInfo);
-                                    read(readPlugin, image, path, memoryIO);
-                                    readError(readPlugin, image, path, memoryIO);
-                                }
-                                catch (const std::exception& e)
-                                {
-                                    _printError(e.what());
-                                }
-                                {
-                                    std::stringstream ss;
-                                    ss << fileName << '_' << size << '_' << pixelType << ".0.bmp";
-                                    _print(ss.str());
-                                    path = file::Path(ss.str());
-                                }
                                 try
                                 {
                                     write(writePlugin, image, path, imageInfo);

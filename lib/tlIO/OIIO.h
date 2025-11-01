@@ -7,14 +7,10 @@
 
 namespace tl
 {
-    //! STB image I/O.
-    //!
-    //! References:
-    //! https://github.com/nothings/stb.git
-    //!
-    namespace stb
+    //! OpenImageIO image I/O.
+    namespace oiio
     {
-        //! STB reader.
+        //! OpenImageIO reader.
         class Read : public io::ISequenceRead
         {
         protected:
@@ -53,7 +49,7 @@ namespace tl
                 const io::Options&) override;
         };
 
-        //! STB writer.
+        //! OpenImageIO writer.
         class Write : public io::ISequenceWrite
         {
         protected:
@@ -83,11 +79,13 @@ namespace tl
                 const io::Options&) override;
         };
 
-        //! STB read plugin.
+        //! OpenImageIO read plugin.
         class ReadPlugin : public io::IReadPlugin
         {
         protected:
-            ReadPlugin();
+            void _init(const std::shared_ptr<ftk::LogSystem>&);
+
+            ReadPlugin() = default;
 
         public:
             //! Create a new plugin.
@@ -103,11 +101,13 @@ namespace tl
                 const io::Options & = io::Options()) override;
         };
 
-        //! STB write plugin.
+        //! OpenImageIO write plugin.
         class WritePlugin : public io::IWritePlugin
         {
         protected:
-            WritePlugin();
+            void _init(const std::shared_ptr<ftk::LogSystem>&);
+
+            WritePlugin() = default;
 
         public:
             //! Create a new plugin.

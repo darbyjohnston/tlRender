@@ -7,9 +7,6 @@
 #include <tlIO/DPX.h>
 #include <tlIO/PPM.h>
 #include <tlIO/SGI.h>
-#if defined(TLRENDER_STB)
-#include <tlIO/STB.h>
-#endif
 #if defined(TLRENDER_FFMPEG)
 #include <tlIO/FFmpeg.h>
 #endif // TLRENDER_FFMPEG
@@ -25,6 +22,9 @@
 #if defined(TLRENDER_TIFF)
 #include <tlIO/TIFF.h>
 #endif // TLRENDER_TIFF
+#if defined(TLRENDER_OIIO)
+#include <tlIO/OIIO.h>
+#endif // TLRENDER_OIIO
 #if defined(TLRENDER_USD)
 #include <tlIO/USD.h>
 #endif // TLRENDER_USD
@@ -56,25 +56,22 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-                _plugins.push_back(cineon::ReadPlugin::create(logSystem));
-                _plugins.push_back(dpx::ReadPlugin::create(logSystem));
-                _plugins.push_back(ppm::ReadPlugin::create(logSystem));
-                _plugins.push_back(sgi::ReadPlugin::create(logSystem));
-#if defined(TLRENDER_STB)
-                _plugins.push_back(stb::ReadPlugin::create(logSystem));
-#endif
-#if defined(TLRENDER_JPEG)
-                _plugins.push_back(jpeg::ReadPlugin::create(logSystem));
-#endif // TLRENDER_JPEG
+                //_plugins.push_back(cineon::ReadPlugin::create(logSystem));
+                //_plugins.push_back(dpx::ReadPlugin::create(logSystem));
+                //_plugins.push_back(ppm::ReadPlugin::create(logSystem));
+                //_plugins.push_back(sgi::ReadPlugin::create(logSystem));
+//#if defined(TLRENDER_JPEG)
+//                _plugins.push_back(jpeg::ReadPlugin::create(logSystem));
+//#endif // TLRENDER_JPEG
 #if defined(TLRENDER_EXR)
                 _plugins.push_back(exr::ReadPlugin::create(logSystem));
 #endif // TLRENDER_EXR
-#if defined(TLRENDER_PNG)
-                _plugins.push_back(png::ReadPlugin::create(logSystem));
-#endif // TLRENDER_PNG
-#if defined(TLRENDER_TIFF)
-                _plugins.push_back(tiff::ReadPlugin::create(logSystem));
-#endif // TLRENDER_TIFF
+//#if defined(TLRENDER_PNG)
+//                _plugins.push_back(png::ReadPlugin::create(logSystem));
+//#endif // TLRENDER_PNG
+//#if defined(TLRENDER_TIFF)
+//                _plugins.push_back(tiff::ReadPlugin::create(logSystem));
+//#endif // TLRENDER_TIFF
 #if defined(TLRENDER_USD)
                 _plugins.push_back(usd::ReadPlugin::create(logSystem));
 #endif // TLRENDER_USD
@@ -85,6 +82,9 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_OIIO)
+                _plugins.push_back(oiio::ReadPlugin::create(logSystem));
+#endif // TLRENDER_OIIO
             }
 
             for (const auto& plugin : _plugins)
@@ -218,28 +218,28 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-                _plugins.push_back(cineon::WritePlugin::create(logSystem));
-                _plugins.push_back(dpx::WritePlugin::create(logSystem));
-                _plugins.push_back(ppm::WritePlugin::create(logSystem));
-                _plugins.push_back(sgi::WritePlugin::create(logSystem));
-#if defined(TLRENDER_STB)
-                _plugins.push_back(stb::WritePlugin::create(logSystem));
-#endif
-#if defined(TLRENDER_JPEG)
-                _plugins.push_back(jpeg::WritePlugin::create(logSystem));
-#endif // TLRENDER_JPEG
-#if defined(TLRENDER_EXR)
-                _plugins.push_back(exr::WritePlugin::create(logSystem));
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_PNG)
-                _plugins.push_back(png::WritePlugin::create(logSystem));
-#endif // TLRENDER_PNG
-#if defined(TLRENDER_TIFF)
-                _plugins.push_back(tiff::WritePlugin::create(logSystem));
-#endif // TLRENDER_TIFF
+                //_plugins.push_back(cineon::WritePlugin::create(logSystem));
+                //_plugins.push_back(dpx::WritePlugin::create(logSystem));
+                //_plugins.push_back(ppm::WritePlugin::create(logSystem));
+                //_plugins.push_back(sgi::WritePlugin::create(logSystem));
+//#if defined(TLRENDER_JPEG)
+//                _plugins.push_back(jpeg::WritePlugin::create(logSystem));
+//#endif // TLRENDER_JPEG
+//#if defined(TLRENDER_EXR)
+//                _plugins.push_back(exr::WritePlugin::create(logSystem));
+//#endif // TLRENDER_EXR
+//#if defined(TLRENDER_PNG)
+//                _plugins.push_back(png::WritePlugin::create(logSystem));
+//#endif // TLRENDER_PNG
+//#if defined(TLRENDER_TIFF)
+//                _plugins.push_back(tiff::WritePlugin::create(logSystem));
+//#endif // TLRENDER_TIFF
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::WritePlugin::create(logSystem));
 #endif // TLRENDER_FFMPEG
+#if defined(TLRENDER_OIIO)
+                _plugins.push_back(oiio::WritePlugin::create(logSystem));
+#endif // TLRENDER_OIIO
             }
 
             for (const auto& plugin : _plugins)
