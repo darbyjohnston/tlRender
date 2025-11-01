@@ -18,7 +18,7 @@ set(LEGAL
     LICENSE_oneTBB.txt
     LICENSE_OpenColorIO.txt
     LICENSE_OpenEXR.txt
-    LICENSE_OpenImageIO.txt
+    LICENSE_OpenImageIO.md
     LICENSE_OpenSSL.txt
     LICENSE_OpenSubdiv.txt
     LICENSE_OpenTimelineIO.txt
