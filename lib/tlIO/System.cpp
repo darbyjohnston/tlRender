@@ -225,9 +225,9 @@ namespace tl
 //#if defined(TLRENDER_JPEG)
 //                _plugins.push_back(jpeg::WritePlugin::create(logSystem));
 //#endif // TLRENDER_JPEG
-//#if defined(TLRENDER_EXR)
-//                _plugins.push_back(exr::WritePlugin::create(logSystem));
-//#endif // TLRENDER_EXR
+#if defined(TLRENDER_EXR)
+                _plugins.push_back(exr::WritePlugin::create(logSystem));
+#endif // TLRENDER_EXR
 //#if defined(TLRENDER_PNG)
 //                _plugins.push_back(png::WritePlugin::create(logSystem));
 //#endif // TLRENDER_PNG
