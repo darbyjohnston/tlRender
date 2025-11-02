@@ -1,36 +1,16 @@
 set(HEADERS
-    CineonTest.h
-    DPXTest.h
-    IOTest.h
-    PPMTest.h
-    SGITest.h)
+    IOTest.h)
 
 set(SOURCE
-    CineonTest.cpp
-    DPXTest.cpp
-    IOTest.cpp
-    PPMTest.cpp
-    SGITest.cpp)
+    IOTest.cpp)
 
 if(TLRENDER_FFMPEG)
     list(APPEND HEADERS FFmpegTest.h)
     list(APPEND SOURCE FFmpegTest.cpp)
 endif()
-if(TLRENDER_JPEG)
-    list(APPEND HEADERS JPEGTest.h)
-    list(APPEND SOURCE JPEGTest.cpp)
-endif()
-if(TLRENDER_PNG)
-    list(APPEND HEADERS PNGTest.h)
-    list(APPEND SOURCE PNGTest.cpp)
-endif()
 if(TLRENDER_EXR)
     list(APPEND HEADERS OpenEXRTest.h)
     list(APPEND SOURCE OpenEXRTest.cpp)
-endif()
-if(TLRENDER_TIFF)
-    list(APPEND HEADERS TIFFTest.h)
-    list(APPEND SOURCE TIFFTest.cpp)
 endif()
 if(TLRENDER_OIIO)
     list(APPEND HEADERS OIIOTest.h)

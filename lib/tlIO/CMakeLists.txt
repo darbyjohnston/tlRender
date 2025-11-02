@@ -1,13 +1,9 @@
 set(HEADERS
-    Cineon.h
-    DPX.h
     IO.h
     IOInline.h
     Init.h
-    PPM.h
     Plugin.h
     Read.h
-    SGI.h
     SequenceIO.h
     System.h
     SystemInline.h
@@ -16,22 +12,10 @@ set(HEADERS_PRIVATE
     SequenceIOReadPrivate.h)
 
 set(SOURCE
-    CineonRead.cpp
-    CineonWrite.cpp
-    Cineon.cpp
-    DPXRead.cpp
-    DPXWrite.cpp
-    DPX.cpp
     IO.cpp
     Init.cpp
-    PPM.cpp
-    PPMRead.cpp
-    PPMWrite.cpp
     Plugin.cpp
     Read.cpp
-    SGI.cpp
-    SGIRead.cpp
-    SGIWrite.cpp
     SequenceIO.cpp
     SequenceIORead.cpp
     SequenceIOWrite.cpp
@@ -40,23 +24,6 @@ set(SOURCE
 
 set(LIBRARIES)
 set(LIBRARIES_PRIVATE)
-if(TLRENDER_JPEG)
-    list(APPEND HEADERS JPEG.h)
-    list(APPEND HEADERS_PRIVATE JPEGPrivate.h)
-    list(APPEND SOURCE JPEG.cpp JPEGRead.cpp JPEGWrite.cpp)
-    list(APPEND LIBRARIES_PRIVATE libjpeg-turbo::turbojpeg-static)
-endif()
-if(TLRENDER_TIFF)
-    list(APPEND HEADERS TIFF.h)
-    list(APPEND SOURCE TIFF.cpp TIFFRead.cpp TIFFWrite.cpp)
-    list(APPEND LIBRARIES_PRIVATE TIFF::TIFF)
-endif()
-if(TLRENDER_PNG)
-    list(APPEND HEADERS PNG.h)
-    list(APPEND HEADERS_PRIVATE PNGPrivate.h)
-    list(APPEND SOURCE PNG.cpp PNGRead.cpp PNGWrite.cpp)
-    list(APPEND LIBRARIES_PRIVATE PNG::PNG)
-endif()
 if(TLRENDER_EXR)
     list(APPEND HEADERS OpenEXR.h)
     list(APPEND HEADERS_PRIVATE OpenEXRPrivate.h)

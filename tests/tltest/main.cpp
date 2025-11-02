@@ -15,26 +15,13 @@
 #include <tlTimelineTest/TimelineTest.h>
 #include <tlTimelineTest/UtilTest.h>
 
-#include <tlIOTest/CineonTest.h>
-#include <tlIOTest/DPXTest.h>
 #include <tlIOTest/IOTest.h>
-#include <tlIOTest/PPMTest.h>
-#include <tlIOTest/SGITest.h>
 #if defined(TLRENDER_FFMPEG)
 #include <tlIOTest/FFmpegTest.h>
 #endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_JPEG)
-#include <tlIOTest/JPEGTest.h>
-#endif // TLRENDER_JPEG
 #if defined(TLRENDER_EXR)
 #include <tlIOTest/OpenEXRTest.h>
 #endif // TLRENDER_EXR
-#if defined(TLRENDER_PNG)
-#include <tlIOTest/PNGTest.h>
-#endif // TLRENDER_PNG
-#if defined(TLRENDER_TIFF)
-#include <tlIOTest/TIFFTest.h>
-#endif // TLRENDER_TIFF
 #if defined(TLRENDER_OIIO)
 #include <tlIOTest/OIIOTest.h>
 #endif // TLRENDER_OIIO
@@ -72,26 +59,13 @@ void ioTests(
     std::vector<std::shared_ptr<tests::ITest> >& tests,
     const std::shared_ptr<ftk::Context>& context)
 {
-    //tests.push_back(io_tests::CineonTest::create(context));
-    //tests.push_back(io_tests::DPXTest::create(context));
     tests.push_back(io_tests::IOTest::create(context));
-    //tests.push_back(io_tests::PPMTest::create(context));
-    //tests.push_back(io_tests::SGITest::create(context));
 #if defined(TLRENDER_FFMPEG)
     tests.push_back(io_tests::FFmpegTest::create(context));
 #endif // TLRENDER_FFMPEG
-//#if defined(TLRENDER_JPEG)
-//    tests.push_back(io_tests::JPEGTest::create(context));
-//#endif // TLRENDER_JPEG
 #if defined(TLRENDER_EXR)
     tests.push_back(io_tests::OpenEXRTest::create(context));
 #endif // TLRENDER_EXR
-//#if defined(TLRENDER_PNG)
-//    tests.push_back(io_tests::PNGTest::create(context));
-//#endif // TLRENDER_PNG
-//#if defined(TLRENDER_TIFF)
-//    tests.push_back(io_tests::TIFFTest::create(context));
-//#endif // TLRENDER_TIFF
 #if defined(TLRENDER_OIIO)
     tests.push_back(io_tests::OIIOTest::create(context));
 #endif // TLRENDER_OIIO

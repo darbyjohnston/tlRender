@@ -129,29 +129,29 @@ namespace tl
                 throw std::runtime_error(ss.str());
             }
 
-            const auto& oiioSpec = oiioInput->spec();
-            const ftk::ImageType imageType = fromOIIO(oiioSpec);
-            if (ftk::ImageType::None == imageType)
-            {
-                std::stringstream ss;
-                ss << "Unsupported file: " << fileName;
-                throw std::runtime_error(ss.str());
-            }
-
             io::Info out;
-            ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
-            imageInfo.layout.mirror.y = true;
-            ftk::ImageTags tags;
+            auto oiioSpec = oiioInput->spec();
             for (const auto& i : oiioSpec.extra_attribs)
             {
-                tags[std::string(i.name())] = i.get_string();
+                out.tags[std::string(i.name())] = i.get_string();
             }
-
-            out.video.push_back(imageInfo);
+            for (int sub = 0; oiioInput->seek_subimage(sub, 0); ++sub)
+            {
+                oiioSpec = oiioInput->spec();
+                const ftk::ImageType imageType = fromOIIO(oiioSpec);
+                if (ftk::ImageType::None == imageType)
+                {
+                    std::stringstream ss;
+                    ss << "Unsupported file: " << fileName;
+                    throw std::runtime_error(ss.str());
+                }
+                ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                imageInfo.layout.mirror.y = true;
+                out.video.push_back(imageInfo);
+            }
             out.videoTime = OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
                 OTIO_NS::RationalTime(_startFrame, _defaultSpeed),
                 OTIO_NS::RationalTime(_endFrame, _defaultSpeed));
-            out.tags = tags;
             return out;
         }
 
@@ -159,7 +159,7 @@ namespace tl
             const std::string& fileName,
             const ftk::InMemoryFile* memory,
             const OTIO_NS::RationalTime& time,
-            const io::Options&)
+            const io::Options& options)
         {
             std::unique_ptr<OIIO::Filesystem::IOMemReader> oiioMemReader;
             if (memory)
@@ -174,6 +174,19 @@ namespace tl
             {
                 std::stringstream ss;
                 ss << "Cannot open file: " << fileName;
+                throw std::runtime_error(ss.str());
+            }
+
+            int layer = 0;
+            const auto i = options.find("Layer");
+            if (i != options.end())
+            {
+                layer = std::atoi(i->second.c_str());
+            }
+            if (!oiioInput->seek_subimage(layer, 0))
+            {
+                std::stringstream ss;
+                ss << "Cannot open layer: " << layer;
                 throw std::runtime_error(ss.str());
             }
 
