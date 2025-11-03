@@ -146,6 +146,11 @@ namespace tl
                     throw std::runtime_error(ss.str());
                 }
                 ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
+                imageInfo.name = "";
+                for (int j = 0; j < oiioSpec.nchannels; ++j)
+                {
+                    imageInfo.name += oiioSpec.channelnames[j];
+                }
                 imageInfo.layout.mirror.y = true;
                 out.video.push_back(imageInfo);
             }
