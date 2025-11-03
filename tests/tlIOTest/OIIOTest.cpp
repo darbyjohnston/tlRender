@@ -116,7 +116,7 @@ namespace tl
             const std::vector<std::string> extensions =
             {
                 ".png",
-                ".exr"
+                //".exr"
             };
             const std::vector<bool> memoryIOList =
             {
@@ -132,7 +132,7 @@ namespace tl
             const std::vector<io::Options> optionsList =
             {
                 {},
-                {
+                /*{
                     { "OpenEXR/Compression", "none" }
                 },
                 {
@@ -141,7 +141,7 @@ namespace tl
                 {
                     { "OpenEXR/Compression", "dwaa" },
                     { "OpenEXR/DWACompressionLevel", "50" },
-                }
+                }*/
             };
             size_t count = 0;
             for (const auto& fileName : fileNames)

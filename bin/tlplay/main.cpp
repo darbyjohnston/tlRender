@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the tlRender project.
 
-#include "App.h"
+#include <tlPlayApp/App.h>
 
 #include <tlTimelineUI/Init.h>
+
 #include <tlDevice/Init.h>
 
 int main(int argc, char* argv[])

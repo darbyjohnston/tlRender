@@ -45,6 +45,12 @@ namespace tl
             _durationLabel = timelineui::TimeLabel::create(context, app->getTimeUnitsModel(), _layout);
             _durationLabel->setTooltip("The timeline duration.");
 
+            _speedEdit = ftk::DoubleEdit::create(context, _layout);
+            _speedEdit->setRange(ftk::RangeD(1.0, 999.0));
+            _speedEdit->setStep(1.0);
+            _speedEdit->setLargeStep(10.0);
+            _speedEdit->setTooltip("The timeline speed.");
+
             _timeUnitsComboBox = ftk::ComboBox::create(
                 context,
                 timeline::getTimeUnitsLabels(),
@@ -57,6 +63,15 @@ namespace tl
                     {
                         _player->stop();
                         _player->seek(value);
+                    }
+                });
+
+            _speedEdit->setCallback(
+                [this](double value)
+                {
+                    if (_player)
+                    {
+                        _player->setSpeed(value);
                     }
                 });
 
@@ -87,6 +102,13 @@ namespace tl
                             {
                                 _currentTimeEdit->setValue(value);
                             });
+
+                        _speedObserver = ftk::ValueObserver<double>::create(
+                            value->observeSpeed(),
+                            [this](double value)
+                            {
+                                _speedEdit->setValue(value);
+                            });
                     }
                     else
                     {
@@ -94,10 +116,12 @@ namespace tl
                         _durationLabel->setValue(time::invalidTime);
 
                         _currentTimeObserver.reset();
+                        _speedObserver.reset();
                     }
 
                     _currentTimeEdit->setEnabled(value.get());
                     _durationLabel->setEnabled(value.get());
+                    _speedEdit->setEnabled(value.get());
                 });
 
             _timeUnitsObserver = ftk::ValueObserver<timeline::TimeUnits>::create(
