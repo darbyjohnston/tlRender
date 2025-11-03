@@ -43,9 +43,9 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-//#if defined(TLRENDER_EXR)
-//                _plugins.push_back(exr::ReadPlugin::create(logSystem));
-//#endif // TLRENDER_EXR
+#if defined(TLRENDER_EXR)
+                _plugins.push_back(exr::ReadPlugin::create(logSystem));
+#endif // TLRENDER_EXR
 #if defined(TLRENDER_OIIO)
                 _plugins.push_back(oiio::ReadPlugin::create(logSystem));
 #endif // TLRENDER_OIIO
@@ -192,9 +192,9 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-//#if defined(TLRENDER_EXR)
-//                _plugins.push_back(exr::WritePlugin::create(logSystem));
-//#endif // TLRENDER_EXR
+#if defined(TLRENDER_EXR)
+                _plugins.push_back(exr::WritePlugin::create(logSystem));
+#endif // TLRENDER_EXR
 #if defined(TLRENDER_OIIO)
                 _plugins.push_back(oiio::WritePlugin::create(logSystem));
 #endif // TLRENDER_OIIO
