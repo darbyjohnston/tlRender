@@ -87,15 +87,15 @@ namespace tl
             const std::string& fileName,
             const OTIO_NS::RationalTime&,
             const std::shared_ptr<ftk::Image>& image,
-            const io::Options&)
+            const io::Options& options)
         {
+            // Open the file.
             auto oiioOutput = OIIO::ImageOutput::create(fileName);
             if (!oiioOutput)
             {
-                std::stringstream ss;
-                ss << "Cannot open file: " << fileName;
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(OIIO::geterror());
             }
+            const std::string format = oiioOutput->format_name();
 
             const auto& info = image->getInfo();
             OIIO::ImageSpec oiioSpec(
@@ -107,18 +107,32 @@ namespace tl
             {
                 oiioSpec.attribute(tag.first, tag.second);
             }
+            if ("openexr" == format)
+            {
+                auto i = options.find("OpenEXR/Compression");
+                if (i != options.end())
+                {
+                    std::string compression = i->second;
+                    if ("dwaa" == compression || "dwab" == compression)
+                    {
+                        i = options.find("OpenEXR/DWACompressionLevel");
+                        if (i != options.end())
+                        {
+                            compression += ":" + i->second;
+                        }
+                    }
+                    oiioSpec.attribute("compression", compression);
+                }
+            }
             if (!oiioOutput->open(fileName, oiioSpec))
             {
-                std::stringstream ss;
-                ss << "Cannot open file: " << fileName;
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(OIIO::geterror());
             }
 
+            // Write the image.
             if (!oiioOutput->write_image(oiioSpec.format, image->getData()))
             {
-                std::stringstream ss;
-                ss << "Cannot write file: " << fileName;
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(OIIO::geterror());
             }
         }
     }

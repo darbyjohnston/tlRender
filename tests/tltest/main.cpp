@@ -63,9 +63,9 @@ void ioTests(
 #if defined(TLRENDER_FFMPEG)
     tests.push_back(io_tests::FFmpegTest::create(context));
 #endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_EXR)
-    tests.push_back(io_tests::OpenEXRTest::create(context));
-#endif // TLRENDER_EXR
+//#if defined(TLRENDER_EXR)
+//    tests.push_back(io_tests::OpenEXRTest::create(context));
+//#endif // TLRENDER_EXR
 #if defined(TLRENDER_OIIO)
     tests.push_back(io_tests::OIIOTest::create(context));
 #endif // TLRENDER_OIIO

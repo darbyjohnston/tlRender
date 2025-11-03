@@ -266,9 +266,9 @@ namespace tl
             };
             const std::vector<std::pair<std::string, std::string> > options =
             {
-                { "OpenEXR/ChannelGrouing", "None" },
-                { "OpenEXR/ChannelGrouing", "Known" },
-                { "OpenEXR/ChannelGrouing", "All" },
+                { "OpenEXR/ChannelGrouping", "None" },
+                { "OpenEXR/ChannelGrouping", "Known" },
+                { "OpenEXR/ChannelGrouping", "All" },
                 { "OpenEXR/Compression", "None" },
                 { "OpenEXR/Compression", "RLE" },
                 { "OpenEXR/Compression", "ZIPS" },

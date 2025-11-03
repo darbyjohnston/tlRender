@@ -43,12 +43,12 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-#if defined(TLRENDER_EXR)
-                _plugins.push_back(exr::ReadPlugin::create(logSystem));
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_USD)
-                _plugins.push_back(usd::ReadPlugin::create(logSystem));
-#endif // TLRENDER_USD
+//#if defined(TLRENDER_EXR)
+//                _plugins.push_back(exr::ReadPlugin::create(logSystem));
+//#endif // TLRENDER_EXR
+#if defined(TLRENDER_OIIO)
+                _plugins.push_back(oiio::ReadPlugin::create(logSystem));
+#endif // TLRENDER_OIIO
 #if defined(TLRENDER_WMF)
                 // \todo WMF support is still a WIP.
                 //_plugins.push_back(wmf::ReadPlugin::create(logSystem));
@@ -56,9 +56,9 @@ namespace tl
 #if defined(TLRENDER_FFMPEG)
                 _plugins.push_back(ffmpeg::ReadPlugin::create(logSystem));
 #endif // TLRENDER_FFMPEG
-#if defined(TLRENDER_OIIO)
-                _plugins.push_back(oiio::ReadPlugin::create(logSystem));
-#endif // TLRENDER_OIIO
+#if defined(TLRENDER_USD)
+                _plugins.push_back(usd::ReadPlugin::create(logSystem));
+#endif // TLRENDER_USD
             }
 
             for (const auto& plugin : _plugins)
@@ -192,15 +192,15 @@ namespace tl
             if (auto context = _context.lock())
             {
                 auto logSystem = context->getLogSystem();
-#if defined(TLRENDER_EXR)
-                _plugins.push_back(exr::WritePlugin::create(logSystem));
-#endif // TLRENDER_EXR
-#if defined(TLRENDER_FFMPEG)
-                _plugins.push_back(ffmpeg::WritePlugin::create(logSystem));
-#endif // TLRENDER_FFMPEG
+//#if defined(TLRENDER_EXR)
+//                _plugins.push_back(exr::WritePlugin::create(logSystem));
+//#endif // TLRENDER_EXR
 #if defined(TLRENDER_OIIO)
                 _plugins.push_back(oiio::WritePlugin::create(logSystem));
 #endif // TLRENDER_OIIO
+#if defined(TLRENDER_FFMPEG)
+                _plugins.push_back(ffmpeg::WritePlugin::create(logSystem));
+#endif // TLRENDER_FFMPEG
             }
 
             for (const auto& plugin : _plugins)

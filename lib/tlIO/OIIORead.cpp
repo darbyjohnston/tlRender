@@ -57,9 +57,8 @@ namespace tl
             ftk::ImageType fromOIIO(const OIIO::ImageSpec& oiio)
             {
                 ftk::ImageType out = ftk::ImageType::None;
-                switch (oiio.nchannels)
+                if (1 == oiio.nchannels)
                 {
-                case 1:
                     switch (oiio.format.basetype)
                     {
                     case OIIO::TypeDesc::UINT8:  out = ftk::ImageType::L_U8;  break;
@@ -69,8 +68,9 @@ namespace tl
                     case OIIO::TypeDesc::FLOAT:  out = ftk::ImageType::L_F32; break;
                     default: break;
                     }
-                    break;
-                case 2:
+                }
+                else if (2 == oiio.nchannels)
+                {
                     switch (oiio.format.basetype)
                     {
                     case OIIO::TypeDesc::UINT8:  out = ftk::ImageType::LA_U8;  break;
@@ -80,8 +80,9 @@ namespace tl
                     case OIIO::TypeDesc::FLOAT:  out = ftk::ImageType::LA_F32; break;
                     default: break;
                     }
-                    break;
-                case 3:
+                }
+                else if (3 == oiio.nchannels)
+                {
                     switch (oiio.format.basetype)
                     {
                     case OIIO::TypeDesc::UINT8:  out = ftk::ImageType::RGB_U8;  break;
@@ -91,8 +92,9 @@ namespace tl
                     case OIIO::TypeDesc::FLOAT:  out = ftk::ImageType::RGB_F32; break;
                     default: break;
                     }
-                    break;
-                case 4:
+                }
+                else if (oiio.nchannels >= 4)
+                {
                     switch (oiio.format.basetype)
                     {
                     case OIIO::TypeDesc::UINT8:  out = ftk::ImageType::RGBA_U8;  break;
@@ -102,8 +104,6 @@ namespace tl
                     case OIIO::TypeDesc::FLOAT:  out = ftk::ImageType::RGBA_F32; break;
                     default: break;
                     }
-                    break;
-                default: break;
                 }
                 return out;
             }
@@ -113,6 +113,7 @@ namespace tl
             const std::string& fileName,
             const ftk::InMemoryFile* memory)
         {
+            // Open the file.
             std::unique_ptr<OIIO::Filesystem::IOMemReader> oiioMemReader;
             if (memory)
             {
@@ -124,11 +125,10 @@ namespace tl
                 oiioMemReader.get());
             if (!oiioInput)
             {
-                std::stringstream ss;
-                ss << "Cannot open file: " << fileName;
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(OIIO::geterror());
             }
 
+            // Get file information.
             io::Info out;
             auto oiioSpec = oiioInput->spec();
             for (const auto& i : oiioSpec.extra_attribs)
@@ -161,6 +161,7 @@ namespace tl
             const OTIO_NS::RationalTime& time,
             const io::Options& options)
         {
+            // Open the file.
             std::unique_ptr<OIIO::Filesystem::IOMemReader> oiioMemReader;
             if (memory)
             {
@@ -172,11 +173,10 @@ namespace tl
                 oiioMemReader.get());
             if (!oiioInput)
             {
-                std::stringstream ss;
-                ss << "Cannot open file: " << fileName;
-                throw std::runtime_error(ss.str());
+                throw std::runtime_error(OIIO::geterror());
             }
 
+            // Find the layer.
             int layer = 0;
             const auto i = options.find("Layer");
             if (i != options.end())
@@ -190,6 +190,7 @@ namespace tl
                 throw std::runtime_error(ss.str());
             }
 
+            // Get file information.
             const auto& oiioSpec = oiioInput->spec();
             const ftk::ImageType imageType = fromOIIO(oiioSpec);
             if (ftk::ImageType::None == imageType)
@@ -199,6 +200,7 @@ namespace tl
                 throw std::runtime_error(ss.str());
             }
 
+            // Get the tags.
             ftk::ImageInfo imageInfo(oiioSpec.width, oiioSpec.height, imageType);
             imageInfo.layout.mirror.y = true;
             ftk::ImageTags tags;
@@ -207,17 +209,21 @@ namespace tl
                 tags[std::string(i.name())] = i.get_string();
             }
 
+            // Read the image.
             io::VideoData out;
             out.time = time;
             out.image = ftk::Image::create(imageInfo);
             out.image->setTags(tags);
-            oiioInput->read_image(
+            if (!oiioInput->read_image(
+                layer,
                 0,
                 0,
-                0,
-                oiioSpec.nchannels,
+                ftk::getChannelCount(imageType),
                 oiioSpec.format,
-                out.image->getData());
+                out.image->getData()))
+            {
+                throw std::runtime_error(OIIO::geterror());
+            }
             return out;
         }
     }

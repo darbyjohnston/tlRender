@@ -16,7 +16,8 @@ namespace tl
     {
         OIIOTest::OIIOTest(const std::shared_ptr<ftk::Context>& context) :
             ITest(context, "io_tests::OIIOTest")
-        {}
+        {
+        }
 
         std::shared_ptr<OIIOTest> OIIOTest::create(const std::shared_ptr<ftk::Context>& context)
         {
@@ -29,12 +30,13 @@ namespace tl
                 const std::shared_ptr<io::IWritePlugin>& plugin,
                 const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
-                const ftk::ImageInfo& imageInfo)
+                const ftk::ImageInfo& imageInfo,
+                const Options& options)
             {
                 Info info;
                 info.video.push_back(imageInfo);
                 info.videoTime = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
-                auto write = plugin->write(path, info);
+                auto write = plugin->write(path, info, options);
                 write->writeVideo(OTIO_NS::RationalTime(0.0, 24.0), image);
             }
 
@@ -42,7 +44,8 @@ namespace tl
                 const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
-                bool memoryIO)
+                bool memoryIO,
+                const Options& options)
             {
                 std::vector<uint8_t> memoryData;
                 std::vector<ftk::InMemoryFile> memory;
@@ -53,11 +56,11 @@ namespace tl
                     memoryData.resize(fileIO->getSize());
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(ftk::InMemoryFile(memoryData.data(), memoryData.size()));
-                    read = plugin->read(path, memory);
+                    read = plugin->read(path, memory, options);
                 }
                 else
                 {
-                    read = plugin->read(path);
+                    read = plugin->read(path, options);
                 }
                 const auto ioInfo = read->getInfo().get();
                 FTK_ASSERT(!ioInfo.video.empty());
@@ -75,7 +78,8 @@ namespace tl
                 const std::shared_ptr<io::IReadPlugin>& plugin,
                 const std::shared_ptr<ftk::Image>& image,
                 const file::Path& path,
-                bool memoryIO)
+                bool memoryIO,
+                const Options& options)
             {
                 {
                     auto fileIO = ftk::FileIO::create(path.get(), ftk::FileMode::Read);
@@ -92,7 +96,7 @@ namespace tl
                     fileIO->read(memoryData.data(), memoryData.size());
                     memory.push_back(ftk::InMemoryFile(memoryData.data(), memoryData.size()));
                 }
-                auto read = plugin->read(path, memory);
+                auto read = plugin->read(path, memory, options);
                 const auto videoData = read->readVideo(OTIO_NS::RationalTime(0.0, 24.0)).get();
             }
         }
@@ -103,11 +107,16 @@ namespace tl
             auto readPlugin = readSystem->getPlugin<oiio::ReadPlugin>();
             auto writeSystem = _context->getSystem<WriteSystem>();
             auto writePlugin = writeSystem->getPlugin<oiio::WritePlugin>();
-            
+
             const std::vector<std::string> fileNames =
             {
                 "OIIOTest",
                 "大平原"
+            };
+            const std::vector<std::string> extensions =
+            {
+                ".png",
+                ".exr"
             };
             const std::vector<bool> memoryIOList =
             {
@@ -120,36 +129,58 @@ namespace tl
                 ftk::Size2I(1, 1),
                 ftk::Size2I(0, 0)
             };
-
+            const std::vector<io::Options> optionsList =
+            {
+                {},
+                {
+                    { "OpenEXR/Compression", "none" }
+                },
+                {
+                    { "OpenEXR/Compression", "zip" }
+                },
+                {
+                    { "OpenEXR/Compression", "dwaa" },
+                    { "OpenEXR/DWACompressionLevel", "50" },
+                }
+            };
+            size_t count = 0;
             for (const auto& fileName : fileNames)
             {
-                for (const bool memoryIO : memoryIOList)
+                for (const auto& extension : extensions)
                 {
-                    for (const auto& size : sizes)
+                    for (const bool memoryIO : memoryIOList)
                     {
-                        for (const auto pixelType : ftk::getImageTypeEnums())
+                        for (const auto& size : sizes)
                         {
-                            const auto imageInfo = writePlugin->getInfo(ftk::ImageInfo(size, pixelType));
-                            if (imageInfo.isValid())
+                            for (const auto pixelType : ftk::getImageTypeEnums())
                             {
-                                file::Path path;
+                                for (const auto& options : optionsList)
                                 {
-                                    std::stringstream ss;
-                                    ss << fileName << '_' << size << '_' << pixelType << ".0.png";
-                                    _print(ss.str());
-                                    path = file::Path(ss.str());
-                                }
-                                const auto image = ftk::Image::create(imageInfo);
-                                image->zero();
-                                try
-                                {
-                                    write(writePlugin, image, path, imageInfo);
-                                    read(readPlugin, image, path, memoryIO);
-                                    readError(readPlugin, image, path, memoryIO);
-                                }
-                                catch (const std::exception& e)
-                                {
-                                    _printError(e.what());
+                                    const auto imageInfo = writePlugin->getInfo(ftk::ImageInfo(size, pixelType));
+                                    if (imageInfo.isValid())
+                                    {
+                                        file::Path path;
+                                        {
+                                            std::stringstream ss;
+                                            ss << fileName << '_' << count << '_' << size.w << "x" << size.h << '_' << pixelType << ".0" << extension;
+                                            _print(ss.str());
+                                            path = file::Path(ss.str());
+                                        }
+                                        const auto image = ftk::Image::create(imageInfo);
+                                        image->zero();
+                                        try
+                                        {
+                                            write(writePlugin, image, path, imageInfo, options);
+                                            read(readPlugin, image, path, memoryIO, options);
+                                            readError(readPlugin, image, path, memoryIO, options);
+                                        }
+                                        catch (const std::exception& e)
+                                        {
+                                            _printError(e.what());
+                                        }
+
+                                        ++count;
+                                    }
                                 }
                             }
                         }
