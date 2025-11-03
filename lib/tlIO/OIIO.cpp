@@ -16,9 +16,13 @@ namespace tl
             std::map<std::string, io::FileType> extensions;
             for (const auto& i : OIIO::get_extension_map())
             {
-                for (const auto& extension : i.second)
+                //! Filter out FFmpeg extensions.
+                if (i.first != "ffmpeg")
                 {
-                    extensions["." + extension] = io::FileType::Sequence;
+                    for (const auto& extension : i.second)
+                    {
+                        extensions["." + extension] = io::FileType::Sequence;
+                    }
                 }
             }
             IReadPlugin::_init("OIIO", extensions, logSystem);
