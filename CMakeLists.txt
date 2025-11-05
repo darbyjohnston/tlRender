@@ -18,7 +18,7 @@ project(
     tlRender
     VERSION ${TLRENDER_VERSION}
     DESCRIPTION "tlRender is an open source library for building playback and review applications for visual effects, film, and animation"
-    HOMEPAGE_URL "https://github.com/darbyjohnston/tlRender"
+    HOMEPAGE_URL "https://github.com/grizzlypeak3d/tlRender"
     LANGUAGES CXX C)
 
 #-------------------------------------------------------------------------------

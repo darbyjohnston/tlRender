@@ -1,6 +1,6 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Build Status](https://github.com/darbyjohnston/tlRender/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/darbyjohnston/tlRender/actions/workflows/ci-workflow.yml)
-[![codecov](https://codecov.io/gh/codecov/example-cpp11-cmake/branch/master/graph/badge.svg)](https://codecov.io/gh/darbyjohnston/tlRender)
+[![Build Status](https://github.com/grizzlypeak3d/tlRender/actions/workflows/ci-workflow.yml/badge.svg)](https://github.com/grizzlypeak3d/tlRender/actions/workflows/ci-workflow.yml)
+[![codecov](https://codecov.io/gh/codecov/example-cpp11-cmake/branch/master/graph/badge.svg)](https://codecov.io/gh/grizzlypeak3d/tlRender)
 
 # tlRender
 
@@ -35,7 +35,7 @@ source except for Qt. If building with Qt is enabled, it needs to be installed
 separately.
 
 Required dependencies:
-* [feather-tk](https://github.com/darbyjohnston/feather-tk)
+* [feather-tk](https://github.com/grizzlypeak3d/feather-tk)
 * [Imath](https://github.com/AcademySoftwareFoundation/Imath)
 * [minizip-ng](https://github.com/zlib-ng/minizip-ng)
 * [OpenTimelineIO](https://github.com/PixarAnimationStudios/OpenTimelineIO)
@@ -72,7 +72,7 @@ sudo dnf install libX11-devel libXrandr-devel libXinerama-devel libXcursor-devel
 
 Clone the repository:
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
+git clone https://github.com/grizzlypeak3d/tlRender.git
 ```
 
 Run the super build script:
@@ -102,7 +102,7 @@ Dependencies:
 
 Clone the repository:
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
+git clone https://github.com/grizzlypeak3d/tlRender.git
 ```
 
 Run the super build script:
@@ -139,7 +139,7 @@ This can be found in the Start menu, in the "Visual Studio 2022" folder.
 
 Clone the repository:
 ```
-git clone https://github.com/darbyjohnston/tlRender.git
+git clone https://github.com/grizzlypeak3d/tlRender.git
 ```
 
 Run the super build script:
