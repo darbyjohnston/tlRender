@@ -56,13 +56,6 @@ jobs:
         cd build-Debug
         sh ../tlRender/etc/Linux/lcov.sh
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      with:
-        files: ${{ github.workspace }}/build-Debug/coverage_filtered.info
-        fail_ci_if_error: true
-        token: ${{ secrets.CODECOV_TOKEN }}
-
   linux-minimal-build:
     runs-on: ubuntu-latest
 
