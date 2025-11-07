@@ -29,7 +29,7 @@ namespace tl
             const std::shared_ptr<ftk::Context>& context,
             const std::shared_ptr<App>& app)
         {
-            timelineui::Window::_init(context, "tlplay", ftk::Size2I(1920, 1080));
+            timelineui::Window::_init(context, app, "tlplay", ftk::Size2I(1920, 1080));
 
             _app = app;
 

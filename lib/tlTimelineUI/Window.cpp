@@ -11,10 +11,11 @@ namespace tl
     {
         void Window::_init(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::App>& app,
             const std::string& name,
             const ftk::Size2I& size)
         {
-            ftk::Window::_init(context, name, size);
+            ftk::Window::_init(context, app, name, size);
         }
 
         Window::~Window()
@@ -22,11 +23,12 @@ namespace tl
 
         std::shared_ptr<Window> Window::create(
             const std::shared_ptr<ftk::Context>& context,
+            const std::shared_ptr<ftk::App>& app,
             const std::string& name,
             const ftk::Size2I& size)
         {
             auto out = std::shared_ptr<Window>(new Window);
-            out->_init(context, name, size);
+            out->_init(context, app, name, size);
             return out;
         }
 

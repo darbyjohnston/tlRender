@@ -20,6 +20,7 @@ namespace tl
         protected:
             void _init(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::App>&,
                 const std::string& name,
                 const ftk::Size2I&);
 
@@ -31,6 +32,7 @@ namespace tl
             //! Create a new window.
             static std::shared_ptr<Window> create(
                 const std::shared_ptr<ftk::Context>&,
+                const std::shared_ptr<ftk::App>&,
                 const std::string& name,
                 const ftk::Size2I&);
 

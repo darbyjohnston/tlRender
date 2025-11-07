@@ -135,7 +135,6 @@ namespace tl
             _window = MainWindow::create(
                 _context,
                 std::dynamic_pointer_cast<App>(shared_from_this()));
-            addWindow(_window);
 
             _playerObserver = ftk::ValueObserver<std::shared_ptr<timeline::Player> >::create(
                 _filesModel->observePlayer(),
