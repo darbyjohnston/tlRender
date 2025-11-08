@@ -152,8 +152,8 @@ namespace tl
                 bool,
                 const ftk::TickEvent&) override;
             void sizeHintEvent(const ftk::SizeHintEvent&) override;
-            void mouseEnterEvent(ftk::MouseEnterEvent&);
-            void mouseLeaveEvent();
+            void mouseEnterEvent(ftk::MouseEnterEvent&) override;
+            void mouseLeaveEvent() override;
             void mouseMoveEvent(ftk::MouseMoveEvent&) override;
             void mousePressEvent(ftk::MouseClickEvent&) override;
             void mouseReleaseEvent(ftk::MouseClickEvent&) override;
