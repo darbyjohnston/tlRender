@@ -27,17 +27,15 @@ namespace tl
                 QGuiApplication(argc, argv)
             {
                 auto args = ftk::convert(argc, argv);
+                auto input = ftk::CmdLineValueArg<std::string>::create(
+                    "input",
+                    "The input timeline.");
                 IApp::_init(
                     context,
                     args,
                     "player-qtquick",
                     "Example Qt Quick player application.",
-                    {
-                        ftk::CmdLineValueArg<std::string>::create(
-                            _input,
-                            "input",
-                            "The input timeline.")
-                    });
+                    { input });
                 const int exitCode = getExit();
                 if (exitCode != 0)
                 {
@@ -55,7 +53,7 @@ namespace tl
                 _timeObject.reset(new qt::TimeObject(_timeUnitsModel, this));
 
                 // Open the input file.
-                auto timeline = timeline::Timeline::create(context, _input);
+                auto timeline = timeline::Timeline::create(context, input->getValue());
                 auto player = timeline::Player::create(context, timeline);
                 _player.reset(new qt::PlayerObject(context, player));
 

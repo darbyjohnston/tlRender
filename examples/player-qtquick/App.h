@@ -34,8 +34,6 @@ namespace tl
                 virtual ~App();
 
             private:
-                std::string _input;
-
                 QScopedPointer<qt::ContextObject> _contextObject;
                 std::shared_ptr<timeline::TimeUnitsModel> _timeUnitsModel;
                 QScopedPointer<qt::TimeObject> _timeObject;

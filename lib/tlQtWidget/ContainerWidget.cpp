@@ -37,7 +37,7 @@ namespace tl
             public:
                 void _init(const std::shared_ptr<ftk::Context>& context)
                 {
-                    IWindow::_init(context, "tl::qtwidget::ContainerWindow", nullptr);
+                    IWindow::_init(context, nullptr, "tl::qtwidget::ContainerWindow");
                 }
 
                 ContainerWindow()
@@ -47,13 +47,15 @@ namespace tl
                 virtual ~ContainerWindow()
                 {}
 
-                static std::shared_ptr<ContainerWindow> create(
-                    const std::shared_ptr<ftk::Context>& context)
+                static std::shared_ptr<ContainerWindow> create(const std::shared_ptr<ftk::Context>& context)
                 {
                     auto out = std::shared_ptr<ContainerWindow>(new ContainerWindow);
                     out->_init(context);
                     return out;
                 }
+
+                uint32_t getID() const override { return 0; }
+                int getScreen() const override { return 0; }
 
                 bool key(ftk::Key key, bool press, int modifiers)
                 {
@@ -93,6 +95,13 @@ namespace tl
                         i->setGeometry(value);
                     }
                 }
+
+            protected:
+                void _update(
+                    const std::shared_ptr<ftk::FontSystem>&,
+                    const std::shared_ptr<ftk::IconSystem>&,
+                    const std::shared_ptr<ftk::Style>&)
+                {}
             };
         }
 
@@ -233,7 +242,7 @@ namespace tl
                         "\n"
                         "void main()\n"
                         "{\n"
-                        "    gl_Position = vec4(vPos, 1.0) * transform.mvp;\n"
+                        "    gl_Position = transform.mvp * vec4(vPos, 1.0);\n"
                         "    fTexture = vTexture;\n"
                         "}\n";
                     const std::string fragmentSource =
@@ -339,8 +348,8 @@ namespace tl
                 const auto pm = ftk::ortho(
                     0.F,
                     static_cast<float>(renderSize.w),
-                    0.F,
                     static_cast<float>(renderSize.h),
+                    0.F,
                     -1.F,
                     1.F);
                 p.shader->setUniform("transform.mvp", pm);
@@ -348,7 +357,7 @@ namespace tl
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D, p.buffer->getColorID());
 
-                const auto mesh = ftk::mesh(ftk::Box2I(0, 0, renderSize.w, renderSize.h));
+                const auto mesh = ftk::mesh(ftk::Box2I(0, 0, renderSize.w, renderSize.h), true);
                 if (!p.vbo)
                 {
                     p.vbo = ftk::gl::VBO::create(mesh.triangles.size() * 3, ftk::gl::VBOType::Pos2_F32_UV_U16);
