@@ -3,7 +3,7 @@ include(ExternalProject)
 set(USD_DEPS)
 
 set(USD_GIT_REPOSITORY https://github.com/PixarAnimationStudios/OpenUSD.git)
-set(USD_GIT_TAG v25.08)
+set(USD_GIT_TAG v25.11)
 
 string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LC)
 set(USD_ARGS --build-variant ${CMAKE_BUILD_TYPE_LC})
