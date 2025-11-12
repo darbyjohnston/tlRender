@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(expat_GIT_REPOSITORY "https://github.com/libexpat/libexpat.git")
-set(expat_GIT_TAG "R_2_5_0")
+set(expat_GIT_TAG "R_2_7_2")
 
 set(expat_ARGS
     -DEXPAT_BUILD_TOOLS=OFF

@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(yaml-cpp_GIT_REPOSITORY "https://github.com/jbeder/yaml-cpp.git")
-set(yaml-cpp_GIT_TAG "yaml-cpp-0.7.0")
+set(yaml-cpp_GIT_TAG "0.8.0")
 
 set(yaml-cpp_ARGS
     -DYAML_CPP_BUILD_CONTRIB=OFF
