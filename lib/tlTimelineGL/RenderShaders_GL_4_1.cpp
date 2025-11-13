@@ -86,11 +86,11 @@ namespace tl
             args.push_back(lutDef);
             switch (lutOrder)
             {
-            case timeline::LUTOrder::PreColorConfig:
+            case timeline::LUTOrder::PreConfig:
                 args.push_back(lut);
                 args.push_back(ocio);
                 break;
-            case timeline::LUTOrder::PostColorConfig:
+            case timeline::LUTOrder::PostConfig:
                 args.push_back(ocio);
                 args.push_back(lut);
                 break;

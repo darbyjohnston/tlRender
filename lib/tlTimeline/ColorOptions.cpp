@@ -47,8 +47,8 @@ namespace tl
 
         FTK_ENUM_IMPL(
             LUTOrder,
-            "Post Color Config",
-            "Pre Color Config");
+            "Post-Config",
+            "Pre-Config");
 
         bool LUTOptions::operator == (const LUTOptions& other) const
         {

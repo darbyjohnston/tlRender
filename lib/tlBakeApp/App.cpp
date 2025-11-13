@@ -145,12 +145,12 @@ namespace tl
                 "Enable sRGB color space.",
                 "USD",
                 true);
-            _cmdLine.usdStageCache = ftk::CmdLineValueOption<size_t>::create(
+            _cmdLine.usdStageCache = ftk::CmdLineValueOption<int>::create(
                 { "-usdStageCache" },
                 "Stage cache size.",
                 "USD",
                 10);
-            _cmdLine.usdDiskCache = ftk::CmdLineValueOption<size_t>::create(
+            _cmdLine.usdDiskCache = ftk::CmdLineValueOption<int>::create(
                 { "-usdDiskCache" },
                 "Disk cache size in gigabytes. A size of zero disables the cache.",
                 "USD",
@@ -432,13 +432,13 @@ namespace tl
             if (_cmdLine.usdStageCache->hasValue())
             {
                 std::stringstream ss;
-                ss << _cmdLine.usdStageCache->getValue();
+                ss << std::max(0, _cmdLine.usdStageCache->getValue());
                 out["USD/StageCacheCount"] = ss.str();
             }
             if (_cmdLine.usdDiskCache->hasValue())
             {
                 std::stringstream ss;
-                ss << _cmdLine.usdDiskCache->getValue() * ftk::gigabyte;
+                ss << std::max(0, _cmdLine.usdDiskCache->getValue()) * ftk::gigabyte;
                 out["USD/DiskCacheByteCount"] = ss.str();
             }
 #endif // TLRENDER_USD

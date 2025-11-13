@@ -735,8 +735,7 @@ namespace tl
                             i = ioOptions.find("USD/DrawMode");
                             if (i != ioOptions.end())
                             {
-                                std::stringstream ss(i->second);
-                                ss >> drawMode;
+                                from_string(i->second, drawMode);
                             }
                             bool enableLighting = true;
                             i = ioOptions.find("USD/EnableLighting");

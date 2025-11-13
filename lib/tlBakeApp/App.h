@@ -63,8 +63,8 @@ namespace tl
             std::shared_ptr<ftk::CmdLineValueOption<usd::DrawMode> > usdDrawMode;
             std::shared_ptr<ftk::CmdLineValueOption<bool> > usdEnableLighting;
             std::shared_ptr<ftk::CmdLineValueOption<bool> > usdSRGB;
-            std::shared_ptr<ftk::CmdLineValueOption<size_t> > usdStageCache;
-            std::shared_ptr<ftk::CmdLineValueOption<size_t> > usdDiskCache;
+            std::shared_ptr<ftk::CmdLineValueOption<int> > usdStageCache;
+            std::shared_ptr<ftk::CmdLineValueOption<int> > usdDiskCache;
 #endif // TLRENDER_USD
         };
 

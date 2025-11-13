@@ -45,11 +45,11 @@ namespace tl
         //! LUT operation order.
         enum class LUTOrder
         {
-            PostColorConfig,
-            PreColorConfig,
+            PostConfig,
+            PreConfig,
 
             Count,
-            First = PostColorConfig
+            First = PostConfig
         };
         FTK_ENUM(LUTOrder);
 
