@@ -23,8 +23,7 @@ namespace tl
             auto i = options.find("OpenEXR/Compression");
             if (i != options.end())
             {
-                std::stringstream ss(i->second);
-                ss >> _compression;
+                from_string(i->second, _compression);
             }
             i = options.find("OpenEXR/DWACompressionLevel");
             if (i != options.end())

@@ -86,8 +86,7 @@ namespace tl
             i = options.find("FFmpeg/AudioDataType");
             if (i != options.end())
             {
-                std::stringstream ss(i->second);
-                ss >> p.options.audioConvertInfo.dataType;
+                from_string(i->second, p.options.audioConvertInfo.dataType);
             }
             i = options.find("FFmpeg/AudioSampleRate");
             if (i != options.end())
@@ -116,8 +115,7 @@ namespace tl
             i = options.find("FFmpeg/AudioBufferSize");
             if (i != options.end())
             {
-                std::stringstream ss(i->second);
-                ss >> p.options.audioBufferSize;
+                from_string(i->second, p.options.audioBufferSize);
             }
 
             p.videoThread.running = true;

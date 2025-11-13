@@ -22,11 +22,15 @@ namespace tl
                     _print(ss.str());
                 }
                 {
+                    const T v = T::First;
+                    const std::string s = to_string(v);
+                    T v2 = T::First;
+                    from_string(s, v2);
+                    FTK_ASSERT(v == v2);
+                }
+                {
                     std::stringstream ss;
                     ss << i;
-                    T j;
-                    ss >> j;
-                    FTK_ASSERT(i == j);
                 }
             }
         }

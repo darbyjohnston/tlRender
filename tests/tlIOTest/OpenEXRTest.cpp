@@ -301,7 +301,7 @@ namespace tl
                                     file::Path path;
                                     {
                                         std::stringstream ss;
-                                        ss << fileName << '_' << size << '_' << pixelType << ".0.exr";
+                                        ss << fileName << ' ' << size << ' ' << pixelType << ".0.exr";
                                         _print(ss.str());
                                         path = file::Path(ss.str());
                                     }

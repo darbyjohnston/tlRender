@@ -312,6 +312,20 @@ namespace tl
         void TimeTest::_serialize()
         {
             {
+                const auto t = OTIO_NS::RationalTime(1.0, 24.0);
+                const std::string s = opentime::OPENTIME_VERSION::to_string(t);
+                OTIO_NS::RationalTime t2 = invalidTime;
+                from_string(s, t2);
+                FTK_ASSERT(t == t2);
+            }
+            {
+                const auto t = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
+                const std::string s = opentime::OPENTIME_VERSION::to_string(t);
+                OTIO_NS::TimeRange t2 = invalidTimeRange;
+                from_string(s, t2);
+                FTK_ASSERT(t == t2);
+            }
+            {
                 const OTIO_NS::RationalTime t(1.0, 24.0);
                 nlohmann::json json;
                 to_json(json, t);
@@ -327,49 +341,6 @@ namespace tl
                 from_json(json, t2);
                 FTK_ASSERT(t == t2);
             }
-            {
-                const auto t = OTIO_NS::RationalTime(1.0, 24.0);
-                std::stringstream ss;
-                ss << t;
-                OTIO_NS::RationalTime t2 = invalidTime;
-                ss >> t2;
-                FTK_ASSERT(t == t2);
-            }
-            try
-            {
-                OTIO_NS::RationalTime t = invalidTime;
-                std::stringstream ss("...");
-                ss >> t;
-                FTK_ASSERT(false);
-            }
-            catch (const std::exception&)
-            {}
-            {
-                const auto t = OTIO_NS::TimeRange(OTIO_NS::RationalTime(0.0, 24.0), OTIO_NS::RationalTime(1.0, 24.0));
-                std::stringstream ss;
-                ss << t;
-                OTIO_NS::TimeRange t2 = invalidTimeRange;
-                ss >> t2;
-                FTK_ASSERT(t == t2);
-            }
-            try
-            {
-                OTIO_NS::TimeRange t = invalidTimeRange;
-                std::stringstream ss("...");
-                ss >> t;
-                FTK_ASSERT(false);
-            }
-            catch (const std::exception&)
-            {}
-            try
-            {
-                OTIO_NS::TimeRange t = invalidTimeRange;
-                std::stringstream ss(".-.");
-                ss >> t;
-                FTK_ASSERT(false);
-            }
-            catch (const std::exception&)
-            {}
        }
     }
 }

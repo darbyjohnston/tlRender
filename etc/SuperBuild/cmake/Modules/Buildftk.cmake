@@ -1,7 +1,7 @@
 include(ExternalProject)
 
 set(ftk_GIT_REPOSITORY "https://github.com/grizzlypeak3d/feather-tk.git")
-set(ftk_GIT_TAG "33e2003a0634cb36322b57a57c63c6f99a865b1b")
+set(ftk_GIT_TAG "a79ad8d1a2f023f8d320176a008400249ec4f94e")
 
 set(ftk_DEPS ZLIB PNG)
 set(ftk_ARGS

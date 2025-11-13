@@ -162,7 +162,7 @@ namespace tl
                                         file::Path path;
                                         {
                                             std::stringstream ss;
-                                            ss << fileName << '_' << count << '_' << size.w << "x" << size.h << '_' << pixelType << ".0" << extension;
+                                            ss << fileName << ' ' << count << ' ' << size << ' ' << pixelType << ".0" << extension;
                                             _print(ss.str());
                                             path = file::Path(ss.str());
                                         }

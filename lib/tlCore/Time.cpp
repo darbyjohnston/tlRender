@@ -196,6 +196,63 @@ namespace opentime
 {
     namespace OPENTIME_VERSION
     {
+        std::string to_string(const RationalTime& value)
+        {
+            std::stringstream ss;
+            ss << std::fixed << value.value() << "/" << value.rate();
+            return ss.str();
+        }
+
+        std::string to_string(const TimeRange& value)
+        {
+            std::stringstream ss;
+            ss << std::fixed << value.start_time().value() << "/" <<
+                value.duration().value() << "/" <<
+                value.duration().rate();
+            return ss.str();
+        }
+
+        bool from_string(const std::string& s, RationalTime& value)
+        {
+            bool out = false;
+            auto split = ftk::split(s, '/');
+            if (2 == split.size())
+            {
+                value = RationalTime(std::stof(split[0]), std::stof(split[1]));
+                out = true;
+            }
+            return out;
+        }
+
+        bool from_string(const std::string& s, TimeRange& value)
+        {
+            bool out = false;
+            auto split = ftk::split(s, '/');
+            if (3 == split.size())
+            {
+                double startTime = 0.0;
+                {
+                    std::stringstream ss(split[0]);
+                    ss >> startTime;
+                }
+                double duration = 0.0;
+                {
+                    std::stringstream ss(split[1]);
+                    ss >> duration;
+                }
+                double rate = 0.0;
+                {
+                    std::stringstream ss(split[2]);
+                    ss >> rate;
+                }
+                value = TimeRange(
+                    RationalTime(startTime, rate),
+                    RationalTime(duration, rate));
+                out = true;
+            }
+            return out;
+        }
+
         void to_json(nlohmann::json& json, const RationalTime& value)
         {
             json = { value.value(), value.rate() };
@@ -226,59 +283,42 @@ namespace opentime
 
         std::ostream& operator << (std::ostream& os, const RationalTime& value)
         {
-            os << std::fixed << value.value() << "/" << value.rate();
+            os << to_string(value);
             return os;
         }
 
         std::ostream& operator << (std::ostream& os, const TimeRange& value)
         {
-            os << std::fixed << value.start_time().value() << "/" <<
-                value.duration().value() << "/" <<
-                value.duration().rate();
+            os << to_string(value);
             return os;
         }
 
-        std::istream& operator >> (std::istream& is, RationalTime& out)
+        bool cmdLineParse(std::vector<std::string>& args, std::vector<std::string>::iterator& it, RationalTime& value)
         {
-            std::string s;
-            is >> s;
-            auto split = ftk::split(s, '/');
-            if (split.size() != 2)
+            bool out = false;
+            if (it != args.end())
             {
-                throw ftk::ParseError();
+                out = from_string(*it, value);
+                if (out)
+                {
+                    it = args.erase(it);
+                }
             }
-            out = RationalTime(std::stof(split[0]), std::stof(split[1]));
-            return is;
+            return out;
         }
 
-        std::istream& operator >> (std::istream& is, TimeRange& out)
+        bool cmdLineParse(std::vector<std::string>& args, std::vector<std::string>::iterator& it, TimeRange& value)
         {
-            std::string s;
-            is >> s;
-            auto split = ftk::split(s, '/');
-            if (split.size() != 3)
+            bool out = false;
+            if (it != args.end())
             {
-                throw ftk::ParseError();
+                out = from_string(*it, value);
+                if (out)
+                {
+                    it = args.erase(it);
+                }
             }
-            double startTime = 0.0;
-            {
-                std::stringstream ss(split[0]);
-                ss >> startTime;
-            }
-            double duration = 0.0;
-            {
-                std::stringstream ss(split[1]);
-                ss >> duration;
-            }
-            double rate = 0.0;
-            {
-                std::stringstream ss(split[2]);
-                ss >> rate;
-            }
-            out = TimeRange(
-                RationalTime(startTime, rate),
-                RationalTime(duration, rate));
-            return is;
+            return out;
         }
     }
 }

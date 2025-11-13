@@ -94,6 +94,12 @@ namespace opentime
 {
     namespace OPENTIME_VERSION
     {
+        std::string to_string(const RationalTime&);
+        std::string to_string(const TimeRange&);
+
+        bool from_string(const std::string&, RationalTime&);
+        bool from_string(const std::string&, TimeRange&);
+
         void to_json(nlohmann::json&, const RationalTime&);
         void to_json(nlohmann::json&, const TimeRange&);
 
@@ -103,8 +109,8 @@ namespace opentime
         std::ostream& operator << (std::ostream&, const RationalTime&);
         std::ostream& operator << (std::ostream&, const TimeRange&);
 
-        std::istream& operator >> (std::istream&, RationalTime&);
-        std::istream& operator >> (std::istream&, TimeRange&);
+        bool cmdLineParse(std::vector<std::string>&, std::vector<std::string>::iterator&, RationalTime&);
+        bool cmdLineParse(std::vector<std::string>&, std::vector<std::string>::iterator&, TimeRange&);
     }
 }
 
