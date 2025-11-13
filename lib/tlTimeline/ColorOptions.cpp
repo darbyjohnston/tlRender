@@ -24,8 +24,8 @@ namespace tl
     {
         FTK_ENUM_IMPL(
             OCIOConfig,
-            "BuiltIn",
-            "EnvVar",
+            "Built In",
+            "Environment Variable",
             "File");
 
         bool OCIOOptions::operator == (const OCIOOptions& other) const
@@ -47,8 +47,8 @@ namespace tl
 
         FTK_ENUM_IMPL(
             LUTOrder,
-            "PostColorConfig",
-            "PreColorConfig");
+            "Post Color Config",
+            "Pre Color Config");
 
         bool LUTOptions::operator == (const LUTOptions& other) const
         {

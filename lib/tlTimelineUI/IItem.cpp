@@ -17,13 +17,13 @@ namespace tl
     {
         FTK_ENUM_IMPL(
             InOutDisplay,
-            "InsideRange",
-            "OutsideRange");
+            "Inside Range",
+            "Outside Range");
 
         FTK_ENUM_IMPL(
             CacheDisplay,
-            "VideoAndAudio",
-            "VideoOnly");
+            "Video And Audio",
+            "Video Only");
 
         FTK_ENUM_IMPL(
             WaveformPrim,

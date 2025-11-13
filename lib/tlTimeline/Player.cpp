@@ -44,16 +44,16 @@ namespace tl
         FTK_ENUM_IMPL(TimeAction,
             "Start",
             "End",
-            "FramePrev",
-            "FramePrevX10",
-            "FramePrevX100",
-            "FrameNext",
-            "FrameNextX10",
-            "FrameNextX100",
-            "JumpBack1s",
-            "JumpBack10s",
-            "JumpForward1s",
-            "JumpForward10s");
+            "Frame Previous",
+            "Frame Previous X10",
+            "Frame Previous X100",
+            "Frame Next",
+            "Frame Next X10",
+            "Frame Next X100",
+            "Jump Back 1s",
+            "Jump Back 10s",
+            "Jump Forward 1s",
+            "Jump Forward 10s");
 
         void Player::_init(
             const std::shared_ptr<ftk::Context>& context,
