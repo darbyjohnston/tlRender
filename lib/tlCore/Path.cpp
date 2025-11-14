@@ -4,6 +4,7 @@
 #include <tlCore/Path.h>
 
 #include <ftk/Core/Error.h>
+#include <ftk/Core/File.h>
 #include <ftk/Core/Math.h>
 #include <ftk/Core/String.h>
 
@@ -376,12 +377,5 @@ namespace tl
             out += ftk::join(v, pathSeparator);
             return out;
         }
-
-        FTK_ENUM_IMPL(
-            UserPath,
-            "Home",
-            "Desktop",
-            "Documents",
-            "Downloads");
     }
 }

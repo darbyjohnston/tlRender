@@ -20,7 +20,6 @@ namespace tl
             void run() override;
 
         private:
-            void _enums();
             void _path();
             void _util();
         };

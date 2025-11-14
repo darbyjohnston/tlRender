@@ -78,6 +78,7 @@ namespace tl
                 case ftk::ImageType::RGBA_F32:
                     out = OIIO::TypeDesc::FLOAT;
                     break;
+                default: break;
                 }
                 return out;
             }

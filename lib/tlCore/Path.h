@@ -165,25 +165,6 @@ namespace tl
 
         //! Get the parent directory.
         std::string getParent(const std::string&);
-
-        //! Get the list of file system drives.
-        std::vector<std::string> getDrives();
-
-        //! User paths.
-        enum class UserPath
-        {
-            Home,
-            Desktop,
-            Documents,
-            Downloads,
-
-            Count,
-            First = Home
-        };
-        FTK_ENUM(UserPath);
-
-        //! Get a user path.
-        std::string getUserPath(UserPath);
     }
 }
 

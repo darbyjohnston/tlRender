@@ -495,6 +495,7 @@ namespace tl
                 case AV_SAMPLE_FMT_S64P:
                     out = 8;
                     break;
+                default: break;
                 }
                 return out;
             }

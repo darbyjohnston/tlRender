@@ -31,12 +31,10 @@ set(SOURCE
     URL.cpp)
 if (WIN32)
     list(APPEND SOURCE
-        FileInfoWin32.cpp
-        PathWin32.cpp)
+        FileInfoWin32.cpp)
 else()
     list(APPEND SOURCE
-        FileInfoUnix.cpp
-        PathUnix.cpp)
+        FileInfoUnix.cpp)
 endif()
 
 set(LIBRARIES tlResource ftk::ftkCore OTIO::opentimelineio Imath::Imath nlohmann_json::nlohmann_json)
