@@ -376,12 +376,5 @@ namespace tl
             out += ftk::join(v, pathSeparator);
             return out;
         }
-
-        FTK_ENUM_IMPL(
-            UserPath,
-            "Home",
-            "Desktop",
-            "Documents",
-            "Downloads");
     }
 }

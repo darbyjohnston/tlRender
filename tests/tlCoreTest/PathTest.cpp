@@ -27,18 +27,8 @@ namespace tl
 
         void PathTest::run()
         {
-            _enums();
             _path();
             _util();
-        }
-
-        void PathTest::_enums()
-        {
-            _enum<UserPath>("UserPath", getUserPathEnums);
-            for (auto i : getUserPathEnums())
-            {
-                _print(ftk::Format("{0}: {1}").arg(getLabel(i)).arg(getUserPath(i)));
-            }
         }
 
         void PathTest::_path()
@@ -233,9 +223,6 @@ namespace tl
                 FTK_ASSERT("/" == path);
                 path = getParent("a/b");
                 FTK_ASSERT("a" == path);
-            }
-            {
-                _print(ftk::Format("Drives: {0}").arg(ftk::join(getDrives(), " ")));
             }
         }
     }
