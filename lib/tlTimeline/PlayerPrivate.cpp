@@ -261,24 +261,23 @@ namespace tl
             // Remove frames from the video cache.
             bool videoCacheChanged = false;
             {
-                const OTIO_NS::RationalTime start = videoCacheRange.start_time();
-                const OTIO_NS::RationalTime end = videoCacheRange.end_time_inclusive();
-                const OTIO_NS::RationalTime duration = thread.state.inOutRange.duration();
+                const auto looped = timeline::loop(
+                    videoCacheRange,
+                    thread.state.inOutRange);
                 auto i = thread.videoCache.begin();
                 while (i != thread.videoCache.end())
                 {
-                    OTIO_NS::RationalTime t = i->first;
-                    switch (thread.cacheDirection)
+                    const OTIO_NS::RationalTime& t = i->first;
+                    bool found = false;
+                    for (const auto& range : looped)
                     {
-                    case CacheDirection::Forward:
-                        if (t < start) t += duration;
-                        break;
-                    case CacheDirection::Reverse:
-                        if (t > end) t -= duration;
-                        break;
-                    default: break;
+                        if (range.contains(t))
+                        {
+                            found = true;
+                            break;
+                        }
                     }
-                    if (!videoCacheRange.contains(t))
+                    if (!found)
                     {
                         i = thread.videoCache.erase(i);
                         videoCacheChanged = true;
@@ -293,25 +292,26 @@ namespace tl
             // Remove frames from the audio cache.
             bool audioCacheChanged = false;
             {
-                const int64_t start = audioCacheRange.min();
-                const int64_t end = audioCacheRange.max();
-                const int64_t duration = thread.state.inOutRange.duration().rescaled_to(1.0).value();
+                const auto looped = timeline::loop(
+                    audioCacheRange,
+                    ftk::Range<int64_t>(
+                        thread.state.inOutRange.start_time().rescaled_to(1.0).value(),
+                        thread.state.inOutRange.end_time_inclusive().rescaled_to(1.0).value()));
                 std::unique_lock<std::mutex> lock(audioMutex.mutex);
                 auto i = audioMutex.cache.begin();
                 while (i != audioMutex.cache.end())
                 {
-                    int64_t seconds = i->first;
-                    switch (thread.cacheDirection)
+                    const int64_t seconds = i->first;
+                    bool found = false;
+                    for (const auto& range : looped)
                     {
-                    case CacheDirection::Forward:
-                        if (seconds < start) seconds += duration;
-                        break;
-                    case CacheDirection::Reverse:
-                        if (seconds > end) seconds -= duration;
-                        break;
-                    default: break;
+                        if (seconds >= range.min() && seconds <= range.max())
+                        {
+                            found = true;
+                            break;
+                        }
                     }
-                    if (seconds < audioCacheRange.min() || seconds > audioCacheRange.max())
+                    if (!found)
                     {
                         i = audioMutex.cache.erase(i);
                         audioCacheChanged = true;

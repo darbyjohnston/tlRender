@@ -119,7 +119,7 @@ int main(int argc, char* argv[])
     context->tick();
 
     std::vector<std::shared_ptr<tests::ITest> > tests;
-    //tests.push_back(io_tests::OIIOTest::create(context));
+    //tests.push_back(timeline_tests::UtilTest::create(context));
     coreTests(tests, context);
     ioTests(tests, context);
     timelineTests(tests, context);

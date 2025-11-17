@@ -129,6 +129,83 @@ namespace tl
                 looped).value();
         }
 
+        std::vector<OTIO_NS::TimeRange> loop(
+            const OTIO_NS::TimeRange& range,
+            const OTIO_NS::TimeRange& bounds)
+        {
+            std::vector<OTIO_NS::TimeRange> out;
+            const OTIO_NS::RationalTime& rs = range.start_time();
+            const OTIO_NS::RationalTime& bs = bounds.start_time();
+            const OTIO_NS::RationalTime re = range.end_time_inclusive();
+            const OTIO_NS::RationalTime be = bounds.end_time_inclusive();
+            const OTIO_NS::RationalTime one(1.0, range.duration().rate());
+            if (rs >= bs && re <= be)
+            {
+                out.push_back(range);
+            }
+            else if (rs < bs && re > be)
+            {
+                out.push_back(bounds);
+            }
+            else if (rs < bs && re >= bs)
+            {
+                out.push_back(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                    be - (bs - rs - one),
+                    be));
+                out.push_back(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                    bs,
+                    re));
+            }
+            else if (rs <= be && re > be)
+            {
+                out.push_back(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                    rs,
+                    be));
+                out.push_back(OTIO_NS::TimeRange::range_from_start_end_time_inclusive(
+                    bs,
+                    bs + (re - be - one)));
+            }
+            return out;
+        }
+
+        std::vector<ftk::Range<int64_t> > loop(
+            const ftk::Range<int64_t>& range,
+            const ftk::Range<int64_t>& bounds)
+        {
+            std::vector<ftk::Range<int64_t> > out;
+            const int64_t rs = range.min();
+            const int64_t bs = bounds.min();
+            const int64_t re = range.max();
+            const int64_t be = bounds.max();
+            if (rs >= bs && re <= be)
+            {
+                out.push_back(range);
+            }
+            else if (rs < bs && re > be)
+            {
+                out.push_back(bounds);
+            }
+            else if (rs < bs && re >= bs)
+            {
+                out.push_back(ftk::Range<int64_t>(
+                    be - (bs - rs - 1),
+                    be));
+                out.push_back(ftk::Range<int64_t>(
+                    bs,
+                    re));
+            }
+            else if (rs <= be && re > be)
+            {
+                out.push_back(ftk::Range<int64_t>(
+                    rs,
+                    be));
+                out.push_back(ftk::Range<int64_t>(
+                    bs,
+                    bs + (re - be - 1)));
+            }
+            return out;
+        }
+
         FTK_ENUM_IMPL(
             CacheDirection,
             "Forward",

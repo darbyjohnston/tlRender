@@ -36,6 +36,16 @@ namespace tl
             const OTIO_NS::TimeRange&,
             bool* looped = nullptr);
 
+        //! Loop a range.
+        std::vector<OTIO_NS::TimeRange> loop(
+            const OTIO_NS::TimeRange&,
+            const OTIO_NS::TimeRange&);
+
+        //! Loop a range in seconds.
+        std::vector<ftk::Range<int64_t> > loop(
+            const ftk::Range<int64_t>&,
+            const ftk::Range<int64_t>&);
+
         //! Cache direction.
         enum class CacheDirection
         {

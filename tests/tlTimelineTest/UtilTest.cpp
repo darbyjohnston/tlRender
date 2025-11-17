@@ -141,28 +141,112 @@ namespace tl
         void UtilTest::_loop()
         {
             {
-                const OTIO_NS::TimeRange timeRange(
+                const OTIO_NS::TimeRange range(
                     OTIO_NS::RationalTime(0.0, 24.0),
                     OTIO_NS::RationalTime(24.0, 24.0));
                 bool looped = false;
                 OTIO_NS::RationalTime t = loop(
                     OTIO_NS::RationalTime(0.0, 24.0),
-                    timeRange,
+                    range,
                     &looped);
                 FTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
                 FTK_ASSERT(!looped);
                 t = loop(
                     OTIO_NS::RationalTime(24.0, 24.0),
-                    timeRange,
+                    range,
                     &looped);
                 FTK_ASSERT(OTIO_NS::RationalTime(0.0, 24.0) == t);
                 FTK_ASSERT(looped);
                 t = loop(
                     OTIO_NS::RationalTime(-1.0, 24.0),
-                    timeRange,
+                    range,
                     &looped);
                 FTK_ASSERT(OTIO_NS::RationalTime(23.0, 24.0) == t);
                 FTK_ASSERT(looped);
+            }
+            {
+                const OTIO_NS::TimeRange range(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const OTIO_NS::TimeRange bounds(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(1 == looped.size());
+                FTK_ASSERT(range == looped[0]);
+            }
+            {
+                const OTIO_NS::TimeRange range(
+                    OTIO_NS::RationalTime(-12.0, 24.0),
+                    OTIO_NS::RationalTime(48.0, 24.0));
+                const OTIO_NS::TimeRange bounds(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(1 == looped.size());
+                FTK_ASSERT(bounds == looped[0]);
+            }
+            {
+                const OTIO_NS::TimeRange range(
+                    OTIO_NS::RationalTime(-12.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const OTIO_NS::TimeRange bounds(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(2 == looped.size());
+                FTK_ASSERT(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(12.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0)) == looped[0]);
+                FTK_ASSERT(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0)) == looped[1]);
+            }
+            {
+                const OTIO_NS::TimeRange range(
+                    OTIO_NS::RationalTime(12.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const OTIO_NS::TimeRange bounds(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(24.0, 24.0));
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(2 == looped.size());
+                FTK_ASSERT(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(12.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0)) == looped[0]);
+                FTK_ASSERT(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(0.0, 24.0),
+                    OTIO_NS::RationalTime(12.0, 24.0)) == looped[1]);
+            }
+            {
+                const ftk::Range<int64_t> range(0, 23);
+                const ftk::Range<int64_t> bounds(0, 23);
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(1 == looped.size());
+                FTK_ASSERT(range == looped[0]);
+            }
+            {
+                const ftk::Range<int64_t> range(-12, 35);
+                const ftk::Range<int64_t> bounds(0, 23);
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(1 == looped.size());
+                FTK_ASSERT(bounds == looped[0]);
+            }
+            {
+                const ftk::Range<int64_t> range(-12, 11);
+                const ftk::Range<int64_t> bounds(0, 23);
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(2 == looped.size());
+                FTK_ASSERT(ftk::Range<int64_t>(12, 23) == looped[0]);
+                FTK_ASSERT(ftk::Range<int64_t>(0, 11) == looped[1]);
+            }
+            {
+                const ftk::Range<int64_t> range(12, 35);
+                const ftk::Range<int64_t> bounds(0, 23);
+                const auto looped = loop(range, bounds);
+                FTK_ASSERT(2 == looped.size());
+                FTK_ASSERT(ftk::Range<int64_t>(12, 23) == looped[0]);
+                FTK_ASSERT(ftk::Range<int64_t>(0, 11) == looped[1]);
             }
         }
 
