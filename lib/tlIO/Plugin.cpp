@@ -33,18 +33,18 @@ namespace tl
         struct IPlugin::Private
         {
             std::string name;
-            std::map<std::string, FileType> extensions;
+            std::map<std::string, FileType> exts;
         };
 
         void IPlugin::_init(
             const std::string& name,
-            const std::map<std::string, FileType>& extensions,
+            const std::map<std::string, FileType>& exts,
             const std::shared_ptr<ftk::LogSystem>& logSystem)
         {
             FTK_P();
             _logSystem = logSystem;
             p.name = name;
-            p.extensions = extensions;
+            p.exts = exts;
         }
 
         IPlugin::IPlugin() :
@@ -59,10 +59,10 @@ namespace tl
             return _p->name;
         }
 
-        std::set<std::string> IPlugin::getExtensions(int types) const
+        std::set<std::string> IPlugin::getExts(int types) const
         {
             std::set<std::string> out;
-            for (const auto& i : _p->extensions)
+            for (const auto& i : _p->exts)
             {
                 if (static_cast<int>(i.second) & types)
                 {

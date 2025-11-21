@@ -29,7 +29,7 @@ namespace tl
         void UtilTest::run()
         {
             _enums();
-            _extensions();
+            _exts();
             _ranges();
             _loop();
             _util();
@@ -43,9 +43,9 @@ namespace tl
             _enum<ToMemoryReference>("ToMemoryReference", getToMemoryReferenceEnums);
         }
 
-        void UtilTest::_extensions()
+        void UtilTest::_exts()
         {
-            for (const auto& i : getExtensions(
+            for (const auto& i : getExts(
                 _context,
                 static_cast<int>(io::FileType::Media) |
                 static_cast<int>(io::FileType::Sequence)))

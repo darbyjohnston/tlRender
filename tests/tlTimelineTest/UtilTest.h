@@ -21,7 +21,7 @@ namespace tl
 
         private:
             void _enums();
-            void _extensions();
+            void _exts();
             void _ranges();
             void _loop();
             void _util();

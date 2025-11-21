@@ -46,7 +46,7 @@ namespace tl
             const std::vector<std::string>& getNames() const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions(int types =
+            std::set<std::string> getExts(int types =
                 static_cast<int>(FileType::Media) |
                 static_cast<int>(FileType::Sequence)) const;
 
@@ -104,7 +104,7 @@ namespace tl
             const std::vector<std::string>& getNames() const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions(int types =
+            std::set<std::string> getExts(int types =
                 static_cast<int>(FileType::Media) |
                 static_cast<int>(FileType::Sequence)) const;
 

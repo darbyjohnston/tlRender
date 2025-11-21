@@ -5,12 +5,12 @@
 
 #include <ftk/GL/GL.h>
 #include <ftk/GL/Init.h>
-#include <ftk/Core/File.h>
 #include <ftk/Core/FileIO.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LRUCache.h>
 #include <ftk/Core/LogSystem.h>
 #include <ftk/Core/Memory.h>
+#include <ftk/Core/Path.h>
 
 #include <pxr/pxr.h>
 #include <pxr/base/tf/diagnostic.h>

@@ -32,7 +32,7 @@ namespace tl
 {
     namespace timeline
     {
-        std::vector<std::string> getExtensions(
+        std::vector<std::string> getExts(
             const std::shared_ptr<ftk::Context>& context,
             int types)
         {
@@ -46,8 +46,8 @@ namespace tl
             {
                 for (const auto& plugin : ioSystem->getPlugins())
                 {
-                    const auto& extensions = plugin->getExtensions(types);
-                    out.insert(out.end(), extensions.begin(), extensions.end());
+                    const auto& exts = plugin->getExts(types);
+                    out.insert(out.end(), exts.begin(), exts.end());
                 }
             }
             return out;
@@ -280,17 +280,15 @@ namespace tl
                 for (const auto& fileInfo : list)
                 {
                     const file::Path& path = fileInfo.getPath();
-                    const std::string extension = ftk::toLower(path.getExtension());
-                    switch (ioSystem->getFileType(extension))
+                    const std::string ext = ftk::toLower(path.getExtension());
+                    switch (ioSystem->getFileType(ext))
                     {
                     case io::FileType::Media:
                     case io::FileType::Sequence:
                         out.push_back(path);
                         break;
                     default:
-                        //! \todo Get extensions for the Python adapters?
-                        if (".otio" == extension ||
-                            ".otioz" == extension)
+                        if (".otio" == ext || ".otioz" == ext)
                         {
                             out.push_back(path);
                         }

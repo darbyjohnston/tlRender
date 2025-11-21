@@ -15,11 +15,11 @@ namespace tl
     namespace timeline
     {
         //! Get the timeline file extensions.
-        std::vector<std::string> getExtensions(
+        std::vector<std::string> getExts(
             const std::shared_ptr<ftk::Context>&,
             int types =
-            static_cast<int>(io::FileType::Media) |
-            static_cast<int>(io::FileType::Sequence));
+                static_cast<int>(io::FileType::Media) |
+                static_cast<int>(io::FileType::Sequence));
 
         //! Convert frames to ranges.
         std::vector<OTIO_NS::TimeRange> toRanges(std::vector<OTIO_NS::RationalTime>);

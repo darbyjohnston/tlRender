@@ -12,7 +12,7 @@
 
 #include <ftk/UI/DialogSystem.h>
 #include <ftk/UI/FileBrowser.h>
-#include <ftk/Core/File.h>
+#include <ftk/Core/Path.h>
 
 namespace tl
 {
@@ -86,9 +86,9 @@ namespace tl
             auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
             fileBrowserSystem->open(
                 _window,
-                [this](const std::filesystem::path& value)
+                [this](const ftk::Path& value)
                 {
-                    open(value);
+                    open(value.get());
                 });
         }
 
@@ -117,7 +117,7 @@ namespace tl
 
             _recentFilesModel = RecentFilesModel::create(_context, _settingsModel->getSettings());
             auto fileBrowserSystem = _context->getSystem<ftk::FileBrowserSystem>();
-            fileBrowserSystem->getModel()->setExtensions(timeline::getExtensions(_context));
+            fileBrowserSystem->getModel()->setExts(timeline::getExts(_context));
             fileBrowserSystem->setRecentFilesModel(_recentFilesModel);
 
             _filesModel = FilesModel::create(_context, _settingsModel);

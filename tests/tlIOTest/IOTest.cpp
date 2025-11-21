@@ -110,10 +110,10 @@ namespace tl
                 std::map<std::string, std::shared_ptr<IPlugin> > plugins;
                 for (const auto& plugin : readSystem->getPlugins())
                 {
-                    const auto& extensions = plugin->getExtensions();
-                    if (!extensions.empty())
+                    const auto& exts = plugin->getExts();
+                    if (!exts.empty())
                     {
-                        plugins[*(extensions.begin())] = plugin;
+                        plugins[*(exts.begin())] = plugin;
                     }
                 }
                 for (const auto& plugin : plugins)
@@ -124,13 +124,13 @@ namespace tl
                 FTK_ASSERT(!readSystem->getPlugin<DummyReadPlugin>());
             }
             {
-                std::vector<std::string> extensions;
-                for (const auto& extension : readSystem->getExtensions())
+                std::vector<std::string> exts;
+                for (const auto& ext : readSystem->getExts())
                 {
-                    extensions.push_back(extension);
+                    exts.push_back(ext);
                 }
                 std::stringstream ss;
-                ss << "Extensions: " << ftk::join(extensions, ", ");
+                ss << "Extensions: " << ftk::join(exts, ", ");
                 _print(ss.str());
             }
             FTK_ASSERT(!readSystem->read(file::Path()));

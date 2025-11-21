@@ -60,7 +60,7 @@ namespace tl
         protected:
             void _init(
                 const std::string& name,
-                const std::map<std::string, FileType>& extensions,
+                const std::map<std::string, FileType>& exts,
                 const std::shared_ptr<ftk::LogSystem>&);
 
             IPlugin();
@@ -72,7 +72,7 @@ namespace tl
             const std::string& getName() const;
 
             //! Get the supported file extensions.
-            std::set<std::string> getExtensions(int types =
+            std::set<std::string> getExts(int types =
                 static_cast<int>(FileType::Media) |
                 static_cast<int>(FileType::Sequence)) const;
 

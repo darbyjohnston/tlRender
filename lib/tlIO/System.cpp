@@ -86,8 +86,8 @@ namespace tl
             const std::string extension = ftk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
-                if (extensions.find(extension) != extensions.end())
+                const auto& exts = i->getExts();
+                if (exts.find(extension) != exts.end())
                 {
                     return i;
                 }
@@ -114,13 +114,13 @@ namespace tl
             return _p->names;
         }
 
-        std::set<std::string> ReadSystem::getExtensions(int types) const
+        std::set<std::string> ReadSystem::getExts(int types) const
         {
             std::set<std::string> out;
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions(types);
-                out.insert(extensions.begin(), extensions.end());
+                const auto& exts = i->getExts(types);
+                out.insert(exts.begin(), exts.end());
             }
             return out;
         }
@@ -133,9 +133,9 @@ namespace tl
             {
                 for (auto fileType : { FileType::Media, FileType::Sequence })
                 {
-                    const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
-                    const auto i = extensions.find(lower);
-                    if (i != extensions.end())
+                    const auto& exts = plugin->getExts(static_cast<int>(fileType));
+                    const auto i = exts.find(lower);
+                    if (i != exts.end())
                     {
                         out = fileType;
                         break;
@@ -152,8 +152,8 @@ namespace tl
             const std::string extension = ftk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
-                if (extensions.find(extension) != extensions.end())
+                const auto& exts = i->getExts();
+                if (exts.find(extension) != exts.end())
                 {
                     return i->read(path, options);
                 }
@@ -169,8 +169,8 @@ namespace tl
             const std::string extension = ftk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
-                if (extensions.find(extension) != extensions.end())
+                const auto& exts = i->getExts();
+                if (exts.find(extension) != exts.end())
                 {
                     return i->read(path, memory, options);
                 }
@@ -228,8 +228,8 @@ namespace tl
             const std::string extension = ftk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
-                if (extensions.find(extension) != extensions.end())
+                const auto& exts = i->getExts();
+                if (exts.find(extension) != exts.end())
                 {
                     return i;
                 }
@@ -256,13 +256,13 @@ namespace tl
             return _p->names;
         }
 
-        std::set<std::string> WriteSystem::getExtensions(int types) const
+        std::set<std::string> WriteSystem::getExts(int types) const
         {
             std::set<std::string> out;
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions(types);
-                out.insert(extensions.begin(), extensions.end());
+                const auto& exts = i->getExts(types);
+                out.insert(exts.begin(), exts.end());
             }
             return out;
         }
@@ -275,9 +275,9 @@ namespace tl
             {
                 for (auto fileType : { FileType::Media, FileType::Sequence })
                 {
-                    const auto& extensions = plugin->getExtensions(static_cast<int>(fileType));
-                    const auto i = extensions.find(lower);
-                    if (i != extensions.end())
+                    const auto& exts = plugin->getExts(static_cast<int>(fileType));
+                    const auto i = exts.find(lower);
+                    if (i != exts.end())
                     {
                         out = fileType;
                         break;
@@ -295,8 +295,8 @@ namespace tl
             const std::string extension = ftk::toLower(path.getExtension());
             for (const auto& i : _plugins)
             {
-                const auto& extensions = i->getExtensions();
-                if (extensions.find(extension) != extensions.end())
+                const auto& exts = i->getExts();
+                if (exts.find(extension) != exts.end())
                 {
                     return i->write(path, info, options);
                 }
