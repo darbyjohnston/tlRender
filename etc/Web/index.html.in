@@ -86,6 +86,23 @@ if (!crossOriginIsolated) {
         document.addEventListener(type, gesture, true);
     });
 })();
+/* The browser can take the graphics context away under memory
+   pressure, and there is no getting every texture, shader and buffer
+   back one by one: the page reloads instead, at the time the player
+   had reached, playing if it was. The application reports its time
+   through __tlTime. */
+document.getElementById('canvas').addEventListener(
+    'webglcontextlost',
+    function() {
+        tlError('The graphics context was lost; reloading.');
+        setTimeout(function() {
+            var url = new URL(location.href);
+            if (globalThis.__tlTime !== undefined) {
+                url.searchParams.set('time', String(globalThis.__tlTime));
+            }
+            location.replace(url.toString());
+        }, 1000);
+    });
 var Module = {
     canvas: document.getElementById('canvas'),
     print: function(text) {

@@ -258,6 +258,15 @@ int main(int argc, char** argv)
             "Overlay the playback controls on the viewport (the "
             "phone layout).",
             "Player");
+        auto timeOption = CmdLineOption<double>::create(
+            { "-time" },
+            "The frame to seek to once the file is open.",
+            "Player");
+        auto copyOption = CmdLineFlag::create(
+            { "-copy" },
+            "Copy decoded frames into memory instead of drawing them "
+            "as textures (the web).",
+            "Player");
         auto app = App::create(
             context,
             argc,
@@ -266,7 +275,8 @@ int main(int argc, char** argv)
             "Example player.",
             {},
             { urlOption, autoscrubOption, playOption, heapLogOption,
-                noThumbnailsOption, noWaveformsOption, overlayOption });
+                noThumbnailsOption, noWaveformsOption, overlayOption,
+                timeOption, copyOption });
         if (app->hasCmdLineHelp())
             return 0;
 
@@ -434,8 +444,19 @@ int main(int argc, char** argv)
         const std::string url =
             urlOption->found() ? urlOption->getValue() : "test.mp4";
         auto open = std::make_shared<Open>();
+        tl::Options timelineOptions;
+#if defined(__EMSCRIPTEN__)
+        // The frames stay on the GPU: the browser decodes them there and
+        // the viewport draws them there, so nothing crosses to memory and
+        // back. The copy is kept for comparison, and for a browser that
+        // cannot import a frame, which the reader falls back to itself.
+        if (!copyOption->found())
+        {
+            timelineOptions.ioOptions["Texture"] = "1";
+        }
+#endif // __EMSCRIPTEN__
         open->thread = std::thread(
-            [open, context, url]
+            [open, context, url, timelineOptions]
             {
                 try
                 {
@@ -445,7 +466,8 @@ int main(int argc, char** argv)
                     {
                         path.setSeq(seq);
                     }
-                    open->timeline = tl::Timeline::create(context, path);
+                    open->timeline = tl::Timeline::create(
+                        context, path, timelineOptions);
                 }
                 catch (const std::exception& e)
                 {
@@ -490,7 +512,7 @@ int main(int argc, char** argv)
             [open, context, viewport, timelineWidget, playbackToolBar,
                 frameToolBar, timeEdit, durationLabel, loadingLabel,
                 volumeLabel, volumeButton, statusLabel, ticks, timer,
-                autoscrubOption, playOption, mobile, loopWidget]
+                autoscrubOption, playOption, timeOption, mobile, loopWidget]
             {
                 if (!open->done)
                 {
@@ -542,7 +564,19 @@ int main(int argc, char** argv)
                                 [timeEdit](const OTIO_NS::RationalTime& value)
                                 {
                                     timeEdit->setValue(value);
+#if defined(__EMSCRIPTEN__)
+                                    // The page reloads at this time when
+                                    // the graphics context is lost.
+                                    EM_ASM({ globalThis.__tlTime = $0; },
+                                        value.value());
+#endif // __EMSCRIPTEN__
                                 });
+                        if (timeOption->found())
+                        {
+                            const auto& range = open->player->getTimeRange();
+                            open->player->seek(OTIO_NS::RationalTime(
+                                timeOption->getValue(), range.duration().rate()));
+                        }
                         durationLabel->setValue(
                             open->player->getTimeRange().duration());
                         open->volumeObserver = ftk::Observer<float>::create(

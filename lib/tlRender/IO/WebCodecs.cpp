@@ -12,7 +12,9 @@
 #include <emscripten/proxying.h>
 #include <emscripten/threading.h>
 
+#include <algorithm>
 #include <atomic>
+#include <chrono>
 #include <cerrno>
 #include <cstddef>
 #include <cstring>
@@ -49,6 +51,14 @@ namespace tl
                 int32_t pad2 = 0;
                 double duration = 0.0;
                 double frameDur = 0.0;
+                // 1 asks for frames as textures: the worker hands the
+                // decoded frame to the main thread, which imports it
+                // into a WebGL texture and answers with its name in
+                // texture, as format 2. Format -1 is an import that
+                // failed, which the reader answers by asking for pixels
+                // from then on.
+                int32_t mode = 0;
+                int32_t texture = 0;
             };
             static_assert(offsetof(Control, targetUs) == 8, "Control layout");
             static_assert(offsetof(Control, responseSeq) == 24, "Control layout");
@@ -57,6 +67,9 @@ namespace tl
             static_assert(offsetof(Control, width) == 40, "Control layout");
             static_assert(offsetof(Control, duration) == 56, "Control layout");
             static_assert(offsetof(Control, frameDur) == 64, "Control layout");
+            static_assert(offsetof(Control, mode) == 72, "Control layout");
+            static_assert(offsetof(Control, texture) == 76, "Control layout");
+            static_assert(sizeof(Control) == 80, "Control layout");
 
             //! What the main thread needs for the one dispatch it still
             //! performs: creating the worker and introducing a reader to
@@ -80,10 +93,62 @@ namespace tl
                 {
                     // The shell can name the worker with its build id
                     // for cache busting.
-                    globalThis.__tlWCWorker = new Worker(
+                    var worker = new Worker(
                         globalThis.__tlWCWorkerUrl || 'WebCodecsWorker.js');
-                    globalThis.__tlWCWorker.postMessage(
-                        { memory: wasmMemory });
+                    worker.postMessage({ memory: wasmMemory });
+                    // A frame wanted as a texture comes here, where the
+                    // WebGL context is: the worker transfers the
+                    // VideoFrame, the import is one copy on the GPU, and
+                    // the frame is closed at once, which hands its
+                    // surface back to the decoder. The answer the worker
+                    // writes on the pixel path is written here instead.
+                    // The texture joins Emscripten's table so the
+                    // renderer binds it by name like its own.
+                    worker.onmessage = function(event)
+                    {
+                        var d = event.data;
+                        var i32 = new Int32Array(wasmMemory.buffer, d.ctrl, 20);
+                        var f64 = new Float64Array(wasmMemory.buffer, d.ctrl, 10);
+                        var id = 0;
+                        if (d.frame)
+                        {
+                            var gl = typeof GLctx !== 'undefined' ? GLctx : null;
+                            var tex = null;
+                            try
+                            {
+                                tex = gl.createTexture();
+                                var prev = gl.getParameter(gl.TEXTURE_BINDING_2D);
+                                gl.bindTexture(gl.TEXTURE_2D, tex);
+                                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                                gl.texImage2D(
+                                    gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA,
+                                    gl.UNSIGNED_BYTE, d.frame);
+                                gl.bindTexture(gl.TEXTURE_2D, prev);
+                                id = GL.getNewId(GL.textures);
+                                tex.name = id;
+                                GL.textures[id] = tex;
+                            }
+                            catch (e)
+                            {
+                                console.error('tl::webcodecs: import:', String(e));
+                                if (gl && tex)
+                                {
+                                    gl.deleteTexture(tex);
+                                }
+                                id = 0;
+                            }
+                            d.frame.close();
+                        }
+                        i32[7] = id ? 2 : -1;
+                        f64[4] = id ? d.ts : -1;
+                        i32[19] = id;
+                        Atomics.store(i32, 6, d.seq);
+                        Atomics.notify(i32, 6);
+                    };
+                    globalThis.__tlWCWorker = worker;
                 }
                 globalThis.__tlWCWorker.postMessage({
                     handle: handle,
@@ -91,6 +156,40 @@ namespace tl
                     ctrl: ctrl,
                     audio: 0 !== audio });
             });
+
+            EM_JS(void, wcReleaseTexture, (int id), {
+                var tex = GL.textures[id];
+                if (tex)
+                {
+                    GLctx.deleteTexture(tex);
+                    GL.textures[id] = null;
+                }
+            });
+
+            void releaseTextureMain(void* arg)
+            {
+                wcReleaseTexture(static_cast<int>(
+                    reinterpret_cast<intptr_t>(arg)));
+            }
+
+            //! Release an imported texture: on the main thread, which owns
+            //! the context, from wherever the image is dropped -- the
+            //! player's cache runs on its own thread.
+            void releaseTexture(uintptr_t id)
+            {
+                if (emscripten_is_main_runtime_thread())
+                {
+                    releaseTextureMain(reinterpret_cast<void*>(id));
+                }
+                else
+                {
+                    emscripten_proxy_async(
+                        emscripten_proxy_get_system_queue(),
+                        emscripten_main_runtime_thread_id(),
+                        releaseTextureMain,
+                        reinterpret_cast<void*>(id));
+                }
+            }
 
             void registerMain(void* arg)
             {
@@ -114,6 +213,11 @@ namespace tl
                     wcRegister(handle, url.c_str(), control, audio ? 1 : 0);
                 }
             }
+
+            //! How many times in a row a texture import may fail before
+            //! the reader stops asking: the spells between tries double
+            //! from one second, so this is about half a minute of trying.
+            const int textureFailureMax = 6;
 
             //! Wait for the response sequence number to reach a value,
             //! or the timeout. Returns whether it arrived.
@@ -177,6 +281,23 @@ namespace tl
             //! anymore, and yields to the fresh one.
             std::atomic<int> cancelGen{ 0 };
 
+            //! Whether frames are asked for as textures (the "Texture"
+            //! option). An import can fail for a while -- the page was
+            //! hidden, the GPU was short of memory -- so a failure means
+            //! pixels for a spell that doubles each time, up to a limit,
+            //! and then textures are tried again; a browser that never
+            //! manages it is given up on after the last spell, since
+            //! each try restarts the decode.
+            bool texture = false;
+            int textureFailures = 0;
+            std::chrono::steady_clock::time_point textureRetryTime;
+
+            //! What a frame costs end to end, logged now and then: the
+            //! two paths are compared by this.
+            size_t statsFrames = 0;
+            double statsMs = 0.0;
+            std::chrono::steady_clock::time_point statsTime;
+
             std::thread thread;
 
             struct ErrorMutex
@@ -195,6 +316,12 @@ namespace tl
         {
             IRead::_init(path, {}, options, logSystem);
             FTK_P();
+
+            if (auto i = options.find("Texture"); i != options.end())
+            {
+                p.texture = "1" == i->second;
+            }
+            p.statsTime = std::chrono::steady_clock::now();
 
             p.control = new Control;
             {
@@ -364,65 +491,155 @@ namespace tl
                     {
                         p.scratch = ftk::Image::create(p.info.video[0]);
                     }
-                    // Half a frame of margin so that a frame's own exact
-                    // time cannot round to just before it.
-                    const double tUs =
-                        videoRequest->time.value() /
-                            videoRequest->time.rate() * 1000000.0 +
-                        p.control->frameDur / 2.0;
-                    p.control->targetUs = tUs;
-                    p.control->ptr = reinterpret_cast<uintptr_t>(
-                        p.scratch->getData());
-                    p.control->cap = p.scratch->getByteCount();
-                    p.control->command = 1;
-                    ++seq;
-                    __atomic_store_n(
-                        &p.control->requestSeq, seq, __ATOMIC_SEQ_CST);
-                    emscripten_futex_wake(&p.control->requestSeq, 1);
-
-                    // The wait is sliced so a cancellation -- a scrub
-                    // has moved on -- abandons this request within a
-                    // slice. The total stays short: in Firefox a
-                    // pending wait stalls the page (unexplained), so
-                    // every wait is a bound on that stall; empty
-                    // answers are retried by the callers.
-                    const int gen = p.cancelGen;
-                    bool delivered = false;
-                    for (int i = 0; i < 10 && !delivered; ++i)
-                    {
-                        delivered = waitResponse(p.control, seq, 100.0);
-                        if (!delivered && gen != p.cancelGen)
-                        {
-                            break;
-                        }
-                    }
                     VideoData data;
                     data.time = videoRequest->time;
-                    if (delivered && p.control->deliveredTs >= 0.0)
+                    // Once more as pixels when the texture path fails.
+                    bool again = true;
+                    while (again)
                     {
-                        if (1 == p.control->deliveredFormat)
+                        again = false;
+                        // Half a frame of margin so that a frame's own
+                        // exact time cannot round to just before it.
+                        const double tUs =
+                            videoRequest->time.value() /
+                                videoRequest->time.rate() * 1000000.0 +
+                            p.control->frameDur / 2.0;
+                        p.control->targetUs = tUs;
+                        p.control->ptr = reinterpret_cast<uintptr_t>(
+                            p.scratch->getData());
+                        p.control->cap = p.scratch->getByteCount();
+                        const auto now = std::chrono::steady_clock::now();
+                        const bool asTexture = p.texture &&
+                            (0 == p.textureFailures ||
+                                (p.textureFailures < textureFailureMax &&
+                                    now >= p.textureRetryTime));
+                        p.control->mode = asTexture ? 1 : 0;
+                        p.control->command = 1;
+                        ++seq;
+                        __atomic_store_n(
+                            &p.control->requestSeq, seq, __ATOMIC_SEQ_CST);
+                        emscripten_futex_wake(&p.control->requestSeq, 1);
+
+                        // The wait is sliced so a cancellation -- a
+                        // scrub has moved on -- abandons this request
+                        // within a slice. The total stays short: in
+                        // Firefox a pending wait stalls the page
+                        // (unexplained), so every wait is a bound on
+                        // that stall; empty answers are retried by the
+                        // callers.
+                        const auto t0 = std::chrono::steady_clock::now();
+                        const int gen = p.cancelGen;
+                        bool delivered = false;
+                        for (int i = 0; i < 10 && !delivered; ++i)
                         {
-                            // The worker delivered the decoder's native
-                            // planes; the renderer draws planar YUV
-                            // itself.
-                            auto yuv = ftk::Image::create(ftk::ImageInfo(
-                                p.info.video[0].size,
-                                ftk::ImageType::YUV_420P_U8));
-                            memcpy(
-                                yuv->getData(),
-                                p.scratch->getData(),
-                                yuv->getByteCount());
-                            data.image = yuv;
+                            delivered = waitResponse(p.control, seq, 100.0);
+                            if (!delivered && gen != p.cancelGen)
+                            {
+                                break;
+                            }
                         }
-                        else
+                        if (delivered && p.control->deliveredTs >= 0.0)
                         {
-                            auto image = ftk::Image::create(
-                                p.info.video[0]);
-                            memcpy(
-                                image->getData(),
-                                p.scratch->getData(),
-                                image->getByteCount());
-                            data.image = image;
+                            switch (p.control->deliveredFormat)
+                            {
+                            case 2:
+                            {
+                                if (p.textureFailures > 0)
+                                {
+                                    p.textureFailures = 0;
+                                    if (auto logSystem = _logSystem.lock())
+                                    {
+                                        logSystem->print(
+                                            "tl::webcodecs::VideoRead",
+                                            "Frames are textures again");
+                                    }
+                                }
+                                // The frame is a texture on the main
+                                // thread, top down as the browser keeps
+                                // it; the image is that texture, and
+                                // releases it there.
+                                ftk::ImageInfo info = p.info.video[0];
+                                info.layout.mirror.y = true;
+                                data.image = ftk::Image::create(
+                                    info,
+                                    p.control->texture,
+                                    releaseTexture);
+                                break;
+                            }
+                            case 1:
+                            {
+                                // The worker delivered the decoder's
+                                // native planes; the renderer draws
+                                // planar YUV itself.
+                                auto yuv = ftk::Image::create(ftk::ImageInfo(
+                                    p.info.video[0].size,
+                                    ftk::ImageType::YUV_420P_U8));
+                                memcpy(
+                                    yuv->getData(),
+                                    p.scratch->getData(),
+                                    yuv->getByteCount());
+                                data.image = yuv;
+                                break;
+                            }
+                            default:
+                            {
+                                auto image = ftk::Image::create(
+                                    p.info.video[0]);
+                                memcpy(
+                                    image->getData(),
+                                    p.scratch->getData(),
+                                    image->getByteCount());
+                                data.image = image;
+                                break;
+                            }
+                            }
+                            const auto t1 = std::chrono::steady_clock::now();
+                            ++p.statsFrames;
+                            p.statsMs += std::chrono::duration<double, std::milli>(
+                                t1 - t0).count();
+                            if (t1 - p.statsTime > std::chrono::seconds(5))
+                            {
+                                if (auto logSystem = _logSystem.lock())
+                                {
+                                    logSystem->print(
+                                        "tl::webcodecs::VideoRead",
+                                        ftk::Format("{0} frames, {1} ms each, as {2}").
+                                            arg(p.statsFrames).
+                                            arg(p.statsMs / p.statsFrames, 1).
+                                            arg(asTexture ? "textures" : "pixels"));
+                                }
+                                p.statsFrames = 0;
+                                p.statsMs = 0.0;
+                                p.statsTime = t1;
+                            }
+                        }
+                        else if (delivered && asTexture &&
+                            -1 == p.control->deliveredFormat)
+                        {
+                            // The browser did not import the frame into a
+                            // texture: pixels for a spell, this frame
+                            // included.
+                            ++p.textureFailures;
+                            const int seconds = std::min(
+                                1 << std::min(p.textureFailures - 1, 5), 30);
+                            p.textureRetryTime = std::chrono::steady_clock::now() +
+                                std::chrono::seconds(seconds);
+                            if (auto logSystem = _logSystem.lock())
+                            {
+                                logSystem->print(
+                                    "tl::webcodecs::VideoRead",
+                                    p.textureFailures < textureFailureMax ?
+                                        ftk::Format(
+                                            "A frame could not be imported as a "
+                                            "texture; frames are copied for {0} "
+                                            "seconds").arg(seconds).str() :
+                                        std::string(
+                                            "Frames cannot be imported as "
+                                            "textures; they are copied from "
+                                            "here on"),
+                                    ftk::LogType::Warning);
+                            }
+                            again = true;
                         }
                     }
                     guard.setValue(std::move(data));
