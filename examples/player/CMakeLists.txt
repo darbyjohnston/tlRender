@@ -22,6 +22,11 @@ if(EMSCRIPTEN)
         # The timeline reader fetches .otio files, since there is no
         # file system on the web.
         "-sFETCH"
+        # The page makes the wasm memory itself, so the maximum it may
+        # grow to can follow the device (see etc/Web/index.html.in); the
+        # runtime only takes one from the page when it is on this list,
+        # which is otherwise the default.
+        "-sINCOMING_MODULE_JS_API=ENVIRONMENT,arguments,canvas,dynamicLibraries,elementPointerLock,instantiateWasm,locateFile,monitorRunDependencies,noExitRuntime,noInitialRun,onAbort,onExit,onRuntimeInitialized,postRun,preInit,preRun,print,printErr,setStatus,statusMessage,stderr,stdin,stdout,thisProgram,wasm,websocket,wasmMemory"
         "--profiling-funcs")
     # The page and the decode worker; mp4box.js is the demuxer the
     # worker loads, and the coi service worker supplies the isolation

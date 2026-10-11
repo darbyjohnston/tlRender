@@ -541,8 +541,14 @@ int main(int argc, char** argv)
                         // ceiling it ratchets to. The depth lives in
                         // the worker's compressed block cache, which
                         // re-decodes instead of replaying.
-                        playerOptions.cache.videoGB = mobile ? .1F : .25F;
-                        playerOptions.cache.audioGB = mobile ? .05F : .1F;
+                        // Smaller again where the page could only get
+                        // a small memory (see the page's tlMakeMemory).
+                        const int memoryMB = EM_ASM_INT({
+                            return globalThis.__tlMemoryMax || 2048;
+                        });
+                        const bool small = mobile || memoryMB <= 512;
+                        playerOptions.cache.videoGB = small ? .1F : .25F;
+                        playerOptions.cache.audioGB = small ? .05F : .1F;
 #endif
                         open->player = tl::Player::create(
                             context, open->timeline, playerOptions);
