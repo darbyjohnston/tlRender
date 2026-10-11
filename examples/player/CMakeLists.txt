@@ -31,6 +31,8 @@ if(EMSCRIPTEN)
             ${PROJECT_SOURCE_DIR}/lib/tlRender/IO/WebCodecsWorker.js
             ${PROJECT_SOURCE_DIR}/etc/Web/mp4box.all.min.js
             ${PROJECT_SOURCE_DIR}/etc/Web/coi-serviceworker.js
+            ${PROJECT_SOURCE_DIR}/etc/Web/test.mp4
             ${PROJECT_SOURCE_DIR}/etc/Web/test.otio
+            ${PROJECT_SOURCE_DIR}/etc/Web/StEM2_Web.otio
             $<TARGET_FILE_DIR:player>)
 endif()
