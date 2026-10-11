@@ -142,7 +142,9 @@ through memory. The "copy" query takes the older path, which copies
 every frame into memory, for comparison.
 
 The web build is `etc/Web/build.sh`, which builds the dependencies and
-the player with Emscripten; it needs `emcc` on the path.
+the player with Emscripten; it needs `emcc` on the path. The Web
+workflow runs it on every push to main and publishes the result to the
+page above.
 
 
 ## Python

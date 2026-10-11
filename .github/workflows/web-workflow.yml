@@ -1,0 +1,80 @@
+name: Web
+
+# Build the web player with Emscripten and publish it to GitHub Pages.
+# Pages must be enabled in the repository settings with "GitHub Actions"
+# as the source. The build is etc/Web/build.sh, the same one a developer
+# runs; the dependencies it installs are kept between runs, since they
+# take most of the half hour a cold build needs.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  web-build:
+    runs-on: ubuntu-24.04
+
+    env:
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
+      EMSCRIPTEN_VERSION: 6.0.8
+
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        path: tlRender
+        submodules: recursive
+
+    - uses: mymindstorm/setup-emsdk@v14
+      with:
+        version: ${{ env.EMSCRIPTEN_VERSION }}
+        actions-cache-folder: emsdk-cache
+
+    - name: Cache dependencies
+      uses: actions/cache@v4
+      with:
+        path: install
+        key: web-deps-${{ env.EMSCRIPTEN_VERSION }}-${{ hashFiles('tlRender/deps/ftk/etc/SuperBuild/**', 'tlRender/etc/SuperBuild/**', 'tlRender/etc/Web/build.sh') }}
+
+    - name: Build
+      run: |
+        sh tlRender/etc/Web/build.sh tlRender
+
+    # The player and what the page loads beside it: the demuxer and the
+    # isolation service worker with their licenses, and the sample
+    # timelines. The test movie is not in this repository; it is the
+    # one the site has had since the first deployment.
+    - name: Collect site
+      run: |
+        mkdir -p site/player
+        cp build/examples/player/index.html \
+           build/examples/player/player.js \
+           build/examples/player/player.wasm \
+           build/examples/player/WebCodecsWorker.js \
+           build/examples/player/mp4box.all.min.js \
+           build/examples/player/coi-serviceworker.js \
+           tlRender/etc/Web/LICENSE_mp4box.txt \
+           tlRender/etc/Web/LICENSE_coi-serviceworker.txt \
+           tlRender/etc/Web/test.otio \
+           site/player/
+        git -C tlRender fetch --depth 1 origin gh-pages
+        for f in test.mp4 StEM2_Web.otio; do
+            git -C tlRender cat-file -p origin/gh-pages:player/$f > site/player/$f
+        done
+        cp tlRender/etc/Web/site.html site/index.html
+        touch site/.nojekyll
+
+    - uses: actions/upload-pages-artifact@v3
+      with:
+        path: site
+
+    - uses: actions/deploy-pages@v4

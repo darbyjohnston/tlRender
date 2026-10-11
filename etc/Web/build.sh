@@ -9,6 +9,10 @@
 # The result is build/examples/player; serve that directory with the
 # COOP/COEP headers (or let coi-serviceworker.js add them) and open it.
 #
+# A stage whose libraries are already installed is skipped, so a kept
+# install directory -- the continuous integration cache -- makes a run
+# cost only this tree's build.
+#
 # Everything is compiled with threads, the dependencies included: a
 # library without them cannot be linked into a program with them.
 
@@ -28,16 +32,18 @@ if [ ! -x ftk-resource ]; then
         -lz -o ftk-resource
 fi
 
-emcmake cmake -S $SOURCE_DIR/deps/ftk/etc/SuperBuild -B ftk-superbuild \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    "-DCMAKE_C_FLAGS=$CFLAGS" \
-    "-DCMAKE_CXX_FLAGS=$CXXFLAGS" \
-    -Dftk_SDL2=OFF \
-    -Dftk_SDL3=OFF \
-    -Dftk_nfd=OFF \
-    -Dftk_glslang=OFF
-cmake --build ftk-superbuild -j $JOBS
+if [ ! -f $PREFIX/lib/liblunasvg.a ]; then
+    emcmake cmake -S $SOURCE_DIR/deps/ftk/etc/SuperBuild -B ftk-superbuild \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$PREFIX \
+        "-DCMAKE_C_FLAGS=$CFLAGS" \
+        "-DCMAKE_CXX_FLAGS=$CXXFLAGS" \
+        -Dftk_SDL2=OFF \
+        -Dftk_SDL3=OFF \
+        -Dftk_nfd=OFF \
+        -Dftk_glslang=OFF
+    cmake --build ftk-superbuild -j $JOBS
+fi
 
 # Only what the core uses: avutil, swresample and swscale, built as
 # FFmpeg's own build system wants, since the super build's recipe is for
@@ -53,7 +59,8 @@ if [ ! -f $PREFIX/lib/libswscale.a ]; then
         cd FFmpeg-$FFMPEG_VERSION
         emconfigure ./configure \
             --prefix=$PREFIX \
-            --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib --nm=llvm-nm \
+            --cc=emcc --cxx=em++ --ar=emar --ranlib=emranlib \
+            --nm=$(em-config LLVM_ROOT)/llvm-nm \
             --enable-cross-compile --target-os=none --arch=x86_32 --cpu=generic \
             --disable-all --enable-avutil --enable-swresample --enable-swscale \
             --disable-programs --disable-doc --disable-network \
@@ -66,27 +73,29 @@ if [ ! -f $PREFIX/lib/libswscale.a ]; then
     )
 fi
 
-emcmake cmake -S $SOURCE_DIR/etc/SuperBuild -B superbuild \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DCMAKE_INSTALL_PREFIX=$PREFIX \
-    -DCMAKE_PREFIX_PATH=$PREFIX \
-    "-DCMAKE_C_FLAGS=$CFLAGS" \
-    "-DCMAKE_CXX_FLAGS=$CXXFLAGS" \
-    -DTLRENDER_OCIO=OFF \
-    -DTLRENDER_JPEG=OFF \
-    -DTLRENDER_TIFF=OFF \
-    -DTLRENDER_EXR=OFF \
-    -DTLRENDER_AOM=OFF \
-    -DTLRENDER_SVTAV1=OFF \
-    -DTLRENDER_OPENAPV=OFF \
-    -DTLRENDER_FFMPEG=OFF \
-    -DTLRENDER_NASM=OFF \
-    -DTLRENDER_SUBPROCESS=OFF \
-    -DTLRENDER_OIIO=OFF \
-    -DTLRENDER_LIBRAW=OFF \
-    -DTLRENDER_USD=OFF \
-    -DTLRENDER_IGNORE_PREFIX_PATH=
-cmake --build superbuild -j $JOBS
+if [ ! -f $PREFIX/lib/libopentimelineio.a ]; then
+    emcmake cmake -S $SOURCE_DIR/etc/SuperBuild -B superbuild \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$PREFIX \
+        -DCMAKE_PREFIX_PATH=$PREFIX \
+        "-DCMAKE_C_FLAGS=$CFLAGS" \
+        "-DCMAKE_CXX_FLAGS=$CXXFLAGS" \
+        -DTLRENDER_OCIO=OFF \
+        -DTLRENDER_JPEG=OFF \
+        -DTLRENDER_TIFF=OFF \
+        -DTLRENDER_EXR=OFF \
+        -DTLRENDER_AOM=OFF \
+        -DTLRENDER_SVTAV1=OFF \
+        -DTLRENDER_OPENAPV=OFF \
+        -DTLRENDER_FFMPEG=OFF \
+        -DTLRENDER_NASM=OFF \
+        -DTLRENDER_SUBPROCESS=OFF \
+        -DTLRENDER_OIIO=OFF \
+        -DTLRENDER_LIBRAW=OFF \
+        -DTLRENDER_USD=OFF \
+        -DTLRENDER_IGNORE_PREFIX_PATH=
+    cmake --build superbuild -j $JOBS
+fi
 
 emcmake cmake -S $SOURCE_DIR -B build \
     -DCMAKE_BUILD_TYPE=Release \
