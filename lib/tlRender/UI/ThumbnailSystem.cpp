@@ -2,6 +2,7 @@
 // Copyright Contributors to the tlRender project.
 
 #include <tlRender/UI/ThumbnailSystem.h>
+#include <ftk/Core/OS.h>
 
 #include <tlRender/Timeline/Timeline.h>
 
@@ -35,12 +36,16 @@ namespace tl
         namespace
         {
             // Timelines kept open for the timeline widget, which comes back
-            // for frame after frame of the file it is showing. Only that
-            // one: each holds its decoders, a gigabyte for a UHD movie, and
+            // for frame after frame of the files it is showing. It was one,
+            // since each held its decoders, a gigabyte for a UHD movie, and
             // with more than one the files that had been closed stayed open
             // until the cache went idle, which with thumbnails being asked
-            // for could be never (DJV #873).
-            const size_t ioCacheMax   = 1;
+            // for could be never (DJV #873). A video reader now closes its
+            // decoder itself after a few seconds without a request, so a
+            // kept timeline is cheap, and with one kept a timeline of many
+            // clips opened and probed a file for every thumbnail: a sixth
+            // of an iPad's CPU went to that.
+            const size_t ioCacheMax   = 16;
             // How long a thread holds its open timelines once it goes idle.
             // The point is to let go of readers, and the decode subprocesses
             // they keep alive, after a file is closed. It has to be long
@@ -181,6 +186,13 @@ namespace tl
                 // two ends up in the cache.
                 Options options;
                 options.threaded = false;
+                // A reader for every clip, kept: the thumbnails touch every
+                // clip of a timeline over and over, and with fewer readers
+                // kept than clips each was opened again and again, and
+                // opening a movie is a probe that decodes frames (a sixth of
+                // the CPU of a twelve clip timeline, on an iPad). An idle
+                // reader closes its decoder itself, so a kept one is cheap.
+                options.readCacheMax = 100;
                 // The reader is created here, so whatever it needs from the
                 // caller has to arrive now. The command line FFmpeg plugin
                 // takes the location of ffmpeg and ffprobe this way, and
@@ -416,6 +428,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:thumb-info");
                     _infoRun();
                     {
                         std::unique_lock<std::mutex> lock(p.infoMutex.mutex);
@@ -432,6 +445,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:thumb-image");
                     _thumbnailRun();
                     {
                         std::unique_lock<std::mutex> lock(p.thumbnailMutex.mutex);
@@ -454,6 +468,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:thumb-wave");
                     _waveformRun();
                     {
                         std::unique_lock<std::mutex> lock(p.waveformMutex.mutex);

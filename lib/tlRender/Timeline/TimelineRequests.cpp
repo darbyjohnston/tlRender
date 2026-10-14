@@ -17,8 +17,9 @@
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
-#include <ftk/Core/Time.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/Path.h>
+#include <ftk/Core/Time.h>
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
@@ -793,8 +794,9 @@ namespace tl
         for (size_t i = 0; i < std::max(threadCount, size_t(1)); ++i)
         {
             readPool.threads.push_back(std::thread(
-                [this]
+                [this, i]
                 {
+                    ftk::setCurrentThreadName(ftk::Format("tl:read{0}").arg(i));
                     while (true)
                     {
                         ReadPool::Task task;

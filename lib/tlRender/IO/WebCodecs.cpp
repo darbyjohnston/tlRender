@@ -7,6 +7,7 @@
 
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
+#include <ftk/Core/OS.h>
 
 #include <emscripten.h>
 #include <emscripten/proxying.h>
@@ -335,6 +336,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:webcodecs");
                     try
                     {
                         emscripten_proxy_async(
@@ -707,6 +709,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:webcodecs-a");
                     try
                     {
                         emscripten_proxy_async(

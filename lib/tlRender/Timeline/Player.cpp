@@ -11,6 +11,7 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/Image.h>
 #include <ftk/Core/Memory.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/String.h>
 #include <ftk/Core/Time.h>
 
@@ -190,6 +191,7 @@ namespace tl
         p.thread.thread = std::thread(
             [this]
             {
+                ftk::setCurrentThreadName("tl:player");
                 _thread();
             });
     }

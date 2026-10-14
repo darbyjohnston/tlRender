@@ -5,6 +5,7 @@
 
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/String.h>
 
 #include <subprocess.h>
@@ -351,6 +352,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:ffcmd-errors");
                     // Only the end is kept: that is where an error is.
                     const size_t errorsMax = 64 * 1024;
                     const size_t chunkSize = 1024;

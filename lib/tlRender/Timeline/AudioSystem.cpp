@@ -5,6 +5,7 @@
 
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Format.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/String.h>
 #include <ftk/Core/Time.h>
 
@@ -159,6 +160,7 @@ namespace tl
             p.thread.thread = std::thread(
                 [this]
                 {
+                    ftk::setCurrentThreadName("tl:audio");
                     while (_p->thread.running)
                     {
                         const auto t0 = std::chrono::steady_clock::now();

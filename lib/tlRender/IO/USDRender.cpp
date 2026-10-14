@@ -2,6 +2,7 @@
 // Copyright Contributors to the tlRender project.
 
 #include <tlRender/IO/USDPrivate.h>
+#include <ftk/Core/OS.h>
 
 #include <ftk/GL/GL.h>
 #include <ftk/GL/Init.h>
@@ -195,6 +196,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:usd");
                     if (p.sdlWindow && p.sdlGLContext)
                     {
                         SDL_GL_MakeCurrent(p.sdlWindow, p.sdlGLContext);

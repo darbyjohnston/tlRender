@@ -6,6 +6,7 @@
 
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
+#include <ftk/Core/OS.h>
 
 #include <atomic>
 #include <thread>
@@ -107,6 +108,7 @@ namespace tl
                 [this, path, options]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:ffcmd-video");
                     std::string error;
                     p.info = getIOInfo(path, options, _logSystem.lock(), nullptr, &error);
                     {
@@ -239,6 +241,7 @@ namespace tl
                 [this, path, options]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:ffcmd-audio");
                     std::string error;
                     p.info = getIOInfo(path, options, _logSystem.lock(), &p.audioStreams, &error);
                     {

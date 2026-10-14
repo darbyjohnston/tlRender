@@ -17,8 +17,9 @@
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
-#include <ftk/Core/Time.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/Path.h>
+#include <ftk/Core/Time.h>
 
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/gap.h>
@@ -977,6 +978,7 @@ namespace tl
                 [this]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:timeline");
                     while (p.thread.running)
                     {
                         _tick();

@@ -6,6 +6,7 @@
 #include <ftk/Core/Assert.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
+#include <ftk/Core/OS.h>
 
 #include <algorithm>
 
@@ -192,6 +193,7 @@ namespace tl
                 [this, path]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:ffmpeg-video");
                     try
                     {
                         p.fileName = getFileName(path);
@@ -438,6 +440,7 @@ namespace tl
                 [this, path]
                 {
                     FTK_P();
+                    ftk::setCurrentThreadName("tl:ffmpeg-audio");
                     try
                     {
                         p.readAudio = std::make_shared<ReadAudio>(

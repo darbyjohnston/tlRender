@@ -174,6 +174,7 @@ final class Engine: ObservableObject {
     }
 
     private var footprintTime = Date.distantPast
+    private var timeTime = Date.distantPast
 
     private func tick() {
         guard let handle else { return }
@@ -186,8 +187,15 @@ final class Engine: ObservableObject {
             FileHandle.standardError.write(line.data(using: .utf8)!)
         }
         if let player {
+            // Ten times a second rather than every tick: each change
+            // re-evaluates the SwiftUI view, which was a tenth of the
+            // main thread's time for a timecode nobody can read faster.
             let t = tl_player_get_time(player)
-            if t != time { time = t }
+            let tick = Date()
+            if t != time && tick.timeIntervalSince(timeTime) > 0.1 {
+                timeTime = tick
+                time = t
+            }
             let p = tl_player_get_playback(player) != TL_PLAYBACK_STOP
             if p != playing { playing = p }
             let now = Date()
