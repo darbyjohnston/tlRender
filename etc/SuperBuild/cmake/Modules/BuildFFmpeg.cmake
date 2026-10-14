@@ -40,7 +40,12 @@ if(NOT WIN32 AND NOT APPLE)
     list(APPEND FFmpeg_DEPS nv-codec-headers)
 endif()
 
-set(FFmpeg_SHARED_LIBS ON)
+# Static on iOS, where an application carries its libraries inside it.
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(FFmpeg_SHARED_LIBS OFF)
+else()
+    set(FFmpeg_SHARED_LIBS ON)
+endif()
 set(FFmpeg_DEBUG OFF)
 set(FFmpeg_CFLAGS "--extra-cflags=-I${CMAKE_INSTALL_PREFIX}/include")
 set(FFmpeg_CXXFLAGS "--extra-cxxflags=-I${CMAKE_INSTALL_PREFIX}/include")
@@ -89,10 +94,42 @@ else()
     # library -- fewer dollars give "RIGIN".
     list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-Wl,-rpath,'\\$\\$\\$\\$ORIGIN'")
 endif()
+# Building for iOS: configure is told the target, the SDK and the compiler
+# flags that select it, and that it cannot run what it compiles. The
+# toolchain file names the SDK by its short name (iphonesimulator or
+# iphoneos), and xcrun turns that into the path configure wants.
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    execute_process(
+        COMMAND xcrun --sdk ${CMAKE_OSX_SYSROOT} --show-sdk-path
+        OUTPUT_VARIABLE FFmpeg_IOS_SDK_PATH
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+    # The toolchain names the SDK, and CMake may have turned the name
+    # into the SDK's path by now, which capitalizes it.
+    if(CMAKE_OSX_SYSROOT MATCHES "[Ss]imulator")
+        set(FFmpeg_IOS_MIN "-mios-simulator-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    else()
+        set(FFmpeg_IOS_MIN "-miphoneos-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+    endif()
+    set(FFmpeg_IOS_FLAGS "-arch ${CMAKE_OSX_ARCHITECTURES} -isysroot ${FFmpeg_IOS_SDK_PATH} ${FFmpeg_IOS_MIN}")
+    set(FFmpeg_CROSS_ARGS
+        --enable-cross-compile
+        --target-os=darwin
+        --arch=${CMAKE_OSX_ARCHITECTURES}
+        --sysroot=${FFmpeg_IOS_SDK_PATH}
+        --cc=${CMAKE_C_COMPILER}
+        --cxx=${CMAKE_CXX_COMPILER}
+        # The system's decoders, which are the ones that matter on a
+        # phone; the Mac's are chosen in the common arguments.
+        --enable-videotoolbox
+        --disable-securetransport)
+    list(APPEND FFmpeg_CFLAGS "--extra-cflags=${FFmpeg_IOS_FLAGS}")
+    list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=${FFmpeg_IOS_FLAGS}")
+    list(APPEND FFmpeg_OBJCFLAGS "--extra-objcflags=${FFmpeg_IOS_FLAGS}")
+    list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=${FFmpeg_IOS_FLAGS}")
 # Building for the other macOS architecture. configure works out the
 # architecture by running what it compiles, so it has to be told, and told
 # that it cannot run the result.
-if(APPLE AND CMAKE_OSX_ARCHITECTURES AND
+elseif(APPLE AND CMAKE_OSX_ARCHITECTURES AND
     NOT CMAKE_OSX_ARCHITECTURES STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
     set(FFmpeg_CROSS_ARGS
         --enable-cross-compile
@@ -103,7 +140,7 @@ if(APPLE AND CMAKE_OSX_ARCHITECTURES AND
     list(APPEND FFmpeg_OBJCFLAGS "--extra-objcflags=-arch ${CMAKE_OSX_ARCHITECTURES}")
     list(APPEND FFmpeg_LDFLAGS "--extra-ldflags=-arch ${CMAKE_OSX_ARCHITECTURES}")
 endif()
-if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET)
+if(APPLE AND CMAKE_OSX_DEPLOYMENT_TARGET AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
     list(APPEND FFmpeg_CFLAGS "--extra-cflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
     list(APPEND FFmpeg_CXXFLAGS "--extra-cxxflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
     list(APPEND FFmpeg_OBJCFLAGS "--extra-objcflags=-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")

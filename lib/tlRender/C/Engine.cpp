@@ -18,10 +18,20 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
 #include <ftk/Core/Matrix.h>
+#include <ftk/Core/ObservableList.h>
 
 #include <SDL3/SDL.h>
+// For SDL_SetMainReady() only: SDL did not start this program, and the
+// main it would otherwise insist on is the application's own.
+#define SDL_MAIN_HANDLED
+#include <SDL3/SDL_main.h>
+
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif // __APPLE__
 
 #include <algorithm>
+#include <cstdio>
 #include <string>
 
 struct tl_engine
@@ -29,6 +39,7 @@ struct tl_engine
     std::shared_ptr<ftk::Context> context;
     std::shared_ptr<ftk::gpu::System> gpu;
     std::string error;
+    std::shared_ptr<ftk::ListObserver<ftk::LogItem> > logObserver;
 };
 
 struct tl_player
@@ -48,6 +59,8 @@ struct tl_view
     std::shared_ptr<tl::gpu::Render> render;
     std::shared_ptr<ftk::gpu::OffscreenBuffer> buffer;
     tl_player* player = nullptr;
+    //! Where the picture goes, in pixels; empty for the whole view.
+    ftk::Box2I frame;
 };
 
 namespace
@@ -70,8 +83,23 @@ tl_engine* tl_engine_create(void)
     auto engine = new tl_engine;
     try
     {
+        // SDL did not start this program, which on iOS it checks for:
+        // said before anything initializes SDL, which tl::init does for
+        // audio.
+        SDL_SetMainReady();
         engine->context = ftk::Context::create();
         tl::init(engine->context);
+        // The log goes to stderr, where Xcode and the simulator show it:
+        // a failure below says why there, not just that it failed.
+        engine->logObserver = ftk::ListObserver<ftk::LogItem>::create(
+            engine->context->getSystem<ftk::LogSystem>()->observeLogItems(),
+            [](const std::vector<ftk::LogItem>& items)
+            {
+                for (const auto& item : items)
+                {
+                    std::fprintf(stderr, "%s\n", ftk::getLabel(item).c_str());
+                }
+            });
         // The GPU renderer is the only one here: there is no OpenGL on
         // iOS, and a Swift view is a Metal layer.
         if (!ftk::gpu::start(engine->context))
@@ -207,55 +235,98 @@ int tl_player_get_video_height(tl_player* player)
     return !info.video.empty() ? info.video.front().size.h : 0;
 }
 
+namespace
+{
+    //! Finish a view once SDL has a window for it: claim the window for
+    //! the device and make the renderer.
+    tl_view* viewInit(tl_engine* engine, SDL_PropertiesID props)
+    {
+        auto out = new tl_view;
+        out->engine = engine;
+        try
+        {
+            SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_METAL_BOOLEAN, true);
+            SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
+            out->window = SDL_CreateWindowWithProperties(props);
+            SDL_DestroyProperties(props);
+            if (!out->window)
+            {
+                throw std::runtime_error(std::string("Cannot make the view: ") + SDL_GetError());
+            }
+            SDL_GPUDevice* device = engine->gpu->getDevice();
+            out->claimed = SDL_ClaimWindowForGPUDevice(device, out->window);
+            if (!out->claimed)
+            {
+                throw std::runtime_error(std::string("Cannot claim the view: ") + SDL_GetError());
+            }
+            out->present = ftk::gpu::Present::create(engine->gpu);
+            out->composition = ftk::gpu::setComposition(
+                engine->gpu,
+                out->window,
+                ftk::gpu::getComposition(engine->gpu, out->window));
+            out->render = tl::gpu::Render::create(
+                engine->gpu,
+                engine->context->getLogSystem(),
+                engine->context->getSystem<ftk::FontSystem>());
+            engine->context->log(
+                "tl_view",
+                ftk::Format("Swapchain: {0}").arg(ftk::gpu::getLabel(out->composition)));
+        }
+        catch (const std::exception& e)
+        {
+            setError(engine, e.what());
+            tl_view_destroy(out);
+            out = nullptr;
+        }
+        return out;
+    }
+}
+
 tl_view* tl_view_create(tl_engine* engine, void* nsWindow, void* nsView)
 {
     if (!engine || !engine->gpu)
         return nullptr;
-    auto out = new tl_view;
-    out->engine = engine;
-    try
-    {
-        // SDL wraps the native view rather than making a window of its
-        // own: the swapchain is its, the layout and the events stay
-        // the application's.
-        const SDL_PropertiesID props = SDL_CreateProperties();
-        SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_COCOA_WINDOW_POINTER, nsWindow);
-        SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_COCOA_VIEW_POINTER, nsView);
-        SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_METAL_BOOLEAN, true);
-        SDL_SetBooleanProperty(props, SDL_PROP_WINDOW_CREATE_HIGH_PIXEL_DENSITY_BOOLEAN, true);
-        out->window = SDL_CreateWindowWithProperties(props);
-        SDL_DestroyProperties(props);
-        if (!out->window)
-        {
-            throw std::runtime_error(std::string("Cannot wrap the view: ") + SDL_GetError());
-        }
-        SDL_GPUDevice* device = engine->gpu->getDevice();
-        out->claimed = SDL_ClaimWindowForGPUDevice(device, out->window);
-        if (!out->claimed)
-        {
-            throw std::runtime_error(std::string("Cannot claim the view: ") + SDL_GetError());
-        }
-        out->present = ftk::gpu::Present::create(engine->gpu);
-        out->composition = ftk::gpu::setComposition(
-            engine->gpu,
-            out->window,
-            ftk::gpu::getComposition(engine->gpu, out->window));
-        out->render = tl::gpu::Render::create(
-            engine->gpu,
-            engine->context->getLogSystem(),
-            engine->context->getSystem<ftk::FontSystem>());
-        engine->context->log(
-            "tl_view",
-            ftk::Format("Swapchain: {0}").arg(ftk::gpu::getLabel(out->composition)));
-    }
-    catch (const std::exception& e)
-    {
-        setError(engine, e.what());
-        tl_view_destroy(out);
-        out = nullptr;
-    }
-    return out;
+    // SDL wraps the native view rather than making a window of its own:
+    // the swapchain is its, the layout and the events stay the
+    // application's.
+    const SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_COCOA_WINDOW_POINTER, nsWindow);
+    SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_COCOA_VIEW_POINTER, nsView);
+    return viewInit(engine, props);
 }
+
+tl_view* tl_view_create_ios(tl_engine* engine, void* uiWindowScene)
+{
+    if (!engine || !engine->gpu)
+        return nullptr;
+    // SDL makes a window of its own in the scene; the application
+    // layers it under its own and tells the view where the picture
+    // goes.
+    const SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetPointerProperty(props, SDL_PROP_WINDOW_CREATE_WINDOWSCENE_POINTER, uiWindowScene);
+    return viewInit(engine, props);
+}
+
+void* tl_view_get_native_window(tl_view* view)
+{
+    if (!view || !view->window)
+        return nullptr;
+    const SDL_PropertiesID props = SDL_GetWindowProperties(view->window);
+#if TARGET_OS_IOS
+    return SDL_GetPointerProperty(props, SDL_PROP_WINDOW_UIKIT_WINDOW_POINTER, nullptr);
+#else
+    return SDL_GetPointerProperty(props, SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
+#endif
+}
+
+void tl_view_set_frame(tl_view* view, int x, int y, int w, int h)
+{
+    if (view)
+    {
+        view->frame = ftk::Box2I(x, y, w, h);
+    }
+}
+
 
 void tl_view_destroy(tl_view* view)
 {
@@ -308,20 +379,24 @@ void tl_view_draw(tl_view* view)
             frames = view->player->player->observeCurrentVideo()->get();
         }
 
-        // The picture fitted to the view, as the viewport frames it.
+        // The picture fitted to the frame, or the whole view, as the
+        // viewport frames it.
+        const ftk::Box2I frame = view->frame.isValid() ?
+            view->frame :
+            ftk::Box2I(0, 0, w, h);
         const tl::CompareOptions compare;
         const tl::AspectRatioOptions aspect;
         const auto boxes = tl::getBoxes(compare, aspect, frames);
         const ftk::Size2I renderSize = tl::getRenderSize(compare, aspect, frames);
         float zoom = 1.F;
-        ftk::V2I pos;
+        ftk::V2I pos(frame.x(), frame.y());
         if (renderSize.isValid())
         {
             zoom = std::min(
-                static_cast<float>(w) / renderSize.w,
-                static_cast<float>(h) / renderSize.h);
-            pos.x = (w - renderSize.w * zoom) / 2.F;
-            pos.y = (h - renderSize.h * zoom) / 2.F;
+                static_cast<float>(frame.w()) / renderSize.w,
+                static_cast<float>(frame.h()) / renderSize.h);
+            pos.x += (frame.w() - renderSize.w * zoom) / 2.F;
+            pos.y += (frame.h() - renderSize.h * zoom) / 2.F;
         }
         const ftk::M44F vm =
             ftk::translate(ftk::V3F(pos.x, pos.y, 0.F)) *

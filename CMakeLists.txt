@@ -216,6 +216,28 @@ if(TLRENDER_FFMPEG)
             FFmpeg::swresample
             FFmpeg::swscale
             FFmpeg::avutil)
+    elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        # Static, as the super build makes them for iOS, with the system
+        # frameworks the decoders use.
+        foreach(lib avdevice avformat avcodec swresample swscale avutil)
+            add_library(FFmpeg::${lib} STATIC IMPORTED)
+            set_property(TARGET FFmpeg::${lib} PROPERTY
+                IMPORTED_LOCATION "${TLRENDER_FFMPEG_PREFIX}/lib/lib${lib}.a")
+        endforeach()
+        add_library(FFmpeg::FFmpeg INTERFACE IMPORTED)
+        set_property(TARGET FFmpeg::FFmpeg PROPERTY
+            INTERFACE_LINK_LIBRARIES
+            FFmpeg::avdevice
+            FFmpeg::avformat
+            FFmpeg::avcodec
+            FFmpeg::swresample
+            FFmpeg::swscale
+            FFmpeg::avutil
+            ZLIB::ZLIB
+            "-framework VideoToolbox"
+            "-framework CoreMedia"
+            "-framework CoreVideo"
+            "-framework CoreFoundation")
     elseif(APPLE)
         set(FFmpeg_FOUND TRUE)
         add_library(FFmpeg::avdevice STATIC IMPORTED)

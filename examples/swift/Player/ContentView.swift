@@ -12,7 +12,7 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             PlayerView()
-                .background(Color.black)
+                .background(pictureBackground)
             Divider()
             HStack(spacing: 12) {
                 Button(action: open) {
@@ -40,6 +40,7 @@ struct ContentView: View {
                     .frame(minWidth: 150, alignment: .trailing)
             }
             .padding(10)
+            .background(controlsBackground)
             if !engine.error.isEmpty {
                 Text(engine.error)
                     .foregroundColor(.red)
@@ -48,7 +49,33 @@ struct ContentView: View {
             }
         }
         .navigationTitle(engine.fileName.isEmpty ? "Player" : engine.fileName)
+        .onAppear {
+            // "-open <path>" on the command line opens a file at launch,
+            // which is how the simulator is driven without a picker.
+            let args = CommandLine.arguments
+            if let i = args.firstIndex(of: "-open"), i + 1 < args.count {
+                engine.open(URL(fileURLWithPath: args[i + 1]))
+                if args.contains("-play") {
+                    engine.setPlaying(true)
+                }
+            }
+        }
+#if os(iOS)
+        // The system's document picker; the file is read while the
+        // access it grants lasts, which the player's open does.
+        .fileImporter(isPresented: $importing, allowedContentTypes: [.movie, .item]) { result in
+            if case .success(let url) = result {
+                engine.open(url)
+            }
+        }
+#endif
     }
+
+#if os(macOS)
+    // The picture is drawn in a child window over this view: black
+    // behind it until the first frame.
+    private var pictureBackground: Color { .black }
+    private var controlsBackground: Color { .clear }
 
     private func open() {
         let panel = NSOpenPanel()
@@ -58,6 +85,18 @@ struct ContentView: View {
             engine.open(url)
         }
     }
+#else
+    // The picture is drawn in a window under this one, so everything
+    // in front of it is clear except the controls.
+    private var pictureBackground: Color { .clear }
+    private var controlsBackground: Color { Color(uiColor: .systemBackground) }
+
+    @State private var importing = false
+
+    private func open() {
+        importing = true
+    }
+#endif
 
     private func timecode(_ seconds: Double) -> String {
         let total = Int(seconds.rounded(.down))

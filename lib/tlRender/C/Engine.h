@@ -60,10 +60,24 @@ TL_TIMELINE_API int tl_player_get_video_height(tl_player*);
 //! in it, both unretained. NULL on failure, with the reason in the
 //! engine's error.
 TL_TIMELINE_API tl_view* tl_view_create(tl_engine*, void* nsWindow, void* nsView);
+
+//! Create a view on iOS: a window of its own in the UIWindowScene,
+//! which the application keeps under its own window and draws its
+//! controls over; tl_view_set_frame() says where the picture goes.
+//! The window is tl_view_get_native_window().
+TL_TIMELINE_API tl_view* tl_view_create_ios(tl_engine*, void* uiWindowScene);
 TL_TIMELINE_API void tl_view_destroy(tl_view*);
+
+//! The native window the view draws into: the UIWindow on iOS, the
+//! NSWindow on macOS.
+TL_TIMELINE_API void* tl_view_get_native_window(tl_view*);
 
 //! Set the player the view draws; NULL clears it.
 TL_TIMELINE_API void tl_view_set_player(tl_view*, tl_player*);
+
+//! Set where in the view the picture is drawn, in pixels from the top
+//! left; a zero size means the whole view, which is the default.
+TL_TIMELINE_API void tl_view_set_frame(tl_view*, int x, int y, int w, int h);
 
 //! Draw the player's current frame, fitted to the view, and present it.
 TL_TIMELINE_API void tl_view_draw(tl_view*);

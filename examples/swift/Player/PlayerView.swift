@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: BSD-3-Clause
 // Copyright Contributors to the tlRender project.
 
-import AppKit
 import SwiftUI
 import tlRenderC
+
+#if os(macOS)
+import AppKit
 
 /// The native view the engine draws into. SDL takes over the content
 /// view of any window it is given, so it is not given this view's
@@ -58,23 +60,11 @@ final class PlayerNSView: NSView {
         let nsWindow = Unmanaged.passUnretained(child).toOpaque()
         let nsView = Unmanaged.passUnretained(content).toOpaque()
         view = tl_view_create(handle, nsWindow, nsView)
-        let id = ObjectIdentifier(self)
-        engine.register(id) { [weak self] in
-            guard let self, let view = self.view else { return }
-            tl_view_set_player(view, engine.player)
-        }
-        engine.drawers[id] = { [weak self] in
-            guard let self, let view = self.view else { return }
-            tl_view_draw(view)
-        }
+        engine.attach(ObjectIdentifier(self), view: view)
     }
 
     private func detach() {
-        if let engine {
-            let id = ObjectIdentifier(self)
-            engine.unregister(id)
-            engine.drawers[id] = nil
-        }
+        engine?.detach(ObjectIdentifier(self))
         if let view {
             tl_view_destroy(view)
             self.view = nil
@@ -115,3 +105,88 @@ struct PlayerView: NSViewRepresentable {
 
     func updateNSView(_ nsView: PlayerNSView, context: Context) {}
 }
+
+#else
+import UIKit
+
+/// The view the picture shows through. SDL makes a window of its own
+/// in the scene, which is kept under the application's window; this
+/// view is clear, as is the window behind it, and tells the engine's
+/// view where its frame is in the window, in pixels, as it is laid
+/// out.
+final class PlayerUIView: UIView {
+    weak var engine: Engine?
+    private var view: OpaquePointer?
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if let window {
+            attach(to: window)
+        } else {
+            detach()
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        sync()
+    }
+
+    private func attach(to window: UIWindow) {
+        guard view == nil, let engine, let handle = engine.handle,
+              let scene = window.windowScene else { return }
+        backgroundColor = .clear
+        isOpaque = false
+        // What is drawn over the picture: the application's window and
+        // its root, cleared so the picture shows through.
+        window.backgroundColor = .clear
+        window.rootViewController?.view.backgroundColor = .clear
+        let scenePointer = Unmanaged.passUnretained(scene).toOpaque()
+        view = tl_view_create_ios(handle, scenePointer)
+        if let view, let native = tl_view_get_native_window(view) {
+            let sdlWindow = Unmanaged<UIWindow>.fromOpaque(native).takeUnretainedValue()
+            sdlWindow.windowLevel = UIWindow.Level(rawValue: UIWindow.Level.normal.rawValue - 1)
+            sdlWindow.isUserInteractionEnabled = false
+            window.makeKeyAndVisible()
+        }
+        engine.attach(ObjectIdentifier(self), view: view)
+        sync()
+    }
+
+    private func detach() {
+        engine?.detach(ObjectIdentifier(self))
+        if let view {
+            tl_view_destroy(view)
+            self.view = nil
+        }
+    }
+
+    private func sync() {
+        guard let view, let window else { return }
+        let frame = convert(bounds, to: window)
+        let scale = window.screen.scale
+        tl_view_set_frame(
+            view,
+            Int32((frame.origin.x * scale).rounded()),
+            Int32((frame.origin.y * scale).rounded()),
+            Int32((frame.size.width * scale).rounded()),
+            Int32((frame.size.height * scale).rounded()))
+    }
+
+    deinit {
+        detach()
+    }
+}
+
+struct PlayerView: UIViewRepresentable {
+    @EnvironmentObject var engine: Engine
+
+    func makeUIView(context: Context) -> PlayerUIView {
+        let view = PlayerUIView()
+        view.engine = engine
+        return view
+    }
+
+    func updateUIView(_ uiView: PlayerUIView, context: Context) {}
+}
+#endif

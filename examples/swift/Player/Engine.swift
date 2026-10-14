@@ -33,16 +33,20 @@ final class Engine: ObservableObject {
 
     deinit {
         timer?.invalidate()
-        if let player { tl_player_destroy(player) }
+        close()
         if let handle { tl_engine_destroy(handle) }
     }
 
+    /// The player reads the file for as long as it lives, so the access
+    /// a picked file grants is kept until the player goes.
+    private var accessed: URL?
+
     func open(_ url: URL) {
-        if let player {
-            tl_player_destroy(player)
-            self.player = nil
-        }
+        close()
         guard let handle else { return }
+        if url.startAccessingSecurityScopedResource() {
+            accessed = url
+        }
         player = url.withUnsafeFileSystemRepresentation { tl_player_create(handle, $0) }
         if let player {
             fileName = url.lastPathComponent
@@ -56,6 +60,17 @@ final class Engine: ObservableObject {
         for attach in views.values { attach() }
     }
 
+    func close() {
+        if let player {
+            tl_player_destroy(player)
+            self.player = nil
+        }
+        if let accessed {
+            accessed.stopAccessingSecurityScopedResource()
+            self.accessed = nil
+        }
+    }
+
     func setPlaying(_ value: Bool) {
         guard let player else { return }
         tl_player_set_playback(player, value ? TL_PLAYBACK_FORWARD : TL_PLAYBACK_STOP)
@@ -66,18 +81,23 @@ final class Engine: ObservableObject {
         tl_player_seek(player, seconds)
     }
 
-    /// A view registers what to do when the player changes, and what to
-    /// draw each tick.
-    func register(_ id: ObjectIdentifier, attach: @escaping () -> Void) {
-        views[id] = attach
-        attach()
+    /// A native view attaches the engine's view it made: it is given the
+    /// player, now and whenever the player changes, and drawn each tick.
+    func attach(_ id: ObjectIdentifier, view: OpaquePointer?) {
+        guard let view else { return }
+        views[id] = { [weak self] in
+            tl_view_set_player(view, self?.player)
+        }
+        views[id]?()
+        drawers[id] = { tl_view_draw(view) }
     }
 
-    func unregister(_ id: ObjectIdentifier) {
+    func detach(_ id: ObjectIdentifier) {
         views[id] = nil
+        drawers[id] = nil
     }
 
-    var drawers: [ObjectIdentifier: () -> Void] = [:]
+    private var drawers: [ObjectIdentifier: () -> Void] = [:]
 
     private func tick() {
         guard let handle else { return }

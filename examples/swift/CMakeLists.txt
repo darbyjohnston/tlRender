@@ -8,12 +8,19 @@ set(SOURCE
     Player/PlayerView.swift
     Player/ContentView.swift)
 
+# The same sources on macOS and iOS; the bundle's property list differs.
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set(PLAYER_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info-iOS.plist.in)
+else()
+    set(PLAYER_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in)
+endif()
+
 add_executable(player-swift MACOSX_BUNDLE ${SOURCE})
 set_target_properties(player-swift PROPERTIES
     FOLDER examples
     OUTPUT_NAME "Player"
     Swift_MODULE_NAME "Player"
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
+    MACOSX_BUNDLE_INFO_PLIST ${PLAYER_PLIST}
     MACOSX_BUNDLE_BUNDLE_NAME "Player"
     MACOSX_BUNDLE_GUI_IDENTIFIER "org.tlrender.player"
     MACOSX_BUNDLE_BUNDLE_VERSION "${CMAKE_PROJECT_VERSION}"
