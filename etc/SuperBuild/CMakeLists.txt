@@ -148,6 +148,12 @@ set(TLRENDER_EXTERNAL_ARGS
     -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
     -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
     -DCMAKE_POSITION_INDEPENDENT_CODE=${CMAKE_POSITION_INDEPENDENT_CODE})
+# The iOS toolchain file is told which SDK by this variable, which a
+# toolchain file cannot carry over by itself: without it every dependency
+# would build for the simulator, the toolchain's default.
+if(IOS_SDK)
+    list(APPEND TLRENDER_EXTERNAL_ARGS -DIOS_SDK=${IOS_SDK})
+endif()
 # On Linux the loader looks for a library's dependencies with that library's
 # own rpath, not with the rpaths of whatever loaded it, and a dependency
 # built here had none: OpenColorIO could not find libyaml-cpp beside it unless

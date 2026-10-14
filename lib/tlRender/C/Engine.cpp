@@ -8,6 +8,13 @@
 #include <tlRender/Timeline/Init.h>
 #include <tlRender/Timeline/Player.h>
 #include <tlRender/Timeline/Timeline.h>
+#include <tlRender/UI/Init.h>
+#include <tlRender/UI/TimelineWidget.h>
+
+#include <ftk/UI/Event.h>
+#include <ftk/UI/IWindow.h>
+#include <ftk/UI/IconSystem.h>
+#include <ftk/UI/Style.h>
 
 #include <ftk/GPU/OffscreenBuffer.h>
 #include <ftk/GPU/Present.h>
@@ -18,6 +25,7 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
 #include <ftk/Core/Matrix.h>
+#include <ftk/Core/OS.h>
 #include <ftk/Core/ObservableList.h>
 
 #include <SDL3/SDL.h>
@@ -49,6 +57,110 @@ struct tl_player
     std::shared_ptr<tl::Player> player;
 };
 
+namespace
+{
+    //! A feather-tk window with no window of its own: the widgets in it
+    //! are drawn into the view's buffer after the picture, and get their
+    //! events from the view. The window is the whole buffer, with no
+    //! background, and the timeline widget is placed in it where the
+    //! view says.
+    class WidgetHost : public ftk::IWindow
+    {
+    protected:
+        void _init(const std::shared_ptr<ftk::Context>& context)
+        {
+            IWindow::_init(context, nullptr, "tl_view");
+            setBackgroundRole(ftk::ColorRole::None);
+            _style = ftk::Style::create(context);
+            _fontSystem = context->getSystem<ftk::FontSystem>();
+            _iconSystem = context->getSystem<ftk::IconSystem>();
+            _timeline = tl::ui::TimelineWidget::create(context, shared_from_this());
+            _timeline->setFrameView(true);
+            _timeline->setVisible(false);
+        }
+
+    public:
+        static std::shared_ptr<WidgetHost> create(const std::shared_ptr<ftk::Context>& context)
+        {
+            auto out = std::shared_ptr<WidgetHost>(new WidgetHost);
+            out->_init(context);
+            return out;
+        }
+
+        uint32_t getID() const override { return 0; }
+        int getScreen() const override { return 0; }
+
+        void setPlayer(const std::shared_ptr<tl::Player>& player)
+        {
+            _timeline->setPlayer(player);
+        }
+
+        //! The buffer the window is drawn into, and where in it the
+        //! timeline widget goes.
+        void setFrames(const ftk::Size2I& bufferSize, const ftk::Box2I& timelineFrame, float displayScale)
+        {
+            if (bufferSize != getBufferSize())
+            {
+                _setSize(bufferSize, bufferSize);
+            }
+            setDisplayScale(displayScale);
+            if (timelineFrame != _timelineFrame)
+            {
+                _timelineFrame = timelineFrame;
+                _timeline->setVisible(_timelineFrame.isValid());
+                setSizeUpdate();
+            }
+        }
+
+        void setGeometry(const ftk::Box2I& value) override
+        {
+            IWindow::setGeometry(value);
+            _timeline->setGeometry(_timelineFrame);
+        }
+
+        void tick()
+        {
+            ftk::TickEvent event;
+            _tickRecursive(shared_from_this(), true, true, event);
+        }
+
+        //! Lay the widgets out and draw them; the render is between its
+        //! begin and end, with the buffer's transform.
+        void draw(const std::shared_ptr<ftk::IRender>& render)
+        {
+            IWindow::_update(_fontSystem, _iconSystem, _style);
+            const ftk::Box2I drawRect(ftk::V2I(), getBufferSize());
+            render->setClipRectEnabled(false);
+            render->setClipRect(drawRect);
+            ftk::DrawEvent event(_fontSystem, _iconSystem, getDisplayScale(), _style, render);
+            _drawEventRecursive(shared_from_this(), drawRect, event);
+            render->setClipRectEnabled(false);
+        }
+
+    private:
+        void _tickRecursive(
+            const std::shared_ptr<ftk::IWidget>& widget,
+            bool visible,
+            bool enabled,
+            const ftk::TickEvent& event)
+        {
+            const bool parentsVisible = visible && widget->isVisible(false);
+            const bool parentsEnabled = enabled && widget->isEnabled(false);
+            for (const auto& child : widget->getChildren())
+            {
+                _tickRecursive(child, parentsVisible, parentsEnabled, event);
+            }
+            widget->tickEvent(visible, enabled, event);
+        }
+
+        std::shared_ptr<ftk::Style> _style;
+        std::shared_ptr<ftk::FontSystem> _fontSystem;
+        std::shared_ptr<ftk::IconSystem> _iconSystem;
+        std::shared_ptr<tl::ui::TimelineWidget> _timeline;
+        ftk::Box2I _timelineFrame;
+    };
+}
+
 struct tl_view
 {
     tl_engine* engine = nullptr;
@@ -61,6 +173,10 @@ struct tl_view
     tl_player* player = nullptr;
     //! Where the picture goes, in pixels; empty for the whole view.
     ftk::Box2I frame;
+    //! The widgets drawn over it, and where the timeline widget goes.
+    std::shared_ptr<WidgetHost> widgets;
+    ftk::Box2I timelineFrame;
+    float displayScale = 1.F;
 };
 
 namespace
@@ -88,7 +204,9 @@ tl_engine* tl_engine_create(void)
         // audio.
         SDL_SetMainReady();
         engine->context = ftk::Context::create();
-        tl::init(engine->context);
+        // The widgets as well as the engine: the timeline widget draws
+        // in the view.
+        tl::ui::init(engine->context);
         // The log goes to stderr, where Xcode and the simulator show it:
         // a failure below says why there, not just that it failed.
         engine->logObserver = ftk::ListObserver<ftk::LogItem>::create(
@@ -143,8 +261,26 @@ tl_player* tl_player_create(tl_engine* engine, const char* path)
     out->engine = engine;
     try
     {
-        out->timeline = tl::Timeline::create(engine->context, ftk::Path(path));
-        out->player = tl::Player::create(engine->context, out->timeline);
+        // The GPU decodes what it can, which on a phone or a tablet is
+        // the difference between playing and not; the reader falls back
+        // to software for the rest.
+        tl::Options timelineOptions;
+        timelineOptions.ioOptions["FFmpeg/HWAccel"] = "1";
+        out->timeline = tl::Timeline::create(engine->context, ftk::Path(path), timelineOptions);
+        tl::PlayerOptions options;
+#if defined(__APPLE__) && TARGET_OS_IOS
+        // The desktop cache default is as big as an iPad's whole memory,
+        // and iOS kills an application that takes much of it: a quarter
+        // of the memory for video, and audio in proportion.
+        const size_t ram = ftk::getSysInfo().ram;
+        if (ram > 0)
+        {
+            const float ramGB = ram / float(1024 * 1024 * 1024);
+            options.cache.videoGB = ramGB / 4.F;
+            options.cache.audioGB = ramGB / 32.F;
+        }
+#endif // TARGET_OS_IOS
+        out->player = tl::Player::create(engine->context, out->timeline, options);
     }
     catch (const std::exception& e)
     {
@@ -205,6 +341,33 @@ void tl_player_set_playback(tl_player* player, tl_playback value)
     default: break;
     }
     player->player->setPlayback(playback);
+}
+
+tl_player_stats tl_player_get_stats(tl_player* player)
+{
+    tl_player_stats out = {};
+    if (!player)
+        return out;
+    const auto& p = player->player;
+    out.speed = p->getSpeed();
+    out.actualSpeed = p->getActualSpeed();
+    out.droppedFrames = p->getDroppedFrames();
+    const auto time = p->observeCurrentTime()->get();
+    const auto info = p->observeCacheInfo()->get();
+    for (const auto& range : info.video)
+    {
+        if (range.contains(time))
+        {
+            out.cacheAhead = (range.end_time_exclusive() - time).rescaled_to(1.0).value();
+            break;
+        }
+    }
+    const auto& options = p->getCacheOptions();
+    out.videoCachePercent = info.videoPercentage;
+    out.videoCacheGB = options.videoGB;
+    out.audioCachePercent = info.audioPercentage;
+    out.audioCacheGB = options.audioGB;
+    return out;
 }
 
 tl_playback tl_player_get_playback(tl_player* player)
@@ -268,6 +431,7 @@ namespace
                 engine->gpu,
                 engine->context->getLogSystem(),
                 engine->context->getSystem<ftk::FontSystem>());
+            out->widgets = WidgetHost::create(engine->context);
             engine->context->log(
                 "tl_view",
                 ftk::Format("Swapchain: {0}").arg(ftk::gpu::getLabel(out->composition)));
@@ -328,10 +492,34 @@ void tl_view_set_frame(tl_view* view, int x, int y, int w, int h)
 }
 
 
+void tl_view_set_timeline_frame(tl_view* view, int x, int y, int w, int h, float displayScale)
+{
+    if (view)
+    {
+        view->timelineFrame = ftk::Box2I(x, y, w, h);
+        view->displayScale = displayScale;
+    }
+}
+
+void tl_view_touch(tl_view* view, tl_touch_phase phase, int x, int y)
+{
+    if (!view || !view->widgets)
+        return;
+    const ftk::V2I pos(x, y);
+    switch (phase)
+    {
+    case TL_TOUCH_BEGAN: view->widgets->press(pos); break;
+    case TL_TOUCH_MOVED: view->widgets->hover(pos); break;
+    case TL_TOUCH_ENDED:
+    case TL_TOUCH_CANCELLED: view->widgets->release(pos); break;
+    }
+}
+
 void tl_view_destroy(tl_view* view)
 {
     if (!view)
         return;
+    view->widgets.reset();
     view->buffer.reset();
     view->render.reset();
     view->present.reset();
@@ -351,6 +539,10 @@ void tl_view_set_player(tl_view* view, tl_player* player)
     if (view)
     {
         view->player = player;
+        if (view->widgets)
+        {
+            view->widgets->setPlayer(player ? player->player : nullptr);
+        }
     }
 }
 
@@ -415,6 +607,14 @@ void tl_view_draw(tl_view* view)
             {},
             compare,
             ftk::ImageType::RGBA_F16);
+        // The widgets over the picture, in the buffer's own coordinates.
+        if (view->widgets)
+        {
+            view->render->setTransform(pm);
+            view->widgets->setFrames(size, view->timelineFrame, view->displayScale);
+            view->widgets->tick();
+            view->widgets->draw(view->render);
+        }
         view->render->end();
 
         // To the view's swapchain: the texture is the view's for this

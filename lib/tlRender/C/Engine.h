@@ -8,6 +8,7 @@
 //! for Swift and any other language that speaks C. Everything here is
 //! called on the main thread.
 
+#include <stddef.h>
 #include <tlRender/Timeline/Export.h>
 
 #ifdef __cplusplus
@@ -56,6 +57,29 @@ TL_TIMELINE_API tl_playback tl_player_get_playback(tl_player*);
 TL_TIMELINE_API int tl_player_get_video_width(tl_player*);
 TL_TIMELINE_API int tl_player_get_video_height(tl_player*);
 
+//! How playback is going, for a readout: whether frames are being
+//! dropped, and whether the cache is keeping ahead of the playhead.
+typedef struct tl_player_stats
+{
+    //! The speed asked for, and the speed measured, in frames a second.
+    double speed;
+    double actualSpeed;
+
+    //! Frames dropped since playback started or the last seek.
+    size_t droppedFrames;
+
+    //! Seconds of video cached ahead of the current time: zero when
+    //! playback is waiting on the reader.
+    double cacheAhead;
+
+    //! The caches: how full, and how big, in gigabytes.
+    float videoCachePercent;
+    float videoCacheGB;
+    float audioCachePercent;
+    float audioCacheGB;
+} tl_player_stats;
+TL_TIMELINE_API tl_player_stats tl_player_get_stats(tl_player*);
+
 //! Create a view in a native view: on macOS an NSWindow and the NSView
 //! in it, both unretained. NULL on failure, with the reason in the
 //! engine's error.
@@ -78,6 +102,23 @@ TL_TIMELINE_API void tl_view_set_player(tl_view*, tl_player*);
 //! Set where in the view the picture is drawn, in pixels from the top
 //! left; a zero size means the whole view, which is the default.
 TL_TIMELINE_API void tl_view_set_frame(tl_view*, int x, int y, int w, int h);
+
+//! Where the timeline widget goes in the view, in pixels: an empty frame
+//! hides it. The display scale is the screen's, which sizes its text
+//! and lines.
+TL_TIMELINE_API void tl_view_set_timeline_frame(
+    tl_view*, int x, int y, int w, int h, float displayScale);
+
+//! A touch, or a mouse button, on the view: where it is in pixels, and
+//! what it is doing. The widgets take it as the mouse.
+typedef enum tl_touch_phase
+{
+    TL_TOUCH_BEGAN,
+    TL_TOUCH_MOVED,
+    TL_TOUCH_ENDED,
+    TL_TOUCH_CANCELLED
+} tl_touch_phase;
+TL_TIMELINE_API void tl_view_touch(tl_view*, tl_touch_phase, int x, int y);
 
 //! Draw the player's current frame, fitted to the view, and present it.
 TL_TIMELINE_API void tl_view_draw(tl_view*);

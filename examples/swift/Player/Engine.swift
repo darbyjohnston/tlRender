@@ -3,6 +3,9 @@
 
 import Foundation
 import tlRenderC
+#if os(macOS)
+import AppKit
+#endif
 
 /// The engine and the open player, ticked once a display frame; the
 /// views draw in the same tick, after the engine.
@@ -12,11 +15,29 @@ final class Engine: ObservableObject {
     private var timer: Timer?
     private var views: [ObjectIdentifier: () -> Void] = [:]
 
+    /// The engine's view: the player view tells it where the picture
+    /// goes, the timeline view where the timeline widget goes.
+    var pictureView: OpaquePointer?
+#if os(macOS)
+    /// On macOS the engine draws in a child window that the player view
+    /// keeps over the picture and the timeline together: the timeline
+    /// view says where it is, in window coordinates, and the player view
+    /// says where the child window ended up.
+    var timelineFrameInWindow = NSRect.zero {
+        didSet { if timelineFrameInWindow != oldValue { relayout?() } }
+    }
+    var childFrameInWindow = NSRect.zero
+    var relayout: (() -> Void)?
+#endif
+
     @Published var fileName = ""
     @Published var error = ""
     @Published var time = 0.0
     @Published var duration = 0.0
     @Published var playing = false
+    /// A line about how playback is going, a few times a second.
+    @Published var stats = ""
+    private var statsTime = Date.distantPast
 
     init() {
         handle = tl_engine_create()
@@ -55,6 +76,7 @@ final class Engine: ObservableObject {
         } else {
             fileName = ""
             duration = 0
+            stats = ""
             error = String(cString: tl_engine_get_error(handle))
         }
         for attach in views.values { attach() }
@@ -107,6 +129,16 @@ final class Engine: ObservableObject {
             if t != time { time = t }
             let p = tl_player_get_playback(player) != TL_PLAYBACK_STOP
             if p != playing { playing = p }
+            let now = Date()
+            if now.timeIntervalSince(statsTime) > 0.25 {
+                statsTime = now
+                let s = tl_player_get_stats(player)
+                stats = String(
+                    format: "%.1f fps (%.1f)  dropped %d  cache %.1f s ahead, video %.0f%% of %.2f GB, audio %.0f%% of %.2f GB",
+                    s.speed, s.actualSpeed, s.droppedFrames, s.cacheAhead,
+                    s.videoCachePercent, s.videoCacheGB,
+                    s.audioCachePercent, s.audioCacheGB)
+            }
         }
         for draw in drawers.values { draw() }
         if let e = tl_engine_get_error(handle), e.pointee != 0 {

@@ -13,6 +13,9 @@ struct ContentView: View {
         VStack(spacing: 0) {
             PlayerView()
                 .background(pictureBackground)
+            TimelineView()
+                .frame(height: 140)
+                .background(pictureBackground)
             Divider()
             HStack(spacing: 12) {
                 Button(action: open) {
@@ -41,6 +44,15 @@ struct ContentView: View {
             }
             .padding(10)
             .background(controlsBackground)
+            if !engine.stats.isEmpty {
+                Text(engine.stats)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 10)
+                    .padding(.bottom, 6)
+                    .background(controlsBackground)
+            }
             if !engine.error.isEmpty {
                 Text(engine.error)
                     .foregroundColor(.red)
@@ -54,7 +66,11 @@ struct ContentView: View {
             // which is how the simulator is driven without a picker.
             let args = CommandLine.arguments
             if let i = args.firstIndex(of: "-open"), i + 1 < args.count {
-                engine.open(URL(fileURLWithPath: args[i + 1]))
+                // A relative path is in the application's documents,
+                // where a file copied to a device lands.
+                let documents = FileManager.default.urls(
+                    for: .documentDirectory, in: .userDomainMask).first
+                engine.open(URL(fileURLWithPath: args[i + 1], relativeTo: documents))
                 if args.contains("-play") {
                     engine.setPlaying(true)
                 }
@@ -86,8 +102,8 @@ struct ContentView: View {
         }
     }
 #else
-    // The picture is drawn in a window under this one, so everything
-    // in front of it is clear except the controls.
+    // The picture is drawn by SDL's window under the hosted content, so
+    // everything in front of it is clear except the controls.
     private var pictureBackground: Color { .clear }
     private var controlsBackground: Color { Color(uiColor: .systemBackground) }
 

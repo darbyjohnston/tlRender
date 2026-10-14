@@ -4,9 +4,10 @@ set(SOURCE
     Engine.cpp)
 
 # The C interface to the engine, for Swift and any other language that
-# speaks C. It draws with the GPU renderer only.
+# speaks C. It draws with the GPU renderer only, and hosts the timeline
+# widget.
 add_library(tlC ${HEADERS} ${SOURCE})
-target_link_libraries(tlC PUBLIC tlGPU)
+target_link_libraries(tlC PUBLIC tlGPU tlUI)
 set_target_properties(tlC PROPERTIES FOLDER lib)
 set_target_properties(tlC PROPERTIES PUBLIC_HEADER "${HEADERS}")
 

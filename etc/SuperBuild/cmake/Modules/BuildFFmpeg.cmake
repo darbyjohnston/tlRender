@@ -660,7 +660,9 @@ else()
         set(FFmpeg_BUILD make -j${FFmpeg_BUILD_JOBS})
         set(FFmpeg_INSTALL make install)
     endif()
-    if(APPLE)
+    # The install names are only for the shared libraries, which iOS does
+    # not build.
+    if(APPLE AND FFmpeg_SHARED_LIBS)
         list(APPEND FFmpeg_INSTALL
             COMMAND install_name_tool -id @rpath/libavcodec.63.1.101.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.63.dylib
             COMMAND install_name_tool -id @rpath/libavdevice.63.1.101.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavdevice.63.dylib

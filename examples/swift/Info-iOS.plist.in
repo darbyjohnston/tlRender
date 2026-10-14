@@ -27,6 +27,13 @@
     </array>
     <key>UILaunchScreen</key>
     <dict/>
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+    </dict>
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
     <key>UIRequiresFullScreen</key>
     <false/>
     <key>UISupportedInterfaceOrientations</key>
