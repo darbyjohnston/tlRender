@@ -610,7 +610,15 @@ namespace tl
 
         const AudioInfo& inputInfo = sourceAudioInfo;
         bool audio = false;
-        if (state.playback != Playback::Stop && inputInfo.sampleRate > 0)
+        if (state.hold)
+        {
+            // The clock is held for the cache: silence, and the position
+            // stays where it is, which the main thread reads as time
+            // standing still.
+            std::unique_lock<std::mutex> lock(audioMutex.mutex);
+            audioMutex.positionDuration = 0.0;
+        }
+        else if (state.playback != Playback::Stop && inputInfo.sampleRate > 0)
         {
             // Initialize on reset.
             if (reset)

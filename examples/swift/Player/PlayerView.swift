@@ -61,6 +61,8 @@ final class PlayerNSView: NSView {
         let nsView = Unmanaged.passUnretained(content).toOpaque()
         view = tl_view_create(handle, nsWindow, nsView)
         engine.pictureView = view
+        content.wantsLayer = true
+        engine.pictureLayer = content.layer
         engine.relayout = { [weak self] in self?.sync() }
         engine.attach(ObjectIdentifier(self), view: view)
         sync()
@@ -216,6 +218,7 @@ final class PlayerUIView: UIView {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
+        engine?.pictureLayer = window != nil ? layer : nil
         sync()
     }
 

@@ -2,6 +2,7 @@
 // Copyright Contributors to the tlRender project.
 
 import Foundation
+import QuartzCore
 import tlRenderC
 #if os(macOS)
 import AppKit
@@ -18,6 +19,11 @@ final class Engine: ObservableObject {
     /// The engine's view: the player view tells it where the picture
     /// goes, the timeline view where the timeline widget goes.
     var pictureView: OpaquePointer?
+    /// The layer over the picture, for the benchmark to put AVPlayer's
+    /// picture in.
+    weak var pictureLayer: CALayer?
+    /// The benchmark, while one runs.
+    var bench: AnyObject?
 #if os(macOS)
     /// On macOS the engine draws in a child window that the player view
     /// keeps over the picture and the timeline together: the timeline
@@ -84,8 +90,10 @@ final class Engine: ObservableObject {
 
     func close() {
         if let player {
-            tl_player_destroy(player)
+            // The views let go of it first: they draw it every tick.
             self.player = nil
+            for attach in views.values { attach() }
+            tl_player_destroy(player)
         }
         if let accessed {
             accessed.stopAccessingSecurityScopedResource()
@@ -121,9 +129,62 @@ final class Engine: ObservableObject {
 
     private var drawers: [ObjectIdentifier: () -> Void] = [:]
 
+    /// The process's memory footprint, as the system counts it against
+    /// the application, in megabytes.
+    static func footprintMB() -> Double {
+        var info = task_vm_info_data_t()
+        var count = mach_msg_type_number_t(MemoryLayout<task_vm_info_data_t>.size / MemoryLayout<natural_t>.size)
+        let result = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: Int(count)) {
+                task_info(mach_task_self_, task_flavor_t(TASK_VM_INFO), $0, &count)
+            }
+        }
+        return result == KERN_SUCCESS ? Double(info.phys_footprint) / 1_048_576 : 0
+    }
+
+    /// The threads using the CPU most, by name, as a share of one core:
+    /// a first profile without a profiler.
+    static func threadCPU(top: Int = 8) -> String {
+        var threads: thread_act_array_t?
+        var count = mach_msg_type_number_t(0)
+        guard task_threads(mach_task_self_, &threads, &count) == KERN_SUCCESS, let threads else { return "" }
+        var rows: [(String, Double)] = []
+        for i in 0..<Int(count) {
+            var info = thread_extended_info_data_t()
+            var infoCount = mach_msg_type_number_t(MemoryLayout<thread_extended_info_data_t>.size / MemoryLayout<natural_t>.size)
+            let result = withUnsafeMutablePointer(to: &info) {
+                $0.withMemoryRebound(to: integer_t.self, capacity: Int(infoCount)) {
+                    thread_info(threads[i], thread_flavor_t(THREAD_EXTENDED_INFO), $0, &infoCount)
+                }
+            }
+            if result == KERN_SUCCESS {
+                let name = withUnsafePointer(to: &info.pth_name) {
+                    $0.withMemoryRebound(to: CChar.self, capacity: 64) { String(cString: $0) }
+                }
+                let usage = Double(info.pth_cpu_usage) / Double(TH_USAGE_SCALE)
+                rows.append((name.isEmpty ? "thread \(i)" : name, usage))
+            }
+            mach_port_deallocate(mach_task_self_, threads[i])
+        }
+        vm_deallocate(mach_task_self_, vm_address_t(bitPattern: threads), vm_size_t(Int(count) * MemoryLayout<thread_t>.size))
+        rows.sort { $0.1 > $1.1 }
+        let total = rows.reduce(0) { $0 + $1.1 }
+        let shown = rows.prefix(top).map { String(format: "%@ %.2f", $0.0, $0.1) }
+        return String(format: "cpu %.2f cores: ", total) + shown.joined(separator: ", ")
+    }
+
+    private var footprintTime = Date.distantPast
+
     private func tick() {
         guard let handle else { return }
         tl_engine_tick(handle)
+        // The footprint every five seconds, beside the engine's own log.
+        let now = Date()
+        if now.timeIntervalSince(footprintTime) > 5 {
+            footprintTime = now
+            let line = String(format: "footprint %.0f MB\n", Engine.footprintMB()) + Engine.threadCPU() + "\n"
+            FileHandle.standardError.write(line.data(using: .utf8)!)
+        }
         if let player {
             let t = tl_player_get_time(player)
             if t != time { time = t }
@@ -134,8 +195,8 @@ final class Engine: ObservableObject {
                 statsTime = now
                 let s = tl_player_get_stats(player)
                 stats = String(
-                    format: "%.1f fps (%.1f)  dropped %d  cache %.1f s ahead, video %.0f%% of %.2f GB, audio %.0f%% of %.2f GB",
-                    s.speed, s.actualSpeed, s.droppedFrames, s.cacheAhead,
+                    format: "%.1f fps (%.1f)  dropped %d%@  cache %.1f s ahead, video %.0f%% of %.2f GB, audio %.0f%% of %.2f GB",
+                    s.speed, s.actualSpeed, s.droppedFrames, s.buffering != 0 ? "  buffering" : "", s.cacheAhead,
                     s.videoCachePercent, s.videoCacheGB,
                     s.audioCachePercent, s.audioCacheGB)
             }

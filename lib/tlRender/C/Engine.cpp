@@ -48,6 +48,9 @@ struct tl_engine
     std::shared_ptr<ftk::gpu::System> gpu;
     std::string error;
     std::shared_ptr<ftk::ListObserver<ftk::LogItem> > logObserver;
+    tl::IOOptions ioOptions;
+    float videoGB = 0.F;
+    int readCacheMax = 0;
 };
 
 struct tl_player
@@ -235,6 +238,23 @@ tl_engine* tl_engine_create(void)
     return engine;
 }
 
+void tl_engine_set_io_option(tl_engine* engine, const char* name, const char* value)
+{
+    if (engine && name && value)
+    {
+        engine->ioOptions[name] = value;
+    }
+}
+
+void tl_engine_set_cache(tl_engine* engine, float videoGB, int readCacheMax)
+{
+    if (engine)
+    {
+        engine->videoGB = videoGB;
+        engine->readCacheMax = readCacheMax;
+    }
+}
+
 void tl_engine_destroy(tl_engine* engine)
 {
     delete engine;
@@ -266,20 +286,55 @@ tl_player* tl_player_create(tl_engine* engine, const char* path)
         // to software for the rest.
         tl::Options timelineOptions;
         timelineOptions.ioOptions["FFmpeg/HWAccel"] = "1";
+#if defined(__APPLE__) && TARGET_OS_IOS
+        // The decoded frames stay on the GPU; see the "Texture" option in
+        // IO.h. Only where SDL has the pixel buffer import (the super
+        // build's patch), which the desktop's SDL may not.
+        timelineOptions.ioOptions["Texture"] = "1";
+        // Two frames read ahead in each reader rather than four: a 4K
+        // frame is twelve megabytes, there are as many readers as clips
+        // played lately, and the player's own cache is the one that
+        // matters.
+        timelineOptions.ioOptions["FFmpeg/VideoBufferSize"] = "2";
+#endif // TARGET_OS_IOS
+        for (const auto& i : engine->ioOptions)
+        {
+            timelineOptions.ioOptions[i.first] = i.second;
+        }
+        // Not fewer readers kept open, though each hardware decoder's
+        // frame pool keeps every buffer it ever handed out, and with the
+        // frames drawn where the decoder put them an idle reader's pool
+        // grows as large as the cache: two readers froze the audio clock
+        // on a timeline of three clips (a deadlock in the eviction, still
+        // to be found), and the cache below is sized for the pools.
+        if (engine->readCacheMax > 0)
+        {
+            timelineOptions.readCacheMax = engine->readCacheMax;
+        }
         out->timeline = tl::Timeline::create(engine->context, ftk::Path(path), timelineOptions);
         tl::PlayerOptions options;
+        // A second of cache before the clock runs: the picture moves
+        // when it does, rather than standing while the playhead runs
+        // ahead of the reader.
+        options.preroll = 1.F;
 #if defined(__APPLE__) && TARGET_OS_IOS
         // The desktop cache default is as big as an iPad's whole memory,
-        // and iOS kills an application that takes much of it: a quarter
-        // of the memory for video, and audio in proportion.
+        // and iOS kills an application that takes much of it. An eighth
+        // of the memory for video: the decoders' pools above can hold as
+        // much again, and the whole must stay under the limit, about
+        // three quarters of the memory. Audio in proportion.
         const size_t ram = ftk::getSysInfo().ram;
         if (ram > 0)
         {
             const float ramGB = ram / float(1024 * 1024 * 1024);
-            options.cache.videoGB = ramGB / 4.F;
+            options.cache.videoGB = ramGB / 8.F;
             options.cache.audioGB = ramGB / 32.F;
         }
 #endif // TARGET_OS_IOS
+        if (engine->videoGB > 0.F)
+        {
+            options.cache.videoGB = engine->videoGB;
+        }
         out->player = tl::Player::create(engine->context, out->timeline, options);
     }
     catch (const std::exception& e)
@@ -343,6 +398,17 @@ void tl_player_set_playback(tl_player* player, tl_playback value)
     player->player->setPlayback(playback);
 }
 
+double tl_player_get_video_time(tl_player* player)
+{
+    if (!player)
+        return -1.0;
+    const auto frames = player->player->observeCurrentVideo()->get();
+    if (frames.empty() || frames[0].layers.empty() || !frames[0].layers[0].image)
+        return -1.0;
+    const auto& range = player->player->getTimeRange();
+    return (frames[0].time - range.start_time()).rescaled_to(1.0).value();
+}
+
 tl_player_stats tl_player_get_stats(tl_player* player)
 {
     tl_player_stats out = {};
@@ -352,6 +418,7 @@ tl_player_stats tl_player_get_stats(tl_player* player)
     out.speed = p->getSpeed();
     out.actualSpeed = p->getActualSpeed();
     out.droppedFrames = p->getDroppedFrames();
+    out.buffering = p->isBuffering() ? 1 : 0;
     const auto time = p->observeCurrentTime()->get();
     const auto info = p->observeCacheInfo()->get();
     for (const auto& range : info.video)

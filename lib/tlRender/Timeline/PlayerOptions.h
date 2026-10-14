@@ -53,6 +53,13 @@ namespace tl
         //! Audio buffer frame count.
         size_t audioBufferFrameCount = 500;
 
+        //! Seconds of video to have cached ahead before the clock runs:
+        //! when playback starts, after a seek while playing, and again
+        //! whenever the cache runs out. Zero plays on regardless, showing
+        //! what the cache has; with slow media that is a picture that
+        //! stands still while the playhead runs ahead of the reader.
+        float preroll = 0.F;
+
         //! Timeout for muting the audio when playback stutters.
         std::chrono::milliseconds muteTimeout = std::chrono::milliseconds(500);
 

@@ -6,7 +6,8 @@ set(SOURCE
     Player/App.swift
     Player/Engine.swift
     Player/PlayerView.swift
-    Player/ContentView.swift)
+    Player/ContentView.swift
+    Player/Bench.swift)
 
 # The same sources on macOS and iOS; the bundle's property list differs.
 if(CMAKE_SYSTEM_NAME STREQUAL "iOS")

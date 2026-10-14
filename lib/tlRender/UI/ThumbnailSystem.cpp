@@ -1012,6 +1012,11 @@ namespace tl
                         // texture whatever the caller asked for.
                         IOOptions options = request->options;
                         options.erase("Texture");
+                        // One frame at a time is all a thumbnail wants:
+                        // the reader's buffer of frames ahead, four by
+                        // default, is four frames of memory a thumbnail
+                        // never looks at, for every clip it has opened.
+                        options["FFmpeg/VideoBufferSize"] = "1";
                         auto timeline = getTimeline(
                             context, p.ioCache, p.ioCacheMutex, request->path,
                             request->audioPath, options,

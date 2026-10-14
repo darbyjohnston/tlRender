@@ -16,6 +16,7 @@ extern "C"
 } // extern "C"
 
 #if defined(__APPLE__)
+#include <CoreVideo/CoreVideo.h>
 #include <VideoToolbox/VideoToolbox.h>
 #endif // __APPLE__
 
@@ -139,6 +140,7 @@ namespace tl
                             arg(fileName));
                     }
                     _avCodecDefault = avVideoCodecDefault;
+                    _textures = options.textures;
                     const AVCodec* avVideoCodec = avVideoCodecDefault;
                     if (options.hwAccel && !hasHwConfig(avVideoCodecDefault))
                     {
@@ -1142,7 +1144,26 @@ namespace tl
                     return out;
                 }
                 AVFrame* frame = _avFrame;
-                if (_hwAccel && _avFrame->format == _hwPixelFormat)
+                bool textureFrame = false;
+#if defined(__APPLE__)
+                if (_hwAccel && _textures &&
+                    _avFrame->format == _hwPixelFormat &&
+                    AV_PIX_FMT_NV12 == _avOutputPixelFormat)
+                {
+                    // The frame stays where VideoToolbox put it: an NV12
+                    // pixel buffer the renderer makes its textures over.
+                    // Anything else the hardware hands back is downloaded
+                    // as before.
+                    CVPixelBufferRef pixelBuffer =
+                        reinterpret_cast<CVPixelBufferRef>(_avFrame->data[3]);
+                    const OSType format = pixelBuffer ?
+                        CVPixelBufferGetPixelFormatType(pixelBuffer) : 0;
+                    textureFrame =
+                        kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange == format ||
+                        kCVPixelFormatType_420YpCbCr8BiPlanarFullRange == format;
+                }
+#endif // __APPLE__
+                if (_hwAccel && !textureFrame && _avFrame->format == _hwPixelFormat)
                 {
                     // Download the hardware surface to a CPU frame (NV12/P010).
                     av_frame_unref(_swFrame);
@@ -1202,7 +1223,35 @@ namespace tl
 
                 if (time >= currentTime)
                 {
-                    auto image = ftk::Image::create(_info);
+                    std::shared_ptr<ftk::Image> image;
+#if defined(__APPLE__)
+                    if (textureFrame)
+                    {
+                        // The image is the pixel buffer, kept for as long
+                        // as the image is: the decoder's pool hands out
+                        // another in the meantime.
+                        CVPixelBufferRef pixelBuffer =
+                            reinterpret_cast<CVPixelBufferRef>(_avFrame->data[3]);
+                        CVPixelBufferRetain(pixelBuffer);
+                        image = ftk::Image::create(
+                            _info,
+                            reinterpret_cast<uintptr_t>(pixelBuffer),
+                            [](uintptr_t handle)
+                            {
+                                CVPixelBufferRelease(reinterpret_cast<CVPixelBufferRef>(handle));
+                            });
+                        if (!_hwLogged)
+                        {
+                            _log(ftk::Format("Hardware decoding is active (nv12, as textures): \"{0}\"").
+                                arg(_fileName));
+                            _hwLogged = true;
+                        }
+                    }
+#endif // __APPLE__
+                    if (!image)
+                    {
+                        image = ftk::Image::create(_info);
+                    }
                     
                     auto tags = _tags;
                     AVDictionaryEntry* tag = nullptr;
@@ -1215,7 +1264,10 @@ namespace tl
                     tags["hdr"] = nlohmann::json(hdrData).dump();
                     image->setTags(tags);
 
-                    _copy(image, frame);
+                    if (!textureFrame)
+                    {
+                        _copy(image, frame);
+                    }
                     _buffer.push_back(image);
                     out = 1;
                     break;

@@ -93,7 +93,8 @@ if(TLRENDER_FFMPEG_PLUGIN)
         # Asked whether the machine has a hardware decoder for a codec.
         target_link_libraries(tlIO PRIVATE
             "-framework VideoToolbox"
-            "-framework CoreMedia")
+            "-framework CoreMedia"
+            "-framework CoreVideo")
     endif()
     target_include_directories(tlIO PRIVATE ${subprocess_INCLUDE_DIR})
 endif()

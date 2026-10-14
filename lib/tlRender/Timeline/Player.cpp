@@ -139,6 +139,7 @@ namespace tl
         ftk::Image::setBufferPoolMax(static_cast<size_t>(playerOptions.cache.videoGB * ftk::gigabyte));
         p.cacheInfo = ftk::Observable<PlayerCacheInfo>::create();
         p.droppedFrames = ftk::Observable<size_t>::create(0);
+        p.buffering = ftk::Observable<bool>::create(false);
 
         // Create observers.
         auto audioSystem = context->getSystem<AudioSystem>();
@@ -453,6 +454,7 @@ namespace tl
         {
             p.droppedFrames->setIfChanged(0);
             p.droppedFramesReset = true;
+            p.bufferingArm = value != Playback::Stop;
             if (value != Playback::Stop)
             {
                 p.toggle = value;
@@ -584,6 +586,10 @@ namespace tl
                 p.mutex.clearRequests = true;
             }
             p.resetPlaybackTime(tmp);
+            if (p.playback->get() != Playback::Stop)
+            {
+                p.bufferingArm = true;
+            }
         }
     }
 
@@ -973,6 +979,16 @@ namespace tl
         return _p->cacheInfo;
     }
 
+    bool Player::isBuffering() const
+    {
+        return _p->buffering->get();
+    }
+
+    std::shared_ptr<ftk::IObservable<bool> > Player::observeBuffering() const
+    {
+        return _p->buffering;
+    }
+
     void Player::clearCache()
     {
         FTK_P();
@@ -1001,9 +1017,78 @@ namespace tl
     {
         FTK_P();
 
-        // Calculate the current time.
+        // The pre-roll: the clock is held while the cache fills ahead of
+        // the playhead, for as long as the options ask, at a start or a
+        // seek and whenever the cache runs out. A held clock is a reset
+        // every tick without audio, and the callback keeping its position
+        // with audio.
         const double timelineSpeed = p.timeRange.duration().rate();
         const auto playback = p.playback->get();
+        if (playback != Playback::Stop && timelineSpeed > 0.0 &&
+            p.playerOptions.preroll > 0.F)
+        {
+            const OTIO_NS::RationalTime currentTime = p.currentTime->get();
+            const OTIO_NS::TimeRange& inOutRange = p.inOutRange->get();
+            const PlayerCacheInfo& info = p.cacheInfo->get();
+            double ahead = 0.0;
+            for (const auto& range : info.video)
+            {
+                if (range.contains(currentTime))
+                {
+                    ahead = Playback::Reverse == playback ?
+                        (currentTime - range.start_time()).rescaled_to(1.0).value() :
+                        (range.end_time_exclusive() - currentTime).rescaled_to(1.0).value();
+                    break;
+                }
+            }
+            // No more than there is to the end of the range: the cache
+            // cannot hold what is past it.
+            const double remaining = Playback::Reverse == playback ?
+                (currentTime - inOutRange.start_time()).rescaled_to(1.0).value() :
+                (inOutRange.end_time_exclusive() - currentTime).rescaled_to(1.0).value();
+            const double need = std::min(
+                static_cast<double>(p.playerOptions.preroll),
+                std::max(remaining, 0.0));
+            // Nor more than the cache can hold: full, it has all it is
+            // going to get, and waiting for more would wait forever. A
+            // dissolve doubles what a frame costs, which is where a small
+            // cache fills short of the pre-roll.
+            const bool full = info.videoPercentage >= 99.F;
+            bool buffering = p.buffering->get();
+            if (buffering)
+            {
+                buffering = ahead < need && !full;
+            }
+            else if (p.bufferingArm)
+            {
+                buffering = ahead < need && !full;
+            }
+            else
+            {
+                buffering = ahead <= 0.0 && need > 0.0 && !full;
+            }
+            p.bufferingArm = false;
+            if (p.buffering->setIfChanged(buffering))
+            {
+                std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+                p.audioMutex.state.hold = buffering;
+                if (!buffering)
+                {
+                    p.audioReset(currentTime);
+                }
+            }
+            if (buffering)
+            {
+                p.playbackReset(currentTime);
+            }
+        }
+        else if (p.buffering->setIfChanged(false))
+        {
+            std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
+            p.audioMutex.state.hold = false;
+        }
+
+        // Calculate the current time.
         if (playback != Playback::Stop && timelineSpeed > 0.0)
         {
             OTIO_NS::RationalTime start;

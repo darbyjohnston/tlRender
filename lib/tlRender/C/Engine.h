@@ -39,6 +39,15 @@ TL_TIMELINE_API void tl_engine_destroy(tl_engine*);
 //! Tick the engine: once per display frame, before the views draw.
 TL_TIMELINE_API void tl_engine_tick(tl_engine*);
 
+//! Set an I/O option for the files opened from now on (see IO.h): for
+//! instance "Texture" "0" to copy decoded frames rather than draw them
+//! where the decoder put them.
+TL_TIMELINE_API void tl_engine_set_io_option(tl_engine*, const char* name, const char* value);
+
+//! Override the video cache size and the number of readers kept open
+//! for the files opened from now on; zero leaves the platform's choice.
+TL_TIMELINE_API void tl_engine_set_cache(tl_engine*, float videoGB, int readCacheMax);
+
 //! The last error, or an empty string.
 TL_TIMELINE_API const char* tl_engine_get_error(tl_engine*);
 
@@ -51,6 +60,9 @@ TL_TIMELINE_API void tl_player_destroy(tl_player*);
 TL_TIMELINE_API double tl_player_get_duration(tl_player*);
 TL_TIMELINE_API double tl_player_get_rate(tl_player*);
 TL_TIMELINE_API double tl_player_get_time(tl_player*);
+//! The time of the video frame being shown, which trails the current
+//! time while the reader catches up; negative when there is none yet.
+TL_TIMELINE_API double tl_player_get_video_time(tl_player*);
 TL_TIMELINE_API void tl_player_seek(tl_player*, double seconds);
 TL_TIMELINE_API void tl_player_set_playback(tl_player*, tl_playback);
 TL_TIMELINE_API tl_playback tl_player_get_playback(tl_player*);
@@ -67,6 +79,9 @@ typedef struct tl_player_stats
 
     //! Frames dropped since playback started or the last seek.
     size_t droppedFrames;
+
+    //! Whether the clock is held while the cache fills (the pre-roll).
+    int buffering;
 
     //! Seconds of video cached ahead of the current time: zero when
     //! playback is waiting on the reader.

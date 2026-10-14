@@ -86,6 +86,28 @@ namespace tl
             return _running;
         }
 
+        //! As wait(), but back after the timeout as well, with nothing
+        //! pending: for a worker that has something to do while idle.
+        bool waitFor(std::chrono::milliseconds timeout)
+        {
+            std::unique_lock<std::mutex> lock(_mutex);
+            _cv.wait_for(
+                lock,
+                timeout,
+                [this]
+                {
+                    bool out = !_running;
+                    for (auto i = _queues.begin();
+                        !out && i != _queues.end();
+                        ++i)
+                    {
+                        out = !(*i)->_isEmpty();
+                    }
+                    return out;
+                });
+            return _running;
+        }
+
         //! Stop the condition and wake the worker thread. Called by the
         //! owner, typically from a destructor before joining the thread.
         void stop()

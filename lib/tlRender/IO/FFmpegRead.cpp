@@ -89,6 +89,11 @@ namespace tl
                 std::stringstream ss(i->second);
                 ss >> out.yuvToRGBConversion;
             }
+            if (auto i = options.find("Texture"); i != options.end())
+            {
+                std::stringstream ss(i->second);
+                ss >> out.textures;
+            }
             if (auto i = options.find("FFmpeg/HWAccel"); i != options.end())
             {
                 std::stringstream ss(i->second);
@@ -189,8 +194,9 @@ namespace tl
                     FTK_P();
                     try
                     {
+                        p.fileName = getFileName(path);
                         p.readVideo = std::make_shared<ReadVideo>(
-                            getFileName(path),
+                            p.fileName,
                             _mem,
                             p.options,
                             _logSystem.lock());
@@ -321,7 +327,16 @@ namespace tl
             p.currentTime = videoTime.start_time();
             p.readVideo->start();
             size_t errorCount = 0;
-            while (p.condition.wait())
+            // A reader nobody has asked anything of for a while closes
+            // its file and decoder, and opens them again on the next
+            // request: a decoder, and a hardware decoder's session above
+            // all, is a good deal of memory to keep for a clip the
+            // playhead left behind, and a timeline keeps readers for
+            // every clip it has played lately. What was learned about
+            // the file the first time is kept.
+            const std::chrono::seconds idleTimeout(5);
+            auto lastRequest = std::chrono::steady_clock::now();
+            while (p.condition.waitFor(std::chrono::seconds(1)))
             {
                 // Information requests.
                 for (const auto& request : p.infoRequests.popAll())
@@ -334,6 +349,18 @@ namespace tl
                 if (auto videoRequest = p.videoRequests.pop())
                 {
                     PromiseGuard<VideoData> guard(videoRequest->promise);
+                    lastRequest = std::chrono::steady_clock::now();
+                    if (!p.readVideo)
+                    {
+                        p.readVideo = std::make_shared<ReadVideo>(
+                            p.fileName,
+                            _mem,
+                            p.options,
+                            _logSystem.lock());
+                        p.readVideo->start();
+                        p.currentTime = videoTime.start_time();
+                        errorCount = 0;
+                    }
 
                     // Seek.
                     if (!videoRequest->time.strictly_equal(p.currentTime))
@@ -360,10 +387,15 @@ namespace tl
 
                     p.currentTime += OTIO_NS::RationalTime(1.0, videoTime.duration().rate());
                 }
+                else if (p.readVideo &&
+                    std::chrono::steady_clock::now() - lastRequest > idleTimeout)
+                {
+                    p.readVideo.reset();
+                }
 
                 // Record any new errors from the worker, logging the
                 // first one.
-                if (p.readVideo->getErrorCount() != errorCount)
+                if (p.readVideo && p.readVideo->getErrorCount() != errorCount)
                 {
                     const bool first = 0 == errorCount;
                     errorCount = p.readVideo->getErrorCount();

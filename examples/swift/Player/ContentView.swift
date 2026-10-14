@@ -2,6 +2,7 @@
 // Copyright Contributors to the tlRender project.
 
 import SwiftUI
+import tlRenderC
 import UniformTypeIdentifiers
 
 struct ContentView: View {
@@ -65,6 +66,26 @@ struct ContentView: View {
             // "-open <path>" on the command line opens a file at launch,
             // which is how the simulator is driven without a picker.
             let args = CommandLine.arguments
+            // "-copy" copies decoded frames rather than drawing them where
+            // the decoder put them, to compare the two.
+            if args.contains("-copy"), let handle = engine.handle {
+                tl_engine_set_io_option(handle, "Texture", "0")
+            }
+            // "-cache <GB>" and "-readers <N>" override the platform's
+            // cache size and readers kept open.
+            if let handle = engine.handle {
+                var gb: Float = 0
+                var readers: Int32 = 0
+                if let i = args.firstIndex(of: "-cache"), i + 1 < args.count {
+                    gb = Float(args[i + 1]) ?? 0
+                }
+                if let i = args.firstIndex(of: "-readers"), i + 1 < args.count {
+                    readers = Int32(args[i + 1]) ?? 0
+                }
+                if gb > 0 || readers > 0 {
+                    tl_engine_set_cache(handle, gb, readers)
+                }
+            }
             if let i = args.firstIndex(of: "-open"), i + 1 < args.count {
                 // A relative path is in the application's documents,
                 // where a file copied to a device lands.
@@ -74,6 +95,17 @@ struct ContentView: View {
                 if args.contains("-play") {
                     engine.setPlaying(true)
                 }
+            }
+            // "-bench <path>" runs the engine against AVPlayer on the
+            // file and prints the numbers.
+            if let i = args.firstIndex(of: "-bench"), i + 1 < args.count {
+                let documents = FileManager.default.urls(
+                    for: .documentDirectory, in: .userDomainMask).first
+                let bench = Bench(
+                    engine: engine,
+                    url: URL(fileURLWithPath: args[i + 1], relativeTo: documents))
+                engine.bench = bench
+                bench.run()
             }
         }
 #if os(iOS)

@@ -109,6 +109,11 @@ namespace tl
         std::shared_ptr<ftk::Observable<PlayerCacheOptions> > cacheOptions;
         std::shared_ptr<ftk::Observable<PlayerCacheInfo> > cacheInfo;
         std::shared_ptr<ftk::Observable<size_t> > droppedFrames;
+        //! The pre-roll (PlayerOptions::preroll), main thread: whether the
+        //! clock is held for the cache, and whether a start or a seek has
+        //! just happened, which is when the pre-roll is asked for in full.
+        std::shared_ptr<ftk::Observable<bool> > buffering;
+        bool bufferingArm = false;
         std::shared_ptr<ftk::ListObserver<AudioDeviceInfo> > audioDevicesObserver;
         std::shared_ptr<ftk::Observer<AudioDeviceInfo> > defaultAudioDeviceObserver;
 
@@ -241,6 +246,8 @@ namespace tl
             double audioOffset = 0.0;
             Loop loop = Loop::Loop;
             OTIO_NS::TimeRange inOutRange;
+            //! The clock is held: silence, and the position stays.
+            bool hold = false;
         };
 
         // Shared by three threads, all guarded by mutex: the main thread, the

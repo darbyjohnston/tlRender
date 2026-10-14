@@ -443,6 +443,13 @@ namespace tl
         //! Observe the cache information.
         TL_TIMELINE_API std::shared_ptr<ftk::IObservable<PlayerCacheInfo> > observeCacheInfo() const;
 
+        //! Whether the clock is held while the cache fills ahead of the
+        //! playhead; see PlayerOptions::preroll.
+        TL_TIMELINE_API bool isBuffering() const;
+
+        //! Observe whether the clock is held while the cache fills.
+        TL_TIMELINE_API std::shared_ptr<ftk::IObservable<bool> > observeBuffering() const;
+
         //! Clear the cache.
         TL_TIMELINE_API void clearCache();
 

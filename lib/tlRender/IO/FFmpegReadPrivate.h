@@ -44,6 +44,10 @@ namespace tl
         {
             bool yuvToRGBConversion = false;
             bool hwAccel = false;
+            //! Frames as textures (the "Texture" I/O option): a frame the
+            //! hardware decoded stays on the GPU, as the pixel buffer it
+            //! came in, where the GPU renderer draws it. Apple platforms.
+            bool textures = false;
             AudioInfo audioConvertInfo;
             bool audioMerge = Options().audioMerge;
             size_t threadCount = Options().threadCount;
@@ -134,6 +138,7 @@ namespace tl
             AVFrame* _swFrame = nullptr;
             bool _hwAccel = false;
             bool _hwLogged = false;
+            bool _textures = false;
             std::weak_ptr<ftk::LogSystem> _logSystem;
             std::list<std::shared_ptr<ftk::Image> > _buffer;
             bool _eof = false;
@@ -221,6 +226,7 @@ namespace tl
         struct VideoRead::Private
         {
             ReadOptions options;
+            std::string fileName;
 
             std::shared_ptr<ReadVideo> readVideo;
 

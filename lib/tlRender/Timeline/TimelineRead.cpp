@@ -64,6 +64,7 @@ namespace tl
             path.getProtocol() + path.getDir(),
             options.pathOptions);
         const std::string key = getKey(mediaPath);
+        std::vector<std::shared_ptr<T> > evicted;
         std::unique_lock<std::mutex> lock(readCacheMutex);
         if (!cache.get(key, out))
         {
@@ -112,6 +113,20 @@ namespace tl
             }
             if (out)
             {
+                // A reader the cache is about to let go of is let go of
+                // after the lock, not under it: its destructor joins its
+                // thread, and that thread can be waiting on a request the
+                // timeline hands out from under this same lock. Two readers
+                // kept, on a timeline of three clips, deadlocked here.
+                while (cache.getMax() > 0 && cache.getCount() >= cache.getMax())
+                {
+                    const auto keys = cache.getKeys();
+                    const auto values = cache.getValues();
+                    if (keys.empty() || values.empty())
+                        break;
+                    evicted.push_back(values.back());
+                    cache.remove(keys.back());
+                }
                 cache.add(key, out);
             }
         }

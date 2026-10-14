@@ -62,6 +62,7 @@ namespace tl
             _compare();
             _compareMediaReferences();
             _readBehind();
+            _preroll();
         }
 
         void PlayerTest::_enums()
@@ -649,6 +650,45 @@ namespace tl
             FTK_ASSERT(!cached.empty());
             FTK_ASSERT(startCached);
             FTK_ASSERT(!endCached);
+        }
+
+        void PlayerTest::_preroll()
+        {
+            // With a pre-roll, playback from an empty cache holds the
+            // clock until the cache is ahead of the playhead, then runs.
+            const ftk::Path path = ftk::expandSeq(
+                ftk::Path(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg"));
+            if (!_context->getSystem<ReadSystem>()->getPlugin(path))
+            {
+                return;
+            }
+            auto timeline = Timeline::create(_context, path);
+            PlayerOptions playerOptions;
+            playerOptions.preroll = .5F;
+            auto player = Player::create(_context, timeline, playerOptions);
+            const OTIO_NS::TimeRange& timeRange = player->getTimeRange();
+            bool buffered = false;
+            auto bufferingObserver = ftk::Observer<bool>::create(
+                player->observeBuffering(),
+                [&buffered](bool value)
+                {
+                    buffered |= value;
+                });
+            player->setPlayback(Playback::Forward);
+            const auto t = std::chrono::steady_clock::now();
+            while (std::chrono::steady_clock::now() - t < std::chrono::seconds(3))
+            {
+                _context->tick();
+                ftk::sleep(std::chrono::milliseconds(10));
+            }
+            _print(ftk::Format("Pre-roll: buffered {0}, time {1}, dropped {2}").
+                arg(buffered).
+                arg(player->getCurrentTime()).
+                arg(player->getDroppedFrames()));
+            FTK_ASSERT(buffered);
+            FTK_ASSERT(!player->isBuffering());
+            FTK_ASSERT(player->getCurrentTime() > timeRange.start_time());
+            player->setPlayback(Playback::Stop);
         }
     }
 }
