@@ -2,6 +2,8 @@ add_subdirectory(Core)
 add_subdirectory(GL)
 if(TLRENDER_GPU AND TARGET ftk::ftkGPU)
     add_subdirectory(GPU)
+    # The C interface draws with the GPU renderer, so it is built with it.
+    add_subdirectory(C)
 endif()
 add_subdirectory(IO)
 add_subdirectory(Resource)

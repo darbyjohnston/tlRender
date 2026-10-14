@@ -1,0 +1,27 @@
+set(HEADERS
+    Engine.h)
+set(SOURCE
+    Engine.cpp)
+
+# The C interface to the engine, for Swift and any other language that
+# speaks C. It draws with the GPU renderer only.
+add_library(tlC ${HEADERS} ${SOURCE})
+target_link_libraries(tlC PUBLIC tlGPU)
+set_target_properties(tlC PROPERTIES FOLDER lib)
+set_target_properties(tlC PROPERTIES PUBLIC_HEADER "${HEADERS}")
+
+install(
+    TARGETS tlC
+    EXPORT tlCTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+    PUBLIC_HEADER DESTINATION include/tlRender/C)
+install(
+    FILES module.modulemap
+    DESTINATION include/tlRender/C)
+install(
+    EXPORT tlCTargets
+    FILE tlCTargets.cmake
+    DESTINATION "lib/cmake/tlRender"
+    NAMESPACE tlRender::)
