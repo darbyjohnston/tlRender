@@ -1008,14 +1008,18 @@ namespace tl
                     try
                     {
                         auto context = p.context.lock();
+                        // The scale reads pixels, so the frame cannot be a
+                        // texture whatever the caller asked for.
+                        IOOptions options = request->options;
+                        options.erase("Texture");
                         auto timeline = getTimeline(
                             context, p.ioCache, p.ioCacheMutex, request->path,
-                            request->audioPath, request->options,
+                            request->audioPath, options,
                             ThumbnailType::Timeline == request->type);
                         IOInfo info;
                         if (timeline &&
                             timeline->getMediaInfo(
-                                request->mediaPath, info, request->options))
+                                request->mediaPath, info, options))
                         {
                             ftk::Size2I size;
                             if (!info.video.empty())
@@ -1029,7 +1033,7 @@ namespace tl
                                     request->time.value_or(
                                         info.videoTime->start_time());
                                 auto videoRequest = timeline->readMedia(
-                                    request->mediaPath, time, request->options);
+                                    request->mediaPath, time, options);
                                 if (videoRequest.valid())
                                 {
                                     const auto videoData = videoRequest.get();

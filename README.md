@@ -136,7 +136,17 @@ playing movies with the WebCodecs API:
   from the [ASWF Digital Production Example Library](https://dpel.aswf.io)
 
 The "url" query plays a movie from any host that allows cross-origin
-range reads.
+range reads. The page asks the browser for as much memory as it will
+give, from 2GB down; a "mem" query names the maximum in megabytes for
+a browser that refuses even the smallest, or for trying one. Decoded frames stay on the GPU: the browser imports each
+one into a WebGL texture and the viewport draws it there, with no copy
+through memory. The "copy" query takes the older path, which copies
+every frame into memory, for comparison.
+
+The web build is `etc/Web/build.sh`, which builds the dependencies and
+the player with Emscripten; it needs `emcc` on the path. The Web
+workflow runs it on every push to main and publishes the result to the
+page above.
 
 
 ## Python

@@ -148,6 +148,14 @@ namespace tl
     TL_IO_API ftk::ImageType getFloatImageType(size_t channelCount, size_t bitDepth);
 
     //! Options.
+    //!
+    //! A plugin's own keys are "Plugin/Option"; the bare keys are for any
+    //! reader that can honor them:
+    //! - "Layer": the image layer to read, as a number.
+    //! - "Texture": "1" lets a reader that decodes on the GPU deliver
+    //!   frames as textures (ftk::Image::getTextureHandle(), no pixel
+    //!   data), for a caller that only draws them. Thumbnails always read
+    //!   pixels.
     typedef std::map<std::string, std::string> IOOptions;
 
     //! Merge options.

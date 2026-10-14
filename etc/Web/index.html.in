@@ -86,8 +86,58 @@ if (!crossOriginIsolated) {
         document.addEventListener(type, gesture, true);
     });
 })();
+/* The browser can take the graphics context away under memory
+   pressure, and there is no getting every texture, shader and buffer
+   back one by one: the page reloads instead, at the time the player
+   had reached, playing if it was. The application reports its time
+   through __tlTime. */
+document.getElementById('canvas').addEventListener(
+    'webglcontextlost',
+    function() {
+        tlError('The graphics context was lost; reloading.');
+        setTimeout(function() {
+            var url = new URL(location.href);
+            if (globalThis.__tlTime !== undefined) {
+                url.searchParams.set('time', String(globalThis.__tlTime));
+            }
+            location.replace(url.toString());
+        }, 1000);
+    });
+/* The wasm memory is made here rather than by the runtime, so that the
+   most it may grow to can follow the device: Safari on an iPad refuses
+   a shared memory with the 2GB maximum the build asks for, and refuses
+   more with each reload of the page, so smaller maximums are tried
+   until one is granted. The initial size is the build's. A "mem" query
+   names the maximum in MB, for a device where the first try is still
+   too much, or for trying a small one. */
+function tlMakeMemory() {
+    var maximums = [2048, 1024, 512, 256];
+    var query = new URLSearchParams(location.search).get('mem');
+    if (query) {
+        maximums = [parseInt(query)];
+    }
+    for (var i = 0; i < maximums.length; ++i) {
+        try {
+            var memory = new WebAssembly.Memory({
+                initial: 256,
+                maximum: maximums[i] * 16,
+                shared: true });
+            /* Touching the buffer is what makes a refusal show here
+               rather than later. */
+            if (memory.buffer.byteLength > 0) {
+                globalThis.__tlMemoryMax = maximums[i];
+                return memory;
+            }
+        } catch (e) {
+            console.warn('A ' + maximums[i] + 'MB memory was refused: ' + e);
+        }
+    }
+    /* The runtime makes its own, and reports the failure. */
+    return undefined;
+}
 var Module = {
     canvas: document.getElementById('canvas'),
+    wasmMemory: tlMakeMemory(),
     print: function(text) {
         console.log(text);
         if (/^(ERROR:|Unhandled exception)/.test(text)) {
@@ -108,10 +158,13 @@ var Module = {
         return path + '?v=@tl_WEB_ID@';
     },
     /* The query string is the command line: "?url=clip.mp4" becomes
-       "-url clip.mp4". */
+       "-url clip.mp4". The page's own queries are left out. */
     arguments: (function() {
         var out = [];
         new URLSearchParams(location.search).forEach(function(value, key) {
+            if ('mem' === key) {
+                return;
+            }
             out.push('-' + key);
             if (value)
             {

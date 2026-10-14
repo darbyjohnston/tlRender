@@ -377,6 +377,27 @@ endif()
 #-------------------------------------------------------------------------------
 # feather-tk
 
+if(EMSCRIPTEN)
+    # The port and exception flags feather-tk builds with, for this tree's
+    # own libraries and examples as well: feather-tk's are scoped to its
+    # directory. Without them the web link is missing SDL and the
+    # exception runtime. Threads as well, which feather-tk alone does
+    # without: the readers and the player each run on one, and every
+    # library linked in has to be built with them, the dependencies
+    # included -- the super builds take the flag in CMAKE_C_FLAGS and
+    # CMAKE_CXX_FLAGS.
+    add_compile_options("-pthread" "-sUSE_SDL=2" "-fwasm-exceptions")
+    add_link_options(
+        "-pthread"
+        "-sUSE_SDL=2"
+        "-fwasm-exceptions"
+        "-sSUPPORT_LONGJMP=wasm"
+        "-sFULL_ES3=1"
+        "-sMIN_WEBGL_VERSION=2"
+        "-sMAX_WEBGL_VERSION=2"
+        "-sALLOW_MEMORY_GROWTH=1")
+endif()
+
 if(TLRENDER_FTK_PACKAGE)
     find_package(ftk REQUIRED)
     # The graphics API is feather-tk's option, which an installed package
