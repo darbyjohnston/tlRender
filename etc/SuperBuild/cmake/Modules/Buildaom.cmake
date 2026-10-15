@@ -29,5 +29,10 @@ ExternalProject_Add(
     DEPENDS ${aom_DEPS}
     GIT_REPOSITORY ${aom_GIT_REPOSITORY}
     GIT_TAG ${aom_GIT_TAG}
+    # The tag alone: the whole history is hundreds of megabytes from a
+    # server that dropped the transfer part way on the Windows runners,
+    # and a clone that fails once fails the build there even when the
+    # retry succeeds, since MSBuild reads the first attempt's error.
+    GIT_SHALLOW TRUE
     LIST_SEPARATOR |
     CMAKE_ARGS ${aom_ARGS})
