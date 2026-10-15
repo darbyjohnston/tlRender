@@ -10,6 +10,8 @@
 #include <ftk/UI/Label.h>
 #include <ftk/UI/Spacer.h>
 
+#include <chrono>
+
 namespace tl
 {
     namespace ui
@@ -233,6 +235,11 @@ namespace tl
             // scrubbing, and puts back what it changed.
             std::optional<OTIO_NS::RationalTime> pressTime;
             Playback pressPlayback = Playback::Stop;
+
+            // Where a drag has got to while the frame it last asked for is
+            // still being read, and when it asked; see mouseMoveEvent().
+            std::optional<OTIO_NS::RationalTime> scrubPending;
+            std::chrono::steady_clock::time_point scrubSeekTime;
 
             std::shared_ptr<ThumbnailSystem> thumbnailSystem;
 

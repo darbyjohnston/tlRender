@@ -27,6 +27,7 @@
 #include <opentimelineio/transition.h>
 
 #include <algorithm>
+#include <set>
 
 namespace tl
 {
@@ -397,9 +398,15 @@ namespace tl
                 }
             }
         };
-        std::unique_lock<std::mutex> lock(p.mutex.mutex);
-        cancel(p.mutex.videoRequests);
-        cancel(p.mutex.audioRequests);
+        {
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            cancel(p.mutex.videoRequests);
+            cancel(p.mutex.audioRequests);
+            // The ones already in progress are the request thread's to
+            // deal with, at the readers.
+            p.mutex.cancelledIds.insert(p.mutex.cancelledIds.end(), ids.begin(), ids.end());
+        }
+        p.thread.cv.notify_one();
     }
 
     void Timeline::closeReaders()
@@ -481,6 +488,7 @@ namespace tl
         // Gather requests.
         std::list<std::shared_ptr<Private::PendingVideoRequest> > newVideoRequests;
         std::list<std::shared_ptr<Private::PendingAudioRequest> > newAudioRequests;
+        std::vector<uint64_t> cancelledIds;
         {
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.thread.cv.wait_for(
@@ -493,8 +501,10 @@ namespace tl
                         !_p->mutex.videoRequests.empty() ||
                         !_p->thread.videoRequestsInProgress.empty() ||
                         !_p->mutex.audioRequests.empty() ||
-                        !_p->thread.audioRequestsInProgress.empty();
+                        !_p->thread.audioRequestsInProgress.empty() ||
+                        !_p->mutex.cancelledIds.empty();
                 });
+            cancelledIds.swap(p.mutex.cancelledIds);
             // Nearest the playhead first, when there is one to be near: the
             // oldest request is not the most urgent once the playhead has
             // moved on from it. A stable sort, so that requests the same
@@ -536,6 +546,48 @@ namespace tl
             }
         }
 
+        // Requests cancelled while in progress have their reads queued at
+        // the readers, and a reader works through its queue in order:
+        // scrubbing a long GOP movie, every seek left each reader six stale
+        // frames to decode, a seek and a walk from the keyframe among them,
+        // before the frame the playhead had moved to, and no frame reached
+        // the screen while the finger moved. A reader's queue is cancelled
+        // once nothing in progress at it is wanted any more; the frame in
+        // its decoder finishes. The cancelled requests complete as usual,
+        // with what the reads return, since nobody is waiting on them.
+        if (!cancelledIds.empty())
+        {
+            std::set<std::shared_ptr<IVideoRead> > cancelledReads;
+            std::set<std::shared_ptr<IVideoRead> > wantedReads;
+            for (const auto& request : p.thread.videoRequestsInProgress)
+            {
+                if (!request->cancelled &&
+                    std::find(cancelledIds.begin(), cancelledIds.end(), request->id) != cancelledIds.end())
+                {
+                    request->cancelled = true;
+                }
+                auto& reads = request->cancelled ? cancelledReads : wantedReads;
+                for (const auto& layer : request->layerData)
+                {
+                    if (layer.read)
+                    {
+                        reads.insert(layer.read);
+                    }
+                    if (layer.readB)
+                    {
+                        reads.insert(layer.readB);
+                    }
+                }
+            }
+            for (const auto& read : cancelledReads)
+            {
+                if (wantedReads.find(read) == wantedReads.end())
+                {
+                    read->cancelRequests();
+                }
+            }
+        }
+
         // Traverse the timeline for new video requests.
         for (auto& request : newVideoRequests)
         {
@@ -561,7 +613,7 @@ namespace tl
                                 {
                                     if (auto otioClip = dynamic_cast<const OTIO_NS::Clip*>(otioItem))
                                     {
-                                        videoLayerData.image = _readVideo(otioClip, requestTime, request->options, &videoLayerData.path);
+                                        videoLayerData.image = _readVideo(otioClip, requestTime, request->options, &videoLayerData.path, &videoLayerData.read);
                                         videoLayerData.bounds = getCanvasBox(
                                             getMediaReferenceBounds(p.mediaReference(otioClip)),
                                             p.options.spatial,
@@ -582,7 +634,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.second.value))
                                             {
-                                                videoLayerData.imageB = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.pathB);
+                                                videoLayerData.imageB = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.pathB, &videoLayerData.readB);
                                                 videoLayerData.boundsB = getCanvasBox(
                                                     getMediaReferenceBounds(p.mediaReference(otioClipB)),
                                                     p.options.spatial,
@@ -607,7 +659,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.first.value))
                                             {
-                                                videoLayerData.image = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.path);
+                                                videoLayerData.image = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.path, &videoLayerData.read);
                                                 videoLayerData.bounds = getCanvasBox(
                                                     getMediaReferenceBounds(p.mediaReference(otioClipB)),
                                                     p.options.spatial,

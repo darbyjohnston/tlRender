@@ -17,6 +17,7 @@ extern "C"
 } // extern "C"
 
 #include <atomic>
+#include <optional>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -144,6 +145,9 @@ namespace tl
             //! other frame refers to are skipped instead.
             bool _seekWalk = false;
             OTIO_NS::RationalTime _seekTarget;
+            // The time of the last frame the decoder gave back: where a
+            // walk forward would start from.
+            std::optional<OTIO_NS::RationalTime> _decodedTime;
             std::weak_ptr<ftk::LogSystem> _logSystem;
             std::list<std::shared_ptr<ftk::Image> > _buffer;
             bool _eof = false;

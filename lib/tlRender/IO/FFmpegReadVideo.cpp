@@ -988,31 +988,65 @@ namespace tl
             {
                 return false;
             }
+            // A new decoder has no position to walk on from.
+            _decodedTime.reset();
             seek(currentTime);
             return true;
         }
 
         void ReadVideo::seek(const OTIO_NS::RationalTime& time)
         {
-
             if (_avStream != -1)
             {
-                avcodec_flush_buffers(_avCodecContext[_avStream]);
-
-                const int seekError = av_seek_frame(
-                    _avFormatContext,
-                    _avStream,
-                    av_rescale_q(
-                        time.value() - _timeRange.start_time().value(),
-                        swap(_avSpeed),
-                        _avFormatContext->streams[_avStream]->time_base),
-                    AVSEEK_FLAG_BACKWARD);
-                if (seekError < 0)
+                AVStream* stream = _avFormatContext->streams[_avStream];
+                const auto toStream = [this, stream](const OTIO_NS::RationalTime& value)
                 {
-                    _setError(seekError);
+                    return av_rescale_q(
+                        value.value() - _timeRange.start_time().value(),
+                        swap(_avSpeed),
+                        stream->time_base);
+                };
+                const int64_t timestamp = toStream(time);
+
+                // A frame a little ahead of the last one decoded is reached
+                // by decoding on from here, when the keyframe a seek would
+                // land on is behind where the decoder already is: the walk
+                // from the keyframe is the cost of a seek in a long GOP
+                // movie, and scrubbing forward paid it for every frame.
+                // Decided from the index when the container has one, and
+                // for a short way ahead when it does not.
+                bool walk = false;
+                if (_decodedTime.has_value() && !_eof && time > _decodedTime.value())
+                {
+                    const int i = av_index_search_timestamp(
+                        stream,
+                        timestamp,
+                        AVSEEK_FLAG_BACKWARD);
+                    if (i >= 0)
+                    {
+                        const AVIndexEntry* entry = avformat_index_get_entry(stream, i);
+                        walk = entry && entry->timestamp <= toStream(_decodedTime.value());
+                    }
+                    else
+                    {
+                        walk = (time - _decodedTime.value()).rescaled_to(1.0).value() <= 1.0;
+                    }
+                }
+                if (!walk)
+                {
+                    avcodec_flush_buffers(_avCodecContext[_avStream]);
+                    const int seekError = av_seek_frame(
+                        _avFormatContext,
+                        _avStream,
+                        timestamp,
+                        AVSEEK_FLAG_BACKWARD);
+                    if (seekError < 0)
+                    {
+                        _setError(seekError);
+                    }
+                    _decodedTime.reset();
                 }
             }
-
             _buffer.clear();
             _eof = false;
             _seekWalk = true;
@@ -1249,6 +1283,7 @@ namespace tl
                         _avFormatContext->streams[_avStream]->time_base,
                         swap(_avFormatContext->streams[_avStream]->r_frame_rate)),
                     _timeRange.duration().rate());
+                _decodedTime = time;
 
                 if (time >= currentTime)
                 {

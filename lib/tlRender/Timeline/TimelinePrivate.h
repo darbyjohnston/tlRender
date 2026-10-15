@@ -212,6 +212,10 @@ namespace tl
 
             std::future<VideoData> image;
             std::future<VideoData> imageB;
+            // The readers the futures came from, for cancelling what they
+            // have queued; none for a sequence, which the pool decodes.
+            std::shared_ptr<IVideoRead> read;
+            std::shared_ptr<IVideoRead> readB;
             std::string path;
             std::string pathB;
             std::optional<ftk::Box2F> bounds;
@@ -232,6 +236,9 @@ namespace tl
             OTIO_NS::RationalTime time;
             IOOptions options;
             std::promise<VideoFrame> promise;
+            // Cancelled while in progress: finished like any other, with
+            // whatever the reads return, since nobody is waiting.
+            bool cancelled = false;
 
             std::vector<VideoLayerData> layerData;
         };
@@ -276,6 +283,9 @@ namespace tl
             std::optional<RequestPriority> requestPriority;
             std::list<std::shared_ptr<PendingVideoRequest> > videoRequests;
             std::list<std::shared_ptr<PendingAudioRequest> > audioRequests;
+            // Cancelled ids for the request thread to match against what
+            // is in progress; see cancelRequests().
+            std::vector<uint64_t> cancelledIds;
             bool stopped = false;
             std::string readError;
             size_t readErrorCount = 0;

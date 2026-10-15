@@ -18,6 +18,7 @@
 #include <opentimelineio/gap.h>
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 
 namespace tl
@@ -735,6 +736,13 @@ namespace tl
             IMouseWidget::tickEvent(parentsVisible, parentsEnabled, event);
             FTK_P();
 
+            // A drag that got ahead of the reader: the frame it was
+            // waiting on is here, so where it has got to is asked for.
+            if (p.scrubPending.has_value() && _scrubCaughtUp())
+            {
+                _scrubSeek(p.scrubPending.value());
+            }
+
             // Collect whatever the thumbnail system has finished. Only the
             // items in view have requests outstanding, so this does not walk
             // every item in the timeline on every tick.
@@ -865,9 +873,23 @@ namespace tl
             {
             case Private::MouseMode::CurrentTime:
             {
+                // The scrub time follows the pointer; the seek waits until
+                // the frame the last one asked for is on the screen. Seeking
+                // on every move, each one threw away the frame being read
+                // for the one before, and a movie whose seek is a walk from
+                // the keyframe showed nothing at all while the finger moved.
+                // Held this way, the picture keeps up as fast as the reader
+                // can, and lands on the last position when the drag ends.
                 const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                 p.timeScrub->setIfChanged(time);
-                p.player->seek(time);
+                if (_scrubCaughtUp())
+                {
+                    _scrubSeek(time);
+                }
+                else
+                {
+                    p.scrubPending = time;
+                }
                 break;
             }
             // Scrubbing is only entered with a player, so there is none to
@@ -912,7 +934,7 @@ namespace tl
                 const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                 p.scrub->setIfChanged(true);
                 p.timeScrub->setIfChanged(time);
-                p.player->seek(time);
+                _scrubSeek(time);
             }
         }
 
@@ -934,10 +956,42 @@ namespace tl
                 else
                 {
                     p.hoverSuppress = p.timeScrub->get();
+                    if (p.scrubPending.has_value())
+                    {
+                        _scrubSeek(p.scrubPending.value());
+                    }
                 }
+                p.scrubPending.reset();
             }
             p.scrub->setIfChanged(false);
             p.mouseMode = Private::MouseMode::None;
+        }
+
+        bool TimelineItem::_scrubCaughtUp() const
+        {
+            FTK_P();
+            bool out = true;
+            if (p.player)
+            {
+                const auto& frames = p.player->observeCurrentVideo()->get();
+                if (!frames.empty())
+                {
+                    out = frames.front().time == p.player->getCurrentTime();
+                }
+                // A frame that never comes -- a gap, a read error -- would
+                // hold the drag forever; after a while it goes on anyway.
+                out |= std::chrono::steady_clock::now() - p.scrubSeekTime >
+                    std::chrono::milliseconds(500);
+            }
+            return out;
+        }
+
+        void TimelineItem::_scrubSeek(const OTIO_NS::RationalTime& time)
+        {
+            FTK_P();
+            p.scrubPending.reset();
+            p.scrubSeekTime = std::chrono::steady_clock::now();
+            p.player->seek(time);
         }
 
         void TimelineItem::mouseLeaveEvent()

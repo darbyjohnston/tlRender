@@ -294,7 +294,8 @@ namespace tl
         const OTIO_NS::Clip* clip,
         const OTIO_NS::RationalTime& time,
         const IOOptions& options,
-        std::string* path)
+        std::string* path,
+        std::shared_ptr<IVideoRead>* readOut)
     {
         FTK_P();
         std::future<VideoData> out;
@@ -305,6 +306,10 @@ namespace tl
         // be read statefully keeps its own reader.
         auto seq = _getSeqDecode(mediaReference, optionsMerged);
         auto read = seq ? nullptr : _getVideoRead(mediaReference, optionsMerged);
+        if (readOut)
+        {
+            *readOut = read;
+        }
         if (path)
         {
             // The reader's own path rather than one derived again from the

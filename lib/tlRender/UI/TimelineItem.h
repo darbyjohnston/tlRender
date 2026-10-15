@@ -149,6 +149,8 @@ namespace tl
 
         private:
             void _timeUnitsUpdate();
+            bool _scrubCaughtUp() const;
+            void _scrubSeek(const OTIO_NS::RationalTime&);
 
             bool _isTrackVisible(int) const;
 

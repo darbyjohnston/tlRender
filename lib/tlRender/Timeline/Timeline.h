@@ -376,7 +376,8 @@ namespace tl
             const OTIO_NS::Clip*,
             const OTIO_NS::RationalTime&,
             const IOOptions&,
-            std::string* path = nullptr);
+            std::string* path = nullptr,
+            std::shared_ptr<IVideoRead>* read = nullptr);
         std::future<AudioData> _readAudio(
             const OTIO_NS::Clip*,
             const OTIO_NS::TimeRange&,
