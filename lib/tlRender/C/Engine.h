@@ -66,6 +66,47 @@ TL_TIMELINE_API double tl_player_get_video_time(tl_player*);
 TL_TIMELINE_API void tl_player_seek(tl_player*, double seconds);
 TL_TIMELINE_API void tl_player_set_playback(tl_player*, tl_playback);
 TL_TIMELINE_API tl_playback tl_player_get_playback(tl_player*);
+
+//! What happens at the end of the in/out range.
+typedef enum
+{
+    TL_LOOP_LOOP,
+    TL_LOOP_ONCE,
+    TL_LOOP_PING_PONG
+} tl_loop;
+TL_TIMELINE_API void tl_player_set_loop(tl_player*, tl_loop);
+TL_TIMELINE_API tl_loop tl_player_get_loop(tl_player*);
+
+//! The playback speed in frames a second; the timeline's rate to begin
+//! with.
+TL_TIMELINE_API double tl_player_get_speed(tl_player*);
+TL_TIMELINE_API void tl_player_set_speed(tl_player*, double);
+
+//! Moves of the current time: to the ends, by frames, by seconds.
+typedef enum
+{
+    TL_TIME_START,
+    TL_TIME_END,
+    TL_TIME_FRAME_PREV,
+    TL_TIME_FRAME_PREV_X10,
+    TL_TIME_FRAME_PREV_X100,
+    TL_TIME_FRAME_NEXT,
+    TL_TIME_FRAME_NEXT_X10,
+    TL_TIME_FRAME_NEXT_X100,
+    TL_TIME_JUMP_BACK_1S,
+    TL_TIME_JUMP_BACK_10S,
+    TL_TIME_JUMP_FORWARD_1S,
+    TL_TIME_JUMP_FORWARD_10S
+} tl_time_action;
+TL_TIMELINE_API void tl_player_time_action(tl_player*, tl_time_action);
+
+//! The in/out range: set from the current time, reset to the timeline's
+//! ends, and read as seconds from the start of the timeline.
+TL_TIMELINE_API void tl_player_set_in_point(tl_player*);
+TL_TIMELINE_API void tl_player_reset_in_point(tl_player*);
+TL_TIMELINE_API void tl_player_set_out_point(tl_player*);
+TL_TIMELINE_API void tl_player_reset_out_point(tl_player*);
+TL_TIMELINE_API void tl_player_get_in_out(tl_player*, double* start, double* end);
 TL_TIMELINE_API int tl_player_get_video_width(tl_player*);
 TL_TIMELINE_API int tl_player_get_video_height(tl_player*);
 

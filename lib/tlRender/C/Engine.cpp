@@ -462,6 +462,109 @@ tl_playback tl_player_get_playback(tl_player* player)
     }
 }
 
+void tl_player_set_loop(tl_player* player, tl_loop value)
+{
+    if (!player)
+        return;
+    tl::Loop loop = tl::Loop::Loop;
+    switch (value)
+    {
+    case TL_LOOP_ONCE: loop = tl::Loop::Once; break;
+    case TL_LOOP_PING_PONG: loop = tl::Loop::PingPong; break;
+    default: break;
+    }
+    player->player->setLoop(loop);
+}
+
+tl_loop tl_player_get_loop(tl_player* player)
+{
+    if (!player)
+        return TL_LOOP_LOOP;
+    switch (player->player->getLoop())
+    {
+    case tl::Loop::Once: return TL_LOOP_ONCE;
+    case tl::Loop::PingPong: return TL_LOOP_PING_PONG;
+    default: break;
+    }
+    return TL_LOOP_LOOP;
+}
+
+double tl_player_get_speed(tl_player* player)
+{
+    return player ? player->player->getSpeed() : 0.0;
+}
+
+void tl_player_set_speed(tl_player* player, double value)
+{
+    if (!player)
+        return;
+    player->player->setSpeed(value);
+}
+
+void tl_player_time_action(tl_player* player, tl_time_action value)
+{
+    if (!player)
+        return;
+    tl::TimeAction action = tl::TimeAction::Start;
+    switch (value)
+    {
+    case TL_TIME_END: action = tl::TimeAction::End; break;
+    case TL_TIME_FRAME_PREV: action = tl::TimeAction::FramePrev; break;
+    case TL_TIME_FRAME_PREV_X10: action = tl::TimeAction::FramePrevX10; break;
+    case TL_TIME_FRAME_PREV_X100: action = tl::TimeAction::FramePrevX100; break;
+    case TL_TIME_FRAME_NEXT: action = tl::TimeAction::FrameNext; break;
+    case TL_TIME_FRAME_NEXT_X10: action = tl::TimeAction::FrameNextX10; break;
+    case TL_TIME_FRAME_NEXT_X100: action = tl::TimeAction::FrameNextX100; break;
+    case TL_TIME_JUMP_BACK_1S: action = tl::TimeAction::JumpBack1s; break;
+    case TL_TIME_JUMP_BACK_10S: action = tl::TimeAction::JumpBack10s; break;
+    case TL_TIME_JUMP_FORWARD_1S: action = tl::TimeAction::JumpForward1s; break;
+    case TL_TIME_JUMP_FORWARD_10S: action = tl::TimeAction::JumpForward10s; break;
+    default: break;
+    }
+    player->player->timeAction(action);
+}
+
+void tl_player_set_in_point(tl_player* player)
+{
+    if (player)
+        player->player->setInPoint();
+}
+
+void tl_player_reset_in_point(tl_player* player)
+{
+    if (player)
+        player->player->resetInPoint();
+}
+
+void tl_player_set_out_point(tl_player* player)
+{
+    if (player)
+        player->player->setOutPoint();
+}
+
+void tl_player_reset_out_point(tl_player* player)
+{
+    if (player)
+        player->player->resetOutPoint();
+}
+
+void tl_player_get_in_out(tl_player* player, double* start, double* end)
+{
+    double s = 0.0;
+    double e = 0.0;
+    if (player)
+    {
+        const auto& range = player->player->getTimeRange();
+        const auto& inOut = player->player->getInOutRange();
+        s = (inOut.start_time() - range.start_time()).rescaled_to(1.0).value();
+        e = (inOut.end_time_exclusive() - range.start_time()).rescaled_to(1.0).value();
+    }
+    if (start)
+        *start = s;
+    if (end)
+        *end = e;
+}
+
 int tl_player_get_video_width(tl_player* player)
 {
     if (!player)
