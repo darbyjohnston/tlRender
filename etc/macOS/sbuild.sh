@@ -20,6 +20,11 @@ fi
 
 git -C $SOURCE_DIR submodule update --init --recursive
 
+# SBUILD_STAGES picks the stages: "deps" builds only the dependencies, into
+# install-<type>, and "project" only tlRender, against dependencies already
+# there. Unset, both. CI caches the dependencies' install directory between
+# the two, which is all the project needs of them.
+if [ "$SBUILD_STAGES" != "project" ]; then
 for STAGE in "deps/ftk/etc/SuperBuild ftk" "etc/SuperBuild tl"; do
     set -- $STAGE
     cmake \
@@ -31,6 +36,10 @@ for STAGE in "deps/ftk/etc/SuperBuild ftk" "etc/SuperBuild tl"; do
         -DCMAKE_PREFIX_PATH=$PWD/install-$BUILD_TYPE
     cmake --build $2-$BUILD_TYPE --config $BUILD_TYPE
 done
+fi
+if [ "$SBUILD_STAGES" = "deps" ]; then
+    exit 0
+fi
 
 cmake \
     -S $SOURCE_DIR \
