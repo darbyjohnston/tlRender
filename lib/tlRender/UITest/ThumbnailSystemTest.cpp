@@ -204,8 +204,12 @@ namespace tl
 
         void ThumbnailSystemTest::_timelineCache()
         {
-            // Thumbnails of one file after another keep only the last file
-            // open (DJV #873).
+            // Thumbnails of one file after another keep the last few files
+            // open and no more: sixteen, the thumbnail system's limit. It
+            // was one (DJV #873), when a kept timeline held its decoders;
+            // a reader closes those itself when idle now, and with one kept
+            // a timeline of many clips opened a file for every thumbnail.
+            const size_t ioCacheMax = 16;
             const ftk::Path a(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0001.jpg");
             const ftk::Path b(TLRENDER_SAMPLE_DATA, "Seq/BART_2021-02-07.0002.jpg");
             if (!_context->getSystem<ReadSystem>()->getPlugin(a))
@@ -230,7 +234,33 @@ namespace tl
             const size_t open = settle(count + 1);
             FTK_CHECK(open <= count + 1);
             thumbnailSystem->getThumbnail(b, 16).future.get();
-            FTK_CHECK(open == settle(open));
+            FTK_CHECK(open + 1 == settle(open + 1));
+            // One more than the limit, each a file of its own: the first
+            // is let go of.
+            for (size_t i = 3; i <= ioCacheMax + 1; ++i)
+            {
+                const ftk::Path path(
+                    TLRENDER_SAMPLE_DATA,
+                    ftk::Format("Seq/BART_2021-02-07.{0}.jpg").arg(static_cast<int>(i), 4, '0'));
+                thumbnailSystem->getThumbnail(path, 16).future.get();
+            }
+            // The timelines the earlier cases left in the cache are let go
+            // of too, so the count is bounded rather than exact: no more
+            // than the limit on top of what was there, and at least the
+            // limit, since the last sixteen are kept.
+            const auto start = std::chrono::steady_clock::now();
+            while (Timeline::getObjectCount() > count + ioCacheMax &&
+                std::chrono::steady_clock::now() - start < std::chrono::seconds(2))
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            const size_t kept = Timeline::getObjectCount();
+            _print(ftk::Format("Timelines before: {0}, after {1} files: {2}").
+                arg(count).
+                arg(ioCacheMax + 1).
+                arg(kept));
+            FTK_CHECK(kept <= count + ioCacheMax);
+            FTK_CHECK(kept >= ioCacheMax);
         }
 
         void ThumbnailSystemTest::_clipRequests()

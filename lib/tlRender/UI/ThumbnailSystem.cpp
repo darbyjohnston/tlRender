@@ -169,6 +169,17 @@ namespace tl
                 // the bundle was opened again for every clip.
                 IOOptions timelineOptions = ioOptions;
                 timelineOptions.erase("USD/CameraName");
+                // The scale reads pixels, so a frame cannot be a texture
+                // whatever the caller asked for; and one frame at a time is
+                // all a thumbnail wants: the reader's buffer of frames
+                // ahead, four by default, is four frames of memory a
+                // thumbnail never looks at, for every clip it has opened.
+                // Set here, before the key, so that the three threads ask
+                // for the same timeline: set by the thumbnail thread alone
+                // they made its key differ from the information thread's,
+                // and the file was opened once for each.
+                timelineOptions.erase("Texture");
+                timelineOptions["FFmpeg/VideoBufferSize"] = "1";
                 const std::string key = getTimelineKey(path, audioPath, timelineOptions);
                 std::shared_ptr<Timeline> out;
                 {
@@ -1023,23 +1034,14 @@ namespace tl
                     try
                     {
                         auto context = p.context.lock();
-                        // The scale reads pixels, so the frame cannot be a
-                        // texture whatever the caller asked for.
-                        IOOptions options = request->options;
-                        options.erase("Texture");
-                        // One frame at a time is all a thumbnail wants:
-                        // the reader's buffer of frames ahead, four by
-                        // default, is four frames of memory a thumbnail
-                        // never looks at, for every clip it has opened.
-                        options["FFmpeg/VideoBufferSize"] = "1";
                         auto timeline = getTimeline(
                             context, p.ioCache, p.ioCacheMutex, request->path,
-                            request->audioPath, options,
+                            request->audioPath, request->options,
                             ThumbnailType::Timeline == request->type);
                         IOInfo info;
                         if (timeline &&
                             timeline->getMediaInfo(
-                                request->mediaPath, info, options))
+                                request->mediaPath, info, request->options))
                         {
                             ftk::Size2I size;
                             if (!info.video.empty())
@@ -1053,7 +1055,7 @@ namespace tl
                                     request->time.value_or(
                                         info.videoTime->start_time());
                                 auto videoRequest = timeline->readMedia(
-                                    request->mediaPath, time, options);
+                                    request->mediaPath, time, request->options);
                                 if (videoRequest.valid())
                                 {
                                     const auto videoData = videoRequest.get();
