@@ -7,7 +7,6 @@ add_subdirectory(UI)
 
 if(TLRENDER_PROGRAMS)
     add_subdirectory(BakeApp)
-    add_subdirectory(PlayApp)
 endif()
 
 if(TLRENDER_TESTS)

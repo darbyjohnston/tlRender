@@ -275,9 +275,9 @@ Run the super build script:
 sh tlRender/sbuild-linux.sh
 ```
 
-Try running the `tlplay` application:
+Try running the example player:
 ```
-./build-Release/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
+./build-Release/examples/player/player -url tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 Example running gcovr for code coverage:
@@ -303,9 +303,9 @@ Run the super build script:
 sh tlRender/sbuild-macos.sh
 ```
 
-Try running the `tlplay` application:
+Try running the example player:
 ```
-./build-Release/bin/tlplay/tlplay tlRender/etc/SampleData/MultipleClips.otio
+./build-Release/examples/player/player -url tlRender/etc/SampleData/MultipleClips.otio
 ```
 
 These aliases are convenient for switching between architectures:
@@ -339,10 +339,10 @@ Run the super build script:
 tlRender\sbuild-win.bat
 ```
 
-Try running the `tlplay` application:
+Try running the example player:
 ```
 set PATH=%CD%\install-Release\bin;%PATH%
 ```
 ```
-.\build-Release\bin\tlplay\Release\tlplay tlRender\etc\SampleData\MultipleClips.otio
+.\build-Release\examples\player\Release\player -url tlRender\etc\SampleData\MultipleClips.otio
 ```
