@@ -4,6 +4,7 @@
 import AVFoundation
 import Foundation
 import QuartzCore
+import VideoToolbox
 import tlRenderC
 
 /// The engine against AVPlayer on one file, the same script for both:
@@ -48,6 +49,38 @@ final class Bench {
         }
     }
 
+    /// Seek to a random frame every so often, forever, for a profiler
+    /// to see nothing but the seek path. Each seek's time to the frame
+    /// is logged.
+    func runSeekLoop() {
+        Task { @MainActor in
+            engine.open(url)
+            guard let player = engine.player else { return }
+            while tl_player_get_video_time(player) < 0 { await tick() }
+            let rate = tl_player_get_rate(player)
+            let duration = tl_player_get_duration(player)
+            var count = 0
+            var sum = 0.0
+            while engine.bench != nil {
+                let target = (Double.random(in: 0.05..<0.95) * duration * rate).rounded() / rate
+                let s0 = now()
+                engine.seek(target)
+                while abs(tl_player_get_video_time(player) - target) > 0.5 / rate {
+                    await tick()
+                    if now() - s0 > 10 { break }
+                }
+                let latency = now() - s0
+                count += 1
+                sum += latency
+                if count % 10 == 0 {
+                    let line = String(format: "seekloop: %d seeks, last %.3f s, mean %.3f s\n", count, latency, sum / Double(count))
+                    FileHandle.standardError.write(line.data(using: .utf8)!)
+                }
+                try? await Task.sleep(nanoseconds: 300_000_000)
+            }
+        }
+    }
+
     // MARK: The engine
 
     private func runEngine() async -> Result {
@@ -66,23 +99,24 @@ final class Bench {
         let rate = tl_player_get_rate(player)
         let duration = tl_player_get_duration(player)
 
-        // A second of cache before playing, as AVPlayer prerolls: played
-        // from a cache of one frame, the playhead outruns the reader and
-        // nothing is ever shown (what the stats line reports as a cache
-        // zero seconds ahead).
+        // Play, and let the player's pre-roll run first: the time until
+        // its clock starts is the prebuffer. Played from a cache of one
+        // frame without it, the playhead outran the reader and nothing was
+        // ever shown.
+        engine.setPlaying(true)
         let b0 = now()
-        while tl_player_get_stats(player).cacheAhead < 1.0 {
+        await tick()
+        while tl_player_get_stats(player).buffering != 0 {
             await tick()
             if now() - b0 > 10 { break }
         }
         r.prebuffer = now() - b0
 
-        // Play, counting the frames that reach the screen.
+        // Then count the frames that reach the screen.
         let seconds = min(playSeconds, max(duration - 0.5, 1))
         let cpu0 = cpuSeconds()
         let p0 = now()
         var last = -1.0
-        engine.setPlaying(true)
         while now() - p0 < seconds {
             await tick()
             let t = tl_player_get_video_time(player)
@@ -188,6 +222,108 @@ final class Bench {
         }
         layer.removeFromSuperlayer()
         return r
+    }
+
+    // MARK: VideoToolbox probe
+
+    /// Decode the file's first frames straight through VideoToolbox, one
+    /// frame at a time and then with frames in flight, and report the
+    /// time a frame costs each way: what the hardware can do against
+    /// what the one-at-a-time use of it gets. Off the main thread, which
+    /// the watchdog kills an application for blocking.
+    func runVTProbe() {
+        let url = self.url
+        DispatchQueue.global(qos: .userInitiated).async {
+            Bench.vtProbe(url: url)
+            DispatchQueue.main.async { [weak self] in self?.engine.bench = nil }
+        }
+    }
+
+    nonisolated private static func log(_ text: String) {
+        FileHandle.standardError.write(String(format: "%.3f %@\n", CACurrentMediaTime(), text).data(using: .utf8)!)
+    }
+
+    nonisolated private static func vtProbe(url: URL) {
+        log("vtprobe: start \(url.path)")
+        let asset = AVURLAsset(url: url)
+        guard let track = asset.tracks(withMediaType: .video).first,
+              let format = track.formatDescriptions.first else {
+            FileHandle.standardError.write("vtprobe: no video track\n".data(using: .utf8)!)
+            return
+        }
+        let formatDescription = format as! CMFormatDescription
+        log("vtprobe: track loaded")
+        for async in [false, true] {
+            var count = 0
+            let countLock = NSLock()
+            let attrs: [String: Any] = [
+                kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+                kCVPixelBufferIOSurfacePropertiesKey as String: [:]]
+            var session: VTDecompressionSession?
+            let handler: VTDecompressionOutputHandler = { status, _, image, _, _ in
+                if status == noErr && image != nil {
+                    countLock.lock(); count += 1; countLock.unlock()
+                }
+            }
+            let status = VTDecompressionSessionCreate(
+                allocator: nil, formatDescription: formatDescription, decoderSpecification: nil,
+                imageBufferAttributes: attrs as CFDictionary, outputCallback: nil,
+                decompressionSessionOut: &session)
+            guard status == noErr, let session else {
+                FileHandle.standardError.write("vtprobe: session failed \(status)\n".data(using: .utf8)!)
+                return
+            }
+            guard let reader = try? AVAssetReader(asset: asset) else { return }
+            let output = AVAssetReaderTrackOutput(track: track, outputSettings: nil)
+            output.alwaysCopiesSampleData = false
+            reader.add(output)
+            reader.startReading()
+            log("vtprobe: session + reader ready, async \(async)")
+            // Four frames in flight at most when pipelined: unbounded, the
+            // decoder allocated output for every frame of the file at once
+            // and the application was killed for its memory.
+            let frames = 240
+            let depth = 4
+            let t0 = CACurrentMediaTime()
+            var sent = 0
+            while sent < frames, let sample = output.copyNextSampleBuffer() {
+                let flags: VTDecodeFrameFlags = async ? [._EnableAsynchronousDecompression] : []
+                VTDecompressionSessionDecodeFrame(
+                    session, sampleBuffer: sample, flags: flags,
+                    infoFlagsOut: nil, outputHandler: handler)
+                sent += 1
+                if sent % 60 == 0 { log("vtprobe: sent \(sent)") }
+                // The session's own wait for asynchronous frames never
+                // returned on this device, so the frames in flight are
+                // counted here instead.
+                if async {
+                    let deadline = CACurrentMediaTime() + 2
+                    while CACurrentMediaTime() < deadline {
+                        countLock.lock(); let done = count; countLock.unlock()
+                        if sent - done < depth { break }
+                        usleep(200)
+                    }
+                }
+            }
+            log("vtprobe: all sent, waiting")
+            let deadline = CACurrentMediaTime() + 2
+            while CACurrentMediaTime() < deadline {
+                countLock.lock(); let done = count; countLock.unlock()
+                if done >= sent { break }
+                usleep(200)
+            }
+            let elapsed = CACurrentMediaTime() - t0
+            log("vtprobe: waited, cancelling reader")
+            reader.cancelReading()
+            log("vtprobe: invalidating session")
+            VTDecompressionSessionInvalidate(session)
+            countLock.lock(); let n = count; countLock.unlock()
+            let line = String(
+                format: "vtprobe %@: %d frames in %.2f s = %.1f fps, %.1f ms/frame\n",
+                async ? "async(4)" : "sync", n, elapsed, Double(n) / elapsed,
+                1000 * elapsed / Double(max(n, 1)))
+            FileHandle.standardError.write(line.data(using: .utf8)!)
+        }
     }
 
     // MARK: Report

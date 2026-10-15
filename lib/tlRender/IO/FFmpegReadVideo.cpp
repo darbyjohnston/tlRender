@@ -1015,6 +1015,8 @@ namespace tl
 
             _buffer.clear();
             _eof = false;
+            _seekWalk = true;
+            _seekTarget = time;
         }
 
         size_t ReadVideo::getErrorCount() const
@@ -1062,6 +1064,33 @@ namespace tl
                     }
                     if ((_eof && _avStream != -1) || (_avStream == packet.p->stream_index))
                     {
+                        // The walk from the keyframe to the frame a seek
+                        // asked for: a frame before it that nothing refers
+                        // to is never shown and never needed, so the
+                        // decoder is told to drop it. Half the frames of a
+                        // typical encode, and with the hardware decoding
+                        // one frame at a time each one is a fixed wait.
+                        if (_seekWalk && !_eof)
+                        {
+                            const int64_t ts = packet.p->pts != AV_NOPTS_VALUE ?
+                                packet.p->pts : packet.p->dts;
+                            const OTIO_NS::RationalTime packetTime(
+                                _timeRange.start_time().value() +
+                                av_rescale_q(
+                                    ts,
+                                    _avFormatContext->streams[_avStream]->time_base,
+                                    swap(_avFormatContext->streams[_avStream]->r_frame_rate)),
+                                _timeRange.duration().rate());
+                            if (packetTime < _seekTarget)
+                            {
+                                _avCodecContext[_avStream]->skip_frame = AVDISCARD_NONREF;
+                            }
+                            else
+                            {
+                                _avCodecContext[_avStream]->skip_frame = AVDISCARD_DEFAULT;
+                                _seekWalk = false;
+                            }
+                        }
                         decoding = avcodec_send_packet(
                             _avCodecContext[_avStream],
                             _eof ? nullptr : packet.p);

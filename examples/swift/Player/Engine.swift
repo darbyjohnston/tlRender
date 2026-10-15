@@ -24,6 +24,11 @@ final class Engine: ObservableObject {
     weak var pictureLayer: CALayer?
     /// The benchmark, while one runs.
     var bench: AnyObject?
+    /// Draw every tick whether or not anything changed. Drawing only
+    /// when something had changed, 48 times a second against 60, cost
+    /// three times the CPU per draw on an iPad, measured back to back
+    /// (-ondemand to see); why is not known yet, so every tick it is.
+    var alwaysDraw = true
 #if os(macOS)
     /// On macOS the engine draws in a child window that the player view
     /// keeps over the picture and the timeline together: the timeline
@@ -119,12 +124,18 @@ final class Engine: ObservableObject {
             tl_view_set_player(view, self?.player)
         }
         views[id]?()
-        drawers[id] = { tl_view_draw(view) }
+        drawers[id] = { [weak self] in
+            if tl_view_needs_draw(view) != 0 || self?.alwaysDraw == true {
+                tl_view_draw(view)
+            }
+        }
+        drawCounts[id] = { Int(tl_view_get_draw_count(view)) }
     }
 
     func detach(_ id: ObjectIdentifier) {
         views[id] = nil
         drawers[id] = nil
+        drawCounts[id] = nil
     }
 
     private var drawers: [ObjectIdentifier: () -> Void] = [:]
@@ -174,6 +185,9 @@ final class Engine: ObservableObject {
     }
 
     private var footprintTime = Date.distantPast
+    private var drawsLast = 0
+    private var drawsTime = Date()
+    private var drawCounts: [ObjectIdentifier: () -> Int] = [:]
     private var timeTime = Date.distantPast
 
     private func tick() {
@@ -183,7 +197,10 @@ final class Engine: ObservableObject {
         let now = Date()
         if now.timeIntervalSince(footprintTime) > 5 {
             footprintTime = now
-            let line = String(format: "footprint %.0f MB\n", Engine.footprintMB()) + Engine.threadCPU() + "\n"
+            let draws = drawCounts.values.reduce(0) { $0 + $1() }
+            let line = String(format: "footprint %.0f MB, draws %.1f/s\n", Engine.footprintMB(), Double(draws - drawsLast) / now.timeIntervalSince(drawsTime)) + Engine.threadCPU() + "\n"
+            drawsLast = draws
+            drawsTime = now
             FileHandle.standardError.write(line.data(using: .utf8)!)
         }
         if let player {

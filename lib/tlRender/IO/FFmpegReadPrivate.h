@@ -139,6 +139,11 @@ namespace tl
             bool _hwAccel = false;
             bool _hwLogged = false;
             bool _textures = false;
+            //! After a seek, the frames between the keyframe and the one
+            //! asked for are decoded only to be thrown away: the ones no
+            //! other frame refers to are skipped instead.
+            bool _seekWalk = false;
+            OTIO_NS::RationalTime _seekTarget;
             std::weak_ptr<ftk::LogSystem> _logSystem;
             std::list<std::shared_ptr<ftk::Image> > _buffer;
             bool _eof = false;

@@ -68,6 +68,9 @@ struct ContentView: View {
             let args = CommandLine.arguments
             // "-copy" copies decoded frames rather than drawing them where
             // the decoder put them, to compare the two.
+            if args.contains("-ondemand") {
+                engine.alwaysDraw = false
+            }
             if args.contains("-copy"), let handle = engine.handle {
                 tl_engine_set_io_option(handle, "Texture", "0")
             }
@@ -95,6 +98,28 @@ struct ContentView: View {
                 if args.contains("-play") {
                     engine.setPlaying(true)
                 }
+            }
+            // "-vtprobe <path>" decodes the file through VideoToolbox
+            // directly, one frame at a time and pipelined, and reports.
+            if let i = args.firstIndex(of: "-vtprobe"), i + 1 < args.count {
+                let documents = FileManager.default.urls(
+                    for: .documentDirectory, in: .userDomainMask).first
+                let bench = Bench(
+                    engine: engine,
+                    url: URL(fileURLWithPath: args[i + 1], relativeTo: documents))
+                engine.bench = bench
+                bench.runVTProbe()
+            }
+            // "-seekloop <path>" seeks to random frames forever, for a
+            // profiler.
+            if let i = args.firstIndex(of: "-seekloop"), i + 1 < args.count {
+                let documents = FileManager.default.urls(
+                    for: .documentDirectory, in: .userDomainMask).first
+                let bench = Bench(
+                    engine: engine,
+                    url: URL(fileURLWithPath: args[i + 1], relativeTo: documents))
+                engine.bench = bench
+                bench.runSeekLoop()
             }
             // "-bench <path>" runs the engine against AVPlayer on the
             // file and prints the numbers.

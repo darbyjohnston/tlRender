@@ -1048,8 +1048,24 @@ namespace tl
             const double remaining = Playback::Reverse == playback ?
                 (currentTime - inOutRange.start_time()).rescaled_to(1.0).value() :
                 (inOutRange.end_time_exclusive() - currentTime).rescaled_to(1.0).value();
+            // Nor more than the cache can hold ahead of the playhead: a
+            // frame of 4K 16-bit 4:4:4 is fifty megabytes, and a cache of
+            // half a gigabyte holds a third of a second of them.
+            double capacity = static_cast<double>(p.playerOptions.preroll);
+            const auto& ioInfo = p.timeline->getIOInfo();
+            const size_t frameBytes = !ioInfo.video.empty() ? ioInfo.video[0].getByteCount() : 0;
+            if (frameBytes > 0 && timelineSpeed > 0.0)
+            {
+                const double maxFrames = std::floor(
+                    p.cacheOptions->get().videoGB * ftk::gigabyte / static_cast<double>(frameBytes));
+                const double behindFrames = std::min(
+                    std::round(p.cacheOptions->get().readBehind * timelineSpeed),
+                    maxFrames > 0.0 ? std::floor((maxFrames - 1.0) / 4.0) : 0.0);
+                const double aheadFrames = std::max(maxFrames - behindFrames - 1.0, 0.0);
+                capacity = aheadFrames / timelineSpeed;
+            }
             const double need = std::min(
-                static_cast<double>(p.playerOptions.preroll),
+                std::min(static_cast<double>(p.playerOptions.preroll), capacity),
                 std::max(remaining, 0.0));
             // Nor more than the cache can hold: full, it has all it is
             // going to get, and waiting for more would wait forever. A

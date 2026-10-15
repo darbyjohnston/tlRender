@@ -127,6 +127,13 @@ namespace
             _tickRecursive(shared_from_this(), true, true, event);
         }
 
+        bool needsDraw()
+        {
+            return
+                _hasDrawUpdate(shared_from_this()) ||
+                _hasSizeUpdate(shared_from_this());
+        }
+
         //! Lay the widgets out and draw them; the render is between its
         //! begin and end, with the buffer's transform.
         void draw(const std::shared_ptr<ftk::IRender>& render)
@@ -180,6 +187,12 @@ struct tl_view
     std::shared_ptr<WidgetHost> widgets;
     ftk::Box2I timelineFrame;
     float displayScale = 1.F;
+    //! What the last draw showed, to know when there is something new:
+    //! the frames (their time and image), the size, the frames' places.
+    std::vector<std::pair<double, const void*> > drawnFrames;
+    ftk::Size2I drawnSize;
+    bool dirty = true;
+    size_t drawCount = 0;
 };
 
 namespace
@@ -554,8 +567,64 @@ void tl_view_set_frame(tl_view* view, int x, int y, int w, int h)
 {
     if (view)
     {
-        view->frame = ftk::Box2I(x, y, w, h);
+        const ftk::Box2I frame(x, y, w, h);
+        if (frame != view->frame)
+        {
+            view->frame = frame;
+            view->dirty = true;
+        }
     }
+}
+
+namespace
+{
+    std::vector<std::pair<double, const void*> > frameSignature(const std::vector<tl::VideoFrame>& frames)
+    {
+        std::vector<std::pair<double, const void*> > out;
+        for (const auto& frame : frames)
+        {
+            const void* image = !frame.layers.empty() ? frame.layers[0].image.get() : nullptr;
+            out.push_back(std::make_pair(frame.time.value(), image));
+        }
+        return out;
+    }
+}
+
+size_t tl_view_get_draw_count(tl_view* view)
+{
+    return view ? view->drawCount : 0;
+}
+
+int tl_view_needs_draw(tl_view* view)
+{
+    if (!view || !view->render)
+        return 0;
+    if (view->widgets)
+    {
+        view->widgets->setFrames(
+            ftk::Size2I(view->drawnSize), view->timelineFrame, view->displayScale);
+        view->widgets->tick();
+        if (view->widgets->needsDraw())
+        {
+            view->dirty = true;
+        }
+    }
+    int w = 0;
+    int h = 0;
+    SDL_GetWindowSizeInPixels(view->window, &w, &h);
+    if (ftk::Size2I(w, h) != view->drawnSize)
+    {
+        view->dirty = true;
+    }
+    if (view->player)
+    {
+        const auto frames = view->player->player->observeCurrentVideo()->get();
+        if (frameSignature(frames) != view->drawnFrames)
+        {
+            view->dirty = true;
+        }
+    }
+    return view->dirty ? 1 : 0;
 }
 
 
@@ -563,8 +632,13 @@ void tl_view_set_timeline_frame(tl_view* view, int x, int y, int w, int h, float
 {
     if (view)
     {
-        view->timelineFrame = ftk::Box2I(x, y, w, h);
-        view->displayScale = displayScale;
+        const ftk::Box2I frame(x, y, w, h);
+        if (frame != view->timelineFrame || displayScale != view->displayScale)
+        {
+            view->timelineFrame = frame;
+            view->displayScale = displayScale;
+            view->dirty = true;
+        }
     }
 }
 
@@ -606,6 +680,7 @@ void tl_view_set_player(tl_view* view, tl_player* player)
     if (view)
     {
         view->player = player;
+        view->dirty = true;
         if (view->widgets)
         {
             view->widgets->setPlayer(player ? player->player : nullptr);
@@ -637,6 +712,10 @@ void tl_view_draw(tl_view* view)
         {
             frames = view->player->player->observeCurrentVideo()->get();
         }
+        view->drawnFrames = frameSignature(frames);
+        view->drawnSize = size;
+        view->dirty = false;
+        ++view->drawCount;
 
         // The picture fitted to the frame, or the whole view, as the
         // viewport frames it.
@@ -679,7 +758,6 @@ void tl_view_draw(tl_view* view)
         {
             view->render->setTransform(pm);
             view->widgets->setFrames(size, view->timelineFrame, view->displayScale);
-            view->widgets->tick();
             view->widgets->draw(view->render);
         }
         view->render->end();

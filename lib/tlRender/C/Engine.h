@@ -136,6 +136,14 @@ typedef enum tl_touch_phase
 TL_TIMELINE_API void tl_view_touch(tl_view*, tl_touch_phase, int x, int y);
 
 //! Draw the player's current frame, fitted to the view, and present it.
+//! Whether the view has something new to draw: a video frame that has
+//! not been drawn, a widget that asked for a redraw, a change of size or
+//! frame. Ticks the widgets, so it is asked every tick, and the draw is
+//! made only when it says so: drawing at the display's rate when the
+//! picture changes at the movie's wasted most of the draws.
+TL_TIMELINE_API int tl_view_needs_draw(tl_view*);
+//! How many times the view has been drawn, for a readout of draws a second.
+TL_TIMELINE_API size_t tl_view_get_draw_count(tl_view*);
 TL_TIMELINE_API void tl_view_draw(tl_view*);
 
 #ifdef __cplusplus
