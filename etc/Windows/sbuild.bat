@@ -19,6 +19,12 @@ IF "%CMAKE_BUILD_PARALLEL_LEVEL%"=="" set CMAKE_BUILD_PARALLEL_LEVEL=%NUMBER_OF_
 git -C %SOURCE_DIR% submodule update --init --recursive
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
+rem SBUILD_STAGES picks the stages: "deps" builds only the dependencies, into
+rem install-<type>, and "project" only tlRender, against dependencies already
+rem there. Unset, both. CI caches the dependencies' install directory between
+rem the two, which is all the project needs of them.
+if "%SBUILD_STAGES%"=="project" goto project
+
 cmake ^
     -S %SOURCE_DIR%/deps/ftk/etc/SuperBuild ^
     -B ftk-%BUILD_TYPE% ^
@@ -40,6 +46,10 @@ cmake ^
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 cmake --build tl-%BUILD_TYPE% --config %BUILD_TYPE%
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
+
+if "%SBUILD_STAGES%"=="deps" exit /b 0
+
+:project
 
 cmake ^
     -S %SOURCE_DIR% ^

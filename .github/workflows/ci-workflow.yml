@@ -255,15 +255,31 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # The dependencies are cached as they are installed, which is all the
+    # build of tlRender needs of them, and not their build trees: a few
+    # hundred megabytes where the trees were gigabytes, so every job's fits
+    # in the repository's 10GB. The key is what decides the dependencies --
+    # their build files, the build configs, this script -- and the config
+    # this job builds with; on a hit the dependency stages are skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-windows-Debug-ci-windows-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Windows/sbuild.bat') }}
+
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
     - uses: ilammy/setup-nasm@v1
+      if: steps.deps.outputs.cache-hit != 'true'
     # FFmpeg builds with MSYS2: a fresh one from its GitHub release, with the
     # packages the build needs, kept between runs. The build would otherwise
     # download them from the package mirror every time, and the mirror has
     # been the thing to fail.
     - uses: msys2/setup-msys2@v2
+      if: steps.deps.outputs.cache-hit != 'true'
       id: msys2
       with:
         msystem: MSYS
@@ -280,10 +296,28 @@ jobs:
         cmake --version
         python --version
         
-    - name: Build tlRender
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
       shell: cmd
       env:
         MSYS_INSTALL_PATH: ${{ steps.msys2.outputs.msys2-location }}
+        SBUILD_STAGES: deps
+      run: |
+        tl\etc\Windows\sbuild.bat tl Debug ci-windows
+
+    # Saved before tlRender is built and installed into the same directory,
+    # so that the cache holds the dependencies and nothing of the project.
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
+    - name: Build tlRender
+      shell: cmd
+      env:
+        SBUILD_STAGES: project
       run: |
         tl\etc\Windows\sbuild.bat tl Debug ci-windows
 
@@ -307,15 +341,31 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # The dependencies are cached as they are installed, which is all the
+    # build of tlRender needs of them, and not their build trees: a few
+    # hundred megabytes where the trees were gigabytes, so every job's fits
+    # in the repository's 10GB. The key is what decides the dependencies --
+    # their build files, the build configs, this script -- and the config
+    # this job builds with; on a hit the dependency stages are skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-windows-Debug-ci-windows-python-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Windows/sbuild.bat') }}
+
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
     - uses: ilammy/setup-nasm@v1
+      if: steps.deps.outputs.cache-hit != 'true'
     # FFmpeg builds with MSYS2: a fresh one from its GitHub release, with the
     # packages the build needs, kept between runs. The build would otherwise
     # download them from the package mirror every time, and the mirror has
     # been the thing to fail.
     - uses: msys2/setup-msys2@v2
+      if: steps.deps.outputs.cache-hit != 'true'
       id: msys2
       with:
         msystem: MSYS
@@ -332,10 +382,28 @@ jobs:
         cmake --version
         python --version
         
-    - name: Build tlRender
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
       shell: cmd
       env:
         MSYS_INSTALL_PATH: ${{ steps.msys2.outputs.msys2-location }}
+        SBUILD_STAGES: deps
+      run: |
+        tl\etc\Windows\sbuild.bat tl Debug ci-windows-python
+
+    # Saved before tlRender is built and installed into the same directory,
+    # so that the cache holds the dependencies and nothing of the project.
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
+    - name: Build tlRender
+      shell: cmd
+      env:
+        SBUILD_STAGES: project
       run: |
         tl\etc\Windows\sbuild.bat tl Debug ci-windows-python
 
