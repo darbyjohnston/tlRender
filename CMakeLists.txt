@@ -59,10 +59,6 @@ set(TLRENDER_FTK_PACKAGE OFF CACHE BOOL "Use an installed feather-tk rather than
 set(TLRENDER_FFMPEG_PREFIX "${CMAKE_INSTALL_PREFIX}" CACHE PATH "FFmpeg install prefix")
 set(TLRENDER_PROGRAMS ON CACHE BOOL "Build programs")
 set(TLRENDER_EXAMPLES ON CACHE BOOL "Build examples")
-# The SwiftUI player on the C interface, on macOS with the Ninja or Xcode
-# generator, which are what CMake builds Swift with.
-set(TLRENDER_SWIFT OFF CACHE BOOL "Build the Swift example (macOS, iOS)")
-set(TLRENDER_IOS_TEAM "" CACHE STRING "Development team that signs the Swift example for an iOS device (Xcode generator)")
 # A timeline renderer on SDL's GPU API beside the OpenGL one, drawn with when
 # an application asks for it; see lib/tlRender/GPU/README.md. It is built on
 # ftk's, so it wants ftk_GPU.
@@ -452,10 +448,6 @@ if(TLRENDER_TESTS)
     add_subdirectory(tests)
 endif()
 if(TLRENDER_EXAMPLES)
-    if(TLRENDER_SWIFT)
-        enable_language(Swift)
-        set(CMAKE_Swift_LANGUAGE_VERSION 5)
-    endif()
     add_subdirectory(examples)
 endif()
 add_subdirectory(etc/Legal)

@@ -3,9 +3,6 @@ if(NOT EMSCRIPTEN)
     add_subdirectory(browse)
     add_subdirectory(test-patterns)
 endif()
-if(TLRENDER_SWIFT AND TARGET tlC)
-    add_subdirectory(swift)
-endif()
 
 if(EMSCRIPTEN)
     # The page asks for its .js and .wasm with the build id, so a cached
