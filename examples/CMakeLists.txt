@@ -1,6 +1,5 @@
 add_subdirectory(player)
 if(NOT EMSCRIPTEN)
-    add_subdirectory(browse)
     add_subdirectory(test-patterns)
 endif()
 
