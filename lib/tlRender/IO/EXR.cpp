@@ -26,7 +26,9 @@
 #include <ImfTimeCodeAttribute.h>
 #include <ImfVecAttribute.h>
 
+#include <algorithm>
 #include <array>
+#include <sstream>
 
 namespace tl
 {

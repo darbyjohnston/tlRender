@@ -4,6 +4,7 @@
 #include <tlRender/Timeline/TimelinePrivate.h>
 
 #include <filesystem>
+#include <iterator>
 
 #include <tlRender/Timeline/Util.h>
 #include <tlRender/Timeline/ZipPrivate.h>

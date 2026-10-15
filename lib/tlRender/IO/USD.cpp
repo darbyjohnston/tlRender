@@ -8,6 +8,10 @@
 
 #include <nlohmann/json.hpp>
 
+#include <algorithm>
+#include <array>
+#include <sstream>
+
 namespace tl
 {
     namespace usd

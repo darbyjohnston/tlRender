@@ -18,11 +18,15 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 
+#include <algorithm>
+#include <array>
 #include <cstring>
 #include <ctime>
 #include <filesystem>
+#include <iomanip>
 #include <map>
 #include <set>
+#include <sstream>
 
 namespace tl
 {

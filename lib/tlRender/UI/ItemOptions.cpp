@@ -11,6 +11,8 @@
 
 #include <opentimelineio/marker.h>
 
+#include <algorithm>
+#include <array>
 #include <sstream>
 
 namespace tl
