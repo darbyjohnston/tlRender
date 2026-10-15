@@ -430,7 +430,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CMAKE_BUILD_PARALLEL_LEVEL: 2
+      # The Windows runners have four cores, as the others do.
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
 
     steps:
     - uses: actions/checkout@v6
@@ -516,7 +517,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      CMAKE_BUILD_PARALLEL_LEVEL: 2
+      # The Windows runners have four cores, as the others do.
+      CMAKE_BUILD_PARALLEL_LEVEL: 4
 
     steps:
     - uses: actions/checkout@v6
