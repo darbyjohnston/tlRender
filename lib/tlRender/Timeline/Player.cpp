@@ -1257,10 +1257,18 @@ namespace tl
                 }
             }
 
-            // Clear requests.
+            // Clear the requests, or only those the window has moved off
+            // when the frames themselves are still good.
             if (clearRequests)
             {
-                p.clearRequests();
+                if (clearCache)
+                {
+                    p.clearRequests();
+                }
+                else
+                {
+                    p.pruneRequests();
+                }
             }
 
             // Clear the cache.

@@ -30,6 +30,8 @@ namespace tl
         OTIO_NS::RationalTime loopPlayback(const OTIO_NS::RationalTime&, bool& looped);
 
         void clearRequests();
+        //! Cancel the requests outside the cache window and keep the rest.
+        void pruneRequests();
         void clearCache();
         size_t getVideoCacheMax() const;
         size_t getAudioCacheMax() const;

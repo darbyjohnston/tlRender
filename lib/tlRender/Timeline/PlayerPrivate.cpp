@@ -156,6 +156,80 @@ namespace tl
         thread.audioRequests.clear();
     }
 
+    void Player::Private::pruneRequests()
+    {
+        // A seek, or a change of direction: the requests for frames still
+        // inside the cache window are kept, in flight as they are, and
+        // only those outside are cancelled. Cleared whole, a move of one
+        // frame threw away sixteen frames being read for exactly where the
+        // playhead was going, and the reader started again from a
+        // keyframe: scrubbing back and forth over a long GOP movie was
+        // mostly that.
+        std::vector<std::vector<uint64_t> > ids(1 + thread.state.compare.size());
+        {
+            const auto looped = tl::loop(
+                getVideoCacheRange(getVideoCacheMax()),
+                thread.state.inOutRange);
+            auto i = thread.videoRequests.begin();
+            while (i != thread.videoRequests.end())
+            {
+                bool inside = false;
+                for (const auto& range : looped)
+                {
+                    if (range.contains(i->first))
+                    {
+                        inside = true;
+                        break;
+                    }
+                }
+                if (!inside)
+                {
+                    for (size_t j = 0; j < i->second.size() && j < ids.size(); ++j)
+                    {
+                        ids[j].push_back(i->second[j].id);
+                    }
+                    i = thread.videoRequests.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+        }
+        {
+            const auto looped = tl::loop(
+                getAudioCacheRange(getAudioCacheMax()),
+                getAudioSecondsRange());
+            auto i = thread.audioRequests.begin();
+            while (i != thread.audioRequests.end())
+            {
+                bool inside = false;
+                for (const auto& range : looped)
+                {
+                    if (i->first >= range.min() && i->first <= range.max())
+                    {
+                        inside = true;
+                        break;
+                    }
+                }
+                if (!inside)
+                {
+                    ids[0].push_back(i->second.id);
+                    i = thread.audioRequests.erase(i);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+        }
+        timeline->cancelRequests(ids[0]);
+        for (size_t i = 0; i < thread.state.compare.size(); ++i)
+        {
+            thread.state.compare[i]->cancelRequests(ids[i + 1]);
+        }
+    }
+
     void Player::Private::clearCache()
     {
         thread.videoCache.clear();
@@ -229,13 +303,21 @@ namespace tl
         // range, including the current frame, fits within the maximum
         // size.
         const double rate = thread.state.currentTime.rate();
-        const double behindFrames = std::min(
+        double behindFrames = std::min(
             OTIO_NS::RationalTime(thread.state.cacheOptions.readBehind, 1.0).
                 rescaled_to(rate).round().value(),
             // No more than a quarter of the cache: against a budget of
             // only a couple dozen frames, a fixed half second behind
             // would leave almost nothing ahead.
             max > 0 ? std::floor((max - 1) / 4.0) : 0.0);
+        // Stopped, the window is the same both ways: a scrub goes back as
+        // much as forward, and a window biased the way playback last went
+        // had nothing kept for half of its moves. Playing, the read behind
+        // is what the options say and the rest is ahead.
+        if (Playback::Stop == thread.state.playback)
+        {
+            behindFrames = max > 0 ? std::floor((max - 1) / 2.0) : 0.0;
+        }
         const double aheadFrames = std::max(
             static_cast<double>(max) - behindFrames - 1.0,
             0.0);
