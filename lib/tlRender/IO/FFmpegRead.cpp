@@ -8,6 +8,7 @@
 #include <ftk/Core/LogSystem.h>
 
 #include <algorithm>
+#include <cstring>
 
 extern "C"
 {

@@ -10,6 +10,7 @@
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Path.h>
 
+#include <cstring>
 #include <sstream>
 
 namespace tl

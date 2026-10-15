@@ -3,6 +3,7 @@
 
 #include <tlRender/Timeline/TimelinePrivate.h>
 
+#include <cstring>
 #include <filesystem>
 
 #include <tlRender/Timeline/Util.h>

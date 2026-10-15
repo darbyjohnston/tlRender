@@ -8,6 +8,8 @@
 
 #include <nlohmann/json.hpp>
 
+#include <cstring>
+
 extern "C"
 {
 #include <libavutil/hwcontext.h>

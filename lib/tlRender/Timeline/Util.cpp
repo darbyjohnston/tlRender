@@ -18,6 +18,7 @@
 #include <opentimelineio/externalReference.h>
 #include <opentimelineio/imageSequenceReference.h>
 
+#include <cstring>
 #include <ctime>
 #include <filesystem>
 #include <map>

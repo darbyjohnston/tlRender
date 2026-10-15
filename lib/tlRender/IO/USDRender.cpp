@@ -37,6 +37,7 @@
 #include <SDL3/SDL.h>
 #endif // FTK_SDL3
 
+#include <cstring>
 #include <filesystem>
 
 using namespace PXR_NS;
