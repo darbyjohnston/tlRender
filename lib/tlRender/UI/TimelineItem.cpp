@@ -737,10 +737,22 @@ namespace tl
             FTK_P();
 
             // A drag that got ahead of the reader: the frame it was
-            // waiting on is here, so where it has got to is asked for.
+            // waiting on is here, so where it has got to is asked for. The
+            // finger is outrunning the reader, so what is asked for is the
+            // keyframe before that: one decode rather than a walk from it,
+            // and the picture keeps pace with the finger, by keyframes.
+            // The exact frame follows once nothing newer has come.
             if (p.scrubPending.has_value() && _scrubCaughtUp())
             {
-                _scrubSeek(p.scrubPending.value());
+                _scrubSnap(p.scrubPending.value());
+            }
+            else if (p.scrubExact.has_value() && _scrubCaughtUp() &&
+                std::chrono::steady_clock::now() - p.scrubMoveTime >
+                    std::chrono::milliseconds(100))
+            {
+                const OTIO_NS::RationalTime time = p.scrubExact.value();
+                p.scrubExact.reset();
+                _scrubSeek(time);
             }
 
             // Collect whatever the thumbnail system has finished. Only the
@@ -882,13 +894,21 @@ namespace tl
                 // can, and lands on the last position when the drag ends.
                 const OTIO_NS::RationalTime time = posToTime(event.pos.x);
                 p.timeScrub->setIfChanged(time);
-                if (_scrubCaughtUp())
+                p.scrubMoveTime = std::chrono::steady_clock::now();
+                if (!_scrubCaughtUp())
                 {
-                    _scrubSeek(time);
+                    p.scrubPending = time;
+                }
+                else if (p.scrubExact.has_value())
+                {
+                    // Outrun once and still moving: keyframes until the
+                    // pointer pauses, since the exact frame is a walk, and
+                    // the next move would throw it away.
+                    _scrubSnap(time);
                 }
                 else
                 {
-                    p.scrubPending = time;
+                    _scrubSeek(time);
                 }
                 break;
             }
@@ -956,12 +976,18 @@ namespace tl
                 else
                 {
                     p.hoverSuppress = p.timeScrub->get();
+                    // Where the drag ended, exactly.
                     if (p.scrubPending.has_value())
                     {
                         _scrubSeek(p.scrubPending.value());
                     }
+                    else if (p.scrubExact.has_value())
+                    {
+                        _scrubSeek(p.scrubExact.value());
+                    }
                 }
                 p.scrubPending.reset();
+                p.scrubExact.reset();
             }
             p.scrub->setIfChanged(false);
             p.mouseMode = Private::MouseMode::None;
@@ -992,6 +1018,82 @@ namespace tl
             p.scrubPending.reset();
             p.scrubSeekTime = std::chrono::steady_clock::now();
             p.player->seek(time);
+        }
+
+        void TimelineItem::_scrubSnap(const OTIO_NS::RationalTime& time)
+        {
+            // The keyframe before the time, remembering the time itself for
+            // when the pointer pauses; the time itself when there is no
+            // keyframe to speak of, or when the time is in the same group
+            // of pictures as the frame on the screen: landing on the
+            // keyframe again would show the same picture for as long as
+            // the pointer stayed in the group, and within the group the
+            // exact frame is near, forward a few decodes and backward a
+            // walk the cache window has likely already made.
+            FTK_P();
+            const auto keyframe = _keyframeBefore(time);
+            const auto shownKeyframe = _keyframeBefore(p.player->getCurrentTime());
+            if (keyframe.has_value() &&
+                !keyframe->strictly_equal(time) &&
+                !(shownKeyframe.has_value() && shownKeyframe->strictly_equal(*keyframe)))
+            {
+                p.scrubExact = time;
+                _scrubSeek(*keyframe);
+            }
+            else
+            {
+                p.scrubExact.reset();
+                _scrubSeek(time);
+            }
+        }
+
+        std::optional<OTIO_NS::RationalTime> TimelineItem::_keyframeBefore(
+            const OTIO_NS::RationalTime& time) const
+        {
+            // The keyframe at or before the time, in the clip under it on
+            // the first video track, as a timeline time; nothing when the
+            // clip's media has none to speak of, when its information has
+            // not come yet, or when the keyframe is before the clip's in
+            // point, which the reader would have to walk to anyway.
+            FTK_P();
+            std::optional<OTIO_NS::RationalTime> out;
+            if (!p.player || p.firstVideoTrack < 0 ||
+                p.firstVideoTrack >= static_cast<int>(p.tracks.size()))
+            {
+                return out;
+            }
+            for (const auto& item : p.tracks[p.firstVideoTrack].items)
+            {
+                if (ItemType::Video != item.type ||
+                    !item.timeRange.contains(time))
+                {
+                    continue;
+                }
+                if (!item.ioInfo.has_value() ||
+                    item.ioInfo->videoKeyframes.empty())
+                {
+                    break;
+                }
+                const auto& keyframes = item.ioInfo->videoKeyframes;
+                auto timeline = p.player->getTimeline();
+                const auto frame = timeline->getMediaFrame(time);
+                if (!frame.has_value())
+                {
+                    break;
+                }
+                const auto i = std::upper_bound(keyframes.begin(), keyframes.end(), *frame);
+                if (i == keyframes.begin())
+                {
+                    break;
+                }
+                const auto keyTime = timeline->getMediaFrameTime(time, *(i - 1));
+                if (keyTime.has_value() && item.timeRange.contains(*keyTime))
+                {
+                    out = keyTime;
+                }
+                break;
+            }
+            return out;
         }
 
         void TimelineItem::mouseLeaveEvent()

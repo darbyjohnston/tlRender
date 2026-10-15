@@ -77,6 +77,7 @@ namespace tl
             bool isValid() const;
             const ftk::ImageInfo& getInfo() const;
             const OTIO_NS::TimeRange& getTimeRange() const;
+            const std::vector<int64_t>& getKeyframes() const;
             const VideoSourceInfo& getSource() const;
             const ftk::ImageTags& getTags() const;
 
@@ -109,6 +110,7 @@ namespace tl
             ReadOptions _options;
             ftk::ImageInfo _info;
             OTIO_NS::TimeRange _timeRange;
+            std::vector<int64_t> _keyframes;
             VideoSourceInfo _source;
             ftk::ImageTags _tags;
 

@@ -151,6 +151,8 @@ namespace tl
             void _timeUnitsUpdate();
             bool _scrubCaughtUp() const;
             void _scrubSeek(const OTIO_NS::RationalTime&);
+            std::optional<OTIO_NS::RationalTime> _keyframeBefore(const OTIO_NS::RationalTime&) const;
+            void _scrubSnap(const OTIO_NS::RationalTime&);
 
             bool _isTrackVisible(int) const;
 
