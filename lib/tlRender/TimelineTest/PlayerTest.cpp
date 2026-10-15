@@ -675,16 +675,31 @@ namespace tl
                     buffered |= value;
                 });
             player->setPlayback(Playback::Forward);
+            // The cache fills at the speed of the machine, so the wait is
+            // for the release rather than a set time: a coverage build on a
+            // CI runner took longer than the three seconds this once gave,
+            // and the clock had not moved by the end of them.
             const auto t = std::chrono::steady_clock::now();
-            while (std::chrono::steady_clock::now() - t < std::chrono::seconds(3))
+            while ((!buffered || player->isBuffering()) &&
+                std::chrono::steady_clock::now() - t < std::chrono::seconds(30))
             {
                 _context->tick();
                 ftk::sleep(std::chrono::milliseconds(10));
             }
-            _print(ftk::Format("Pre-roll: buffered {0}, time {1}, dropped {2}").
+            // Then long enough for the clock to move.
+            const auto t2 = std::chrono::steady_clock::now();
+            while (std::chrono::steady_clock::now() - t2 < std::chrono::milliseconds(500))
+            {
+                _context->tick();
+                ftk::sleep(std::chrono::milliseconds(10));
+            }
+            const std::chrono::duration<double> waited = std::chrono::steady_clock::now() - t;
+            _print(ftk::Format("Pre-roll: buffered {0}, time {1}, dropped {2}, cache {3}%, {4} seconds").
                 arg(buffered).
                 arg(player->getCurrentTime()).
-                arg(player->getDroppedFrames()));
+                arg(player->getDroppedFrames()).
+                arg(player->observeCacheInfo()->get().videoPercentage).
+                arg(waited.count()));
             FTK_ASSERT(buffered);
             FTK_ASSERT(!player->isBuffering());
             FTK_ASSERT(player->getCurrentTime() > timeRange.start_time());
