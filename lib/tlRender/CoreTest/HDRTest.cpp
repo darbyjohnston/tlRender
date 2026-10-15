@@ -8,6 +8,8 @@
 #include <ftk/Core/Assert.h>
 #include <ftk/Core/Format.h>
 
+#include <nlohmann/json.hpp>
+
 namespace tl
 {
     namespace core_tests

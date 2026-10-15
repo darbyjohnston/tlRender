@@ -11,6 +11,8 @@
 #include <ftk/Core/OS.h>
 #include <ftk/Core/LogSystem.h>
 
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 
 extern "C"

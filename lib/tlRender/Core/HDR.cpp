@@ -6,6 +6,8 @@
 #include <ftk/Core/Error.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #include <sstream>
 
 namespace tl

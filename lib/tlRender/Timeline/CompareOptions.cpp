@@ -8,6 +8,8 @@
 #include <ftk/Core/Error.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cmath>

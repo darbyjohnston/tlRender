@@ -9,7 +9,7 @@
 #include <ftk/Core/Image.h>
 #include <ftk/Core/Util.h>
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <iostream>
 #include <string>

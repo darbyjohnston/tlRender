@@ -6,6 +6,8 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
 
+#include <nlohmann/json.hpp>
+
 extern "C"
 {
 #include <libavutil/hwcontext.h>

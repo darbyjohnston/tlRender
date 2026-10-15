@@ -17,6 +17,8 @@
 #include <ftk/Core/Timer.h>
 #include <ftk/Core/Util.h>
 
+#include <nlohmann/json.hpp>
+
 #include <algorithm>
 #include <filesystem>
 #include <atomic>

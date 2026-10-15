@@ -7,6 +7,8 @@
 #include <ftk/Core/LogSystem.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #include <subprocess.h>
 
 #include <csignal>

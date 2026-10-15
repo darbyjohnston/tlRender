@@ -9,6 +9,8 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 namespace tl
 {
     namespace timeline_tests

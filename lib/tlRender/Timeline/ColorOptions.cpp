@@ -6,6 +6,8 @@
 #include <ftk/Core/Error.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorTransforms.h>
 #endif // TLRENDER_OCIO
