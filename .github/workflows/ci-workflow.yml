@@ -14,6 +14,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-linux-Debug-ci-linux-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Linux/sbuild.sh', 'tl/etc/Linux/setup-gha.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -26,7 +36,23 @@ jobs:
         python --version
         sh tl/etc/Linux/setup-gha.sh lcov
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/Linux/sbuild.sh tl Debug ci-linux
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug ci-linux
 
@@ -52,6 +78,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-linux-Debug-ci-linux-sdl2-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Linux/sbuild.sh', 'tl/etc/Linux/setup-gha.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -64,7 +100,23 @@ jobs:
         python --version
         sh tl/etc/Linux/setup-gha.sh
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/Linux/sbuild.sh tl Debug ci-linux-sdl2
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug ci-linux-sdl2
 
@@ -85,6 +137,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-linux-Debug-ci-linux-python-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Linux/sbuild.sh', 'tl/etc/Linux/setup-gha.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -97,7 +159,23 @@ jobs:
         python --version
         sh tl/etc/Linux/setup-gha.sh lcov
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/Linux/sbuild.sh tl Debug ci-linux-python
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug ci-linux-python
 
@@ -121,6 +199,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-linux-Debug-minimal-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Linux/sbuild.sh', 'tl/etc/Linux/setup-gha.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -133,7 +221,23 @@ jobs:
         python --version
         sh tl/etc/Linux/setup-gha.sh
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/Linux/sbuild.sh tl Debug minimal
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug minimal
 
@@ -157,6 +261,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-linux-Debug-minimal-gles3-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/Linux/sbuild.sh', 'tl/etc/Linux/setup-gha.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -169,7 +283,23 @@ jobs:
         python --version
         sh tl/etc/Linux/setup-gha.sh
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/Linux/sbuild.sh tl Debug minimal-gles3
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug minimal-gles3
 
@@ -189,6 +319,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-macos-Debug-ci-macos-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/macOS/sbuild.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -200,7 +340,23 @@ jobs:
         cmake --version
         python --version
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/macOS/sbuild.sh tl Debug ci-macos
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/macOS/sbuild.sh tl Debug ci-macos
 
@@ -223,6 +379,16 @@ jobs:
       with:
         path: tl
         submodules: recursive
+
+    # As in the Windows jobs: the installed dependencies are cached, keyed
+    # on what decides them and this job's config, and on a hit their build
+    # is skipped.
+    - name: Restore dependencies
+      id: deps
+      uses: actions/cache/restore@v4
+      with:
+        path: install-Debug
+        key: deps-macos-Debug-ci-macos-python-${{ hashFiles('tl/deps/ftk/etc/SuperBuild/**', 'tl/etc/SuperBuild/**', 'tl/etc/Config/**', 'tl/etc/macOS/sbuild.sh') }}
     - uses: actions/setup-python@v6
       with:
         python-version: '3.12'
@@ -234,7 +400,23 @@ jobs:
         cmake --version
         python --version
 
+    - name: Build dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      env:
+        SBUILD_STAGES: deps
+      run: |
+        sh tl/etc/macOS/sbuild.sh tl Debug ci-macos-python
+
+    - name: Save dependencies
+      if: steps.deps.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: install-Debug
+        key: ${{ steps.deps.outputs.cache-primary-key }}
+
     - name: Build tlRender
+      env:
+        SBUILD_STAGES: project
       run: |
         sh tl/etc/macOS/sbuild.sh tl Debug ci-macos-python
 
