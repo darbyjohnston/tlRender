@@ -20,6 +20,7 @@
 
 #include <ctime>
 #include <filesystem>
+#include <limits>
 #include <map>
 #include <set>
 
@@ -638,6 +639,91 @@ namespace tl
             }
         }
 
+        return out;
+    }
+
+    std::optional<ftk::Box2F> getVisibleBox(
+        const ftk::M44F& mvp,
+        const ftk::Box2I& box)
+    {
+        std::optional<ftk::Box2F> out;
+        ftk::M44F inverse;
+        if (!ftk::invert(mvp, inverse))
+        {
+            return out;
+        }
+        ftk::V2F min(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+        ftk::V2F max(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
+        for (float y : { -1.F, 1.F })
+        {
+            for (float x : { -1.F, 1.F })
+            {
+                ftk::V4F v = inverse * ftk::V4F(x, y, 0.F, 1.F);
+                if (v.w != 0.F)
+                {
+                    v.x /= v.w;
+                    v.y /= v.w;
+                }
+                min.x = std::min(min.x, v.x);
+                min.y = std::min(min.y, v.y);
+                max.x = std::max(max.x, v.x);
+                max.y = std::max(max.y, v.y);
+            }
+        }
+        const ftk::Box2F full(
+            ftk::V2F(box.min.x, box.min.y),
+            ftk::V2F(box.max.x + 1, box.max.y + 1));
+        const ftk::Box2F visible(
+            ftk::V2F(min.x - 1.F, min.y - 1.F),
+            ftk::V2F(max.x + 1.F, max.y + 1.F));
+        if (visible.min.x > full.min.x ||
+            visible.min.y > full.min.y ||
+            visible.max.x < full.max.x ||
+            visible.max.y < full.max.y)
+        {
+            out = ftk::intersect(full, visible);
+        }
+        return out;
+    }
+
+    ftk::TriMesh2F getBoxMesh(
+        const ftk::Box2I& box,
+        const std::optional<ftk::Box2F>& part,
+        bool mirrorV)
+    {
+        if (!part.has_value())
+        {
+            return ftk::mesh(box, mirrorV);
+        }
+        const ftk::Box2F full(
+            ftk::V2F(box.min.x, box.min.y),
+            ftk::V2F(box.max.x + 1, box.max.y + 1));
+        const ftk::Box2F& quad = *part;
+        const auto uv = [&full, mirrorV](float x, float y)
+        {
+            const float u = (x - full.min.x) / (full.max.x - full.min.x);
+            const float v = (y - full.min.y) / (full.max.y - full.min.y);
+            return ftk::V2F(u, mirrorV ? 1.F - v : v);
+        };
+        ftk::TriMesh2F out;
+        out.v.push_back(ftk::V2F(quad.min.x, quad.min.y));
+        out.v.push_back(ftk::V2F(quad.max.x, quad.min.y));
+        out.v.push_back(ftk::V2F(quad.max.x, quad.max.y));
+        out.v.push_back(ftk::V2F(quad.min.x, quad.max.y));
+        out.t.push_back(uv(quad.min.x, quad.min.y));
+        out.t.push_back(uv(quad.max.x, quad.min.y));
+        out.t.push_back(uv(quad.max.x, quad.max.y));
+        out.t.push_back(uv(quad.min.x, quad.max.y));
+        // Wound the way ftk::mesh() winds a box.
+        ftk::Triangle2 triangle;
+        triangle.v[0] = ftk::Vertex2(1, 1);
+        triangle.v[1] = ftk::Vertex2(3, 3);
+        triangle.v[2] = ftk::Vertex2(2, 2);
+        out.triangles.push_back(triangle);
+        triangle.v[0] = ftk::Vertex2(3, 3);
+        triangle.v[1] = ftk::Vertex2(1, 1);
+        triangle.v[2] = ftk::Vertex2(4, 4);
+        out.triangles.push_back(triangle);
         return out;
     }
 }

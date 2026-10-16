@@ -604,6 +604,12 @@ namespace tl
 #endif // FTK_SDL2
         }
 
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+        // Read every block: the route changes under a running player when
+        // mirroring to a television starts or stops.
+        audioThread.outputLatency = getAudioOutputLatency();
+#endif // TARGET_OS_IPHONE
+
         // Get mutex protected values.
         AudioState& state = audioThread.state;
         bool reset = false;
@@ -718,7 +724,9 @@ namespace tl
 
                 // Get audio from the cache.
                 const int64_t t = audioThread.position -
-                    OTIO_NS::RationalTime(state.audioOffset, 1.0).rescaled_to(inputInfo.sampleRate).value();
+                    OTIO_NS::RationalTime(
+                        state.audioOffset - audioThread.outputLatency, 1.0).
+                    rescaled_to(inputInfo.sampleRate).value();
                 int64_t copySize = OTIO_NS::RationalTime(
                     bufferMax - static_cast<double>(fifoSampleCount()),
                     outputInfo.sampleRate).
@@ -877,6 +885,7 @@ namespace tl
                 audioMutex.positionRate =
                     inputInfo.sampleRate * speedRatio *
                     (Playback::Forward == state.playback ? 1.0 : -1.0);
+                audioMutex.outputLatency = audioThread.outputLatency;
             }
         }
 

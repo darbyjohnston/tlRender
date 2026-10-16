@@ -3,6 +3,8 @@
 
 #include <tlRender/GL/RenderPrivate.h>
 
+#include <tlRender/Timeline/Util.h>
+
 #include <ftk/GL/GL.h>
 #include <ftk/GL/Mesh.h>
 #include <ftk/GL/Texture.h>
@@ -1164,8 +1166,9 @@ namespace tl
 
                 if (p.vbos["video"])
                 {
+                    // Only the part on the screen; see getVisibleBox().
                     p.vbos["video"]->copy(convert(
-                        ftk::mesh(box, true),
+                        getBoxMesh(box, getVisibleBox(mvp, box), true),
                         p.vbos["video"]->getType()));
                 }
                 if (p.vaos["video"])

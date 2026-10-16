@@ -3,6 +3,8 @@
 
 #include <tlRender/GPU/RenderPrivate.h>
 
+#include <tlRender/Timeline/Util.h>
+
 #include <ftk/Core/Format.h>
 #include <ftk/Core/Math.h>
 
@@ -59,23 +61,36 @@ namespace tl
                 const ftk::Box2I& box,
                 const ftk::V2F* a = nullptr,
                 const ftk::V2F* b = nullptr,
-                const ftk::V2F* c = nullptr)
+                const ftk::V2F* c = nullptr,
+                const std::optional<ftk::Box2F>& part = std::nullopt)
             {
                 if (!a || !b || !c)
                 {
-                    return ftk::mesh(box);
+                    return getBoxMesh(box, part);
                 }
                 struct Vertex
                 {
                     ftk::V2F p;
                     ftk::V2F t;
                 };
+                // The part of the box that is on the screen, with the
+                // texture coordinates of the whole; see getVisibleBox().
+                const ftk::Box2F full(
+                    ftk::V2F(box.min.x, box.min.y),
+                    ftk::V2F(box.max.x + 1, box.max.y + 1));
+                const ftk::Box2F quad = part.has_value() ? *part : full;
+                const auto uv = [&full](float x, float y)
+                {
+                    return ftk::V2F(
+                        (x - full.min.x) / (full.max.x - full.min.x),
+                        (y - full.min.y) / (full.max.y - full.min.y));
+                };
                 const std::vector<Vertex> polygon =
                 {
-                    { ftk::V2F(box.min.x, box.min.y), ftk::V2F(0.F, 0.F) },
-                    { ftk::V2F(box.max.x + 1, box.min.y), ftk::V2F(1.F, 0.F) },
-                    { ftk::V2F(box.max.x + 1, box.max.y + 1), ftk::V2F(1.F, 1.F) },
-                    { ftk::V2F(box.min.x, box.max.y + 1), ftk::V2F(0.F, 1.F) }
+                    { ftk::V2F(quad.min.x, quad.min.y), uv(quad.min.x, quad.min.y) },
+                    { ftk::V2F(quad.max.x, quad.min.y), uv(quad.max.x, quad.min.y) },
+                    { ftk::V2F(quad.max.x, quad.max.y), uv(quad.max.x, quad.max.y) },
+                    { ftk::V2F(quad.min.x, quad.max.y), uv(quad.min.x, quad.max.y) }
                 };
                 const auto side = [a, b](const ftk::V2F& q)
                 {
@@ -668,12 +683,13 @@ namespace tl
                 const auto& stageTextures = p.displayShaders[shader];
                 textures.insert(textures.end(), stageTextures.begin(), stageTextures.end());
             }
+            const std::optional<ftk::Box2F> visible = getVisibleBox(mvp, box);
             p.baseRender->drawShader(
                 shader,
                 ftk::gpu::Blend::Premultiplied,
                 clip.has_value() ?
-                    boxMesh(box, &clip->a, &clip->b, &clip->c) :
-                    boxMesh(box),
+                    boxMesh(box, &clip->a, &clip->b, &clip->c, visible) :
+                    boxMesh(box, nullptr, nullptr, nullptr, visible),
                 mvp,
                 &uniforms,
                 sizeof(uniforms),

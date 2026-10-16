@@ -23,8 +23,19 @@
 #include <optional>
 #include <thread>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif // __APPLE__
+
 namespace tl
 {
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+    //! How long the audio session says a sample takes to be heard once it
+    //! is handed over, in seconds: a few milliseconds to a speaker, and
+    //! up to seconds to an AirPlay receiver.
+    double getAudioOutputLatency();
+#endif // TARGET_OS_IPHONE
+
     struct Player::Private
     {
         OTIO_NS::RationalTime loopPlayback(const OTIO_NS::RationalTime&, bool& looped);
@@ -283,6 +294,10 @@ namespace tl
             double positionRate = 0.0;
             int64_t generation = 0;
 
+            // What the callback last saw of the output latency, for the
+            // main thread to log when it changes.
+            double outputLatency = 0.0;
+
             std::mutex mutex;
         };
         AudioMutex audioMutex;
@@ -296,6 +311,7 @@ namespace tl
             int64_t position = 0;
             int64_t loops = 0;
             int64_t generation = -1;
+            double outputLatency = 0.0;
         };
         AudioClock audioClock;
 
@@ -327,6 +343,13 @@ namespace tl
             AudioInfo info;
             int64_t position = 0;
             std::shared_ptr<AudioResample> resample;
+
+            // The output's latency, in seconds, taken off the audio offset:
+            // the samples handed over are the ones that will be heard when
+            // the clock gets there. Zero where nothing reports it; on iOS
+            // the audio session does, and an AirPlay receiver is seconds
+            // behind a speaker.
+            double outputLatency = 0.0;
 
             // A copy of AudioMutex::state, kept so that copying into it
             // reuses its storage.

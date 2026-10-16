@@ -16,6 +16,7 @@
 #include <ftk/Core/Time.h>
 
 #include <algorithm>
+#include <cmath>
 
 namespace tl
 {
@@ -1146,11 +1147,13 @@ namespace tl
                 int64_t position = 0;
                 int64_t loops = 0;
                 int64_t generation = 0;
+                double outputLatency = 0.0;
                 {
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     position = p.audioMutex.position;
                     loops = p.audioMutex.loops;
                     generation = p.audioMutex.generation;
+                    outputLatency = p.audioMutex.outputLatency;
                     if (p.audioMutex.positionDuration > 0.0)
                     {
                         const std::chrono::duration<double> elapsed =
@@ -1170,6 +1173,17 @@ namespace tl
                 p.audioClock.position = position;
                 p.audioClock.loops = loops;
                 p.audioClock.generation = generation;
+                if (std::abs(outputLatency - p.audioClock.outputLatency) > 0.001)
+                {
+                    p.audioClock.outputLatency = outputLatency;
+                    if (auto logSystem = p.logSystem.lock())
+                    {
+                        logSystem->print(
+                            "tl::Player",
+                            ftk::Format("Audio output latency: {0}ms").
+                                arg(static_cast<int>(outputLatency * 1000.0)));
+                    }
+                }
                 start = OTIO_NS::RationalTime(
                     position,
                     p.sourceAudioInfo.sampleRate).

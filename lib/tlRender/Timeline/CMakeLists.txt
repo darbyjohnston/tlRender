@@ -54,6 +54,11 @@ set(SOURCE
     Util.cpp
     Video.cpp
     Zip.cpp)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # The audio session's output latency, for the player's audio offset.
+    list(APPEND SOURCE PlayerAudioIOS.mm)
+    set_source_files_properties(PlayerAudioIOS.mm PROPERTIES COMPILE_OPTIONS "-fobjc-arc")
+endif()
 
 add_library(tlTimeline ${HEADERS} ${PRIVATE_HEADERS} ${SOURCE})
 # Private when building, so this library's own API is dllexport here and
@@ -71,6 +76,9 @@ target_include_directories(tlTimeline
         $<INSTALL_INTERFACE:include>)
 
 target_link_libraries(tlTimeline tlIO MINIZIP::minizip-ng)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    target_link_libraries(tlTimeline "-framework AVFoundation")
+endif()
 
 set_target_properties(tlTimeline PROPERTIES FOLDER lib)
 set_target_properties(tlTimeline PROPERTIES PUBLIC_HEADER "${HEADERS}")

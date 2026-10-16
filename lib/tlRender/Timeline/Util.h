@@ -6,11 +6,16 @@
 #include <tlRender/Timeline/Export.h>
 #include <tlRender/Timeline/Player.h>
 
+#include <ftk/Core/Box.h>
 #include <ftk/Core/FileIO.h>
+#include <ftk/Core/Matrix.h>
+#include <ftk/Core/Mesh.h>
 
 #include <opentimelineio/imageSequenceReference.h>
 #include <opentimelineio/mediaReference.h>
 #include <opentimelineio/timeline.h>
+
+#include <optional>
 
 namespace tl
 {
@@ -136,6 +141,24 @@ namespace tl
         Playback,
         int64_t frame,
         int64_t size);
+
+    //! Get the part of a box that the transform lands inside the clip
+    //! volume, grown by a pixel: what is actually on the screen when a
+    //! view is zoomed far in. A rasterizer keeps so many bits for a
+    //! triangle's edges, and a picture enlarged four hundred times is a
+    //! triangle most of a million pixels across, whose edges shook on an
+    //! Apple GPU. Empty when the whole box is inside, or the transform
+    //! cannot be inverted.
+    TL_TIMELINE_API std::optional<ftk::Box2F> getVisibleBox(
+        const ftk::M44F& mvp,
+        const ftk::Box2I& box);
+
+    //! Get the mesh for a box, or for the part of it the view shows, with
+    //! the texture coordinates of the whole box.
+    TL_TIMELINE_API ftk::TriMesh2F getBoxMesh(
+        const ftk::Box2I& box,
+        const std::optional<ftk::Box2F>& part,
+        bool mirrorV = false);
 }
 
 #include <tlRender/Timeline/UtilInline.h>
