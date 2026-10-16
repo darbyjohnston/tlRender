@@ -686,9 +686,14 @@ namespace tl
                 _context->tick();
                 ftk::sleep(std::chrono::milliseconds(10));
             }
-            // Then long enough for the clock to move.
+            // Then until the clock moves. Not a set time: the clock holds
+            // while the frames it needs are not in the cache, and on a CI
+            // runner decoding the sequence can take longer than the half
+            // second this once allowed, with the clock still at the start
+            // at the end of it.
             const auto t2 = std::chrono::steady_clock::now();
-            while (std::chrono::steady_clock::now() - t2 < std::chrono::milliseconds(500))
+            while (player->getCurrentTime() <= timeRange.start_time() &&
+                std::chrono::steady_clock::now() - t2 < std::chrono::seconds(30))
             {
                 _context->tick();
                 ftk::sleep(std::chrono::milliseconds(10));
