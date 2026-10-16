@@ -68,8 +68,29 @@ namespace tl
             // on serving the thumbnail of what used to be there (DJV #884).
             // A sequence is asked about its first frame, which is what its
             // path does not name.
+            // Asked for every request, on the thread that asks, and a
+            // timeline being resized asks for every visible chunk on every
+            // frame: two hundred stat calls on the main thread in a drag.
+            // Kept for a second, which is still sooner than a user can
+            // export and look.
             std::string fileTime(const ftk::Path& path)
             {
+                struct Cached
+                {
+                    std::chrono::steady_clock::time_point when;
+                    std::string time;
+                };
+                static std::mutex mutex;
+                static std::map<std::string, Cached> cache;
+                const auto now = std::chrono::steady_clock::now();
+                {
+                    std::unique_lock<std::mutex> lock(mutex);
+                    const auto i = cache.find(path.get());
+                    if (i != cache.end() && now - i->second.when < std::chrono::seconds(1))
+                    {
+                        return i->second.time;
+                    }
+                }
                 std::string fileName = path.get();
                 const auto& seq = path.getSeq();
                 if (!seq.empty())
@@ -81,12 +102,19 @@ namespace tl
                 std::error_code ec;
                 const auto time = std::filesystem::last_write_time(
                     ftk::toFileSystem(fileName), ec);
-                if (ec)
+                const std::string out = ec ?
+                    std::string() :
+                    std::to_string(static_cast<int64_t>(time.time_since_epoch().count()));
                 {
-                    return std::string();
+                    std::unique_lock<std::mutex> lock(mutex);
+                    cache[path.get()] = { now, out };
+                    // Not kept past what a session looks at.
+                    if (cache.size() > 10000)
+                    {
+                        cache.clear();
+                    }
                 }
-                return std::to_string(
-                    static_cast<int64_t>(time.time_since_epoch().count()));
+                return out;
             }
 
             std::string getInfoKey(
