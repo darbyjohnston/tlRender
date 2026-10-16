@@ -27,5 +27,13 @@ ExternalProject_Add(
     DEPENDS Imath yaml-cpp expat pystring minizip-ng
     GIT_REPOSITORY ${OpenColorIO_GIT_REPOSITORY}
     GIT_TAG ${OpenColorIO_GIT_TAG}
+    # iOS: the monitor code is macOS only (IOKit, ColorSync), and iOS
+    # takes the path with no monitors, as a headless build does
+    # (OpenColorIO-patch/ios.patch).
+    PATCH_COMMAND ${CMAKE_COMMAND}
+        -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+        -DPATCH_SOURCE_DIR=${CMAKE_CURRENT_BINARY_DIR}/OpenColorIO/src/OpenColorIO
+        -DPATCH_FILE=${CMAKE_CURRENT_SOURCE_DIR}/OpenColorIO-patch/ios.patch
+        -P ${CMAKE_CURRENT_LIST_DIR}/ApplyPatch.cmake
     LIST_SEPARATOR |
     CMAKE_ARGS ${OpenColorIO_ARGS})

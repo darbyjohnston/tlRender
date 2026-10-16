@@ -1,0 +1,50 @@
+diff --git a/src/OpenColorIO/CMakeLists.txt b/src/OpenColorIO/CMakeLists.txt
+index f56b6219..fe4b060a 100755
+--- a/src/OpenColorIO/CMakeLists.txt
++++ b/src/OpenColorIO/CMakeLists.txt
+@@ -332,7 +332,7 @@ if(OCIO_USE_SIMD AND OCIO_USE_SSE2NEON AND COMPILER_SUPPORTS_SSE_WITH_SSE2NEON)
+     target_link_libraries(OpenColorIO PRIVATE $<BUILD_INTERFACE:sse2neon>)
+ endif()
+ 
+-if(APPLE)
++if(APPLE AND NOT IOS)
+     target_link_libraries(OpenColorIO
+         PRIVATE
+             "-framework ColorSync"
+@@ -340,6 +340,12 @@ if(APPLE)
+             "-framework CoreGraphics"
+             "-framework IOKit"
+     )
++elseif(APPLE)
++    target_link_libraries(OpenColorIO
++        PRIVATE
++            "-framework CoreFoundation"
++            "-framework CoreGraphics"
++    )
+ endif()
+ 
+ if(NOT BUILD_SHARED_LIBS)
+diff --git a/src/OpenColorIO/SystemMonitor.cpp b/src/OpenColorIO/SystemMonitor.cpp
+index 7fcc9c36..ddd65eaa 100644
+--- a/src/OpenColorIO/SystemMonitor.cpp
++++ b/src/OpenColorIO/SystemMonitor.cpp
+@@ -12,6 +12,10 @@
+ #include "Mutex.h"
+ #include "SystemMonitor.h"
+ 
++#ifdef __APPLE__
++#include <TargetConditionals.h>
++#endif
++
+ 
+ #ifdef OCIO_HEADLESS_ENABLED
+ 
+@@ -26,7 +30,7 @@ void SystemMonitorsImpl::getAllMonitors()
+ 
+ } // namespace OCIO_NAMESPACE
+ 
+-#elif __APPLE__
++#elif __APPLE__ && !TARGET_OS_IPHONE
+ 
+ #include "SystemMonitor_macos.cpp"
+ 
