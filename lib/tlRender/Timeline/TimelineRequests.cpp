@@ -10,6 +10,9 @@
 
 #include <tlRender/IO/SeqIO.h>
 #include <tlRender/IO/System.h>
+#if defined(TLRENDER_FFMPEG)
+#include <tlRender/IO/FFmpeg.h>
+#endif // TLRENDER_FFMPEG
 
 #include <tlRender/Core/URL.h>
 
@@ -131,6 +134,21 @@ namespace tl
         size_t found = 0;
         std::string missing;
         size_t missingCount = 0;
+        // A bundle that could not be mapped (a share, on iOS) is read:
+        // a movie becomes a window on the bundle file, its path and
+        // offset and no memory, which the FFmpeg reader opens through
+        // the file; anything else, an image of a sequence, is read into
+        // memory here, since the image readers take memory alone.
+        const bool mapped = fileIO->getMemStart() != nullptr;
+        std::shared_ptr<ftk::FileIO> readIO;
+        std::shared_ptr<ReadSystem> readSystem;
+        if (!mapped)
+        {
+            if (auto context = this->context.lock())
+            {
+                readSystem = context->getSystem<ReadSystem>();
+            }
+        }
         for (const auto& mediaFileName : mediaFileNames)
         {
             const auto entry = zipReader->find(mediaFileName.second);
@@ -146,18 +164,53 @@ namespace tl
                 }
                 continue;
             }
-            ftk::MemFile memFile(
-                fileIO,
-                fileIO->getMemStart() + entry->offset,
-                entry->size);
+            ftk::MemFile memFile;
+            if (mapped)
+            {
+                memFile = ftk::MemFile(
+                    fileIO,
+                    fileIO->getMemStart() + entry->offset,
+                    entry->size);
+                // A read-only mapping of the bundle, which the decoders may
+                // let go of once a frame is read.
+                memFile.mapped = true;
+            }
+            else
+            {
+                bool window = false;
+#if defined(TLRENDER_FFMPEG)
+                if (readSystem)
+                {
+                    window = std::dynamic_pointer_cast<ffmpeg::ReadPlugin>(
+                        readSystem->getPlugin(ftk::Path(mediaFileName.second))) != nullptr;
+                }
+#endif // TLRENDER_FFMPEG
+                if (window)
+                {
+                    memFile.size = entry->size;
+                }
+                else
+                {
+                    if (!readIO)
+                    {
+                        readIO = ftk::FileIO::create(
+                            fileIO->getPath(),
+                            ftk::FileMode::Read,
+                            ftk::FileRead::Normal,
+                            ftk::FileAccess::Random);
+                    }
+                    auto buffer = std::make_shared<std::vector<uint8_t> >(entry->size);
+                    readIO->seek(entry->offset, ftk::SeekMode::Set);
+                    readIO->read(buffer->data(), entry->size);
+                    memFile = ftk::MemFile(buffer, buffer->data(), entry->size);
+                }
+            }
             // The disk address too: the bytes are STORED, so a reader
-            // that cannot take memory -- the FFmpeg command line -- can
-            // reach the same range through the bundle file.
+            // that cannot take memory -- the FFmpeg command line, or the
+            // library reading a window -- can reach the same range
+            // through the bundle file.
             memFile.path = ftk::fromFileSystem(fileIO->getPath());
             memFile.offset = entry->offset;
-            // A read-only mapping of the bundle, which the decoders may let
-            // go of once a frame is read.
-            memFile.mapped = true;
             (*out)[mediaFileName.first] = memFile;
             ++found;
         }

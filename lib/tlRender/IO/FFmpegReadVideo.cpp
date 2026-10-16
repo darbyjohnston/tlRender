@@ -61,7 +61,11 @@ namespace tl
         {
             try
             {
-                if (!memory.empty())
+                // A window on a bundle that could not be mapped is opened
+                // through the file, by the subfile URL.
+                const bool window = isWindow(memory);
+                const std::string openName = window ? getSubfileName(memory) : fileName;
+                if (!memory.empty() && !window)
                 {
                     _avFormatContext = avformat_alloc_context();
                     if (!_avFormatContext)
@@ -93,7 +97,7 @@ namespace tl
 
                 int r = avformat_open_input(
                     &_avFormatContext,
-                    !_avFormatContext ? fileName.c_str() : nullptr,
+                    !_avFormatContext ? openName.c_str() : nullptr,
                     nullptr,
                     nullptr);
                 if (r < 0)

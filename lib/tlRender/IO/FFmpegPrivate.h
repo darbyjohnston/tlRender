@@ -19,6 +19,17 @@ namespace tl
 {
     namespace ffmpeg
     {
+        //! The FFmpeg subfile URL for memory that is a window on a file:
+        //! its path with the window's start and end. Empty for memory
+        //! with no disk address, or for more than one file. Only single
+        //! file media: a bundled image sequence decodes with the image
+        //! readers, which are always built in.
+        std::string getSubfileName(const std::vector<ftk::MemFile>&);
+
+        //! Whether the memory is a window with no bytes of its own, which
+        //! is opened through the file: a bundle that could not be mapped.
+        bool isWindow(const std::vector<ftk::MemFile>&);
+
         //! \name Software Scaler Flags
         //! The reader and the writer only ever convert the pixel format,
         //! never the size: the reader hands on the frame at the size it was

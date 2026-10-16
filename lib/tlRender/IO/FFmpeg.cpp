@@ -32,6 +32,24 @@ namespace tl
 {
     namespace ffmpeg
     {
+        std::string getSubfileName(const std::vector<ftk::MemFile>& memory)
+        {
+            std::string out;
+            if (1 == memory.size() && !memory[0].path.empty())
+            {
+                out = ftk::Format("subfile,,start,{0},end,{1},,:{2}").
+                    arg(memory[0].offset).
+                    arg(memory[0].offset + memory[0].size).
+                    arg(memory[0].path);
+            }
+            return out;
+        }
+
+        bool isWindow(const std::vector<ftk::MemFile>& memory)
+        {
+            return 1 == memory.size() && !memory[0].p && !memory[0].path.empty();
+        }
+
 
         bool hasHWDecode()
         {
@@ -416,12 +434,16 @@ namespace tl
                 }
 
                 bool out = false;
-                const std::string fileName =
-                    path.hasProtocol() ? path.get() : path.getFileName(true);
+                // A window on a bundle is probed through the file, as the
+                // library reads it.
+                const bool window = isWindow(memory);
+                const std::string fileName = window ?
+                    getSubfileName(memory) :
+                    (path.hasProtocol() ? path.get() : path.getFileName(true));
                 AVFormatContext* avFormatContext = nullptr;
                 AVIOBufferData avIOBufferData;
                 AVIOContext* avIOContext = nullptr;
-                if (!memory.empty())
+                if (!memory.empty() && !window)
                 {
                     // Bundled media is probed from memory, the way the
                     // library reads it, not through the subfile URL the
@@ -454,7 +476,7 @@ namespace tl
                 }
                 if (avformat_open_input(
                     &avFormatContext,
-                    memory.empty() ? fileName.c_str() : nullptr,
+                    (memory.empty() || window) ? fileName.c_str() : nullptr,
                     nullptr,
                     nullptr) == 0)
                 {
@@ -511,27 +533,6 @@ namespace tl
 
         namespace
         {
-            //! A subfile URL for memory that is a window into a file on
-            //! disk, or empty. FFmpeg's subfile protocol reads the byte
-            //! range in place, which is how the command line reads media
-            //! out of an OTIOZ bundle: a sub-process cannot be handed
-            //! RAM, but it can be handed the bundle and an offset --
-            //! the bytes are in the bundle uncompressed, so the range is
-            //! the file. Only single-file media: a bundled image
-            //! sequence decodes with the image readers, which are always
-            //! built in.
-            std::string getSubfileName(const std::vector<ftk::MemFile>& memory)
-            {
-                std::string out;
-                if (1 == memory.size() && !memory[0].path.empty())
-                {
-                    out = ftk::Format("subfile,,start,{0},end,{1},,:{2}").
-                        arg(memory[0].offset).
-                        arg(memory[0].offset + memory[0].size).
-                        arg(memory[0].path);
-                }
-                return out;
-            }
         }
 
         std::shared_ptr<IVideoRead> ReadPlugin::videoRead(
