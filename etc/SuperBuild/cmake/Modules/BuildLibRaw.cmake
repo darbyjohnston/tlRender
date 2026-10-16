@@ -41,3 +41,14 @@ ExternalProject_Add(
         -P ${CMAKE_CURRENT_SOURCE_DIR}/LibRaw-patch/patch.cmake
     LIST_SEPARATOR |
     CMAKE_ARGS ${LibRaw_ARGS})
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # Frameworks, as FFmpeg's are; see MakeFrameworks.py.
+    ExternalProject_Add_Step(
+        LibRaw
+        frameworks
+        DEPENDEES install
+        COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/MakeFrameworks.py
+            --prefix ${CMAKE_INSTALL_PREFIX}
+            --min-os ${CMAKE_OSX_DEPLOYMENT_TARGET}
+            raw raw_r)
+endif()

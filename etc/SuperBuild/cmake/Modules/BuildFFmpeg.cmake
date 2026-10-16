@@ -40,12 +40,10 @@ if(NOT WIN32 AND NOT APPLE)
     list(APPEND FFmpeg_DEPS nv-codec-headers)
 endif()
 
-# Static on iOS, where an application carries its libraries inside it.
-if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-    set(FFmpeg_SHARED_LIBS OFF)
-else()
-    set(FFmpeg_SHARED_LIBS ON)
-endif()
+# Shared everywhere, as the LGPL asks, and on iOS made into frameworks
+# after the install, which is how an application carries a dynamic library
+# there; see MakeFrameworks.py.
+set(FFmpeg_SHARED_LIBS ON)
 set(FFmpeg_DEBUG OFF)
 set(FFmpeg_CFLAGS "--extra-cflags=-I${CMAKE_INSTALL_PREFIX}/include")
 set(FFmpeg_CXXFLAGS "--extra-cxxflags=-I${CMAKE_INSTALL_PREFIX}/include")
@@ -660,8 +658,7 @@ else()
         set(FFmpeg_BUILD make -j${FFmpeg_BUILD_JOBS})
         set(FFmpeg_INSTALL make install)
     endif()
-    # The install names are only for the shared libraries, which iOS does
-    # not build.
+    # The install names are only for the shared libraries.
     if(APPLE AND FFmpeg_SHARED_LIBS)
         list(APPEND FFmpeg_INSTALL
             COMMAND install_name_tool -id @rpath/libavcodec.63.1.101.dylib ${CMAKE_INSTALL_PREFIX}/lib/libavcodec.63.dylib
@@ -726,3 +723,13 @@ ExternalProject_Add(
     BUILD_COMMAND ${FFmpeg_BUILD}
     INSTALL_COMMAND ${FFmpeg_INSTALL}
     BUILD_IN_SOURCE 1)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    ExternalProject_Add_Step(
+        FFmpeg
+        frameworks
+        DEPENDEES install
+        COMMAND python3 ${CMAKE_CURRENT_LIST_DIR}/MakeFrameworks.py
+            --prefix ${CMAKE_INSTALL_PREFIX}
+            --min-os ${CMAKE_OSX_DEPLOYMENT_TARGET}
+            avcodec avdevice avformat avutil swresample swscale)
+endif()

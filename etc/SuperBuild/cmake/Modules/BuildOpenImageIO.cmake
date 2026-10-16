@@ -49,6 +49,14 @@ set(OpenImageIO_ARGS
     -DUSE_QT=OFF
     -DUSE_TBB=OFF
     -DUSE_WEBP=OFF)
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # OpenImageIO builds the small dependencies it does not find, fmt and
+    # robin-map, into its own build tree, and then looks for them again;
+    # the cross build looks only under its find root, so that tree is
+    # added to the root for OpenImageIO alone.
+    list(APPEND OpenImageIO_ARGS
+        "-DCMAKE_FIND_ROOT_PATH=${CMAKE_INSTALL_PREFIX}|${CMAKE_CURRENT_BINARY_DIR}/OpenImageIO/src/OpenImageIO-build/deps/dist")
+endif()
 
 ExternalProject_Add(
     OpenImageIO

@@ -214,12 +214,13 @@ if(TLRENDER_FFMPEG)
             FFmpeg::swscale
             FFmpeg::avutil)
     elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-        # Static, as the super build makes them for iOS, with the system
-        # frameworks the decoders use.
+        # The dynamic libraries, whose install names the super build set to
+        # the frameworks an application embeds (see MakeFrameworks.py),
+        # with the system frameworks the decoders use.
         foreach(lib avdevice avformat avcodec swresample swscale avutil)
-            add_library(FFmpeg::${lib} STATIC IMPORTED)
+            add_library(FFmpeg::${lib} SHARED IMPORTED)
             set_property(TARGET FFmpeg::${lib} PROPERTY
-                IMPORTED_LOCATION "${TLRENDER_FFMPEG_PREFIX}/lib/lib${lib}.a")
+                IMPORTED_LOCATION "${TLRENDER_FFMPEG_PREFIX}/lib/lib${lib}.dylib")
         endforeach()
         add_library(FFmpeg::FFmpeg INTERFACE IMPORTED)
         set_property(TARGET FFmpeg::FFmpeg PROPERTY
