@@ -134,8 +134,15 @@ namespace tl
     bool Player::Private::hasAudio() const
     {
         bool out = false;
-#if defined(FTK_SDL2) || defined(FTK_SDL3)
-        out = audioDevices && sourceAudioInfo.isValid();
+        // The device as well as the audio: the clock is read from the
+        // device's callback, and with a device that would not open (a CI
+        // runner with no sound card) the callback never runs, which left
+        // the clock at the start for good. Without the device, playback
+        // is timed as a silent timeline's is.
+#if defined(FTK_SDL2)
+        out = audioDevices && sourceAudioInfo.isValid() && sdlID > 0;
+#elif defined(FTK_SDL3)
+        out = audioDevices && sourceAudioInfo.isValid() && sdlStream;
 #endif // FTK_SDL2
         return out;
     }
