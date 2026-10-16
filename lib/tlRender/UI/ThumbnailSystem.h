@@ -154,6 +154,14 @@ namespace tl
             //! Clear the cache.
             TL_UI_API void clearCache();
 
+            //! Hold the thumbnails back while playback is under way: one
+            //! every half second rather than as fast as they come. A
+            //! thumbnail of a movie is a seek and a decode on the same
+            //! decoder and the same disk or network as the playback, and
+            //! on a small device over a network the thumbnails of a long
+            //! timeline starved it.
+            TL_UI_API void setPlaybackHold(bool);
+
             ///@}
 
         private:

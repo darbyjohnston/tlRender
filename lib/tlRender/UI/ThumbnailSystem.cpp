@@ -147,6 +147,26 @@ namespace tl
             // timeline of one clip, so one path covers files, bundles and
             // timelines alike, and nothing needs a syntax for naming what is
             // inside a bundle.
+            //! The options every thread here reads with, the information
+            //! and waveform threads included: the timeline keeps one reader
+            //! per file, made by whichever thread asks first, so all of
+            //! them have to ask alike or a thumbnail gets the information
+            //! thread's reader. The scale reads pixels,
+            //! so a frame cannot be a texture whatever the caller asked
+            //! for: given the caller's texture option, the reader handed
+            //! back frames on the GPU and every thumbnail was black. And
+            //! one frame at a time is all a thumbnail wants: the reader's
+            //! buffer of frames ahead, four by default, is four frames of
+            //! memory a thumbnail never looks at, for every clip it has
+            //! opened.
+            IOOptions thumbnailOptions(const IOOptions& value)
+            {
+                IOOptions out = value;
+                out.erase("Texture");
+                out["FFmpeg/VideoBufferSize"] = "1";
+                return out;
+            }
+
             std::shared_ptr<Timeline> getTimeline(
                 const std::shared_ptr<ftk::Context>& context,
                 ftk::LRUCache<std::string, std::shared_ptr<Timeline> >& cache,
@@ -167,19 +187,13 @@ namespace tl
                 // timeline sets it for each clip when it reads. Left in the
                 // key, every clip was a different timeline, and with one kept
                 // the bundle was opened again for every clip.
-                IOOptions timelineOptions = ioOptions;
+                // The thumbnail options before the key, so that the three
+                // threads ask for the same timeline: set by the thumbnail
+                // thread alone they made its key differ from the
+                // information thread's, and the file was opened once for
+                // each.
+                IOOptions timelineOptions = thumbnailOptions(ioOptions);
                 timelineOptions.erase("USD/CameraName");
-                // The scale reads pixels, so a frame cannot be a texture
-                // whatever the caller asked for; and one frame at a time is
-                // all a thumbnail wants: the reader's buffer of frames
-                // ahead, four by default, is four frames of memory a
-                // thumbnail never looks at, for every clip it has opened.
-                // Set here, before the key, so that the three threads ask
-                // for the same timeline: set by the thumbnail thread alone
-                // they made its key differ from the information thread's,
-                // and the file was opened once for each.
-                timelineOptions.erase("Texture");
-                timelineOptions["FFmpeg/VideoBufferSize"] = "1";
                 const std::string key = getTimelineKey(path, audioPath, timelineOptions);
                 std::shared_ptr<Timeline> out;
                 {
@@ -379,6 +393,7 @@ namespace tl
             {
                 std::shared_ptr<ImageScale> scale;
                 std::atomic<bool> ioCacheClear = false;
+                std::atomic<bool> playbackHold = false;
                 std::condition_variable cv;
                 std::thread thread;
                 std::atomic<bool> running;
@@ -837,6 +852,11 @@ namespace tl
             return _p->cacheOptions;
         }
 
+        void ThumbnailSystem::setPlaybackHold(bool value)
+        {
+            _p->thumbnailThread.playbackHold = value;
+        }
+
         void ThumbnailSystem::setCacheOptions(const ThumbnailCacheOptions& value)
         {
             FTK_P();
@@ -934,7 +954,7 @@ namespace tl
                             request->audioPath, request->options, keep))
                         {
                             timeline->getMediaInfo(
-                                request->mediaPath, info, request->options);
+                                request->mediaPath, info, thumbnailOptions(request->options));
                         }
                     }
                     catch (const std::exception&)
@@ -1041,7 +1061,7 @@ namespace tl
                         IOInfo info;
                         if (timeline &&
                             timeline->getMediaInfo(
-                                request->mediaPath, info, request->options))
+                                request->mediaPath, info, thumbnailOptions(request->options)))
                         {
                             ftk::Size2I size;
                             if (!info.video.empty())
@@ -1055,7 +1075,7 @@ namespace tl
                                     request->time.value_or(
                                         info.videoTime->start_time());
                                 auto videoRequest = timeline->readMedia(
-                                    request->mediaPath, time, request->options);
+                                    request->mediaPath, time, thumbnailOptions(request->options));
                                 if (videoRequest.valid())
                                 {
                                     const auto videoData = videoRequest.get();
@@ -1148,6 +1168,14 @@ namespace tl
                             p.thumbnailMutex.mutex);
                         p.thumbnailMutex.cache.add(
                             request->key, image, image->getByteCount());
+                    }
+                }
+                if (request && p.thumbnailThread.playbackHold)
+                {
+                    // In slices, so that shutdown is not kept waiting.
+                    for (int i = 0; i < 10 && p.thumbnailThread.running && p.thumbnailThread.playbackHold; ++i)
+                    {
+                        std::this_thread::sleep_for(std::chrono::milliseconds(50));
                     }
                 }
                 else if (p.ioCacheCount() > 0 && p.ioCacheIdle(ioCacheTimeout))
@@ -1293,7 +1321,7 @@ namespace tl
                         IOInfo info;
                         if (timeline &&
                             timeline->getMediaInfo(
-                                request->mediaPath, info, request->options))
+                                request->mediaPath, info, thumbnailOptions(request->options)))
                         {
                             const OTIO_NS::TimeRange timeRange =
                                 request->timeRange.value_or(
