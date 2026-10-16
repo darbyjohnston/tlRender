@@ -475,6 +475,21 @@ namespace tl
                     p.audioReset(p.currentTime->get());
                 }
                 p.playbackReset(p.currentTime->get());
+                // The device runs only while there is something to play:
+                // stopped, its callback filled silence many times a
+                // second, which on a tablet was a few percent of a core
+                // for nothing.
+#if defined(FTK_SDL2)
+                if (p.sdlID > 0)
+                {
+                    SDL_PauseAudioDevice(p.sdlID, 0);
+                }
+#elif defined(FTK_SDL3)
+                if (p.sdlStream)
+                {
+                    SDL_ResumeAudioStreamDevice(p.sdlStream);
+                }
+#endif // FTK_SDL2
             }
             else
             {
@@ -492,6 +507,17 @@ namespace tl
                     std::unique_lock<std::mutex> lock(p.audioMutex.mutex);
                     p.audioMutex.state.playback = value;
                 }
+#if defined(FTK_SDL2)
+                if (p.sdlID > 0)
+                {
+                    SDL_PauseAudioDevice(p.sdlID, 1);
+                }
+#elif defined(FTK_SDL3)
+                if (p.sdlStream)
+                {
+                    SDL_PauseAudioStreamDevice(p.sdlStream);
+                }
+#endif // FTK_SDL2
             }
         }
     }

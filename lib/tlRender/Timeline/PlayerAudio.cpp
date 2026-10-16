@@ -370,11 +370,17 @@ namespace tl
                     context->log("tl::Player", ss.str());
                 }
 
+                // Started only when there is something to play; stopped,
+                // the device stays paused, as setPlayback() keeps it. See
+                // the pause there.
+                if (Playback::Stop != playback->get())
+                {
 #if defined(FTK_SDL2)
-                SDL_PauseAudioDevice(sdlID, 0);
+                    SDL_PauseAudioDevice(sdlID, 0);
 #elif defined(FTK_SDL3)
-                SDL_ResumeAudioStreamDevice(sdlStream);
+                    SDL_ResumeAudioStreamDevice(sdlStream);
 #endif // FTK_SDL2
+                }
             }
             else
             {
