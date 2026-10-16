@@ -1,5 +1,6 @@
 set(HEADERS
-    Engine.h)
+    Engine.h
+    EngineCpp.h)
 set(SOURCE
     Engine.cpp)
 

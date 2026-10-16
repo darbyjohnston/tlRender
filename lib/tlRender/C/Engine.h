@@ -159,11 +159,31 @@ TL_TIMELINE_API void tl_view_set_player(tl_view*, tl_player*);
 //! left; a zero size means the whole view, which is the default.
 TL_TIMELINE_API void tl_view_set_frame(tl_view*, int x, int y, int w, int h);
 
+//! Where the picture is within its frame and how big: the position of
+//! its top left corner in view pixels, and the zoom, one being a picture
+//! pixel per view pixel. Fitted to the frame until set.
+TL_TIMELINE_API void tl_view_get_view(tl_view*, float* x, float* y, float* zoom);
+TL_TIMELINE_API void tl_view_set_view(tl_view*, float x, float y, float zoom);
+//! Fit the picture to the frame again, and keep it fitted as the frame
+//! changes.
+TL_TIMELINE_API void tl_view_frame_view(tl_view*);
+//! Zoom by a factor about a point in view pixels, which stays where it is.
+TL_TIMELINE_API void tl_view_zoom(tl_view*, float factor, float x, float y);
+//! Move the picture by a distance in view pixels.
+TL_TIMELINE_API void tl_view_pan(tl_view*, float dx, float dy);
+
 //! Where the timeline widget goes in the view, in pixels: an empty frame
 //! hides it. The display scale is the screen's, which sizes its text
 //! and lines.
 TL_TIMELINE_API void tl_view_set_timeline_frame(
     tl_view*, int x, int y, int w, int h, float displayScale);
+
+//! Minimize the timeline widget: the ruler and the tracks as lines,
+//! without their thumbnails and labels, as DJV's Minimize does.
+TL_TIMELINE_API void tl_view_set_timeline_minimized(tl_view*, int);
+//! The size the timeline widget asks for, in pixels, which is the height
+//! to give it when minimized. Zero until it has been ticked.
+TL_TIMELINE_API void tl_view_get_timeline_size_hint(tl_view*, int* w, int* h);
 
 //! A touch, or a mouse button, on the view: where it is in pixels, and
 //! what it is doing. The widgets take it as the mouse.
@@ -175,6 +195,14 @@ typedef enum tl_touch_phase
     TL_TOUCH_CANCELLED
 } tl_touch_phase;
 TL_TIMELINE_API void tl_view_touch(tl_view*, tl_touch_phase, int x, int y);
+
+//! Two fingers on the view: the point between them in pixels, how far
+//! it moved since the last call, and how much their distance changed as
+//! a ratio. The widgets under them take it: the timeline scrolls by the
+//! pan and zooms by the pinch. The first finger's touch is cancelled by
+//! the widgets when the gesture begins.
+TL_TIMELINE_API void tl_view_gesture(
+    tl_view*, tl_touch_phase, int x, int y, float panX, float panY, float zoom);
 
 //! Draw the player's current frame, fitted to the view, and present it.
 //! Whether the view has something new to draw: a video frame that has

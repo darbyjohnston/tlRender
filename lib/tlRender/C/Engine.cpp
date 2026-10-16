@@ -2,6 +2,7 @@
 // Copyright Contributors to the tlRender project.
 
 #include <tlRender/C/Engine.h>
+#include <tlRender/C/EngineCpp.h>
 
 #include <tlRender/GPU/Render.h>
 #include <tlRender/Timeline/CompareOptions.h>
@@ -9,6 +10,7 @@
 #include <tlRender/Timeline/Player.h>
 #include <tlRender/Timeline/Timeline.h>
 #include <tlRender/UI/Init.h>
+#include <tlRender/UI/ThumbnailSystem.h>
 #include <tlRender/UI/TimelineWidget.h>
 
 #include <ftk/UI/Event.h>
@@ -79,6 +81,12 @@ namespace
             _iconSystem = context->getSystem<ftk::IconSystem>();
             _timeline = tl::ui::TimelineWidget::create(context, shared_from_this());
             _timeline->setFrameView(true);
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+            // A finger scrolls the timeline and the scroll bars only got
+            // in the way: they showed for a frame on every resize, when
+            // the frame view had not yet caught up with the new width.
+            _timeline->setScrollBarsVisible(false);
+#endif // TARGET_OS_IPHONE
             _timeline->setVisible(false);
         }
 
@@ -92,6 +100,32 @@ namespace
 
         uint32_t getID() const override { return 0; }
         int getScreen() const override { return 0; }
+
+        void setMinimized(bool value)
+        {
+            auto options = _timeline->getDisplayOptions();
+            if (value != options.minimize)
+            {
+                options.minimize = value;
+                _timeline->setDisplayOptions(options);
+            }
+        }
+
+        ftk::Size2I getTimelineSizeHint() const
+        {
+            return _timeline->getSizeHint();
+        }
+
+        //! Two fingers, as the window takes them; see tl_view_gesture().
+        void gesture(const ftk::V2I& pos, const ftk::V2F& pan, float zoom)
+        {
+            _gesture(pos, pan, zoom);
+        }
+
+        void gestureEnd()
+        {
+            _gestureEnd();
+        }
 
         void setPlayer(const std::shared_ptr<tl::Player>& player)
         {
@@ -183,10 +217,25 @@ struct tl_view
     tl_player* player = nullptr;
     //! Where the picture goes, in pixels; empty for the whole view.
     ftk::Box2I frame;
+    //! Where the picture is within it: fitted, or where it was put.
+    bool viewFramed = true;
+    ftk::V2F viewPos;
+    float viewZoom = 1.F;
+    //! What the last draw used, for a gesture to go on from.
+    ftk::V2F viewPosNow;
+    float viewZoomNow = 1.F;
     //! The widgets drawn over it, and where the timeline widget goes.
     std::shared_ptr<WidgetHost> widgets;
     ftk::Box2I timelineFrame;
     float displayScale = 1.F;
+    //! What the picture is drawn with; see EngineCpp.h.
+    tl::OCIOOptions ocioOptions;
+    std::function<std::string(const std::string&, const ftk::ImageTags&)> ocioInputResolver;
+    tl::LUTOptions lutOptions;
+    ftk::ImageOptions imageOptions;
+    tl::DisplayOptions displayOptions;
+    tl::BackgroundOptions backgroundOptions;
+    tl::ForegroundOptions foregroundOptions;
     //! What the last draw showed, to know when there is something new:
     //! the frames (their time and image), the size, the frames' places.
     std::vector<std::pair<double, const void*> > drawnFrames;
@@ -702,6 +751,13 @@ int tl_view_needs_draw(tl_view* view)
 {
     if (!view || !view->render)
         return 0;
+    // The thumbnails yield to playback; see ThumbnailSystem::setPlaybackHold().
+    if (auto thumbnails = view->engine->context->getSystem<tl::ui::ThumbnailSystem>())
+    {
+        thumbnails->setPlaybackHold(
+            view->player &&
+            view->player->player->observePlayback()->get() != tl::Playback::Stop);
+    }
     if (view->widgets)
     {
         view->widgets->setFrames(
@@ -742,6 +798,99 @@ void tl_view_set_timeline_frame(tl_view* view, int x, int y, int w, int h, float
             view->displayScale = displayScale;
             view->dirty = true;
         }
+    }
+}
+
+void tl_view_set_timeline_minimized(tl_view* view, int value)
+{
+    if (view && view->widgets)
+    {
+        view->widgets->setMinimized(value != 0);
+        view->dirty = true;
+    }
+}
+
+void tl_view_get_timeline_size_hint(tl_view* view, int* w, int* h)
+{
+    const ftk::Size2I size = view && view->widgets ?
+        view->widgets->getTimelineSizeHint() :
+        ftk::Size2I();
+    if (w)
+        *w = size.w;
+    if (h)
+        *h = size.h;
+}
+
+void tl_view_get_view(tl_view* view, float* x, float* y, float* zoom)
+{
+    if (x)
+        *x = view ? view->viewPosNow.x : 0.F;
+    if (y)
+        *y = view ? view->viewPosNow.y : 0.F;
+    if (zoom)
+        *zoom = view ? view->viewZoomNow : 1.F;
+}
+
+void tl_view_set_view(tl_view* view, float x, float y, float zoom)
+{
+    if (!view || zoom <= 0.F)
+        return;
+    view->viewFramed = false;
+    view->viewPos = ftk::V2F(x, y);
+    view->viewZoom = zoom;
+    view->viewPosNow = view->viewPos;
+    view->viewZoomNow = zoom;
+    view->dirty = true;
+}
+
+void tl_view_frame_view(tl_view* view)
+{
+    if (!view)
+        return;
+    view->viewFramed = true;
+    view->dirty = true;
+}
+
+void tl_view_zoom(tl_view* view, float factor, float x, float y)
+{
+    if (!view || factor <= 0.F)
+        return;
+    // The point under the fingers stays under them.
+    const ftk::V2F pos = view->viewPosNow;
+    const float zoom = view->viewZoomNow;
+    tl_view_set_view(
+        view,
+        x - (x - pos.x) * factor,
+        y - (y - pos.y) * factor,
+        zoom * factor);
+}
+
+void tl_view_pan(tl_view* view, float dx, float dy)
+{
+    if (!view)
+        return;
+    tl_view_set_view(
+        view,
+        view->viewPosNow.x + dx,
+        view->viewPosNow.y + dy,
+        view->viewZoomNow);
+}
+
+void tl_view_gesture(
+    tl_view* view, tl_touch_phase phase, int x, int y, float panX, float panY, float zoom)
+{
+    if (!view || !view->widgets)
+        return;
+    switch (phase)
+    {
+    case TL_TOUCH_BEGAN:
+    case TL_TOUCH_MOVED:
+        view->widgets->gesture(ftk::V2I(x, y), ftk::V2F(panX, panY), zoom);
+        break;
+    case TL_TOUCH_ENDED:
+    case TL_TOUCH_CANCELLED:
+        view->widgets->gestureEnd();
+        break;
     }
 }
 
@@ -830,8 +979,13 @@ void tl_view_draw(tl_view* view)
         const auto boxes = tl::getBoxes(compare, aspect, frames);
         const ftk::Size2I renderSize = tl::getRenderSize(compare, aspect, frames);
         float zoom = 1.F;
-        ftk::V2I pos(frame.x(), frame.y());
-        if (renderSize.isValid())
+        ftk::V2F pos(frame.x(), frame.y());
+        if (!view->viewFramed)
+        {
+            pos = view->viewPos;
+            zoom = view->viewZoom;
+        }
+        else if (renderSize.isValid())
         {
             zoom = std::min(
                 static_cast<float>(frame.w()) / renderSize.w,
@@ -839,6 +993,8 @@ void tl_view_draw(tl_view* view)
             pos.x += (frame.w() - renderSize.w * zoom) / 2.F;
             pos.y += (frame.h() - renderSize.h * zoom) / 2.F;
         }
+        view->viewPosNow = pos;
+        view->viewZoomNow = zoom;
         const ftk::M44F vm =
             ftk::translate(ftk::V3F(pos.x, pos.y, 0.F)) *
             ftk::scale(ftk::V3F(zoom, zoom, 1.F));
@@ -848,14 +1004,25 @@ void tl_view_draw(tl_view* view)
         auto base = view->render->getBaseRender();
         base->setTarget(view->buffer);
         view->render->begin(size);
+        // The background behind the picture, the picture, and the
+        // foreground over it, as the viewport draws them, into the one
+        // buffer here. The color options are given every draw; the
+        // renderer keeps its processors when they have not changed.
+        view->render->setOCIOOptions(view->ocioOptions);
+        view->render->setOCIOInputResolver(view->ocioInputResolver);
+        view->render->setLUTOptions(view->lutOptions);
+        view->render->setTransform(pm);
+        view->render->drawBackground(boxes, vm, view->backgroundOptions, compare);
         view->render->setTransform(pm * vm);
         view->render->drawVideo(
             frames,
             boxes,
-            {},
-            {},
+            { view->imageOptions },
+            { view->displayOptions },
             compare,
             ftk::ImageType::RGBA_F16);
+        view->render->setTransform(pm);
+        view->render->drawForeground(boxes, vm, view->foregroundOptions, compare);
         // The widgets over the picture, in the buffer's own coordinates.
         if (view->widgets)
         {
@@ -895,4 +1062,90 @@ void tl_view_draw(tl_view* view)
     }
 }
 
+}
+
+namespace tl
+{
+    namespace c
+    {
+        std::shared_ptr<ftk::Context> getContext(tl_engine* engine)
+        {
+            return engine ? engine->context : nullptr;
+        }
+
+        std::shared_ptr<Timeline> getTimeline(tl_player* player)
+        {
+            return player ? player->timeline : nullptr;
+        }
+
+        std::shared_ptr<Player> getPlayer(tl_player* player)
+        {
+            return player ? player->player : nullptr;
+        }
+
+        void setOCIOOptions(tl_view* view, const OCIOOptions& value)
+        {
+            if (view && view->ocioOptions != value)
+            {
+                view->ocioOptions = value;
+                view->dirty = true;
+            }
+        }
+
+        void setOCIOInputResolver(
+            tl_view* view,
+            const std::function<std::string(const std::string&, const ftk::ImageTags&)>& value)
+        {
+            if (view)
+            {
+                view->ocioInputResolver = value;
+                view->dirty = true;
+            }
+        }
+
+        void setLUTOptions(tl_view* view, const LUTOptions& value)
+        {
+            if (view && view->lutOptions != value)
+            {
+                view->lutOptions = value;
+                view->dirty = true;
+            }
+        }
+
+        void setImageOptions(tl_view* view, const ftk::ImageOptions& value)
+        {
+            if (view && view->imageOptions != value)
+            {
+                view->imageOptions = value;
+                view->dirty = true;
+            }
+        }
+
+        void setDisplayOptions(tl_view* view, const DisplayOptions& value)
+        {
+            if (view && view->displayOptions != value)
+            {
+                view->displayOptions = value;
+                view->dirty = true;
+            }
+        }
+
+        void setBackgroundOptions(tl_view* view, const BackgroundOptions& value)
+        {
+            if (view && view->backgroundOptions != value)
+            {
+                view->backgroundOptions = value;
+                view->dirty = true;
+            }
+        }
+
+        void setForegroundOptions(tl_view* view, const ForegroundOptions& value)
+        {
+            if (view && view->foregroundOptions != value)
+            {
+                view->foregroundOptions = value;
+                view->dirty = true;
+            }
+        }
+    }
 }
