@@ -172,7 +172,7 @@ namespace tl
             void _itemsTextUpdate(const ftk::SizeHintEvent&);
             void _visibleUpdate(const ftk::Box2I& drawRect);
             void _requestsUpdate();
-            void _cancelRequests();
+            void _cancelRequests(bool keepThumbnails = false);
 
             void _drawItems(
                 const ftk::Box2I&,

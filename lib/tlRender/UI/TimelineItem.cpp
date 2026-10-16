@@ -464,8 +464,9 @@ namespace tl
             _scale = value;
 
             // The thumbnails and waveforms were made for the old item widths,
-            // so they are dropped and asked for again.
-            _cancelRequests();
+            // so they are asked for again; the thumbnails stand in until
+            // the new ones come.
+            _cancelRequests(true);
             _itemsScaleUpdate();
 
             setSizeUpdate();
@@ -1452,7 +1453,9 @@ namespace tl
                     auto& item = track.items[j];
                     p.cancelRequests(item);
                     item.thumbnails.clear();
+                    item.thumbnailsStale.clear();
                     item.waveforms.clear();
+                    item.waveformsStale.clear();
                     item.media.clear();
                 }
             }
@@ -1584,6 +1587,7 @@ namespace tl
 
             std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::Image> > thumbnails;
             std::set<OTIO_NS::RationalTime> wanted;
+            bool usedStale = false;
             for (; frame < end; frame += frameStep)
             {
                 const int x = static_cast<int>(
@@ -1632,6 +1636,10 @@ namespace tl
                         ThumbnailType::Timeline,
                         item.timelineAudioPath);
                 }
+                if (!image && !item.thumbnailsStale.empty())
+                {
+                    usedStale = true;
+                }
                 wanted.insert(mediaTime);
 
                 // The tiles share the one image and the one request. Each is
@@ -1662,6 +1670,50 @@ namespace tl
                         mediaGeom.min.x + tileX > activeRect.max.x)
                         break;
                 }
+            }
+            // The thumbnails from before the scale changed, each where its
+            // own frame now is, under the new tiles as they come: a strip
+            // of pictures sliding apart or together under the fingers.
+            // Matched nearest-for-nearest to the new tiles instead, the
+            // strip shimmered as the tiles moved from one old picture to
+            // the next. Those out of the band are let go of, so a long
+            // zoom does not keep every picture it passed.
+            if (usedStale)
+            {
+                const double rate = item.timeRange.start_time().rate();
+                const double trimmedStart =
+                    trimmedRange.start_time().rescaled_to(rate).value();
+                std::vector<Item::Media> stale;
+                auto k = item.thumbnailsStale.begin();
+                while (k != item.thumbnailsStale.end())
+                {
+                    const double f = k->first.rescaled_to(rate).value() - trimmedStart;
+                    const int sx = static_cast<int>(std::round(f * perFrame));
+                    const ftk::Box2I box(
+                        mediaGeom.min.x + sx,
+                        mediaGeom.min.y,
+                        thumbnailWidth,
+                        displayOptions.thumbnailHeight);
+                    if (ftk::intersects(box, activeRect))
+                    {
+                        Item::Media media;
+                        media.x = sx;
+                        media.w = thumbnailWidth;
+                        media.visibleW = thumbnailWidth;
+                        media.image = k->second;
+                        stale.push_back(std::move(media));
+                        ++k;
+                    }
+                    else
+                    {
+                        k = item.thumbnailsStale.erase(k);
+                    }
+                }
+                item.media.insert(item.media.begin(), stale.begin(), stale.end());
+            }
+            else
+            {
+                item.thumbnailsStale.clear();
             }
             item.thumbnails = std::move(thumbnails);
 
@@ -1728,6 +1780,7 @@ namespace tl
             }
 
             std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::TriMesh2F> > waveforms;
+            bool usedStale = false;
             for (; x < w; x += displayOptions.waveformWidth)
             {
                 if (mediaGeom.min.x + x > activeRect.max.x)
@@ -1780,12 +1833,58 @@ namespace tl
                         data.options.ioOptions,
                         item.timelineAudioPath);
                 }
+                if (!media.mesh && !item.waveformsStale.empty())
+                {
+                    usedStale = true;
+                }
                 item.media.push_back(std::move(media));
+            }
+            // As for the thumbnails: the waveforms from before the scale
+            // changed, each where its own time now is.
+            if (usedStale)
+            {
+                const double rate = item.timeRange.start_time().rate();
+                const double trimmedStart =
+                    trimmedRange.start_time().rescaled_to(rate).value();
+                const double duration = item.timeRange.duration().
+                    rescaled_to(item.timeRange.start_time()).value();
+                std::vector<Item::Media> stale;
+                auto k = item.waveformsStale.begin();
+                while (k != item.waveformsStale.end())
+                {
+                    const double f = k->first.rescaled_to(rate).value() - trimmedStart;
+                    const int sx = duration > 0.0 ?
+                        static_cast<int>(std::round(f / duration * w)) :
+                        0;
+                    const ftk::Box2I box(
+                        mediaGeom.min.x + sx,
+                        mediaGeom.min.y,
+                        displayOptions.waveformWidth,
+                        displayOptions.waveformHeight);
+                    if (ftk::intersects(box, activeRect))
+                    {
+                        Item::Media media;
+                        media.x = sx;
+                        media.w = displayOptions.waveformWidth;
+                        media.mesh = k->second;
+                        stale.push_back(std::move(media));
+                        ++k;
+                    }
+                    else
+                    {
+                        k = item.waveformsStale.erase(k);
+                    }
+                }
+                item.media.insert(item.media.begin(), stale.begin(), stale.end());
+            }
+            else
+            {
+                item.waveformsStale.clear();
             }
             item.waveforms = std::move(waveforms);
         }
 
-        void TimelineItem::_cancelRequests()
+        void TimelineItem::_cancelRequests(bool keepThumbnails)
         {
             FTK_P();
             // One cancellation for the whole timeline: cancelling per item
@@ -1797,6 +1896,22 @@ namespace tl
                 for (auto& item : track.items)
                 {
                     p.takeRequests(item, ids);
+                    if (keepThumbnails)
+                    {
+                        for (const auto& i : item.thumbnails)
+                        {
+                            item.thumbnailsStale[i.first] = i.second;
+                        }
+                        for (const auto& i : item.waveforms)
+                        {
+                            item.waveformsStale[i.first] = i.second;
+                        }
+                    }
+                    else
+                    {
+                        item.thumbnailsStale.clear();
+                        item.waveformsStale.clear();
+                    }
                     item.thumbnails.clear();
                     item.waveforms.clear();
                     item.media.clear();

@@ -109,8 +109,15 @@ namespace tl
                 InfoRequest infoRequest;
                 std::map<OTIO_NS::RationalTime, ThumbnailRequest> thumbnailRequests;
                 std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::Image> > thumbnails;
+                //! The thumbnails from before the scale changed, drawn
+                //! nearest-for-nearest until the tiles of the new scale
+                //! have theirs: dropped at once, the strip flickered empty
+                //! for every frame of a resize.
+                std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::Image> > thumbnailsStale;
                 std::map<OTIO_NS::RationalTime, WaveformRequest> waveformRequests;
                 std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::TriMesh2F> > waveforms;
+                //! As thumbnailsStale, for the waveforms.
+                std::map<OTIO_NS::RationalTime, std::shared_ptr<ftk::TriMesh2F> > waveformsStale;
 
                 //! One thumbnail or waveform chunk, placed relative to the
                 //! item's media area. The place is kept with the thumbnail
