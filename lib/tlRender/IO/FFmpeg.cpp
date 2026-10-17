@@ -13,6 +13,10 @@
 
 #include <algorithm>
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#endif // __APPLE__
+
 extern "C"
 {
 #include <libavcodec/avcodec.h>
@@ -27,6 +31,7 @@ extern "C"
 
 #include <atomic>
 #include <cstdlib>
+#include <cstring>
 
 namespace tl
 {
@@ -706,6 +711,32 @@ namespace tl
             {
                 if (AVMEDIA_TYPE_VIDEO == avCodec->type && av_codec_is_encoder(avCodec))
                 {
+                    // The system's hardware encoders are built in whatever
+                    // the hardware: a chip with no ProRes engine has the
+                    // ProRes one, which fails with "Generic error in an
+                    // external library" when it is opened. Opened once
+                    // here instead, on a small picture, which is when the
+                    // system makes its session; one that cannot is left
+                    // out, and its presets with it.
+                    if (avCodec->name && std::strstr(avCodec->name, "_videotoolbox"))
+                    {
+                        bool works = false;
+                        if (AVCodecContext* avContext = avcodec_alloc_context3(avCodec))
+                        {
+                            avContext->width = 64;
+                            avContext->height = 64;
+                            avContext->time_base = { 1, 24 };
+                            avContext->framerate = { 24, 1 };
+                            avContext->pix_fmt = AV_PIX_FMT_YUV420P;
+                            avContext->bit_rate = 1000000;
+                            works = avcodec_open2(avContext, avCodec, nullptr) >= 0;
+                            avcodec_free_context(&avContext);
+                        }
+                        if (!works)
+                        {
+                            continue;
+                        }
+                    }
                     p.codecIds.push_back(avCodec->id);
                     p.codecNames.push_back(avCodec->name);
                 }
@@ -779,6 +810,14 @@ namespace tl
             std::vector<WritePreset> out;
             for (const auto& preset : ffmpeg::getWritePresets())
             {
+#if defined(__APPLE__) && TARGET_OS_IPHONE
+                // The command line presets run an ffmpeg program, and iOS
+                // has none to run, nor lets an application start one.
+                if (preset.command)
+                {
+                    continue;
+                }
+#endif // TARGET_OS_IPHONE
                 bool available = preset.command;
                 if (!available)
                 {

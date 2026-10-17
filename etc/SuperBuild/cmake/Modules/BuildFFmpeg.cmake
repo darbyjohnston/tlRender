@@ -540,6 +540,17 @@ if(TLRENDER_FFMPEG_MINIMAL)
     list(APPEND FFmpeg_CONFIGURE_ARGS --disable-hwaccels)
 else()
     list(APPEND FFmpeg_CONFIGURE_ARGS ${FFmpeg_LICENSED_ARGS})
+    if(APPLE)
+        # The system's encoders: H.264 and HEVC without x264 and x265,
+        # and ProRes on the chips with a ProRes engine. In hardware, so
+        # they cost little; on an iPad they are the only way to write a
+        # movie anyone else can play. Disabled with the rest of the
+        # encoders above and never enabled again until now.
+        list(APPEND FFmpeg_CONFIGURE_ARGS
+            --enable-encoder=h264_videotoolbox
+            --enable-encoder=hevc_videotoolbox
+            --enable-encoder=prores_videotoolbox)
+    endif()
 endif()
 if(TLRENDER_AOM)
     list(APPEND FFmpeg_CONFIGURE_ARGS

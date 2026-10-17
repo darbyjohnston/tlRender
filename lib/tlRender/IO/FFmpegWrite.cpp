@@ -21,6 +21,7 @@ extern "C"
 #include <libavutil/audio_fifo.h>
 #include <libavutil/channel_layout.h>
 #include <libavutil/imgutils.h>
+#include <libavutil/macros.h>
 #include <libavutil/opt.h>
 #include <libavutil/pixdesc.h>
 #include <libswresample/swresample.h>
@@ -148,6 +149,29 @@ namespace tl
         {
             static const std::vector<WritePreset> presets =
             {
+                // The system's hardware encoders, where FFmpeg was built with
+                // them (Apple's platforms). The pixel formats are named: the
+                // encoders list the hardware's own first, which is not one a
+                // picture in memory can be handed in. H.264 and HEVC write
+                // at a bitrate sized to the picture (see below); ProRes
+                // needs a chip with a ProRes engine and says so if there is
+                // none.
+                { "H.264 (VideoToolbox)",
+                    { { "FFmpeg/Codec", "h264_videotoolbox" },
+                      { "FFmpeg/PixelFormat", "yuv420p" } },
+                    false,
+                    { ".mp4", ".mov" } },
+                { "HEVC (VideoToolbox)",
+                    { { "FFmpeg/Codec", "hevc_videotoolbox" },
+                      { "FFmpeg/PixelFormat", "yuv420p" } },
+                    false,
+                    { ".mp4", ".mov" } },
+                { "ProRes 422 HQ (VideoToolbox)",
+                    { { "FFmpeg/Codec", "prores_videotoolbox" },
+                      { "FFmpeg/CodecOptions", "profile=hq" },
+                      { "FFmpeg/PixelFormat", "p210le" } },
+                    false,
+                    { ".mov" } },
                 { "MJPEG",
                     { { "FFmpeg/Codec", "mjpeg" } },
                     false,
@@ -442,6 +466,32 @@ namespace tl
                             0);
                     }
                 }
+            }
+            // The system's H.264 and HEVC encoders take a bitrate, and with
+            // none choose one of their own that is too low for review. Sized
+            // to the picture and the rate when the preset says nothing: bits
+            // a pixel a frame, about 15 Mb/s for 1080p at 24 for H.264, a
+            // third less for HEVC, which does as well with that much less.
+            // Constant quality is a Mac-only feature of these encoders.
+            const std::string codecName = avCodec->name ? avCodec->name : "";
+            const bool vtLong =
+                "h264_videotoolbox" == codecName ||
+                "hevc_videotoolbox" == codecName;
+            if (vtLong && 0 == p.avCodecContext->bit_rate && !av_dict_get(avCodecOptions, "b", nullptr, 0))
+            {
+                const double fps =
+                    p.avCodecContext->framerate.den > 0 ?
+                    av_q2d(p.avCodecContext->framerate) :
+                    24.0;
+                const double bpp = "hevc_videotoolbox" == codecName ? .2 : .3;
+                p.avCodecContext->bit_rate = static_cast<int64_t>(
+                    videoInfo.size.w * static_cast<double>(videoInfo.size.h) * fps * bpp);
+            }
+            // HEVC as "hvc1", which is the tag QuickTime and iOS play; the
+            // muxers otherwise write "hev1", which they do not.
+            if (AV_CODEC_ID_HEVC == avCodec->id)
+            {
+                p.avCodecContext->codec_tag = MKTAG('h', 'v', 'c', '1');
             }
             r = avcodec_open2(p.avCodecContext, avCodec, &avCodecOptions);
             av_dict_free(&avCodecOptions);
