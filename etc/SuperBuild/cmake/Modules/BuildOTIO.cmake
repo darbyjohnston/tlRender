@@ -3,11 +3,12 @@ include(ExternalProject)
 find_package(Git REQUIRED)
 
 set(OTIO_GIT_REPOSITORY "https://github.com/AcademySoftwareFoundation/OpenTimelineIO.git")
-# "Fixes for API exports (#2039)", the last of the changes this build carried
-# as a patch. Newer than v0.18.1, which has neither that nor "Add core C++
-# support for otioz and otiod, take 2 (#2021)" -- bundles, and bundle support
-# for multiple media references and image sequences.
-set(OTIO_GIT_TAG "64bb3cd3d2d1")
+# "Make the Windows debug postfix a cache variable (#2040)", which replaced
+# a change this build carried as a patch. Newer than v0.18.1, which has
+# neither that nor "Add core C++ support for otioz and otiod, take 2 (#2021)"
+# -- bundles, and bundle support for multiple media references and image
+# sequences.
+set(OTIO_GIT_TAG "f8a2f36df61c")
 
 set(OTIO_SHARED_LIBS ON)
 if(NOT BUILD_SHARED_LIBS)
@@ -26,6 +27,21 @@ set(OTIO_ARGS
     # depends on the patch below.
     -DOTIO_FIND_MINIZIP_NG=ON
     -DOTIO_SHARED_LIBS=${OTIO_SHARED_LIBS}
+    # No debug postfix, where upstream sets "_d" on Windows. That is for a
+    # debug interpreter, which looks for _opentime_d.pyd and nothing else,
+    # and there is no debug interpreter here: pybind11 undefines _DEBUG
+    # around Python.h, so a module is compiled against the release ABI in
+    # every configuration, and the continuous integration runners ship no
+    # python_d.exe to load it with either. The postfix only hides the module
+    # from the release interpreter that does run the tests:
+    #
+    #     ModuleNotFoundError: No module named 'opentimelineio._opentime'
+    #
+    # The C++ libraries lose the postfix with it, which costs nothing. Debug
+    # and Release install to separate prefixes, so the names do not meet, and
+    # both tlRender and OTIO's own Python package reach these through the
+    # exported OTIO::opentimelineio target rather than by file name.
+    -DOTIO_DEBUG_POSTFIX=
     # The same interpreter the rest of the build was pointed at. OTIO is an
     # external project, so it does not inherit the cache entry that says which
     # one. OTIO, feather-tk, tlRender and DJV all call find_package(Python),
@@ -61,20 +77,17 @@ if(UNIX AND NOT APPLE)
     list(APPEND OTIO_ARGS "-DCMAKE_INSTALL_RPATH=$ORIGIN|$ORIGIN/../../lib")
 endif()
 
-# OTIO is patched, with four changes; see the notes in the patch itself.
+# OTIO is patched, with three changes; see the notes in the patch itself.
 #
-# The first drops the "_d" debug postfix, which hides the Python modules from
-# the release interpreter that runs the tests.
-#
-# The second keeps the type info of its types visible in a static build,
+# The first keeps the type info of its types visible in a static build,
 # where the marking upstream added for shared builds does nothing.
 #
-# The third has it hide its symbols only when the caller has not said
+# The second has it hide its symbols only when the caller has not said
 # otherwise, and this build asks for default visibility: the marking covers
 # the types OTIO names, and a cast here of a type it does not name -- a
 # template, an optional -- still fails against a hidden build.
 #
-# The fourth gives the Python modules the CMAKE_INSTALL_RPATH below as well
+# The third gives the Python modules the CMAKE_INSTALL_RPATH below as well
 # as "$ORIGIN", which upstream sets on them in its place. The modules link
 # Imath directly, and with "$ORIGIN" alone importing them found it only when
 # something had loaded it already: a Debug build with Python on Rocky Linux,
@@ -88,8 +101,6 @@ endif()
 # dropping whatever upstream changed in the files. git is what applies it,
 # which the clone above needs anyway, so nothing new is asked of the machine --
 # the patch program itself is not on Windows.
-#
-# The first goes away once it is upstream; see OTIO PR #2040.
 ExternalProject_Add(
     OTIO
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/OTIO
