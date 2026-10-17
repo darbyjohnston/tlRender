@@ -3,10 +3,6 @@
 
 #include <tlRender/BakeApp/App.h>
 
-#include <tlRender/GL/Render.h>
-#if defined(TLRENDER_GPU)
-#include <tlRender/GPU/Render.h>
-#endif // TLRENDER_GPU
 
 #include <tlRender/Timeline/Util.h>
 
@@ -23,7 +19,6 @@
 #include <ftk/GL/Util.h>
 #include <ftk/GL/Window.h>
 #if defined(TLRENDER_GPU)
-#include <ftk/GPU/Render.h>
 #include <ftk/GPU/System.h>
 #endif // TLRENDER_GPU
 #include <ftk/Core/CmdLine.h>
@@ -353,32 +348,19 @@ namespace tl
             }
             _print(ftk::Format("Render size: {0}").arg(_renderSize));
 
-            // Create the renderer.
+            // Create the renderer. Float, or eight bits where OpenGL ES
+            // has nothing to render float into.
 #if defined(TLRENDER_GPU)
             if (gpu)
             {
-                auto gpuSystem = _context->getSystem<ftk::gpu::System>();
-                _print(ftk::Format("GPU driver: {0}").arg(gpuSystem->getDriver()));
-                _render = gpu::Render::create(
-                    gpuSystem,
-                    _context->getLogSystem(),
-                    _context->getSystem<ftk::FontSystem>());
-                // Float, as the OpenGL buffer is.
-                _gpuBuffer = ftk::gpu::OffscreenBuffer::create(
-                    gpuSystem,
-                    _renderSize,
-                    ftk::gpu::BufferType::RGBA_F32);
+                _print(ftk::Format("GPU driver: {0}").
+                    arg(_context->getSystem<ftk::gpu::System>()->getDriver()));
             }
 #endif // TLRENDER_GPU
-            if (!_render)
-            {
-                _render = gl::Render::create(
-                    _context->getLogSystem(),
-                    _context->getSystem<ftk::FontSystem>());
-                _buffer = ftk::gl::OffscreenBuffer::create(
-                    _renderSize,
-                    ftk::gl::getOffscreenColorDefault());
-            }
+            _offscreen = ui::OffscreenRender::create(
+                _context,
+                _renderSize,
+                !gpu && ftk::gl::isGLES() ? ftk::ImageType::RGBA_U8 : ftk::ImageType::RGBA_F32);
 
             // Set options. Before the writer: what the output's color
             // description says depends on whether the render goes through
@@ -445,12 +427,10 @@ namespace tl
             _print(ftk::Format("Output info: {0} {1}").
                 arg(_outputInfo.size).
                 arg(_outputInfo.type));
-#if defined(TLRENDER_GPU)
-            if (_gpuBuffer && !ftk::gpu::OffscreenBuffer::canRead(_outputInfo.type))
+            if (!ui::OffscreenRender::canRead(_outputInfo.type))
             {
                 throw std::runtime_error(ftk::Format("Cannot write: \"{0}\"").arg(output));
             }
-#endif // TLRENDER_GPU
             _outputImage = ftk::Image::create(_outputInfo);
             IOInfo ioInfo;
             ioInfo.video.push_back(_outputInfo);
@@ -651,36 +631,17 @@ namespace tl
 
             // Render the video.
             const auto videoData = _timeline->getVideo(_inputTime).future.get();
-#if defined(TLRENDER_GPU)
-            if (_gpuBuffer)
-            {
-                ftk::gpu::getRender(_render)->setTarget(_gpuBuffer);
-                _render->begin(_renderSize);
-                _render->setOCIOOptions(_ocioOptions);
-                _render->setLUTOptions(_lutOptions);
-                _render->drawVideo(
-                    { videoData },
-                    { ftk::Box2I(0, 0, _renderSize.w, _renderSize.h) });
-                _render->end();
+            _offscreen->begin();
+            const auto& render = _offscreen->getRender();
+            render->setOCIOOptions(_ocioOptions);
+            render->setLUTOptions(_lutOptions);
+            render->drawVideo(
+                { videoData },
+                { ftk::Box2I(0, 0, _renderSize.w, _renderSize.h) });
+            _offscreen->end();
 
-                // Read back as the writer wants it.
-                _outputImage = _gpuBuffer->read(_outputInfo);
-            }
-            else
-#endif // TLRENDER_GPU
-            {
-                ftk::gl::OffscreenBufferBinding binding(_buffer);
-                _render->begin(_renderSize);
-                _render->setOCIOOptions(_ocioOptions);
-                _render->setLUTOptions(_lutOptions);
-                _render->drawVideo(
-                    { videoData },
-                    { ftk::Box2I(0, 0, _renderSize.w, _renderSize.h) });
-                _render->end();
-
-                // Read back as the writer wants it.
-                _outputImage = _buffer->read(_outputInfo);
-            }
+            // Read back as the writer wants it.
+            _outputImage = _offscreen->read(_outputInfo);
             if (!_outputImage)
             {
                 throw std::runtime_error(ftk::Format("Cannot write: \"{0}\"").arg(_cmdLine.output->getValue()));

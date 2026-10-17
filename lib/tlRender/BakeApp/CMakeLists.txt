@@ -20,7 +20,7 @@ target_include_directories(tlBakeApp
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib>
         $<INSTALL_INTERFACE:include>)
 
-target_link_libraries(tlBakeApp tlGL)
+target_link_libraries(tlBakeApp tlGL tlUI)
 # The GPU renderer as well where it is built, which FTK_RENDER=gpu asks for.
 if(TARGET tlGPU)
     target_link_libraries(tlBakeApp tlGPU)

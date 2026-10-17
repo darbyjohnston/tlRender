@@ -18,10 +18,7 @@
 #endif // TLRENDER_USD
 
 #include <ftk/Core/CmdLine.h>
-#include <ftk/GL/OffscreenBuffer.h>
-#if defined(TLRENDER_GPU)
-#include <ftk/GPU/OffscreenBuffer.h>
-#endif // TLRENDER_GPU
+#include <tlRender/UI/OffscreenRender.h>
 #include <ftk/Core/IApp.h>
 
 namespace ftk
@@ -127,14 +124,10 @@ namespace tl
 
             std::shared_ptr<ftk::gl::Window> _window;
             std::shared_ptr<IIOPlugin> _usdPlugin;
-            std::shared_ptr<IRender> _render;
-            std::shared_ptr<ftk::gl::OffscreenBuffer> _buffer;
-#if defined(TLRENDER_GPU)
-            //! What is drawn into with the GPU renderer, when FTK_RENDER
-            //! asks for it: there is then no OpenGL window, context, or
-            //! buffer.
-            std::shared_ptr<ftk::gpu::OffscreenBuffer> _gpuBuffer;
-#endif // TLRENDER_GPU
+            //! Where the frames are rendered: with the GPU renderer when
+            //! FTK_RENDER asks for it, and there is then no OpenGL window
+            //! or context, or with OpenGL.
+            std::shared_ptr<ui::OffscreenRender> _offscreen;
 
             std::shared_ptr<IWritePlugin> _writerPlugin;
             std::shared_ptr<IWrite> _writer;

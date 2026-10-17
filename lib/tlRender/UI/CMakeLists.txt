@@ -3,6 +3,7 @@ set(HEADERS
     FileBrowserThumbnails.h
     FrameToolBar.h
     Init.h
+    OffscreenRender.h
     ItemOptions.h
     PlaybackLoopWidget.h
     PlaybackToolBar.h
@@ -21,6 +22,7 @@ set(SOURCE
     FileBrowserThumbnails.cpp
     FrameToolBar.cpp
     Init.cpp
+    OffscreenRender.cpp
     ItemOptions.cpp
     PlaybackLoopWidget.cpp
     PlaybackToolBar.cpp
