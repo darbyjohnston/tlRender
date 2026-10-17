@@ -10,7 +10,7 @@
 #include <ftk/Core/Vector.h>
 #include <ftk/Core/Util.h>
 
-#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
 
 #include <array>
 

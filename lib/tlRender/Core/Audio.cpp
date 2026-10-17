@@ -3,6 +3,7 @@
 
 #include <tlRender/Core/Audio.h>
 
+#include <algorithm>
 #include <cstring>
 
 #include <ftk/Core/Error.h>

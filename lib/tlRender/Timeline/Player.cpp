@@ -16,7 +16,9 @@
 #include <ftk/Core/Time.h>
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <sstream>
 
 namespace tl
 {

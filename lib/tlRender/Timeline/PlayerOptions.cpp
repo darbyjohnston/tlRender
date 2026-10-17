@@ -3,6 +3,8 @@
 
 #include <tlRender/Timeline/PlayerOptions.h>
 
+#include <nlohmann/json.hpp>
+
 namespace tl
 {
     void to_json(nlohmann::json& json, const PlayerCacheOptions& value)

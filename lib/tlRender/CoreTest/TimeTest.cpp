@@ -7,6 +7,8 @@
 
 #include <ftk/Core/Assert.h>
 
+#include <nlohmann/json.hpp>
+
 #include <sstream>
 
 namespace tl

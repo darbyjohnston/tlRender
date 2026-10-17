@@ -11,6 +11,8 @@
 
 #include <opentimelineio/version.h>
 
+#include <optional>
+
 namespace tl
 {
     class TimeUnitsModel;

@@ -7,8 +7,12 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #include <opentimelineio/marker.h>
 
+#include <algorithm>
+#include <array>
 #include <sstream>
 
 namespace tl

@@ -5,6 +5,11 @@
 
 #include <ftk/Core/Format.h>
 
+#include <nlohmann/json.hpp>
+
+#include <algorithm>
+#include <array>
+#include <sstream>
 #include <thread>
 
 namespace tl

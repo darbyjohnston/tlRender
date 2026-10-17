@@ -6,6 +6,12 @@
 #include <ftk/Core/Error.h>
 #include <ftk/Core/Format.h>
 
+#include <nlohmann/json.hpp>
+
+#include <algorithm>
+#include <array>
+#include <sstream>
+
 namespace tl
 {
     namespace usd

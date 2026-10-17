@@ -5,6 +5,8 @@
 
 #include <tlRender/Timeline/BackgroundOptions.h>
 
+#include <nlohmann/json.hpp>
+
 #include <ftk/CorePy/Bindings.h>
 
 #include <nanobind/operators.h>

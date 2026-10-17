@@ -7,8 +7,11 @@
 #include <ftk/Core/Format.h>
 #include <ftk/Core/String.h>
 
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdlib>
+#include <sstream>
 
 namespace tl
 {

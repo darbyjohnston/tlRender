@@ -9,6 +9,7 @@
 #include <ftk/Core/OS.h>
 
 #include <algorithm>
+#include <cstring>
 
 extern "C"
 {

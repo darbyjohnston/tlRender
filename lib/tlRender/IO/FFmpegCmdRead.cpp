@@ -8,6 +8,8 @@
 #include <ftk/Core/LogSystem.h>
 #include <ftk/Core/OS.h>
 
+#include <nlohmann/json.hpp>
+
 #include <atomic>
 #include <thread>
 

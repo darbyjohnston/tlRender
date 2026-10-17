@@ -10,6 +10,7 @@
 
 #include <opentimelineio/transition.h>
 
+#include <algorithm>
 #include <array>
 #include <sstream>
 

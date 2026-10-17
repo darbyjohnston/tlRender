@@ -5,6 +5,8 @@
 
 #include <tlRender/Timeline/PlayerOptions.h>
 
+#include <nlohmann/json.hpp>
+
 #include <nanobind/stl/chrono.h>
 #include <nanobind/operators.h>
 #include <nanobind/stl/string.h>

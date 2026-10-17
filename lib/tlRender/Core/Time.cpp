@@ -7,6 +7,8 @@
 #include <ftk/Core/Math.h>
 #include <ftk/Core/String.h>
 
+#include <nlohmann/json.hpp>
+
 #include <array>
 #include <sstream>
 
