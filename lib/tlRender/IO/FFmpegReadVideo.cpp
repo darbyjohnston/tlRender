@@ -52,6 +52,19 @@ namespace tl
                 }
                 return false;
             }
+
+            //! Whether a decoder only decodes through hardware. FFmpeg's own
+            //! AV1 decoder parses the stream and hands every frame to a
+            //! hardware accelerator; without one each frame fails with
+            //! "Function not implemented". It is the only AV1 decoder where
+            //! libaom is not built, the iPad among them, and Apple's
+            //! hardware decodes AV1 from the M3 and the A17 Pro on.
+            bool isHardwareOnly(const AVCodec* codec)
+            {
+                return AV_CODEC_ID_AV1 == codec->id &&
+                    codec->name &&
+                    0 == strcmp(codec->name, "av1");
+            }
         }
 
         ReadVideo::ReadVideo(
@@ -210,6 +223,17 @@ namespace tl
                         throw std::runtime_error(
                             ftk::Format("{0}: \"{1}\"").
                             arg(getErrorLabel(r)).
+                            arg(fileName));
+                    }
+                    if (!_hwAccel && isHardwareOnly(_avCodec))
+                    {
+                        // Refused here rather than opened to fail at every
+                        // frame, which left an empty viewer: the machine has
+                        // no AV1 hardware, or the gates in _initHwAccel()
+                        // kept this file off it. Kept short, since the
+                        // application shows it over the picture, elided.
+                        throw std::runtime_error(
+                            ftk::Format("Cannot decode this AV1 file without hardware decoding: \"{0}\"").
                             arg(fileName));
                     }
 
@@ -773,6 +797,10 @@ namespace tl
             // decoding is always a faithful match, it never alters the
             // image. The first-frame chroma and depth check below the gate
             // is groundwork for lifting it.
+            // Without a software decoder to fall back to, the reader
+            // refuses the file after this and says why, so there is no
+            // software decoding to announce.
+            const bool software = !isHardwareOnly(_avCodecDefault);
             const AVPixelFormat inputFormat =
                 static_cast<AVPixelFormat>(_avCodecParameters[_avStream]->format);
             const AVPixFmtDescriptor* inputDesc = av_pix_fmt_desc_get(inputFormat);
@@ -780,25 +808,34 @@ namespace tl
                 1 == inputDesc->log2_chroma_w && 1 == inputDesc->log2_chroma_h;
             if (AVCOL_RANGE_JPEG == _avCodecParameters[_avStream]->color_range)
             {
-                _log(
-                    ftk::Format("Hardware decoding skipped for a full-range source; using software decoding: \"{0}\"").arg(_fileName),
-                    ftk::LogType::Warning);
+                if (software)
+                {
+                    _log(
+                        ftk::Format("Hardware decoding skipped for a full-range source; using software decoding: \"{0}\"").arg(_fileName),
+                        ftk::LogType::Warning);
+                }
                 return;
             }
             if (!is420)
             {
-                _log(
-                    ftk::Format("Hardware decoding skipped for a non-4:2:0 source; using software decoding: \"{0}\"").arg(_fileName),
-                    ftk::LogType::Warning);
+                if (software)
+                {
+                    _log(
+                        ftk::Format("Hardware decoding skipped for a non-4:2:0 source; using software decoding: \"{0}\"").arg(_fileName),
+                        ftk::LogType::Warning);
+                }
                 return;
             }
 #if defined(__APPLE__)
             if (!hasVideoToolboxDecoder(codec->id))
             {
-                _log(
-                    ftk::Format("This machine has no hardware decoder for the codec \"{0}\"; using software decoding").
-                    arg(codec->name ? codec->name : "?"),
-                    ftk::LogType::Warning);
+                if (software)
+                {
+                    _log(
+                        ftk::Format("This machine has no hardware decoder for the codec \"{0}\"; using software decoding").
+                        arg(codec->name ? codec->name : "?"),
+                        ftk::LogType::Warning);
+                }
                 return;
             }
 #endif // __APPLE__
