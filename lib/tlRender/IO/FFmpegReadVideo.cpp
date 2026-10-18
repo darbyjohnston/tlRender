@@ -25,6 +25,7 @@ extern "C"
 #endif // __APPLE__
 
 #include <algorithm>
+#include <cmath>
 
 namespace tl
 {
@@ -51,6 +52,49 @@ namespace tl
                     }
                 }
                 return false;
+            }
+
+            //! The rate the frames actually come at, measured from the index
+            //! -- the span of the decode times over the frames between
+            //! them -- or, where there is no index, from the stream's
+            //! average. Zero where neither says.
+            double measuredRate(AVStream* stream)
+            {
+                const int count = avformat_index_get_entries_count(stream);
+                if (count > 1)
+                {
+                    const AVIndexEntry* first = avformat_index_get_entry(stream, 0);
+                    const AVIndexEntry* last = avformat_index_get_entry(stream, count - 1);
+                    if (first && last && last->timestamp > first->timestamp)
+                    {
+                        return (count - 1) /
+                            ((last->timestamp - first->timestamp) * av_q2d(stream->time_base));
+                    }
+                }
+                if (stream->avg_frame_rate.num > 0 && stream->avg_frame_rate.den > 0)
+                {
+                    return av_q2d(stream->avg_frame_rate);
+                }
+                return 0.0;
+            }
+
+            //! The standard rate a measured one is, if it is one.
+            AVRational standardRate(double value)
+            {
+                for (const AVRational rate : {
+                    AVRational{ 24000, 1001 }, AVRational{ 24, 1 },
+                    AVRational{ 25, 1 },
+                    AVRational{ 30000, 1001 }, AVRational{ 30, 1 },
+                    AVRational{ 48000, 1001 }, AVRational{ 48, 1 },
+                    AVRational{ 50, 1 },
+                    AVRational{ 60000, 1001 }, AVRational{ 60, 1 } })
+                {
+                    if (std::abs(value - av_q2d(rate)) / av_q2d(rate) < .005)
+                    {
+                        return rate;
+                    }
+                }
+                return AVRational{ 0, 1 };
             }
 
             //! Whether a decoder only decodes through hardware. FFmpeg's own
@@ -467,27 +511,92 @@ namespace tl
                         _avInputPixelFormat,
                         _info.size);
 
+                    // The rate: FFmpeg's guess, unless the frames say
+                    // otherwise. Film with 3:2 pulldown kept in the
+                    // timestamps -- a DVD remuxed into MP4 -- has 23.976
+                    // frames a second, each lasting three fields and then
+                    // two; the nominal rate is the field rate, and the
+                    // guess the video rate of the MPEG-2 header. Neither
+                    // fits the frames, and on either a frame in eight
+                    // landed on its neighbor's tick. The rate the frames
+                    // come at, when it is a standard one, does: every
+                    // frame is then within a field of its own tick.
                     _avSpeed = av_guess_frame_rate(_avFormatContext, avVideoStream, nullptr);
+                    bool measured = false;
+                    {
+                        const AVRational rate = standardRate(measuredRate(avVideoStream));
+                        if (rate.num > 0 &&
+                            std::abs(av_q2d(rate) - av_q2d(_avSpeed)) / av_q2d(rate) >= .005)
+                        {
+                            _log(ftk::Format("Frame rate {0}, from the frames, rather than {1}: \"{2}\"").
+                                arg(av_q2d(rate)).
+                                arg(av_q2d(_avSpeed)).
+                                arg(fileName));
+                            _avSpeed = rate;
+                            measured = true;
+                            _measuredRate = true;
+                        }
+                    }
                     const double speed = av_q2d(_avSpeed);
 
+                    // Every time is in ticks of that rate, from here to the
+                    // frames' times: taken at the nominal rate instead and
+                    // labelled with this one, a seek landed where it was
+                    // asked to and then the reader handed out a frame a
+                    // tick, running ahead until the next seek pulled it
+                    // back.
                     std::size_t sequenceSize = 0;
-                    if (avVideoStream->nb_frames > 0)
+                    if (avVideoStream->nb_frames > 0 && !measured)
                     {
+                        // The count, and no less than the length: a
+                        // movie that skips frames -- a phone's, a screen
+                        // recording, one that dropped frames -- spans
+                        // more ticks than it has frames, and by its count
+                        // alone its end was cut off.
                         sequenceSize = avVideoStream->nb_frames;
+                        if (avVideoStream->duration != AV_NOPTS_VALUE)
+                        {
+                            sequenceSize = std::max(
+                                sequenceSize,
+                                static_cast<std::size_t>(av_rescale_q(
+                                    avVideoStream->duration,
+                                    avVideoStream->time_base,
+                                    swap(_avSpeed))));
+                        }
+                    }
+                    else if (measured && avVideoStream->duration != AV_NOPTS_VALUE)
+                    {
+                        // From the length rather than the count when the
+                        // rate is the frames': a disc that mixes film with
+                        // video has more frames than film ticks. Rounded
+                        // up, since the length ends with the last frame's
+                        // packet duration, which in such a file is a
+                        // field's rather than a frame's, and rounded to the
+                        // nearest tick it left the last frame out.
+                        // From the start of the file, since the video
+                        // can start a few fields in.
+                        const int64_t end = avVideoStream->duration +
+                            (avVideoStream->start_time != AV_NOPTS_VALUE ?
+                                avVideoStream->start_time : 0);
+                        sequenceSize = av_rescale_q_rnd(
+                            end,
+                            avVideoStream->time_base,
+                            swap(_avSpeed),
+                            AV_ROUND_UP);
                     }
                     else if (avVideoStream->duration != AV_NOPTS_VALUE)
                     {
                         sequenceSize = av_rescale_q(
                             avVideoStream->duration,
                             avVideoStream->time_base,
-                            swap(avVideoStream->r_frame_rate));
+                            swap(_avSpeed));
                     }
                     else if (_avFormatContext->duration != AV_NOPTS_VALUE)
                     {
                         sequenceSize = av_rescale_q(
                             _avFormatContext->duration,
                             av_get_time_base_q(),
-                            swap(avVideoStream->r_frame_rate));
+                            swap(_avSpeed));
                     }
         
                     ftk::ImageTags tags;
@@ -536,7 +645,7 @@ namespace tl
                                     av_rescale_q(
                                         entry->timestamp,
                                         avVideoStream->time_base,
-                                        swap(avVideoStream->r_frame_rate)));
+                                        swap(_avSpeed)));
                             }
                         }
                         if (keyCount == entryCount)
@@ -1117,13 +1226,34 @@ namespace tl
                         walk = (time - _decodedTime.value()).rescaled_to(1.0).value() <= 1.0;
                     }
                 }
+                _seekKeyframe = -1;
                 if (!walk)
                 {
+                    _packetTimes.clear();
+                    int64_t seekTimestamp = timestamp;
+                    _seekKeyframe = av_index_search_timestamp(
+                        stream,
+                        timestamp,
+                        AVSEEK_FLAG_BACKWARD);
+                    if (_measuredRate)
+                    {
+                        // A keyframe earlier: see _measuredRate.
+                        for (int i = _seekKeyframe - 1; i >= 0; --i)
+                        {
+                            const AVIndexEntry* entry = avformat_index_get_entry(stream, i);
+                            if (entry && (entry->flags & AVINDEX_KEYFRAME))
+                            {
+                                _seekKeyframe = i;
+                                seekTimestamp = entry->timestamp;
+                                break;
+                            }
+                        }
+                    }
                     avcodec_flush_buffers(_avCodecContext[_avStream]);
                     const int seekError = av_seek_frame(
                         _avFormatContext,
                         _avStream,
-                        timestamp,
+                        seekTimestamp,
                         AVSEEK_FLAG_BACKWARD);
                     if (seekError < 0)
                     {
@@ -1183,6 +1313,14 @@ namespace tl
                     }
                     if ((_eof && _avStream != -1) || (_avStream == packet.p->stream_index))
                     {
+                        if (_measuredRate && !_eof && packet.p->pts != AV_NOPTS_VALUE)
+                        {
+                            _packetTimes.insert(packet.p->pts);
+                            while (_packetTimes.size() > 64)
+                            {
+                                _packetTimes.erase(_packetTimes.begin());
+                            }
+                        }
                         // The walk from the keyframe to the frame a seek
                         // asked for: a frame before it that nothing refers
                         // to is never shown and never needed, so the
@@ -1198,9 +1336,16 @@ namespace tl
                                 av_rescale_q(
                                     ts,
                                     _avFormatContext->streams[_avStream]->time_base,
-                                    swap(_avFormatContext->streams[_avStream]->r_frame_rate)),
+                                    swap(_avSpeed)),
                                 _timeRange.duration().rate());
-                            if (packetTime < _seekTarget)
+                            // A tick of slack where a frame can be moved a
+                            // tick on (see _measuredRate): judged by its
+                            // own time it was before the one asked for, and
+                            // was skipped when it was the one.
+                            const OTIO_NS::RationalTime slack(
+                                _measuredRate ? 1.0 : 0.0,
+                                _timeRange.duration().rate());
+                            if (packetTime + slack < _seekTarget)
                             {
                                 _avCodecContext[_avStream]->skip_frame = AVDISCARD_NONREF;
                             }
@@ -1270,15 +1415,41 @@ namespace tl
             return _buffer.empty();
         }
 
-        std::shared_ptr<ftk::Image> ReadVideo::popBuffer()
+        void ReadVideo::dropBefore(const OTIO_NS::RationalTime& time)
         {
-            std::shared_ptr<ftk::Image> out;
-            if (!_buffer.empty())
+            while (!_buffer.empty() && _buffer.front().first < time)
             {
-                out = _buffer.front();
                 _buffer.pop_front();
             }
-            return out;
+        }
+
+        std::shared_ptr<ftk::Image> ReadVideo::frameFor(const OTIO_NS::RationalTime& time)
+        {
+            dropBefore(time);
+            return !_buffer.empty() ? _buffer.front().second : nullptr;
+        }
+
+        OTIO_NS::RationalTime ReadVideo::_frameTime(int64_t timestamp) const
+        {
+            const AVRational timeBase = _avFormatContext->streams[_avStream]->time_base;
+            int64_t tick = av_rescale_q(timestamp, timeBase, swap(_avSpeed));
+            if (_measuredRate)
+            {
+                // The later of two frames on one tick goes to the next;
+                // see _measuredRate.
+                auto i = _packetTimes.lower_bound(timestamp);
+                if (i != _packetTimes.begin())
+                {
+                    --i;
+                    if (av_rescale_q(*i, timeBase, swap(_avSpeed)) == tick)
+                    {
+                        ++tick;
+                    }
+                }
+            }
+            return OTIO_NS::RationalTime(
+                _timeRange.start_time().value() + tick,
+                _timeRange.duration().rate());
         }
 
         int ReadVideo::_decode(const OTIO_NS::RationalTime& currentTime)
@@ -1361,13 +1532,42 @@ namespace tl
                 }
                 const int64_t timestamp = _avFrame->pts != AV_NOPTS_VALUE ? _avFrame->pts : _avFrame->pkt_dts;
 
-                const OTIO_NS::RationalTime time(
-                    _timeRange.start_time().value() +
-                    av_rescale_q(
-                        timestamp,
-                        _avFormatContext->streams[_avStream]->time_base,
-                        swap(_avFormatContext->streams[_avStream]->r_frame_rate)),
-                    _timeRange.duration().rate());
+                const OTIO_NS::RationalTime time = _frameTime(timestamp);
+
+                // The first frame after a seek, past the frame asked for:
+                // the seek landed on a keyframe shown after it, and is
+                // made again from the keyframe before (see _seekKeyframe).
+                if (_seekKeyframe >= 0)
+                {
+                    const int keyframe = _seekKeyframe;
+                    _seekKeyframe = -1;
+                    if (time > _seekTarget)
+                    {
+                        AVStream* stream = _avFormatContext->streams[_avStream];
+                        for (int i = keyframe - 1; i >= 0; --i)
+                        {
+                            const AVIndexEntry* entry = avformat_index_get_entry(stream, i);
+                            if (entry && (entry->flags & AVINDEX_KEYFRAME))
+                            {
+                                avcodec_flush_buffers(_avCodecContext[_avStream]);
+                                if (av_seek_frame(
+                                    _avFormatContext,
+                                    _avStream,
+                                    entry->timestamp,
+                                    AVSEEK_FLAG_BACKWARD) >= 0)
+                                {
+                                    _seekKeyframe = i;
+                                    _seekWalk = true;
+                                    _eof = false;
+                                    _decodedTime.reset();
+                                    _packetTimes.clear();
+                                    return AVERROR(EAGAIN);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
                 _decodedTime = time;
 
                 if (time >= currentTime)
@@ -1417,7 +1617,7 @@ namespace tl
                     {
                         _copy(image, frame);
                     }
-                    _buffer.push_back(image);
+                    _buffer.push_back({ time, image });
                     out = 1;
                     break;
                 }

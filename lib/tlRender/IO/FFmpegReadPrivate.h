@@ -18,6 +18,7 @@ extern "C"
 
 #include <atomic>
 #include <optional>
+#include <set>
 #include <condition_variable>
 #include <mutex>
 #include <thread>
@@ -91,7 +92,19 @@ namespace tl
             const std::string& getErrorString() const;
 
             bool isBufferEmpty() const;
-            std::shared_ptr<ftk::Image> popBuffer();
+
+            //! Drop the buffered frames from before a time.
+            void dropBefore(const OTIO_NS::RationalTime&);
+
+            //! The frame for a time: the first one buffered at or after
+            //! it, the way a seek finds it. It stays buffered, since the
+            //! next time may want it as well -- where a frame is missing,
+            //! or a frame lasts longer than a tick -- and goes with the
+            //! first time after it. Handing out the next frame for each
+            //! time instead ran ahead of the frames' times at every gap,
+            //! so that playing and seeking showed different frames for
+            //! the same time and the picture drifted from the sound.
+            std::shared_ptr<ftk::Image> frameFor(const OTIO_NS::RationalTime&);
 
         private:
             int _decode(const OTIO_NS::RationalTime& currentTime);
@@ -147,11 +160,34 @@ namespace tl
             //! other frame refers to are skipped instead.
             bool _seekWalk = false;
             OTIO_NS::RationalTime _seekTarget;
+            //! The index entry of the keyframe a seek landed on, until the
+            //! first frame after it is decoded; -1 otherwise. A keyframe
+            //! is found by its decode time, and in an open GOP -- a DVD's,
+            //! a broadcast's -- the frames shown just before a keyframe
+            //! come after it in the file and refer back past it: landing
+            //! on that keyframe for one of them, the first frame out is the
+            //! keyframe, later than the frame asked for, and the seek is
+            //! made again from the keyframe before.
+            int _seekKeyframe = -1;
+            //! Whether the rate is the frames' own rather than FFmpeg's
+            //! guess: film with pulldown timestamps. Its frames sit up to
+            //! a fifth of a tick off the grid, and where the cadence is
+            //! half a tick off it each pair of frames rounds onto one tick
+            //! and leaves the next empty -- every other frame lost, all
+            //! through a movie that starts its video a few fields in. The
+            //! later of such a pair goes to the tick after, which in film
+            //! is always the empty one; deciding it takes the time of the
+            //! frame before, so the times of the packets read are kept,
+            //! and a seek starts a keyframe earlier so the frame before
+            //! the one asked for has been read.
+            bool _measuredRate = false;
+            std::set<int64_t> _packetTimes;
+            OTIO_NS::RationalTime _frameTime(int64_t) const;
             // The time of the last frame the decoder gave back: where a
             // walk forward would start from.
             std::optional<OTIO_NS::RationalTime> _decodedTime;
             std::weak_ptr<ftk::LogSystem> _logSystem;
-            std::list<std::shared_ptr<ftk::Image> > _buffer;
+            std::list<std::pair<OTIO_NS::RationalTime, std::shared_ptr<ftk::Image> > > _buffer;
             bool _eof = false;
             size_t _errorCount = 0;
             std::string _errorString;

@@ -32,6 +32,8 @@ namespace tl
             void _gif();
             void _subfileSeek();
             void _pixelAspectRatio();
+            void _pulldown();
+            void _droppedFrames();
             void _presets();
             void _frameOrder();
             void _conversionEdges();

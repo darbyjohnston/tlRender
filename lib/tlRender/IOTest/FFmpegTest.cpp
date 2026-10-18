@@ -21,6 +21,7 @@
 #include <array>
 #include <chrono>
 #include <cmath>
+#include <random>
 #include <future>
 #include <sstream>
 #include <thread>
@@ -51,6 +52,8 @@ namespace tl
             _gif();
             _subfileSeek();
             _pixelAspectRatio();
+            _pulldown();
+            _droppedFrames();
             _presets();
             _frameOrder();
             _conversionEdges();
@@ -853,6 +856,216 @@ namespace tl
             _print(ftk::Format("Pixel aspect ratio: {0}").
                 arg(info.video[0].pixelAspectRatio));
             FTK_CHECK(2.0F == info.video[0].pixelAspectRatio);
+        }
+
+        void FFmpegTest::_pulldown()
+        {
+            // Film with 3:2 pulldown kept in the timestamps, as a DVD
+            // remuxed into MP4 has it: 23.976 frames a second, each lasting
+            // three fields and then two, so the frames are 50 and 33
+            // milliseconds apart in turn, and the stream's nominal rate is
+            // the field rate, 59.94. The video starts a field and a half
+            // in, which puts the frames at .6 and .4 of a tick, as in the
+            // DVD this came from: rounded to the nearest tick, each pair
+            // of frames landed on one tick and every other frame was lost.
+            // Before that, the rate was the nominal one, the frame times
+            // were taken at one rate and labelled with another, and a
+            // seek in an open GOP landed past the frame asked for. Each of
+            // the 120 frames is a flat level from its number,
+            // 16 + (n mod 28) * 8, and made with:
+            //
+            //     ffmpeg -f lavfi -i "nullsrc=s=64x64:r=24000/1001:d=5.005,
+            //         format=yuv420p,geq=lum='16+mod(N\\,28)*8':cb=128:cr=128"
+            //         -vf "settb=1001/120000,setpts='floor(N*5/2)*2+3'"
+            //         -fps_mode passthrough -enc_time_base 1001/120000
+            //         -c:v mpeg2video -q:v 2 -g 12 -bf 2
+            //         -video_track_timescale 16000 Pulldown.mp4
+            //
+            // Frame n is then shown at tick n + 1, and the first tick shows
+            // the first frame. The last frame is decoded but not shown: the
+            // container marks it so, and the movie ends at tick 120.
+            const ftk::Path path(TLRENDER_SAMPLE_DATA, "Pulldown.mp4");
+            auto readPlugin = _context->getSystem<ReadSystem>()->getPlugin(path);
+            if (!readPlugin)
+            {
+                _print("Skipped: no plugin reads the fixture");
+                return;
+            }
+            const int ticks = 120;
+            const auto frameFor = [](int tick)
+            {
+                return std::max(tick - 1, 0);
+            };
+            const auto check = [this, &frameFor](
+                const std::shared_ptr<IVideoRead>& read,
+                const OTIO_NS::TimeRange& range,
+                int tick)
+            {
+                const auto data = read->readVideo(
+                    range.start_time() + OTIO_NS::RationalTime(tick, range.duration().rate())).get();
+                FTK_CHECK(data.image);
+                if (!data.image)
+                {
+                    _print(ftk::Format("Tick {0}: no image: {1}").
+                        arg(tick).arg(read->getError()));
+                    return;
+                }
+                // The first byte is luma: the reader hands YUV through.
+                const int expected = 16 + (frameFor(tick) % 28) * 8;
+                const int value = data.image->getData()[0];
+                if (std::abs(value - expected) > 3)
+                {
+                    _print(ftk::Format("Tick {0}: level {1}, expected {2}").
+                        arg(tick).arg(value).arg(expected));
+                }
+                FTK_CHECK(std::abs(value - expected) <= 3);
+            };
+
+            // The rate of the film, not of the fields, and every frame on
+            // a tick of its own.
+            OTIO_NS::TimeRange range;
+            {
+                auto read = readPlugin->videoRead(path);
+                const IOInfo info = read->getInfo().get();
+                FTK_CHECK(info.videoTime.has_value());
+                if (!info.videoTime.has_value())
+                {
+                    return;
+                }
+                range = info.videoTime.value();
+                _print(ftk::Format("Pulldown: {0} ticks at {1}").
+                    arg(range.duration().value()).arg(range.duration().rate()));
+                FTK_CHECK(std::abs(range.duration().rate() - 24000.0 / 1001.0) < 0.001);
+                FTK_CHECK(ticks == static_cast<int>(range.duration().value()));
+                for (int i = 0; i < ticks; ++i)
+                {
+                    check(read, range, i);
+                }
+            }
+
+            // And the same frames after seeks, forward and back, and while
+            // scrubbing: short steps either way, which walk on or seek,
+            // and jumps.
+            {
+                auto read = readPlugin->videoRead(path);
+                for (int i : { 60, 61, 62, 63, 64, 65, 90, 30, 31, 32, 33, 117, 118, 119, 5, 6, 1, 0 })
+                {
+                    check(read, range, i);
+                }
+                std::mt19937 random(1);
+                int tick = ticks / 2;
+                for (int i = 0; i < 300; ++i)
+                {
+                    const int r = random() % 10;
+                    tick += r < 4 ? 1 + random() % 6 : r < 7 ? -1 - static_cast<int>(random() % 4) : 0;
+                    if (r >= 7)
+                    {
+                        tick = random() % ticks;
+                    }
+                    tick = std::max(0, std::min(ticks - 1, tick));
+                    check(read, range, tick);
+                }
+            }
+        }
+
+        void FFmpegTest::_droppedFrames()
+        {
+            // A movie that skips frames, as a phone's or a screen
+            // recording does: 101 frames at 30 a second over 110 ticks,
+            // one missing after every ten. Each frame is a flat level from
+            // its number, 16 + (n mod 28) * 8, and made with:
+            //
+            //     ffmpeg -f lavfi -i "nullsrc=s=64x64:r=30:d=3.334,
+            //         format=yuv420p,geq=lum='16+mod(N\,28)*8':cb=128:cr=128"
+            //         -vf "settb=1/30,setpts='N+floor(N/10)'"
+            //         -fps_mode passthrough -enc_time_base 1/30
+            //         -c:v libx264 -g 15 -bf 2 -preset fast -crf 10
+            //         -video_track_timescale 30 DroppedFrames.mp4
+            //
+            // Read straight through, the reader handed out the next frame
+            // for each tick and ran a tick further ahead at every gap,
+            // while a seek found frames by their times: playing and
+            // scrubbing showed different frames for the same tick, and
+            // the picture drifted from the sound. And the length was the
+            // count of frames, which cut off the end.
+            const ftk::Path path(TLRENDER_SAMPLE_DATA, "DroppedFrames.mp4");
+            auto readPlugin = _context->getSystem<ReadSystem>()->getPlugin(path);
+            if (!readPlugin)
+            {
+                _print("Skipped: no plugin reads the fixture");
+                return;
+            }
+            const int frames = 101;
+            const int ticks = 110;
+            // The frame for a tick is the first at or after it.
+            const auto frameFor = [frames](int tick)
+            {
+                for (int n = 0; n < frames; ++n)
+                {
+                    if (n + n / 10 >= tick)
+                    {
+                        return n;
+                    }
+                }
+                return frames - 1;
+            };
+            const auto check = [this, &frameFor](
+                const std::shared_ptr<IVideoRead>& read,
+                int tick)
+            {
+                const auto data = read->readVideo(OTIO_NS::RationalTime(tick, 30.0)).get();
+                FTK_CHECK(data.image);
+                if (!data.image)
+                {
+                    _print(ftk::Format("Tick {0}: no image: {1}").
+                        arg(tick).arg(read->getError()));
+                    return;
+                }
+                const int expected = 16 + (frameFor(tick) % 28) * 8;
+                const int value = data.image->getData()[0];
+                if (std::abs(value - expected) > 3)
+                {
+                    _print(ftk::Format("Tick {0}: level {1}, expected {2}").
+                        arg(tick).arg(value).arg(expected));
+                }
+                FTK_CHECK(std::abs(value - expected) <= 3);
+            };
+
+            {
+                auto read = readPlugin->videoRead(path);
+                const IOInfo info = read->getInfo().get();
+                FTK_CHECK(info.videoTime.has_value());
+                if (!info.videoTime.has_value())
+                {
+                    return;
+                }
+                FTK_CHECK(30.0 == info.videoTime->duration().rate());
+                FTK_CHECK(ticks == static_cast<int>(info.videoTime->duration().value()));
+                for (int i = 0; i < ticks; ++i)
+                {
+                    check(read, i);
+                }
+            }
+            {
+                auto read = readPlugin->videoRead(path);
+                for (int i : { 50, 51, 52, 53, 54, 55, 20, 21, 22, 23, 9, 10, 11, 100, 101, 102, 3 })
+                {
+                    check(read, i);
+                }
+                std::mt19937 random(1);
+                int tick = ticks / 2;
+                for (int i = 0; i < 300; ++i)
+                {
+                    const int r = random() % 10;
+                    tick += r < 4 ? 1 + random() % 6 : r < 7 ? -1 - static_cast<int>(random() % 4) : 0;
+                    if (r >= 7)
+                    {
+                        tick = random() % ticks;
+                    }
+                    tick = std::max(0, std::min(ticks - 1, tick));
+                    check(read, tick);
+                }
+            }
         }
 
         void FFmpegTest::_findCommand()

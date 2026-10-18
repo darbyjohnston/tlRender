@@ -373,7 +373,10 @@ namespace tl
                         p.readVideo->seek(p.currentTime);
                     }
 
-                    // Process.
+                    // Process, until a frame at or after the time is
+                    // buffered: the one for it, by the frames' times,
+                    // whichever way the reader got here.
+                    p.readVideo->dropBefore(p.currentTime);
                     while (
                         p.readVideo->isBufferEmpty() &&
                         p.readVideo->isValid() &&
@@ -383,10 +386,7 @@ namespace tl
                     // Handle the request.
                     VideoData data;
                     data.time = videoRequest->time;
-                    if (!p.readVideo->isBufferEmpty())
-                    {
-                        data.image = p.readVideo->popBuffer();
-                    }
+                    data.image = p.readVideo->frameFor(p.currentTime);
                     guard.setValue(std::move(data));
 
                     p.currentTime += OTIO_NS::RationalTime(1.0, videoTime.duration().rate());
