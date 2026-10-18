@@ -62,12 +62,6 @@ namespace tl
         //! The video format of the file, as opposed to the decoded one above.
         VideoSourceInfo videoSource;
 
-        //! The frames that can be decoded without the ones before them, as
-        //! media frame numbers in order; empty when every frame can, as in
-        //! a sequence or an intra-only movie, or when the reader does not
-        //! know. A scrub that outruns the reader lands on these.
-        std::vector<int64_t> videoKeyframes;
-
         //! Audio information.
         AudioInfo audio;
 

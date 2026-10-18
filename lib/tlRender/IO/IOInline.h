@@ -10,7 +10,6 @@ namespace tl
             video == other.video &&
             compareExact(videoTime, other.videoTime) &&
             videoSource == other.videoSource &&
-            videoKeyframes == other.videoKeyframes &&
             audio == other.audio &&
             compareExact(audioTime, other.audioTime) &&
             audioSource == other.audioSource &&

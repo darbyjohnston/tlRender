@@ -247,13 +247,6 @@ namespace tl
             // still being read, and when it asked; see mouseMoveEvent().
             std::optional<OTIO_NS::RationalTime> scrubPending;
             std::chrono::steady_clock::time_point scrubSeekTime;
-            // The frame a drag wanted when it was given a keyframe instead,
-            // asked for once the reader has caught up and nothing newer has
-            // come; see _keyframeBefore().
-            std::optional<OTIO_NS::RationalTime> scrubExact;
-            // When the pointer last moved: the exact frame is asked for
-            // once it has paused.
-            std::chrono::steady_clock::time_point scrubMoveTime;
 
             std::shared_ptr<ThumbnailSystem> thumbnailSystem;
 

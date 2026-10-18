@@ -308,10 +308,12 @@ namespace tl
                 p.timeHover->setIfChanged(std::nullopt);
                 p.pressTime = p.player->getCurrentTime();
                 p.pressPlayback = p.player->getPlayback();
-                if (p.stopOnScrub)
-                {
-                    p.player->stop();
-                }
+                // Stopped while the button is held, whatever the setting:
+                // playing on under the pointer, the picture ran ahead of
+                // it whenever the drag paused, and jumped back at the next
+                // move. With stop on scrub it stays stopped; without, it
+                // plays on from where the drag ends.
+                p.player->stop();
                 const OTIO_NS::RationalTime time = _posToTimeClamped(event.pos.x);
                 p.scrub->setIfChanged(true);
                 p.timeScrub->setIfChanged(time);
@@ -337,6 +339,10 @@ namespace tl
                 else
                 {
                     p.hoverSuppress = p.timeScrub->get();
+                    if (!p.stopOnScrub && p.player)
+                    {
+                        p.player->setPlayback(p.pressPlayback);
+                    }
                 }
             }
             p.scrub->setIfChanged(false);

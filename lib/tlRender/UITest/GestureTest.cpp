@@ -3,17 +3,21 @@
 
 #include <tlRender/UITest/GestureTest.h>
 
+#include <tlRender/UI/TimelineItem.h>
 #include <tlRender/UI/TimelineWidget.h>
 #include <tlRender/UI/Viewport.h>
 
 #include <tlRender/Timeline/Player.h>
 #include <tlRender/Timeline/Timeline.h>
 
+#include <tlRender/IO/System.h>
+
 #include <ftk/UI/App.h>
 #include <ftk/UI/Window.h>
 
 #include <ftk/Core/Assert.h>
 #include <ftk/Core/Format.h>
+#include <ftk/Core/Time.h>
 
 #include <cmath>
 
@@ -38,6 +42,8 @@ namespace tl
             auto app = ftk::App::create(_context, argv, "GestureTest", "Gesture test.");
             _viewport(app);
             _timeline(app);
+            _scrubPlayback(app);
+            _scrubOutrun(app);
         }
 
         void GestureTest::_viewport(const std::shared_ptr<ftk::App>& app)
@@ -139,6 +145,150 @@ namespace tl
             window->gesture(ruler, ftk::V2F(), 1.F);
             app->tick();
             FTK_CHECK(player->getCurrentTime() == timePrev);
+        }
+
+        void GestureTest::_scrubPlayback(const std::shared_ptr<ftk::App>& app)
+        {
+            // Scrubbing while playing: the player is stopped while the
+            // button is held, so the picture follows the pointer rather
+            // than running ahead of it between moves, and plays on from
+            // where the drag ends. With stop on scrub it stays stopped.
+            auto window = ftk::Window::create(_context, app, "GestureTest");
+            auto timelineWidget = ui::TimelineWidget::create(_context, window);
+            auto player = Player::create(
+                _context,
+                Timeline::create(
+                    _context,
+                    ftk::Path(TLRENDER_SAMPLE_DATA, "Gap.otio")));
+            timelineWidget->setPlayer(player);
+            window->show();
+            window->layout(ftk::Size2I(1280, 960));
+            app->tick();
+            const ftk::Box2I& g = timelineWidget->getGeometry();
+            const ftk::V2I ruler(g.min.x + g.w() / 4, g.min.y + 4);
+            const ftk::V2I ruler2(g.min.x + g.w() / 2, g.min.y + 4);
+            // The track item, wherever the layout put it.
+            std::function<std::shared_ptr<ui::TimelineItem>(const std::shared_ptr<ftk::IWidget>&)> findItem;
+            findItem = [&findItem](const std::shared_ptr<ftk::IWidget>& widget)
+                -> std::shared_ptr<ui::TimelineItem>
+            {
+                if (auto item = std::dynamic_pointer_cast<ui::TimelineItem>(widget))
+                {
+                    return item;
+                }
+                for (const auto& child : widget->getChildren())
+                {
+                    if (auto item = findItem(child))
+                    {
+                        return item;
+                    }
+                }
+                return nullptr;
+            };
+            auto item = findItem(timelineWidget);
+            FTK_CHECK(item);
+            if (!item)
+            {
+                return;
+            }
+            const ftk::Box2I& ig = item->getGeometry();
+            const ftk::V2I track(ig.min.x + ig.w() / 4, ig.min.y + 4);
+            const ftk::V2I track2(ig.min.x + ig.w() / 2, ig.min.y + 4);
+
+            for (const auto& points : { std::pair(ruler, ruler2), std::pair(track, track2) })
+            {
+                timelineWidget->setStopOnScrub(false);
+                player->setPlayback(Playback::Forward);
+                app->tick();
+                window->press(points.first);
+                app->tick();
+                FTK_CHECK(Playback::Stop == player->getPlayback());
+                window->hover(points.second);
+                app->tick();
+                FTK_CHECK(Playback::Stop == player->getPlayback());
+                window->release(points.second);
+                app->tick();
+                FTK_CHECK(Playback::Forward == player->getPlayback());
+                player->stop();
+
+                timelineWidget->setStopOnScrub(true);
+                player->setPlayback(Playback::Forward);
+                app->tick();
+                window->drag({ points.first, points.second });
+                app->tick();
+                FTK_CHECK(Playback::Stop == player->getPlayback());
+            }
+            player->stop();
+        }
+
+        void GestureTest::_scrubOutrun(const std::shared_ptr<ftk::App>& app)
+        {
+            // A drag that outruns the reader waits for the frame it is on
+            // and then asks for where the pointer has got to, and the
+            // picture never lands past the pointer: landing on the keyframe
+            // before the time instead, as it did for a while, put it a
+            // group of pictures beyond the finger when dragging backward,
+            // and the picture flashed back at every group crossed.
+            auto window = ftk::Window::create(_context, app, "GestureTest");
+            auto timelineWidget = ui::TimelineWidget::create(_context, window);
+            const ftk::Path path(TLRENDER_SAMPLE_DATA, "BART_2021-02-07.m4v");
+            if (!_context->getSystem<ReadSystem>()->getPlugin(path))
+            {
+                _print("Skipped: no plugin reads the fixture");
+                return;
+            }
+            auto player = Player::create(
+                _context,
+                Timeline::create(_context, path));
+            timelineWidget->setPlayer(player);
+            window->show();
+            window->layout(ftk::Size2I(1280, 960));
+            app->tick();
+            const ftk::Box2I& g = timelineWidget->getGeometry();
+            const auto wait = [this, app](int ms)
+            {
+                const auto t = std::chrono::steady_clock::now();
+                while (std::chrono::steady_clock::now() - t < std::chrono::milliseconds(ms))
+                {
+                    app->tick();
+                    ftk::sleep(std::chrono::milliseconds(2));
+                }
+            };
+            // Backward and then forward, moving several times between ticks
+            // so that the reader is outrun and the keyframes are used. The
+            // time at the pointer is what the widget says it is.
+            for (const int dir : { -1, 1 })
+            {
+                const int x0 = dir < 0 ? g.min.x + g.w() * 9 / 10 : g.min.x + g.w() / 10;
+                const int y = g.min.y + 40;
+                window->press(ftk::V2I(x0, y));
+                wait(50);
+                int x = x0;
+                for (int i = 0; i < 40; ++i)
+                {
+                    for (int j = 0; j < 3; ++j)
+                    {
+                        x += dir * 6;
+                        window->hover(ftk::V2I(x, y));
+                    }
+                    wait(20);
+                    const auto pointer = timelineWidget->observeTimeScrub()->get();
+                    FTK_CHECK(pointer.has_value());
+                    if (pointer.has_value())
+                    {
+                        const OTIO_NS::RationalTime current = player->getCurrentTime();
+                        const bool past = dir < 0 ? current < *pointer : current > *pointer;
+                        if (past)
+                        {
+                            _print(ftk::Format("Direction {0}: shown {1}, pointer {2}").
+                                arg(dir).arg(current.value()).arg(pointer->value()));
+                        }
+                        FTK_CHECK(!past);
+                    }
+                }
+                window->release(ftk::V2I(x, y));
+                wait(50);
+            }
         }
     }
 }

@@ -625,39 +625,6 @@ namespace tl
                         startTime,
                         OTIO_NS::RationalTime(sequenceSize, speed));
 
-                    // The keyframes, from the index: MP4 and MOV carry the
-                    // whole table up front, and a container that does not
-                    // has no entries yet and reports none. An index where
-                    // every entry is a keyframe is an intra-only movie,
-                    // which reports none as well: every frame costs the
-                    // same, and the list would be the size of the movie.
-                    {
-                        const int entryCount = avformat_index_get_entries_count(avVideoStream);
-                        int keyCount = 0;
-                        for (int i = 0; i < entryCount; ++i)
-                        {
-                            const AVIndexEntry* entry = avformat_index_get_entry(avVideoStream, i);
-                            if (entry && (entry->flags & AVINDEX_KEYFRAME))
-                            {
-                                ++keyCount;
-                                _keyframes.push_back(
-                                    startTime.value() +
-                                    av_rescale_q(
-                                        entry->timestamp,
-                                        avVideoStream->time_base,
-                                        swap(_avSpeed)));
-                            }
-                        }
-                        if (keyCount == entryCount)
-                        {
-                            _keyframes.clear();
-                        }
-                        std::sort(_keyframes.begin(), _keyframes.end());
-                        _keyframes.erase(
-                            std::unique(_keyframes.begin(), _keyframes.end()),
-                            _keyframes.end());
-                    }
-
                     for (const auto& i : tags)
                     {
                         _tags[i.first] = i.second;
@@ -766,11 +733,6 @@ namespace tl
         const OTIO_NS::TimeRange& ReadVideo::getTimeRange() const
         {
             return _timeRange;
-        }
-
-        const std::vector<int64_t>& ReadVideo::getKeyframes() const
-        {
-            return _keyframes;
         }
 
         const VideoSourceInfo& ReadVideo::getSource() const

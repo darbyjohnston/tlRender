@@ -208,7 +208,6 @@ namespace tl
                         {
                             p.info.video.push_back(videoInfo);
                             p.info.videoTime = p.readVideo->getTimeRange();
-                            p.info.videoKeyframes = p.readVideo->getKeyframes();
                             p.info.videoSource = p.readVideo->getSource();
                             p.info.tags = p.readVideo->getTags();
                         }
