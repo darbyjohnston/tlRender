@@ -210,6 +210,13 @@ namespace tl
             return p.mutex.error;
         }
 
+        size_t VideoRead::getErrorCount() const
+        {
+            FTK_P();
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            return p.mutex.error.empty() ? 0 : 1;
+        }
+
         void VideoRead::cancelRequests()
         {
             FTK_P();
@@ -343,6 +350,13 @@ namespace tl
             return p.mutex.error;
         }
 
+        size_t AudioRead::getErrorCount() const
+        {
+            FTK_P();
+            std::unique_lock<std::mutex> lock(p.mutex.mutex);
+            return p.mutex.error.empty() ? 0 : 1;
+        }
+
         void AudioRead::cancelRequests()
         {
             FTK_P();
@@ -407,13 +421,35 @@ namespace tl
                 std::vector<std::string> cmd;
                 cmd.push_back(options.ffprobePath);
                 cmd.push_back("-v");
-                cmd.push_back("quiet");
+                cmd.push_back("error");
                 cmd.push_back("-print_format");
                 cmd.push_back("json");
                 cmd.push_back("-show_streams");
                 cmd.push_back("-show_format");
                 cmd.push_back(path.get());
-                nlohmann::json json = nlohmann::json::parse(Pipe(cmd).readAll());
+                Pipe pipe(cmd);
+                const std::string probe = pipe.readAll();
+                // A file ffprobe cannot open gets an empty object and an exit
+                // code, not an error in the output: a truncated movie read
+                // as blank frames with nothing to say why. Its standard
+                // error says.
+                if (pipe.finish() != 0)
+                {
+                    std::string errors = pipe.readAllErrors();
+                    if (const auto i = errors.find_last_not_of("\r\n"); i != std::string::npos)
+                    {
+                        errors.erase(i + 1);
+                    }
+                    if (const auto i = errors.find_last_of('\n'); i != std::string::npos)
+                    {
+                        errors.erase(0, i + 1);
+                    }
+                    throw std::runtime_error(
+                        ftk::Format("Cannot probe \"{0}\": {1}").
+                        arg(path.get()).
+                        arg(errors.empty() ? std::string("ffprobe failed") : errors));
+                }
+                nlohmann::json json = nlohmann::json::parse(probe);
 
                 // Parse format information.
                 double duration = 0.0;

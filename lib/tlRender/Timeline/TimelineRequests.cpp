@@ -420,10 +420,11 @@ namespace tl
 
     void Timeline::setRequestPriority(
         const OTIO_NS::RationalTime& time,
-        bool reverse)
+        bool reverse,
+        bool playing)
     {
         FTK_P();
-        const Private::RequestPriority priority{ time, reverse };
+        const Private::RequestPriority priority{ time, reverse, playing };
         {
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.requestPriority = priority;
@@ -667,7 +668,7 @@ namespace tl
                                 {
                                     if (auto otioClip = dynamic_cast<const OTIO_NS::Clip*>(otioItem))
                                     {
-                                        videoLayerData.image = _readVideo(otioClip, requestTime, request->options, &videoLayerData.path, &videoLayerData.read);
+                                        videoLayerData.image = _readVideo(otioClip, requestTime, request->options, &videoLayerData.path, &videoLayerData.read, &videoLayerData.mediaTime);
                                         videoLayerData.bounds = getCanvasBox(
                                             getMediaReferenceBounds(p.mediaReference(otioClip)),
                                             p.options.spatial,
@@ -688,7 +689,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.second.value))
                                             {
-                                                videoLayerData.imageB = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.pathB, &videoLayerData.readB);
+                                                videoLayerData.imageB = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.pathB, &videoLayerData.readB, &videoLayerData.mediaTimeB);
                                                 videoLayerData.boundsB = getCanvasBox(
                                                     getMediaReferenceBounds(p.mediaReference(otioClipB)),
                                                     p.options.spatial,
@@ -713,7 +714,7 @@ namespace tl
                                             const auto transitionNeighbors = otioTrack->neighbors_of(otioTransition, &errorStatus);
                                             if (const auto otioClipB = dynamic_cast<OTIO_NS::Clip*>(transitionNeighbors.first.value))
                                             {
-                                                videoLayerData.image = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.path, &videoLayerData.read);
+                                                videoLayerData.image = _readVideo(otioClipB, requestTime, request->options, &videoLayerData.path, &videoLayerData.read, &videoLayerData.mediaTime);
                                                 videoLayerData.bounds = getCanvasBox(
                                                     getMediaReferenceBounds(p.mediaReference(otioClipB)),
                                                     p.options.spatial,
@@ -736,6 +737,46 @@ namespace tl
             }
 
             p.thread.videoRequestsInProgress.push_back(request);
+        }
+
+        // Tell the readers where the playhead is, each in its own time,
+        // through a request in progress at it: see IVideoRead::setPlayhead().
+        {
+            std::optional<Private::RequestPriority> priority;
+            {
+                std::unique_lock<std::mutex> lock(p.mutex.mutex);
+                priority = p.mutex.requestPriority;
+            }
+            if (priority != p.thread.readersPriority || !newVideoRequests.empty())
+            {
+                p.thread.readersPriority = priority;
+                std::set<IVideoRead*> told;
+                for (const auto& request : p.thread.videoRequestsInProgress)
+                {
+                    const auto tell = [&priority, &request, &told](
+                        const std::shared_ptr<IVideoRead>& read,
+                        const OTIO_NS::RationalTime& mediaTime)
+                    {
+                        if (read && told.insert(read.get()).second)
+                        {
+                            std::optional<Playhead> playhead;
+                            if (priority.has_value())
+                            {
+                                playhead = Playhead{
+                                    mediaTime + (priority->time - request->time).rescaled_to(mediaTime.rate()),
+                                    priority->reverse,
+                                    priority->playing };
+                            }
+                            read->setPlayhead(playhead);
+                        }
+                    };
+                    for (const auto& layer : request->layerData)
+                    {
+                        tell(layer.read, layer.mediaTime);
+                        tell(layer.readB, layer.mediaTimeB);
+                    }
+                }
+            }
         }
 
         // Traverse the timeline for new audio requests.
@@ -1083,10 +1124,13 @@ namespace tl
                     layer.image = data.image;
                     layer.missing = data.missing;
                     layer.heldFrom = data.heldFrom;
+                    layer.declined = data.declined;
                 }
                 if (i.imageB.valid())
                 {
-                    layer.imageB = i.imageB.get().image;
+                    const VideoData dataB = i.imageB.get();
+                    layer.imageB = dataB.image;
+                    layer.declined |= dataB.declined;
                 }
             }
             catch (const std::exception& e)

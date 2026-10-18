@@ -298,10 +298,13 @@ namespace tl
         //! Set the time requests are served nearest to. Video requests at
         //! and ahead of it, in the direction given, are served first, nearest
         //! first; those behind it after, in order of time. Without it they
-        //! are served in the order they were made.
+        //! are served in the order they were made. The readers hear it too,
+        //! and while the playhead is moving decode what can still reach the
+        //! screen; see IVideoRead::setPlayhead().
         TL_TIMELINE_API void setRequestPriority(
             const OTIO_NS::RationalTime&,
-            bool reverse = false);
+            bool reverse = false,
+            bool playing = false);
 
         //! Close the readers, which hold the decoders and what they have
         //! decoded. The next read opens them again, while the timeline
@@ -377,7 +380,8 @@ namespace tl
             const OTIO_NS::RationalTime&,
             const IOOptions&,
             std::string* path = nullptr,
-            std::shared_ptr<IVideoRead>* read = nullptr);
+            std::shared_ptr<IVideoRead>* read = nullptr,
+            OTIO_NS::RationalTime* mediaTime = nullptr);
         std::future<AudioData> _readAudio(
             const OTIO_NS::Clip*,
             const OTIO_NS::TimeRange&,

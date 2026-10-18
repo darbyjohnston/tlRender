@@ -225,6 +225,46 @@ namespace tl
             return out;
         }
 
+        //! Pop the pending request the function chooses from the list,
+        //! or return nullptr when it returns the list's end. Called by the
+        //! worker thread.
+        template<typename F>
+        std::shared_ptr<Request> pop(F choose)
+        {
+            std::unique_lock<std::mutex> lock(_condition._mutex);
+            std::shared_ptr<Request> out;
+            const std::list<std::shared_ptr<Request> >& requests = _requests;
+            const auto i = choose(requests);
+            if (i != requests.end())
+            {
+                out = *i;
+                _requests.erase(i);
+            }
+            return out;
+        }
+
+        //! Take the pending requests the function matches, for the worker
+        //! thread to complete.
+        template<typename F>
+        std::list<std::shared_ptr<Request> > popIf(F match)
+        {
+            std::unique_lock<std::mutex> lock(_condition._mutex);
+            std::list<std::shared_ptr<Request> > out;
+            auto i = _requests.begin();
+            while (i != _requests.end())
+            {
+                if (match(*i))
+                {
+                    out.splice(out.end(), _requests, i++);
+                }
+                else
+                {
+                    ++i;
+                }
+            }
+            return out;
+        }
+
         //! Pop all of the pending requests. Called by the worker thread.
         std::list<std::shared_ptr<Request> > popAll()
         {

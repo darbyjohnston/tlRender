@@ -295,7 +295,8 @@ namespace tl
         const OTIO_NS::RationalTime& time,
         const IOOptions& options,
         std::string* path,
-        std::shared_ptr<IVideoRead>* readOut)
+        std::shared_ptr<IVideoRead>* readOut,
+        OTIO_NS::RationalTime* mediaTimeOut)
     {
         FTK_P();
         std::future<VideoData> out;
@@ -350,6 +351,10 @@ namespace tl
                 timeRangeOpt.value(),
                 trimmedRange,
                 ioInfo.videoTime->duration().rate());
+            if (mediaTimeOut)
+            {
+                *mediaTimeOut = mediaTime;
+            }
             out = seq ?
                 p.submitRead(
                     [seq, mediaTime, optionsMerged]

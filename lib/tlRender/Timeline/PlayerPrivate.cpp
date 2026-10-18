@@ -400,6 +400,7 @@ namespace tl
     {
         return
             playback == other.playback &&
+            playing == other.playing &&
             currentTime == other.currentTime &&
             inOutRange == other.inOutRange &&
             compare == other.compare &&
@@ -564,13 +565,20 @@ namespace tl
                 {
                     request(time);
                 }
-                for (OTIO_NS::RationalTime time = std::max(
-                        videoCacheRange.start_time(),
-                        thread.state.inOutRange.start_time());
-                    time < current && !full();
-                    time += inc)
+                // Not while the clock runs: the reader would complete them
+                // empty, the playhead having passed them (see
+                // IVideoRead::setPlayhead()), and they would be asked for
+                // again on the next pass. Stopping asks for them.
+                if (!thread.state.playing)
                 {
-                    request(time);
+                    for (OTIO_NS::RationalTime time = std::max(
+                            videoCacheRange.start_time(),
+                            thread.state.inOutRange.start_time());
+                        time < current && !full();
+                        time += inc)
+                    {
+                        request(time);
+                    }
                 }
             }
             else
@@ -579,7 +587,8 @@ namespace tl
                     time <= videoCacheRange.end_time_inclusive() && !full();
                     time += inc)
                 {
-                    if (time > current && time > thread.state.inOutRange.end_time_inclusive())
+                    if (time > current &&
+                        (thread.state.playing || time > thread.state.inOutRange.end_time_inclusive()))
                     {
                         break;
                     }
@@ -699,7 +708,23 @@ namespace tl
                     videoFrame.time = time;
                     videoFrameList.emplace_back(videoFrame);
                 }
-                thread.videoCache[time] = videoFrameList;
+                // A frame a reader declined, the playhead having passed it
+                // while playing (see IVideoRead::setPlayhead()), is not
+                // what the file holds there: dropped rather than cached, and
+                // asked for again when it is wanted -- after a stop, or now
+                // if the playhead has since moved back before it.
+                bool declined = false;
+                for (const auto& videoFrame : videoFrameList)
+                {
+                    for (const auto& layer : videoFrame.layers)
+                    {
+                        declined |= layer.declined;
+                    }
+                }
+                if (!declined)
+                {
+                    thread.videoCache[time] = videoFrameList;
+                }
                 videoRequestsIt = thread.videoRequests.erase(videoRequestsIt);
                 out = true;
             }

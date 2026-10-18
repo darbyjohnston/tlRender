@@ -75,6 +75,7 @@ namespace tl
             TL_IO_API std::future<VideoData> readVideo(
                 const OTIO_NS::RationalTime&,
                 const IOOptions& = IOOptions()) override;
+            TL_IO_API void setPlayhead(const std::optional<Playhead>&) override;
             TL_IO_API void cancelRequests() override;
 
             TL_IO_API std::string getError() const override;

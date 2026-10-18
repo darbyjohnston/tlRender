@@ -61,6 +61,50 @@ namespace tl
             return out;
         }
 
+        //! The pixel format of an image, with the depth of its samples
+        //! taken into account: 10 and 12-bit video kept in 16-bit words
+        //! (ftk::ImageInfo::depth) has a format of its own, and read as
+        //! 16 bits it would come out near black.
+        AVPixelFormat fromImageInfo(ftk::ImageType type, int depth)
+        {
+            AVPixelFormat out = fromImageType(type);
+            switch (type)
+            {
+            case ftk::ImageType::YUV_420P_U16:
+                switch (depth)
+                {
+                case 9: out = AV_PIX_FMT_YUV420P9; break;
+                case 10: out = AV_PIX_FMT_YUV420P10; break;
+                case 12: out = AV_PIX_FMT_YUV420P12; break;
+                case 14: out = AV_PIX_FMT_YUV420P14; break;
+                default: break;
+                }
+                break;
+            case ftk::ImageType::YUV_422P_U16:
+                switch (depth)
+                {
+                case 9: out = AV_PIX_FMT_YUV422P9; break;
+                case 10: out = AV_PIX_FMT_YUV422P10; break;
+                case 12: out = AV_PIX_FMT_YUV422P12; break;
+                case 14: out = AV_PIX_FMT_YUV422P14; break;
+                default: break;
+                }
+                break;
+            case ftk::ImageType::YUV_444P_U16:
+                switch (depth)
+                {
+                case 9: out = AV_PIX_FMT_YUV444P9; break;
+                case 10: out = AV_PIX_FMT_YUV444P10; break;
+                case 12: out = AV_PIX_FMT_YUV444P12; break;
+                case 14: out = AV_PIX_FMT_YUV444P14; break;
+                default: break;
+                }
+                break;
+            default: break;
+            }
+            return out;
+        }
+
         //! An image type swscale will take as input, for one it will not.
         //!
         //! Only RGBA_F32 needs this. Of everything mapped above it is the
@@ -260,10 +304,10 @@ namespace tl
             p.swsContext = sws_getContext(
                 p.inputInfo.size.w,
                 p.inputInfo.size.h,
-                fromImageType(inputType),
+                fromImageInfo(inputType, inputType == p.inputInfo.type ? p.inputInfo.depth : 0),
                 p.outputInfo.size.w,
                 p.outputInfo.size.h,
-                fromImageType(p.outputInfo.type),
+                fromImageInfo(p.outputInfo.type, p.outputInfo.depth),
                 SWS_AREA,
                 nullptr,
                 nullptr,

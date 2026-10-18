@@ -235,6 +235,9 @@ namespace tl
                     return;
                 }
                 FTK_CHECK(ftk::ImageType::YUV_444P_U16 == data.image->getInfo().type);
+                // Kept as the 10-bit values the file holds, with the depth
+                // for the renderers to scale by.
+                FTK_CHECK(10 == data.image->getInfo().depth);
                 // The first plane is the luma, a row from the middle of it.
                 const uint16_t* plane = reinterpret_cast<const uint16_t*>(data.image->getData());
                 std::vector<int> row;
@@ -252,6 +255,8 @@ namespace tl
                 // Within one ten bit level of each other, at every level:
                 // a level is what white is, over the 940 it should be.
                 const double level = luma[0][255] / 940.0;
+                // Ten bit white, as the file has it.
+                FTK_CHECK(luma[0][255] >= 938 && luma[0][255] <= 942);
                 for (size_t i = 1; i < luma.size(); ++i)
                 {
                     int max = 0;

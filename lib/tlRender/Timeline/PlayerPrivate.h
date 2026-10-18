@@ -176,6 +176,9 @@ namespace tl
         struct PlaybackState
         {
             Playback playback = Playback::Stop;
+            //! Whether the clock is running: playing and not held for the
+            //! cache; see IVideoRead::setPlayhead().
+            bool playing = false;
             OTIO_NS::RationalTime currentTime;
             OTIO_NS::TimeRange inOutRange;
             std::vector<std::shared_ptr<Timeline> > compare;
@@ -242,6 +245,7 @@ namespace tl
             // Timeline::setRequestPriority().
             std::optional<OTIO_NS::RationalTime> requestPriorityTime;
             CacheDir requestPriorityDir = CacheDir::Forward;
+            bool requestPriorityPlaying = false;
             std::thread thread;
         };
         Thread thread;

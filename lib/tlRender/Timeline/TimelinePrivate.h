@@ -216,6 +216,10 @@ namespace tl
             // have queued; none for a sequence, which the pool decodes.
             std::shared_ptr<IVideoRead> read;
             std::shared_ptr<IVideoRead> readB;
+            // The readers' own times of the frames, for telling them where
+            // the playhead is in those times.
+            OTIO_NS::RationalTime mediaTime;
+            OTIO_NS::RationalTime mediaTimeB;
             std::string path;
             std::string pathB;
             std::optional<ftk::Box2F> bounds;
@@ -275,6 +279,9 @@ namespace tl
         {
             OTIO_NS::RationalTime time;
             bool reverse = false;
+            bool playing = false;
+
+            bool operator == (const RequestPriority&) const = default;
         };
 
         struct Mutex
@@ -309,6 +316,8 @@ namespace tl
         struct Thread
         {
             std::list<std::shared_ptr<PendingVideoRequest> > videoRequestsInProgress;
+            //! The priority last passed on to the readers.
+            std::optional<RequestPriority> readersPriority;
             std::list<std::shared_ptr<PendingAudioRequest> > audioRequestsInProgress;
             std::condition_variable cv;
             std::thread thread;

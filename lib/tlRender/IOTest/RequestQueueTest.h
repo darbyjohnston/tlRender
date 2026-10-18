@@ -25,6 +25,7 @@ namespace tl
             void _stopQueues();
             void _stopQueue();
             void _cancel();
+            void _choose();
             void _promiseGuard();
         };
     }

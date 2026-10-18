@@ -46,6 +46,7 @@ namespace tl
             _stopQueues();
             _stopQueue();
             _cancel();
+            _choose();
             _promiseGuard();
         }
 
@@ -195,6 +196,67 @@ namespace tl
             FTK_CHECK(popped == b);
             popped->promise.set_value(popped->in);
             FTK_CHECK(3 == bFuture.get());
+        }
+
+        void RequestQueueTest::_choose()
+        {
+            _print("Choose");
+            RequestCondition condition;
+            RequestQueue<IntRequest, int> queue(condition);
+            std::vector<std::future<int> > futures;
+            for (int i = 1; i <= 5; ++i)
+            {
+                auto request = std::make_shared<IntRequest>();
+                request->in = i;
+                futures.push_back(queue.push(request));
+            }
+            // The ones matched are taken out together, in order.
+            const auto odd = queue.popIf(
+                [](const std::shared_ptr<IntRequest>& request)
+                {
+                    return request->in % 2 == 1;
+                });
+            FTK_CHECK(3 == odd.size());
+            FTK_CHECK(2 == queue.size());
+            int expected = 1;
+            for (const auto& request : odd)
+            {
+                FTK_CHECK(expected == request->in);
+                request->promise.set_value(request->in);
+                expected += 2;
+            }
+            FTK_CHECK(1 == futures[0].get());
+            FTK_CHECK(5 == futures[4].get());
+            // The one chosen comes out from anywhere in the list, and the
+            // list's end chooses none.
+            auto popped = queue.pop(
+                [](const std::list<std::shared_ptr<IntRequest> >& requests)
+                {
+                    auto out = requests.end();
+                    for (auto i = requests.begin(); i != requests.end(); ++i)
+                    {
+                        if (4 == (*i)->in)
+                        {
+                            out = i;
+                        }
+                    }
+                    return out;
+                });
+            FTK_CHECK(popped && 4 == popped->in);
+            FTK_CHECK(1 == queue.size());
+            popped->promise.set_value(popped->in);
+            FTK_CHECK(4 == futures[3].get());
+            popped = queue.pop(
+                [](const std::list<std::shared_ptr<IntRequest> >& requests)
+                {
+                    return requests.end();
+                });
+            FTK_CHECK(!popped);
+            FTK_CHECK(1 == queue.size());
+            popped = queue.pop();
+            FTK_CHECK(popped && 2 == popped->in);
+            popped->promise.set_value(popped->in);
+            FTK_CHECK(2 == futures[1].get());
         }
 
         void RequestQueueTest::_promiseGuard()

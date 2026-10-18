@@ -5,6 +5,7 @@
 
 #include <ftk/Core/Format.h>
 #include <ftk/Core/LogSystem.h>
+#include <ftk/Core/OS.h>
 
 #include <nlohmann/json.hpp>
 
@@ -98,80 +99,76 @@ namespace tl
                 return AVRational{ 0, 1 };
             }
 
-            //! Whether the frames of one format can be made into the other
-            //! by widening each sample: planar YUV of 9, 10, 12 or 14 bits
-            //! in little-endian 16-bit words, to the same layout at 16
-            //! bits. swscale does this on one thread, whatever its thread
-            //! count -- the unscaled converters are not sliced -- and an
-            //! 8K 4:4:4 12-bit frame cost it thirty milliseconds, more than
-            //! the ten cores took to decode it. Done here instead, across
-            //! the cores.
-            bool canWiden(AVPixelFormat from, AVPixelFormat to)
+            //! Whether frames of one format are copied straight into images
+            //! of the other: the same format, and one laid out the way
+            //! ftk::Image has it -- packed 8-bit gray, RGB and RGBA, or
+            //! planar YUV without alpha in 8 or 16-bit words. The 10 and
+            //! 12-bit formats are among the latter, kept as decoded.
+            bool canCopy(AVPixelFormat in, AVPixelFormat out)
             {
-                const AVPixFmtDescriptor* a = av_pix_fmt_desc_get(from);
-                const AVPixFmtDescriptor* b = av_pix_fmt_desc_get(to);
-                return a && b &&
-                    (a->flags & AV_PIX_FMT_FLAG_PLANAR) &&
-                    (b->flags & AV_PIX_FMT_FLAG_PLANAR) &&
-                    !(a->flags & AV_PIX_FMT_FLAG_BE) &&
-                    !(b->flags & AV_PIX_FMT_FLAG_BE) &&
-                    !(a->flags & AV_PIX_FMT_FLAG_ALPHA) &&
-                    !(b->flags & AV_PIX_FMT_FLAG_ALPHA) &&
-                    !(a->flags & AV_PIX_FMT_FLAG_RGB) &&
-                    !(b->flags & AV_PIX_FMT_FLAG_RGB) &&
-                    3 == a->nb_components && 3 == b->nb_components &&
-                    a->log2_chroma_w == b->log2_chroma_w &&
-                    a->log2_chroma_h == b->log2_chroma_h &&
-                    a->comp[0].depth > 8 && a->comp[0].depth < 16 &&
-                    a->comp[0].step == 2 && b->comp[0].depth == 16;
-            }
-
-            //! Widen a frame's samples into 16 bits: the top bits repeated
-            //! into the bottom, so that zero and full scale map exactly.
-            //! The depth is a template argument so that the shifts are
-            //! constants and the loop vectorizes.
-            template<int Depth>
-            void widenRows(const uint16_t* src, uint16_t* dst, int count)
-            {
-                constexpr int up = 16 - Depth;
-                constexpr int down = Depth - up;
-                for (int x = 0; x < count; ++x)
+                bool r = false;
+                if (in == out)
                 {
-                    const uint16_t v = src[x];
-                    dst[x] = static_cast<uint16_t>((v << up) | (v >> down));
+                    r = AV_PIX_FMT_RGB24 == in ||
+                        AV_PIX_FMT_GRAY8 == in ||
+                        AV_PIX_FMT_RGBA  == in;
+                    if (!r)
+                    {
+                        const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(in);
+                        r = desc &&
+                            (desc->flags & AV_PIX_FMT_FLAG_PLANAR) &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_BE) &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_ALPHA) &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_RGB) &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_BITSTREAM) &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_PAL) &&
+                            3 == desc->nb_components &&
+                            (1 == desc->comp[0].step || 2 == desc->comp[0].step);
+                    }
                 }
+                return r;
             }
 
-            void widen(
+            //! Copy the planes of a frame into an image, the rows shared out
+            //! among the cores when there is enough to share: an 8K 4:4:4
+            //! 12-bit frame is 190 MB, ten milliseconds for one core, half
+            //! of a frame at 48 frames a second. (swscale would make the
+            //! same copy on one thread whatever its thread count: its
+            //! unscaled converters are not sliced.)
+            void copyPlanes(
                 const AVFrame* frame,
-                const AVPixFmtDescriptor* desc,
-                uint8_t* const* dstData,
-                const int* dstLinesize,
+                uint8_t* data,
+                AVPixelFormat format,
                 int w,
                 int h)
             {
+                const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(format);
+                uint8_t* dstData[4] = { nullptr, nullptr, nullptr, nullptr };
+                int dstLinesize[4] = { 0, 0, 0, 0 };
+                av_image_fill_arrays(dstData, dstLinesize, data, format, w, h, 1);
                 struct Plane
                 {
                     const uint8_t* src;
                     int srcLinesize;
                     uint8_t* dst;
                     int dstLinesize;
-                    int w;
+                    int bytes;
                     int h;
                 };
                 std::vector<Plane> planes;
                 int rowsTotal = 0;
+                size_t bytesTotal = 0;
                 for (int p = 0; p < 3; ++p)
                 {
                     const int pw = p ? AV_CEIL_RSHIFT(w, desc->log2_chroma_w) : w;
                     const int ph = p ? AV_CEIL_RSHIFT(h, desc->log2_chroma_h) : h;
-                    planes.push_back({ frame->data[p], frame->linesize[p], dstData[p], dstLinesize[p], pw, ph });
+                    const int bytes = pw * desc->comp[0].step;
+                    planes.push_back({ frame->data[p], frame->linesize[p], dstData[p], dstLinesize[p], bytes, ph });
                     rowsTotal += ph;
+                    bytesTotal += static_cast<size_t>(bytes) * ph;
                 }
-                const int depth = desc->comp[0].depth;
-                // The rows of all three planes, numbered through, shared out
-                // among the cores in one set of threads per frame.
-                const auto work = [&planes, depth](int r0, int r1)
+                // The rows of all three planes, numbered through.
+                const auto work = [&planes](int r0, int r1)
                 {
                     int base = 0;
                     for (const Plane& pl : planes)
@@ -180,21 +177,20 @@ namespace tl
                         const int y1 = std::min(r1, base + pl.h) - base;
                         for (int y = y0; y < y1; ++y)
                         {
-                            const uint16_t* src = reinterpret_cast<const uint16_t*>(pl.src + pl.srcLinesize * y);
-                            uint16_t* dst = reinterpret_cast<uint16_t*>(pl.dst + pl.dstLinesize * y);
-                            switch (depth)
-                            {
-                            case 9: widenRows<9>(src, dst, pl.w); break;
-                            case 10: widenRows<10>(src, dst, pl.w); break;
-                            case 12: widenRows<12>(src, dst, pl.w); break;
-                            case 14: widenRows<14>(src, dst, pl.w); break;
-                            default: break;
-                            }
+                            std::memcpy(
+                                pl.dst + static_cast<ptrdiff_t>(pl.dstLinesize) * y,
+                                pl.src + static_cast<ptrdiff_t>(pl.srcLinesize) * y,
+                                pl.bytes);
                         }
                         base += pl.h;
                     }
                 };
-                const int threadCount = std::max(1, std::min(16, static_cast<int>(std::thread::hardware_concurrency())));
+                // A thread for every 8 MB, so that a 1080p frame is copied
+                // here without starting any.
+                const int threadCount = std::max(1, std::min({
+                    16,
+                    static_cast<int>(std::thread::hardware_concurrency()),
+                    static_cast<int>(bytesTotal / (8 * 1024 * 1024)) }));
                 const int chunk = std::max(1, (rowsTotal + threadCount - 1) / threadCount);
                 std::vector<std::thread> threads;
                 for (int r0 = chunk; r0 < rowsTotal; r0 += chunk)
@@ -413,6 +409,30 @@ namespace tl
                     _info.layout.mirror.y = true;
 
                     _avInputPixelFormat = static_cast<AVPixelFormat>(_avCodecParameters[_avStream]->format);
+                    // Planar 10 and 12-bit frames are kept as decoded, the
+                    // values in the low bits of 16-bit words with the depth
+                    // in the image information (ftk::ImageInfo::depth) for
+                    // the renderers to scale by, so that the copy out of the
+                    // decoder is a plain copy. (Widening 8K 4:4:4 12-bit
+                    // frames cost as much as decoding them.) Big-endian
+                    // frames, rare in files, are still converted to 16-bit
+                    // little-endian.
+                    const auto keepPlanar = [this](AVPixelFormat p16le, ftk::ImageType type)
+                    {
+                        const AVPixFmtDescriptor* desc = av_pix_fmt_desc_get(_avInputPixelFormat);
+                        if (desc &&
+                            !(desc->flags & AV_PIX_FMT_FLAG_BE) &&
+                            desc->comp[0].depth < 16)
+                        {
+                            _avOutputPixelFormat = _avInputPixelFormat;
+                            _info.depth = desc->comp[0].depth;
+                        }
+                        else
+                        {
+                            _avOutputPixelFormat = p16le;
+                        }
+                        _info.type = type;
+                    };
                     switch (_avInputPixelFormat)
                     {
                     case AV_PIX_FMT_RGB24:
@@ -476,10 +496,7 @@ namespace tl
                         }
                         else
                         {
-                            //! \todo Use the _info.layout.endian field instead of
-                            //! converting endianness.
-                            _avOutputPixelFormat = AV_PIX_FMT_YUV420P16LE;
-                            _info.type = ftk::ImageType::YUV_420P_U16;
+                            keepPlanar(AV_PIX_FMT_YUV420P16LE, ftk::ImageType::YUV_420P_U16);
                         }
                         break;
                     case AV_PIX_FMT_YUV422P10BE:
@@ -495,10 +512,7 @@ namespace tl
                         }
                         else
                         {
-                            //! \todo Use the _info.layout.endian field instead of
-                            //! converting endianness.
-                            _avOutputPixelFormat = AV_PIX_FMT_YUV422P16LE;
-                            _info.type = ftk::ImageType::YUV_422P_U16;
+                            keepPlanar(AV_PIX_FMT_YUV422P16LE, ftk::ImageType::YUV_422P_U16);
                         }
                         break;
                     case AV_PIX_FMT_YUV444P10BE:
@@ -514,10 +528,7 @@ namespace tl
                         }
                         else
                         {
-                            //! \todo Use the _info.layout.endian field instead of
-                            //! converting endianness.
-                            _avOutputPixelFormat = AV_PIX_FMT_YUV444P16LE;
-                            _info.type = ftk::ImageType::YUV_444P_U16;
+                            keepPlanar(AV_PIX_FMT_YUV444P16LE, ftk::ImageType::YUV_444P_U16);
                         }
                         break;
                     case AV_PIX_FMT_GBRP:
@@ -792,6 +803,7 @@ namespace tl
 
         void ReadVideo::_close()
         {
+            _stopPacketThread();
             if (_swsContext)
             {
                 sws_freeContext(_swsContext);
@@ -865,14 +877,6 @@ namespace tl
                 return name ? name : "unknown";
             }
 
-            bool canCopy(AVPixelFormat in, AVPixelFormat out)
-            {
-                return in == out &&
-                    (AV_PIX_FMT_RGB24   == in ||
-                     AV_PIX_FMT_GRAY8   == in ||
-                     AV_PIX_FMT_RGBA    == in ||
-                     AV_PIX_FMT_YUV420P == in);
-            }
         }
 
         void ReadVideo::start()
@@ -909,7 +913,131 @@ namespace tl
                         _initSws(_avInputPixelFormat);
                     }
                 }
+
+                _startPacketThread();
             }
+        }
+
+        namespace
+        {
+            //! How many packets are read ahead: one is being decoded while
+            //! the next is read, and a couple more cover a slow read.
+            constexpr size_t packetsAhead = 4;
+        }
+
+        void ReadVideo::_startPacketThread()
+        {
+            _packets.thread = std::thread(
+                [this]
+                {
+                    ftk::setCurrentThreadName("tl:ffmpeg-packets");
+                    while (true)
+                    {
+                        std::unique_lock<std::mutex> lock(_packets.mutex);
+                        _packets.cv.wait(
+                            lock,
+                            [this]
+                            {
+                                return
+                                    _packets.stop ||
+                                    (!_packets.pause &&
+                                        0 == _packets.error &&
+                                        _packets.packets.size() < packetsAhead);
+                            });
+                        if (_packets.stop)
+                        {
+                            break;
+                        }
+                        _packets.idle = false;
+                        lock.unlock();
+                        AVPacket* packet = av_packet_alloc();
+                        const int r = av_read_frame(_avFormatContext, packet);
+                        lock.lock();
+                        _packets.idle = true;
+                        if (_packets.pause)
+                        {
+                            // A seek came in during the read: the packet is
+                            // from before it.
+                            av_packet_free(&packet);
+                        }
+                        else if (r < 0)
+                        {
+                            av_packet_free(&packet);
+                            _packets.error = r;
+                        }
+                        else
+                        {
+                            _packets.packets.push_back(packet);
+                        }
+                        _packets.cv.notify_all();
+                    }
+                });
+        }
+
+        void ReadVideo::_stopPacketThread()
+        {
+            if (_packets.thread.joinable())
+            {
+                {
+                    std::unique_lock<std::mutex> lock(_packets.mutex);
+                    _packets.stop = true;
+                }
+                _packets.cv.notify_all();
+                _packets.thread.join();
+            }
+            for (AVPacket* packet : _packets.packets)
+            {
+                av_packet_free(&packet);
+            }
+            _packets.packets.clear();
+        }
+
+        int ReadVideo::_readPacket(AVPacket* out)
+        {
+            int r = 0;
+            std::unique_lock<std::mutex> lock(_packets.mutex);
+            _packets.cv.wait(
+                lock,
+                [this]
+                {
+                    return !_packets.packets.empty() || 0 != _packets.error;
+                });
+            if (!_packets.packets.empty())
+            {
+                AVPacket* packet = _packets.packets.front();
+                _packets.packets.pop_front();
+                av_packet_move_ref(out, packet);
+                av_packet_free(&packet);
+                lock.unlock();
+                _packets.cv.notify_all();
+            }
+            else
+            {
+                r = _packets.error;
+            }
+            return r;
+        }
+
+        int ReadVideo::_seekFormat(int64_t timestamp, int flags)
+        {
+            {
+                std::unique_lock<std::mutex> lock(_packets.mutex);
+                _packets.pause = true;
+                _packets.cv.wait(lock, [this] { return _packets.idle; });
+                for (AVPacket* packet : _packets.packets)
+                {
+                    av_packet_free(&packet);
+                }
+                _packets.packets.clear();
+                _packets.error = 0;
+            }
+            const int r = av_seek_frame(_avFormatContext, _avStream, timestamp, flags);
+            {
+                std::unique_lock<std::mutex> lock(_packets.mutex);
+                _packets.pause = false;
+            }
+            _packets.cv.notify_all();
+            return r;
         }
 
         void ReadVideo::_log(const std::string& message, ftk::LogType type) const
@@ -1324,11 +1452,7 @@ namespace tl
                         }
                     }
                     avcodec_flush_buffers(_avCodecContext[_avStream]);
-                    const int seekError = av_seek_frame(
-                        _avFormatContext,
-                        _avStream,
-                        seekTimestamp,
-                        AVSEEK_FLAG_BACKWARD);
+                    const int seekError = _seekFormat(seekTimestamp, AVSEEK_FLAG_BACKWARD);
                     if (seekError < 0)
                     {
                         _setError(seekError);
@@ -1373,7 +1497,7 @@ namespace tl
                 {
                     if (!_eof)
                     {
-                        decoding = av_read_frame(_avFormatContext, packet.p);
+                        decoding = _readPacket(packet.p);
                         if (AVERROR_EOF == decoding)
                         {
                             _eof = true;
@@ -1624,11 +1748,7 @@ namespace tl
                             if (entry && (entry->flags & AVINDEX_KEYFRAME))
                             {
                                 avcodec_flush_buffers(_avCodecContext[_avStream]);
-                                if (av_seek_frame(
-                                    _avFormatContext,
-                                    _avStream,
-                                    entry->timestamp,
-                                    AVSEEK_FLAG_BACKWARD) >= 0)
+                                if (_seekFormat(entry->timestamp, AVSEEK_FLAG_BACKWARD) >= 0)
                                 {
                                     _seekKeyframe = i;
                                     _seekWalk = true;
@@ -1770,59 +1890,10 @@ namespace tl
                             w * 4);
                     }
                     break;
-                case AV_PIX_FMT_YUV420P:
-                {
-                    const std::size_t w2 = w / 2;
-                    const std::size_t h2 = h / 2;
-                    const uint8_t* const data1 = frame->data[1];
-                    const uint8_t* const data2 = frame->data[2];
-                    const int linesize1 = frame->linesize[1];
-                    const int linesize2 = frame->linesize[2];
-                    for (std::size_t i = 0; i < h; ++i)
-                    {
-                        std::memcpy(
-                            data + w * i,
-                            data0 + linesize0 * i,
-                            w);
-                    }
-                    for (std::size_t i = 0; i < h2; ++i)
-                    {
-                        std::memcpy(
-                            data + (w * h) + w2 * i,
-                            data1 + linesize1 * i,
-                            w2);
-                        std::memcpy(
-                            data + (w * h) + (w2 * h2) + w2 * i,
-                            data2 + linesize2 * i,
-                            w2);
-                    }
+                default:
+                    copyPlanes(frame, data, frameFormat, w, h);
                     break;
                 }
-                default: break;
-                }
-            }
-            else if (canWiden(frameFormat, _avOutputPixelFormat))
-            {
-                if (!_avFrame2)
-                {
-                    _initFrame2();
-                }
-                av_image_fill_arrays(
-                    _avFrame2->data,
-                    _avFrame2->linesize,
-                    data,
-                    _avOutputPixelFormat,
-                    w,
-                    h,
-                    1);
-                if (!_widenLogged)
-                {
-                    _widenLogged = true;
-                    _log(ftk::Format("Samples widened to 16 bits from {0} across the cores: \"{1}\"").
-                        arg(av_pix_fmt_desc_get(frameFormat)->comp[0].depth).
-                        arg(_fileName));
-                }
-                widen(frame, av_pix_fmt_desc_get(frameFormat), _avFrame2->data, _avFrame2->linesize, w, h);
             }
             else
             {

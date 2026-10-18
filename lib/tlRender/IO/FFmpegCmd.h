@@ -72,6 +72,7 @@ namespace tl
                 const OTIO_NS::RationalTime&,
                 const IOOptions& = IOOptions()) override;
             TL_IO_API std::string getError() const override;
+            TL_IO_API size_t getErrorCount() const override;
             TL_IO_API void cancelRequests() override;
 
         private:
@@ -113,6 +114,7 @@ namespace tl
                 const OTIO_NS::TimeRange&,
                 const IOOptions& = IOOptions()) override;
             TL_IO_API std::string getError() const override;
+            TL_IO_API size_t getErrorCount() const override;
             TL_IO_API void cancelRequests() override;
 
         private:

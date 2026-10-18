@@ -152,7 +152,6 @@ namespace tl
             AVFrame* _swFrame = nullptr;
             bool _hwAccel = false;
             bool _hwLogged = false;
-            bool _widenLogged = false;
             bool _textures = false;
             //! After a seek, the frames between the keyframe and the one
             //! asked for are decoded only to be thrown away: the ones no
@@ -190,6 +189,34 @@ namespace tl
             bool _eof = false;
             size_t _errorCount = 0;
             std::string _errorString;
+
+            //! Packets read ahead of the decoder on a thread of their own,
+            //! so that the file is not read in the decoder's time: a 29 MB
+            //! 8K DNxHR packet took the decoding thread five to seven
+            //! milliseconds from the page cache, a fifth of the frame, and
+            //! a file on a network share waits longer. The thread owns
+            //! av_read_frame() on the format context; a seek pauses it and
+            //! drops what it read (see _seekFormat()), and the decoder
+            //! takes packets from the queue (see _readPacket()).
+            struct PacketThread
+            {
+                std::thread thread;
+                std::mutex mutex;
+                std::condition_variable cv;
+                std::list<AVPacket*> packets;
+                //! AVERROR_EOF, or an error, once reading has stopped.
+                int error = 0;
+                //! A seek wants the format context.
+                bool pause = false;
+                //! The thread is between reads.
+                bool idle = true;
+                bool stop = false;
+            };
+            PacketThread _packets;
+            void _startPacketThread();
+            void _stopPacketThread();
+            int _readPacket(AVPacket*);
+            int _seekFormat(int64_t timestamp, int flags);
         };
 
         class ReadAudio
@@ -303,9 +330,16 @@ namespace tl
             RequestQueue<InfoRequest, IOInfo> infoRequests{ condition };
             RequestQueue<VideoRequest, VideoData> videoRequests{ condition };
 
+            //! See setPlayhead().
+            std::mutex playheadMutex;
+            std::optional<Playhead> playhead;
+
             std::thread thread;
             // Only accessed from the thread above.
             OTIO_NS::RationalTime currentTime;
+            //! How long a request takes, smoothed, for the frames skipped
+            //! ahead to while the playhead is moving; see _run().
+            double requestSeconds = 0.0;
 
             ErrorMutex errorMutex;
         };

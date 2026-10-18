@@ -68,6 +68,11 @@ namespace tl
         //! The frame repeated in place of it, when there was one to repeat.
         std::optional<int64_t>      heldFrom;
 
+        //! Whether a reader declined the frame, the playhead having passed
+        //! it while playing; see IVideoRead::setPlayhead(). The player
+        //! drops such a frame rather than caching it.
+        bool                        declined        = false;
+
         bool operator == (const VideoLayer&) const = default;
     };
 

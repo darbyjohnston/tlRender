@@ -9,6 +9,7 @@
 #include <ftk/Core/OS.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 
 extern "C"
@@ -298,6 +299,13 @@ namespace tl
             return p.videoRequests.push(request);
         }
 
+        void VideoRead::setPlayhead(const std::optional<Playhead>& value)
+        {
+            FTK_P();
+            std::unique_lock<std::mutex> lock(p.playheadMutex);
+            p.playhead = value;
+        }
+
         void VideoRead::cancelRequests()
         {
             FTK_P();
@@ -349,7 +357,70 @@ namespace tl
 
                 // Video request. The guard completes the promise if an
                 // exception escapes; see PromiseGuard.
-                if (auto videoRequest = p.videoRequests.pop())
+                std::optional<Playhead> playhead;
+                {
+                    std::unique_lock<std::mutex> lock(p.playheadMutex);
+                    playhead = p.playhead;
+                }
+                std::shared_ptr<Private::VideoRequest> videoRequest;
+                if (playhead.has_value() && playhead->playing)
+                {
+                    // The playhead is moving. The frames it has passed are
+                    // declined rather than decoded (VideoData::declined; the
+                    // player drops them and asks again when it wants them),
+                    // and the next frame decoded is the first in line that
+                    // can still reach the screen, by the request time
+                    // measured below; failing that, the furthest ahead. A
+                    // reader slower than the playhead otherwise decoded
+                    // every frame just after it was needed, and one frame in
+                    // three of what it decoded was seen.
+                    const double rate = videoTime.duration().rate();
+                    const auto ahead = [&playhead, rate](const OTIO_NS::RationalTime& time)
+                    {
+                        const double d =
+                            time.rescaled_to(rate).value() -
+                            playhead->time.rescaled_to(rate).value();
+                        return playhead->reverse ? -d : d;
+                    };
+                    for (const auto& request : p.videoRequests.popIf(
+                        [&ahead](const std::shared_ptr<Private::VideoRequest>& request)
+                        {
+                            return ahead(request->time) < 0.0;
+                        }))
+                    {
+                        VideoData data;
+                        data.time = request->time;
+                        data.declined = true;
+                        request->promise.set_value(std::move(data));
+                    }
+                    const double margin = std::ceil(p.requestSeconds * rate + .5);
+                    videoRequest = p.videoRequests.pop(
+                        [&ahead, margin](const std::list<std::shared_ptr<Private::VideoRequest> >& requests)
+                        {
+                            auto out = requests.end();
+                            double furthest = -1.0;
+                            for (auto i = requests.begin(); i != requests.end(); ++i)
+                            {
+                                const double a = ahead((*i)->time);
+                                if (a >= margin)
+                                {
+                                    out = i;
+                                    break;
+                                }
+                                if (a > furthest)
+                                {
+                                    furthest = a;
+                                    out = i;
+                                }
+                            }
+                            return out;
+                        });
+                }
+                else
+                {
+                    videoRequest = p.videoRequests.pop();
+                }
+                if (videoRequest)
                 {
                     PromiseGuard<VideoData> guard(videoRequest->promise);
                     lastRequest = std::chrono::steady_clock::now();
@@ -387,6 +458,12 @@ namespace tl
                     data.time = videoRequest->time;
                     data.image = p.readVideo->frameFor(p.currentTime);
                     guard.setValue(std::move(data));
+
+                    const double seconds = std::chrono::duration<double>(
+                        std::chrono::steady_clock::now() - lastRequest).count();
+                    p.requestSeconds = p.requestSeconds > 0.0 ?
+                        p.requestSeconds * .8 + seconds * .2 :
+                        seconds;
 
                     p.currentTime += OTIO_NS::RationalTime(1.0, videoTime.duration().rate());
                 }

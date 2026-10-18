@@ -22,6 +22,19 @@
 
 namespace tl
 {
+    namespace
+    {
+        //! The image buffer pool's maximum for a cache: the cache, plus an
+        //! eighth for the frames in flight. With the cache full, the frame
+        //! the reader is decoding is alive before the one it displaces is
+        //! freed, so a pool bounded by the cache alone kept nothing while
+        //! playing, and every 8K frame (190 MB) was mapped and faulted in
+        //! afresh: a third of the reader's time.
+        size_t getBufferPoolMax(const PlayerCacheOptions& value)
+        {
+            return static_cast<size_t>(value.videoGB * ftk::gigabyte * 9.0 / 8.0);
+        }
+    }
 
     FTK_ENUM_IMPL(
         Playback,
@@ -140,7 +153,7 @@ namespace tl
         // The image buffer pool keeps the room the video cache gives up, for
         // the cache to fill again, rather than freeing and allocating it:
         // after a seek the whole cache goes at once.
-        ftk::Image::setBufferPoolMax(static_cast<size_t>(playerOptions.cache.videoGB * ftk::gigabyte));
+        ftk::Image::setBufferPoolMax(getBufferPoolMax(playerOptions.cache));
         p.cacheInfo = ftk::Observable<PlayerCacheInfo>::create();
         p.droppedFrames = ftk::Observable<size_t>::create(0);
         p.buffering = ftk::Observable<bool>::create(false);
@@ -466,6 +479,8 @@ namespace tl
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.state.playback = value;
+                    // The tick decides whether the clock runs or is held.
+                    p.mutex.state.playing = false;
                     p.mutex.state.currentTime = p.currentTime->get();
                     p.mutex.clearRequests = true;
                     p.mutex.cacheDir = Playback::Forward == value ?
@@ -504,6 +519,7 @@ namespace tl
                 {
                     std::unique_lock<std::mutex> lock(p.mutex.mutex);
                     p.mutex.state.playback = value;
+                    p.mutex.state.playing = false;
                     p.mutex.clearRequests = true;
                 }
                 {
@@ -999,7 +1015,7 @@ namespace tl
         FTK_P();
         if (p.cacheOptions->setIfChanged(value))
         {
-            ftk::Image::setBufferPoolMax(static_cast<size_t>(value.videoGB * ftk::gigabyte));
+            ftk::Image::setBufferPoolMax(getBufferPoolMax(value));
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.state.cacheOptions = value;
         }
@@ -1229,6 +1245,9 @@ namespace tl
         {
             std::unique_lock<std::mutex> lock(p.mutex.mutex);
             p.mutex.state.currentTime = p.currentTime->get();
+            p.mutex.state.playing =
+                p.playback->get() != Playback::Stop &&
+                !p.buffering->get();
             currentVideoFrame = p.mutex.currentVideoFrame;
             currentAudioFrame = p.mutex.currentAudioFrame;
             cacheInfo = p.mutex.cacheInfo;
@@ -1281,12 +1300,14 @@ namespace tl
             // the frames it reaches first.
             if (!p.thread.requestPriorityTime.has_value() ||
                 !p.thread.requestPriorityTime->strictly_equal(state.currentTime) ||
-                p.thread.requestPriorityDir != cacheDir)
+                p.thread.requestPriorityDir != cacheDir ||
+                p.thread.requestPriorityPlaying != state.playing)
             {
                 p.thread.requestPriorityTime = state.currentTime;
                 p.thread.requestPriorityDir = cacheDir;
+                p.thread.requestPriorityPlaying = state.playing;
                 const bool reverse = CacheDir::Reverse == cacheDir;
-                p.timeline->setRequestPriority(state.currentTime, reverse);
+                p.timeline->setRequestPriority(state.currentTime, reverse, state.playing);
                 for (const auto& compare : state.compare)
                 {
                     compare->setRequestPriority(
@@ -1295,7 +1316,8 @@ namespace tl
                             p.timeRange,
                             compare->getTimeRange(),
                             state.compareTime),
-                        reverse);
+                        reverse,
+                        state.playing);
                 }
             }
 

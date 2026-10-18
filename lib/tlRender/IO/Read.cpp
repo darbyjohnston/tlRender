@@ -36,6 +36,9 @@ namespace tl
     IVideoRead::~IVideoRead()
     {}
 
+    void IVideoRead::setPlayhead(const std::optional<Playhead>&)
+    {}
+
     IAudioRead::~IAudioRead()
     {}
 

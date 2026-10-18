@@ -380,10 +380,15 @@ namespace tl
                     ftk::ImageType::YUV_422P_U16 == type ||
                     ftk::ImageType::YUV_444P_U16 == type ||
                     ftk::ImageType::YUV_420SP_U16 == type;
+                // The 16-bit types also as 12-bit values in 16-bit words,
+                // the way a 12-bit file is read: the same code values,
+                // over 4095 rather than 65535, with the depth set.
+                for (const int depth : u16 ? std::vector<int>{ 0, 12 } : std::vector<int>{ 0 })
                 for (const auto& level : levels)
                 {
                     ftk::ImageInfo info(size, type);
                     info.videoLevels = level.levels;
+                    info.depth = depth;
                     auto image = ftk::Image::create(info);
                     // The luma plane, then the chroma, whichever way the
                     // chroma is laid out: it is all the same value.
@@ -396,9 +401,10 @@ namespace tl
                         const int y = 255 == level.y && ftk::VideoLevels::FullRange == level.levels ?
                             65535 :
                             level.y * 256;
+                        const int shift = depth ? 16 - depth : 0;
                         for (size_t i = 0; i < count; ++i)
                         {
-                            p[i] = i < lumaCount ? y : level.c * 256;
+                            p[i] = (i < lumaCount ? y : level.c * 256) >> shift;
                         }
                     }
                     else
@@ -426,14 +432,15 @@ namespace tl
                     glPixelStorei(GL_PACK_ALIGNMENT, 1);
                     glReadPixels(0, 0, size.w, size.h, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
                     const uint8_t* rgb = pixels.data() + ((size.h / 2) * size.w + size.w / 2) * 4;
-                    _print(ftk::Format("YUV levels, {0} {1}, Y {2}: {3} {4} {5}, expected {6}").
+                    _print(ftk::Format("YUV levels, {0} {1} depth {7}, Y {2}: {3} {4} {5}, expected {6}").
                         arg(type).
                         arg(level.levels).
                         arg(level.y).
                         arg(static_cast<int>(rgb[0])).
                         arg(static_cast<int>(rgb[1])).
                         arg(static_cast<int>(rgb[2])).
-                        arg(static_cast<int>(level.rgb)));
+                        arg(static_cast<int>(level.rgb)).
+                        arg(depth));
                     for (int i = 0; i < 3; ++i)
                     {
                         FTK_CHECK(level.rgb == rgb[i]);
