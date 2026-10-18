@@ -256,6 +256,11 @@ namespace tl
             size_t _planeByteCount = 0;
             bool _flushed = false;
             std::list<std::shared_ptr<Audio> > _buffer;
+            //! The samples in the buffer, kept as it changes: counted
+            //! from the list each time it was asked, a request for a long
+            //! range -- a waveform of a whole film -- went quadratic in
+            //! the hundreds of thousands of decoded packets it holds.
+            size_t _bufferSampleCount = 0;
             bool _eof = false;
             size_t _errorCount = 0;
             std::string _errorString;

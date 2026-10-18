@@ -454,6 +454,7 @@ namespace tl
                 plane.clear();
             }
             _buffer.clear();
+            _bufferSampleCount = 0;
             _eof = false;
             _flushed = false;
         }
@@ -482,8 +483,7 @@ namespace tl
             size_t sampleCount)
         {
             bool out = false;
-            const size_t bufferSampleCount = getSampleCount(_buffer);
-            if (_avStream != -1 && bufferSampleCount < sampleCount)
+            if (_avStream != -1 && _bufferSampleCount < sampleCount)
             {
                 Packet packet;
                 int decoding = 0;
@@ -542,13 +542,13 @@ namespace tl
                         }
                         else if (AVERROR_EOF == decoding)
                         {
-                            const size_t bufferSize = getSampleCount(_buffer);
                             const size_t bufferMax = _options.audioBufferSize.rescaled_to(_info.sampleRate).value();
-                            if (bufferSize < bufferMax)
+                            if (_bufferSampleCount < bufferMax)
                             {
-                                auto audio = Audio::create(_info, bufferMax - bufferSize);
+                                auto audio = Audio::create(_info, bufferMax - _bufferSampleCount);
                                 audio->zero();
                                 _buffer.push_back(audio);
+                                _bufferSampleCount += audio->getSampleCount();
                             }
                             break;
                         }
@@ -578,12 +578,14 @@ namespace tl
 
         size_t ReadAudio::getBufferSize() const
         {
-            return getSampleCount(_buffer);
+            return _bufferSampleCount;
         }
 
         void ReadAudio::bufferCopy(uint8_t* out, size_t sampleCount)
         {
+            // moveAudio() takes the samples asked for, or all there are.
             moveAudio(_buffer, out, sampleCount);
+            _bufferSampleCount -= std::min(sampleCount, _bufferSampleCount);
         }
 
         namespace
@@ -673,6 +675,7 @@ namespace tl
                 auto tmp = Audio::create(_info, swrOutputCount > 0 ? swrOutputCount : 0);
                 memcpy(tmp->getData(), swrOutputBuffer->getData(), tmp->getByteCount());
                 _buffer.push_back(tmp);
+                _bufferSampleCount += tmp->getSampleCount();
                 for (auto& plane : _planes)
                 {
                     plane.erase(plane.begin(), plane.begin() + sampleCount * _planeByteCount);
