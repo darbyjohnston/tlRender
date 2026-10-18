@@ -26,6 +26,7 @@ extern "C"
 
 #include <algorithm>
 #include <cmath>
+#include <thread>
 
 namespace tl
 {
@@ -95,6 +96,117 @@ namespace tl
                     }
                 }
                 return AVRational{ 0, 1 };
+            }
+
+            //! Whether the frames of one format can be made into the other
+            //! by widening each sample: planar YUV of 9, 10, 12 or 14 bits
+            //! in little-endian 16-bit words, to the same layout at 16
+            //! bits. swscale does this on one thread, whatever its thread
+            //! count -- the unscaled converters are not sliced -- and an
+            //! 8K 4:4:4 12-bit frame cost it thirty milliseconds, more than
+            //! the ten cores took to decode it. Done here instead, across
+            //! the cores.
+            bool canWiden(AVPixelFormat from, AVPixelFormat to)
+            {
+                const AVPixFmtDescriptor* a = av_pix_fmt_desc_get(from);
+                const AVPixFmtDescriptor* b = av_pix_fmt_desc_get(to);
+                return a && b &&
+                    (a->flags & AV_PIX_FMT_FLAG_PLANAR) &&
+                    (b->flags & AV_PIX_FMT_FLAG_PLANAR) &&
+                    !(a->flags & AV_PIX_FMT_FLAG_BE) &&
+                    !(b->flags & AV_PIX_FMT_FLAG_BE) &&
+                    !(a->flags & AV_PIX_FMT_FLAG_ALPHA) &&
+                    !(b->flags & AV_PIX_FMT_FLAG_ALPHA) &&
+                    !(a->flags & AV_PIX_FMT_FLAG_RGB) &&
+                    !(b->flags & AV_PIX_FMT_FLAG_RGB) &&
+                    3 == a->nb_components && 3 == b->nb_components &&
+                    a->log2_chroma_w == b->log2_chroma_w &&
+                    a->log2_chroma_h == b->log2_chroma_h &&
+                    a->comp[0].depth > 8 && a->comp[0].depth < 16 &&
+                    a->comp[0].step == 2 && b->comp[0].depth == 16;
+            }
+
+            //! Widen a frame's samples into 16 bits: the top bits repeated
+            //! into the bottom, so that zero and full scale map exactly.
+            //! The depth is a template argument so that the shifts are
+            //! constants and the loop vectorizes.
+            template<int Depth>
+            void widenRows(const uint16_t* src, uint16_t* dst, int count)
+            {
+                constexpr int up = 16 - Depth;
+                constexpr int down = Depth - up;
+                for (int x = 0; x < count; ++x)
+                {
+                    const uint16_t v = src[x];
+                    dst[x] = static_cast<uint16_t>((v << up) | (v >> down));
+                }
+            }
+
+            void widen(
+                const AVFrame* frame,
+                const AVPixFmtDescriptor* desc,
+                uint8_t* const* dstData,
+                const int* dstLinesize,
+                int w,
+                int h)
+            {
+                struct Plane
+                {
+                    const uint8_t* src;
+                    int srcLinesize;
+                    uint8_t* dst;
+                    int dstLinesize;
+                    int w;
+                    int h;
+                };
+                std::vector<Plane> planes;
+                int rowsTotal = 0;
+                for (int p = 0; p < 3; ++p)
+                {
+                    const int pw = p ? AV_CEIL_RSHIFT(w, desc->log2_chroma_w) : w;
+                    const int ph = p ? AV_CEIL_RSHIFT(h, desc->log2_chroma_h) : h;
+                    planes.push_back({ frame->data[p], frame->linesize[p], dstData[p], dstLinesize[p], pw, ph });
+                    rowsTotal += ph;
+                }
+                const int depth = desc->comp[0].depth;
+                // The rows of all three planes, numbered through, shared out
+                // among the cores in one set of threads per frame.
+                const auto work = [&planes, depth](int r0, int r1)
+                {
+                    int base = 0;
+                    for (const Plane& pl : planes)
+                    {
+                        const int y0 = std::max(r0, base) - base;
+                        const int y1 = std::min(r1, base + pl.h) - base;
+                        for (int y = y0; y < y1; ++y)
+                        {
+                            const uint16_t* src = reinterpret_cast<const uint16_t*>(pl.src + pl.srcLinesize * y);
+                            uint16_t* dst = reinterpret_cast<uint16_t*>(pl.dst + pl.dstLinesize * y);
+                            switch (depth)
+                            {
+                            case 9: widenRows<9>(src, dst, pl.w); break;
+                            case 10: widenRows<10>(src, dst, pl.w); break;
+                            case 12: widenRows<12>(src, dst, pl.w); break;
+                            case 14: widenRows<14>(src, dst, pl.w); break;
+                            default: break;
+                            }
+                        }
+                        base += pl.h;
+                    }
+                };
+                const int threadCount = std::max(1, std::min(16, static_cast<int>(std::thread::hardware_concurrency())));
+                const int chunk = std::max(1, (rowsTotal + threadCount - 1) / threadCount);
+                std::vector<std::thread> threads;
+                for (int r0 = chunk; r0 < rowsTotal; r0 += chunk)
+                {
+                    threads.emplace_back(work, r0, std::min(rowsTotal, r0 + chunk));
+                }
+                // This thread takes the first chunk rather than only waiting.
+                work(0, std::min(rowsTotal, chunk));
+                for (auto& t : threads)
+                {
+                    t.join();
+                }
             }
 
             //! Whether a decoder only decodes through hardware. FFmpeg's own
@@ -1688,6 +1800,29 @@ namespace tl
                 }
                 default: break;
                 }
+            }
+            else if (canWiden(frameFormat, _avOutputPixelFormat))
+            {
+                if (!_avFrame2)
+                {
+                    _initFrame2();
+                }
+                av_image_fill_arrays(
+                    _avFrame2->data,
+                    _avFrame2->linesize,
+                    data,
+                    _avOutputPixelFormat,
+                    w,
+                    h,
+                    1);
+                if (!_widenLogged)
+                {
+                    _widenLogged = true;
+                    _log(ftk::Format("Samples widened to 16 bits from {0} across the cores: \"{1}\"").
+                        arg(av_pix_fmt_desc_get(frameFormat)->comp[0].depth).
+                        arg(_fileName));
+                }
+                widen(frame, av_pix_fmt_desc_get(frameFormat), _avFrame2->data, _avFrame2->linesize, w, h);
             }
             else
             {

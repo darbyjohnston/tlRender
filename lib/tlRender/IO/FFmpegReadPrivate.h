@@ -152,6 +152,7 @@ namespace tl
             AVFrame* _swFrame = nullptr;
             bool _hwAccel = false;
             bool _hwLogged = false;
+            bool _widenLogged = false;
             bool _textures = false;
             //! After a seek, the frames between the keyframe and the one
             //! asked for are decoded only to be thrown away: the ones no
