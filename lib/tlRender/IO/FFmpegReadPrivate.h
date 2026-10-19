@@ -217,6 +217,14 @@ namespace tl
             void _stopPacketThread();
             int _readPacket(AVPacket*);
             int _seekFormat(int64_t timestamp, int flags);
+            //! Reach a frame a short way ahead by dropping the packets
+            //! queued before it, without a seek: returns whether the
+            //! packet for the timestamp, or one after it, is now at the
+            //! front. (The thread reads on from there; nothing is reread.)
+            bool _skipPackets(int64_t timestamp);
+            //! Every frame a keyframe, so a packet skipped is a frame
+            //! skipped and nothing more; see seek().
+            bool _intraOnly = false;
         };
 
         class ReadAudio

@@ -1018,6 +1018,27 @@ namespace tl
             return r;
         }
 
+        bool ReadVideo::_skipPackets(int64_t timestamp)
+        {
+            std::unique_lock<std::mutex> lock(_packets.mutex);
+            if (0 != _packets.error)
+            {
+                return false;
+            }
+            while (!_packets.packets.empty())
+            {
+                AVPacket* packet = _packets.packets.front();
+                const int64_t ts = packet->pts != AV_NOPTS_VALUE ? packet->pts : packet->dts;
+                if (ts >= timestamp)
+                {
+                    return true;
+                }
+                _packets.packets.pop_front();
+                av_packet_free(&packet);
+            }
+            return false;
+        }
+
         int ReadVideo::_seekFormat(int64_t timestamp, int flags)
         {
             {
@@ -1342,6 +1363,7 @@ namespace tl
             // on 32 threads, where frames peaked at 47 on 16.
             const AVCodecDescriptor* descriptor = avcodec_descriptor_get(codec->id);
             const bool intraOnly = descriptor && (descriptor->props & AV_CODEC_PROP_INTRA_ONLY);
+            _intraOnly = intraOnly;
             const bool sliceThreads = codec->capabilities & AV_CODEC_CAP_SLICE_THREADS;
             _avCodecContext[_avStream]->thread_type = intraOnly && sliceThreads ?
                 FF_THREAD_SLICE :
@@ -1429,6 +1451,26 @@ namespace tl
                     }
                 }
                 _seekKeyframe = -1;
+                // A frame a few ahead with every frame a keyframe -- an
+                // intra codec, DNxHR or ProRes, where the walk above is
+                // never taken -- is reached by dropping the packets queued
+                // before it: a seek threw the packets read ahead away, to
+                // read them again, and flushed the decoder, so a reader a
+                // little behind the playhead that skipped a frame or two
+                // (see IVideoRead::setPlayhead) paid two frames' worth for
+                // each skip and fell further behind with every one. An 8K
+                // movie asked for at 48 frames a second from a reader good
+                // for 43 showed 11.
+                if (!walk &&
+                    _intraOnly &&
+                    !_measuredRate &&
+                    _decodedTime.has_value() &&
+                    !_eof &&
+                    time > _decodedTime.value() &&
+                    _skipPackets(timestamp))
+                {
+                    walk = true;
+                }
                 if (!walk)
                 {
                     _packetTimes.clear();
