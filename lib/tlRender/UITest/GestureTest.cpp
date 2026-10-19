@@ -261,8 +261,21 @@ namespace tl
             {
                 const int x0 = dir < 0 ? g.min.x + g.w() * 9 / 10 : g.min.x + g.w() / 10;
                 const int y = g.min.y + 40;
-                window->press(ftk::V2I(x0, y));
-                wait(50);
+                // Until the press scrubs: the items are made once the
+                // timeline has been read, and on a slow machine (a debug
+                // build on a CI runner) the first press came before them
+                // and landed on nothing.
+                for (int attempt = 0; attempt < 100; ++attempt)
+                {
+                    window->press(ftk::V2I(x0, y));
+                    wait(50);
+                    if (timelineWidget->observeTimeScrub()->get().has_value())
+                    {
+                        break;
+                    }
+                    window->release(ftk::V2I(x0, y));
+                    wait(50);
+                }
                 int x = x0;
                 for (int i = 0; i < 40; ++i)
                 {
