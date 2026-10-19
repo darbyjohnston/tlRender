@@ -1117,18 +1117,17 @@ namespace tl
             // dissolve doubles what a frame costs, which is where a small
             // cache fills short of the pre-roll.
             const bool full = info.videoPercentage >= 99.F;
+            // Held when playback starts and after a seek while playing,
+            // until the pre-roll is cached; not again when the cache runs
+            // out while playing. A reader slower than the playhead then
+            // decodes what can still reach the screen and the player drops
+            // the rest (see IVideoRead::setPlayhead()), which plays at the
+            // reader's rate and says so in the dropped frames; held, it
+            // played in bursts with nothing dropped.
             bool buffering = p.buffering->get();
-            if (buffering)
+            if (buffering || p.bufferingArm)
             {
                 buffering = ahead < need && !full;
-            }
-            else if (p.bufferingArm)
-            {
-                buffering = ahead < need && !full;
-            }
-            else
-            {
-                buffering = ahead <= 0.0 && need > 0.0 && !full;
             }
             p.bufferingArm = false;
             if (p.buffering->setIfChanged(buffering))

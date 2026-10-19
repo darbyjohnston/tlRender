@@ -327,9 +327,10 @@ namespace tl
             FTK_P();
             if (Private::MouseMode::CurrentTime == p.mouseMode)
             {
-                if (event.cancel && p.player)
+                if (event.cancel && !event.longPress && p.player)
                 {
-                    // Back to the frame, and playing if it was.
+                    // Back to the frame, and playing if it was. (A long
+                    // press keeps the frame it went to, for the menu.)
                     if (p.pressTime.has_value())
                     {
                         p.player->seek(p.pressTime.value());
