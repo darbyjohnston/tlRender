@@ -145,6 +145,52 @@ namespace tl
             window->gesture(ruler, ftk::V2F(), 1.F);
             app->tick();
             FTK_CHECK(player->getCurrentTime() == timePrev);
+
+            // Zoomed well in, with the press on the tracks and a move or
+            // two before the second finger comes down (the first finger
+            // outran the hold-back): the time goes back, and the pan
+            // carries on from where the view was, with no jump.
+            for (int i = 0; i < 4; ++i)
+            {
+                window->gesture(center, ftk::V2F(), 2.F);
+                app->tick();
+            }
+            _print(ftk::Format("Zoomed: {0}, scroll {1}").
+                arg(timelineWidget->getViewZoom()).
+                arg(timelineWidget->getScrollPos().x));
+            const OTIO_NS::RationalTime timePrev2 = player->getCurrentTime();
+            const ftk::V2I scrollPrev = timelineWidget->getScrollPos();
+            const ftk::V2I tracks(center.x, g.min.y + 60);
+            window->press(tracks);
+            window->hover(ftk::V2I(tracks.x + 20, tracks.y));
+            window->hover(ftk::V2I(tracks.x + 40, tracks.y));
+            app->tick();
+            _print(ftk::Format("Pressed on the tracks: time {0}, scroll {1}").
+                arg(player->getCurrentTime().value()).
+                arg(timelineWidget->getScrollPos().x));
+            FTK_CHECK(player->getCurrentTime() != timePrev2);
+            int panned = 0;
+            for (int i = 0; i < 5; ++i)
+            {
+                window->gesture(tracks, ftk::V2F(-30.F, 0.F), 1.F);
+                panned += 30;
+                app->tick();
+                _print(ftk::Format("Pan {0}: time {1}, scroll {2}").
+                    arg(i).
+                    arg(player->getCurrentTime().value()).
+                    arg(timelineWidget->getScrollPos().x));
+            }
+            for (int i = 0; i < 10; ++i)
+            {
+                app->tick();
+            }
+            _print(ftk::Format("After the pan: time {0}, scroll {1} (was {2}, panned {3})").
+                arg(player->getCurrentTime().value()).
+                arg(timelineWidget->getScrollPos().x).
+                arg(scrollPrev.x).
+                arg(panned));
+            FTK_CHECK(player->getCurrentTime() == timePrev2);
+            FTK_CHECK(timelineWidget->getScrollPos().x == scrollPrev.x + panned);
         }
 
         void GestureTest::_scrubPlayback(const std::shared_ptr<ftk::App>& app)

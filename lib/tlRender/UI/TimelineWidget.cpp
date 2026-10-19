@@ -56,6 +56,8 @@ namespace tl
             OTIO_NS::TimeRange timeRange;
             Playback playback = Playback::Stop;
             OTIO_NS::RationalTime currentTime;
+            // The time when the scrub began; see the scrub observers.
+            OTIO_NS::RationalTime scrubTime;
             double scale = 500.0;
             bool sizeInit = true;
             std::optional<double> zoomPending;
@@ -145,12 +147,17 @@ namespace tl
             p.ruler->setStopOnScrub(p.stopOnScrub->get());
             p.ruler->setOptions(p.itemOptions->get());
 
+            // A scrub that ends brings the playhead into view; one that ends
+            // at the time it began -- cancelled by a second finger landing,
+            // or a tap on the frame -- moved nothing, and the view stays where
+            // it is: scrolling to the playhead then undid every two-finger
+            // pan whose first finger had outrun the hold-back, snapping a
+            // zoomed-in timeline back to a playhead the pan had left behind.
             p.rulerScrubObserver = ftk::Observer<bool>::create(
                 p.ruler->observeScrub(),
                 [this](bool value)
                 {
-                    _p->scrub->setIfChanged(value);
-                    _scrollUpdate();
+                    _scrubUpdate(value);
                 });
 
             p.rulerTimeScrubObserver = ftk::Observer<std::optional<OTIO_NS::RationalTime> >::create(
@@ -285,6 +292,11 @@ namespace tl
                         _scrollUpdate();
                     });
             }
+        }
+
+        const ftk::V2I& TimelineWidget::getScrollPos() const
+        {
+            return _p->scrollWidget->getScrollPos();
         }
 
         double TimelineWidget::getViewZoom() const
@@ -982,6 +994,20 @@ namespace tl
             p.ruler->setScrollPos(p.scrollWidget->getScrollPos().x);
         }
 
+        void TimelineWidget::_scrubUpdate(bool value)
+        {
+            FTK_P();
+            if (value)
+            {
+                p.scrubTime = p.currentTime;
+            }
+            p.scrub->setIfChanged(value);
+            if (value || p.currentTime != p.scrubTime)
+            {
+                _scrollUpdate();
+            }
+        }
+
         void TimelineWidget::_scrollUpdate()
         {
             FTK_P();
@@ -1131,8 +1157,7 @@ namespace tl
                         p.timelineItems.front()->observeScrub(),
                         [this](bool value)
                         {
-                            _p->scrub->setIfChanged(value);
-                            _scrollUpdate();
+                            _scrubUpdate(value);
                         });
 
                     p.timeScrubObserver = ftk::Observer<std::optional<OTIO_NS::RationalTime> >::create(

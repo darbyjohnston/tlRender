@@ -62,6 +62,9 @@ namespace tl
             //! Get the view zoom, in pixels per second.
             TL_UI_API double getViewZoom() const;
 
+            //! Get the scroll position.
+            TL_UI_API const ftk::V2I& getScrollPos() const;
+
             //! Set the view zoom.
             TL_UI_API void setViewZoom(double);
 
@@ -258,6 +261,7 @@ namespace tl
             void _labelsUpdate();
             void _offsetsUpdate();
 
+            void _scrubUpdate(bool);
             void _scrollUpdate();
             void _timelineUpdate();
 
