@@ -1020,23 +1020,30 @@ namespace tl
 
         bool ReadVideo::_skipPackets(int64_t timestamp)
         {
-            std::unique_lock<std::mutex> lock(_packets.mutex);
-            if (0 != _packets.error)
+            bool out = false;
             {
-                return false;
-            }
-            while (!_packets.packets.empty())
-            {
-                AVPacket* packet = _packets.packets.front();
-                const int64_t ts = packet->pts != AV_NOPTS_VALUE ? packet->pts : packet->dts;
-                if (ts >= timestamp)
+                std::unique_lock<std::mutex> lock(_packets.mutex);
+                if (0 != _packets.error)
                 {
-                    return true;
+                    return false;
                 }
-                _packets.packets.pop_front();
-                av_packet_free(&packet);
+                while (!_packets.packets.empty())
+                {
+                    AVPacket* packet = _packets.packets.front();
+                    const int64_t ts = packet->pts != AV_NOPTS_VALUE ? packet->pts : packet->dts;
+                    if (ts >= timestamp)
+                    {
+                        out = true;
+                        break;
+                    }
+                    _packets.packets.pop_front();
+                    av_packet_free(&packet);
+                }
             }
-            return false;
+            // The thread may have been waiting on a full queue: there is
+            // room now, and the reader is about to wait for what it reads.
+            _packets.cv.notify_all();
+            return out;
         }
 
         int ReadVideo::_seekFormat(int64_t timestamp, int flags)
@@ -1460,16 +1467,22 @@ namespace tl
                 // (see IVideoRead::setPlayhead) paid two frames' worth for
                 // each skip and fell further behind with every one. An 8K
                 // movie asked for at 48 frames a second from a reader good
-                // for 43 showed 11.
+                // for 43 showed 11. A frame a little past the packets
+                // queued is read on to the same way, the packets before it
+                // demuxed and discarded (see process()): a seek costs more
+                // than a few packets read in order. Further than that, a
+                // seek.
                 if (!walk &&
                     _intraOnly &&
                     !_measuredRate &&
                     _decodedTime.has_value() &&
                     !_eof &&
-                    time > _decodedTime.value() &&
-                    _skipPackets(timestamp))
+                    time > _decodedTime.value())
                 {
-                    walk = true;
+                    const bool queued = _skipPackets(timestamp);
+                    walk = queued ||
+                        (time - _decodedTime.value()).rescaled_to(_timeRange.duration().rate()).value() <=
+                            2.0 * packetsAhead;
                 }
                 if (!walk)
                 {
@@ -1587,7 +1600,13 @@ namespace tl
                                 _timeRange.duration().rate());
                             if (packetTime + slack < _seekTarget)
                             {
-                                _avCodecContext[_avStream]->skip_frame = AVDISCARD_NONREF;
+                                // With every frame a keyframe nothing ahead
+                                // depends on these, so they are not decoded
+                                // at all; elsewhere the frames nothing refers
+                                // to are the ones that can go.
+                                _avCodecContext[_avStream]->skip_frame = _intraOnly ?
+                                    AVDISCARD_ALL :
+                                    AVDISCARD_NONREF;
                             }
                             else
                             {
