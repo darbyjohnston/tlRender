@@ -591,10 +591,20 @@ namespace tl
                 // across the whole bundle, one before each file's data. Asking
                 // for sequential read ahead makes the operating system fetch
                 // around every one of them and then throw it away.
+                //
+                // Not mapped on a network volume. The mapping of a bundle on
+                // an SMB share succeeded on an iPad and a page of it failed
+                // to come in later, when the memory was short -- a bus error
+                // in a reader's copy, which nothing catches. Unmapped, a
+                // movie in the bundle is a window the reader opens through
+                // the file, and an image is read into memory (see
+                // getMemoryFiles()).
                 p.fileIO = ftk::FileIO::create(
                     fileName,
                     ftk::FileMode::Read,
-                    ftk::FileRead::MMap,
+                    ftk::isNetworkVolume(fileName) ?
+                        ftk::FileRead::Normal :
+                        ftk::FileRead::MMap,
                     ftk::FileAccess::Random);
 
                 p.zipReader = std::make_shared<ZipReader>(logSystem);
