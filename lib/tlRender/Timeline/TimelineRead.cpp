@@ -313,18 +313,12 @@ namespace tl
                 // rate to convert the time with.
                 return out;
             }
-            OTIO_NS::TimeRange availableRange = clip->available_range();
-            OTIO_NS::TimeRange trimmedRange = clip->trimmed_range();
-            if (p.options.compat &&
-                availableRange.start_time() > ioInfo.videoTime->start_time())
-            {
-                //! \bug If the available range is greater than the media time,
-                //! assume the media time is wrong (e.g., Picchu) and
-                //! compensate for it.
-                trimmedRange = OTIO_NS::TimeRange(
-                    trimmedRange.start_time() - availableRange.start_time(),
-                    trimmedRange.duration());
-            }
+            const OTIO_NS::TimeRange trimmedRange = getMediaTrimmedRange(
+                clip->trimmed_range(),
+                clip->available_range(),
+                getSequenceOffset(mediaReference),
+                ioInfo.videoTime,
+                p.options.compat);
             const auto mediaTime = toVideoMediaTime(
                 time,
                 timeRangeOpt.value(),

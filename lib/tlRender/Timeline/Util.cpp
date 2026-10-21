@@ -510,6 +510,51 @@ namespace tl
         return out;
     }
 
+    std::optional<OTIO_NS::RationalTime> getSequenceOffset(
+        const OTIO_NS::MediaReference* mediaReference)
+    {
+        std::optional<OTIO_NS::RationalTime> out;
+        if (auto imageSeqRef =
+            dynamic_cast<const OTIO_NS::ImageSequenceReference*>(mediaReference))
+        {
+            // The reference's own available range rather than a clip's,
+            // which is the clip's active reference, and a timeline can be
+            // showing another one.
+            if (const auto availableRange = imageSeqRef->available_range())
+            {
+                const double rate = imageSeqRef->rate();
+                out = OTIO_NS::RationalTime(imageSeqRef->start_frame(), rate) -
+                    availableRange->start_time().rescaled_to(rate);
+            }
+        }
+        return out;
+    }
+
+    OTIO_NS::TimeRange getMediaTrimmedRange(
+        const OTIO_NS::TimeRange& trimmedRange,
+        const OTIO_NS::TimeRange& availableRange,
+        const std::optional<OTIO_NS::RationalTime>& sequenceOffset,
+        const std::optional<OTIO_NS::TimeRange>& mediaTime,
+        bool compat)
+    {
+        OTIO_NS::TimeRange out = trimmedRange;
+        if (sequenceOffset.has_value())
+        {
+            out = OTIO_NS::TimeRange(
+                out.start_time() + sequenceOffset.value(),
+                out.duration());
+        }
+        else if (compat &&
+            mediaTime.has_value() &&
+            availableRange.start_time() > mediaTime->start_time())
+        {
+            out = OTIO_NS::TimeRange(
+                out.start_time() - availableRange.start_time(),
+                out.duration());
+        }
+        return out;
+    }
+
     OTIO_NS::RationalTime toVideoMediaTime(
         const OTIO_NS::RationalTime& time,
         const OTIO_NS::TimeRange& trimmedRangeInParent,

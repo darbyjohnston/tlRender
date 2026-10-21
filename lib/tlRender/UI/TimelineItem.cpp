@@ -1138,6 +1138,7 @@ namespace tl
                         // reference key instead of the reference the clip was
                         // authored with.
                         const auto mediaReference = timeline->getMediaReference(clip.value);
+                        item.sequenceOffset = getSequenceOffset(mediaReference);
                         item.path = getPath(
                             mediaReference,
                             _data->dir,
@@ -1374,17 +1375,13 @@ namespace tl
                 !item.ioInfo->videoTime.has_value())
                 return;
 
-            OTIO_NS::TimeRange trimmedRange = item.trimmedRange;
-            if (data.options.compat &&
-                item.availableRange.start_time() > item.ioInfo->videoTime->start_time())
-            {
-                //! \bug If the available range is greater than the media time,
-                //! assume the media time is wrong (e.g., Picchu) and
-                //! compensate for it.
-                trimmedRange = OTIO_NS::TimeRange(
-                    trimmedRange.start_time() - item.availableRange.start_time(),
-                    trimmedRange.duration());
-            }
+            // As the timeline reads it, so a thumbnail is the frame played.
+            const OTIO_NS::TimeRange trimmedRange = getMediaTrimmedRange(
+                item.trimmedRange,
+                item.availableRange,
+                item.sequenceOffset,
+                item.ioInfo->videoTime,
+                data.options.compat);
 
             const int w = mediaGeom.w();
             const double duration = item.timeRange.duration().

@@ -55,6 +55,9 @@ namespace tl
                 OTIO_NS::TimeRange timeRange;
                 OTIO_NS::TimeRange availableRange;
                 OTIO_NS::TimeRange trimmedRange;
+                //! For an image sequence, how far its file numbers are from
+                //! its media time (getSequenceOffset()).
+                std::optional<OTIO_NS::RationalTime> sequenceOffset;
 
                 //! Both colors are kept so that toggling DisplayOptions
                 //! clipColors is a redraw rather than a rebuild.
