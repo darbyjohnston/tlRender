@@ -60,6 +60,16 @@ class OffscreenRenderTest(unittest.TestCase):
         self.assertTrue(near([200, 200, 200, 255], pixel(image, 1, 1)))
         self.assertTrue(near([100, 100, 100, 255], pixel(image, 1, 12)))
 
+        # One above the other: A on top, which shows which way up the
+        # picture comes back.
+        options = tl.CompareOptions()
+        options.compare = tl.Compare.Vertical
+        image = render.render([a, b], options)
+        self.assertEqual(ftk.Size2I(8, 8), image.size)
+        self.assertTrue(near([200, 200, 200, 255], pixel(image, 1, 1)))
+        self.assertTrue(near([100, 100, 100, 255], pixel(image, 6, 1)))
+        options.compare = tl.Compare.Horizontal
+
         # Fitted into a size of its own, with nothing drawn around it.
         image = render.render([a, b], options, ftk.Size2I(16, 16))
         self.assertEqual(ftk.Size2I(16, 16), image.size)

@@ -123,11 +123,12 @@ namespace tl
                     return out;
                 };
             // A pixel counted from the top left, whichever way up the
-            // image's rows are.
+            // image's rows are: bottom up, as OpenGL reads them back, unless
+            // the layout's mirror says they are top down.
             const auto pixel = [](const std::shared_ptr<ftk::Image>& image, int x, int y)
                 {
                     const ftk::ImageInfo& info = image->getInfo();
-                    const int row = info.layout.mirror.y ? info.size.h - 1 - y : y;
+                    const int row = info.layout.mirror.y ? y : info.size.h - 1 - y;
                     const uint8_t* p = image->getData() +
                         (row * info.size.w + x) * 4;
                     return std::array<int, 4>({ p[0], p[1], p[2], p[3] });
@@ -161,6 +162,15 @@ namespace tl
             FTK_CHECK(ftk::Size2I(imageSize.w * 2, imageSize.h) == image->getSize());
             FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 10)));
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, imageSize.w + 10, 10)));
+
+            // One above the other: A on top. Which way up the picture comes
+            // back is checked here, where it shows.
+            CompareOptions verticalOptions;
+            verticalOptions.compare = Compare::Vertical;
+            image = render->render({ a, b }, verticalOptions);
+            FTK_CHECK(ftk::Size2I(imageSize.w, imageSize.h * 2) == image->getSize());
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 5)));
+            FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 10, imageSize.h + 5)));
 
             // Fitted into a square: the same picture, half the size, with
             // nothing drawn above and below it.
