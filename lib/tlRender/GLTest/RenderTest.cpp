@@ -177,10 +177,25 @@ namespace tl
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 54, 32)));
             FTK_CHECK(near({ 0, 0, 0, 0 }, pixel(image, 10, 61)));
 
-            // Read back as floating point, for values past one.
-            image = render->render({ a }, CompareOptions(), ftk::Size2I(), {}, {},
-                ftk::ImageType::RGBA_F32);
-            FTK_CHECK(ftk::ImageType::RGBA_F32 == image->getType());
+            // Read back as floating point, for values past one, where
+            // OpenGL can: OpenGL ES reads back bytes only, and says so.
+            if (ftk::gl::OffscreenBuffer::canRead(ftk::ImageType::RGBA_F32))
+            {
+                image = render->render({ a }, CompareOptions(), ftk::Size2I(), {}, {},
+                    ftk::ImageType::RGBA_F32);
+                FTK_CHECK(ftk::ImageType::RGBA_F32 == image->getType());
+            }
+            else
+            {
+                try
+                {
+                    render->render({ a }, CompareOptions(), ftk::Size2I(), {}, {},
+                        ftk::ImageType::RGBA_F32);
+                    FTK_CHECK(false);
+                }
+                catch (const std::exception&)
+                {}
+            }
 
             // What cannot be done says so.
             try

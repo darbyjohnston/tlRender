@@ -66,7 +66,10 @@ namespace tl
             //! their own resolution -- side by side, two of them across --
             //! or, given a size, that size with the comparison fitted into
             //! it. The image type is what is read back: RGBA_U8 for a file
-            //! or a look, RGBA_F32 to measure values past one.
+            //! or a look, RGBA_F32 to measure values past one where OpenGL
+            //! can read it back (ftk::gl::OffscreenBuffer::canRead() says;
+            //! OpenGL ES reads back bytes only). A type that cannot be read
+            //! back throws.
             TL_GL_API std::shared_ptr<ftk::Image> render(
                 const std::vector<VideoFrame>&,
                 const CompareOptions& = CompareOptions(),

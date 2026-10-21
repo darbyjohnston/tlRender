@@ -59,7 +59,9 @@ namespace tl
                     "comparison needs at the frames' own resolution, or the "
                     "size given with the comparison fitted into it. type is "
                     "what is read back: RGBA_U8 for a file or a look, "
-                    "RGBA_F32 to measure values past one.");
+                    "RGBA_F32 to measure values past one where OpenGL can "
+                    "read it back -- OpenGL ES reads back bytes only, and a "
+                    "type that cannot be read back raises.");
         }
     }
 }
