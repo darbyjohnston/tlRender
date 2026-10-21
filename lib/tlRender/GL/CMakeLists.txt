@@ -1,10 +1,12 @@
 set(HEADERS
     Export.h
+    OffscreenRender.h
     Render.h)
 set(PRIVATE_HEADERS
     RenderPrivate.h)
 
 set(SOURCE
+    OffscreenRender.cpp
     Render.cpp
     RenderPrims.cpp
     RenderShaders.cpp

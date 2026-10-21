@@ -2,6 +2,7 @@
 // Copyright Contributors to the feather-tk project.
 
 #include <tlRender/UIPy/Bindings.h>
+#include <tlRender/GLPy/Bindings.h>
 #include <tlRender/TimelinePy/Bindings.h>
 #include <tlRender/IOPy/Bindings.h>
 #include <tlRender/CorePy/Bindings.h>
@@ -36,6 +37,7 @@ NB_MODULE(_tlrender, m)
     tl::python::coreBind(m);
     tl::python::ioBind(m);
     tl::python::timelineBind(m);
+    tl::python::glBind(m);
     tl::python::uiBind(m);
 }
 

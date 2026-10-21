@@ -19,8 +19,8 @@ target_include_directories(_tlrender
 # and GNU ld takes from an archive only what is wanted at the moment it is
 # scanned: a binding archive scanned after it finds the enum and datetime
 # helpers already passed over, and a Release build fails to link.
-target_sources(_tlrender PRIVATE $<TARGET_OBJECTS:tlUIPy> $<TARGET_OBJECTS:tlTimelinePy> $<TARGET_OBJECTS:tlIOPy> $<TARGET_OBJECTS:tlCorePy>)
-target_link_libraries(_tlrender PRIVATE tlUIPy tlTimelinePy tlIOPy tlCorePy)
+target_sources(_tlrender PRIVATE $<TARGET_OBJECTS:tlUIPy> $<TARGET_OBJECTS:tlGLPy> $<TARGET_OBJECTS:tlTimelinePy> $<TARGET_OBJECTS:tlIOPy> $<TARGET_OBJECTS:tlCorePy>)
+target_link_libraries(_tlrender PRIVATE tlUIPy tlGLPy tlTimelinePy tlIOPy tlCorePy)
 
 # The generator expression keeps multi-config generators from adding a
 # directory per configuration, which would leave the module outside the

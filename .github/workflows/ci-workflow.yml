@@ -179,10 +179,16 @@ jobs:
       run: |
         sh tl/etc/Linux/sbuild.sh tl Debug ci-linux-python
 
+    # With no X server: SDL's offscreen video driver makes the OpenGL
+    # context through EGL, the way a container or a render farm node has to,
+    # and this is where that is checked -- the Python OffscreenRender tests
+    # among them. The other Linux jobs keep xvfb for the window paths.
     - name: Run tests
+      env:
+        SDL_VIDEO_DRIVER: offscreen
       run: |
         cd build-Debug
-        xvfb-run ctest --verbose --rerun-failed --output-on-failure --timeout 600 -C Debug
+        ctest --verbose --rerun-failed --output-on-failure --timeout 600 -C Debug
     
     - name: Code coverage
       run: |

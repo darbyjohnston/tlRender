@@ -3,6 +3,7 @@
 
 #include <tlRender/GLTest/RenderTest.h>
 
+#include <tlRender/GL/OffscreenRender.h>
 #include <tlRender/GL/Render.h>
 
 #include <tlRender/Timeline/BackgroundOptions.h>
@@ -88,6 +89,7 @@ namespace tl
         void RenderTest::run()
         {
             _compare();
+            _offscreenRender();
             _dissolve();
             _display();
             _background();
@@ -96,6 +98,106 @@ namespace tl
             _oneToOne();
             _yuvLevels();
             _color();
+        }
+
+        //! Video frames rendered to an image with no window to show them:
+        //! one frame at its own size, two side by side, and two fitted into
+        //! a size of their own.
+        void RenderTest::_offscreenRender()
+        {
+            // Opaque, so the color read back is the color drawn.
+            const auto opaqueFrame = [](uint8_t value)
+                {
+                    auto image = ftk::Image::create(imageSize, ftk::ImageType::RGBA_U8);
+                    uint8_t* p = image->getData();
+                    for (size_t i = 0; i < image->getByteCount(); i += 4)
+                    {
+                        p[i] = p[i + 1] = p[i + 2] = value;
+                        p[i + 3] = 255;
+                    }
+                    VideoLayer layer;
+                    layer.image = image;
+                    VideoFrame out;
+                    out.size = imageSize;
+                    out.layers.push_back(layer);
+                    return out;
+                };
+            // A pixel counted from the top left, whichever way up the
+            // image's rows are.
+            const auto pixel = [](const std::shared_ptr<ftk::Image>& image, int x, int y)
+                {
+                    const ftk::ImageInfo& info = image->getInfo();
+                    const int row = info.layout.mirror.y ? info.size.h - 1 - y : y;
+                    const uint8_t* p = image->getData() +
+                        (row * info.size.w + x) * 4;
+                    return std::array<int, 4>({ p[0], p[1], p[2], p[3] });
+                };
+            const auto near = [](const std::array<int, 4>& a, const std::array<int, 4>& b)
+                {
+                    for (size_t i = 0; i < 4; ++i)
+                    {
+                        if (std::abs(a[i] - b[i]) > 1)
+                            return false;
+                    }
+                    return true;
+                };
+
+            auto render = gl::OffscreenRender::create(_context);
+            const VideoFrame a = opaqueFrame(200);
+            const VideoFrame b = opaqueFrame(100);
+
+            // One frame, at its own size.
+            auto image = render->render({ a });
+            FTK_CHECK(image);
+            FTK_CHECK(imageSize == image->getSize());
+            FTK_CHECK(ftk::ImageType::RGBA_U8 == image->getType());
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 10)));
+
+            // Two side by side: twice as wide, A on the left and B on the
+            // right.
+            CompareOptions compareOptions;
+            compareOptions.compare = Compare::Horizontal;
+            image = render->render({ a, b }, compareOptions);
+            FTK_CHECK(ftk::Size2I(imageSize.w * 2, imageSize.h) == image->getSize());
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 10)));
+            FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, imageSize.w + 10, 10)));
+
+            // Fitted into a square: the same picture, half the size, with
+            // nothing drawn above and below it.
+            image = render->render({ a, b }, compareOptions, ftk::Size2I(64, 64));
+            _print(ftk::Format("Offscreen render: {0}, left side {1} {2} {3} {4}").
+                arg(image->getSize()).
+                arg(pixel(image, 10, 32)[0]).
+                arg(pixel(image, 10, 32)[1]).
+                arg(pixel(image, 10, 32)[2]).
+                arg(pixel(image, 10, 32)[3]));
+            FTK_CHECK(ftk::Size2I(64, 64) == image->getSize());
+            FTK_CHECK(near({ 0, 0, 0, 0 }, pixel(image, 10, 2)));
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 32)));
+            FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 54, 32)));
+            FTK_CHECK(near({ 0, 0, 0, 0 }, pixel(image, 10, 61)));
+
+            // Read back as floating point, for values past one.
+            image = render->render({ a }, CompareOptions(), ftk::Size2I(), {}, {},
+                ftk::ImageType::RGBA_F32);
+            FTK_CHECK(ftk::ImageType::RGBA_F32 == image->getType());
+
+            // What cannot be done says so.
+            try
+            {
+                render->render({});
+                FTK_CHECK(false);
+            }
+            catch (const std::exception&)
+            {}
+            try
+            {
+                render->render({ a }, CompareOptions(), ftk::Size2I(), {}, {},
+                    ftk::ImageType::YUV_420P_U8);
+                FTK_CHECK(false);
+            }
+            catch (const std::exception&)
+            {}
         }
 
         //! A layer holding two images, which is a clip dissolving into the
