@@ -31,18 +31,32 @@ namespace tl
     {
         void video(nb::module_& m)
         {
-            nb::class_<VideoLayer>(m, "VideoLayer")
+            nb::class_<VideoLayer>(
+                m, "VideoLayer",
+                "One track's image at a time: image, and imageB when a "
+                "transition is blending into the next clip.")
                 .def(nb::init())
                 .def_rw("image", &VideoLayer::image)
                 .def_rw("imageOptions", &VideoLayer::imageOptions)
-                .def_rw("imageB", &VideoLayer::imageB)
+                .def_rw(
+                    "imageB",
+                    &VideoLayer::imageB,
+                    "The image a transition blends into, by transitionValue: "
+                    "the clip after a dissolve. Empty otherwise -- a compared "
+                    "timeline is a VideoFrame of its own in "
+                    "Player.currentVideo, not an imageB.")
                 .def_rw("imageOptionsB", &VideoLayer::imageOptionsB)
                 .def_rw("transition", &VideoLayer::transition)
                 .def_rw("transitionValue", &VideoLayer::transitionValue)
                 .def(nanobind::self == nanobind::self)
                 .def(nanobind::self != nanobind::self);
 
-            nb::class_<VideoFrame>(m, "VideoFrame")
+            nb::class_<VideoFrame>(
+                m, "VideoFrame",
+                "A timeline's video at a time: a layer for each enabled "
+                "video track with a clip there, bottom track first. "
+                "Player.currentVideo has one for each timeline, compared "
+                "ones included.")
                 .def(nb::init())
                 .def_rw("size", &VideoFrame::size)
                 .def_rw("time", &VideoFrame::time)
