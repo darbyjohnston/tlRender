@@ -8,6 +8,7 @@ import opentimelineio as otio
 
 import os
 import tempfile
+import time
 import unittest
 
 class OCIOOptionsTest(unittest.TestCase):
@@ -264,6 +265,56 @@ class TimelineTest(unittest.TestCase):
             self.assertEqual(
                 otio.opentime.RationalTime(6, 24),
                 player.inOutRange.start_time)
+
+    def test_pixels_round_trip(self):
+        # Pixels made in Python, written to a file, and read back through a
+        # player, which is everything a script checking frames needs.
+        with tempfile.TemporaryDirectory() as dir:
+            image = ftk.Image(8, 4, ftk.ImageType.RGBA_U8)
+            image.zero()
+            # Opaque: a file need not keep the colour of a pixel nothing can
+            # see.
+            pixels = image.data
+            for x in range(8):
+                for y in range(4):
+                    pixels[y, x, 3] = 255
+            pixels[0, 0, 0] = 255
+            pixels[3, 7, 1] = 128
+
+            fileName = os.path.join(dir, "pixels.png")
+            info = tl.IOInfo()
+            info.video = [image.info]
+            writer = tl.WriteSystem(self.context).write(ftk.Path(fileName), info)
+            writer.writeVideo(otio.opentime.RationalTime(0, 24), image)
+            writer.finish()
+
+            timeline = tl.Timeline(self.context, fileName)
+            player = tl.Player(self.context, timeline)
+            start = timeline.timeRange.start_time
+            player.currentTime = start
+            read = None
+            for i in range(500):
+                # Nothing reaches currentVideo without the context's tick,
+                # and until it does the frame there may be an earlier one.
+                self.context.tick()
+                frames = player.currentVideo
+                if frames and frames[0].time == start and frames[0].layers and \
+                    frames[0].layers[0].image is not None and \
+                    frames[0].layers[0].image.valid:
+                    read = frames[0].layers[0].image
+                    break
+                time.sleep(0.01)
+            self.assertIsNotNone(read)
+            self.assertEqual(read.size, image.size)
+            data = read.data
+            channels = data.shape[2]
+            # The right way up, whichever way the reader stored the rows.
+            self.assertEqual(data[0, 0, 0], 255)
+            self.assertEqual(data[3, 7, 1], 128)
+            self.assertEqual(data[3, 7, 0], 0)
+            self.assertEqual(data[1, 1, 0], 0)
+            if channels == 4:
+                self.assertEqual(data[1, 1, 3], 255)
 
 if __name__ == '__main__':
     unittest.main()

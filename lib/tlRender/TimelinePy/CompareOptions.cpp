@@ -37,7 +37,15 @@ namespace tl
             FTK_ENUM_PY(m, CompareTime);
             FTK_ENUM_BIND(m, CompareTime);
 
-            nb::class_<CompareOptions>(m, "CompareOptions")
+            nb::class_<CompareOptions>(
+                m, "CompareOptions",
+                "How compared timelines are drawn together: compare is the "
+                "mode (None for this timeline alone, B, Wipe, Butterfly, "
+                "Overlay, Difference, Horizontal, Vertical, Tile), and the "
+                "other fields are the settings for the modes "
+                "that have them. Read by whatever draws the frames, a "
+                "viewport or a renderer; which frames there are is the "
+                "Player's compare.")
                 .def(nb::init())
                 .def_rw("compare", &CompareOptions::compare)
                 .def_rw("wipeCenter", &CompareOptions::wipeCenter)
