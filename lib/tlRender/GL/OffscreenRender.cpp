@@ -138,9 +138,18 @@ namespace tl
                 const ftk::ImageType colorBuffer = ftk::ImageType::RGBA_F32;
                 const ftk::gl::TextureType bufferType = ftk::gl::getRenderableType(
                     ftk::gl::getTextureType(colorBuffer));
-                if (ftk::gl::doCreate(p.buffer, outputSize, bufferType))
+                // With a stencil, as a viewport's buffer has: a wipe draws
+                // each side through a stencil mask, and without one the mask
+                // passes everything and the last side drawn covers the lot.
+                ftk::gl::OffscreenBufferOptions bufferOptions;
+                bufferOptions.depth = ftk::gl::OffscreenDepth::_24;
+                bufferOptions.stencil = ftk::gl::OffscreenStencil::_8;
+                if (ftk::gl::doCreate(p.buffer, outputSize, bufferType, bufferOptions))
                 {
-                    p.buffer = ftk::gl::OffscreenBuffer::create(outputSize, bufferType);
+                    p.buffer = ftk::gl::OffscreenBuffer::create(
+                        outputSize,
+                        bufferType,
+                        bufferOptions);
                 }
                 {
                     ftk::gl::OffscreenBufferBinding binding(p.buffer);

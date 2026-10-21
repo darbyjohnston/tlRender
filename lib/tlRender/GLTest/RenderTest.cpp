@@ -172,6 +172,14 @@ namespace tl
             FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 5)));
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 10, imageSize.h + 5)));
 
+            // A wipe, which draws each side through a stencil mask: A on the
+            // left of the line and B on the right, not B over all of it.
+            CompareOptions wipeOptions;
+            wipeOptions.compare = Compare::Wipe;
+            image = render->render({ a, b }, wipeOptions);
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 4, imageSize.h / 2)));
+            FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, imageSize.w - 4, imageSize.h / 2)));
+
             // Fitted into a square: the same picture, half the size, with
             // nothing drawn above and below it.
             image = render->render({ a, b }, compareOptions, ftk::Size2I(64, 64));

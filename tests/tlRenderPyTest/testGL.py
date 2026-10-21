@@ -70,6 +70,13 @@ class OffscreenRenderTest(unittest.TestCase):
         self.assertTrue(near([100, 100, 100, 255], pixel(image, 6, 1)))
         options.compare = tl.Compare.Horizontal
 
+        # A wipe: A on the left of the line, B on the right.
+        options.compare = tl.Compare.Wipe
+        image = render.render([a, b], options)
+        self.assertTrue(near([200, 200, 200, 255], pixel(image, 2, 1)))
+        self.assertTrue(near([100, 100, 100, 255], pixel(image, 2, 6)))
+        options.compare = tl.Compare.Horizontal
+
         # Fitted into a size of its own, with nothing drawn around it.
         image = render.render([a, b], options, ftk.Size2I(16, 16))
         self.assertEqual(ftk.Size2I(16, 16), image.size)
