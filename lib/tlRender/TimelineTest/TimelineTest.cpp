@@ -75,6 +75,7 @@ namespace tl
             _shutdown();
             _path();
             _seqOnDisk();
+            _seqStartFrame();
             _separateAudio();
             _spatial();
             _mediaReferences();
@@ -791,6 +792,89 @@ namespace tl
                 FTK_CHECK(ftk::RangeI64(1, 2) == path.getFrames().value());
                 auto timeline = Timeline::create(_context, path);
                 FTK_CHECK(2 == timeline->getTimeRange().duration().value());
+            }
+        }
+
+        void TimelineTest::_seqStartFrame()
+        {
+            // An image sequence reference's start frame is the file at the
+            // start of its available range, which need not be the same
+            // number: files 0001-0004 with an available range from zero has
+            // file 0001 at time zero. Each file is written with its own
+            // number in its pixels, so which file was read is what is seen.
+            auto readSystem = _context->getSystem<ReadSystem>();
+            auto writeSystem = _context->getSystem<WriteSystem>();
+            const std::filesystem::path dir = _getTempDir() / "SeqStartFrame";
+            std::filesystem::remove_all(dir);
+            std::filesystem::create_directory(dir);
+            const auto frameFile = [&dir](int frame)
+                {
+                    return ftk::Path(ftk::fromFileSystem(dir / ftk::Format("seq.{0}.png").
+                        arg(frame, 4, '0').str()));
+                };
+            auto writePlugin = writeSystem->getPlugin(frameFile(1));
+            if (!writePlugin || !readSystem->getPlugin(frameFile(1)))
+            {
+                _print("Skipped: no plugin reads the fixture");
+                return;
+            }
+            IOInfo writeInfo;
+            writeInfo.video.push_back(writePlugin->getInfo(
+                ftk::ImageInfo(ftk::Size2I(4, 4), ftk::ImageType::RGB_U8)));
+            for (int frame = 1; frame <= 4; ++frame)
+            {
+                auto image = ftk::Image::create(writeInfo.video[0]);
+                std::memset(image->getData(), frame * 10, image->getByteCount());
+                auto write = writeSystem->write(frameFile(frame), writeInfo);
+                write->writeVideo(
+                    OTIO_NS::RationalTime(static_cast<double>(frame), 24.0),
+                    image);
+            }
+
+            for (const double availableStart : { 0.0, 1.0, 1001.0 })
+            {
+                _print(ftk::Format("Available range from {0}").arg(availableStart));
+                auto otioClip = new OTIO_NS::Clip;
+                auto reference = new OTIO_NS::ImageSequenceReference(
+                    ftk::fromFileSystem(dir) + "/",
+                    "seq.",
+                    ".png",
+                    1,
+                    1,
+                    24.0,
+                    4);
+                reference->set_available_range(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(availableStart, 24.0),
+                    OTIO_NS::RationalTime(4.0, 24.0)));
+                otioClip->set_media_reference(reference);
+                otioClip->set_source_range(OTIO_NS::TimeRange(
+                    OTIO_NS::RationalTime(availableStart, 24.0),
+                    OTIO_NS::RationalTime(4.0, 24.0)));
+                auto otioTrack = new OTIO_NS::Track;
+                otioTrack->append_child(otioClip);
+                OTIO_NS::SerializableObject::Retainer<OTIO_NS::Timeline> otioTimeline(
+                    new OTIO_NS::Timeline);
+                otioTimeline->tracks()->append_child(otioTrack);
+                auto timeline = Timeline::create(_context, otioTimeline);
+
+                const double start = timeline->getTimeRange().start_time().value();
+                for (int i = 0; i < 4; ++i)
+                {
+                    const OTIO_NS::RationalTime time(start + i, 24.0);
+                    const VideoFrame videoFrame = timeline->getVideo(time).future.get();
+                    FTK_CHECK(!videoFrame.layers.empty());
+                    const auto& image = videoFrame.layers.front().image;
+                    FTK_CHECK(image && image->isValid());
+                    if (image && image->isValid())
+                    {
+                        FTK_CHECK((i + 1) * 10 == image->getData()[0]);
+                    }
+
+                    // And the media time it reports is the file's number.
+                    const auto mediaTime = timeline->getMediaTime(time);
+                    FTK_CHECK(mediaTime.has_value());
+                    FTK_CHECK(i + 1 == static_cast<int>(mediaTime->value()));
+                }
             }
         }
 

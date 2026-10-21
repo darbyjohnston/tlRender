@@ -7,8 +7,57 @@ import tlrender as tl
 import opentimelineio as otio
 
 import os
+import struct
 import tempfile
+import time
 import unittest
+import zlib
+
+def writePNG(fileName, rows):
+    """An 8-bit RGB PNG from rows of (r, g, b), top row first, written here
+    rather than by the library under test: what the file says is up is up."""
+    h, w = len(rows), len(rows[0])
+    raw = b"".join(b"\0" + bytes(c for px in row for c in px) for row in rows)
+    def chunk(kind, data):
+        return struct.pack(">I", len(data)) + kind + data + \
+            struct.pack(">I", zlib.crc32(kind + data) & 0xffffffff)
+    with open(fileName, "wb") as f:
+        f.write(b"\x89PNG\r\n\x1a\n" +
+            chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)) +
+            chunk(b"IDAT", zlib.compress(raw)) + chunk(b"IEND", b""))
+
+def readPNG(fileName):
+    """The rows of an 8-bit RGB or RGBA PNG, top row first, as lists of
+    pixel tuples; decoded here, so the file is read as any viewer reads it."""
+    data = open(fileName, "rb").read()
+    pos, idat = 8, b""
+    while pos < len(data):
+        n, kind = struct.unpack(">I4s", data[pos:pos + 8])
+        body = data[pos + 8:pos + 8 + n]
+        if kind == b"IHDR":
+            w, h, depth, color = struct.unpack(">IIBB", body[:10])
+        elif kind == b"IDAT":
+            idat += body
+        pos += 12 + n
+    channels = {2: 3, 6: 4}[color]
+    raw, stride = zlib.decompress(idat), w * channels
+    rows, prev = [], bytearray(stride)
+    for y in range(h):
+        f = raw[y * (stride + 1)]
+        line = bytearray(raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
+        for i in range(stride):
+            a = line[i - channels] if i >= channels else 0
+            b, c = prev[i], (prev[i - channels] if i >= channels else 0)
+            if f == 1: line[i] = (line[i] + a) & 255
+            elif f == 2: line[i] = (line[i] + b) & 255
+            elif f == 3: line[i] = (line[i] + (a + b) // 2) & 255
+            elif f == 4:
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                line[i] = (line[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        rows.append([tuple(line[x * channels:x * channels + 3]) for x in range(w)])
+        prev = line
+    return rows
 
 class OCIOOptionsTest(unittest.TestCase):
 
@@ -264,6 +313,99 @@ class TimelineTest(unittest.TestCase):
             self.assertEqual(
                 otio.opentime.RationalTime(6, 24),
                 player.inOutRange.start_time)
+
+    def test_pixels_round_trip(self):
+        # Pixels made in Python, written to a file, and read back through a
+        # player, which is everything a script checking frames needs.
+        with tempfile.TemporaryDirectory() as dir:
+            image = ftk.Image(8, 4, ftk.ImageType.RGBA_U8)
+            image.zero()
+            # Opaque: a file need not keep the colour of a pixel nothing can
+            # see.
+            pixels = image.data
+            for x in range(8):
+                for y in range(4):
+                    pixels[y, x, 3] = 255
+            pixels[0, 0, 0] = 255
+            pixels[3, 7, 1] = 128
+
+            fileName = os.path.join(dir, "pixels.png")
+            info = tl.IOInfo()
+            info.video = [image.info]
+            writer = tl.WriteSystem(self.context).write(ftk.Path(fileName), info)
+            writer.writeVideo(otio.opentime.RationalTime(0, 24), image)
+            writer.finish()
+
+            timeline = tl.Timeline(self.context, fileName)
+            player = tl.Player(self.context, timeline)
+            start = timeline.timeRange.start_time
+            player.currentTime = start
+            read = None
+            for i in range(500):
+                # Nothing reaches currentVideo without the context's tick,
+                # and until it does the frame there may be an earlier one.
+                self.context.tick()
+                frames = player.currentVideo
+                if frames and frames[0].time == start and frames[0].layers and \
+                    frames[0].layers[0].image is not None and \
+                    frames[0].layers[0].image.valid:
+                    read = frames[0].layers[0].image
+                    break
+                time.sleep(0.01)
+            self.assertIsNotNone(read)
+            self.assertEqual(read.size, image.size)
+            data = read.data
+            channels = data.shape[2]
+            # The right way up, whichever way the reader stored the rows.
+            self.assertEqual(data[0, 0, 0], 255)
+            self.assertEqual(data[3, 7, 1], 128)
+            self.assertEqual(data[3, 7, 0], 0)
+            self.assertEqual(data[1, 1, 0], 0)
+            if channels == 4:
+                self.assertEqual(data[1, 1, 3], 255)
+
+    def test_pixels_upright(self):
+        # Which way up the pixels are, against files made and read without
+        # the library: row zero of the view is the top of the picture, read
+        # or written.
+        red, blue = (255, 0, 0), (0, 0, 255)
+        with tempfile.TemporaryDirectory() as dir:
+            fileName = os.path.join(dir, "upright.png")
+            writePNG(fileName, [[red, red], [blue, blue]])
+            timeline = tl.Timeline(self.context, fileName)
+            player = tl.Player(self.context, timeline)
+            start = timeline.timeRange.start_time
+            player.currentTime = start
+            read = None
+            for i in range(500):
+                self.context.tick()
+                frames = player.currentVideo
+                if frames and frames[0].time == start and frames[0].layers and \
+                    frames[0].layers[0].image is not None and \
+                    frames[0].layers[0].image.valid:
+                    read = frames[0].layers[0].image
+                    break
+                time.sleep(0.01)
+            self.assertIsNotNone(read)
+            data = read.data
+            self.assertEqual((data[0, 0, 0], data[0, 0, 2]), (255, 0))
+            self.assertEqual((data[1, 0, 0], data[1, 0, 2]), (0, 255))
+
+            image = ftk.Image(2, 2, ftk.ImageType.RGB_U8)
+            pixels = image.data
+            for x in range(2):
+                for c in range(3):
+                    pixels[0, x, c] = red[c]
+                    pixels[1, x, c] = blue[c]
+            fileName = os.path.join(dir, "written.png")
+            info = tl.IOInfo()
+            info.video = [image.info]
+            writer = tl.WriteSystem(self.context).write(ftk.Path(fileName), info)
+            writer.writeVideo(otio.opentime.RationalTime(0, 24), image)
+            writer.finish()
+            rows = readPNG(fileName)
+            self.assertEqual(rows[0][0], red)
+            self.assertEqual(rows[1][0], blue)
 
 if __name__ == '__main__':
     unittest.main()

@@ -63,7 +63,11 @@ namespace tl
                 m, "Player",
                 // The Python examples hold this through weakref, which
                 // nanobind classes opt into.
-                nb::is_weak_referenceable())
+                nb::is_weak_referenceable(),
+                "Plays a timeline: decodes its video and audio, ahead of "
+                "the current time, on threads of its own. What it has "
+                "decoded reaches currentVideo and the observers only in "
+                "Context.tick(), so a script calls tick() while it waits.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
@@ -99,7 +103,14 @@ namespace tl
                 .def_prop_rw("loop", &Player::getLoop, &Player::setLoop)
                 .def_prop_ro("observeLoop", &Player::observeLoop)
 
-                .def_prop_rw("currentTime", &Player::getCurrentTime, &Player::seek, nb::rv_policy::copy)
+                .def_prop_rw(
+                    "currentTime",
+                    &Player::getCurrentTime,
+                    &Player::seek,
+                    nb::rv_policy::copy,
+                    "The current time. Setting it seeks: the time changes at "
+                    "once, and the frame for it arrives in currentVideo once "
+                    "it is decoded.")
                 .def_prop_ro("observeCurrentTime", &Player::observeCurrentTime)
                 .def_prop_ro("observeSeek", &Player::observeSeek)
                 .def("timeAction", &Player::timeAction)
@@ -115,7 +126,14 @@ namespace tl
                 .def("setOutPoint", &Player::setOutPoint)
                 .def("resetOutPoint", &Player::resetOutPoint)
 
-                .def_prop_rw("compare", &Player::getCompare, &Player::setCompare)
+                .def_prop_rw(
+                    "compare",
+                    &Player::getCompare,
+                    &Player::setCompare,
+                    "Timelines to compare with this one. currentVideo then has "
+                    "a frame for each, at the time compareTime says. How they "
+                    "are drawn together is CompareOptions, which the player "
+                    "does not use.")
                 .def_prop_ro("observeCompare", &Player::observeCompare)
                 .def_prop_rw("compareTime", &Player::getCompareTime, &Player::setCompareTime)
                 .def_prop_ro("observeCompareTime", &Player::observeCompareTime)
@@ -133,7 +151,16 @@ namespace tl
                 .def_prop_ro("observeVideoLayer", &Player::observeVideoLayer)
                 .def_prop_rw("compareVideoLayers", &Player::getCompareVideoLayers, &Player::setCompareVideoLayers)
                 .def_prop_ro("observeCompareVideoLayers", &Player::observeCompareVideoLayers)
-                .def_prop_ro("currentVideo", &Player::getCurrentVideo, nb::rv_policy::copy)
+                .def_prop_ro(
+                    "currentVideo",
+                    &Player::getCurrentVideo,
+                    nb::rv_policy::copy,
+                    "The video frames last decoded: one for this timeline, "
+                    "then one for each compare timeline. Updated only in "
+                    "Context.tick(). After a seek it holds the previous frame "
+                    "until the new one is decoded, as a viewer keeps showing "
+                    "it, so check each frame's time against the time wanted "
+                    "rather than taking the first one that arrives.")
                 .def_prop_ro("observeCurrentVideo", &Player::observeCurrentVideo)
 
                 .def_prop_rw("audioDevice", &Player::getAudioDevice, &Player::setAudioDevice, nb::rv_policy::copy)

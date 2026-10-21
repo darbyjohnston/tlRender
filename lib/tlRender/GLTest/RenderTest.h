@@ -25,6 +25,7 @@ namespace tl
 
         private:
             void _compare();
+            void _offscreenRender();
             void _dissolve();
             void _display();
             void _background();

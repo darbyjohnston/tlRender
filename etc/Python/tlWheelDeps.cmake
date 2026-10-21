@@ -134,7 +134,8 @@ endif()
 
 # Everything but what only means something on this machine or at build
 # time: pkg-config files hold its absolute paths, and the programs are the
-# assembler and the like.
+# assembler and the like. FFmpeg's examples are its own C sources, which
+# nothing here runs.
 install(
     DIRECTORY ${TLRENDER_WHEEL_DEPS}/
     DESTINATION .
@@ -145,4 +146,5 @@ install(
     PATTERN "*.exe" EXCLUDE
     PATTERN nasm EXCLUDE
     PATTERN ndisasm EXCLUDE
-    REGEX "/share/(doc|man)$" EXCLUDE)
+    REGEX "/share/(doc|man)$" EXCLUDE
+    REGEX "/share/ffmpeg/examples$" EXCLUDE)

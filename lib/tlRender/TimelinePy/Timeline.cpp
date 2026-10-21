@@ -28,7 +28,12 @@ namespace tl
     {
         void timeline(nb::module_& m)
         {
-            nb::class_<Timeline>(m, "Timeline")
+            nb::class_<Timeline>(
+                m, "Timeline",
+                "A timeline opened for playback: an OpenTimelineIO file, a "
+                "movie, an image sequence, or an opentimelineio Timeline "
+                "object, with its media found and its video and audio "
+                "described in ioInfo. Played by a Player.")
                 .def(nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
                         const ftk::Path&,
@@ -90,7 +95,11 @@ namespace tl
                     }),
                     nb::arg("context"),
                     nb::arg("otioTimeline"),
-                    nb::arg("options") = Options())
+                    nb::arg("options") = Options(),
+                    "From an opentimelineio Timeline object, without a file: "
+                    "a timeline built or edited in Python is played as it "
+                    "is. The object is copied, so later changes to it are not "
+                    "seen; make a new Timeline from it again.")
                 .def_prop_ro("context", &Timeline::getContext)
                 // The reverse trip: hand Python an object made by its
                 // own opentimelineio package.

@@ -24,7 +24,13 @@ namespace tl
                 "init",
                 &init,
                 nb::arg("context"),
-                "Initialize the library.");
+                "Initialize the library: the I/O, audio and render systems, "
+                "added to the context. Once, before making timelines or "
+                "players. Without a display or sound card -- a container, a "
+                "render farm -- set SDL_AUDIO_DRIVER=dummy in the environment "
+                "first: audio then goes nowhere, and the system's audio "
+                "libraries are not asked for devices, which is what prints "
+                "their errors when there are none.");
 
             timelineAudio(m);
             audioSystem(m);

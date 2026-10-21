@@ -182,17 +182,14 @@ namespace tl
             // with and nothing to say where the clip sits.
             return out;
         }
-        OTIO_NS::TimeRange trimmedRange = otioClip->trimmed_range();
-        const OTIO_NS::TimeRange availableRange = otioClip->available_range();
-        if (p.options.compat &&
-            availableRange.start_time() > ioInfo.videoTime->start_time())
-        {
-            // The same compensation _readVideo() makes, so that both agree on
-            // which media time a timeline time means.
-            trimmedRange = OTIO_NS::TimeRange(
-                trimmedRange.start_time() - availableRange.start_time(),
-                trimmedRange.duration());
-        }
+        // The same as _readVideo(), so that both agree on which media time
+        // a timeline time means.
+        const OTIO_NS::TimeRange trimmedRange = getMediaTrimmedRange(
+            otioClip->trimmed_range(),
+            otioClip->available_range(),
+            getSequenceOffset(mediaReference),
+            ioInfo.videoTime,
+            p.options.compat);
         mediaAt.rangeInParent = rangeInParent;
         mediaAt.trimmedRange = trimmedRange;
         mediaAt.rate = ioInfo.videoTime->duration().rate();

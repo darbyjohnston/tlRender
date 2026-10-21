@@ -36,6 +36,7 @@ namespace tl
             void _timeline(const std::shared_ptr<Timeline>&);
             void _path();
             void _seqOnDisk();
+            void _seqStartFrame();
             void _separateAudio();
             void _spatial();
             void _mediaReferences();

@@ -29,7 +29,12 @@ namespace tl
     {
         void iRender(nb::module_& m)
         {
-            nb::class_<IRender, ftk::IRender>(m, "IRender")
+            nb::class_<IRender, ftk::IRender>(
+                m, "IRender",
+                "The interface a timeline renderer implements, for the "
+                "renderers made in C++ and the widgets that draw with them. "
+                "To render frames from Python, use OffscreenRender, which "
+                "needs no window.")
                 .def("setOCIOOptions", &IRender::setOCIOOptions)
                 .def("setOCIOInputResolver", &IRender::setOCIOInputResolver)
                 .def("drawBackground", &IRender::drawBackground)
