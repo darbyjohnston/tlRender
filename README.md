@@ -177,6 +177,47 @@ source, where the codecs are compiled in.
 OpenTimelineIO does not publish wheels for every platform tlRender does, so
 on some pip builds it from source, which needs a C++ compiler.
 
+### Without a display
+
+A script with no window drives the player itself. Nothing updates between
+calls to `Context.tick()`, and after a seek the player's current frame is the
+previous one until the new one is decoded, so wait for the time asked for:
+
+```python
+import numpy as np
+import feather_tk as ftk
+import tlrender as tl
+import time
+
+context = ftk.Context()
+tl.init(context)
+timeline = tl.Timeline(context, ftk.Path("render.0001.exr"))
+player = tl.Player(context, timeline)
+
+def frame_at(t):
+    player.currentTime = t
+    while True:
+        context.tick()
+        for frame in player.currentVideo:
+            image = frame.layers[0].image if frame.layers else None
+            if frame.time == t and image and image.valid:
+                return image
+        time.sleep(0.005)
+
+image = frame_at(timeline.timeRange.start_time)
+pixels = np.asarray(image)       # (height, width, channels), the right way up
+print(pixels.dtype, pixels.shape, pixels.max())
+```
+
+A `Timeline` also takes an `opentimelineio.schema.Timeline` object, so a cut
+built or edited in Python plays without being written to a file first.
+
+Where there is no sound card either, set `SDL_AUDIO_DRIVER=dummy` in the
+environment: audio then goes nowhere, and the audio libraries are not asked
+for devices, which is what prints their errors in a container. Drawing
+frames together the way a viewport does -- a tile or wipe compare -- needs
+a window for now.
+
 The [Python examples](https://github.com/grizzlypeak3d/tlRender/tree/main/examples/python)
 show the API in use. The wheel also carries the C++ libraries, headers, and
 CMake package, so a project with its own bindings can build against the same
