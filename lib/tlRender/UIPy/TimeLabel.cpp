@@ -33,7 +33,10 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<TimeLabel, ftk::IWidget>(m, "TimeLabel")
+            nb::class_<TimeLabel, ftk::IWidget>(
+                m, "TimeLabel",
+                "Shows a time in the time units model's units: frames, "
+                "seconds or timecode.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,

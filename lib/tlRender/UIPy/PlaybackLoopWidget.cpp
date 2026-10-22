@@ -31,7 +31,9 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<PlaybackLoopWidget, ftk::IContainer>(m, "PlaybackLoopWidget")
+            nb::class_<PlaybackLoopWidget, ftk::IContainer>(
+                m, "PlaybackLoopWidget",
+                "Chooses a loop mode: loop, once or ping-pong.")
                 .def(
                     nb::new_(&PlaybackLoopWidget::create),
                     nb::arg("context"),

@@ -34,8 +34,19 @@ namespace tl
 
             // Only the cache management; the request API is futures, which
             // needs a design of its own before it is bound.
-            nb::class_<ThumbnailSystem, ftk::ISystem>(m, "ThumbnailSystem")
-                .def("clearCache", &ThumbnailSystem::clearCache);
+            nb::class_<ThumbnailSystem, ftk::ISystem>(
+                m, "ThumbnailSystem",
+                "Makes the thumbnails and audio waveforms the timeline "
+                "widget draws, on threads of its own, and keeps them. "
+                "tlrender.ui.init() creates it. Only the cache is reached "
+                "from Python.")
+                .def(
+                    "clearCache",
+                    &ThumbnailSystem::clearCache,
+                    "Clear the thumbnails and waveforms made so far, to free "
+                    "their memory. A file changed on disk does not need it: "
+                    "its modification time is part of what they are kept "
+                    "by, so it is read again.");
 
             // The file browser's thumbnails are made by tlRender and kept by
             // feather-tk's file browser system, which knows nothing of I/O

@@ -30,7 +30,13 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<TimelineRuler, ftk::IMouseWidget>(m, "TimelineRuler")
+            nb::class_<TimelineRuler, ftk::IMouseWidget>(
+                m, "TimelineRuler",
+                "The time ruler a TimelineWidget draws above its timelines, "
+                "with the player's in and out points, frame markers and "
+                "cache. TimelineWidget makes and places its own; this is "
+                "for a layout of one's own, which then sets the scale and "
+                "scroll position as the timelines move.")
                 .def(
                     nb::new_(&TimelineRuler::create),
                     nb::arg("context"),

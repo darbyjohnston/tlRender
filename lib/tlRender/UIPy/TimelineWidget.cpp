@@ -30,7 +30,15 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<TimelineWidget, ftk::IWidget>(m, "TimelineWidget")
+            nb::class_<TimelineWidget, ftk::IWidget>(
+                m, "TimelineWidget",
+                "Draws a Player's timeline -- tracks, clips, transitions, "
+                "markers, thumbnails and audio waveforms -- under a ruler "
+                "that scrubs it, with the timelines the player compares "
+                "against drawn beside it. Give it a player; it follows the "
+                "player's time. Thumbnails and waveforms are made on other "
+                "threads by the ThumbnailSystem and fill in as they "
+                "arrive.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
@@ -53,7 +61,8 @@ namespace tl
                     &TimelineWidget::getPlayer,
                     &TimelineWidget::setPlayer,
                     // "No player" is a null player.
-                    nb::for_setter(nb::arg("value").none()))
+                    nb::for_setter(nb::arg("value").none()),
+                    "The player whose timeline is drawn, or None.")
                 .def_prop_rw(
                     "displayOptions",
                     &TimelineWidget::getDisplayOptions,
@@ -62,7 +71,14 @@ namespace tl
                 .def_prop_ro(
                     "observeDisplayOptions",
                     &TimelineWidget::observeDisplayOptions)
-                .def("setTimelines", &TimelineWidget::setTimelines)
+                .def(
+                    "setTimelines",
+                    &TimelineWidget::setTimelines,
+                    nb::arg("timelines").none(),
+                    "Set the timelines drawn beside the player's own. None, "
+                    "the default, draws the player's compare timelines; a "
+                    "list draws those instead, for showing timelines the "
+                    "picture is not comparing.")
                 .def_prop_rw(
                     "frameMarkers",
                     &TimelineWidget::getFrameMarkers,
@@ -76,7 +92,9 @@ namespace tl
                 .def_prop_rw(
                     "frameView",
                     &TimelineWidget::hasFrameView,
-                    &TimelineWidget::setFrameView)
+                    &TimelineWidget::setFrameView,
+                    "Whether the view is framed automatically: the whole "
+                    "timeline fitted to the widget's width.")
                 .def_prop_ro(
                     "observeFrameView",
                     &TimelineWidget::observeFrameView)
@@ -90,14 +108,17 @@ namespace tl
                 .def_prop_rw(
                     "autoScroll",
                     &TimelineWidget::hasAutoScroll,
-                    &TimelineWidget::setAutoScroll)
+                    &TimelineWidget::setAutoScroll,
+                    "Whether the view scrolls to keep the current time in "
+                    "view during playback.")
                 .def_prop_ro(
                     "observeAutoScroll",
                     &TimelineWidget::observeAutoScroll)
                 .def_prop_rw(
                     "stopOnScrub",
                     &TimelineWidget::hasStopOnScrub,
-                    &TimelineWidget::setStopOnScrub)
+                    &TimelineWidget::setStopOnScrub,
+                    "Whether scrubbing stops playback.")
                 .def_prop_ro(
                     "observeStopOnScrub",
                     &TimelineWidget::observeStopOnScrub);

@@ -32,7 +32,11 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<PlaybackToolBar, ftk::ToolBar>(m, "PlaybackToolBar")
+            nb::class_<PlaybackToolBar, ftk::ToolBar>(
+                m, "PlaybackToolBar",
+                "Buttons for the player's playback: reverse, stop and "
+                "forward, and its loop mode. actions has them by name, for "
+                "menus and shortcuts.")
                 .def(
                     nb::new_(&PlaybackToolBar::create),
                     nb::arg("context"),

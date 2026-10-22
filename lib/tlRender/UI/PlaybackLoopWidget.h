@@ -13,7 +13,7 @@ namespace tl
 {
     namespace ui
     {
-        //! Time label.
+        //! Playback loop mode widget.
         class TL_UI_API_TYPE PlaybackLoopWidget : public ftk::IContainer
         {
             FTK_NON_COPYABLE(PlaybackLoopWidget);

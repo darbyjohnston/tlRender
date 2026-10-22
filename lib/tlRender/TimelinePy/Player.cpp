@@ -93,13 +93,39 @@ namespace tl
                 .def_prop_ro("observeActualSpeed", &Player::observeActualSpeed)
                 .def_prop_rw("speedMult", &Player::getSpeedMult, &Player::setSpeedMult)
                 .def_prop_ro("observeSpeedMult", &Player::observeSpeedMult)
-                .def_prop_rw("playback", &Player::getPlayback, &Player::setPlayback)
+                .def_prop_rw(
+                    "playback",
+                    &Player::getPlayback,
+                    &Player::setPlayback,
+                    "Stop, Forward or Reverse. Setting the direction it is "
+                    "already playing in doubles the speed, up to 64 times, "
+                    "as pressing play again does in a player; the other "
+                    "direction then halves it rather than turning round, and "
+                    "Stop returns it to normal. A script that only wants it "
+                    "playing checks playback first.")
                 .def_prop_ro("observePlayback", &Player::observePlayback)
                 .def("togglePlayback", &Player::togglePlayback)
                 .def_prop_ro("isStopped", &Player::isStopped)
-                .def("stop", &Player::stop)
-                .def("forward", &Player::forward)
-                .def("reverse", &Player::reverse)
+                .def("stop", &Player::stop, "Stop playback.")
+                .def(
+                    "forward",
+                    &Player::forward,
+                    "Play forward: playback = Forward, speeding up when it "
+                    "already is.")
+                .def(
+                    "reverse",
+                    &Player::reverse,
+                    "Play in reverse: playback = Reverse, speeding up when "
+                    "it already is.")
+                .def_prop_ro(
+                    "droppedFrames",
+                    &Player::getDroppedFrames,
+                    "The frames playback passed without presenting, because "
+                    "decoding or reading could not keep up. Counted only at "
+                    "normal speed or slower, and reset when playback starts "
+                    "or stops. Frames presented but never drawn are a "
+                    "viewer's to count; see Viewport.FPS.")
+                .def_prop_ro("observeDroppedFrames", &Player::observeDroppedFrames)
                 .def_prop_rw("loop", &Player::getLoop, &Player::setLoop)
                 .def_prop_ro("observeLoop", &Player::observeLoop)
 

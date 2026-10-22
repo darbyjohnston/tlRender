@@ -139,6 +139,15 @@ class OffscreenRenderTest(unittest.TestCase):
                     break
                 time.sleep(0.01)
             self.assertIsNotNone(frames)
+            self.assertEqual(0, player.droppedFrames)
+
+            # Playing in the direction it already plays in speeds it up,
+            # and stopping returns it to normal.
+            player.forward()
+            player.forward()
+            self.assertEqual(2.0, player.speedMult)
+            player.stop()
+            self.assertEqual(1.0, player.speedMult)
 
             options = tl.CompareOptions()
             options.compare = tl.Compare.Tile
