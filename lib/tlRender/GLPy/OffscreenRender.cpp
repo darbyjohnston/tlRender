@@ -32,7 +32,10 @@ namespace tl
                 "the environment, which makes it an EGL context with no "
                 "window system; that needs Mesa's EGL and DRI drivers, and "
                 "uses the GPU where there is one and llvmpipe where there is "
-                "not.")
+                "not. Keep one and render the same frames again with other "
+                "options -- a wipe position, a size, a look -- and the frames "
+                "stay on the GPU instead of being copied in each time; see "
+                "cacheByteCount and clearCache().")
                 .def(
                     nb::new_(&gl::OffscreenRender::create),
                     nb::arg("context"))
