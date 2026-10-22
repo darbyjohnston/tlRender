@@ -437,15 +437,7 @@ namespace tl
                         if (p.fpsData.has_value())
                         {
                             p.fpsData->frameCount = p.fpsData->frameCount + 1;
-                            const auto now = std::chrono::steady_clock::now();
-                            const std::chrono::duration<double> diff = now - p.fpsData->timer;
-                            if (diff.count() > 1.0)
-                            {
-                                const double fps = p.fpsData->frameCount / diff.count();
-                                p.fps->setIfChanged(fps);
-                                p.fpsData->timer = now;
-                                p.fpsData->frameCount = 0;
-                            }
+                            _fpsUpdate();
                         }
 
                         p.doRender = true;
@@ -920,12 +912,31 @@ namespace tl
         {
             IWidget::tickEvent(parentsVisible, parentsEnabled, event);
             FTK_P();
+            // Here as well as when a frame arrives: while playback is stalled
+            // none do, and the rate would stay at the last one measured.
+            _fpsUpdate();
             if (Private::Resample::Read == p.resample)
             {
                 p.resample = Private::Resample::None;
                 // Through the same path as a pick: a comparison can bring a
                 // different image under the position, or none at all.
                 _sampleUpdate();
+            }
+        }
+
+        void Viewport::_fpsUpdate()
+        {
+            FTK_P();
+            if (p.fpsData.has_value())
+            {
+                const auto now = std::chrono::steady_clock::now();
+                const std::chrono::duration<double> diff = now - p.fpsData->timer;
+                if (diff.count() > 1.0)
+                {
+                    p.fps->setIfChanged(p.fpsData->frameCount / diff.count());
+                    p.fpsData->timer = now;
+                    p.fpsData->frameCount = 0;
+                }
             }
         }
 

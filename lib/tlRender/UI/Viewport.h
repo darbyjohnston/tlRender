@@ -329,6 +329,7 @@ namespace tl
             bool _getSourceBox(ftk::Box2I&, ftk::Size2I&) const;
             std::optional<ftk::V2I> _toSourcePixel(const ftk::V2I&) const;
             ftk::V2I _fromSourcePixel(const ftk::V2I&) const;
+            void _fpsUpdate();
             void _sampleUpdate();
 
             FTK_PRIVATE();
