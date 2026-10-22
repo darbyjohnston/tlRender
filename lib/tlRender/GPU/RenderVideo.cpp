@@ -494,6 +494,8 @@ namespace tl
                     {
                         ftk::ImageOptions out = imageOptions.get() ? *imageOptions : layerOptions;
                         out.cache = false;
+                        // A frame is not changed in place.
+                        out.reuse = true;
                         return out;
                     };
                     const auto drawA = [&](const ftk::Color4F& color, bool blend = true)
