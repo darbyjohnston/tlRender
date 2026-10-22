@@ -70,6 +70,13 @@ class OffscreenRenderTest(unittest.TestCase):
         self.assertTrue(near([100, 100, 100, 255], pixel(image, 6, 1)))
         options.compare = tl.Compare.Horizontal
 
+        # A wipe: A on the left of the line, B on the right.
+        options.compare = tl.Compare.Wipe
+        image = render.render([a, b], options)
+        self.assertTrue(near([200, 200, 200, 255], pixel(image, 2, 1)))
+        self.assertTrue(near([100, 100, 100, 255], pixel(image, 2, 6)))
+        options.compare = tl.Compare.Horizontal
+
         # Fitted into a size of its own, with nothing drawn around it.
         image = render.render([a, b], options, ftk.Size2I(16, 16))
         self.assertEqual(ftk.Size2I(16, 16), image.size)
@@ -78,6 +85,27 @@ class OffscreenRenderTest(unittest.TestCase):
 
         with self.assertRaises(Exception):
             render.render([])
+
+    def test_cache(self):
+        # Frames rendered again are kept as textures, from the second render
+        # in a row that has them, and told apart by the image, not its
+        # pixels: changed in place, an image renders as it was until the
+        # cache is cleared, and with no cache it renders as it is.
+        render = tl.OffscreenRender(self.context)
+        self.assertTrue(render.cacheByteCount > 0)
+        image = opaqueImage(8, 4, 200)
+        a = frame(image)
+        for i in range(2):
+            self.assertTrue(near([200, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        image.data[1, 1, 0] = 100
+        self.assertTrue(near([200, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        render.clearCache()
+        self.assertTrue(near([100, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        self.assertTrue(near([100, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        render.cacheByteCount = 0
+        self.assertEqual(0, render.cacheByteCount)
+        image.data[1, 1, 0] = 50
+        self.assertTrue(near([50, 200, 200, 255], pixel(render.render([a]), 1, 1)))
 
     def test_player(self):
         # The whole of it: two files, compared by a player, rendered as a
@@ -111,6 +139,15 @@ class OffscreenRenderTest(unittest.TestCase):
                     break
                 time.sleep(0.01)
             self.assertIsNotNone(frames)
+            self.assertEqual(0, player.droppedFrames)
+
+            # Playing in the direction it already plays in speeds it up,
+            # and stopping returns it to normal.
+            player.forward()
+            player.forward()
+            self.assertEqual(2.0, player.speedMult)
+            player.stop()
+            self.assertEqual(1.0, player.speedMult)
 
             options = tl.CompareOptions()
             options.compare = tl.Compare.Tile

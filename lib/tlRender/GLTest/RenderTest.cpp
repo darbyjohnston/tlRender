@@ -25,6 +25,7 @@
 #include <ftk/Core/Mesh.h>
 #include <ftk/Core/Path.h>
 #include <ftk/Core/Format.h>
+#include <ftk/Core/Memory.h>
 
 #if defined(TLRENDER_OCIO)
 #include <OpenColorIO/OpenColorIO.h>
@@ -172,6 +173,14 @@ namespace tl
             FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 5)));
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 10, imageSize.h + 5)));
 
+            // A wipe, which draws each side through a stencil mask: A on the
+            // left of the line and B on the right, not B over all of it.
+            CompareOptions wipeOptions;
+            wipeOptions.compare = Compare::Wipe;
+            image = render->render({ a, b }, wipeOptions);
+            FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 4, imageSize.h / 2)));
+            FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, imageSize.w - 4, imageSize.h / 2)));
+
             // Fitted into a square: the same picture, half the size, with
             // nothing drawn above and below it.
             image = render->render({ a, b }, compareOptions, ftk::Size2I(64, 64));
@@ -186,6 +195,48 @@ namespace tl
             FTK_CHECK(near({ 200, 200, 200, 255 }, pixel(image, 10, 32)));
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 54, 32)));
             FTK_CHECK(near({ 0, 0, 0, 0 }, pixel(image, 10, 61)));
+
+            // Frames rendered again are kept as textures: rendered once
+            // more, with other options, they are not copied in again. A
+            // new frame is kept from its second render in a row, so that
+            // a sequence of frames each rendered once keeps none.
+            FTK_CHECK(render->getCacheByteCount() > 0);
+            const size_t cacheCount = ftk::gl::Render::getTextureCacheCount();
+            FTK_CHECK(cacheCount >= 2);
+            render->render({ a, b }, verticalOptions, ftk::Size2I(32, 32));
+            FTK_CHECK(cacheCount == ftk::gl::Render::getTextureCacheCount());
+            const VideoFrame c = opaqueFrame(50);
+            image = render->render({ c });
+            FTK_CHECK(cacheCount == ftk::gl::Render::getTextureCacheCount());
+            FTK_CHECK(near({ 50, 50, 50, 255 }, pixel(image, 10, 10)));
+            image = render->render({ c });
+            FTK_CHECK(cacheCount + 1 == ftk::gl::Render::getTextureCacheCount());
+            FTK_CHECK(near({ 50, 50, 50, 255 }, pixel(image, 10, 10)));
+
+            // Frames are told apart by the image, not its pixels: changed in
+            // place, it renders as it was until the cache is cleared, and
+            // with no cache it renders as it is.
+            const auto fill = [](const VideoFrame& frame, uint8_t value)
+                {
+                    const auto& image = frame.layers.front().image;
+                    uint8_t* p = image->getData();
+                    for (size_t i = 0; i < image->getByteCount(); i += 4)
+                    {
+                        p[i] = p[i + 1] = p[i + 2] = value;
+                    }
+                };
+            fill(c, 150);
+            image = render->render({ c });
+            FTK_CHECK(near({ 50, 50, 50, 255 }, pixel(image, 10, 10)));
+            render->clearCache();
+            image = render->render({ c });
+            FTK_CHECK(near({ 150, 150, 150, 255 }, pixel(image, 10, 10)));
+            render->setCacheByteCount(0);
+            FTK_CHECK(0 == render->getCacheByteCount());
+            fill(c, 250);
+            image = render->render({ c });
+            FTK_CHECK(near({ 250, 250, 250, 255 }, pixel(image, 10, 10)));
+            render->setCacheByteCount(ftk::megabyte * 512);
 
             // Read back as floating point, for values past one, where
             // OpenGL can: OpenGL ES reads back bytes only, and says so.

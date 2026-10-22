@@ -234,6 +234,13 @@ writer.writeVideo(t, image)
 writer.finish()
 ```
 
+Keep one `OffscreenRender` and render the same frames again with other
+options -- a wipe position, a size, a look -- and the frames are kept on the
+GPU rather than copied in each time. They are told apart by the image, so
+after changing an image's pixels in place call `clearCache()`.
+[compare.py](https://github.com/grizzlypeak3d/tlRender/tree/main/examples/python/compare.py)
+renders a tile and then sweeps a wipe this way.
+
 Its OpenGL context is a hidden window's. On Linux with no display at all --
 a container, a render farm node, continuous integration -- set
 `SDL_VIDEO_DRIVER=offscreen` in the environment, and it is an EGL context

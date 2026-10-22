@@ -31,7 +31,10 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<TimeUnitsWidget, ftk::IWidget>(m, "TimeUnitsWidget")
+            nb::class_<TimeUnitsWidget, ftk::IWidget>(
+                m, "TimeUnitsWidget",
+                "Chooses the time units model's units, which the time "
+                "widgets sharing the model then show.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,

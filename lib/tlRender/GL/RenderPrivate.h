@@ -106,6 +106,7 @@ namespace tl
 
             OCIOOptions ocioOptions;
             LUTOptions lutOptions;
+            bool videoCache = false;
 
 #if defined(TLRENDER_OCIO)
             // Keyed by the options they were built for and then by the

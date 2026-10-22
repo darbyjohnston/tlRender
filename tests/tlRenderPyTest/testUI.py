@@ -14,6 +14,17 @@ class UITest(unittest.TestCase):
         self.context = ftk.Context()
         tl.ui.init(self.context)
 
+    def test_docs(self):
+        # What a caller learns the classes from, help() included.
+        for name in [
+            "Viewport", "TimelineWidget", "TimelineRuler", "ThumbnailSystem",
+            "TimeMap", "TimeEdit", "TimeLabel", "TimeUnitsWidget",
+            "FrameToolBar", "PlaybackToolBar", "PlaybackLoopWidget",
+            "ItemData", "ItemOptions", "Marker", "DisplayOptions"]:
+            self.assertTrue(getattr(tl.ui, name).__doc__, name)
+        self.assertTrue(tl.ui.__doc__)
+        self.assertTrue(tl.ui.init.__doc__)
+
     def test_timeline_widget(self):
         widget = tl.ui.TimelineWidget(self.context)
         self.assertIsNotNone(widget.timeUnitsModel)

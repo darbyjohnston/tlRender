@@ -355,6 +355,15 @@ tlrender_prune_include_directories(OpenImageIO::OpenImageIO)
 # types from feather_tk. So this is feather-tk's own option, declared here too because
 # feather-tk is not added until below.
 set(ftk_PYTHON_STABLE_ABI ON CACHE BOOL "Build the Python module against the stable ABI")
+# The Python modules share feather-tk's libraries. Built static, each module
+# has a copy of its own, and the copies cannot share what one has set up --
+# the OpenGL functions are loaded into one and called through another, and a
+# window's first draw crashes.
+if(TLRENDER_PYTHON AND NOT BUILD_SHARED_LIBS)
+    message(FATAL_ERROR
+        "TLRENDER_PYTHON needs BUILD_SHARED_LIBS: the feather_tk and tlrender modules "
+        "would each have a copy of feather-tk otherwise.")
+endif()
 if(TLRENDER_PYTHON)
     # Development.Module rather than Development, as feather-tk asks: an
     # extension module does not link libpython.

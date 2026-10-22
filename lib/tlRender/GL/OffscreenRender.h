@@ -59,6 +59,28 @@ namespace tl
             //! Set the LUT options.
             TL_GL_API void setLUTOptions(const LUTOptions&);
 
+            //! \name Texture Cache
+            //! Frames rendered again are kept as textures, so that rendering
+            //! the same frames once more -- with other comparison options,
+            //! a different size, another look -- does not copy them in
+            //! again. A frame is kept from the second render in a row that
+            //! has it; frames each rendered once, as a sequence is, are not
+            //! kept. Frames are told apart by the image, not by its pixels:
+            //! an image whose pixels are changed in place renders as it was
+            //! until the cache is cleared.
+            ///@{
+
+            //! Get the most bytes of images that are kept.
+            TL_GL_API size_t getCacheByteCount() const;
+
+            //! Set the most bytes of images that are kept. Zero keeps none.
+            TL_GL_API void setCacheByteCount(size_t);
+
+            //! Clear the cache.
+            TL_GL_API void clearCache();
+
+            ///@}
+
             //! Render video frames, the first and then one for each timeline
             //! compared with it, as a Player's current video has them.
             //!

@@ -32,7 +32,11 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<FrameToolBar, ftk::ToolBar>(m, "FrameToolBar")
+            nb::class_<FrameToolBar, ftk::ToolBar>(
+                m, "FrameToolBar",
+                "Buttons for the start, previous, next and end frames of "
+                "the player. actions has them by name, for menus and "
+                "shortcuts.")
                 .def(
                     nb::new_(&FrameToolBar::create),
                     nb::arg("context"),

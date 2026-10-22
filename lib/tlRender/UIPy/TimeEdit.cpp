@@ -33,12 +33,23 @@ namespace tl
         {
             using namespace ui;
 
-            nb::class_<TimeMap>(m, "TimeMap")
+            nb::class_<TimeMap>(
+                m, "TimeMap",
+                "Maps between the time a player runs on and the time shown "
+                "for it, which are not always the same: a sequence read "
+                "with its missing frames left out plays at the length of "
+                "the frames it has, so counting from the start does not "
+                "name the frame, and the media's own time does. toMedia "
+                "and fromMedia are functions of a RationalTime; left unset "
+                "the two times are the same.")
                 .def(nb::init())
                 .def_rw("toMedia", &TimeMap::toMedia)
                 .def_rw("fromMedia", &TimeMap::fromMedia);
 
-            nb::class_<TimeEdit, ftk::IWidget>(m, "TimeEdit")
+            nb::class_<TimeEdit, ftk::IWidget>(
+                m, "TimeEdit",
+                "Edits a time, as text in the time units model's units: "
+                "frames, seconds or timecode.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
@@ -49,7 +60,12 @@ namespace tl
                     nb::arg("parent") = nullptr)
                 .def_prop_rw("value", &TimeEdit::getValue, &TimeEdit::setValue)
                 .def("setCallback", &TimeEdit::setCallback)
-                .def("setTimeMap", &TimeEdit::setTimeMap)
+                .def(
+                    "setTimeMap",
+                    &TimeEdit::setTimeMap,
+                    "Set the mapping between the value and the time shown. "
+                    "The value, and the callback, stay in the player's "
+                    "time.")
                 .def("selectAll", &TimeEdit::selectAll);
         }
     }

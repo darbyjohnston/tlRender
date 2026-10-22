@@ -30,13 +30,21 @@ namespace tl
     {
         void uiBind(nb::module_& m)
         {
-            auto mUI = m.def_submodule("ui", "User interface");
+            auto mUI = m.def_submodule(
+                "ui",
+                "Widgets for playing timelines, built on feather-tk: a "
+                "Viewport that draws a Player's frames, a TimelineWidget, "
+                "and tool bars and time widgets for the transport. They go "
+                "in a feather_tk.App window, whose loop ticks the context "
+                "and draws; tlrender.ui.init() comes first.");
             
             mUI.def(
                 "init",
                 &ui::init,
                 nb::arg("context"),
-                "Initialize the library.");
+                "Initialize the library, and tlRender's core with it: call "
+                "it instead of tlrender.init() before making any of the "
+                "widgets.");
 
             itemOptions(mUI);
 

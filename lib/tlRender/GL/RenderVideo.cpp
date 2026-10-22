@@ -857,7 +857,7 @@ namespace tl
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     glDisable(GL_BLEND);
                                     auto imageOptionsTmp = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                                    imageOptionsTmp.cache = false;
+                                    imageOptionsTmp.cache = p.videoCache;
                                     drawLayerImage(
                                         layer.image,
                                         getBox(
@@ -877,7 +877,7 @@ namespace tl
                                     glClear(GL_COLOR_BUFFER_BIT);
                                     glDisable(GL_BLEND);
                                     auto imageOptionsTmp = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
-                                    imageOptionsTmp.cache = false;
+                                    imageOptionsTmp.cache = p.videoCache;
                                     drawLayerImage(
                                         layer.imageB,
                                         getBox(
@@ -919,7 +919,7 @@ namespace tl
                             else if (layer.image)
                             {
                                 auto imageOptionsTmp = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                                imageOptionsTmp.cache = false;
+                                imageOptionsTmp.cache = p.videoCache;
                                 drawLayerImage(
                                     layer.image,
                                     getBox(
@@ -933,7 +933,7 @@ namespace tl
                             else if (layer.imageB)
                             {
                                 auto imageOptionsTmp = imageOptions.get() ? *imageOptions : layer.imageOptionsB;
-                                imageOptionsTmp.cache = false;
+                                imageOptionsTmp.cache = p.videoCache;
                                 drawLayerImage(
                                     layer.imageB,
                                     getBox(
@@ -950,7 +950,7 @@ namespace tl
                         if (layer.image)
                         {
                             auto imageOptionsTmp = imageOptions.get() ? *imageOptions : layer.imageOptions;
-                            imageOptionsTmp.cache = false;
+                            imageOptionsTmp.cache = p.videoCache;
                             drawLayerImage(
                                 layer.image,
                                 getBox(

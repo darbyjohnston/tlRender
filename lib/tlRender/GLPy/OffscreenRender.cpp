@@ -32,7 +32,10 @@ namespace tl
                 "the environment, which makes it an EGL context with no "
                 "window system; that needs Mesa's EGL and DRI drivers, and "
                 "uses the GPU where there is one and llvmpipe where there is "
-                "not.")
+                "not. Keep one and render the same frames again with other "
+                "options -- a wipe position, a size, a look -- and the frames "
+                "stay on the GPU instead of being copied in each time; see "
+                "cacheByteCount and clearCache().")
                 .def(
                     nb::new_(&gl::OffscreenRender::create),
                     nb::arg("context"))
@@ -44,6 +47,21 @@ namespace tl
                     "setLUTOptions",
                     &gl::OffscreenRender::setLUTOptions,
                     nb::arg("options"))
+                .def_prop_rw(
+                    "cacheByteCount",
+                    &gl::OffscreenRender::getCacheByteCount,
+                    &gl::OffscreenRender::setCacheByteCount,
+                    "The most bytes of frames kept as textures, so that "
+                    "rendering the same frames again -- with other compare "
+                    "options, another size or look -- does not copy them in "
+                    "again. Frames are told apart by the image, not its "
+                    "pixels. Zero keeps none, for frames each rendered once.")
+                .def(
+                    "clearCache",
+                    &gl::OffscreenRender::clearCache,
+                    "Clear the frames kept as textures: after changing an "
+                    "image's pixels in place, which otherwise renders as it "
+                    "was.")
                 .def(
                     "render",
                     &gl::OffscreenRender::render,

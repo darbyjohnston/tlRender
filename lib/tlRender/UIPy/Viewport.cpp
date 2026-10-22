@@ -40,7 +40,14 @@ namespace tl
             ftk::python::observable<std::optional<ftk::V2I> >(m, "OptionalV2I");
             ftk::python::observable<std::optional<ftk::Color4F> >(m, "OptionalColor4F");
             
-            nb::class_<Viewport, ftk::IWidget>(m, "Viewport")
+            nb::class_<Viewport, ftk::IWidget>(
+                m, "Viewport",
+                "Draws a Player's current frames, a comparison included, "
+                "with the OCIO, LUT, image and display options applied, "
+                "and lets the mouse pan, zoom and wipe. Give it a player "
+                "and it redraws whenever the player presents a frame. For "
+                "the same picture without a window, as an image, see "
+                "OffscreenRender.")
                 .def(
                     nb::new_(nb::overload_cast<
                         const std::shared_ptr<ftk::Context>&,
@@ -114,7 +121,8 @@ namespace tl
                     &Viewport::getPlayer,
                     &Viewport::setPlayer,
                     // "No player" is a null player.
-                    nb::for_setter(nb::arg("value").none()))
+                    nb::for_setter(nb::arg("value").none()),
+                    "The player whose frames are drawn, or None.")
                 .def_prop_ro(
                     "viewPos",
                     &Viewport::getViewPos,
@@ -156,7 +164,9 @@ namespace tl
                 .def_prop_rw(
                     "frameView",
                     &Viewport::hasFrameView,
-                    &Viewport::setFrameView)
+                    &Viewport::setFrameView,
+                    "Whether the view is framed automatically: the picture "
+                    "fitted to the viewport, again as either changes size.")
                 .def_prop_ro(
                     "observeFrameView",
                     &Viewport::observeFrameView)
@@ -169,17 +179,34 @@ namespace tl
                 .def("center", &Viewport::center)
                 .def_prop_ro(
                     "FPS",
-                    &Viewport::getFPS)
+                    &Viewport::getFPS,
+                    "The frames per second the player presents while it "
+                    "plays, measured about once a second; zero when stopped. "
+                    "In an App, where each tick also draws, that is the rate "
+                    "frames are shown. A script that calls Context.tick() "
+                    "more often than it draws measures the frames presented, "
+                    "not the frames drawn.")
                 .def_prop_ro(
                     "observeFPS",
                     &Viewport::observeFPS)
                 .def_prop_ro(
                     "droppedFrames",
-                    &Viewport::getDroppedFrames)
+                    &Viewport::getDroppedFrames,
+                    "The player's dropped frames: see Player.droppedFrames. "
+                    "Frames the player presented that were never drawn are "
+                    "not counted; in an App they cannot happen, since the "
+                    "player presents at most one frame between draws.")
                 .def_prop_ro(
                     "observeDroppedFrames",
                     &Viewport::observeDroppedFrames)
-                .def("getColorSample", &Viewport::getColorSample)
+                .def(
+                    "getColorSample",
+                    &Viewport::getColorSample,
+                    "Sample a color, at a position in the viewport's own "
+                    "coordinates. It is read back from the buffer the "
+                    "viewport drew into, so it is the frame before the one "
+                    "being drawn, and the read waits for the GPU: sampling "
+                    "every frame stalls the playback being sampled.")
                 .def(
                     "getColorSampleDisplay",
                     &Viewport::getColorSampleDisplay,
@@ -205,7 +232,13 @@ namespace tl
                 .def_prop_ro(
                     "observeColorSample",
                     &Viewport::observeColorSample)
-                .def("pick", &Viewport::pick, nb::arg("imagePos"))
+                .def(
+                    "pick",
+                    &Viewport::pick,
+                    nb::arg("imagePos"),
+                    "Sample the image at an image pixel, as the pick mouse "
+                    "action would; the result arrives through "
+                    "observeColorSample.")
                 .def_prop_rw(
                     "inputEnabled",
                     &Viewport::isInputEnabled,
