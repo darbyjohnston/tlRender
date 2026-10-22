@@ -196,6 +196,26 @@ namespace tl
             FTK_CHECK(near({ 100, 100, 100, 255 }, pixel(image, 54, 32)));
             FTK_CHECK(near({ 0, 0, 0, 0 }, pixel(image, 10, 61)));
 
+            // The buffers of the last two output sizes are kept: with a
+            // renderer of its own, a second size adds a buffer, the first
+            // size back again adds none, and a third replaces one. (On a
+            // software renderer each output buffer has a buffer of its own
+            // for reading back, so the second size may add two.)
+            {
+                auto render2 = gl::OffscreenRender::create(_context);
+                render2->render({ a }, CompareOptions(), ftk::Size2I(64, 64));
+                const size_t count = ftk::gl::OffscreenBuffer::getObjectCount();
+                render2->render({ a }, CompareOptions(), ftk::Size2I(32, 32));
+                const size_t count2 = ftk::gl::OffscreenBuffer::getObjectCount();
+                FTK_CHECK(count2 > count);
+                render2->render({ a }, CompareOptions(), ftk::Size2I(64, 64));
+                FTK_CHECK(count2 == ftk::gl::OffscreenBuffer::getObjectCount());
+                render2->render({ a }, CompareOptions(), ftk::Size2I(32, 32));
+                FTK_CHECK(count2 == ftk::gl::OffscreenBuffer::getObjectCount());
+                render2->render({ a }, CompareOptions(), ftk::Size2I(16, 16));
+                FTK_CHECK(count2 == ftk::gl::OffscreenBuffer::getObjectCount());
+            }
+
             // Frames rendered again are kept as textures: rendered once
             // more, with other options, they are not copied in again. A
             // new frame is kept from its second render in a row, so that
