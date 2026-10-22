@@ -11,6 +11,7 @@
 #include <ftk/Core/Context.h>
 #include <ftk/Core/Format.h>
 #include <ftk/Core/Matrix.h>
+#include <ftk/Core/Memory.h>
 
 #include <algorithm>
 #include <stdexcept>
@@ -28,7 +29,38 @@ namespace tl
             std::shared_ptr<ftk::gl::OffscreenBuffer> buffer;
             OCIOOptions ocioOptions;
             LUTOptions lutOptions;
+            // Enough for a pair of 4K frames in floating point.
+            size_t cacheByteCount = ftk::megabyte * 512;
+            // The images of the last render. Frames are kept as textures
+            // only once one comes round again: a sequence of new frames is
+            // faster copied into the same few textures than given a new
+            // texture each.
+            std::vector<std::weak_ptr<ftk::Image> > images;
         };
+
+        namespace
+        {
+            std::vector<std::shared_ptr<ftk::Image> > getImages(
+                const std::vector<VideoFrame>& videoFrames)
+            {
+                std::vector<std::shared_ptr<ftk::Image> > out;
+                for (const auto& videoFrame : videoFrames)
+                {
+                    for (const auto& layer : videoFrame.layers)
+                    {
+                        if (layer.image)
+                        {
+                            out.push_back(layer.image);
+                        }
+                        if (layer.imageB)
+                        {
+                            out.push_back(layer.imageB);
+                        }
+                    }
+                }
+                return out;
+            }
+        }
 
         void OffscreenRender::_init(const std::shared_ptr<ftk::Context>& context)
         {
@@ -80,6 +112,31 @@ namespace tl
             _p->lutOptions = value;
         }
 
+        size_t OffscreenRender::getCacheByteCount() const
+        {
+            return _p->cacheByteCount;
+        }
+
+        void OffscreenRender::setCacheByteCount(size_t value)
+        {
+            FTK_P();
+            if (value == p.cacheByteCount)
+                return;
+            p.cacheByteCount = value;
+            if (0 == value)
+            {
+                clearCache();
+            }
+        }
+
+        void OffscreenRender::clearCache()
+        {
+            FTK_P();
+            p.window->makeCurrent();
+            p.render->clearTextureCache();
+            p.window->clearCurrent();
+        }
+
         std::shared_ptr<ftk::Image> OffscreenRender::render(
             const std::vector<VideoFrame>& videoFrames,
             const CompareOptions& compareOptions,
@@ -129,6 +186,24 @@ namespace tl
                 -1.F,
                 1.F);
 
+            // Kept as textures when an image was in the last render too.
+            const auto images = getImages(videoFrames);
+            bool videoCache = false;
+            if (p.cacheByteCount > 0)
+            {
+                for (const auto& weak : p.images)
+                {
+                    const auto image = weak.lock();
+                    if (image &&
+                        std::find(images.begin(), images.end(), image) != images.end())
+                    {
+                        videoCache = true;
+                        break;
+                    }
+                }
+            }
+            p.images.assign(images.begin(), images.end());
+
             p.window->makeCurrent();
             std::shared_ptr<ftk::Image> out;
             try
@@ -153,10 +228,13 @@ namespace tl
                 }
                 {
                     ftk::gl::OffscreenBufferBinding binding(p.buffer);
-                    p.render->begin(outputSize);
+                    ftk::RenderOptions renderOptions;
+                    renderOptions.textureCacheByteCount = p.cacheByteCount;
+                    p.render->begin(outputSize, renderOptions);
                     p.render->setViewport(ftk::Box2I(0, 0, outputSize.w, outputSize.h));
                     p.render->setClipRectEnabled(false);
                     p.render->clearViewport(ftk::Color4F(0.F, 0.F, 0.F, 0.F));
+                    p.render->setVideoCache(videoCache);
                     p.render->setOCIOOptions(p.ocioOptions);
                     p.render->setLUTOptions(p.lutOptions);
                     p.render->setTransform(pm * vm);

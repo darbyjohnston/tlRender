@@ -47,6 +47,17 @@ namespace tl
                     const ftk::ImageTags&)>&) override;
             TL_GL_API void setLUTOptions(const LUTOptions&) override;
 
+            //! Set whether video frames are kept as textures, so that the
+            //! same frames drawn again are not copied in again. Off by
+            //! default: playback draws each frame once, and the textures
+            //! of frames already shown would only fill the cache.
+            TL_GL_API void setVideoCache(bool);
+
+            //! Clear the textures kept for images and video frames, so that
+            //! those drawn again are copied in again: for images whose
+            //! pixels have been changed in place.
+            TL_GL_API void clearTextureCache();
+
             TL_GL_API void drawBackground(
                 const std::vector<ftk::Box2I>&,
                 const ftk::M44F& vm,

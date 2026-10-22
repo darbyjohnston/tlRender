@@ -567,6 +567,16 @@ namespace tl
 #endif // TLRENDER_OCIO
         }
 
+        void Render::setVideoCache(bool value)
+        {
+            _p->videoCache = value;
+        }
+
+        void Render::clearTextureCache()
+        {
+            _p->baseRender->clearTextureCache();
+        }
+
         void Render::setLUTOptions(const LUTOptions& value)
         {
             FTK_P();

@@ -44,6 +44,21 @@ namespace tl
                     "setLUTOptions",
                     &gl::OffscreenRender::setLUTOptions,
                     nb::arg("options"))
+                .def_prop_rw(
+                    "cacheByteCount",
+                    &gl::OffscreenRender::getCacheByteCount,
+                    &gl::OffscreenRender::setCacheByteCount,
+                    "The most bytes of frames kept as textures, so that "
+                    "rendering the same frames again -- with other compare "
+                    "options, another size or look -- does not copy them in "
+                    "again. Frames are told apart by the image, not its "
+                    "pixels. Zero keeps none, for frames each rendered once.")
+                .def(
+                    "clearCache",
+                    &gl::OffscreenRender::clearCache,
+                    "Clear the frames kept as textures: after changing an "
+                    "image's pixels in place, which otherwise renders as it "
+                    "was.")
                 .def(
                     "render",
                     &gl::OffscreenRender::render,

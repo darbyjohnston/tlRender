@@ -86,6 +86,27 @@ class OffscreenRenderTest(unittest.TestCase):
         with self.assertRaises(Exception):
             render.render([])
 
+    def test_cache(self):
+        # Frames rendered again are kept as textures, from the second render
+        # in a row that has them, and told apart by the image, not its
+        # pixels: changed in place, an image renders as it was until the
+        # cache is cleared, and with no cache it renders as it is.
+        render = tl.OffscreenRender(self.context)
+        self.assertTrue(render.cacheByteCount > 0)
+        image = opaqueImage(8, 4, 200)
+        a = frame(image)
+        for i in range(2):
+            self.assertTrue(near([200, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        image.data[1, 1, 0] = 100
+        self.assertTrue(near([200, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        render.clearCache()
+        self.assertTrue(near([100, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        self.assertTrue(near([100, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+        render.cacheByteCount = 0
+        self.assertEqual(0, render.cacheByteCount)
+        image.data[1, 1, 0] = 50
+        self.assertTrue(near([50, 200, 200, 255], pixel(render.render([a]), 1, 1)))
+
     def test_player(self):
         # The whole of it: two files, compared by a player, rendered as a
         # tile, and written to a file.
