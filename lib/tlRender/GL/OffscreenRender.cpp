@@ -14,6 +14,7 @@
 #include <ftk/Core/Memory.h>
 
 #include <algorithm>
+#include <list>
 #include <stdexcept>
 
 namespace tl
@@ -26,7 +27,12 @@ namespace tl
             // the context's, and are let go of while it is current.
             std::shared_ptr<ftk::gl::Window> window;
             std::shared_ptr<Render> render;
-            std::shared_ptr<ftk::gl::OffscreenBuffer> buffer;
+            // The buffers of the last two renders, most recent first. A
+            // render that alternates between two output sizes, as a compare
+            // of mismatched sources does, would otherwise make a buffer each
+            // frame -- and a 4K one is a sixth of a gigabyte to allocate
+            // and page in.
+            std::list<std::shared_ptr<ftk::gl::OffscreenBuffer> > buffers;
             OCIOOptions ocioOptions;
             LUTOptions lutOptions;
             // Enough for a pair of 4K frames in floating point.
@@ -88,7 +94,7 @@ namespace tl
             if (p.window)
             {
                 p.window->makeCurrent();
-                p.buffer.reset();
+                p.buffers.clear();
                 p.render.reset();
                 p.window->clearCurrent();
             }
@@ -219,15 +225,30 @@ namespace tl
                 ftk::gl::OffscreenBufferOptions bufferOptions;
                 bufferOptions.depth = ftk::gl::OffscreenDepth::_24;
                 bufferOptions.stencil = ftk::gl::OffscreenStencil::_8;
-                if (ftk::gl::doCreate(p.buffer, outputSize, bufferType, bufferOptions))
+                std::shared_ptr<ftk::gl::OffscreenBuffer> buffer;
+                for (auto i = p.buffers.begin(); i != p.buffers.end(); ++i)
                 {
-                    p.buffer = ftk::gl::OffscreenBuffer::create(
+                    if (!ftk::gl::doCreate(*i, outputSize, bufferType, bufferOptions))
+                    {
+                        buffer = *i;
+                        p.buffers.erase(i);
+                        break;
+                    }
+                }
+                if (!buffer)
+                {
+                    buffer = ftk::gl::OffscreenBuffer::create(
                         outputSize,
                         bufferType,
                         bufferOptions);
                 }
+                p.buffers.push_front(buffer);
+                while (p.buffers.size() > 2)
                 {
-                    ftk::gl::OffscreenBufferBinding binding(p.buffer);
+                    p.buffers.pop_back();
+                }
+                {
+                    ftk::gl::OffscreenBufferBinding binding(buffer);
                     ftk::RenderOptions renderOptions;
                     renderOptions.textureCacheByteCount = p.cacheByteCount;
                     p.render->begin(outputSize, renderOptions);
@@ -246,7 +267,7 @@ namespace tl
                         compareOptions,
                         colorBuffer);
                     p.render->end();
-                    out = p.buffer->read(ftk::ImageInfo(outputSize, type));
+                    out = buffer->read(ftk::ImageInfo(outputSize, type));
                 }
             }
             catch (...)
